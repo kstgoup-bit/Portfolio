@@ -145,9 +145,28 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-seri
 .pos{color:var(--green)} .neg{color:var(--red)}
 .empty-msg{text-align:center;color:#90a4ae;padding:40px 20px;font-size:13px;line-height:1.8}
 input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
+
+.lock-screen{position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(160deg,#1565c0,#1976d2);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 30px}
+.lock-title{font-size:20px;font-weight:800;color:#ffffff;margin-bottom:8px;text-align:center}
+.lock-sub{font-size:12px;color:#bbdefb;margin-bottom:40px;text-align:center;line-height:1.6}
+.lock-input{width:100%;background:#ffffff;border:none;border-radius:12px;padding:14px 16px;font-size:18px;font-weight:700;color:#1a237e;text-align:center;letter-spacing:4px;margin-bottom:12px;font-family:'JetBrains Mono',monospace;outline:none}
+.lock-btn{width:100%;background:#ffffff;color:#1565c0;border:none;border-radius:12px;padding:14px;font-size:16px;font-weight:800;cursor:pointer;font-family:'Noto Sans KR',sans-serif;margin-bottom:12px}
+.lock-err{font-size:12px;color:#ffcdd2;text-align:center;min-height:20px}
+.lock-icon{font-size:60px;margin-bottom:20px}
 </style>
 </head>
 <body>
+
+
+<div class="lock-screen" id="lockScreen">
+  <div class="lock-icon">🔐</div>
+  <div class="lock-title">순태씨의 5년 안에 10억!</div>
+  <div class="lock-sub">개인 금융정보 보호를 위해<br>비밀번호를 입력해주세요</div>
+  <input class="lock-input" type="password" id="lockInput" placeholder="비밀번호 입력" maxlength="20"
+    onkeydown="if(event.key==='Enter')checkPw()">
+  <button class="lock-btn" onclick="checkPw()">🔓 확인</button>
+  <div class="lock-err" id="lockErr"></div>
+</div>
 
 <div class="header">
   <div class="header-label">PORTFOLIO MANAGER</div>
@@ -329,6 +348,16 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
     <div class="guide-step">4. 배포 관리 → 새 버전으로 배포</div>
     <div class="guide-step">5. 배포 URL 복사 → 위 칸에 붙여넣기 → 저장</div>
   </div>
+
+  <div class="card" style="margin-top:10px">
+    <div style="font-weight:700;margin-bottom:10px">🔐 비밀번호 변경</div>
+    <div class="form-field"><div class="form-label">현재 비밀번호</div><input class="form-input" type="password" id="curPw" placeholder="현재 비밀번호"></div>
+    <div class="form-field"><div class="form-label">새 비밀번호</div><input class="form-input" type="password" id="newPw" placeholder="새 비밀번호 (10자리 이상)"></div>
+    <div class="form-field"><div class="form-label">새 비밀번호 확인</div><input class="form-input" type="password" id="newPw2" placeholder="새 비밀번호 재입력"></div>
+    <button class="btn-save" style="width:auto;padding:8px 16px;font-size:12px" onclick="changePw()">변경</button>
+    <div style="font-size:10px;margin-top:8px" id="pwMsg"></div>
+  </div>
+
 </div>
 
 <!-- 하단바 -->
@@ -338,6 +367,77 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
 </div>
 
 <script>
+
+// 저장된 비밀번호 해시 불러오기
+const savedHash = localStorage.getItem("st_pw_hash");
+if(savedHash) window.PW_HASH = savedHash;
+
+
+const PW_HASH = "cfdb233aa26de9d8af3134d5c5496da9b9d9a6db428a18f1602cfe00d79f3b9d";
+let failCount = 0;
+let lockUntil = 0;
+
+async function hashStr(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+async function checkPw() {
+  const now = Date.now();
+  if(now < lockUntil) {
+    const sec = Math.ceil((lockUntil-now)/1000);
+    document.getElementById("lockErr").textContent = `⏳ ${sec}초 후에 다시 시도해주세요`;
+    return;
+  }
+  const input = document.getElementById("lockInput").value;
+  const hash = await hashStr(input);
+  if(hash === PW_HASH) {
+    document.getElementById("lockScreen").style.display="none";
+    failCount=0;
+    sessionStorage.setItem("st_auth","1");
+  } else {
+    failCount++;
+    document.getElementById("lockInput").value="";
+    if(failCount>=5) {
+      lockUntil=Date.now()+60000;
+      document.getElementById("lockErr").textContent="🚫 5회 실패! 1분 후 다시 시도해주세요";
+    } else {
+      document.getElementById("lockErr").textContent=`❌ 비밀번호가 틀렸어요 (${failCount}/5)`;
+    }
+  }
+}
+
+// 이미 인증된 경우 잠금 해제
+if(sessionStorage.getItem("st_auth")==="1") {
+  document.getElementById("lockScreen").style.display="none";
+}
+
+document.getElementById("lockInput").focus();
+
+
+async function changePw() {
+  const cur = document.getElementById("curPw").value;
+  const nw = document.getElementById("newPw").value;
+  const nw2 = document.getElementById("newPw2").value;
+  const msg = document.getElementById("pwMsg");
+
+  if(!cur||!nw||!nw2){msg.style.color="#c62828";msg.textContent="❌ 모두 입력해주세요";return;}
+  if(nw.length<6){msg.style.color="#c62828";msg.textContent="❌ 새 비밀번호는 6자리 이상이어야 해요";return;}
+  if(nw!==nw2){msg.style.color="#c62828";msg.textContent="❌ 새 비밀번호가 일치하지 않아요";return;}
+
+  const curHash = await hashStr(cur);
+  if(curHash!==PW_HASH){msg.style.color="#c62828";msg.textContent="❌ 현재 비밀번호가 틀렸어요";return;}
+
+  // 새 비밀번호 해시 저장
+  const newHash = await hashStr(nw);
+  localStorage.setItem("st_pw_hash", newHash);
+  window.PW_HASH = newHash;
+
+  msg.style.color="#2e7d32";
+  msg.textContent="✅ 비밀번호가 변경됐어요! (앱 새로고침 후 적용)";
+  ["curPw","newPw","newPw2"].forEach(id=>document.getElementById(id).value="");
+}
+
 const GAS_URL_DEFAULT = "https://script.google.com/macros/s/AKfycbxFmgDS7rNk9y9bfLtJmC1BhwYluHIFdF2jmo6AmfKjJhZQXYO6uqhIwvDlJcQwTSOZ/exec";
 const COLORS = ["#00D4FF","#FF5C7C","#39D98A","#FFD93D","#C084FC","#FF8C42","#06D6A0","#F72585","#4CC9F0","#FFB700","#7400B8","#80B918","#EF476F","#118AB2","#FB8500","#2DC653","#E63946","#457B9D","#A8DADC","#F4A261","#E76F51"];
 
@@ -641,9 +741,18 @@ function renderPension() {
 
 function stockItemHTML(s, type) {
   const isEditing = editingId===s.id && editingType===type;
+  const v=vKRW(s), c=cKRW(s), pnl=v-c, pct=c>0?(pnl/c)*100:0;
+  const showProfit = s.quantity>0 && s.currentPrice>0 && s.avgPrice>0;
   return `<div class="stock-item${isEditing?' editing':''}" id="item-${type}-${s.id}">
     <div class="stock-item-top">
-      <div><div class="sname">${s.name}</div><div class="sticker">${s.ticker}</div></div>
+      <div style="flex:1">
+        <div class="sname">${s.name}</div>
+        <div class="sticker">${s.ticker} · ${s.market==="US"?"🇺🇸":"🇰🇷"} · ${s.quantity}주</div>
+        ${showProfit?`<div style="margin-top:4px;display:flex;gap:8px;align-items:center">
+          <span style="font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace" class="${pnl>=0?'pos':'neg'}">${pnl>=0?"+":""}${fmt(pnl)}원</span>
+          <span style="font-size:11px;font-weight:600;font-family:'JetBrains Mono',monospace;background:${pct>=0?'#e8f5e9':'#ffebee'};color:${pct>=0?'#2e7d32':'#c62828'};padding:1px 6px;border-radius:4px">${fmtPct(pct)}</span>
+        </div>`:''}
+      </div>
       <div class="item-btns">
         <button class="btn-edit${isEditing?' saving':''}" onclick="toggleEdit(${s.id},'${type}')">${isEditing?"✓ 저장":"수정"}</button>
         <button class="btn-del" onclick="delStock(${s.id},'${type}')">삭제</button>
@@ -658,13 +767,68 @@ function stockItemHTML(s, type) {
       <div class="edit-field"><label>수량</label><input type="number" id="eq-${type}-${s.id}" value="${s.quantity}"></div>
       <div class="edit-field"><label>매수가</label><input type="number" id="ea-${type}-${s.id}" value="${s.avgPrice}"></div>
       <div class="edit-field"><label>현재가</label><input type="number" id="ec-${type}-${s.id}" value="${s.currentPrice}"></div>
+    </div>
+    <div style="margin-top:10px;background:#f0f7ff;border-radius:8px;padding:10px;border:1px solid #90caf9">
+      <div style="font-size:10px;font-weight:700;color:#1565c0;margin-bottom:8px">🧮 평균매수가 계산기 (3개 계좌)</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:6px">
+        <div style="font-size:9px;color:#546e7a;text-align:center">수량</div>
+        <div style="font-size:9px;color:#546e7a;text-align:center">매수가</div>
+        <div style="font-size:9px;color:#546e7a;text-align:center">금액</div>
+      </div>
+      ${[1,2,3].map(n=>`
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:4px;align-items:center">
+        <input type="number" placeholder="계좌${n} 수량" id="cq${n}-${type}-${s.id}" oninput="calcAvg('${type}','${s.id}')"
+          style="background:#fff;border:1px solid #90caf9;border-radius:6px;color:#1a237e;padding:5px 6px;font-size:11px;width:100%">
+        <input type="number" placeholder="매수가" id="cp${n}-${type}-${s.id}" oninput="calcAvg('${type}','${s.id}')"
+          style="background:#fff;border:1px solid #90caf9;border-radius:6px;color:#1a237e;padding:5px 6px;font-size:11px;width:100%">
+        <div id="ca${n}-${type}-${s.id}" style="font-size:11px;color:#546e7a;text-align:center;font-family:'JetBrains Mono',monospace">-</div>
+      </div>`).join('')}
+      <div style="margin-top:8px;padding:8px;background:#e3f2fd;border-radius:6px;display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:11px;color:#1565c0;font-weight:700">계산된 평균매수가</span>
+        <span id="calcResult-${type}-${s.id}" style="font-size:13px;font-weight:800;color:#1565c0;font-family:'JetBrains Mono',monospace">-</span>
+      </div>
+      <button onclick="applyAvg('${type}','${s.id}')" 
+        style="margin-top:6px;width:100%;background:#1565c0;color:#fff;border:none;border-radius:6px;padding:7px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif">
+        ↑ 위 매수가 자동 입력
+      </button>
     </div>`:
     `<div class="val-grid">
       <div class="val-cell"><div class="val-cell-label">수량</div><div class="val-cell-value">${s.quantity}주</div></div>
       <div class="val-cell"><div class="val-cell-label">매수가</div><div class="val-cell-value">${fmtPrice(s.avgPrice,s.market)}</div></div>
-      <div class="val-cell"><div class="val-cell-label">현재가</div><div class="val-cell-value" style="color:var(--accent)">${fmtPrice(s.currentPrice,s.market)}</div></div>
+      <div class="val-cell"><div class="val-cell-label">현재가</div><div class="val-cell-value" style="color:#1565c0">${fmtPrice(s.currentPrice,s.market)}</div></div>
     </div>`}
   </div>`;
+}
+
+function calcAvg(type, id) {
+  let totalQty=0, totalAmt=0;
+  [1,2,3].forEach(n=>{
+    const q=parseFloat(document.getElementById(`cq${n}-${type}-${id}`)?.value)||0;
+    const p=parseFloat(document.getElementById(`cp${n}-${type}-${id}`)?.value)||0;
+    const amt=q*p;
+    totalQty+=q; totalAmt+=amt;
+    const amtEl=document.getElementById(`ca${n}-${type}-${id}`);
+    if(amtEl) amtEl.textContent=amt>0?fmt(amt):"−";
+  });
+  const avg=totalQty>0?totalAmt/totalQty:0;
+  const resultEl=document.getElementById(`calcResult-${type}-${id}`);
+  if(resultEl) resultEl.textContent=avg>0?avg.toFixed(2):"−";
+}
+
+function applyAvg(type, id) {
+  let totalQty=0, totalAmt=0;
+  [1,2,3].forEach(n=>{
+    const q=parseFloat(document.getElementById(`cq${n}-${type}-${id}`)?.value)||0;
+    const p=parseFloat(document.getElementById(`cp${n}-${type}-${id}`)?.value)||0;
+    totalQty+=q; totalAmt+=q*p;
+  });
+  if(totalQty===0){alert("수량을 입력해주세요");return;}
+  const avg=totalAmt/totalQty;
+  const qEl=document.getElementById(`eq-${type}-${id}`);
+  const aEl=document.getElementById(`ea-${type}-${id}`);
+  if(qEl) qEl.value=totalQty;
+  if(aEl) aEl.value=avg.toFixed(2);
+  alert(`✅ 총 수량 ${totalQty}주, 평균매수가 ${avg.toFixed(2)} 입력됐어요!`);
 }
 
 function toggleEdit(id, type) {
