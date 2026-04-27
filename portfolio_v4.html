@@ -210,7 +210,7 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
   </div>
   <div class="card card-pension">
     <div class="total-label">🏦 연금계좌 총 평가금액</div>
-    <div class="total-value pension" id="penTotalVal">종목을 입력해주세요</div>
+    <div class="total-value pension" id="penTotalVal">-</div>
     <div class="summary-grid" id="penSummaryGrid" style="display:none">
       <div class="sum-item"><div class="sum-label">총 손익</div><div class="sum-val" id="penSumPnl">-</div></div>
       <div class="sum-item"><div class="sum-label">수익률</div><div class="sum-val" id="penSumPct">-</div></div>
@@ -225,6 +225,34 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
     </div>
   </div>
   <div id="marketSummary"></div>
+
+  <!-- 달러 자산 별도 표시 -->
+  <div class="card" id="usdAssetCard" style="display:none">
+    <div style="font-size:11px;font-weight:700;color:#1565c0;margin-bottom:10px">💵 달러 자산 현황</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+      <div style="background:#e3f2fd;border-radius:8px;padding:10px;border:1px solid #90caf9">
+        <div style="font-size:9px;color:#1565c0;font-weight:700;margin-bottom:3px">달러 평가금액</div>
+        <div style="font-size:16px;font-weight:800;color:#1565c0;font-family:'JetBrains Mono',monospace" id="usdTotal">$0</div>
+      </div>
+      <div style="background:#e3f2fd;border-radius:8px;padding:10px;border:1px solid #90caf9">
+        <div style="font-size:9px;color:#1565c0;font-weight:700;margin-bottom:3px">원화 환산</div>
+        <div style="font-size:16px;font-weight:800;color:#0d47a1;font-family:'JetBrains Mono',monospace" id="usdToKrw">0원</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div style="background:#e8f5e9;border-radius:8px;padding:10px;border:1px solid #a5d6a7">
+        <div style="font-size:9px;color:#2e7d32;font-weight:700;margin-bottom:3px">달러 매수금액</div>
+        <div style="font-size:14px;font-weight:700;color:#1b5e20;font-family:'JetBrains Mono',monospace" id="usdCost">$0</div>
+      </div>
+      <div style="background:#e8f5e9;border-radius:8px;padding:10px;border:1px solid #a5d6a7">
+        <div style="font-size:9px;color:#2e7d32;font-weight:700;margin-bottom:3px">달러 손익</div>
+        <div style="font-size:14px;font-weight:700;font-family:'JetBrains Mono',monospace" id="usdPnl">$0</div>
+      </div>
+    </div>
+    <!-- 종목별 달러 자산 -->
+    <div style="font-size:11px;font-weight:700;color:#1565c0;margin:12px 0 8px">종목별 달러 자산</div>
+    <div id="usdStockList"></div>
+  </div>
 </div>
 
 
@@ -537,7 +565,7 @@ function renderDashboard() {
   } else document.getElementById("summaryGrid").style.display="none";
 
   // 연금
-  document.getElementById("penTotalVal").textContent = p.tv>0?fmt(p.tv)+"원":"종목을 입력해주세요";
+  document.getElementById("penTotalVal").textContent = p.tv>0?fmt(p.tv)+"원":"-";
   if(p.tc>0) {
     document.getElementById("penSummaryGrid").style.display="grid";
     setEl("penSumPnl",fmt(p.pnl)+"원",p.pnl>=0);
@@ -572,6 +600,43 @@ function renderDashboard() {
     hpnl.textContent=(totalPnl>=0?"+":"")+fmt(totalPnl)+"원 ("+fmtPct(totalPct)+")";
     hpnl.style.color=totalPnl>=0?"#a5d6a7":"#ef9a9a";
   } else { ha.style.display="none"; }
+
+  // 달러 자산 별도 표시
+  const allStocks=[...stocks,...pension];
+  const usStocks=allStocks.filter(s=>s.market==="US"&&s.quantity>0&&s.currentPrice>0);
+  const usdCard=document.getElementById("usdAssetCard");
+  if(usStocks.length>0) {
+    usdCard.style.display="block";
+    const usdTotalVal=usStocks.reduce((s,x)=>s+x.quantity*x.currentPrice,0);
+    const usdTotalCost=usStocks.reduce((s,x)=>s+x.quantity*x.avgPrice,0);
+    const usdPnlVal=usdTotalVal-usdTotalCost;
+    document.getElementById("usdTotal").textContent="$"+usdTotalVal.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+    document.getElementById("usdToKrw").textContent=fmt(usdTotalVal*rate)+"원";
+    document.getElementById("usdCost").textContent="$"+usdTotalCost.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+    const usdPnlEl=document.getElementById("usdPnl");
+    usdPnlEl.textContent=(usdPnlVal>=0?"+$":"−$")+Math.abs(usdPnlVal).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+    usdPnlEl.style.color=usdPnlVal>=0?"#1b5e20":"#b71c1c";
+
+    // 종목별 달러 자산
+    const usl=document.getElementById("usdStockList");
+    usl.innerHTML=usStocks.sort((a,b)=>b.quantity*b.currentPrice-a.quantity*a.currentPrice).map(s=>{
+      const val=s.quantity*s.currentPrice;
+      const cost=s.quantity*s.avgPrice;
+      const pnl=val-cost;
+      const pct=cost>0?(pnl/cost)*100:0;
+      return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:#f8fbff;border-radius:8px;margin-bottom:6px;border:1px solid #e3f2fd">
+        <div>
+          <div style="font-size:12px;font-weight:700;color:#1a237e">${s.name}</div>
+          <div style="font-size:10px;color:#546e7a">${s.ticker} · ${s.quantity}주</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:13px;font-weight:800;color:#1565c0;font-family:'JetBrains Mono',monospace">$${val.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}</div>
+          <div style="font-size:11px;font-weight:700;color:${pct>=0?'#1b5e20':'#b71c1c'};font-family:'JetBrains Mono',monospace">${pct>=0?'+':''}${pct.toFixed(2)}%</div>
+          <div style="font-size:10px;color:#546e7a;font-family:'JetBrains Mono',monospace">≈ ${fmt(val*rate)}원</div>
+        </div>
+      </div>`;
+    }).join('');
+  } else { usdCard.style.display="none"; }
 }
 
 function setEl(id,text,positive) {
