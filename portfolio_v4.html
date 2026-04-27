@@ -200,8 +200,8 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
 <!-- 대시보드 -->
 <div class="panel active" id="panel-dashboard">
   <div class="card card-accent">
-    <div class="total-label">💰 일반계좌 총 평가금액</div>
-    <div class="total-value" id="totalVal">종목을 입력해주세요</div>
+    <div class="total-label">💰 일반계좌 (국내+해외) 총 평가금액</div>
+    <div class="total-value" id="totalVal">-</div>
     <div class="summary-grid" id="summaryGrid" style="display:none">
       <div class="sum-item"><div class="sum-label">총 손익</div><div class="sum-val" id="sumPnl">-</div></div>
       <div class="sum-item"><div class="sum-label">수익률</div><div class="sum-val" id="sumPct">-</div></div>
@@ -587,7 +587,7 @@ function renderDashboard() {
   const rate=getRate();
 
   // 일반
-  document.getElementById("totalVal").textContent = n.tv>0?fmt(n.tv)+"원":"종목을 입력해주세요";
+  document.getElementById("totalVal").textContent = n.tv>0?fmt(n.tv)+"원":"-";
   if(n.tc>0) {
     document.getElementById("summaryGrid").style.display="grid";
     setEl("sumPnl",fmt(n.pnl)+"원",n.pnl>=0);
