@@ -163,8 +163,8 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
   <div class="lock-title">순태씨의 5년 안에 10억!</div>
   <div class="lock-sub">개인 금융정보 보호를 위해<br>비밀번호를 입력해주세요</div>
   <input class="lock-input" type="password" id="lockInput" placeholder="비밀번호 입력" maxlength="20"
-    onkeydown="if(event.key==='Enter')checkPw()">
-  <button class="lock-btn" onclick="checkPw()">🔓 확인</button>
+    id="lockInput">
+  <button class="lock-btn" id="lockBtn">🔓 확인</button>
   <div class="lock-err" id="lockErr"></div>
 </div>
 
@@ -453,16 +453,14 @@ let failCount = 0;
 let lockUntil = 0;
 
 function checkPw() {
-  try {
   const now = Date.now();
   if(now < lockUntil) {
     const sec = Math.ceil((lockUntil-now)/1000);
-    document.getElementById("lockErr").textContent = `⏳ ${sec}초 후에 다시 시도해주세요`;
+    document.getElementById("lockErr").textContent = "⏳ "+sec+"초 후에 다시 시도해주세요";
     return;
   }
   const input = document.getElementById("lockInput").value;
   const savedPw = localStorage.getItem("st_pw_direct") || PW_DIRECT;
-  
   if(input === savedPw) {
     document.getElementById("lockScreen").style.display="none";
     failCount=0;
@@ -474,15 +472,13 @@ function checkPw() {
       lockUntil=Date.now()+60000;
       document.getElementById("lockErr").textContent="🚫 5회 실패! 1분 후 다시 시도해주세요";
     } else {
-      document.getElementById("lockErr").textContent=`❌ 비밀번호가 틀렸어요 (${failCount}/5)`;
+      document.getElementById("lockErr").textContent="❌ 비밀번호가 틀렸어요 ("+failCount+"/5)";
     }
-  } catch(e) {
-    console.error("checkPw 오류:", e);
   }
 }
 
 // 이미 인증된 경우 잠금 해제
-try{if(sessionStorage.getItem("st_auth")==="1"){const ls=document.getElementById("lockScreen");if(ls)ls.style.display="none";}}catch(e){}
+
 
 const li=document.getElementById("lockInput"); if(li) li.focus();
 
@@ -558,24 +554,29 @@ const COMMANDMENTS = [
   {num:10, icon:"✂️", title:"익절은 죄가 아니다", desc:"수익이 났을 때 팔지 못하는 것도 큰 실수다. 목표 수익률 도달 시 일부 익절하고 더 좋은 기회를 노려라. 욕심이 수익을 잡아먹는다."}
 ];
 
-function renderCommandments() {
-  const list = document.getElementById("commandmentsList");
+function renderCommandments() { _renderCmd(); }
+
+
+function _renderCmd() {
+  var list = document.getElementById("commandmentsList");
   if (!list) return;
-  list.innerHTML = COMMANDMENTS.map(c => `
-    <div style="background:#ffffff;border-radius:14px;padding:16px;margin-bottom:12px;border:1px solid #c5d8f5;border-left:4px solid #1565c0;box-shadow:0 2px 8px #1565c015">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-        <div style="background:#1565c0;color:#fff;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0">${c.num}</div>
-        <div style="font-size:14px;font-weight:800;color:#1a237e">${c.icon} ${c.title}</div>
-      </div>
-      <div style="font-size:12px;color:#546e7a;line-height:1.7;padding-left:38px">${c.desc}</div>
-    </div>
-  `).join('') + `
-    <div style="background:linear-gradient(135deg,#1565c0,#6a1b9a);border-radius:14px;padding:20px;margin-bottom:12px;text-align:center">
-      <div style="font-size:24px;margin-bottom:8px">💪🎯</div>
-      <div style="font-size:14px;font-weight:800;color:#ffffff;margin-bottom:6px">클로가 응원합니다!</div>
-      <div style="font-size:11px;color:#bbdefb;line-height:1.7">이 10계명을 지키면서 매달 꾸준히 실천하면<br>5년 후 반드시 10억에 가까워져 있을 거예요.<br>순태 씨의 5년 여정을 클로가 함께할게요! 😊</div>
-    </div>
-  `;
+  var html = "";
+  for (var i = 0; i < COMMANDMENTS.length; i++) {
+    var c = COMMANDMENTS[i];
+    html += "<div style=\"background:#ffffff;border-radius:14px;padding:16px;margin-bottom:12px;border:1px solid #c5d8f5;border-left:4px solid #1565c0;box-shadow:0 2px 8px #1565c015\">";
+    html += "<div style=\"display:flex;align-items:center;gap:10px;margin-bottom:8px\">";
+    html += "<div style=\"background:#1565c0;color:#fff;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0\">" + c.num + "</div>";
+    html += "<div style=\"font-size:14px;font-weight:800;color:#1a237e\">" + c.icon + " " + c.title + "</div>";
+    html += "</div>";
+    html += "<div style=\"font-size:12px;color:#546e7a;line-height:1.7;padding-left:38px\">" + c.desc + "</div>";
+    html += "</div>";
+  }
+  html += "<div style=\"background:linear-gradient(135deg,#1565c0,#6a1b9a);border-radius:14px;padding:20px;margin-bottom:12px;text-align:center\">";
+  html += "<div style=\"font-size:24px;margin-bottom:8px\">&#128170;&#127919;</div>";
+  html += "<div style=\"font-size:14px;font-weight:800;color:#ffffff;margin-bottom:6px\">클로가 응원합니다!</div>";
+  html += "<div style=\"font-size:11px;color:#bbdefb;line-height:1.7\">이 10계명을 지키면서 매달 꾸준히 실천하면<br>5년 후 반드시 10억에 가까워져 있을 거예요.<br>순태 씨의 5년 여정을 클로가 함께할게요! &#128522;</div>";
+  html += "</div>";
+  list.innerHTML = html;
 }
 
 function load() {
@@ -658,7 +659,7 @@ function renderDashboard() {
     const mp=mv-mc,mpc=mc>0?(mp/mc)*100:0;
     ms.innerHTML+=`<div class="mkt-row">
       <div><div class="mkt-name">${mkt==="US"?"🇺🇸 미국":"🇰🇷 국내"}</div><div class="mkt-val">${fmt(mv)}원</div></div>
-      <div style="text-align:right"><div class="stock-pct ${mpc>=0?'pos':'neg'}">${fmtPct(mpc)}</div><div style="font-size:11px" class="${mp>=0?'pos':'neg'}">${mp>=0?"+":${fmt(mp)}원</div></div>
+      <div style="text-align:right"><div class="stock-pct ${mpc>=0?'pos':'neg'}">${fmtPct(mpc)}</div><div style="font-size:11px" class="${mp>=0?'pos':'neg'}">${mp>=0?"+":""}${fmt(mp)}원</div></div>
     </div>`;
   });
 
@@ -1300,13 +1301,24 @@ renderAll();
 // 잠금화면 초기화 (DOM 완전 로드 후)
 window.addEventListener("load", function() {
   try {
+    // 잠금화면 인증 체크
     if(sessionStorage.getItem("st_auth")==="1") {
       const ls = document.getElementById("lockScreen");
       if(ls) ls.style.display="none";
     }
-    const li = document.getElementById("lockInput");
-    if(li) li.focus();
-  } catch(e) {}
+    // 확인 버튼 이벤트
+    const lockBtn = document.getElementById("lockBtn");
+    if(lockBtn) lockBtn.addEventListener("click", checkPw);
+    
+    // 엔터키 이벤트
+    const lockInput = document.getElementById("lockInput");
+    if(lockInput) {
+      lockInput.focus();
+      lockInput.addEventListener("keydown", function(e) {
+        if(e.key === "Enter") checkPw();
+      });
+    }
+  } catch(e) { console.error("초기화 오류:", e); }
 });
 </script>
 </body>
