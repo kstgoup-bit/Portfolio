@@ -448,7 +448,7 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
 
 
 
-const PW_ENCODED = "a3N0YmVyZDAoKQ==";
+const PW_DIRECT = "kstberd0()";
 let failCount = 0;
 let lockUntil = 0;
 
@@ -460,12 +460,9 @@ function checkPw() {
     return;
   }
   const input = document.getElementById("lockInput").value;
-  const encoded = btoa(unescape(encodeURIComponent(input)));
+  const savedPw = localStorage.getItem("st_pw_direct") || PW_DIRECT;
   
-  // localStorage에 저장된 비번 확인
-  const savedPw = localStorage.getItem("st_pw_encoded") || PW_ENCODED;
-  
-  if(encoded === savedPw) {
+  if(input === savedPw) {
     document.getElementById("lockScreen").style.display="none";
     failCount=0;
     sessionStorage.setItem("st_auth","1");
@@ -499,13 +496,11 @@ function changePw() {
   if(nw.length<6){msg.style.color="#c62828";msg.textContent="❌ 새 비밀번호는 6자리 이상이어야 해요";return;}
   if(nw!==nw2){msg.style.color="#c62828";msg.textContent="❌ 새 비밀번호가 일치하지 않아요";return;}
 
-  const curEncoded = btoa(unescape(encodeURIComponent(cur)));
-  const savedPw = localStorage.getItem("st_pw_encoded") || PW_ENCODED;
-  if(curEncoded !== savedPw){msg.style.color="#c62828";msg.textContent="❌ 현재 비밀번호가 틀렸어요";return;}
+  const savedPw = localStorage.getItem("st_pw_direct") || PW_DIRECT;
+  if(cur !== savedPw){msg.style.color="#c62828";msg.textContent="❌ 현재 비밀번호가 틀렸어요";return;}
 
-  const newEncoded = btoa(unescape(encodeURIComponent(nw)));
-  localStorage.setItem("st_pw_encoded", newEncoded);
-  window.PW_ENCODED = newEncoded;
+  localStorage.setItem("st_pw_direct", nw);
+  window.PW_DIRECT = nw;
 
   msg.style.color="#2e7d32";
   msg.textContent="✅ 비밀번호가 변경됐어요!";
