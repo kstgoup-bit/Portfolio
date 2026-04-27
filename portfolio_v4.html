@@ -40,12 +40,12 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-seri
 
 /* 총자산 */
 .total-label{font-size:10px;color:var(--muted);margin-bottom:4px}
-.total-value{font-size:24px;font-weight:800;color:#1565c0;margin-bottom:10px;font-family:'JetBrains Mono',monospace}
+.total-value{font-size:26px;font-weight:800;color:#1565c0;margin-bottom:10px;font-family:'JetBrains Mono',monospace;letter-spacing:-0.5px}
 .total-value.pension{color:#6a1b9a}
 .summary-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
-.sum-item{background:#e3f2fd;border-radius:8px;padding:8px 10px}
-.sum-label{font-size:9px;color:var(--muted);margin-bottom:2px}
-.sum-val{font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace}
+.sum-item{background:#e3f2fd;border-radius:8px;padding:8px 10px;border:1px solid #90caf9}
+.sum-label{font-size:9px;color:#1565c0;font-weight:600;margin-bottom:2px}
+.sum-val{font-size:13px;font-weight:800;font-family:'JetBrains Mono',monospace;color:#1a237e}
 
 /* 환율 */
 .exchange-row{display:flex;align-items:center;gap:10px}
@@ -55,15 +55,15 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-seri
 
 /* 시장별 */
 .mkt-row{display:flex;justify-content:space-between;align-items:center;background:#ffffff;border-radius:10px;padding:10px 14px;border:1px solid #c5d8f5;margin-bottom:8px;box-shadow:0 1px 4px #1565c010}
-.mkt-name{font-size:11px;color:var(--muted);margin-bottom:2px}
-.mkt-val{font-size:14px;font-weight:700;font-family:'JetBrains Mono',monospace}
+.mkt-name{font-size:11px;color:#1565c0;font-weight:700;margin-bottom:2px}
+.mkt-val{font-size:15px;font-weight:800;font-family:'JetBrains Mono',monospace;color:#1a237e}
 
 /* 종목카드 */
 .sec-label{font-size:11px;color:#1565c0;font-weight:700;margin:12px 0 8px}
 .stock-card{background:#ffffff;border-radius:12px;padding:12px 14px;margin-bottom:8px;border:1px solid #c5d8f5;border-left-width:3px;box-shadow:0 1px 4px #1565c010}
 .stock-top{display:flex;justify-content:space-between;align-items:flex-start}
-.stock-name{font-weight:700;font-size:13px}
-.stock-sub{font-size:10px;color:var(--muted);margin-top:2px}
+.stock-name{font-weight:800;font-size:14px;color:#1a237e}
+.stock-sub{font-size:10px;color:#546e7a;margin-top:2px;font-weight:600}
 .stock-val{font-weight:700;font-size:14px;text-align:right;font-family:'JetBrains Mono',monospace}
 .stock-pct{font-size:12px;font-weight:600;text-align:right;font-family:'JetBrains Mono',monospace}
 .bar-bg{height:3px;background:#222;border-radius:2px}
@@ -120,16 +120,16 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-seri
 .edit-field input{width:100%;background:#ffffff;border:1px solid #90caf9;border-radius:6px;color:#1a237e;padding:6px 8px;font-size:12px;font-family:'JetBrains Mono',monospace}
 .val-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:8px}
 .val-cell{background:#e3f2fd;border-radius:6px;padding:6px 8px}
-.val-cell-label{font-size:9px;color:var(--muted)}
-.val-cell-value{font-size:12px;font-weight:600;font-family:'JetBrains Mono',monospace}
+.val-cell-label{font-size:9px;color:#1565c0;font-weight:700}
+.val-cell-value{font-size:13px;font-weight:700;font-family:'JetBrains Mono',monospace;color:#1a237e}
 
 /* 파이차트 */
 .pie-wrap{display:flex;justify-content:center;margin-bottom:16px}
 .legend-item{display:flex;align-items:center;gap:10px;background:#ffffff;border-radius:10px;padding:10px 14px;margin-bottom:6px;border:1px solid #c5d8f5;box-shadow:0 1px 4px #1565c010}
 .legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
-.legend-name{flex:1;font-size:13px;font-weight:600}
+.legend-name{flex:1;font-size:13px;font-weight:800;color:#1a237e}
 .legend-ticker{font-size:10px;color:var(--muted)}
-.legend-val{font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace}
+.legend-val{font-size:12px;color:#546e7a;font-family:'JetBrains Mono',monospace;font-weight:600}
 .legend-pct{font-size:13px;font-weight:700;font-family:'JetBrains Mono',monospace;min-width:45px;text-align:right}
 
 /* 설정 */
@@ -140,9 +140,9 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-seri
 .bottom-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#1565c0;border-top:1px solid #1976d2;padding:10px 20px;display:flex;justify-content:space-between;align-items:center}
 .bottom-label{font-size:10px;color:#90caf9}
 .bottom-total{font-size:15px;font-weight:800;color:#ffffff;font-family:'JetBrains Mono',monospace}
-.bottom-pnl{font-size:13px;font-weight:700;font-family:'JetBrains Mono',monospace}
+.bottom-pnl{font-size:13px;font-weight:800;font-family:'JetBrains Mono',monospace}
 
-.pos{color:var(--green)} .neg{color:var(--red)}
+.pos{color:#1b5e20;font-weight:700} .neg{color:#b71c1c;font-weight:700}
 .empty-msg{text-align:center;color:#90a4ae;padding:40px 20px;font-size:13px;line-height:1.8}
 input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
 
@@ -171,6 +171,16 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
 <div class="header">
   <div class="header-label">PORTFOLIO MANAGER</div>
   <div class="header-title">순태씨의 5년 안에 10억! 💰<br><span style="font-size:11px;font-weight:400;color:#bbdefb">클로가 도와드릴게요 😊</span></div>
+  <div id="headerAsset" style="display:none;margin-bottom:10px;background:#ffffff22;border-radius:10px;padding:8px 14px;display:flex;justify-content:space-between;align-items:center">
+    <div>
+      <div style="font-size:9px;color:#bbdefb">총자산 (일반+연금)</div>
+      <div style="font-size:18px;font-weight:800;color:#ffffff;font-family:'JetBrains Mono',monospace" id="headerTotal">-</div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:9px;color:#bbdefb">총손익</div>
+      <div style="font-size:13px;font-weight:700;font-family:'JetBrains Mono',monospace" id="headerPnl">-</div>
+    </div>
+  </div>
   <div class="refresh-row">
     <button class="btn-mkt btn-us" onclick="fetchUS()">🇺🇸 미국 시세갱신</button>
     <button class="btn-mkt btn-kr" onclick="fetchKR()">🇰🇷 국내 시세갱신</button>
@@ -181,7 +191,6 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
 
 <div class="tabs">
   <button class="tab active" onclick="switchTab('dashboard')">📊 현황</button>
-  <button class="tab" onclick="switchTab('profit')">📈 수익</button>
   <button class="tab" onclick="switchTab('stocks')">📋 종목</button>
   <button class="tab" onclick="switchTab('chart')">🥧 차트</button>
   <button class="tab" onclick="switchTab('pension')">🏦 연금</button>
@@ -218,34 +227,7 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
   <div id="marketSummary"></div>
 </div>
 
-<!-- 수익 탭 -->
-<div class="panel" id="panel-profit">
-  <div class="card card-accent" style="margin-bottom:12px">
-    <div class="total-label">📈 일반계좌 수익 현황</div>
-    <div class="summary-grid" id="profitSummary">
-      <div class="sum-item"><div class="sum-label">총 손익</div><div class="sum-val" id="p-pnl">-</div></div>
-      <div class="sum-item"><div class="sum-label">수익률</div><div class="sum-val" id="p-pct">-</div></div>
-      <div class="sum-item"><div class="sum-label">평가금액</div><div class="sum-val" id="p-val">-</div></div>
-    </div>
-  </div>
 
-  <!-- 자산변화 선차트 -->
-  <div class="chart-wrap">
-    <div class="chart-title">📉 자산 변화 추이</div>
-    <div class="chart-btns" id="chartBtns">
-      <button class="chart-btn active" onclick="renderLineChart('1W','chartBtns','lineChartSvg')">1주</button>
-      <button class="chart-btn" onclick="renderLineChart('1M','chartBtns','lineChartSvg')">1달</button>
-      <button class="chart-btn" onclick="renderLineChart('3M','chartBtns','lineChartSvg')">3달</button>
-      <button class="chart-btn" onclick="renderLineChart('1Y','chartBtns','lineChartSvg')">1년</button>
-      <button class="chart-btn" onclick="renderLineChart('ALL','chartBtns','lineChartSvg')">전체</button>
-    </div>
-    <svg id="lineChartSvg" viewBox="0 0 340 120" style="width:100%"></svg>
-    <button class="chart-record-btn" onclick="recordSnapshot('normal')">📸 오늘 자산 기록하기</button>
-  </div>
-
-  <div class="sec-label">종목별 수익 현황</div>
-  <div id="profitList"></div>
-</div>
 
 <!-- 종목관리 -->
 <div class="panel" id="panel-stocks">
@@ -271,8 +253,24 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
   <div id="manageList"></div>
 </div>
 
-<!-- 파이차트 -->
+<!-- 차트 -->
 <div class="panel" id="panel-chart">
+  <!-- 자산변화 선차트 -->
+  <div class="chart-wrap">
+    <div class="chart-title">📉 일반계좌 자산 변화 추이</div>
+    <div class="chart-btns" id="chartBtns">
+      <button class="chart-btn active" onclick="renderLineChart('1W','chartBtns','lineChartSvg')">1주</button>
+      <button class="chart-btn" onclick="renderLineChart('1M','chartBtns','lineChartSvg')">1달</button>
+      <button class="chart-btn" onclick="renderLineChart('3M','chartBtns','lineChartSvg')">3달</button>
+      <button class="chart-btn" onclick="renderLineChart('1Y','chartBtns','lineChartSvg')">1년</button>
+      <button class="chart-btn" onclick="renderLineChart('ALL','chartBtns','lineChartSvg')">전체</button>
+    </div>
+    <svg id="lineChartSvg" viewBox="0 0 340 120" style="width:100%"></svg>
+    <button class="chart-record-btn" onclick="recordSnapshot('normal')">📸 오늘 자산 기록하기</button>
+  </div>
+
+  <!-- 파이차트 -->
+  <div class="sec-label">포트폴리오 비중</div>
   <div class="pie-wrap"><svg id="pieChart" viewBox="0 0 160 160" style="width:100%;max-width:220px"></svg></div>
   <div id="legendList"></div>
 </div>
@@ -513,7 +511,6 @@ function calcGroup(arr) {
 
 function renderAll() {
   renderDashboard();
-  renderProfit();
   renderManage();
   renderChart();
   renderPension();
@@ -562,12 +559,19 @@ function renderDashboard() {
   const totalAll=n.tv+p.tv, totalPnl=n.pnl+p.pnl, totalCost=n.tc+p.tc;
   const totalPct=totalCost>0?totalPnl/totalCost*100:0;
   const bb=document.getElementById("bottomBar");
+  const ha=document.getElementById("headerAsset");
   if(totalAll>0) {
     bb.style.display="flex";
     document.getElementById("bottomTotal").textContent=fmt(totalAll)+"원";
     document.getElementById("bottomPnl").textContent=(totalPnl>=0?"+":"")+fmt(totalPnl)+"원 ("+fmtPct(totalPct)+")";
     document.getElementById("bottomPnl").className="bottom-pnl "+(totalPnl>=0?"pos":"neg");
-  } else bb.style.display="none";
+    // 헤더 총자산
+    ha.style.display="flex";
+    document.getElementById("headerTotal").textContent=fmt(totalAll)+"원";
+    const hpnl=document.getElementById("headerPnl");
+    hpnl.textContent=(totalPnl>=0?"+":"")+fmt(totalPnl)+"원 ("+fmtPct(totalPct)+")";
+    hpnl.style.color=totalPnl>=0?"#a5d6a7":"#ef9a9a";
+  } else { bb.style.display="none"; ha.style.display="none"; }
 }
 
 function setEl(id,text,positive) {
@@ -586,9 +590,6 @@ function renderProfit() {
     document.getElementById("p-val").textContent=fmt(tv)+"원";
     document.getElementById("p-val").className="sum-val";
   }
-
-  // 선차트
-  renderLineChart('1W','chartBtns','lineChartSvg');
 
   // 종목별 수익
   const pl=document.getElementById("profitList");
@@ -887,6 +888,9 @@ function addStock(type) {
 }
 
 function renderChart() {
+  // 선차트
+  renderLineChart('1W','chartBtns','lineChartSvg');
+
   const {active,tv}=calcGroup(stocks);
   const pieData=active.map((s,i)=>({name:s.name,ticker:s.ticker,value:vKRW(s),color:COLORS[i%COLORS.length]})).sort((a,b)=>b.value-a.value);
   const total=pieData.reduce((s,d)=>s+d.value,0);
@@ -996,7 +1000,7 @@ function showErr(msg){const e=document.getElementById("errMsg");e.style.display=
 function hideErr(){document.getElementById("errMsg").style.display="none";}
 
 function switchTab(tab) {
-  const tabs=["dashboard","profit","stocks","chart","pension","settings"];
+  const tabs=["dashboard","stocks","chart","pension","settings"];
   document.querySelectorAll(".tab").forEach((t,i)=>t.classList.toggle("active",tabs[i]===tab));
   document.querySelectorAll(".panel").forEach(p=>p.classList.toggle("active",p.id==="panel-"+tab));
 }
