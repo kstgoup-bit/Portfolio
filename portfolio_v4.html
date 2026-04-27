@@ -453,6 +453,7 @@ let failCount = 0;
 let lockUntil = 0;
 
 function checkPw() {
+  try {
   const now = Date.now();
   if(now < lockUntil) {
     const sec = Math.ceil((lockUntil-now)/1000);
@@ -475,15 +476,15 @@ function checkPw() {
     } else {
       document.getElementById("lockErr").textContent=`❌ 비밀번호가 틀렸어요 (${failCount}/5)`;
     }
+  } catch(e) {
+    console.error("checkPw 오류:", e);
   }
 }
 
 // 이미 인증된 경우 잠금 해제
-if(sessionStorage.getItem("st_auth")==="1") {
-  document.getElementById("lockScreen").style.display="none";
-}
+try{if(sessionStorage.getItem("st_auth")==="1"){const ls=document.getElementById("lockScreen");if(ls)ls.style.display="none";}}catch(e){}
 
-document.getElementById("lockInput").focus();
+const li=document.getElementById("lockInput"); if(li) li.focus();
 
 
 function changePw() {
@@ -1296,6 +1297,17 @@ function switchTab(tab) {
 
 load();
 renderAll();
+// 잠금화면 초기화 (DOM 완전 로드 후)
+window.addEventListener("load", function() {
+  try {
+    if(sessionStorage.getItem("st_auth")==="1") {
+      const ls = document.getElementById("lockScreen");
+      if(ls) ls.style.display="none";
+    }
+    const li = document.getElementById("lockInput");
+    if(li) li.focus();
+  } catch(e) {}
+});
 </script>
 </body>
 </html>
