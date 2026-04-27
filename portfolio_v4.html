@@ -142,7 +142,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-seri
 .bottom-total{font-size:15px;font-weight:800;color:#ffffff;font-family:'JetBrains Mono',monospace}
 .bottom-pnl{font-size:13px;font-weight:800;font-family:'JetBrains Mono',monospace}
 
-.pos{color:#1b5e20;font-weight:700} .neg{color:#b71c1c;font-weight:700}
+.pos{color:#c62828;font-weight:700} .neg{color:#1565c0;font-weight:700}
 .empty-msg{text-align:center;color:#90a4ae;padding:40px 20px;font-size:13px;line-height:1.8}
 input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
 
@@ -194,6 +194,7 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
   <button class="tab" onclick="switchTab('stocks')">📋 종목</button>
   <button class="tab" onclick="switchTab('chart')">🥧 차트</button>
   <button class="tab" onclick="switchTab('pension')">🏦 연금</button>
+  <button class="tab" onclick="switchTab('commandments')">📜 10계명</button>
   <button class="tab" onclick="switchTab('settings')">⚙️ 설정</button>
 </div>
 
@@ -268,7 +269,7 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
     <div class="form-field"><div class="form-label">종목명</div><input class="form-input" id="newName" placeholder="예: NVIDIA"></div>
     <div class="form-field"><div class="form-label">티커/코드</div><input class="form-input" id="newTicker" placeholder="예: NVDA 또는 005930"></div>
     <div class="form-field"><div class="form-label">보유수량</div><input class="form-input" type="number" id="newQty" placeholder="0"></div>
-    <div class="form-field"><div class="form-label">평균매수가</div><input class="form-input" type="number" id="newAvg" placeholder="0"></div>
+    <div class="form-field"><div class="form-label">평균평균단가</div><input class="form-input" type="number" id="newAvg" placeholder="0"></div>
     <div class="form-field"><div class="form-label">현재가</div><input class="form-input" type="number" id="newCur" placeholder="0"></div>
     <div class="form-field"><div class="form-label">시장</div>
       <select class="form-select" id="newMarket"><option value="US">🇺🇸 미국</option><option value="KR">🇰🇷 국내</option></select>
@@ -353,7 +354,7 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
     <div class="form-field"><div class="form-label">종목명</div><input class="form-input" id="penNewName" placeholder="예: ACE 미국빅테크TOP7"></div>
     <div class="form-field"><div class="form-label">티커/코드</div><input class="form-input" id="penNewTicker" placeholder="예: 441640"></div>
     <div class="form-field"><div class="form-label">보유수량</div><input class="form-input" type="number" id="penNewQty" placeholder="0"></div>
-    <div class="form-field"><div class="form-label">평균매수가</div><input class="form-input" type="number" id="penNewAvg" placeholder="0"></div>
+    <div class="form-field"><div class="form-label">평균평균단가</div><input class="form-input" type="number" id="penNewAvg" placeholder="0"></div>
     <div class="form-field"><div class="form-label">현재가</div><input class="form-input" type="number" id="penNewCur" placeholder="0"></div>
     <div class="form-field"><div class="form-label">시장</div>
       <select class="form-select" id="penNewMarket"><option value="US">🇺🇸 미국</option><option value="KR" selected>🇰🇷 국내</option></select>
@@ -364,6 +365,18 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
     </div>
   </div>
   <div id="penManageList"></div>
+</div>
+
+
+<!-- 10계명 -->
+<div class="panel" id="panel-commandments">
+  <div style="background:linear-gradient(160deg,#1565c0,#1976d2);border-radius:16px;padding:20px;margin-bottom:16px;text-align:center">
+    <div style="font-size:28px;margin-bottom:8px">🎯</div>
+    <div style="font-size:16px;font-weight:800;color:#ffffff">순태씨의 5년 10억 달성</div>
+    <div style="font-size:13px;color:#bbdefb;margin-top:4px">클로가 함께하는 10계명</div>
+  </div>
+
+  <div id="commandmentsList"></div>
 </div>
 
 <!-- 설정 -->
@@ -580,6 +593,7 @@ function renderAll() {
   renderManage();
   renderChart();
   renderPension();
+  renderCommandments();
 }
 
 function renderDashboard() {
@@ -617,7 +631,7 @@ function renderDashboard() {
     const mp=mv-mc,mpc=mc>0?(mp/mc)*100:0;
     ms.innerHTML+=`<div class="mkt-row">
       <div><div class="mkt-name">${mkt==="US"?"🇺🇸 미국":"🇰🇷 국내"}</div><div class="mkt-val">${fmt(mv)}원</div></div>
-      <div style="text-align:right"><div class="stock-pct ${mpc>=0?'pos':'neg'}">${fmtPct(mpc)}</div><div style="font-size:11px" class="${mp>=0?'pos':'neg'}">${mp>=0?"+":""}${fmt(mp)}원</div></div>
+      <div style="text-align:right"><div class="stock-pct ${mpc>=0?'pos':'neg'}">${fmtPct(mpc)}</div><div style="font-size:11px" class="${mp>=0?'pos':'neg'}">${mp>=0?"+":${fmt(mp)}원</div></div>
     </div>`;
   });
 
@@ -630,7 +644,7 @@ function renderDashboard() {
     document.getElementById("headerTotal").textContent=fmt(totalAll)+"원";
     const hpnl=document.getElementById("headerPnl");
     hpnl.textContent=(totalPnl>=0?"+":"")+fmt(totalPnl)+"원 ("+fmtPct(totalPct)+")";
-    hpnl.style.color=totalPnl>=0?"#a5d6a7":"#ef9a9a";
+    hpnl.style.color=totalPnl>=0?"#ffcdd2":"#bbdefb";
   } else { ha.style.display="none"; }
 
   // 달러 자산 별도 표시
@@ -663,7 +677,7 @@ function renderDashboard() {
         </div>
         <div style="text-align:right">
           <div style="font-size:13px;font-weight:800;color:#1565c0;font-family:'JetBrains Mono',monospace">$${val.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}</div>
-          <div style="font-size:11px;font-weight:700;color:${pct>=0?'#1b5e20':'#b71c1c'};font-family:'JetBrains Mono',monospace">${pct>=0?'+':''}${pct.toFixed(2)}%</div>
+          <div style="font-size:11px;font-weight:700;color:${pct>=0?'#c62828':'#1565c0'};font-family:'JetBrains Mono',monospace">${pct>=0?'+':''}${pct.toFixed(2)}%</div>
           <div style="font-size:10px;color:#546e7a;font-family:'JetBrains Mono',monospace">≈ ${fmt(val*rate)}원</div>
         </div>
       </div>`;
@@ -690,7 +704,7 @@ function renderProfit() {
 
   // 종목별 수익
   const pl=document.getElementById("profitList");
-  if(!active.length) { pl.innerHTML='<div class="empty-msg">수량과 매수가를 입력해주세요</div>'; return; }
+  if(!active.length) { pl.innerHTML='<div class="empty-msg">수량과 평균단가를 입력해주세요</div>'; return; }
   const sorted=[...active].sort((a,b)=>vKRW(b)-vKRW(a));
   pl.innerHTML=sorted.map((s,i)=>{
     const v=vKRW(s),c=cKRW(s),pnl2=v-c,pct2=c>0?(pnl2/c)*100:0;
@@ -893,7 +907,7 @@ function renderPension() {
 
   // 연금 종목별 수익
   const pl=document.getElementById("penProfitList");
-  if(!active.length) { pl.innerHTML='<div class="empty-msg">수량과 매수가를 입력해주세요</div>'; }
+  if(!active.length) { pl.innerHTML='<div class="empty-msg">수량과 평균단가를 입력해주세요</div>'; }
   else {
     pl.innerHTML=active.sort((a,b)=>vKRW(b)-vKRW(a)).map((s,i)=>{
       const v=vKRW(s),c=cKRW(s),pnl2=v-c,pct2=c>0?(pnl2/c)*100:0;
@@ -931,7 +945,7 @@ function stockItemHTML(s, type) {
         <div class="sticker">${s.ticker} · ${s.market==="US"?"🇺🇸":"🇰🇷"} · ${s.quantity}주</div>
         ${showProfit?`<div style="margin-top:4px;display:flex;gap:8px;align-items:center">
           <span style="font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace" class="${pnl>=0?'pos':'neg'}">${pnl>=0?"+":""}${fmt(pnl)}원</span>
-          <span style="font-size:11px;font-weight:600;font-family:'JetBrains Mono',monospace;background:${pct>=0?'#e8f5e9':'#ffebee'};color:${pct>=0?'#2e7d32':'#c62828'};padding:1px 6px;border-radius:4px">${fmtPct(pct)}</span>
+          <span style="font-size:11px;font-weight:600;font-family:'JetBrains Mono',monospace;background:${pct>=0?'#ffebee':'#e3f2fd'};color:${pct>=0?'#c62828':'#1565c0'};padding:1px 6px;border-radius:4px">${fmtPct(pct)}</span>
         </div>`:''}
       </div>
       <div class="item-btns">
@@ -946,36 +960,41 @@ function stockItemHTML(s, type) {
     </div>
     <div class="edit-grid-3" style="margin-top:8px">
       <div class="edit-field"><label>수량</label><input type="number" id="eq-${type}-${s.id}" value="${s.quantity}"></div>
-      <div class="edit-field"><label>매수가</label><input type="number" id="ea-${type}-${s.id}" value="${s.avgPrice}"></div>
+      <div class="edit-field"><label>평균단가</label><input type="number" id="ea-${type}-${s.id}" value="${s.avgPrice}"></div>
       <div class="edit-field"><label>현재가</label><input type="number" id="ec-${type}-${s.id}" value="${s.currentPrice}"></div>
     </div>
     <div style="margin-top:10px;background:#f0f7ff;border-radius:8px;padding:10px;border:1px solid #90caf9">
-      <div style="font-size:10px;font-weight:700;color:#1565c0;margin-bottom:8px">🧮 평균매수가 계산기 (3개 계좌)</div>
+      <div style="font-size:10px;font-weight:700;color:#1565c0;margin-bottom:8px">🧮 평균평균단가 계산기 (3개 계좌)</div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:6px">
         <div style="font-size:9px;color:#546e7a;text-align:center">수량</div>
-        <div style="font-size:9px;color:#546e7a;text-align:center">매수가</div>
+        <div style="font-size:9px;color:#546e7a;text-align:center">평균단가</div>
         <div style="font-size:9px;color:#546e7a;text-align:center">금액</div>
       </div>
-      ${[1,2,3].map(n=>`
+      ${[1,2,3].map(n=>{
+        const savedQ=localStorage.getItem(`calc_q${n}_${type}_${s.id}`)||'';
+        const savedP=localStorage.getItem(`calc_p${n}_${type}_${s.id}`)||'';
+        const amt=savedQ&&savedP?(parseFloat(savedQ)*parseFloat(savedP)).toFixed(0):'−';
+        return `
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:4px;align-items:center">
-        <input type="number" placeholder="계좌${n} 수량" id="cq${n}-${type}-${s.id}" oninput="calcAvg('${type}','${s.id}')"
+        <input type="number" placeholder="${["신한","KB","메리츠"][n-1]} 수량" id="cq${n}-${type}-${s.id}" value="${savedQ}" oninput="calcAvg('${type}','${s.id}')"
           style="background:#fff;border:1px solid #90caf9;border-radius:6px;color:#1a237e;padding:5px 6px;font-size:11px;width:100%">
-        <input type="number" placeholder="매수가" id="cp${n}-${type}-${s.id}" oninput="calcAvg('${type}','${s.id}')"
+        <input type="number" placeholder="평균단가" id="cp${n}-${type}-${s.id}" value="${savedP}" oninput="calcAvg('${type}','${s.id}')"
           style="background:#fff;border:1px solid #90caf9;border-radius:6px;color:#1a237e;padding:5px 6px;font-size:11px;width:100%">
-        <div id="ca${n}-${type}-${s.id}" style="font-size:11px;color:#546e7a;text-align:center;font-family:'JetBrains Mono',monospace">-</div>
-      </div>`).join('')}
+        <div id="ca${n}-${type}-${s.id}" style="font-size:11px;color:#546e7a;text-align:center;font-family:'JetBrains Mono',monospace">${amt!=='−'?parseInt(amt).toLocaleString():'−'}</div>
+      </div>`;
+      }).join('')}
       <div style="margin-top:8px;padding:8px;background:#e3f2fd;border-radius:6px;display:flex;justify-content:space-between;align-items:center">
-        <span style="font-size:11px;color:#1565c0;font-weight:700">계산된 평균매수가</span>
+        <span style="font-size:11px;color:#1565c0;font-weight:700">계산된 평균평균단가</span>
         <span id="calcResult-${type}-${s.id}" style="font-size:13px;font-weight:800;color:#1565c0;font-family:'JetBrains Mono',monospace">-</span>
       </div>
       <button onclick="applyAvg('${type}','${s.id}')" 
         style="margin-top:6px;width:100%;background:#1565c0;color:#fff;border:none;border-radius:6px;padding:7px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif">
-        ↑ 위 매수가 자동 입력
+        ↑ 위 평균단가 자동 입력
       </button>
     </div>`:
     `<div class="val-grid">
       <div class="val-cell"><div class="val-cell-label">수량</div><div class="val-cell-value">${s.quantity}주</div></div>
-      <div class="val-cell"><div class="val-cell-label">매수가</div><div class="val-cell-value">${fmtPrice(s.avgPrice,s.market)}</div></div>
+      <div class="val-cell"><div class="val-cell-label">평균단가</div><div class="val-cell-value">${fmtPrice(s.avgPrice,s.market)}</div></div>
       <div class="val-cell"><div class="val-cell-label">현재가</div><div class="val-cell-value" style="color:#1565c0">${fmtPrice(s.currentPrice,s.market)}</div></div>
     </div>`}
   </div>`;
@@ -984,12 +1003,17 @@ function stockItemHTML(s, type) {
 function calcAvg(type, id) {
   let totalQty=0, totalAmt=0;
   [1,2,3].forEach(n=>{
-    const q=parseFloat(document.getElementById(`cq${n}-${type}-${id}`)?.value)||0;
-    const p=parseFloat(document.getElementById(`cp${n}-${type}-${id}`)?.value)||0;
+    const qEl=document.getElementById(`cq${n}-${type}-${id}`);
+    const pEl=document.getElementById(`cp${n}-${type}-${id}`);
+    const q=parseFloat(qEl?.value)||0;
+    const p=parseFloat(pEl?.value)||0;
+    // localStorage에 저장
+    if(qEl?.value) localStorage.setItem(`calc_q${n}_${type}_${id}`, qEl.value);
+    if(pEl?.value) localStorage.setItem(`calc_p${n}_${type}_${id}`, pEl.value);
     const amt=q*p;
     totalQty+=q; totalAmt+=amt;
     const amtEl=document.getElementById(`ca${n}-${type}-${id}`);
-    if(amtEl) amtEl.textContent=amt>0?fmt(amt):"−";
+    if(amtEl) amtEl.textContent=amt>0?Math.round(amt).toLocaleString()+"원":"−";
   });
   const avg=totalQty>0?totalAmt/totalQty:0;
   const resultEl=document.getElementById(`calcResult-${type}-${id}`);
@@ -1009,7 +1033,7 @@ function applyAvg(type, id) {
   const aEl=document.getElementById(`ea-${type}-${id}`);
   if(qEl) qEl.value=totalQty;
   if(aEl) aEl.value=avg.toFixed(2);
-  alert(`✅ 총 수량 ${totalQty}주, 평균매수가 ${avg.toFixed(2)} 입력됐어요!`);
+  alert(`✅ 총 수량 ${totalQty}주, 평균평균단가 ${avg.toFixed(2)} 입력됐어요!`);
 }
 
 function toggleEdit(id, type) {
@@ -1239,7 +1263,7 @@ function showErr(msg){const e=document.getElementById("errMsg");e.style.display=
 function hideErr(){document.getElementById("errMsg").style.display="none";}
 
 function switchTab(tab) {
-  const tabs=["dashboard","stocks","chart","pension","settings"];
+  const tabs=["dashboard","stocks","chart","pension","commandments","settings"];
   document.querySelectorAll(".tab").forEach((t,i)=>t.classList.toggle("active",tabs[i]===tab));
   document.querySelectorAll(".panel").forEach(p=>p.classList.toggle("active",p.id==="panel-"+tab));
 }
