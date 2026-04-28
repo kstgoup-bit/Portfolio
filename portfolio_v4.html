@@ -221,9 +221,10 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
   <div class="card">
     <div class="exchange-row">
       <span class="ex-label">💱 USD/KRW</span>
-      <input class="ex-input" type="number" id="usdKrw" value="1370" oninput="renderAll()">
-      <span class="ex-note">원 (직접 수정)</span>
+      <input class="ex-input" type="number" id="usdKrw" value="1370" oninput="renderAll()" style="width:80px">
+      <button onclick="fetchExchangeRate()" style="background:#e3f2fd;border:1px solid #90caf9;color:#1565c0;border-radius:8px;padding:6px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif">🔄 환율갱신</button>
     </div>
+    <div style="font-size:10px;color:#90a4ae;margin-top:5px" id="exRateTime"></div>
   </div>
   <div id="marketSummary"></div>
 
@@ -1223,6 +1224,32 @@ function saveGas() {
   setTimeout(()=>document.getElementById("gasStatus").textContent="✓ GAS URL 설정됨",2000);
 }
 
+
+function fetchExchangeRate() {
+  if(!gasUrl) return;
+  const cb = "gas_fx_" + Date.now();
+  const script = document.createElement("script");
+  script.src = gasUrl + "?type=exchange&callback=" + cb;
+  window[cb] = function(data) {
+    if(data.usdKrw) {
+      document.getElementById("usdKrw").value = data.usdKrw;
+      document.getElementById("usdKrw").style.background = "#e8f5e9";
+      document.getElementById("exRateTime").textContent = "환율 자동갱신: " + new Date().toLocaleTimeString("ko-KR");
+      renderAll();
+    }
+    delete window[cb];
+    if(document.body.contains(script)) document.body.removeChild(script);
+  };
+  script.onerror = function() {
+    delete window[cb];
+    if(document.body.contains(script)) document.body.removeChild(script);
+  };
+  setTimeout(function() {
+    if(window[cb]) { delete window[cb]; }
+  }, 10000);
+  document.body.appendChild(script);
+}
+
 function fetchUS() {
   if(!gasUrl){showErr("⚙️ 설정 탭에서 GAS URL을 먼저 입력해주세요");return;}
   const btn=document.querySelector(".btn-us");
@@ -1298,6 +1325,8 @@ function switchTab(tab) {
 
 load();
 renderAll();
+// 환율 자동 조회
+setTimeout(fetchExchangeRate, 1000);
 // 잠금화면 초기화 (DOM 완전 로드 후)
 window.addEventListener("load", function() {
   try {
