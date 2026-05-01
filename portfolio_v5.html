@@ -519,10 +519,10 @@ var editingId=null, editingType=null, failCount=0, lockUntil=0;
 // 초기화
 // =============================================
 
-function showToast(msg) {
+function showToast(msg, isWarn) {
   var t = document.getElementById("toast");
   t.textContent = msg;
-  t.classList.add("show");
+  t.className = "toast show" + (isWarn?" warn":"");
   setTimeout(function(){ t.classList.remove("show"); }, 3000);
 }
 
@@ -846,7 +846,7 @@ function recordSnap(key) {
   snapshots[key].sort(function(a,b){ return a.ts-b.ts; });
   save();
   renderAll();
-  showToast("✅ 오늘 자산 기록 완료! " + fmt(tv) + "원");
+  showToast("✅ 오늘 자산 기록 완료!  " + fmt(tv) + "원");
 }
 
 // =============================================
