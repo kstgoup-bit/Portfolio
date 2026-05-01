@@ -537,6 +537,8 @@ function load() {
   var gi = document.getElementById("gasInput");
   if(gi) gi.value = gasUrl;
   if(gasUrl) document.getElementById("gasStatus").textContent = "✓ GAS URL 설정됨";
+  var savedFx = localStorage.getItem("v5_fx");
+  if(savedFx) document.getElementById("usdKrw").value = savedFx;
 }
 
 function save() {
@@ -546,6 +548,7 @@ function save() {
     localStorage.setItem("v5_pen", JSON.stringify(penStocks));
     localStorage.setItem("v5_div", JSON.stringify(divList));
     localStorage.setItem("v5_snap", JSON.stringify(snapshots));
+    localStorage.setItem("v5_fx", document.getElementById("usdKrw").value);
   } catch(e) {}
 }
 
@@ -1168,7 +1171,7 @@ function fetchFX(triggerBtn) {
     if(data.usdKrw){
       document.getElementById("usdKrw").value=data.usdKrw;
       document.getElementById("fxTime").textContent="환율 자동갱신: "+new Date().toLocaleTimeString("ko-KR");
-      renderAll();
+      save(); renderAll();
     }
     btns.forEach(function(b){b.disabled=false;b.textContent="💱 환율갱신";});
     delete window[cb]; if(document.body.contains(script))document.body.removeChild(script);
