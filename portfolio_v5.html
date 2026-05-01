@@ -197,9 +197,15 @@ body{background:var(--sky-bg);color:var(--text);font-family:'Noto Sans KR',sans-
 .neg{color:var(--blue);font-weight:700}
 .empty{text-align:center;color:#b0bec5;padding:30px 20px;font-size:13px;line-height:1.8}
 input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
+
+/* 토스트 메시지 */
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1a1a2e;color:#fff;padding:12px 24px;border-radius:24px;font-size:13px;font-weight:700;z-index:9999;opacity:0;transition:opacity 0.3s;white-space:nowrap;box-shadow:0 4px 16px #00000040}
+.toast.show{opacity:1}
 </style>
 </head>
 <body>
+
+<div class="toast" id="toast"></div>
 
 <!-- 잠금화면 -->
 <div class="lock" id="lockScreen">
@@ -512,6 +518,14 @@ var editingId=null, editingType=null, failCount=0, lockUntil=0;
 // =============================================
 // 초기화
 // =============================================
+
+function showToast(msg) {
+  var t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(function(){ t.classList.remove("show"); }, 2500);
+}
+
 function load() {
   try { domStocks = JSON.parse(localStorage.getItem("v5_dom")) || DOM_INIT; } catch { domStocks=DOM_INIT; }
   try { ovStocks = JSON.parse(localStorage.getItem("v5_ov")) || OV_INIT; } catch { ovStocks=OV_INIT; }
@@ -576,7 +590,9 @@ function setSumVal(id, val, isAmt, text, positive) {
   var el=document.getElementById(id);
   if(!el) return;
   el.textContent = text||(val>=0?"+":"")+fmt(Math.abs(val))+(isAmt?"원":"");
-  el.style.color = positive||val>=0?"#a5d6a7":"#ef9a9a";
+  var isPos = (positive !== undefined && positive !== null) ? positive : val>=0;
+  el.style.color = isPos ? "#c62828" : "#1565c0";
+  el.style.fontWeight = "800";
 }
 
 // =============================================
@@ -605,7 +621,7 @@ function renderDashboard() {
     document.getElementById("hTotal").textContent=fmt(allTV)+"원";
     var hp=document.getElementById("hPnl");
     hp.textContent=(allPnl>=0?"+":"")+fmt(allPnl)+"원 ("+fmtPct(allPct)+")";
-    hp.style.color=allPnl>=0?"#a5d6a7":"#ef9a9a";
+    hp.style.color=allPnl>=0?"#ffcdd2":"#bbdefb";
     // 목표 달성률
     gw.style.display="block";
     var pct=Math.min(allTV/GOAL*100,100);
@@ -662,7 +678,7 @@ function renderOverseas() {
     document.getElementById("usdCostVal").textContent=fmtUSD(usdTC);
     var up=document.getElementById("usdPnlVal");
     up.textContent=(usdPnl>=0?"+":"-")+fmtUSD(Math.abs(usdPnl));
-    up.className="vc-val "+(usdPnl>=0?"pos":"neg");
+    up.className="vc-val"; up.style.color=usdPnl>=0?"#c62828":"#1565c0"; up.style.fontWeight="800";
   } else usdCard.style.display="none";
   renderPeriodBtns("ovPeriodBtns","ovLineChart","ov","#1565c0");
   renderLineChart("1W","ovPeriodBtns","ovLineChart","ov","#1565c0");
@@ -796,14 +812,14 @@ function recordSnap(key) {
   var arr = key==="dom"?domStocks:key==="ov"?ovStocks:key==="pen"?penStocks:null;
   var isUS = key==="ov";
   var tv = arr ? calcGroup(arr,isUS).tv : calcGroup(domStocks,false).tv+calcGroup(ovStocks,true).tv+calcGroup(penStocks,false).tv;
-  if(!tv) { alert("먼저 종목 데이터를 입력해주세요"); return; }
+  if(!tv) { showToast("⚠️ 먼저 종목 데이터를 입력해주세요"); return; }
   var today=new Date().toDateString();
   snapshots[key]=snapshots[key].filter(function(d){return new Date(d.ts).toDateString()!==today;});
   snapshots[key].push({ts:Date.now(),val:tv});
   snapshots[key].sort(function(a,b){return a.ts-b.ts;});
   save();
   renderAll();
-  alert("✅ 오늘 자산이 기록됐어요!");
+  showToast("✅ 오늘 자산이 기록됐어요!");
 }
 
 // =============================================
@@ -926,13 +942,13 @@ function applyAvg(type, id) {
     if(p) localStorage.setItem("calc_p"+n+"_"+type+"_"+id,p);
     total_q+=q; total_a+=q*p;
   });
-  if(!total_q){alert("수량을 입력해주세요");return;}
+  if(!total_q){showToast("⚠️ 수량을 입력해주세요");return;}
   var avg=total_a/total_q;
   var qe=document.getElementById("eq_"+type+"_"+id);
   var ae=document.getElementById("ea_"+type+"_"+id);
   if(qe) qe.value=total_q;
   if(ae) ae.value=avg.toFixed(2);
-  alert("✅ 총 수량 "+total_q+"주, 평균단가 "+avg.toFixed(2)+" 입력됐어요!");
+  showToast("✅ "+total_q+"주, 평균단가 "+avg.toFixed(2)+" 입력완료!");
 }
 
 function toggleEdit(id, type) {
@@ -1145,7 +1161,7 @@ function fetchFX() {
 function saveGas() {
   gasUrl=document.getElementById("gasInput").value.trim();
   localStorage.setItem("v5_gas",gasUrl);
-  document.getElementById("gasStatus").textContent="✓ 저장됐어요!";
+  document.getElementById("gasStatus").textContent="✓ 저장됐어요!"; showToast("✅ GAS URL 저장됐어요!");
   setTimeout(function(){document.getElementById("gasStatus").textContent="✓ GAS URL 설정됨";},2000);
 }
 
@@ -1168,17 +1184,57 @@ function importData(event) {
     try {
       var data=JSON.parse(e.target.result);
       if(!confirm("📅 "+(data.date||"날짜 미상")+" 백업 파일이에요.\n현재 데이터를 덮어쓸까요?")) return;
+
+      // v5 형식
       if(data.domStocks) domStocks=data.domStocks;
       if(data.ovStocks) ovStocks=data.ovStocks;
       if(data.penStocks) penStocks=data.penStocks;
       if(data.divList) divList=data.divList;
       if(data.snapshots) snapshots=data.snapshots;
+
+      // v4 형식 호환 (stocks → domStocks + ovStocks 분리)
+      if(data.stocks && !data.domStocks) {
+        var krStocks = data.stocks.filter(function(s){return s.market==="KR";});
+        var usStocks = data.stocks.filter(function(s){return s.market==="US";});
+        // 국내 종목
+        if(krStocks.length) {
+          domStocks = krStocks.map(function(s){
+            return {id:s.id,name:s.name,ticker:s.ticker,quantity:s.quantity||0,avgPrice:s.avgPrice||0,currentPrice:s.currentPrice||0};
+          });
+        }
+        // 해외 종목
+        if(usStocks.length) {
+          ovStocks = usStocks.map(function(s){
+            return {id:s.id,name:s.name,ticker:s.ticker,quantity:s.quantity||0,avgPrice:s.avgPrice||0,currentPrice:s.currentPrice||0};
+          });
+        }
+        alert("✅ v4 백업에서 복원했어요!\n국내 "+krStocks.length+"개, 해외 "+usStocks.length+"개 종목을 불러왔어요.");
+      }
+
+      // v4 연금 형식 호환
+      if(data.pension && !data.penStocks) {
+        penStocks = data.pension.map(function(s){
+          return {id:s.id,name:s.name,ticker:s.ticker,quantity:s.quantity||0,avgPrice:s.avgPrice||0,currentPrice:s.currentPrice||0};
+        });
+      }
+
+      // v4 스냅샷 호환
+      if(data.snapshots && !snapshots.dom) {
+        snapshots = {
+          all: data.snapshots.normal || [],
+          dom: [],
+          ov: [],
+          pen: data.snapshots.pension || []
+        };
+      }
+
       if(data.gasUrl){gasUrl=data.gasUrl;document.getElementById("gasInput").value=gasUrl;localStorage.setItem("v5_gas",gasUrl);}
       if(data.usdKrw) document.getElementById("usdKrw").value=data.usdKrw;
+
       save(); renderAll();
       document.getElementById("backupMsg").textContent="✅ 복원 완료!";
       document.getElementById("backupMsg").style.color="var(--blue)";
-    } catch(err){alert("❌ 파일을 읽는 중 오류가 발생했어요.");}
+    } catch(err){alert("❌ 파일을 읽는 중 오류가 발생했어요. 오류: "+err.message);}
   };
   reader.readAsText(file);
   event.target.value="";
