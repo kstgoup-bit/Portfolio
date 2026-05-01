@@ -199,7 +199,7 @@ body{background:var(--sky-bg);color:var(--text);font-family:'Noto Sans KR',sans-
 input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
 
 /* 토스트 메시지 */
-.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#1a1a2e;color:#fff;padding:14px 28px;border-radius:24px;font-size:14px;font-weight:700;z-index:99999;opacity:0;transition:opacity 0.3s;white-space:nowrap;box-shadow:0 4px 20px #00000060;max-width:90vw;text-align:center}
+.toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#1a237e;color:#fff;padding:20px 32px;border-radius:16px;font-size:15px;font-weight:800;z-index:99999;opacity:0;transition:opacity 0.3s;box-shadow:0 8px 32px #00000060;max-width:85vw;text-align:center;line-height:1.6}
 .toast.show{opacity:1}
 </style>
 </head>
@@ -523,7 +523,7 @@ function showToast(msg) {
   var t = document.getElementById("toast");
   t.textContent = msg;
   t.classList.add("show");
-  setTimeout(function(){ t.classList.remove("show"); }, 2500);
+  setTimeout(function(){ t.classList.remove("show"); }, 3000);
 }
 
 function load() {
@@ -825,14 +825,14 @@ function recordSnap(key) {
   } else {
     tv = calcGroup(domStocks,false).tv+calcGroup(ovStocks,true).tv+calcGroup(penStocks,false).tv;
   }
-  if(!tv && key!=="pen") { showToast("⚠️ 먼저 종목 수량과 단가를 입력해주세요"); return; }
+  if(!tv) { showToast("⚠️ 종목 수량과 단가를 입력해주세요"); return; }
   var today=new Date().toDateString();
   snapshots[key]=snapshots[key].filter(function(d){return new Date(d.ts).toDateString()!==today;});
   snapshots[key].push({ts:Date.now(),val:tv});
   snapshots[key].sort(function(a,b){return a.ts-b.ts;});
   save();
   renderAll();
-  showToast("✅ 오늘 자산이 기록됐어요!");
+  showToast("✅ 오늘 자산이 기록됐어요!\n" + fmt(tv) + "원");
 }
 
 // =============================================
