@@ -621,7 +621,7 @@ function renderDashboard() {
     document.getElementById("hTotal").textContent=fmt(allTV)+"원";
     var hp=document.getElementById("hPnl");
     hp.textContent=(allPnl>=0?"+":"")+fmt(allPnl)+"원 ("+fmtPct(allPct)+")";
-    hp.style.color=allPnl>=0?"#ffcdd2":"#bbdefb";
+    hp.style.color=allPnl>=0?"#ff8a80":"#82b1ff";
     // 목표 달성률
     gw.style.display="block";
     var pct=Math.min(allTV/GOAL*100,100);
@@ -811,8 +811,17 @@ function renderLineChart(period, btnId, chartId, snapKey, color) {
 function recordSnap(key) {
   var arr = key==="dom"?domStocks:key==="ov"?ovStocks:key==="pen"?penStocks:null;
   var isUS = key==="ov";
-  var tv = arr ? calcGroup(arr,isUS).tv : calcGroup(domStocks,false).tv+calcGroup(ovStocks,true).tv+calcGroup(penStocks,false).tv;
-  if(!tv) { showToast("⚠️ 먼저 종목 데이터를 입력해주세요"); return; }
+  var tv = 0;
+  if(arr) {
+    // currentPrice 있으면 현재가, 없으면 avgPrice로 계산
+    tv = arr.filter(function(s){return s.quantity>0;}).reduce(function(s,x){
+      var price = x.currentPrice>0 ? x.currentPrice : x.avgPrice;
+      return s + x.quantity * price * (isUS ? getRate() : 1);
+    }, 0);
+  } else {
+    tv = calcGroup(domStocks,false).tv+calcGroup(ovStocks,true).tv+calcGroup(penStocks,false).tv;
+  }
+  if(!tv) { showToast("⚠️ 먼저 종목 수량과 단가를 입력해주세요"); return; }
   var today=new Date().toDateString();
   snapshots[key]=snapshots[key].filter(function(d){return new Date(d.ts).toDateString()!==today;});
   snapshots[key].push({ts:Date.now(),val:tv});
