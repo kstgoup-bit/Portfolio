@@ -812,27 +812,41 @@ function recordSnap(key) {
   var arr = key==="dom"?domStocks:key==="ov"?ovStocks:key==="pen"?penStocks:null;
   var isUS = key==="ov";
   var tv = 0;
+
   if(arr) {
-    tv = arr.filter(function(s){return s.quantity>0;}).reduce(function(s,x){
-      var price = x.currentPrice>0 ? x.currentPrice : (x.avgPrice>0 ? x.avgPrice : 0);
+    // 현재가 있으면 현재가, 없으면 평균단가로 계산 (둘 다 허용)
+    var active = arr.filter(function(s){ return s.quantity>0 && (s.currentPrice>0 || s.avgPrice>0); });
+    if(!active.length) {
+      showToast("⚠️ 수량과 단가를 먼저 입력해주세요");
+      return;
+    }
+    tv = active.reduce(function(s,x){
+      var price = x.currentPrice>0 ? x.currentPrice : x.avgPrice;
       return s + x.quantity * price * (isUS ? getRate() : 1);
     }, 0);
-    // 금액이 없어도 수량만 있으면 기록 허용
-    if(!tv) {
-      var hasQty = arr.some(function(s){return s.quantity>0;});
-      if(!hasQty) { showToast("⚠️ 연금 탭에서 종목 수량을 먼저 입력해주세요"); return; }
-    }
   } else {
-    tv = calcGroup(domStocks,false).tv+calcGroup(ovStocks,true).tv+calcGroup(penStocks,false).tv;
+    // 전체 자산 (all) - 현재가 or 평균단가 모두 활용
+    var calcWithAvg = function(stocks, us) {
+      return stocks.filter(function(s){ return s.quantity>0 && (s.currentPrice>0||s.avgPrice>0); })
+        .reduce(function(s,x){
+          var price = x.currentPrice>0 ? x.currentPrice : x.avgPrice;
+          return s + x.quantity * price * (us ? getRate() : 1);
+        }, 0);
+    };
+    tv = calcWithAvg(domStocks,false) + calcWithAvg(ovStocks,true) + calcWithAvg(penStocks,false);
+    if(!tv) {
+      showToast("⚠️ 종목 수량과 단가를 먼저 입력해주세요");
+      return;
+    }
   }
-  if(!tv) { showToast("⚠️ 종목 수량과 단가를 입력해주세요"); return; }
-  var today=new Date().toDateString();
-  snapshots[key]=snapshots[key].filter(function(d){return new Date(d.ts).toDateString()!==today;});
-  snapshots[key].push({ts:Date.now(),val:tv});
-  snapshots[key].sort(function(a,b){return a.ts-b.ts;});
+
+  var today = new Date().toDateString();
+  snapshots[key] = snapshots[key].filter(function(d){ return new Date(d.ts).toDateString() !== today; });
+  snapshots[key].push({ts:Date.now(), val:tv});
+  snapshots[key].sort(function(a,b){ return a.ts-b.ts; });
   save();
   renderAll();
-  showToast("✅ 오늘 자산이 기록됐어요!\n" + fmt(tv) + "원");
+  showToast("✅ 오늘 자산 기록 완료! " + fmt(tv) + "원");
 }
 
 // =============================================
