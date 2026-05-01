@@ -57,10 +57,10 @@ body{background:var(--sky-bg);color:var(--text);font-family:'Noto Sans KR',sans-
 .btn-kr{background:#fff;color:#c62828}
 .btn-fx{background:#ffffff33;color:#fff;border:1px solid #ffffff44}
 .update-time{font-size:9px;color:#90caf955;margin-top:4px}
-.btn-inline-rf{border:none;border-radius:6px;padding:4px 8px;font-size:10px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif;white-space:nowrap}
-.btn-inline-us{background:#dbeafe;color:#1565c0}
-.btn-inline-kr{background:#fce4e4;color:#c62828}
-.btn-inline-fx{background:#e8f5e9;color:#2e7d32}
+.btn-inline-rf{border:none;border-radius:7px;padding:5px 10px;font-size:10px;font-weight:800;cursor:pointer;font-family:'Noto Sans KR',sans-serif;white-space:nowrap;box-shadow:0 2px 6px #00000025;letter-spacing:-0.3px}
+.btn-inline-us{background:#1565c0;color:#fff}
+.btn-inline-kr{background:#c62828;color:#fff}
+.btn-inline-fx{background:#2e7d32;color:#fff}
 .card-title-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
 
 /* 탭 */
@@ -224,7 +224,6 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
 
 <!-- 헤더 -->
 <div class="header" id="mainHeader">
-  <div class="header-sub">PORTFOLIO MANAGER</div>
   <div class="header-title">순태씨의 5년 안에 10억! 💰</div>
   <div class="header-helper">클로가 도와드릴게요 😊</div>
   <div class="goal-bar-wrap" id="goalWrap" style="display:none">
@@ -263,6 +262,7 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
       <span style="font-size:11px;color:var(--muted);white-space:nowrap">💱 USD/KRW</span>
       <input class="fx-input" type="number" id="usdKrw" value="1370" oninput="renderAll()">
       <span style="font-size:10px;color:var(--muted)">원</span>
+      <button class="btn-inline-rf btn-inline-fx btn-fx-all" onclick="fetchFX(this)">💱 환율갱신</button>
     </div>
     <div class="fx-time" id="fxTime"></div>
   </div>
@@ -281,7 +281,7 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
   <div class="card card-green">
     <div class="card-title-row">
       <div class="total-label">🇰🇷 국내 총 평가금액</div>
-      <button class="btn-inline-rf btn-inline-kr" onclick="fetchKR()">🇰🇷 국내갱신</button>
+      <button class="btn-inline-rf btn-inline-kr btn-kr-all" onclick="fetchKR(this)">🇰🇷 국내갱신</button>
     </div>
     <div class="total-val" id="domTotal">-</div>
     <div class="sum-grid" id="domSumGrid" style="display:none">
@@ -312,8 +312,8 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
     <div class="card-title-row">
       <div class="total-label">🇺🇸 해외 총 평가금액</div>
       <div style="display:flex;gap:4px">
-        <button class="btn-inline-rf btn-inline-us" onclick="fetchUS()">🇺🇸 미국갱신</button>
-        <button class="btn-inline-rf btn-inline-fx" onclick="fetchFX()">💱 환율</button>
+        <button class="btn-inline-rf btn-inline-us btn-us-all" onclick="fetchUS(this)">🇺🇸 미국갱신</button>
+        <button class="btn-inline-rf btn-inline-fx btn-fx-all" onclick="fetchFX(this)">💱 환율갱신</button>
       </div>
     </div>
     <div class="total-val" id="ovTotal">-</div>
@@ -354,7 +354,7 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
   <div class="card card-purple">
     <div class="card-title-row">
       <div class="total-label">🏦 연금 총 평가금액</div>
-      <button class="btn-inline-rf btn-inline-kr" onclick="fetchKR()">🇰🇷 국내갱신</button>
+      <button class="btn-inline-rf btn-inline-kr btn-kr-all" onclick="fetchKR(this)">🇰🇷 국내갱신</button>
     </div>
     <div class="total-val" id="penTotal">-</div>
     <div class="sum-grid" id="penSumGrid" style="display:none">
@@ -1117,10 +1117,10 @@ function renderCommandments() {
 // =============================================
 // 시세 갱신
 // =============================================
-function fetchUS() {
+function fetchUS(triggerBtn) {
   if(!gasUrl){alert("설정 탭에서 GAS URL을 먼저 입력해주세요");return;}
-  var btn=document.querySelector(".btn-us");
-  btn.disabled=true; btn.textContent="갱신중...";
+  var btns=document.querySelectorAll(".btn-us-all");
+  btns.forEach(function(b){b.disabled=true;b.textContent="갱신중...";});
   var tickers=ovStocks.map(function(s){return s.ticker;}).join(",");
   var cb="gas_us_"+Date.now();
   var script=document.createElement("script");
@@ -1128,19 +1128,18 @@ function fetchUS() {
   window[cb]=function(data){
     ovStocks.forEach(function(s){if(data[s.ticker])s.currentPrice=data[s.ticker];});
     save(); renderAll();
-    document.getElementById("updateTime").textContent="미국 "+new Date().toLocaleTimeString("ko-KR");
-    btn.disabled=false; btn.textContent="🇺🇸 미국갱신";
+    btns.forEach(function(b){b.disabled=false;b.textContent="🇺🇸 미국갱신";});
     delete window[cb]; if(document.body.contains(script))document.body.removeChild(script);
   };
-  script.onerror=function(){btn.disabled=false;btn.textContent="🇺🇸 미국갱신";delete window[cb];if(document.body.contains(script))document.body.removeChild(script);};
-  setTimeout(function(){if(window[cb]){btn.disabled=false;btn.textContent="🇺🇸 미국갱신";delete window[cb];}},15000);
+  script.onerror=function(){btns.forEach(function(b){b.disabled=false;b.textContent="🇺🇸 미국갱신";});delete window[cb];if(document.body.contains(script))document.body.removeChild(script);};
+  setTimeout(function(){if(window[cb]){btns.forEach(function(b){b.disabled=false;b.textContent="🇺🇸 미국갱신";});delete window[cb];}},15000);
   document.body.appendChild(script);
 }
 
-function fetchKR() {
+function fetchKR(triggerBtn) {
   if(!gasUrl){alert("설정 탭에서 GAS URL을 먼저 입력해주세요");return;}
-  var btn=document.querySelector(".btn-kr");
-  btn.disabled=true; btn.textContent="갱신중...";
+  var btns=document.querySelectorAll(".btn-kr-all");
+  btns.forEach(function(b){b.disabled=true;b.textContent="갱신중...";});
   var allKR=[].concat(domStocks,penStocks);
   var tickers=[...new Set(allKR.map(function(s){return s.ticker;}))].join(",");
   var cb="gas_kr_"+Date.now();
@@ -1150,19 +1149,18 @@ function fetchKR() {
     domStocks.forEach(function(s){if(data[s.ticker])s.currentPrice=data[s.ticker];});
     penStocks.forEach(function(s){if(data[s.ticker])s.currentPrice=data[s.ticker];});
     save(); renderAll();
-    document.getElementById("updateTime").textContent="국내 "+new Date().toLocaleTimeString("ko-KR");
-    btn.disabled=false; btn.textContent="🇰🇷 국내갱신";
+    btns.forEach(function(b){b.disabled=false;b.textContent="🇰🇷 국내갱신";});
     delete window[cb]; if(document.body.contains(script))document.body.removeChild(script);
   };
-  script.onerror=function(){btn.disabled=false;btn.textContent="🇰🇷 국내갱신";delete window[cb];if(document.body.contains(script))document.body.removeChild(script);};
-  setTimeout(function(){if(window[cb]){btn.disabled=false;btn.textContent="🇰🇷 국내갱신";delete window[cb];}},15000);
+  script.onerror=function(){btns.forEach(function(b){b.disabled=false;b.textContent="🇰🇷 국내갱신";});delete window[cb];if(document.body.contains(script))document.body.removeChild(script);};
+  setTimeout(function(){if(window[cb]){btns.forEach(function(b){b.disabled=false;b.textContent="🇰🇷 국내갱신";});delete window[cb];}},15000);
   document.body.appendChild(script);
 }
 
-function fetchFX() {
+function fetchFX(triggerBtn) {
   if(!gasUrl) return;
-  var btn=document.querySelector(".btn-fx");
-  btn.disabled=true; btn.textContent="갱신중...";
+  var btns=document.querySelectorAll(".btn-fx-all");
+  btns.forEach(function(b){b.disabled=true;b.textContent="갱신중...";});
   var cb="gas_fx_"+Date.now();
   var script=document.createElement("script");
   script.src=gasUrl+"?type=exchange&callback="+cb;
@@ -1172,11 +1170,11 @@ function fetchFX() {
       document.getElementById("fxTime").textContent="환율 자동갱신: "+new Date().toLocaleTimeString("ko-KR");
       renderAll();
     }
-    btn.disabled=false; btn.textContent="💱 환율";
+    btns.forEach(function(b){b.disabled=false;b.textContent="💱 환율갱신";});
     delete window[cb]; if(document.body.contains(script))document.body.removeChild(script);
   };
-  script.onerror=function(){btn.disabled=false;btn.textContent="💱 환율";delete window[cb];if(document.body.contains(script))document.body.removeChild(script);};
-  setTimeout(function(){if(window[cb]){btn.disabled=false;btn.textContent="💱 환율";delete window[cb];}},10000);
+  script.onerror=function(){btns.forEach(function(b){b.disabled=false;b.textContent="💱 환율갱신";});delete window[cb];if(document.body.contains(script))document.body.removeChild(script);};
+  setTimeout(function(){if(window[cb]){btns.forEach(function(b){b.disabled=false;b.textContent="💱 환율갱신";});delete window[cb];}},10000);
   document.body.appendChild(script);
 }
 
@@ -1341,7 +1339,7 @@ window.addEventListener("load", function() {
   load();
   renderAll();
   // 환율 자동 조회
-  setTimeout(fetchFX, 1500);
+  setTimeout(function(){fetchFX();}, 1500);
 });
 </script>
 </body>
