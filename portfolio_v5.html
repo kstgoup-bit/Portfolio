@@ -37,10 +37,10 @@ body{background:var(--sky-bg);color:var(--text);font-family:'Noto Sans KR',sans-
 .lock-err{font-size:12px;color:#ffcdd2;text-align:center;min-height:20px}
 
 /* 헤더 */
-.header{background:linear-gradient(135deg,#1565c0,#1976d2);padding:18px 18px 14px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px #1565c040}
+.header{background:linear-gradient(135deg,#1565c0,#1976d2);padding:12px 18px 10px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px #1565c040}
 .header-sub{font-size:9px;color:#90caf9;letter-spacing:3px;margin-bottom:3px}
 .header-title{font-size:17px;font-weight:900;color:#fff;margin-bottom:2px}
-.header-helper{font-size:10px;color:#bbdefb;margin-bottom:12px}
+.header-helper{font-size:10px;color:#bbdefb;margin-bottom:8px}
 .header-asset{background:#ffffff22;border-radius:10px;padding:8px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
 .ha-label{font-size:9px;color:#90caf9}
 .ha-val{font-size:17px;font-weight:900;color:#fff;font-family:'JetBrains Mono',monospace}
@@ -57,9 +57,14 @@ body{background:var(--sky-bg);color:var(--text);font-family:'Noto Sans KR',sans-
 .btn-kr{background:#fff;color:#c62828}
 .btn-fx{background:#ffffff33;color:#fff;border:1px solid #ffffff44}
 .update-time{font-size:9px;color:#90caf955;margin-top:4px}
+.btn-inline-rf{border:none;border-radius:6px;padding:4px 8px;font-size:10px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif;white-space:nowrap}
+.btn-inline-us{background:#dbeafe;color:#1565c0}
+.btn-inline-kr{background:#fce4e4;color:#c62828}
+.btn-inline-fx{background:#e8f5e9;color:#2e7d32}
+.card-title-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
 
 /* 탭 */
-.tabs{display:flex;background:#fff;border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;position:sticky;top:var(--header-h,150px);z-index:99;box-shadow:0 1px 6px #00000010}
+.tabs{display:flex;background:#fff;border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;position:sticky;top:var(--header-h,90px);z-index:99;box-shadow:0 1px 6px #00000010}
 .tabs::-webkit-scrollbar{display:none}
 .tab{flex:0 0 auto;padding:10px 12px;border:none;background:none;color:var(--muted);border-bottom:2px solid transparent;font-size:11px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;white-space:nowrap;margin-bottom:-2px}
 .tab.active{color:var(--blue);border-bottom-color:var(--blue);font-weight:800;transition:color 0.2s,border-color 0.2s}
@@ -222,16 +227,6 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
   <div class="header-sub">PORTFOLIO MANAGER</div>
   <div class="header-title">순태씨의 5년 안에 10억! 💰</div>
   <div class="header-helper">클로가 도와드릴게요 😊</div>
-  <div class="header-asset" id="headerAsset" style="display:none">
-    <div>
-      <div class="ha-label">총자산 (국내+해외+연금)</div>
-      <div class="ha-val" id="hTotal">-</div>
-    </div>
-    <div style="text-align:right">
-      <div class="ha-label">총손익</div>
-      <div class="ha-pnl" id="hPnl">-</div>
-    </div>
-  </div>
   <div class="goal-bar-wrap" id="goalWrap" style="display:none">
     <div class="goal-label">
       <span class="goal-text">🎯 10억 목표 달성률</span>
@@ -239,12 +234,6 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
     </div>
     <div class="goal-bar"><div class="goal-fill" id="goalFill" style="width:0%"></div></div>
   </div>
-  <div class="refresh-row">
-    <button class="btn-rf btn-us" onclick="fetchUS()">🇺🇸 미국갱신</button>
-    <button class="btn-rf btn-kr" onclick="fetchKR()">🇰🇷 국내갱신</button>
-    <button class="btn-rf btn-fx" onclick="fetchFX()">💱 환율</button>
-  </div>
-  <div class="update-time" id="updateTime"></div>
 </div>
 
 <!-- 탭 -->
@@ -261,7 +250,7 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
 <!-- 현황 -->
 <div class="panel active" id="panel-dashboard">
   <div class="card card-blue">
-    <div class="total-label">💰 전체 총 평가금액</div>
+    <div class="total-label">💰 전체 총 평가금액 (국내+해외+연금)</div>
     <div class="total-val" id="allTotal">-</div>
     <div class="sum-grid" id="allSumGrid" style="display:none">
       <div class="sum-item"><div class="sum-lbl">총 손익</div><div class="sum-val" id="allPnl">-</div></div>
@@ -290,7 +279,10 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
 <!-- 국내 -->
 <div class="panel" id="panel-domestic" style="background:var(--yellow-bg)">
   <div class="card card-green">
-    <div class="total-label">🇰🇷 국내 총 평가금액</div>
+    <div class="card-title-row">
+      <div class="total-label">🇰🇷 국내 총 평가금액</div>
+      <button class="btn-inline-rf btn-inline-kr" onclick="fetchKR()">🇰🇷 국내갱신</button>
+    </div>
     <div class="total-val" id="domTotal">-</div>
     <div class="sum-grid" id="domSumGrid" style="display:none">
       <div class="sum-item"><div class="sum-lbl">총 손익</div><div class="sum-val" id="domPnl">-</div></div>
@@ -317,7 +309,13 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
 <!-- 해외 -->
 <div class="panel" id="panel-overseas">
   <div class="card card-blue">
-    <div class="total-label">🇺🇸 해외 총 평가금액</div>
+    <div class="card-title-row">
+      <div class="total-label">🇺🇸 해외 총 평가금액</div>
+      <div style="display:flex;gap:4px">
+        <button class="btn-inline-rf btn-inline-us" onclick="fetchUS()">🇺🇸 미국갱신</button>
+        <button class="btn-inline-rf btn-inline-fx" onclick="fetchFX()">💱 환율</button>
+      </div>
+    </div>
     <div class="total-val" id="ovTotal">-</div>
     <div class="sum-grid" id="ovSumGrid" style="display:none">
       <div class="sum-item"><div class="sum-lbl">총 손익</div><div class="sum-val" id="ovPnl">-</div></div>
@@ -354,7 +352,10 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
 <!-- 연금 -->
 <div class="panel" id="panel-pension">
   <div class="card card-purple">
-    <div class="total-label">🏦 연금 총 평가금액</div>
+    <div class="card-title-row">
+      <div class="total-label">🏦 연금 총 평가금액</div>
+      <button class="btn-inline-rf btn-inline-kr" onclick="fetchKR()">🇰🇷 국내갱신</button>
+    </div>
     <div class="total-val" id="penTotal">-</div>
     <div class="sum-grid" id="penSumGrid" style="display:none">
       <div class="sum-item"><div class="sum-lbl">총 손익</div><div class="sum-val" id="penPnl">-</div></div>
@@ -607,27 +608,24 @@ function renderAll() {
   renderCommandments();
 }
 
+function updateHeaderH(){
+  var h=document.getElementById("mainHeader");
+  if(h) document.documentElement.style.setProperty("--header-h", h.offsetHeight+"px");
+}
 function renderDashboard() {
   var dom=calcGroup(domStocks,false), ov=calcGroup(ovStocks,true), pen=calcGroup(penStocks,false);
   var rate=getRate();
   var allTV=dom.tv+ov.tv+pen.tv, allTC=dom.tc+ov.tc+pen.tc;
   var allPnl=allTV-allTC, allPct=allTC>0?(allPnl/allTC)*100:0;
 
-  // 헤더 자산
-  var ha=document.getElementById("headerAsset");
+  // 목표 달성률
   var gw=document.getElementById("goalWrap");
   if(allTV>0) {
-    ha.style.display="flex";
-    document.getElementById("hTotal").textContent=fmt(allTV)+"원";
-    var hp=document.getElementById("hPnl");
-    hp.textContent=(allPnl>=0?"+":"")+fmt(allPnl)+"원 ("+fmtPct(allPct)+")";
-    hp.style.color=allPnl>=0?"#ff8a80":"#82b1ff";
-    // 목표 달성률
     gw.style.display="block";
     var pct=Math.min(allTV/GOAL*100,100);
     document.getElementById("goalPct").textContent=pct.toFixed(1)+"%";
     document.getElementById("goalFill").style.width=pct+"%";
-  } else { ha.style.display="none"; gw.style.display="none"; }
+  } else { gw.style.display="none"; }
 
   // 전체 합산 카드
   document.getElementById("allTotal").textContent=allTV>0?fmt(allTV)+"원":"-";
