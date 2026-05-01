@@ -58,9 +58,9 @@ body{background:var(--sky-bg);color:var(--text);font-family:'Noto Sans KR',sans-
 .btn-fx{background:#ffffff33;color:#fff;border:1px solid #ffffff44}
 .update-time{font-size:9px;color:#90caf955;margin-top:4px}
 .btn-inline-rf{border:none;border-radius:7px;padding:5px 10px;font-size:10px;font-weight:800;cursor:pointer;font-family:'Noto Sans KR',sans-serif;white-space:nowrap;box-shadow:0 2px 6px #00000025;letter-spacing:-0.3px}
-.btn-inline-us{background:#1565c0;color:#fff}
+.btn-inline-us{background:rgba(255,167,38,0.55);color:#7c3a00}
 .btn-inline-kr{background:#5c9bd6;color:#fff}
-.btn-inline-fx{background:#2e7d32;color:#fff}
+.btn-inline-fx{background:rgba(186,104,200,0.55);color:#4a0072}
 .card-title-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
 
 /* 탭 */
@@ -262,7 +262,7 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
       <span style="font-size:11px;color:var(--muted);white-space:nowrap">💱 USD/KRW</span>
       <input class="fx-input" type="number" id="usdKrw" value="1370" oninput="renderAll()">
       <span style="font-size:10px;color:var(--muted)">원</span>
-      <button class="btn-inline-rf btn-inline-fx btn-fx-all" onclick="fetchFX(this)">💱 환율갱신</button>
+      <button class="btn-inline-rf btn-inline-kr btn-fx-all" onclick="fetchFX(this)" style="margin-left:auto">💱 환율갱신</button>
     </div>
     <div class="fx-time" id="fxTime"></div>
   </div>
