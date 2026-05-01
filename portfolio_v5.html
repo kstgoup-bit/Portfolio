@@ -199,7 +199,7 @@ body{background:var(--sky-bg);color:var(--text);font-family:'Noto Sans KR',sans-
 input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
 
 /* 토스트 메시지 */
-.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1a1a2e;color:#fff;padding:12px 24px;border-radius:24px;font-size:13px;font-weight:700;z-index:9999;opacity:0;transition:opacity 0.3s;white-space:nowrap;box-shadow:0 4px 16px #00000040}
+.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#1a1a2e;color:#fff;padding:14px 28px;border-radius:24px;font-size:14px;font-weight:700;z-index:99999;opacity:0;transition:opacity 0.3s;white-space:nowrap;box-shadow:0 4px 20px #00000060;max-width:90vw;text-align:center}
 .toast.show{opacity:1}
 </style>
 </head>
@@ -813,15 +813,19 @@ function recordSnap(key) {
   var isUS = key==="ov";
   var tv = 0;
   if(arr) {
-    // currentPrice 있으면 현재가, 없으면 avgPrice로 계산
     tv = arr.filter(function(s){return s.quantity>0;}).reduce(function(s,x){
-      var price = x.currentPrice>0 ? x.currentPrice : x.avgPrice;
+      var price = x.currentPrice>0 ? x.currentPrice : (x.avgPrice>0 ? x.avgPrice : 0);
       return s + x.quantity * price * (isUS ? getRate() : 1);
     }, 0);
+    // 금액이 없어도 수량만 있으면 기록 허용
+    if(!tv) {
+      var hasQty = arr.some(function(s){return s.quantity>0;});
+      if(!hasQty) { showToast("⚠️ 연금 탭에서 종목 수량을 먼저 입력해주세요"); return; }
+    }
   } else {
     tv = calcGroup(domStocks,false).tv+calcGroup(ovStocks,true).tv+calcGroup(penStocks,false).tv;
   }
-  if(!tv) { showToast("⚠️ 먼저 종목 수량과 단가를 입력해주세요"); return; }
+  if(!tv && key!=="pen") { showToast("⚠️ 먼저 종목 수량과 단가를 입력해주세요"); return; }
   var today=new Date().toDateString();
   snapshots[key]=snapshots[key].filter(function(d){return new Date(d.ts).toDateString()!==today;});
   snapshots[key].push({ts:Date.now(),val:tv});
