@@ -1204,35 +1204,14 @@ function exportData() {
   var fileName="포트폴리오_백업_"+new Date().toISOString().slice(0,10)+".json";
   var shareFile=new File([json], fileName, {type:"application/json"});
   var msg=document.getElementById("backupMsg");
-  // Web Share API - 파일 공유 지원 여부 먼저 확인
-  if(navigator.share && navigator.canShare && navigator.canShare({files:[shareFile]})){
-    msg.textContent="📤 공유 시트 여는 중..."; msg.style.color="var(--blue)";
-    navigator.share({files:[shareFile], title:"포트폴리오 백업"})
-      .then(function(){
-        msg.textContent="✅ 공유 완료!"; msg.style.color="var(--green-mid)";
-        setTimeout(function(){msg.textContent="";},8000);
-      })
-      .catch(function(err){
-        if(err.name==="AbortError"){
-          msg.textContent="↩️ 공유 취소됨"; msg.style.color="var(--muted)";
-        } else {
-          doDownload();
-        }
-        setTimeout(function(){msg.textContent="";},8000);
-      });
-    return;
-  }
-  doDownload();
-  function doDownload(){
-    var b64=btoa(unescape(encodeURIComponent(json)));
-    var a=document.createElement("a");
-    a.href="data:application/json;base64,"+b64;
-    a.download=fileName;
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    msg.textContent="✅ 백업 완료! 카카오톡 나에게 보내기로 보관하세요.";
-    msg.style.color="var(--green-mid)";
-    setTimeout(function(){msg.textContent="";},8000);
-  }
+  var b64=btoa(unescape(encodeURIComponent(json)));
+  var a=document.createElement("a");
+  a.href="data:application/json;base64,"+b64;
+  a.download=fileName;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  msg.textContent="✅ 백업 완료! 카카오톡 나에게 보내기로 보관하세요.";
+  msg.style.color="var(--green-mid)";
+  setTimeout(function(){msg.textContent="";},8000);
 }
 
 function importData(event) {
