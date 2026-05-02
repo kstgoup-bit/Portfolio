@@ -1203,26 +1203,34 @@ function exportData() {
   var json=JSON.stringify(backup,null,2);
   var fileName="포트폴리오_백업_"+new Date().toISOString().slice(0,10)+".json";
   var file=new File([json], fileName, {type:"application/json"});
+  var msg=document.getElementById("backupMsg");
   // Web Share API 지원 시 공유 시트로 바로 전송
-  if(navigator.canShare && navigator.canShare({files:[file]})){
+  if(navigator.share && navigator.canShare && navigator.canShare({files:[file]})){
+    msg.textContent="📤 공유 시트 여는 중..."; msg.style.color="var(--blue)";
     navigator.share({files:[file], title:"포트폴리오 백업"})
       .then(function(){
-        document.getElementById("backupMsg").textContent="✅ 공유 완료!";
-        document.getElementById("backupMsg").style.color="var(--green-mid)";
-        setTimeout(function(){document.getElementById("backupMsg").textContent="";},3000);
+        msg.textContent="✅ 공유 완료!"; msg.style.color="var(--green-mid)";
+        setTimeout(function(){msg.textContent="";},5000);
       })
-      .catch(function(){});
+      .catch(function(err){
+        msg.textContent="⚠️ 공유 취소 또는 오류: "+err.message; msg.style.color="#e65100";
+        setTimeout(function(){msg.textContent="";},5000);
+      });
     return;
   }
   // 미지원 시 기존 다운로드 방식
+  msg.textContent="📱 공유 미지원 브라우저 → 파일 다운로드"; msg.style.color="var(--blue)";
+  setTimeout(function(){msg.textContent="";},1000);
   var b64=btoa(unescape(encodeURIComponent(json)));
   var a=document.createElement("a");
   a.href="data:application/json;base64,"+b64;
   a.download=fileName;
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
-  document.getElementById("backupMsg").textContent="✅ 백업 완료! 카카오톡 나에게 보내기로 보관하세요.";
-  document.getElementById("backupMsg").style.color="var(--green-mid)";
-  setTimeout(function(){document.getElementById("backupMsg").textContent="";},3000);
+  setTimeout(function(){
+    msg.textContent="✅ 백업 완료! 카카오톡 나에게 보내기로 보관하세요.";
+    msg.style.color="var(--green-mid)";
+    setTimeout(function(){msg.textContent="";},5000);
+  },800);
 }
 
 function importData(event) {
