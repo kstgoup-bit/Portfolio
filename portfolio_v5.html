@@ -1201,13 +1201,28 @@ function exportData() {
   }
   var backup={version:"v5",date:new Date().toLocaleString("ko-KR"),domStocks:domStocks,ovStocks:ovStocks,penStocks:penStocks,divList:divList,snapshots:snapshots,gasUrl:gasUrl,usdKrw:parseFloat(document.getElementById("usdKrw").value)||1370,calcData:calcData};
   var json=JSON.stringify(backup,null,2);
+  var fileName="포트폴리오_백업_"+new Date().toISOString().slice(0,10)+".json";
+  var file=new File([json], fileName, {type:"application/json"});
+  // Web Share API 지원 시 공유 시트로 바로 전송
+  if(navigator.canShare && navigator.canShare({files:[file]})){
+    navigator.share({files:[file], title:"포트폴리오 백업"})
+      .then(function(){
+        document.getElementById("backupMsg").textContent="✅ 공유 완료!";
+        document.getElementById("backupMsg").style.color="var(--green-mid)";
+        setTimeout(function(){document.getElementById("backupMsg").textContent="";},3000);
+      })
+      .catch(function(){});
+    return;
+  }
+  // 미지원 시 기존 다운로드 방식
   var b64=btoa(unescape(encodeURIComponent(json)));
   var a=document.createElement("a");
   a.href="data:application/json;base64,"+b64;
-  a.download="포트폴리오_백업_"+new Date().toISOString().slice(0,10)+".json";
+  a.download=fileName;
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
   document.getElementById("backupMsg").textContent="✅ 백업 완료! 카카오톡 나에게 보내기로 보관하세요.";
   document.getElementById("backupMsg").style.color="var(--green-mid)";
+  setTimeout(function(){document.getElementById("backupMsg").textContent="";},3000);
 }
 
 function importData(event) {
@@ -1278,6 +1293,7 @@ function importData(event) {
       save(); renderAll();
       document.getElementById("restoreMsg").textContent="✅ 복원 완료!";
       document.getElementById("restoreMsg").style.color="var(--blue)";
+      setTimeout(function(){document.getElementById("restoreMsg").textContent="";},3000);
     } catch(err){alert("❌ 파일을 읽는 중 오류가 발생했어요. 오류: "+err.message);}
   };
   reader.readAsText(file);
