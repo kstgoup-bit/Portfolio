@@ -439,13 +439,14 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
     <div style="background:var(--blue-light);border-radius:10px;padding:12px;margin-bottom:10px;border:1px solid #90caf9">
       <div style="font-size:11px;font-weight:700;color:var(--blue);margin-bottom:6px">📤 백업</div>
       <button onclick="exportData()" style="width:100%;background:var(--blue);color:#fff;border:none;border-radius:8px;padding:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif">📥 백업 파일 다운로드</button>
+      <div style="font-size:10px;color:var(--green-mid);margin-top:6px;text-align:center" id="backupMsg"></div>
     </div>
     <div style="background:var(--green-light);border-radius:10px;padding:12px;border:1px solid #a5d6a7">
       <div style="font-size:11px;font-weight:700;color:var(--green-mid);margin-bottom:6px">📥 복원</div>
       <input type="file" id="restoreFile" accept=".json" onchange="importData(event)" style="display:none">
       <button onclick="document.getElementById('restoreFile').click()" style="width:100%;background:var(--green-mid);color:#fff;border:none;border-radius:8px;padding:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif">📂 백업 파일로 복원</button>
+      <div style="font-size:10px;color:var(--blue);margin-top:6px;text-align:center" id="restoreMsg"></div>
     </div>
-    <div style="font-size:10px;color:var(--muted);margin-top:8px;text-align:center" id="backupMsg"></div>
   </div>
   <div class="card">
     <div style="font-weight:800;margin-bottom:10px">🔐 비밀번호 변경</div>
@@ -1199,11 +1200,12 @@ function exportData() {
     if(k&&(k.startsWith("calc_q")||k.startsWith("calc_p"))) calcData[k]=localStorage.getItem(k);
   }
   var backup={version:"v5",date:new Date().toLocaleString("ko-KR"),domStocks:domStocks,ovStocks:ovStocks,penStocks:penStocks,divList:divList,snapshots:snapshots,gasUrl:gasUrl,usdKrw:parseFloat(document.getElementById("usdKrw").value)||1370,calcData:calcData};
-  var blob=new Blob([JSON.stringify(backup,null,2)],{type:"application/json"});
-  var url=URL.createObjectURL(blob);
+  var json=JSON.stringify(backup,null,2);
+  var b64=btoa(unescape(encodeURIComponent(json)));
   var a=document.createElement("a");
-  a.href=url; a.download="포트폴리오_백업_"+new Date().toISOString().slice(0,10)+".json";
-  a.click(); URL.revokeObjectURL(url);
+  a.href="data:application/json;base64,"+b64;
+  a.download="포트폴리오_백업_"+new Date().toISOString().slice(0,10)+".json";
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
   document.getElementById("backupMsg").textContent="✅ 백업 완료! 카카오톡 나에게 보내기로 보관하세요.";
   document.getElementById("backupMsg").style.color="var(--green-mid)";
 }
@@ -1220,8 +1222,9 @@ function importData(event) {
       var calcNow={};
       for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k&&(k.startsWith("calc_q")||k.startsWith("calc_p")))calcNow[k]=localStorage.getItem(k);}
       var autoBackup={version:"v5",date:"복원직전_"+new Date().toLocaleString("ko-KR"),domStocks:domStocks,ovStocks:ovStocks,penStocks:penStocks,divList:divList,snapshots:snapshots,gasUrl:gasUrl,usdKrw:parseFloat(document.getElementById("usdKrw").value)||1370,calcData:calcNow};
-      var ab=new Blob([JSON.stringify(autoBackup,null,2)],{type:"application/json"});
-      var aa=document.createElement("a"); aa.href=URL.createObjectURL(ab);
+      var abJson=JSON.stringify(autoBackup,null,2);
+      var abB64=btoa(unescape(encodeURIComponent(abJson)));
+      var aa=document.createElement("a"); aa.href="data:application/json;base64,"+abB64;
       aa.download="자동백업_복원직전_"+new Date().toISOString().slice(0,10)+".json";
       document.body.appendChild(aa); aa.click(); document.body.removeChild(aa);
 
@@ -1273,8 +1276,8 @@ function importData(event) {
       if(data.calcData){Object.keys(data.calcData).forEach(function(k){localStorage.setItem(k,data.calcData[k]);});}
 
       save(); renderAll();
-      document.getElementById("backupMsg").textContent="✅ 복원 완료!";
-      document.getElementById("backupMsg").style.color="var(--blue)";
+      document.getElementById("restoreMsg").textContent="✅ 복원 완료!";
+      document.getElementById("restoreMsg").style.color="var(--blue)";
     } catch(err){alert("❌ 파일을 읽는 중 오류가 발생했어요. 오류: "+err.message);}
   };
   reader.readAsText(file);
