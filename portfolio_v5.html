@@ -949,8 +949,8 @@ function calcAvg(type, id) {
   [1,2,3].forEach(function(n){
     var q=parseFloat(document.getElementById("cq"+n+"_"+type+"_"+id)?.value)||0;
     var p=parseFloat(document.getElementById("cp"+n+"_"+type+"_"+id)?.value)||0;
-    if(q) localStorage.setItem("calc_q"+n+"_"+type+"_"+id,q);
-    if(p) localStorage.setItem("calc_p"+n+"_"+type+"_"+id,p);
+    localStorage.setItem("calc_q"+n+"_"+type+"_"+id, document.getElementById("cq"+n+"_"+type+"_"+id)?.value||"");
+    localStorage.setItem("calc_p"+n+"_"+type+"_"+id, document.getElementById("cp"+n+"_"+type+"_"+id)?.value||"");
     var amt=q*p;
     total_q+=q; total_a+=amt;
     var ae=document.getElementById("ca"+n+"_"+type+"_"+id);
@@ -966,8 +966,8 @@ function applyAvg(type, id) {
   [1,2,3].forEach(function(n){
     var q=parseFloat(document.getElementById("cq"+n+"_"+type+"_"+id)?.value)||0;
     var p=parseFloat(document.getElementById("cp"+n+"_"+type+"_"+id)?.value)||0;
-    if(q) localStorage.setItem("calc_q"+n+"_"+type+"_"+id,q);
-    if(p) localStorage.setItem("calc_p"+n+"_"+type+"_"+id,p);
+    localStorage.setItem("calc_q"+n+"_"+type+"_"+id, document.getElementById("cq"+n+"_"+type+"_"+id)?.value||"");
+    localStorage.setItem("calc_p"+n+"_"+type+"_"+id, document.getElementById("cp"+n+"_"+type+"_"+id)?.value||"");
     total_q+=q; total_a+=q*p;
   });
   if(!total_q){showToast("⚠️ 수량을 입력해주세요");return;}
@@ -1192,7 +1192,13 @@ function saveGas() {
 }
 
 function exportData() {
-  var backup={version:"v5",date:new Date().toLocaleString("ko-KR"),domStocks:domStocks,ovStocks:ovStocks,penStocks:penStocks,divList:divList,snapshots:snapshots,gasUrl:gasUrl,usdKrw:parseFloat(document.getElementById("usdKrw").value)||1370};
+  // calc 데이터 수집
+  var calcData={};
+  for(var i=0;i<localStorage.length;i++){
+    var k=localStorage.key(i);
+    if(k&&(k.startsWith("calc_q")||k.startsWith("calc_p"))) calcData[k]=localStorage.getItem(k);
+  }
+  var backup={version:"v5",date:new Date().toLocaleString("ko-KR"),domStocks:domStocks,ovStocks:ovStocks,penStocks:penStocks,divList:divList,snapshots:snapshots,gasUrl:gasUrl,usdKrw:parseFloat(document.getElementById("usdKrw").value)||1370,calcData:calcData};
   var blob=new Blob([JSON.stringify(backup,null,2)],{type:"application/json"});
   var url=URL.createObjectURL(blob);
   var a=document.createElement("a");
@@ -1209,7 +1215,15 @@ function importData(event) {
   reader.onload=function(e){
     try {
       var data=JSON.parse(e.target.result);
-      if(!confirm("📅 "+(data.date||"날짜 미상")+" 백업 파일이에요.\n현재 데이터를 덮어쓸까요?")) return;
+      if(!confirm("📅 "+(data.date||"날짜 미상")+" 백업 파일이에요.\n현재 데이터를 덮어쓸까요?\n\n(복원 전 현재 상태가 자동 백업됩니다)")) return;
+      // 복원 전 현재 상태 자동 백업
+      var calcNow={};
+      for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k&&(k.startsWith("calc_q")||k.startsWith("calc_p")))calcNow[k]=localStorage.getItem(k);}
+      var autoBackup={version:"v5",date:"복원직전_"+new Date().toLocaleString("ko-KR"),domStocks:domStocks,ovStocks:ovStocks,penStocks:penStocks,divList:divList,snapshots:snapshots,gasUrl:gasUrl,usdKrw:parseFloat(document.getElementById("usdKrw").value)||1370,calcData:calcNow};
+      var ab=new Blob([JSON.stringify(autoBackup,null,2)],{type:"application/json"});
+      var aa=document.createElement("a"); aa.href=URL.createObjectURL(ab);
+      aa.download="자동백업_복원직전_"+new Date().toISOString().slice(0,10)+".json";
+      document.body.appendChild(aa); aa.click(); document.body.removeChild(aa);
 
       // v5 형식
       if(data.domStocks) domStocks=data.domStocks;
@@ -1256,6 +1270,7 @@ function importData(event) {
 
       if(data.gasUrl){gasUrl=data.gasUrl;document.getElementById("gasInput").value=gasUrl;localStorage.setItem("v5_gas",gasUrl);}
       if(data.usdKrw) document.getElementById("usdKrw").value=data.usdKrw;
+      if(data.calcData){Object.keys(data.calcData).forEach(function(k){localStorage.setItem(k,data.calcData[k]);});}
 
       save(); renderAll();
       document.getElementById("backupMsg").textContent="✅ 복원 완료!";
