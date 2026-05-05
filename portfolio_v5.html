@@ -289,8 +289,8 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
     <div class="balance-chart-row">
       <svg id="balancePie-all" viewBox="0 0 120 120" style="width:110px;height:110px;flex-shrink:0"></svg>
       <div class="balance-legend">
-        <div class="balance-legend-item"><div class="balance-dot" style="background:#ef5350"></div><span id="balSpearLbl">⚔️ 창 —</span></div>
-        <div class="balance-legend-item"><div class="balance-dot" style="background:#42a5f5"></div><span id="balShieldLbl">🛡 방패 —</span></div>
+        <div class="balance-legend-item"><div class="balance-dot" style="background:#ef5350"></div><span id="balSpearLbl-all">⚔️ 창 —</span></div>
+        <div class="balance-legend-item"><div class="balance-dot" style="background:#42a5f5"></div><span id="balShieldLbl-all">🛡 방패 —</span></div>
         <div style="font-size:9px;color:var(--muted);margin-top:6px">목표 창 비중: <b id="balGoalLbl-all">80</b>%</div>
         <input type="range" min="50" max="95" step="5" id="balSlider-all" value="80" style="width:100%;margin-top:4px;accent-color:#ef5350" oninput="setBalGoal('all',this.value)">
         <div style="font-size:9px;color:var(--muted);margin-top:2px">종목 수정에서 역할 설정</div>
@@ -778,8 +778,8 @@ function renderBalancePieFor(key) {
   renderBalancePieDonut("balancePie-"+key, spearV, shieldV);
   var sl=document.getElementById("balSpearLbl-"+key);
   var hl=document.getElementById("balShieldLbl-"+key);
-  if(sl) sl.textContent="⚔️ 창 "+spearPct.toFixed(1)+"% ("+Math.round(spearV/1e4)/100+"억)";
-  if(hl) hl.textContent="🛡 방패 "+(100-spearPct).toFixed(1)+"% ("+Math.round(shieldV/1e4)/100+"억)";
+  if(sl) sl.textContent="⚔️ 창 "+spearPct.toFixed(1)+"% ("+Math.round(spearV/1e4).toLocaleString()+"만원)";
+  if(hl) hl.textContent="🛡 방패 "+(100-spearPct).toFixed(1)+"% ("+Math.round(shieldV/1e4).toLocaleString()+"만원)";
   // 슬라이더 초기값 동기화
   var sldr=document.getElementById("balSlider-"+key);
   var glbl=document.getElementById("balGoalLbl-"+key);
