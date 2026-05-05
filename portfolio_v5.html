@@ -287,14 +287,18 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
   <div class="balance-wrap">
     <div class="balance-title">⚔️ 창 vs 🛡 방패 균형</div>
     <div class="balance-chart-row">
-      <svg id="balancePie-all" viewBox="0 0 120 120" style="width:110px;height:110px;flex-shrink:0"></svg>
       <div class="balance-legend">
         <div class="balance-legend-item"><div class="balance-dot" style="background:#ef5350"></div><span id="balSpearLbl-all">⚔️ 창 —</span></div>
         <div class="balance-legend-item"><div class="balance-dot" style="background:#42a5f5"></div><span id="balShieldLbl-all">🛡 방패 —</span></div>
-        <div style="font-size:9px;color:var(--muted);margin-top:6px">목표 창 비중: <b id="balGoalLbl-all">80</b>%</div>
-        <input type="range" min="50" max="95" step="5" id="balSlider-all" value="80" style="width:100%;margin-top:4px;accent-color:#ef5350" oninput="setBalGoal('all',this.value)">
-        <div style="font-size:9px;color:var(--muted);margin-top:2px">종목 수정에서 역할 설정</div>
+        <div style="font-size:9px;color:var(--muted);margin-top:8px">목표 창 비중</div>
+        <div style="display:flex;align-items:center;gap:6px;margin-top:4px">
+          <button onclick="stepBalGoal('all',-5)" style="width:28px;height:28px;border-radius:50%;border:1.5px solid #ef5350;background:#fff;color:#ef5350;font-size:14px;font-weight:900;cursor:pointer;line-height:1">−</button>
+          <span style="font-size:13px;font-weight:800;min-width:36px;text-align:center"><b id="balGoalLbl-all">80</b>%</span>
+          <button onclick="stepBalGoal('all',+5)" style="width:28px;height:28px;border-radius:50%;border:1.5px solid #ef5350;background:#fff;color:#ef5350;font-size:14px;font-weight:900;cursor:pointer;line-height:1">+</button>
+        </div>
+        <div style="font-size:9px;color:var(--muted);margin-top:4px">종목 수정에서 역할 설정</div>
       </div>
+      <svg id="balancePie-all" viewBox="0 0 120 120" style="width:110px;height:110px;flex-shrink:0"></svg>
     </div>
     <div class="balance-warn" id="balWarn-all"></div>
     <div class="balance-ok" id="balOk-all"></div>
@@ -325,13 +329,17 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
   <div class="balance-wrap" style="margin-top:8px">
     <div class="balance-title">⚔️ 창 vs 🛡 방패 (국내)</div>
     <div class="balance-chart-row">
-      <svg id="balancePie-dom" viewBox="0 0 120 120" style="width:110px;height:110px;flex-shrink:0"></svg>
       <div class="balance-legend">
         <div class="balance-legend-item"><div class="balance-dot" style="background:#ef5350"></div><span id="balSpearLbl-dom">⚔️ 창 —</span></div>
         <div class="balance-legend-item"><div class="balance-dot" style="background:#42a5f5"></div><span id="balShieldLbl-dom">🛡 방패 —</span></div>
-        <div style="font-size:9px;color:var(--muted);margin-top:6px">목표 창 비중: <b id="balGoalLbl-dom">80</b>%</div>
-        <input type="range" min="50" max="95" step="5" id="balSlider-dom" value="80" style="width:100%;margin-top:4px;accent-color:#ef5350" oninput="setBalGoal('dom',this.value)">
+        <div style="font-size:9px;color:var(--muted);margin-top:8px">목표 창 비중</div>
+        <div style="display:flex;align-items:center;gap:6px;margin-top:4px">
+          <button onclick="stepBalGoal('dom',-5)" style="width:28px;height:28px;border-radius:50%;border:1.5px solid #ef5350;background:#fff;color:#ef5350;font-size:14px;font-weight:900;cursor:pointer;line-height:1">−</button>
+          <span style="font-size:13px;font-weight:800;min-width:36px;text-align:center"><b id="balGoalLbl-dom">80</b>%</span>
+          <button onclick="stepBalGoal('dom',+5)" style="width:28px;height:28px;border-radius:50%;border:1.5px solid #ef5350;background:#fff;color:#ef5350;font-size:14px;font-weight:900;cursor:pointer;line-height:1">+</button>
+        </div>
       </div>
+      <svg id="balancePie-dom" viewBox="0 0 120 120" style="width:110px;height:110px;flex-shrink:0"></svg>
     </div>
     <div class="balance-warn" id="balWarn-dom"></div>
     <div class="balance-ok" id="balOk-dom"></div>
@@ -382,13 +390,17 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
   <div class="balance-wrap" style="margin-top:8px">
     <div class="balance-title">⚔️ 창 vs 🛡 방패 (해외)</div>
     <div class="balance-chart-row">
-      <svg id="balancePie-ov" viewBox="0 0 120 120" style="width:110px;height:110px;flex-shrink:0"></svg>
       <div class="balance-legend">
         <div class="balance-legend-item"><div class="balance-dot" style="background:#ef5350"></div><span id="balSpearLbl-ov">⚔️ 창 —</span></div>
         <div class="balance-legend-item"><div class="balance-dot" style="background:#42a5f5"></div><span id="balShieldLbl-ov">🛡 방패 —</span></div>
-        <div style="font-size:9px;color:var(--muted);margin-top:6px">목표 창 비중: <b id="balGoalLbl-ov">80</b>%</div>
-        <input type="range" min="50" max="95" step="5" id="balSlider-ov" value="80" style="width:100%;margin-top:4px;accent-color:#ef5350" oninput="setBalGoal('ov',this.value)">
+        <div style="font-size:9px;color:var(--muted);margin-top:8px">목표 창 비중</div>
+        <div style="display:flex;align-items:center;gap:6px;margin-top:4px">
+          <button onclick="stepBalGoal('ov',-5)" style="width:28px;height:28px;border-radius:50%;border:1.5px solid #ef5350;background:#fff;color:#ef5350;font-size:14px;font-weight:900;cursor:pointer;line-height:1">−</button>
+          <span style="font-size:13px;font-weight:800;min-width:36px;text-align:center"><b id="balGoalLbl-ov">80</b>%</span>
+          <button onclick="stepBalGoal('ov',+5)" style="width:28px;height:28px;border-radius:50%;border:1.5px solid #ef5350;background:#fff;color:#ef5350;font-size:14px;font-weight:900;cursor:pointer;line-height:1">+</button>
+        </div>
       </div>
+      <svg id="balancePie-ov" viewBox="0 0 120 120" style="width:110px;height:110px;flex-shrink:0"></svg>
     </div>
     <div class="balance-warn" id="balWarn-ov"></div>
     <div class="balance-ok" id="balOk-ov"></div>
@@ -426,13 +438,17 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
   <div class="balance-wrap" style="margin-top:8px">
     <div class="balance-title">⚔️ 창 vs 🛡 방패 (연금)</div>
     <div class="balance-chart-row">
-      <svg id="balancePie-pen" viewBox="0 0 120 120" style="width:110px;height:110px;flex-shrink:0"></svg>
       <div class="balance-legend">
         <div class="balance-legend-item"><div class="balance-dot" style="background:#ef5350"></div><span id="balSpearLbl-pen">⚔️ 창 —</span></div>
         <div class="balance-legend-item"><div class="balance-dot" style="background:#42a5f5"></div><span id="balShieldLbl-pen">🛡 방패 —</span></div>
-        <div style="font-size:9px;color:var(--muted);margin-top:6px">목표 창 비중: <b id="balGoalLbl-pen">80</b>%</div>
-        <input type="range" min="50" max="95" step="5" id="balSlider-pen" value="80" style="width:100%;margin-top:4px;accent-color:#ef5350" oninput="setBalGoal('pen',this.value)">
+        <div style="font-size:9px;color:var(--muted);margin-top:8px">목표 창 비중</div>
+        <div style="display:flex;align-items:center;gap:6px;margin-top:4px">
+          <button onclick="stepBalGoal('pen',-5)" style="width:28px;height:28px;border-radius:50%;border:1.5px solid #ef5350;background:#fff;color:#ef5350;font-size:14px;font-weight:900;cursor:pointer;line-height:1">−</button>
+          <span style="font-size:13px;font-weight:800;min-width:36px;text-align:center"><b id="balGoalLbl-pen">80</b>%</span>
+          <button onclick="stepBalGoal('pen',+5)" style="width:28px;height:28px;border-radius:50%;border:1.5px solid #ef5350;background:#fff;color:#ef5350;font-size:14px;font-weight:900;cursor:pointer;line-height:1">+</button>
+        </div>
       </div>
+      <svg id="balancePie-pen" viewBox="0 0 120 120" style="width:110px;height:110px;flex-shrink:0"></svg>
     </div>
     <div class="balance-warn" id="balWarn-pen"></div>
     <div class="balance-ok" id="balOk-pen"></div>
@@ -718,6 +734,11 @@ function setBalGoal(key, val) {
   if(lbl) lbl.textContent=val;
   renderBalancePieFor(key);
   save();
+}
+function stepBalGoal(key, step) {
+  var cur=balGoals[key]||80;
+  var next=Math.min(95, Math.max(50, cur+step));
+  setBalGoal(key, next);
 }
 
 function renderBalancePieDonut(svgId, spearV, shieldV) {
