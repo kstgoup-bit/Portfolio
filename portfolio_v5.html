@@ -914,7 +914,10 @@ function renderPension() {
 // =============================================
 function renderPie(svgId, legendId, stocks, isUS) {
   var active=stocks.filter(function(s){return s.quantity>0&&s.currentPrice>0;});
-  var pieData=active.map(function(s,i){return {name:s.name,ticker:s.ticker,value:vKRW(s,isUS),color:COLORS[i%COLORS.length],role:s.role||"spear"};}).sort(function(a,b){return b.value-a.value;});
+  var pieData=active.map(function(s,i){
+    var v=vKRW(s,isUS), c=cKRW(s,isUS), pnl=v-c, pct=c>0?(pnl/c)*100:0;
+    return {name:s.name,ticker:s.ticker,value:v,cost:c,pnl:pnl,pct:pct,qty:s.quantity,color:COLORS[i%COLORS.length],role:s.role||"spear",isUS:isUS,usdVal:s.quantity*s.currentPrice};
+  }).sort(function(a,b){return b.value-a.value;});
   var total=pieData.reduce(function(s,d){return s+d.value;},0);
   var svg=document.getElementById(svgId);
   var ll=document.getElementById(legendId);
@@ -935,7 +938,23 @@ function renderPie(svgId, legendId, stocks, isUS) {
   });
   svg.innerHTML=paths+labels+'<circle cx="80" cy="80" r="30" fill="#f0f6ff"/><text x="80" y="77" text-anchor="middle" font-size="7.5" fill="#1565c0" font-weight="bold">비중</text><text x="80" y="89" text-anchor="middle" font-size="7" fill="#1a237e">'+fmt(total)+'원</text>';
   ll.innerHTML=pieData.map(function(d){
-    return '<div class="legend"><div class="leg-dot" style="background:'+d.color+'"></div><div style="flex:1"><div class="leg-name">'+d.name+' <span style="font-size:10px">'+(d.role==="shield"?"🛡":"⚔️")+'</span></div><div class="leg-sub">'+d.ticker+'</div></div><div class="leg-val">'+fmt(d.value)+'원</div><div class="leg-pct" style="color:'+d.color+'">'+((d.value/total)*100).toFixed(1)+'%</div></div>';
+    var w=(d.value/total*100).toFixed(1);
+    var pnlPos=d.pnl>=0;
+    return '<div class="legend">'+
+      '<div class="leg-dot" style="background:'+d.color+'"></div>'+
+      '<div style="flex:1">'+
+        '<div class="leg-name">'+d.name+' <span style="font-size:10px">'+(d.role==="shield"?"🛡":"⚔️")+'</span></div>'+
+        '<div class="leg-sub">'+d.ticker+' · '+d.qty+'주'+(d.isUS?' · '+fmtUSD(d.usdVal):'')+'</div>'+
+        '<div style="display:flex;align-items:center;gap:6px;margin-top:3px">'+
+          '<span style="font-size:10px;font-weight:800;color:'+(pnlPos?"var(--red-mid)":"var(--blue)")+'">'+(pnlPos?"+":"")+fmt(d.pnl)+'원</span>'+
+          '<span class="st-pct-badge" style="font-size:9px;padding:1px 5px;background:'+(pnlPos?"var(--red-light)":"var(--blue-light)")+';color:'+(pnlPos?"var(--red-mid)":"var(--blue)")+'">'+fmtPct(d.pct)+'</span>'+
+        '</div>'+
+      '</div>'+
+      '<div style="text-align:right">'+
+        '<div class="leg-val">'+fmt(d.value)+'원</div>'+
+        '<div class="leg-pct" style="color:'+d.color+'">'+w+'%</div>'+
+      '</div>'+
+    '</div>';
   }).join("");
 }
 
@@ -1072,54 +1091,19 @@ function renderStockList(listId, countId, type) {
   document.getElementById(countId).textContent="전체 "+stocks.length+"개 종목";
   var el=document.getElementById(listId);
   el.innerHTML="";
-  var active=stocks.filter(function(s){return s.quantity>0&&s.currentPrice>0;});
-  var totalV=active.reduce(function(s,x){return s+vKRW(x,isUS);},0);
-  if(!active.length) {
-    el.innerHTML='<div class="empty">+ 종목추가 버튼으로 종목을 추가하고<br>수량과 평균단가를 입력해주세요</div>';
-  }
-  // 비중순 정렬 (활성 종목)
-  var sortedActive=[].concat(active).sort(function(a,b){return vKRW(b,isUS)-vKRW(a,isUS);});
-  var colorMap={};
-  sortedActive.forEach(function(s,i){colorMap[s.id]=COLORS[i%COLORS.length];});
 
-  // 전체 종목 (보유+미보유) 통합 카드
-  var allSorted=[].concat(sortedActive);
-  stocks.forEach(function(s){if(!active.find(function(x){return x.id===s.id;})) allSorted.push(s);});
-
-  el.innerHTML='<div class="sec-lbl">📋 종목 현황</div>';
-  allSorted.forEach(function(s){
+  // 전체 종목 관리 목록
+  el.innerHTML='<div class="sec-lbl">📋 전체 종목 관리</div>';
+  stocks.forEach(function(s){
     var isEdit=editingId===s.id&&editingType===type;
-    var v=vKRW(s,isUS), c=cKRW(s,isUS), pnl=v-c, pct=c>0?(pnl/c)*100:0;
-    var w=totalV>0?(v/totalV)*100:0;
-    var color=colorMap[s.id]||"#b0bec5";
-    var pnlPos=pnl>=0;
-    var hasData=s.quantity>0&&s.currentPrice>0;
-
-    el.innerHTML+='<div class="item'+(isEdit?' editing':'')+'" id="item-'+type+'-'+s.id+'" style="border-left:3px solid '+color+';padding:12px 14px">'+
-      // 상단: 종목명 + 버튼
+    el.innerHTML+='<div class="item'+(isEdit?' editing':'')+'" id="item-'+type+'-'+s.id+'">'+
       '<div class="item-top">'+
-      '<div style="flex:1">'+
-      '<div class="item-name">'+s.name+' <span style="font-size:10px;vertical-align:middle">'+(s.role==="shield"?"🛡":"⚔️")+'</span></div>'+
-      '<div class="item-ticker">'+s.ticker+' · '+(isUS?"🇺🇸":"🇰🇷")+(hasData?' · '+s.quantity+'주':'')+'</div>'+
-      '</div>'+
-      '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">'+
-      (hasData?'<div class="st-val" style="font-size:13px;font-weight:800;color:var(--text)">'+fmt(v)+'원</div>'+(isUS?'<div style="font-size:10px;color:var(--muted)">'+fmtUSD(s.quantity*s.currentPrice)+'</div>':''):'<div style="font-size:11px;color:var(--muted)">미보유</div>')+
-      '</div></div>'+
-      // 수익 정보 (보유 시)
-      (hasData&&!isEdit?
-        '<div style="display:flex;align-items:center;gap:8px;margin:6px 0 4px">'+
-        '<span class="st-pnl '+(pnlPos?"pos":"neg")+'">'+(pnlPos?"+":"")+fmt(pnl)+'원</span>'+
-        '<span class="st-pct-badge" style="background:'+(pnlPos?"var(--red-light)":"var(--blue-light)")+';color:'+(pnlPos?"var(--red-mid)":"var(--blue)")+'">'+fmtPct(pct)+'</span>'+
-        '<span style="margin-left:auto;font-size:11px;font-weight:800;color:'+color+'">비중 '+w.toFixed(1)+'%</span>'+
-        '</div>'+
-        '<div class="bar-bg"><div class="bar-fill" style="width:'+Math.min(w,100)+'%;background:'+color+'"></div></div>'
-      :'')+
-      // 수정 폼 또는 버튼
-      '<div style="display:flex;gap:6px;margin-top:8px">'+
+      '<div><div class="item-name">'+s.name+'</div><div class="item-ticker">'+s.ticker+'</div></div>'+
+      '<div class="item-btns">'+
       '<button class="btn-edit'+(isEdit?" ok":"")+'" onclick="toggleEdit('+s.id+',\''+type+'\')">'+( isEdit?"✓ 저장":"수정")+'</button>'+
       '<button class="btn-del" onclick="delStock('+s.id+',\''+type+'\')">삭제</button>'+
-      '</div>'+
-      (isEdit?renderEditForm(s,type):'')+
+      '</div></div>'+
+      (isEdit?renderEditForm(s,type):renderValGrid(s,isUS))+
       '</div>';
   });
 }
