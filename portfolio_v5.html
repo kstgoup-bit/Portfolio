@@ -1066,7 +1066,7 @@ function renderStockList(listId, countId, type) {
     el.innerHTML+='<div class="stock-card" style="border-left-color:'+color+'">'+
       '<div class="st-top">'+
       '<div style="flex:1">'+
-      '<div class="st-name">'+s.name+'</div>'+
+      '<div class="st-name">'+s.name+' <span style="font-size:10px;vertical-align:middle">'+(s.role==="shield"?"🛡":"⚔️")+'</span></div>'+
       '<div class="st-sub">'+s.ticker+' · '+(isUS?"🇺🇸":"🇰🇷")+' · '+s.quantity+'주</div>'+
       '<div style="display:flex;gap:8px;align-items:center;margin-top:4px">'+
       '<span class="st-pnl '+(pnlPos?"pos":"neg")+'">'+(pnlPos?"+":"")+fmt(pnl)+'원</span>'+
