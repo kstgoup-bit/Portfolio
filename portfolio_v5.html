@@ -1108,7 +1108,7 @@ function renderStockList(listId, countId, type) {
     var v=vKRW(s,isUS), c=cKRW(s,isUS), pnl=v-c, pct=c>0?(pnl/c)*100:0;
     el.innerHTML+='<div class="item'+(isEdit?' editing':'')+'" id="item-'+type+'-'+s.id+'">'+
       '<div class="item-top">'+
-      '<div><div class="item-name">'+s.name+' <span style="font-size:10px;vertical-align:middle">'+(s.role==="shield"?"🛡":"⚔️")+'</span></div><div class="item-ticker">'+s.ticker+'</div></div>'+
+      '<div><div class="item-name">'+s.name+'</div><div class="item-ticker">'+s.ticker+'</div></div>'+
       '<div class="item-btns">'+
       '<button class="btn-edit'+(isEdit?" ok":"")+'" onclick="toggleEdit('+s.id+',\''+type+'\')">'+( isEdit?"✓ 저장":"수정")+'</button>'+
       '<button class="btn-del" onclick="delStock('+s.id+',\''+type+'\')">삭제</button>'+
