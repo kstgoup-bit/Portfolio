@@ -377,6 +377,16 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
       <div class="sum-item"><div class="sum-lbl">매수금</div><div class="sum-val" id="ovCost">-</div></div>
     </div>
   </div>
+  <!-- 환율 -->
+  <div class="card" style="padding:12px 16px">
+    <div class="fx-row">
+      <span style="font-size:11px;color:var(--muted);white-space:nowrap">💱 USD/KRW</span>
+      <input class="fx-input" type="number" id="usdKrwOv" style="pointer-events:none;background:#f5f5f5;color:#555" readonly>
+      <span style="font-size:10px;color:var(--muted)">원</span>
+      <button class="btn-inline-rf btn-inline-fx btn-fx-all" onclick="fetchFX(this)" style="margin-left:auto">💱 환율갱신</button>
+    </div>
+    <div class="fx-time" id="fxTimeOv"></div>
+  </div>
   <!-- 달러 자산 -->
   <div class="card" id="usdAssetCard" style="display:none">
     <div style="font-size:11px;font-weight:800;color:var(--blue);margin-bottom:10px">💵 달러 자산</div>
@@ -878,6 +888,9 @@ function renderDomestic() {
 function renderOverseas() {
   var g=calcGroup(ovStocks,true);
   setCard("ov",g);
+  // 해외탭 환율창 동기화
+  var ovInp=document.getElementById("usdKrwOv");
+  if(ovInp) ovInp.value=document.getElementById("usdKrw").value||1370;
   // 달러자산
   var rate=getRate();
   var usActive=ovStocks.filter(function(s){return s.quantity>0&&s.currentPrice>0;});
@@ -1424,7 +1437,12 @@ function fetchFX(triggerBtn) {
   window[cb]=function(data){
     if(data.usdKrw){
       document.getElementById("usdKrw").value=data.usdKrw;
-      document.getElementById("fxTime").textContent="환율 자동갱신: "+new Date().toLocaleTimeString("ko-KR");
+      var ovInp=document.getElementById("usdKrwOv");
+      if(ovInp) ovInp.value=data.usdKrw;
+      var t=new Date().toLocaleTimeString("ko-KR");
+      document.getElementById("fxTime").textContent="환율 자동갱신: "+t;
+      var fxTimeOv=document.getElementById("fxTimeOv");
+      if(fxTimeOv) fxTimeOv.textContent="환율 자동갱신: "+t;
       save(); renderAll();
     }
     btns.forEach(function(b){b.disabled=false;b.textContent="💱 환율갱신";});
