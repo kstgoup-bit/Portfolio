@@ -82,8 +82,8 @@ body{background:var(--sky-bg);color:var(--text);font-family:'Noto Sans KR',sans-
 /* 탭 */
 .tabs{display:flex;background:#fff;border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;position:sticky;top:var(--header-h,90px);z-index:99;box-shadow:0 1px 6px #00000010}
 .tabs::-webkit-scrollbar{display:none}
-.tab{flex:0 0 auto;padding:10px 12px;border:none;background:none;color:var(--muted);border-bottom:2px solid transparent;font-size:11px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;white-space:nowrap;margin-bottom:-2px}
-.tab.active{color:var(--blue);border-bottom-color:var(--blue);font-weight:800;transition:color 0.2s,border-color 0.2s}
+.tab{flex:0 0 auto;padding:8px 12px;border:2px solid transparent;background:none;color:var(--muted);border-bottom:2px solid transparent;font-size:11px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;white-space:nowrap;border-radius:6px;margin:4px 2px}
+.tab.active{color:#111;border:2px solid #111;font-weight:800;background:#fff;transition:all 0.2s}
 
 /* 패널 */
 .panel{display:none;padding:14px}
@@ -1586,9 +1586,13 @@ function switchTab(tab) {
     dashboard:"#1976d2", domestic:"#f57f17", overseas:"#1976d2",
     pension:"#7b1fa2", dividend:"#2e7d32", commandments:"#f57f17", settings:"#546e7a"
   };
+  document.querySelectorAll(".tab").forEach(function(t){
+    t.style.color=""; t.style.borderColor="";
+  });
   document.querySelectorAll(".tab.active").forEach(function(t){
-    t.style.color=tabColors[tab]||"#1565c0";
-    t.style.borderBottomColor=tabColors[tab]||"#1565c0";
+    var c=tabColors[tab]||"#1565c0";
+    t.style.color=c;
+    t.style.borderColor=c;
   });
 }
 
