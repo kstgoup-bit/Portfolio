@@ -928,17 +928,23 @@ function shortLabel(name, ticker) {
   var tickerMap = {
     '441640':'빅테크', '368590':'나스닥', '426030':'TF나스닥',
     '00680K':'미래에셋', '086790':'하나금융', '472160':'양자컴',
-    '475080':'SMR', '396500':'반도체', '463050':'빅테크+',
-    '494670':'나스닥R'
+    '475080':'SMR', '396500':'반도체', '463050':'빅테크+'
   };
-  var nameMap = {
-    'ACE 미국빅테크TOP7':'빅테크', 'RISE 나스닥100':'나스닥',
-    'TIMEFOLIO 나스닥100':'TF나스닥', 'SOL 양자컴퓨팅TOP10':'양자컴',
-    'SOL 미국원자력SMR':'SMR', 'ACE 글로벌반도체TOP4 Plus':'반도체',
-    'ACE 미국빅테크TOP7 Plus':'빅테크+', 'RISE 미국나스닥100':'나스닥R',
-    '미래에셋2우B':'미래에셋', '하나금융지주':'하나금융'
-  };
-  return tickerMap[ticker] || nameMap[name] || ticker;
+  if(tickerMap[ticker]) return tickerMap[ticker];
+  var n=name.toUpperCase();
+  if(n.includes('TIMEFOLIO')||n.includes('TF')) return 'TF나스닥';
+  if(n.includes('나스닥')) return '나스닥';
+  if(n.includes('반도체')) return '반도체';
+  if(n.includes('빅테크')&&n.includes('PLUS')) return '빅테크+';
+  if(n.includes('빅테크')) return '빅테크';
+  if(n.includes('양자')) return '양자컴';
+  if(n.includes('SMR')||n.includes('원자력')) return 'SMR';
+  if(n.includes('미래에셋')) return '미래에셋';
+  if(n.includes('하나금융')) return '하나금융';
+  if(n.includes('RISE')) return 'RISE';
+  if(n.includes('ACE')) return 'ACE';
+  if(n.includes('SOL')) return 'SOL';
+  return ticker;
 }
 
 function renderPie(svgId, legendId, stocks, isUS) {
