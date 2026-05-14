@@ -1203,7 +1203,7 @@ function calcAvg(type, id) {
     var amt=q*p;
     total_q+=q; total_a+=amt;
     var ae=document.getElementById("ca"+n+"_"+type+"_"+id);
-    if(ae) ae.textContent=amt>0?Math.round(amt).toLocaleString()+"원":"−";
+    if(ae) ae.textContent=amt>0?(type==="ov"?"$"+amt.toFixed(2):Math.round(amt).toLocaleString()+"원"):"−";
   });
   var avg=total_q>0?total_a/total_q:0;
   var re=document.getElementById("calcResult_"+type+"_"+id);
