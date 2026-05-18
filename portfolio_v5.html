@@ -642,33 +642,90 @@ function renderDashboard() {
   // 시장별
   var ms=document.getElementById("mktSummary");
   ms.innerHTML="";
-  var totalAllTV = (dom.tv||0)+(ov.tv||0)+(pen.tv||0);
-  var maxPct = Math.max(Math.abs(dom.pct||0), Math.abs(ov.pct||0), Math.abs(pen.pct||0), 1);
-  [{label:"🇰🇷 국내",g:dom,color:"#f57f17"},{label:"🇺🇸 해외",g:ov,color:"#1565c0"},{label:"🏦 연금",g:pen,color:"#7b1fa2"}].forEach(function(m){
-    if(!m.g.tv) return;
-    var wPct=totalAllTV>0?(m.g.tv/totalAllTV*100):0;
-    var rPct=Math.abs(m.g.pct||0);
-    var rBar=Math.min(rPct/maxPct*100,100);
+  var totalAllTV=(dom.tv||0)+(ov.tv||0)+(pen.tv||0);
+  if(!totalAllTV) return;
+
+  var items=[
+    {label:"🇰🇷 국내",g:dom,color:"#f57f17"},
+    {label:"🇺🇸 해외",g:ov,color:"#1565c0"},
+    {label:"🏦 연금",g:pen,color:"#7b1fa2"}
+  ].filter(function(m){return m.g.tv>0;});
+
+  // 왼쪽: 컴팩트 카드
+  var leftHtml='<div style="display:flex;flex-direction:column;gap:6px;flex:1;min-width:0">';
+  items.forEach(function(m){
     var pos=m.g.pct>=0;
-    ms.innerHTML+='<div class="mkt-card">'+
-      '<div style="flex:1">'+
-        '<div class="mkt-lbl">'+m.label+'</div>'+
-        '<div class="mkt-val">'+fmt(m.g.tv)+'원</div>'+
-        '<div style="margin-top:5px">'+
-          '<div style="display:flex;justify-content:space-between;font-size:9px;color:var(--muted);margin-bottom:2px"><span>비중</span><span style="font-weight:700;color:'+m.color+'">'+wPct.toFixed(1)+'%</span></div>'+
-          '<div style="height:5px;background:#e0e0e0;border-radius:3px;overflow:hidden"><div style="width:'+wPct.toFixed(1)+'%;height:100%;background:'+m.color+';border-radius:3px"></div></div>'+
+    leftHtml+=
+      '<div style="background:#fff;border-radius:10px;padding:8px 10px;border-left:3px solid '+m.color+';box-shadow:0 1px 4px #0000000d">'+
+        '<div style="font-size:10px;font-weight:700;color:'+m.color+'">'+m.label+'</div>'+
+        '<div style="font-size:13px;font-weight:800;color:var(--text);margin:1px 0">'+fmt(m.g.tv)+'원</div>'+
+        '<div style="font-size:10px;font-weight:700;color:'+(pos?"var(--red-mid)":"var(--blue)")+'">'+fmtPct(m.g.pct)+' / '+(m.g.pnl>=0?"+":"")+fmt(m.g.pnl)+'원</div>'+
+      '</div>';
+  });
+  leftHtml+='</div>';
+
+  // 오른쪽 위: 수익률 세로 막대그래프
+  var maxPct=Math.max.apply(null,items.map(function(m){return Math.abs(m.g.pct||0);}));
+  if(maxPct<1) maxPct=1;
+  var barW=46, barH=80, gap=8;
+  var svgW=items.length*(barW+gap)-gap;
+  var barSvg='<svg viewBox="0 0 '+svgW+' '+(barH+28)+'" style="width:100%;height:'+(barH+28)+'px">';
+  items.forEach(function(m,i){
+    var pos=m.g.pct>=0;
+    var h=Math.max(Math.abs(m.g.pct||0)/maxPct*barH,3);
+    var x=i*(barW+gap);
+    var y=barH-h;
+    var shortName=m.label.replace(/🇰🇷 |🇺🇸 |🏦 /g,"");
+    barSvg+=
+      '<rect x="'+x+'" y="'+y+'" width="'+barW+'" height="'+h+'" fill="'+(pos?"#ef5350":"#42a5f5")+'" rx="4"/>'+
+      '<text x="'+(x+barW/2)+'" y="'+(y-3)+'" text-anchor="middle" font-size="8" fill="'+(pos?"#c62828":"#1565c0")+'" font-weight="800">'+fmtPct(m.g.pct)+'</text>'+
+      '<text x="'+(x+barW/2)+'" y="'+(barH+12)+'" text-anchor="middle" font-size="8" fill="#555">'+shortName+'</text>';
+  });
+  barSvg+='</svg>';
+
+  // 오른쪽 아래: 비중 파이차트 (SVG 도넛)
+  var cx=50,cy=50,r=40,ri=26;
+  var pieSvg='<svg viewBox="0 0 100 110" style="width:100%;height:110px">';
+  var cumAngle=-Math.PI/2;
+  items.forEach(function(m){
+    var angle=(m.g.tv/totalAllTV)*2*Math.PI;
+    var x1=cx+r*Math.cos(cumAngle), y1=cy+r*Math.sin(cumAngle);
+    cumAngle+=angle;
+    var x2=cx+r*Math.cos(cumAngle), y2=cy+r*Math.sin(cumAngle);
+    var xi1=cx+ri*Math.cos(cumAngle-angle), yi1=cy+ri*Math.sin(cumAngle-angle);
+    var xi2=cx+ri*Math.cos(cumAngle), yi2=cy+ri*Math.sin(cumAngle);
+    var lg=angle>Math.PI?1:0;
+    pieSvg+='<path d="M'+x1+','+y1+' A'+r+','+r+' 0 '+lg+',1 '+x2+','+y2+' L'+xi2+','+yi2+' A'+ri+','+ri+' 0 '+lg+',0 '+xi1+','+yi1+' Z" fill="'+m.color+'"/>';
+  });
+  pieSvg+='<circle cx="'+cx+'" cy="'+cy+'" r="24" fill="white"/>'+
+    '<text x="'+cx+'" y="'+(cy-3)+'" text-anchor="middle" font-size="7" fill="#888">비중</text>';
+  // 범례
+  var legY=cy*2+8;
+  items.forEach(function(m,i){
+    var wPct=(m.g.tv/totalAllTV*100).toFixed(0);
+    var shortName=m.label.replace(/🇰🇷 |🇺🇸 |🏦 /g,"");
+    pieSvg+='<circle cx="6" cy="'+(legY+i*11)+'" r="3" fill="'+m.color+'"/>'+
+      '<text x="12" y="'+(legY+i*11+3)+'" font-size="7" fill="#555">'+shortName+' '+wPct+'%</text>';
+  });
+  pieSvg+='</svg>';
+
+  // 전체 조합
+  ms.innerHTML=
+    '<div style="background:#fff;border-radius:14px;padding:12px;box-shadow:0 1px 8px #00000010;margin-bottom:12px">'+
+      '<div style="display:flex;gap:10px;align-items:stretch">'+
+        leftHtml+
+        '<div style="display:flex;flex-direction:column;gap:6px;flex:1;min-width:0">'+
+          '<div style="background:#f9f9f9;border-radius:10px;padding:8px 6px;text-align:center">'+
+            '<div style="font-size:9px;color:var(--muted);margin-bottom:4px;font-weight:700">수익률 비교</div>'+
+            barSvg+
+          '</div>'+
+          '<div style="background:#f9f9f9;border-radius:10px;padding:6px;text-align:center">'+
+            '<div style="font-size:9px;color:var(--muted);margin-bottom:2px;font-weight:700">자산 비중</div>'+
+            pieSvg+
+          '</div>'+
         '</div>'+
-        '<div style="margin-top:4px">'+
-          '<div style="display:flex;justify-content:space-between;font-size:9px;color:var(--muted);margin-bottom:2px"><span>수익률</span><span style="font-weight:700;color:'+(pos?"var(--red-mid)":"var(--blue)")+'">'+fmtPct(m.g.pct)+'</span></div>'+
-          '<div style="height:5px;background:#e0e0e0;border-radius:3px;overflow:hidden"><div style="width:'+rBar.toFixed(1)+'%;height:100%;background:'+(pos?"#ef5350":"#42a5f5")+';border-radius:3px"></div></div>'+
-        '</div>'+
-      '</div>'+
-      '<div style="text-align:right;padding-left:10px">'+
-        '<div class="'+(pos?"pos":"neg")+'">'+fmtPct(m.g.pct)+'</div>'+
-        '<div style="font-size:11px" class="'+(m.g.pnl>=0?"pos":"neg")+'">'+(m.g.pnl>=0?"+":"")+fmt(m.g.pnl)+'원</div>'+
       '</div>'+
     '</div>';
-  });
 
   // 추세선
   renderPeriodBtns("allPeriodBtns","allLineChart","all","#1565c0");
