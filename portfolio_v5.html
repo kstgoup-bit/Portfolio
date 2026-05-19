@@ -663,29 +663,31 @@ function renderDashboard() {
   });
 
   // 파이차트 (왼쪽)
-  var cx=55,cy=55,r=44,ri=28;
-  var pieSvg='<svg viewBox="0 0 110 145" style="width:110px;height:145px">';
+  var cx=55,cy=55,r=44,ri=10;
+  var pieSvg='<svg viewBox="0 0 110 110" style="width:110px;height:110px">';
   var cumAngle=-Math.PI/2;
+  var slices=[];
   items.forEach(function(m){
     var angle=(m.g.tv/totalAllTV)*2*Math.PI;
-    var x1=cx+r*Math.cos(cumAngle), y1=cy+r*Math.sin(cumAngle);
+    slices.push({m:m,startAngle:cumAngle,angle:angle,midAngle:cumAngle+angle/2});
     cumAngle+=angle;
-    var x2=cx+r*Math.cos(cumAngle), y2=cy+r*Math.sin(cumAngle);
-    var xi1=cx+ri*Math.cos(cumAngle-angle), yi1=cy+ri*Math.sin(cumAngle-angle);
-    var xi2=cx+ri*Math.cos(cumAngle), yi2=cy+ri*Math.sin(cumAngle);
-    var lg=angle>Math.PI?1:0;
-    pieSvg+='<path d="M'+x1+','+y1+' A'+r+','+r+' 0 '+lg+',1 '+x2+','+y2+' L'+xi2+','+yi2+' A'+ri+','+ri+' 0 '+lg+',0 '+xi1+','+yi1+' Z" fill="'+m.color+'"/>';
   });
-  pieSvg+='<circle cx="'+cx+'" cy="'+cy+'" r="26" fill="white"/>'+
-    '<text x="'+cx+'" y="'+(cy+4)+'" text-anchor="middle" font-size="8" fill="#888" font-weight="700">비중</text>';
-  var legY=cx*2+14;
-  items.forEach(function(m,i){
-    var wPct=(m.g.tv/totalAllTV*100).toFixed(0);
-    var shortName=m.label.replace(/🇰🇷 |🇺🇸 |🏦 /g,"");
-    pieSvg+='<circle cx="8" cy="'+(legY+i*13)+'" r="4" fill="'+m.color+'"/>'+
-      '<text x="16" y="'+(legY+i*13+4)+'" font-size="8" fill="#555">'+shortName+' '+wPct+'%</text>';
+  slices.forEach(function(s){
+    var x1=cx+r*Math.cos(s.startAngle), y1=cy+r*Math.sin(s.startAngle);
+    var x2=cx+r*Math.cos(s.startAngle+s.angle), y2=cy+r*Math.sin(s.startAngle+s.angle);
+    var xi1=cx+ri*Math.cos(s.startAngle), yi1=cy+ri*Math.sin(s.startAngle);
+    var xi2=cx+ri*Math.cos(s.startAngle+s.angle), yi2=cy+ri*Math.sin(s.startAngle+s.angle);
+    var lg=s.angle>Math.PI?1:0;
+    pieSvg+='<path d="M'+x1+','+y1+' A'+r+','+r+' 0 '+lg+',1 '+x2+','+y2+' L'+xi2+','+yi2+' A'+ri+','+ri+' 0 '+lg+',0 '+xi1+','+yi1+' Z" fill="'+s.m.color+'"/>';
+    if(s.angle>0.25){
+      var tr=r*0.65;
+      var tx=cx+tr*Math.cos(s.midAngle), ty=cy+tr*Math.sin(s.midAngle);
+      var shortName=s.m.label.replace(/🇰🇷 |🇺🇸 |🏦 /g,"");
+      pieSvg+='<text x="'+tx+'" y="'+(ty-4)+'" text-anchor="middle" font-size="7.5" fill="white" font-weight="800">'+shortName+'</text>';
+      pieSvg+='<text x="'+tx+'" y="'+(ty+6)+'" text-anchor="middle" font-size="7" fill="white">'+((s.m.g.tv/totalAllTV)*100).toFixed(0)+'%</text>';
+    }
   });
-  pieSvg+='</svg>';
+  pieSvg+='<circle cx="'+cx+'" cy="'+cy+'" r="9" fill="white"/></svg>';
 
   // 수익률 막대 (오른쪽) - 막대 굵기 2/3
   var maxPct=Math.max.apply(null,items.map(function(m){return Math.abs(m.g.pct||0);}));
