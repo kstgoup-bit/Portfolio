@@ -648,9 +648,9 @@ function renderDashboard() {
       '</div></div>';
   });
 
-  // 파이차트 (왼쪽)
-  var cx=55,cy=55,r=44,ri=10;
-  var pieSvg='<svg viewBox="0 0 110 110" style="width:110px;height:110px">';
+  // 파이차트 (왼쪽) - 크기 키움
+  var cx=65,cy=65,r=54,ri=12;
+  var pieSvg='<svg viewBox="0 0 130 130" style="width:130px;height:130px">';
   var cumAngle=-Math.PI/2;
   var slices=[];
   items.forEach(function(m){
@@ -666,21 +666,21 @@ function renderDashboard() {
     var lg=s.angle>Math.PI?1:0;
     pieSvg+='<path d="M'+x1+','+y1+' A'+r+','+r+' 0 '+lg+',1 '+x2+','+y2+' L'+xi2+','+yi2+' A'+ri+','+ri+' 0 '+lg+',0 '+xi1+','+yi1+' Z" fill="'+s.m.color+'"/>';
     if(s.angle>0.25){
-      var tr=r*0.65;
+      var tr=r*0.67;
       var tx=cx+tr*Math.cos(s.midAngle), ty=cy+tr*Math.sin(s.midAngle);
       var shortName=s.m.label.replace(/🇰🇷 |🇺🇸 |🏦 /g,"");
-      pieSvg+='<text x="'+tx+'" y="'+(ty-4)+'" text-anchor="middle" font-size="7.5" fill="white" font-weight="800">'+shortName+'</text>';
-      pieSvg+='<text x="'+tx+'" y="'+(ty+6)+'" text-anchor="middle" font-size="7" fill="white">'+((s.m.g.tv/totalAllTV)*100).toFixed(0)+'%</text>';
+      pieSvg+='<text x="'+tx+'" y="'+(ty-5)+'" text-anchor="middle" font-size="10" fill="white" font-weight="800">'+shortName+'</text>';
+      pieSvg+='<text x="'+tx+'" y="'+(ty+7)+'" text-anchor="middle" font-size="9" fill="white" font-weight="700">'+((s.m.g.tv/totalAllTV)*100).toFixed(0)+'%</text>';
     }
   });
-  pieSvg+='<circle cx="'+cx+'" cy="'+cy+'" r="9" fill="white"/></svg>';
+  pieSvg+='<circle cx="'+cx+'" cy="'+cy+'" r="11" fill="white"/></svg>';
 
-  // 수익률 막대 (오른쪽) - 막대 굵기 2/3
+  // 수익률 막대 (오른쪽) - 글씨 크게, 막대 넓이 유지
   var maxPct=Math.max.apply(null,items.map(function(m){return Math.abs(m.g.pct||0);}));
   if(maxPct<1) maxPct=1;
-  var barW=30, barH=76, gap=8, topPad=16;
+  var barW=30, barH=80, gap=12, topPad=22;
   var svgW=items.length*(barW+gap)-gap;
-  var barSvg='<svg viewBox="0 0 '+svgW+' '+(barH+topPad+20)+'" style="width:100%;height:'+(barH+topPad+20)+'px">';
+  var barSvg='<svg viewBox="0 0 '+svgW+' '+(barH+topPad+22)+'" style="width:100%;height:'+(barH+topPad+22)+'px">';
   items.forEach(function(m,i){
     var pos=m.g.pct>=0;
     var h=Math.max(Math.abs(m.g.pct||0)/maxPct*barH,3);
@@ -688,19 +688,19 @@ function renderDashboard() {
     var y=topPad+barH-h;
     var shortName=m.label.replace(/🇰🇷 |🇺🇸 |🏦 /g,"");
     barSvg+='<rect x="'+x+'" y="'+y+'" width="'+barW+'" height="'+h+'" fill="'+(pos?"#ef5350":"#42a5f5")+'" rx="3"/>'+
-      '<text x="'+(x+barW/2)+'" y="'+(y-3)+'" text-anchor="middle" font-size="7.5" fill="'+(pos?"#c62828":"#1565c0")+'" font-weight="800">'+fmtPct(m.g.pct)+'</text>'+
-      '<text x="'+(x+barW/2)+'" y="'+(topPad+barH+12)+'" text-anchor="middle" font-size="8" fill="#555">'+shortName+'</text>';
+      '<text x="'+(x+barW/2)+'" y="'+(y-4)+'" text-anchor="middle" font-size="9.5" fill="'+(pos?"#c62828":"#1565c0")+'" font-weight="800">'+fmtPct(m.g.pct)+'</text>'+
+      '<text x="'+(x+barW/2)+'" y="'+(topPad+barH+14)+'" text-anchor="middle" font-size="10" fill="#444" font-weight="700">'+shortName+'</text>';
   });
   barSvg+='</svg>';
 
   ms.innerHTML=cardsHtml+
-    '<div style="display:flex;gap:8px;align-items:flex-start;margin-top:4px;padding:10px 2px 2px">'+
+    '<div style="display:flex;gap:8px;align-items:center;margin-top:4px;padding:10px 2px 2px">'+
       '<div style="text-align:center">'+
-        '<div style="font-size:9px;color:var(--muted);font-weight:700;margin-bottom:4px">자산 비중</div>'+
+        '<div style="font-size:10px;color:var(--muted);font-weight:700;margin-bottom:4px">자산 비중</div>'+
         pieSvg+
       '</div>'+
       '<div style="flex:1;text-align:center">'+
-        '<div style="font-size:9px;color:var(--muted);font-weight:700;margin-bottom:4px">수익률 비교</div>'+
+        '<div style="font-size:10px;color:var(--muted);font-weight:700;margin-bottom:4px">수익률 비교</div>'+
         barSvg+
       '</div>'+
     '</div>';
