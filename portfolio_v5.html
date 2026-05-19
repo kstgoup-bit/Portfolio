@@ -678,7 +678,7 @@ function renderDashboard() {
   // 수익률 막대 (오른쪽) - 글씨 크게, 막대 넓이 유지
   var maxPct=Math.max.apply(null,items.map(function(m){return Math.abs(m.g.pct||0);}));
   if(maxPct<1) maxPct=1;
-  var barW=25, barH=80, gap=12, topPad=22;
+  var barW=27, barH=80, gap=12, topPad=22;
   var svgW=items.length*(barW+gap)-gap;
   var barSvg='<svg viewBox="0 0 '+svgW+' '+(barH+topPad+22)+'" style="width:100%;height:'+(barH+topPad+22)+'px">';
   items.forEach(function(m,i){
