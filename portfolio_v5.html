@@ -1447,8 +1447,29 @@ window.addEventListener("load", function() {
   // 데이터 로드
   load();
   renderAll();
-  // 환율 자동 조회
+  // 환율/국내/미국 자동갱신 + 완료 후 자산 자동기록
   setTimeout(fetchFX, 1500);
+  setTimeout(fetchKR, 2500);
+  setTimeout(fetchUS, 3500);
+  setTimeout(function(){
+    ['all','dom','ov','pen'].forEach(function(key){
+      var stocks=key==='dom'?domStocks:key==='ov'?ovStocks:key==='pen'?penStocks:null;
+      var isUS=key==='ov';
+      var tv=0;
+      if(key==='all'){
+        tv=(calcGroup(domStocks,false).tv||0)+(calcGroup(ovStocks,true).tv||0)+(calcGroup(penStocks,false).tv||0);
+      } else {
+        tv=calcGroup(stocks,isUS).tv||0;
+      }
+      if(!tv) return;
+      var today=new Date().toDateString();
+      snapshots[key]=snapshots[key].filter(function(d){return new Date(d.ts).toDateString()!==today;});
+      snapshots[key].push({ts:Date.now(),val:tv});
+      snapshots[key].sort(function(a,b){return a.ts-b.ts;});
+    });
+    save();
+    renderAll();
+  }, 5000);
 });
 </script>
 </body>
