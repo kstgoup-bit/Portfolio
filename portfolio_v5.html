@@ -517,6 +517,9 @@ function load() {
   try { penStocks = JSON.parse(localStorage.getItem("v5_pen")) || PEN_INIT; } catch { penStocks=PEN_INIT; }
   try { divList = JSON.parse(localStorage.getItem("v5_div")) || []; } catch { divList=[]; }
   try { snapshots = JSON.parse(localStorage.getItem("v5_snap")) || {all:[],dom:[],ov:[],pen:[]}; } catch { snapshots={all:[],dom:[],ov:[],pen:[]}; }
+  // 환율 복원 (renderAll 전에 적용)
+  var savedFx = localStorage.getItem("v5_fx");
+  if(savedFx) document.getElementById("usdKrw").value = savedFx;
   gasUrl = localStorage.getItem("v5_gas") || GAS_DEFAULT;
   var gi = document.getElementById("gasInput");
   if(gi) gi.value = gasUrl;
@@ -530,6 +533,7 @@ function save() {
     localStorage.setItem("v5_pen", JSON.stringify(penStocks));
     localStorage.setItem("v5_div", JSON.stringify(divList));
     localStorage.setItem("v5_snap", JSON.stringify(snapshots));
+    localStorage.setItem("v5_fx", document.getElementById("usdKrw").value||"1370");
   } catch(e) {}
 }
 
