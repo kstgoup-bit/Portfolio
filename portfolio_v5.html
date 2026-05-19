@@ -690,18 +690,18 @@ function renderDashboard() {
   // 수익률 막대 (오른쪽) - 막대 굵기 2/3
   var maxPct=Math.max.apply(null,items.map(function(m){return Math.abs(m.g.pct||0);}));
   if(maxPct<1) maxPct=1;
-  var barW=30, barH=80, gap=8;
+  var barW=30, barH=76, gap=8, topPad=16;
   var svgW=items.length*(barW+gap)-gap;
-  var barSvg='<svg viewBox="0 0 '+svgW+' '+(barH+28)+'" style="width:100%;height:'+(barH+28)+'px">';
+  var barSvg='<svg viewBox="0 0 '+svgW+' '+(barH+topPad+20)+'" style="width:100%;height:'+(barH+topPad+20)+'px">';
   items.forEach(function(m,i){
     var pos=m.g.pct>=0;
     var h=Math.max(Math.abs(m.g.pct||0)/maxPct*barH,3);
     var x=i*(barW+gap);
-    var y=barH-h;
+    var y=topPad+barH-h;
     var shortName=m.label.replace(/🇰🇷 |🇺🇸 |🏦 /g,"");
     barSvg+='<rect x="'+x+'" y="'+y+'" width="'+barW+'" height="'+h+'" fill="'+(pos?"#ef5350":"#42a5f5")+'" rx="3"/>'+
       '<text x="'+(x+barW/2)+'" y="'+(y-3)+'" text-anchor="middle" font-size="7.5" fill="'+(pos?"#c62828":"#1565c0")+'" font-weight="800">'+fmtPct(m.g.pct)+'</text>'+
-      '<text x="'+(x+barW/2)+'" y="'+(barH+12)+'" text-anchor="middle" font-size="8" fill="#555">'+shortName+'</text>';
+      '<text x="'+(x+barW/2)+'" y="'+(topPad+barH+12)+'" text-anchor="middle" font-size="8" fill="#555">'+shortName+'</text>';
   });
   barSvg+='</svg>';
 
