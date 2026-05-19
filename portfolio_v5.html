@@ -752,6 +752,27 @@ function renderPension() {
 // =============================================
 // 파이차트
 // =============================================
+function shortLabel(name, ticker) {
+  var tickerMap = {
+    '441640':'빅테크', '368590':'나스닥', '426030':'TF나스닥',
+    '00680K':'미래에셋', '086790':'하나금융', '472160':'양자컴',
+    '475080':'SMR', '396500':'반도체', '463050':'빅테크+',
+    '465580':'빅테크+', '465610':'빅테크+2', '446770':'반도체'
+  };
+  if(tickerMap[ticker]) return tickerMap[ticker];
+  var n=name.toUpperCase();
+  if(n.includes('TIMEFOLIO')||n.includes('TF')) return 'TF나스닥';
+  if(n.includes('나스닥')) return '나스닥';
+  if(n.includes('반도체')) return '반도체';
+  if(n.includes('빅테크')&&n.includes('PLUS')) return '빅테크+';
+  if(n.includes('빅테크')) return '빅테크';
+  if(n.includes('양자')) return '양자컴';
+  if(n.includes('SMR')||n.includes('원자력')) return 'SMR';
+  if(n.includes('미래에셋')) return '미래에셋';
+  if(n.includes('하나금융')) return '하나금융';
+  return ticker;
+}
+
 function renderPie(svgId, legendId, stocks, isUS) {
   var active=stocks.filter(function(s){return s.quantity>0&&s.currentPrice>0;});
   var pieData=active.map(function(s,i){
