@@ -37,7 +37,7 @@ body{background:var(--sky-bg);color:var(--text);font-family:'Noto Sans KR',sans-
 .lock-err{font-size:12px;color:#ffcdd2;text-align:center;min-height:20px}
 
 /* 헤더 */
-.header{background:linear-gradient(135deg,#1565c0,#1976d2);padding:12px 18px 10px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px #1565c040}
+.header{background:linear-gradient(135deg,#1565c0,#1976d2);padding:12px 18px 10px;box-shadow:0 2px 12px #1565c040}
 .header-sub{font-size:9px;color:#90caf9;letter-spacing:3px;margin-bottom:3px}
 .header-title{font-size:17px;font-weight:900;color:#fff;margin-bottom:2px}
 .header-helper{font-size:10px;color:#bbdefb;margin-bottom:8px}
@@ -59,7 +59,7 @@ body{background:var(--sky-bg);color:var(--text);font-family:'Noto Sans KR',sans-
 .update-time{font-size:9px;color:#90caf955;margin-top:4px}
 
 /* 탭 */
-.tabs{display:flex;background:#fff;border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;position:sticky;top:var(--header-h,80px);z-index:99;box-shadow:0 1px 6px #00000010}
+.tabs{display:flex;background:#fff;border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;box-shadow:0 1px 6px #00000010}
 .tabs::-webkit-scrollbar{display:none}
 .tab{flex:0 0 auto;padding:8px 12px;border:2px solid transparent;background:none;color:var(--muted);font-size:11px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;white-space:nowrap;border-radius:6px;margin:4px 2px}
 .tab.active{font-weight:800;transition:all 0.2s}
@@ -217,7 +217,8 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
   <div class="lock-err" id="lockErr"></div>
 </div>
 
-<!-- 헤더 -->
+<!-- 헤더+탭 고정 래퍼 -->
+<div style="position:sticky;top:0;z-index:100">
 <div class="header" id="mainHeader">
   <div class="header-title">순태씨의 5년 안에 10억! 💰</div>
   <div class="header-helper">클로가 도와드릴게요 😊</div>
@@ -239,6 +240,7 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
   <button class="tab" onclick="switchTab('dividend')">💰 배당</button>
   <button class="tab" onclick="switchTab('commandments')">📜 10계명</button>
   <button class="tab" onclick="switchTab('settings')">⚙️ 설정</button>
+</div>
 </div>
 
 <!-- 현황 -->
@@ -1184,7 +1186,7 @@ function fetchUS() {
     
     delete window[cb]; if(document.body.contains(script))document.body.removeChild(script);
   };
-  script.onerror=function(){btn.disabled=false;btn.textContent="🇺🇸 미국갱신";delete window[cb];if(document.body.contains(script))document.body.removeChild(script);};
+  script.onerror=function(){delete window[cb];if(document.body.contains(script))document.body.removeChild(script);};
   setTimeout(function(){if(window[cb]){delete window[cb];}},15000);
   document.body.appendChild(script);
 }
@@ -1204,7 +1206,7 @@ function fetchKR() {
     
     delete window[cb]; if(document.body.contains(script))document.body.removeChild(script);
   };
-  script.onerror=function(){btn.disabled=false;btn.textContent="🇰🇷 국내갱신";delete window[cb];if(document.body.contains(script))document.body.removeChild(script);};
+  script.onerror=function(){delete window[cb];if(document.body.contains(script))document.body.removeChild(script);};
   setTimeout(function(){if(window[cb]){delete window[cb];}},15000);
   document.body.appendChild(script);
 }
@@ -1224,7 +1226,7 @@ function fetchFX() {
     
     delete window[cb]; if(document.body.contains(script))document.body.removeChild(script);
   };
-  script.onerror=function(){btn.disabled=false;btn.textContent="💱 환율";delete window[cb];if(document.body.contains(script))document.body.removeChild(script);};
+  script.onerror=function(){delete window[cb];if(document.body.contains(script))document.body.removeChild(script);};
   setTimeout(function(){if(window[cb]){delete window[cb];}},10000);
   document.body.appendChild(script);
 }
