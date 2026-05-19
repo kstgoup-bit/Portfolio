@@ -61,8 +61,8 @@ body{background:var(--sky-bg);color:var(--text);font-family:'Noto Sans KR',sans-
 /* 탭 */
 .tabs{display:flex;background:#fff;border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;position:sticky;top:var(--header-h,150px);z-index:99;box-shadow:0 1px 6px #00000010}
 .tabs::-webkit-scrollbar{display:none}
-.tab{flex:0 0 auto;padding:10px 12px;border:none;background:none;color:var(--muted);border-bottom:2px solid transparent;font-size:11px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;white-space:nowrap;margin-bottom:-2px}
-.tab.active{color:var(--blue);border-bottom-color:var(--blue);font-weight:800;transition:color 0.2s,border-color 0.2s}
+.tab{flex:0 0 auto;padding:8px 12px;border:2px solid transparent;background:none;color:var(--muted);font-size:11px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;white-space:nowrap;border-radius:6px;margin:4px 2px}
+.tab.active{font-weight:800;transition:all 0.2s}
 
 /* 패널 */
 .panel{display:none;padding:14px}
@@ -644,48 +644,27 @@ function renderDashboard() {
   ms.innerHTML="";
   var totalAllTV=(dom.tv||0)+(ov.tv||0)+(pen.tv||0);
   if(!totalAllTV) return;
-
   var items=[
     {label:"🇰🇷 국내",g:dom,color:"#f57f17"},
     {label:"🇺🇸 해외",g:ov,color:"#1565c0"},
     {label:"🏦 연금",g:pen,color:"#7b1fa2"}
   ].filter(function(m){return m.g.tv>0;});
 
-  // 왼쪽: 컴팩트 카드
-  var leftHtml='<div style="display:flex;flex-direction:column;gap:6px;flex:1;min-width:0">';
+  // 국내/해외/연금 원래 카드
+  var cardsHtml="";
   items.forEach(function(m){
     var pos=m.g.pct>=0;
-    leftHtml+=
-      '<div style="background:#fff;border-radius:10px;padding:8px 10px;border-left:3px solid '+m.color+';box-shadow:0 1px 4px #0000000d">'+
-        '<div style="font-size:10px;font-weight:700;color:'+m.color+'">'+m.label+'</div>'+
-        '<div style="font-size:13px;font-weight:800;color:var(--text);margin:1px 0">'+fmt(m.g.tv)+'원</div>'+
-        '<div style="font-size:10px;font-weight:700;color:'+(pos?"var(--red-mid)":"var(--blue)")+'">'+fmtPct(m.g.pct)+' / '+(m.g.pnl>=0?"+":"")+fmt(m.g.pnl)+'원</div>'+
-      '</div>';
+    cardsHtml+='<div class="mkt-card" style="border-left:3px solid '+m.color+'">'+
+      '<div><div class="mkt-lbl">'+m.label+'</div><div class="mkt-val">'+fmt(m.g.tv)+'원</div></div>'+
+      '<div style="text-align:right">'+
+        '<div class="'+(pos?"pos":"neg")+'">'+fmtPct(m.g.pct)+'</div>'+
+        '<div style="font-size:11px" class="'+(m.g.pnl>=0?"pos":"neg")+'">'+(m.g.pnl>=0?"+":"")+fmt(m.g.pnl)+'원</div>'+
+      '</div></div>';
   });
-  leftHtml+='</div>';
 
-  // 오른쪽 위: 수익률 세로 막대그래프
-  var maxPct=Math.max.apply(null,items.map(function(m){return Math.abs(m.g.pct||0);}));
-  if(maxPct<1) maxPct=1;
-  var barW=46, barH=80, gap=8;
-  var svgW=items.length*(barW+gap)-gap;
-  var barSvg='<svg viewBox="0 0 '+svgW+' '+(barH+28)+'" style="width:100%;height:'+(barH+28)+'px">';
-  items.forEach(function(m,i){
-    var pos=m.g.pct>=0;
-    var h=Math.max(Math.abs(m.g.pct||0)/maxPct*barH,3);
-    var x=i*(barW+gap);
-    var y=barH-h;
-    var shortName=m.label.replace(/🇰🇷 |🇺🇸 |🏦 /g,"");
-    barSvg+=
-      '<rect x="'+x+'" y="'+y+'" width="'+barW+'" height="'+h+'" fill="'+(pos?"#ef5350":"#42a5f5")+'" rx="4"/>'+
-      '<text x="'+(x+barW/2)+'" y="'+(y-3)+'" text-anchor="middle" font-size="8" fill="'+(pos?"#c62828":"#1565c0")+'" font-weight="800">'+fmtPct(m.g.pct)+'</text>'+
-      '<text x="'+(x+barW/2)+'" y="'+(barH+12)+'" text-anchor="middle" font-size="8" fill="#555">'+shortName+'</text>';
-  });
-  barSvg+='</svg>';
-
-  // 오른쪽 아래: 비중 파이차트 (SVG 도넛)
-  var cx=50,cy=50,r=40,ri=26;
-  var pieSvg='<svg viewBox="0 0 100 110" style="width:100%;height:110px">';
+  // 파이차트 (왼쪽)
+  var cx=55,cy=55,r=44,ri=28;
+  var pieSvg='<svg viewBox="0 0 110 145" style="width:110px;height:145px">';
   var cumAngle=-Math.PI/2;
   items.forEach(function(m){
     var angle=(m.g.tv/totalAllTV)*2*Math.PI;
@@ -697,33 +676,44 @@ function renderDashboard() {
     var lg=angle>Math.PI?1:0;
     pieSvg+='<path d="M'+x1+','+y1+' A'+r+','+r+' 0 '+lg+',1 '+x2+','+y2+' L'+xi2+','+yi2+' A'+ri+','+ri+' 0 '+lg+',0 '+xi1+','+yi1+' Z" fill="'+m.color+'"/>';
   });
-  pieSvg+='<circle cx="'+cx+'" cy="'+cy+'" r="24" fill="white"/>'+
-    '<text x="'+cx+'" y="'+(cy-3)+'" text-anchor="middle" font-size="7" fill="#888">비중</text>';
-  // 범례
-  var legY=cy*2+8;
+  pieSvg+='<circle cx="'+cx+'" cy="'+cy+'" r="26" fill="white"/>'+
+    '<text x="'+cx+'" y="'+(cy+4)+'" text-anchor="middle" font-size="8" fill="#888" font-weight="700">비중</text>';
+  var legY=cx*2+14;
   items.forEach(function(m,i){
     var wPct=(m.g.tv/totalAllTV*100).toFixed(0);
     var shortName=m.label.replace(/🇰🇷 |🇺🇸 |🏦 /g,"");
-    pieSvg+='<circle cx="6" cy="'+(legY+i*11)+'" r="3" fill="'+m.color+'"/>'+
-      '<text x="12" y="'+(legY+i*11+3)+'" font-size="7" fill="#555">'+shortName+' '+wPct+'%</text>';
+    pieSvg+='<circle cx="8" cy="'+(legY+i*13)+'" r="4" fill="'+m.color+'"/>'+
+      '<text x="16" y="'+(legY+i*13+4)+'" font-size="8" fill="#555">'+shortName+' '+wPct+'%</text>';
   });
   pieSvg+='</svg>';
 
-  // 전체 조합
-  ms.innerHTML=
-    '<div style="background:#fff;border-radius:14px;padding:12px;box-shadow:0 1px 8px #00000010;margin-bottom:12px">'+
-      '<div style="display:flex;gap:10px;align-items:stretch">'+
-        leftHtml+
-        '<div style="display:flex;flex-direction:column;gap:6px;flex:1;min-width:0">'+
-          '<div style="background:#f9f9f9;border-radius:10px;padding:8px 6px;text-align:center">'+
-            '<div style="font-size:9px;color:var(--muted);margin-bottom:4px;font-weight:700">수익률 비교</div>'+
-            barSvg+
-          '</div>'+
-          '<div style="background:#f9f9f9;border-radius:10px;padding:6px;text-align:center">'+
-            '<div style="font-size:9px;color:var(--muted);margin-bottom:2px;font-weight:700">자산 비중</div>'+
-            pieSvg+
-          '</div>'+
-        '</div>'+
+  // 수익률 막대 (오른쪽) - 막대 굵기 2/3
+  var maxPct=Math.max.apply(null,items.map(function(m){return Math.abs(m.g.pct||0);}));
+  if(maxPct<1) maxPct=1;
+  var barW=30, barH=80, gap=8;
+  var svgW=items.length*(barW+gap)-gap;
+  var barSvg='<svg viewBox="0 0 '+svgW+' '+(barH+28)+'" style="width:100%;height:'+(barH+28)+'px">';
+  items.forEach(function(m,i){
+    var pos=m.g.pct>=0;
+    var h=Math.max(Math.abs(m.g.pct||0)/maxPct*barH,3);
+    var x=i*(barW+gap);
+    var y=barH-h;
+    var shortName=m.label.replace(/🇰🇷 |🇺🇸 |🏦 /g,"");
+    barSvg+='<rect x="'+x+'" y="'+y+'" width="'+barW+'" height="'+h+'" fill="'+(pos?"#ef5350":"#42a5f5")+'" rx="3"/>'+
+      '<text x="'+(x+barW/2)+'" y="'+(y-3)+'" text-anchor="middle" font-size="7.5" fill="'+(pos?"#c62828":"#1565c0")+'" font-weight="800">'+fmtPct(m.g.pct)+'</text>'+
+      '<text x="'+(x+barW/2)+'" y="'+(barH+12)+'" text-anchor="middle" font-size="8" fill="#555">'+shortName+'</text>';
+  });
+  barSvg+='</svg>';
+
+  ms.innerHTML=cardsHtml+
+    '<div style="display:flex;gap:8px;align-items:flex-start;margin-top:4px;padding:10px 2px 2px">'+
+      '<div style="text-align:center">'+
+        '<div style="font-size:9px;color:var(--muted);font-weight:700;margin-bottom:4px">자산 비중</div>'+
+        pieSvg+
+      '</div>'+
+      '<div style="flex:1;text-align:center">'+
+        '<div style="font-size:9px;color:var(--muted);font-weight:700;margin-bottom:4px">수익률 비교</div>'+
+        barSvg+
       '</div>'+
     '</div>';
 
@@ -1374,9 +1364,12 @@ function switchTab(tab) {
     dashboard:"#1976d2", domestic:"#f57f17", overseas:"#1976d2",
     pension:"#7b1fa2", dividend:"#2e7d32", commandments:"#f57f17", settings:"#546e7a"
   };
+  document.querySelectorAll(".tab").forEach(function(t){
+    t.style.color=""; t.style.borderColor=""; t.style.background="";
+  });
   document.querySelectorAll(".tab.active").forEach(function(t){
-    t.style.color=tabColors[tab]||"#1565c0";
-    t.style.borderBottomColor=tabColors[tab]||"#1565c0";
+    var c=tabColors[tab]||"#1565c0";
+    t.style.color=c; t.style.borderColor=c; t.style.background="#fff";
   });
 }
 
