@@ -775,7 +775,24 @@ function renderPie(svgId, legendId, stocks, isUS) {
   });
   svg.innerHTML=paths+labels+'<circle cx="80" cy="80" r="30" fill="#f0f6ff"/><text x="80" y="77" text-anchor="middle" font-size="7.5" fill="#1565c0" font-weight="bold">비중</text><text x="80" y="89" text-anchor="middle" font-size="7" fill="#1a237e">'+fmt(total)+'원</text>';
   ll.innerHTML=pieData.map(function(d){
-    return '<div class="legend"><div class="leg-dot" style="background:'+d.color+'"></div><div style="flex:1"><div class="leg-name">'+d.name+'</div><div class="leg-sub">'+d.ticker+'</div></div><div class="leg-val">'+fmt(d.value)+'원</div><div class="leg-pct" style="color:'+d.color+'">'+((d.value/total)*100).toFixed(1)+'%</div></div>';
+    var w=(d.value/total*100).toFixed(1);
+    var pnlPos=d.pnl>=0;
+    return '<div class="legend">'+
+      '<div class="leg-dot" style="background:'+d.color+'"></div>'+
+      '<div style="flex:1">'+
+        '<div class="leg-name">'+d.name+' <span style="font-size:10px">'+(d.role==="shield"?"🛡":"⚔️")+'</span></div>'+
+        '<div class="leg-sub">'+d.ticker+' · '+d.qty+'주'+(d.isUS?' · '+fmtUSD(d.usdVal):'')+'</div>'+
+        '<div style="display:flex;align-items:center;gap:6px;margin-top:3px">'+
+          '<span style="font-size:10px;font-weight:800;color:'+(pnlPos?"var(--red-mid)":"var(--blue)")+'">'+(pnlPos?"+":"")+fmt(d.pnl)+'원</span>'+
+          '<span class="st-pct-badge" style="font-size:9px;padding:1px 5px;background:'+(pnlPos?"var(--red-light)":"var(--blue-light)")+';color:'+(pnlPos?"var(--red-mid)":"var(--blue)")+'">'+fmtPct(d.pct)+'</span>'+
+          '<span style="margin-left:auto;font-size:10px;font-weight:800;color:'+d.color+'">'+w+'%</span>'+
+        '</div>'+
+        '<div class="bar-bg" style="margin-top:4px"><div class="bar-fill" style="width:'+Math.min(parseFloat(w),100)+'%;background:'+d.color+'"></div></div>'+
+      '</div>'+
+      '<div style="text-align:right;padding-left:8px">'+
+        '<div class="leg-val">'+fmt(d.value)+'원</div>'+
+      '</div>'+
+    '</div>';
   }).join("");
 }
 
@@ -912,37 +929,9 @@ function renderStockList(listId, countId, type) {
   document.getElementById(countId).textContent="전체 "+stocks.length+"개 종목";
   var el=document.getElementById(listId);
   el.innerHTML="";
-  var active=stocks.filter(function(s){return s.quantity>0&&s.currentPrice>0;});
-  var totalV=active.reduce(function(s,x){return s+vKRW(x,isUS);},0);
-  if(!active.length) {
-    el.innerHTML='<div class="empty">+ 종목추가 버튼으로 종목을 추가하고<br>수량과 평균단가를 입력해주세요</div>';
-    return;
-  }
-  var sorted=[].concat(active).sort(function(a,b){return vKRW(b,isUS)-vKRW(a,isUS);});
-  sorted.forEach(function(s,i){
-    var v=vKRW(s,isUS), c=cKRW(s,isUS), pnl=v-c, pct=c>0?(pnl/c)*100:0;
-    var w=totalV>0?(v/totalV)*100:0;
-    var color=COLORS[i%COLORS.length];
-    var pnlPos=pnl>=0;
-    el.innerHTML+='<div class="stock-card" style="border-left-color:'+color+'">'+
-      '<div class="st-top">'+
-      '<div style="flex:1">'+
-      '<div class="st-name">'+s.name+'</div>'+
-      '<div class="st-sub">'+s.ticker+' · '+(isUS?"🇺🇸":"🇰🇷")+' · '+s.quantity+'주</div>'+
-      '<div style="display:flex;gap:8px;align-items:center;margin-top:4px">'+
-      '<span class="st-pnl '+(pnlPos?"pos":"neg")+'">'+(pnlPos?"+":"")+fmt(pnl)+'원</span>'+
-      '<span class="st-pct-badge" style="background:'+(pnlPos?"var(--red-light)":"var(--blue-light)")+';color:'+(pnlPos?"var(--red-mid)":"var(--blue)")+'">'+fmtPct(pct)+'</span>'+
-      '</div></div>'+
-      '<div class="st-right">'+
-      '<div class="st-val">'+fmt(v)+'원</div>'+
-      (isUS?'<div style="font-size:10px;color:var(--muted)">'+fmtUSD(s.quantity*s.currentPrice)+'</div>':'')+
-      '</div></div>'+
-      '<div class="bar-bg"><div class="bar-fill" style="width:'+Math.min(w,100)+'%;background:'+color+'"></div></div>'+
-      '</div>';
-  });
 
   // 전체 종목 관리 목록
-  el.innerHTML+='<div class="sec-lbl" style="margin-top:16px">📋 전체 종목 관리</div>';
+  el.innerHTML='<div class="sec-lbl">📋 전체 종목 관리</div>';
   stocks.forEach(function(s){
     var isEdit=editingId===s.id&&editingType===type;
     var v=vKRW(s,isUS), c=cKRW(s,isUS), pnl=v-c, pct=c>0?(pnl/c)*100:0;
