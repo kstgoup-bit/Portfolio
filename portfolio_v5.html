@@ -678,7 +678,7 @@ function renderDashboard() {
   // 수익률 막대 (오른쪽) - 글씨 크게, 막대 넓이 유지
   var maxPct=Math.max.apply(null,items.map(function(m){return Math.abs(m.g.pct||0);}));
   if(maxPct<1) maxPct=1;
-  var barW=30, barH=80, gap=12, topPad=22;
+  var barW=22, barH=80, gap=12, topPad=22;
   var svgW=items.length*(barW+gap)-gap;
   var barSvg='<svg viewBox="0 0 '+svgW+' '+(barH+topPad+22)+'" style="width:100%;height:'+(barH+topPad+22)+'px">';
   items.forEach(function(m,i){
@@ -687,8 +687,8 @@ function renderDashboard() {
     var x=i*(barW+gap);
     var y=topPad+barH-h;
     var shortName=m.label.replace(/🇰🇷 |🇺🇸 |🏦 /g,"");
-    barSvg+='<rect x="'+x+'" y="'+y+'" width="'+barW+'" height="'+h+'" fill="'+(pos?"#ef5350":"#42a5f5")+'" rx="3"/>'+
-      '<text x="'+(x+barW/2)+'" y="'+(y-4)+'" text-anchor="middle" font-size="9.5" fill="'+(pos?"#c62828":"#1565c0")+'" font-weight="800">'+fmtPct(m.g.pct)+'</text>'+
+    barSvg+='<rect x="'+x+'" y="'+y+'" width="'+barW+'" height="'+h+'" fill="'+m.color+'" rx="3"/>'+
+      '<text x="'+(x+barW/2)+'" y="'+(y-4)+'" text-anchor="middle" font-size="9.5" fill="'+m.color+'" font-weight="800">'+fmtPct(m.g.pct)+'</text>'+
       '<text x="'+(x+barW/2)+'" y="'+(topPad+barH+14)+'" text-anchor="middle" font-size="10" fill="#444" font-weight="700">'+shortName+'</text>';
   });
   barSvg+='</svg>';
@@ -696,11 +696,11 @@ function renderDashboard() {
   ms.innerHTML=cardsHtml+
     '<div style="display:flex;gap:8px;align-items:center;margin-top:4px;padding:10px 2px 2px">'+
       '<div style="text-align:center">'+
-        '<div style="font-size:10px;color:var(--muted);font-weight:700;margin-bottom:4px">자산 비중</div>'+
+        '<div style="font-size:11px;color:var(--text);font-weight:900;margin-bottom:4px">자산 비중</div>'+
         pieSvg+
       '</div>'+
       '<div style="flex:1;text-align:center">'+
-        '<div style="font-size:10px;color:var(--muted);font-weight:700;margin-bottom:4px">수익률 비교</div>'+
+        '<div style="font-size:11px;color:var(--text);font-weight:900;margin-bottom:4px">수익률 비교</div>'+
         barSvg+
       '</div>'+
     '</div>';
