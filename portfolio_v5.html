@@ -219,38 +219,38 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
 .toast.show{opacity:1}
 
 /* 시장위험 온도계 */
-#panel-risk{background:#1a2e45}
-.rk-wrap{padding:16px;font-family:'JetBrains Mono',monospace;background:#1a2e45}
+#panel-risk{background:#e8f4fd}
+.rk-wrap{padding:16px;font-family:'JetBrains Mono',monospace;background:#e8f4fd}
 .rk-hdr{text-align:center;margin-bottom:18px}
-.rk-hdr-sub{font-size:9px;letter-spacing:4px;color:#7ab8e0;margin-bottom:4px}
-.rk-hdr-title{font-size:18px;font-weight:800;color:#f0f8ff;letter-spacing:1px}
-.rk-hdr-line{width:40px;height:1px;background:#4a80aa;margin:8px auto}
-.rk-main{display:flex;align-items:center;gap:16px;background:#213650;border:1px solid #3a6080;border-radius:16px;padding:18px;margin-bottom:10px;transition:box-shadow 0.8s}
+.rk-hdr-sub{font-size:9px;letter-spacing:4px;color:#1565c0;margin-bottom:4px}
+.rk-hdr-title{font-size:18px;font-weight:800;color:#0d2a5a;letter-spacing:1px}
+.rk-hdr-line{width:40px;height:1px;background:#90c0e8;margin:8px auto}
+.rk-main{display:flex;align-items:center;gap:16px;background:#fff;border:1px solid #b0d8f4;border-radius:16px;padding:18px;margin-bottom:10px;box-shadow:0 2px 12px #1565c018;transition:box-shadow 0.8s}
 .rk-score-area{flex:1}
-.rk-score-lbl{font-size:9px;color:#90c0e0;letter-spacing:3px;margin-bottom:6px}
-.rk-score-num{font-size:58px;font-weight:900;line-height:1;transition:color 0.8s;text-shadow:0 0 20px currentColor}
+.rk-score-lbl{font-size:9px;color:#1976d2;letter-spacing:3px;margin-bottom:6px}
+.rk-score-num{font-size:58px;font-weight:900;line-height:1;transition:color 0.8s;text-shadow:0 0 16px currentColor}
 .rk-score-label{font-size:20px;font-weight:800;margin-top:4px;letter-spacing:2px;transition:color 0.8s}
-.rk-weight{font-size:9px;color:#80aac8;margin-top:10px;line-height:1.8}
-.rk-gauge{background:#213650;border:1px solid #3a6080;border-radius:12px;padding:12px 14px;margin-bottom:8px}
+.rk-weight{font-size:9px;color:#5090c0;margin-top:10px;line-height:1.8}
+.rk-gauge{background:#fff;border:1px solid #b0d8f4;border-radius:12px;padding:12px 14px;margin-bottom:8px;box-shadow:0 1px 6px #1565c010}
 .rk-g-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
-.rk-g-lbl{font-size:8px;color:#90c0e0;letter-spacing:2px;margin-bottom:3px}
-.rk-g-val{font-size:20px;font-weight:700;color:#f0f8ff}
-.rk-g-unit{font-size:11px;color:#90aac0;margin-left:2px}
+.rk-g-lbl{font-size:8px;color:#1976d2;letter-spacing:2px;margin-bottom:3px}
+.rk-g-val{font-size:20px;font-weight:700;color:#0d2a5a}
+.rk-g-unit{font-size:11px;color:#5090c0;margin-left:2px}
 .rk-g-badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;white-space:nowrap}
-.rk-bar-bg{height:5px;background:#162438;border-radius:3px;overflow:hidden;margin-bottom:5px}
+.rk-bar-bg{height:5px;background:#ddeef8;border-radius:3px;overflow:hidden;margin-bottom:5px}
 .rk-bar-fill{height:100%;border-radius:3px;transition:width 0.8s ease}
-.rk-g-detail{font-size:10px;color:#90c0e0}
-.rk-g-range{font-size:8px;color:#6090b0;margin-top:2px}
-.rk-ai-msg{background:#213650;border:1px solid #3a6a8a;border-radius:10px;padding:10px 14px;margin-top:8px;font-size:11px;color:#a0d4f8;line-height:1.6}
-.rk-btn{width:100%;padding:11px;background:linear-gradient(135deg,#1e5090,#2878cc);border:1px solid #4a90d0;border-radius:10px;color:#d8f0ff;font-size:12px;font-weight:700;cursor:pointer;font-family:'JetBrains Mono',monospace;letter-spacing:1px;margin-top:10px;transition:all 0.2s}
-.rk-btn:disabled{background:#213650;color:#4a7090;cursor:not-allowed;border-color:#2a5070}
-.rk-legend{background:#213650;border:1px solid #3a6080;border-radius:12px;padding:12px;margin-top:10px}
-.rk-legend-lbl{font-size:9px;color:#6090b0;letter-spacing:3px;margin-bottom:10px}
+.rk-g-detail{font-size:10px;color:#2060a0;font-weight:600}
+.rk-g-range{font-size:8px;color:#80aac8;margin-top:2px}
+.rk-ai-msg{background:#fff;border:1px solid #90c8f0;border-radius:10px;padding:10px 14px;margin-top:8px;font-size:11px;color:#1565c0;line-height:1.6}
+.rk-btn{width:100%;padding:11px;background:linear-gradient(135deg,#1565c0,#1976d2);border:none;border-radius:10px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:'JetBrains Mono',monospace;letter-spacing:1px;margin-top:10px;box-shadow:0 2px 8px #1565c040;transition:all 0.2s}
+.rk-btn:disabled{background:#b0cce8;color:#7090b0;cursor:not-allowed;box-shadow:none}
+.rk-legend{background:#fff;border:1px solid #b0d8f4;border-radius:12px;padding:12px;margin-top:10px;box-shadow:0 1px 6px #1565c010}
+.rk-legend-lbl{font-size:9px;color:#5090c0;letter-spacing:3px;margin-bottom:10px}
 .rk-legend-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;font-size:10px}
 .rk-legend-dot{width:9px;height:9px;border-radius:2px;flex-shrink:0}
-.rk-legend-name{color:#90c0e0;width:88px;flex-shrink:0}
-.rk-legend-desc{color:#80a8c0}
-.rk-updated{text-align:center;font-size:9px;color:#5080a0;margin-top:8px}
+.rk-legend-name{color:#1565c0;width:88px;flex-shrink:0;font-weight:700}
+.rk-legend-desc{color:#3a6a9a}
+.rk-updated{text-align:center;font-size:9px;color:#80a8c8;margin-top:8px}
 </style>
 </head>
 <body>
@@ -608,7 +608,7 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
     <div class="rk-legend-row"><div class="rk-legend-dot" style="background:#f97316"></div><div class="rk-legend-name">경계 (50~70)</div><div class="rk-legend-desc">비중 축소 고려 / 방어주 관심</div></div>
     <div class="rk-legend-row"><div class="rk-legend-dot" style="background:#ef4444"></div><div class="rk-legend-name">위험 (70~100)</div><div class="rk-legend-desc">현금 확대 / 손절 기준 재점검</div></div>
   </div>
-  <div style="font-size:8px;color:#0f2035;margin-top:10px;text-align:center">데이터 출처: FRED · CBOE · ICE BofA — 투자 참고용</div>
+  <div style="font-size:8px;color:#80a8c8;margin-top:10px;text-align:center">데이터 출처: FRED · CBOE · ICE BofA — 투자 참고용</div>
 </div>
 </div>
 
@@ -1830,17 +1830,17 @@ function rkDrawThermo(score){
         '<rect x="24" y="'+(58+(fillH-fill))+'" width="24" height="'+(fill+60)+'" rx="4"/>'+
       '</clipPath>'+
     '</defs>'+
-    '<line x1="48" y1="62" x2="54" y2="62" stroke="#334155" stroke-width="1.5"/>'+
-    '<text x="56" y="66" font-size="9" fill="#475569" font-family="monospace">위험</text>'+
-    '<line x1="48" y1="112" x2="54" y2="112" stroke="#334155" stroke-width="1.5"/>'+
-    '<text x="56" y="116" font-size="9" fill="#475569" font-family="monospace">경계</text>'+
-    '<line x1="48" y1="162" x2="54" y2="162" stroke="#334155" stroke-width="1.5"/>'+
-    '<text x="56" y="166" font-size="9" fill="#475569" font-family="monospace">중립</text>'+
-    '<line x1="48" y1="212" x2="54" y2="212" stroke="#334155" stroke-width="1.5"/>'+
-    '<text x="56" y="216" font-size="9" fill="#475569" font-family="monospace">안정</text>'+
-    '<rect x="24" y="58" width="24" height="200" rx="12" fill="#0f172a" stroke="#1e3a5f" stroke-width="1.5"/>'+
+    '<line x1="46" y1="62" x2="53" y2="62" stroke="#8090a0" stroke-width="2"/>'+
+    '<text x="55" y="67" font-size="11" font-weight="800" fill="#c0341a" font-family="monospace">위험</text>'+
+    '<line x1="46" y1="112" x2="53" y2="112" stroke="#8090a0" stroke-width="2"/>'+
+    '<text x="55" y="117" font-size="11" font-weight="800" fill="#d06020" font-family="monospace">경계</text>'+
+    '<line x1="46" y1="162" x2="53" y2="162" stroke="#8090a0" stroke-width="2"/>'+
+    '<text x="55" y="167" font-size="11" font-weight="800" fill="#a09010" font-family="monospace">중립</text>'+
+    '<line x1="46" y1="212" x2="53" y2="212" stroke="#8090a0" stroke-width="2"/>'+
+    '<text x="55" y="217" font-size="11" font-weight="800" fill="#1e8040" font-family="monospace">안정</text>'+
+    '<rect x="24" y="58" width="24" height="200" rx="12" fill="#d8eaf8" stroke="#90b8d8" stroke-width="1.5"/>'+
     '<rect x="24" y="58" width="24" height="220" rx="12" fill="url(#rkGrad)" clip-path="url(#rkClip)"/>'+
-    '<circle cx="36" cy="250" r="22" fill="#0f172a" stroke="#1e3a5f" stroke-width="1.5"/>'+
+    '<circle cx="36" cy="250" r="22" fill="#d8eaf8" stroke="#90b8d8" stroke-width="1.5"/>'+
     '<circle cx="36" cy="250" r="17" fill="'+col+'"/>'+
     '<text x="36" y="254" text-anchor="middle" font-size="11" font-weight="bold" fill="#fff" font-family="monospace">'+score+'</text>'+
   '</svg>';
@@ -1874,39 +1874,68 @@ function rkRender(){
   rkSetGauge("rkYldVal","rkYldBadge","rkYldBar","rkYldDetail",rkData.yld.toFixed(2),yld);
   rkSetGauge("rkVixVal","rkVixBadge","rkVixBar","rkVixDetail",rkData.vix.toFixed(1),vix);
 }
+async function rkFetchOne(url) {
+  // allorigins CORS 프록시 경유
+  var proxy = "https://api.allorigins.win/raw?url=";
+  var res = await fetch(proxy + encodeURIComponent(url));
+  if (!res.ok) throw new Error("HTTP " + res.status);
+  return res;
+}
 async function rkFetch(){
   var btn=document.getElementById("rkFetchBtn");
   var msg=document.getElementById("rkAiMsg");
   btn.disabled=true; btn.textContent="⏳ 조회 중...";
-  msg.style.display="block"; msg.textContent="🔍 실시간 데이터 조회 중...";
-  try{
-    var res=await fetch("https://api.anthropic.com/v1/messages",{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({
-        model:"claude-sonnet-4-20250514",
-        max_tokens:800,
-        tools:[{type:"web_search_20250305",name:"web_search"}],
-        system:"You are a financial data assistant. Search and return ONLY a valid JSON object (no markdown, no backticks, no explanation):\n{\"hy_spread_bps\":<number>,\"yield_10y_pct\":<number>,\"vix\":<number>,\"summary\":\"<Korean 2-sentence market summary>\"}",
-        messages:[{role:"user",content:"Search: 1) ICE BofA US High Yield OAS current basis points 2) US 10-year treasury yield today 3) VIX index now. Return JSON only."}]
-      })
-    });
-    var json=await res.json();
-    var texts=(json.content||[]).filter(function(b){return b.type==="text";}).map(function(b){return b.text;}).join("");
-    var clean=texts.replace(/```json|```/g,"").trim();
-    var match=clean.match(/\{[\s\S]*\}/);
-    if(match){
-      var p=JSON.parse(match[0]);
-      if(p.hy_spread_bps) rkData.hy=p.hy_spread_bps;
-      if(p.yield_10y_pct) rkData.yld=p.yield_10y_pct;
-      if(p.vix) rkData.vix=p.vix;
-      msg.textContent="🤖 "+( p.summary||"데이터 업데이트 완료");
-      var now=new Date();
-      document.getElementById("rkUpdated").textContent="마지막 업데이트: "+now.toLocaleTimeString("ko-KR");
-    } else { msg.textContent="⚠️ 파싱 실패 — 이전 값 유지"; }
-    rkRender();
-  } catch(e){ msg.textContent="⚠️ 오류 발생: "+e.message; }
-  btn.disabled=false; btn.textContent="⚡ AI 실시간 조회";
+  msg.style.display="block"; msg.textContent="🔍 VIX · 10Y금리 · HY스프레드 조회 중...";
+
+  var ok=[], fail=[];
+
+  // ① VIX — Yahoo Finance ^VIX
+  try {
+    var vj = await (await rkFetchOne(
+      "https://query1.finance.yahoo.com/v8/finance/chart/%5EVIX?interval=1d&range=5d"
+    )).json();
+    var v = vj.chart.result[0].meta.regularMarketPrice;
+    if (v && v > 0) { rkData.vix = parseFloat(v.toFixed(1)); ok.push("VIX " + rkData.vix); }
+    else fail.push("VIX");
+  } catch(e) { fail.push("VIX"); }
+
+  // ② 10Y 국채금리 — Yahoo Finance ^TNX (단위: %, 예: 4.48)
+  try {
+    var tj = await (await rkFetchOne(
+      "https://query1.finance.yahoo.com/v8/finance/chart/%5ETNX?interval=1d&range=5d"
+    )).json();
+    var t = tj.chart.result[0].meta.regularMarketPrice;
+    if (t && t > 0) { rkData.yld = parseFloat(t.toFixed(2)); ok.push("10Y " + rkData.yld + "%"); }
+    else fail.push("10Y금리");
+  } catch(e) { fail.push("10Y금리"); }
+
+  // ③ HY 스프레드 — FRED CSV (BAMLH0A0HYM2, 단위: % → ×100 = bps)
+  try {
+    var csv = await (await rkFetchOne(
+      "https://fred.stlouisfed.org/graph/fredgraph.csv?id=BAMLH0A0HYM2"
+    )).text();
+    var lines = csv.trim().split("\n").filter(function(l){ return l && l[0] !== "D"; });
+    var last = lines[lines.length - 1].split(",");
+    var hv = parseFloat(last[1]);
+    if (!isNaN(hv) && hv > 0) {
+      rkData.hy = Math.round(hv * 100); // % → bps
+      ok.push("HY " + rkData.hy + "bps");
+    } else fail.push("HY스프레드");
+  } catch(e) { fail.push("HY스프레드"); }
+
+  rkRender();
+
+  if (fail.length === 0) {
+    msg.textContent = "✅ 업데이트 완료! " + ok.join(" · ");
+  } else if (ok.length > 0) {
+    msg.textContent = "⚠️ 일부 업데이트: " + ok.join(" · ") + " | 실패: " + fail.join(", ");
+  } else {
+    msg.textContent = "❌ 조회 실패 — 잠시 후 다시 시도해주세요 (장외시간엔 지연될 수 있어요)";
+  }
+
+  var now = new Date();
+  document.getElementById("rkUpdated").textContent = "마지막 업데이트: " + now.toLocaleTimeString("ko-KR");
+  btn.disabled=false; btn.textContent="⚡ 실시간 조회";
 }
 
 window.addEventListener("load", function() {
