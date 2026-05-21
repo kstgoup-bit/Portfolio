@@ -1850,7 +1850,7 @@ function rkSetGauge(valId,badgeId,barId,detailId,val,r){
   document.getElementById(valId).textContent=val;
   var badge=document.getElementById(badgeId);
   badge.textContent=r.zone;
-  badge.style.background=col+"22"; badge.style.border="1px solid "+col+"55"; badge.style.color=col;
+  badge.style.background=col+"33"; badge.style.border="1px solid "+col+"88"; badge.style.color="#1a2e3a"; badge.style.fontWeight="800";
   var bar=document.getElementById(barId);
   bar.style.width=Math.min(r.score*1.8,100)+"px";
   bar.style.background="linear-gradient(90deg,#22d47a,"+col+")";
@@ -1874,12 +1874,27 @@ function rkRender(){
   rkSetGauge("rkYldVal","rkYldBadge","rkYldBar","rkYldDetail",rkData.yld.toFixed(2),yld);
   rkSetGauge("rkVixVal","rkVixBadge","rkVixBar","rkVixDetail",rkData.vix.toFixed(1),vix);
 }
-async function rkFetchOne(url) {
-  // allorigins CORS 프록시 경유
-  var proxy = "https://api.allorigins.win/raw?url=";
-  var res = await fetch(proxy + encodeURIComponent(url));
-  if (!res.ok) throw new Error("HTTP " + res.status);
-  return res;
+// CORS 우회 fetch (직접 → allorigins → corsproxy 순서로 시도)
+async function rkFetchUrl(url) {
+  // 1차: 직접
+  try { var r=await fetch(url); if(r.ok) return r; } catch(e){}
+  // 2차: allorigins
+  try {
+    var r=await fetch("https://api.allorigins.win/raw?url="+encodeURIComponent(url));
+    if(r.ok) return r;
+  } catch(e){}
+  // 3차: corsproxy
+  var r=await fetch("https://corsproxy.io/?"+encodeURIComponent(url));
+  if(!r.ok) throw new Error("all proxies failed");
+  return r;
+}
+// Stooq CSV 파싱: Symbol,Date,Time,Open,High,Low,Close,Volume,Name
+function parseStooq(csv) {
+  var lines=csv.trim().split("\n").filter(function(l){return l&&l[0]!=="S";});
+  if(!lines.length) return null;
+  var cols=lines[lines.length-1].split(",");
+  var v=parseFloat(cols[6]); // Close
+  return isNaN(v)?null:v;
 }
 async function rkFetch(){
   var btn=document.getElementById("rkFetchBtn");
@@ -1889,52 +1904,51 @@ async function rkFetch(){
 
   var ok=[], fail=[];
 
-  // ① VIX — Yahoo Finance ^VIX
+  // ① VIX — Stooq ^VIX
   try {
-    var vj = await (await rkFetchOne(
-      "https://query1.finance.yahoo.com/v8/finance/chart/%5EVIX?interval=1d&range=5d"
-    )).json();
-    var v = vj.chart.result[0].meta.regularMarketPrice;
-    if (v && v > 0) { rkData.vix = parseFloat(v.toFixed(1)); ok.push("VIX " + rkData.vix); }
+    var csv=await (await rkFetchUrl(
+      "https://stooq.com/q/l/?s=%5Evix&f=sd2t2ohlcvn&h&e=csv"
+    )).text();
+    var v=parseStooq(csv);
+    if(v&&v>0){ rkData.vix=parseFloat(v.toFixed(1)); ok.push("VIX "+rkData.vix); }
     else fail.push("VIX");
-  } catch(e) { fail.push("VIX"); }
+  } catch(e){ fail.push("VIX"); }
 
-  // ② 10Y 국채금리 — Yahoo Finance ^TNX (단위: %, 예: 4.48)
+  // ② 10Y 국채금리 — Stooq 10USY.B
   try {
-    var tj = await (await rkFetchOne(
-      "https://query1.finance.yahoo.com/v8/finance/chart/%5ETNX?interval=1d&range=5d"
-    )).json();
-    var t = tj.chart.result[0].meta.regularMarketPrice;
-    if (t && t > 0) { rkData.yld = parseFloat(t.toFixed(2)); ok.push("10Y " + rkData.yld + "%"); }
+    var csv=await (await rkFetchUrl(
+      "https://stooq.com/q/l/?s=10usy.b&f=sd2t2ohlcvn&h&e=csv"
+    )).text();
+    var v=parseStooq(csv);
+    if(v&&v>0){ rkData.yld=parseFloat(v.toFixed(2)); ok.push("10Y "+rkData.yld+"%"); }
     else fail.push("10Y금리");
-  } catch(e) { fail.push("10Y금리"); }
+  } catch(e){ fail.push("10Y금리"); }
 
-  // ③ HY 스프레드 — FRED CSV (BAMLH0A0HYM2, 단위: % → ×100 = bps)
+  // ③ HY 스프레드 — FRED CSV (단위: % → ×100 = bps)
   try {
-    var csv = await (await rkFetchOne(
+    var csv=await (await rkFetchUrl(
       "https://fred.stlouisfed.org/graph/fredgraph.csv?id=BAMLH0A0HYM2"
     )).text();
-    var lines = csv.trim().split("\n").filter(function(l){ return l && l[0] !== "D"; });
-    var last = lines[lines.length - 1].split(",");
-    var hv = parseFloat(last[1]);
-    if (!isNaN(hv) && hv > 0) {
-      rkData.hy = Math.round(hv * 100); // % → bps
-      ok.push("HY " + rkData.hy + "bps");
+    var lines=csv.trim().split("\n").filter(function(l){return l&&l[0]!=="D";});
+    var last=lines[lines.length-1].split(",");
+    var hv=parseFloat(last[1]);
+    if(!isNaN(hv)&&hv>0){
+      rkData.hy=Math.round(hv*100);
+      ok.push("HY "+rkData.hy+"bps");
     } else fail.push("HY스프레드");
-  } catch(e) { fail.push("HY스프레드"); }
+  } catch(e){ fail.push("HY스프레드"); }
 
   rkRender();
 
-  if (fail.length === 0) {
-    msg.textContent = "✅ 업데이트 완료! " + ok.join(" · ");
-  } else if (ok.length > 0) {
-    msg.textContent = "⚠️ 일부 업데이트: " + ok.join(" · ") + " | 실패: " + fail.join(", ");
+  if(fail.length===0){
+    msg.textContent="✅ 업데이트 완료! "+ok.join(" · ");
+  } else if(ok.length>0){
+    msg.textContent="⚠️ 일부 업데이트: "+ok.join(" · ")+" | 실패: "+fail.join(", ");
   } else {
-    msg.textContent = "❌ 조회 실패 — 잠시 후 다시 시도해주세요 (장외시간엔 지연될 수 있어요)";
+    msg.textContent="❌ 조회 실패 — 잠시 후 다시 시도 (장 마감 후엔 지연될 수 있어요)";
   }
 
-  var now = new Date();
-  document.getElementById("rkUpdated").textContent = "마지막 업데이트: " + now.toLocaleTimeString("ko-KR");
+  document.getElementById("rkUpdated").textContent="마지막 업데이트: "+new Date().toLocaleTimeString("ko-KR");
   btn.disabled=false; btn.textContent="⚡ 실시간 조회";
 }
 
