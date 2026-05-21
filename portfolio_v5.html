@@ -730,6 +730,16 @@ function renderBalancePieDonut(svgId, spearV, shieldV) {
            " L"+x3+","+y3+" A"+ir+","+ir+" 0 "+lg+",0 "+x4+","+y4+" Z";
   }
   var spearDeg=spearPct/100*360;
+  // 100% 또는 0% 케이스: arc로 완전한 원 못 그리므로 circle로 처리
+  if(spearDeg>=360||spearDeg<=0){
+    var c=spearDeg>=360?"#ef5350":"#42a5f5";
+    svg.innerHTML=
+      '<circle cx="60" cy="60" r="46" fill="'+c+'"/>'+
+      '<circle cx="60" cy="60" r="28" fill="white"/>'+
+      '<text x="60" y="56" text-anchor="middle" font-size="13" font-weight="800" fill="#333">'+(spearDeg>=360?"100":"0")+'%</text>'+
+      '<text x="60" y="69" text-anchor="middle" font-size="9" fill="#999">창</text>';
+    return;
+  }
   svg.innerHTML=
     '<path d="'+arc(-90,-90+spearDeg,r,ri)+'" fill="#ef5350"/>'+
     (spearDeg<360?'<path d="'+arc(-90+spearDeg,270,r,ri)+'" fill="#42a5f5"/>':''+'')+
