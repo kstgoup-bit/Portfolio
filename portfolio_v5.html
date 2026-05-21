@@ -1234,7 +1234,7 @@ function renderEditForm(s, type) {
       '</div>';
   });
   var curRole=s.role||"spear";
-  return '<div style="display:flex;gap:6px;margin-bottom:8px">'+
+  return '<div style="display:flex;gap:6px;margin-top:12px;margin-bottom:8px">'+
     '<button id="rb_spear_'+type+'_'+s.id+'" class="role-btn'+(curRole==='spear'?' active-spear':'')+'" onclick="setRole(\'spear\','+s.id+',\''+type+'\')">⚔️ 창</button>'+
     '<button id="rb_shield_'+type+'_'+s.id+'" class="role-btn'+(curRole==='shield'?' active-shield':'')+'" onclick="setRole(\'shield\','+s.id+',\''+type+'\')">🛡 방패</button>'+
     '</div>'+
@@ -1261,12 +1261,12 @@ function calcAvg(type, id) {
   [1,2,3].forEach(function(n){
     var q=parseFloat(document.getElementById("cq"+n+"_"+type+"_"+id)?.value)||0;
     var p=parseFloat(document.getElementById("cp"+n+"_"+type+"_"+id)?.value)||0;
-    if(q) localStorage.setItem("calc_q"+n+"_"+type+"_"+id,q);
-    if(p) localStorage.setItem("calc_p"+n+"_"+type+"_"+id,p);
+    localStorage.setItem("calc_q"+n+"_"+type+"_"+id, document.getElementById("cq"+n+"_"+type+"_"+id)?.value||"");
+    localStorage.setItem("calc_p"+n+"_"+type+"_"+id, document.getElementById("cp"+n+"_"+type+"_"+id)?.value||"");
     var amt=q*p;
     total_q+=q; total_a+=amt;
     var ae=document.getElementById("ca"+n+"_"+type+"_"+id);
-    if(ae) ae.textContent=amt>0?Math.round(amt).toLocaleString()+"원":"−";
+    if(ae) ae.textContent=amt>0?(type==="ov"?"$"+amt.toFixed(2):Math.round(amt).toLocaleString()+"원"):"−";
   });
   var avg=total_q>0?total_a/total_q:0;
   var re=document.getElementById("calcResult_"+type+"_"+id);
@@ -1278,8 +1278,8 @@ function applyAvg(type, id) {
   [1,2,3].forEach(function(n){
     var q=parseFloat(document.getElementById("cq"+n+"_"+type+"_"+id)?.value)||0;
     var p=parseFloat(document.getElementById("cp"+n+"_"+type+"_"+id)?.value)||0;
-    if(q) localStorage.setItem("calc_q"+n+"_"+type+"_"+id,q);
-    if(p) localStorage.setItem("calc_p"+n+"_"+type+"_"+id,p);
+    localStorage.setItem("calc_q"+n+"_"+type+"_"+id, document.getElementById("cq"+n+"_"+type+"_"+id)?.value||"");
+    localStorage.setItem("calc_p"+n+"_"+type+"_"+id, document.getElementById("cp"+n+"_"+type+"_"+id)?.value||"");
     total_q+=q; total_a+=q*p;
   });
   if(!total_q){showToast("⚠️ 수량을 입력해주세요");return;}
@@ -1501,7 +1501,12 @@ function saveGas() {
 }
 
 function exportData() {
-  var backup={version:"v5",date:new Date().toLocaleString("ko-KR"),domStocks:domStocks,ovStocks:ovStocks,penStocks:penStocks,divList:divList,snapshots:snapshots,gasUrl:gasUrl,usdKrw:parseFloat(document.getElementById("usdKrw").value)||1370};
+  var calcData={};
+  for(var i=0;i<localStorage.length;i++){
+    var k=localStorage.key(i);
+    if(k&&(k.startsWith("calc_q")||k.startsWith("calc_p"))) calcData[k]=localStorage.getItem(k);
+  }
+  var backup={version:"v5",date:new Date().toLocaleString("ko-KR"),domStocks:domStocks,ovStocks:ovStocks,penStocks:penStocks,divList:divList,snapshots:snapshots,gasUrl:gasUrl,usdKrw:parseFloat(document.getElementById("usdKrw").value)||1370,calcData:calcData};
   var blob=new Blob([JSON.stringify(backup,null,2)],{type:"application/json"});
   var url=URL.createObjectURL(blob);
   var a=document.createElement("a");
@@ -1565,6 +1570,7 @@ function importData(event) {
 
       if(data.gasUrl){gasUrl=data.gasUrl;document.getElementById("gasInput").value=gasUrl;localStorage.setItem("v5_gas",gasUrl);}
       if(data.usdKrw) document.getElementById("usdKrw").value=data.usdKrw;
+      if(data.calcData){Object.keys(data.calcData).forEach(function(k){localStorage.setItem(k,data.calcData[k]);});}
 
       save(); renderAll();
       document.getElementById("backupMsg").textContent="✅ 복원 완료!";
