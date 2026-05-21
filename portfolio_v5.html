@@ -217,6 +217,40 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
 /* 토스트 메시지 */
 .toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#1a237e;color:#fff;padding:20px 32px;border-radius:16px;font-size:15px;font-weight:800;z-index:99999;opacity:0;transition:opacity 0.3s;box-shadow:0 8px 32px #00000060;max-width:85vw;text-align:center;line-height:1.6}
 .toast.show{opacity:1}
+
+/* 시장위험 온도계 */
+#panel-risk{background:#060c18}
+.rk-wrap{padding:16px;font-family:'JetBrains Mono',monospace;background:radial-gradient(ellipse at 20% 20%,#0d1f3c 0%,transparent 60%),radial-gradient(ellipse at 80% 80%,#0a1525 0%,transparent 60%),#060c18}
+.rk-hdr{text-align:center;margin-bottom:18px}
+.rk-hdr-sub{font-size:9px;letter-spacing:4px;color:#2a5f8a;margin-bottom:4px}
+.rk-hdr-title{font-size:18px;font-weight:800;color:#e2e8f0;letter-spacing:1px}
+.rk-hdr-line{width:40px;height:1px;background:#1e4a7a;margin:8px auto}
+.rk-main{display:flex;align-items:center;gap:16px;background:#090f1d;border:1px solid #112240;border-radius:16px;padding:18px;margin-bottom:10px;transition:box-shadow 0.8s}
+.rk-score-area{flex:1}
+.rk-score-lbl{font-size:9px;color:#2a5f8a;letter-spacing:3px;margin-bottom:6px}
+.rk-score-num{font-size:58px;font-weight:900;line-height:1;transition:color 0.8s;text-shadow:0 0 20px currentColor}
+.rk-score-label{font-size:20px;font-weight:800;margin-top:4px;letter-spacing:2px;transition:color 0.8s}
+.rk-weight{font-size:9px;color:#2a4a6a;margin-top:10px;line-height:1.8}
+.rk-gauge{background:#0d1829;border:1px solid #1a2e4a;border-radius:12px;padding:12px 14px;margin-bottom:8px}
+.rk-g-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
+.rk-g-lbl{font-size:8px;color:#4a7fa5;letter-spacing:2px;margin-bottom:3px}
+.rk-g-val{font-size:20px;font-weight:700;color:#e2e8f0}
+.rk-g-unit{font-size:11px;color:#64748b;margin-left:2px}
+.rk-g-badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;white-space:nowrap}
+.rk-bar-bg{height:5px;background:#0a111e;border-radius:3px;overflow:hidden;margin-bottom:5px}
+.rk-bar-fill{height:100%;border-radius:3px;transition:width 0.8s ease}
+.rk-g-detail{font-size:10px;color:#4a7fa5}
+.rk-g-range{font-size:8px;color:#1a3a5a;margin-top:2px}
+.rk-ai-msg{background:#0a1525;border:1px solid #1a3a5a;border-radius:10px;padding:10px 14px;margin-top:8px;font-size:11px;color:#5b8db8;line-height:1.6}
+.rk-btn{width:100%;padding:11px;background:linear-gradient(135deg,#0f3460,#1a5a9a);border:1px solid #1e4a7a;border-radius:10px;color:#7ec8ff;font-size:12px;font-weight:700;cursor:pointer;font-family:'JetBrains Mono',monospace;letter-spacing:1px;margin-top:10px;transition:all 0.2s}
+.rk-btn:disabled{background:#0d1a2e;color:#2a4a6a;cursor:not-allowed;border-color:#0f2040}
+.rk-legend{background:#070d1a;border:1px solid #0f1e35;border-radius:12px;padding:12px;margin-top:10px}
+.rk-legend-lbl{font-size:9px;color:#1a3a5a;letter-spacing:3px;margin-bottom:10px}
+.rk-legend-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;font-size:10px}
+.rk-legend-dot{width:9px;height:9px;border-radius:2px;flex-shrink:0}
+.rk-legend-name{color:#4a7fa5;width:88px;flex-shrink:0}
+.rk-legend-desc{color:#2a4a6a}
+.rk-updated{text-align:center;font-size:9px;color:#1a3a5a;margin-top:8px}
 </style>
 </head>
 <body>
@@ -255,6 +289,7 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
   <button class="tab" onclick="switchTab('pension')">🏦 연금</button>
   <button class="tab" onclick="switchTab('dividend')">💰 배당</button>
   <button class="tab" onclick="switchTab('commandments')">📜 10계명</button>
+  <button class="tab" onclick="switchTab('risk')">🌡️ 위험계</button>
   <button class="tab" onclick="switchTab('settings')">⚙️ 설정</button>
 </div>
 </div>
@@ -495,6 +530,86 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
     <div style="font-size:12px;color:#bbdefb;margin-top:4px">클로가 함께하는 10계명</div>
   </div>
   <div id="cmdList"></div>
+</div>
+
+<!-- 시장위험 온도계 -->
+<div class="panel" id="panel-risk">
+<div class="rk-wrap">
+  <div class="rk-hdr">
+    <div class="rk-hdr-sub">MARKET RISK MONITOR</div>
+    <div class="rk-hdr-title">시장 위험 온도계</div>
+    <div class="rk-hdr-line"></div>
+  </div>
+
+  <!-- 메인 카드: 온도계 + 종합점수 -->
+  <div class="rk-main" id="rkMain">
+    <div id="rkThermo" style="flex-shrink:0;width:72px"></div>
+    <div class="rk-score-area">
+      <div class="rk-score-lbl">종합 위험 지수</div>
+      <div class="rk-score-num" id="rkScoreNum" style="color:#22d47a">0</div>
+      <div class="rk-score-label" id="rkScoreLabel" style="color:#22d47a">🟢 낙 관</div>
+      <div class="rk-weight">HY스프레드 45% + 10Y금리 35% + VIX 20%<br>
+        <span style="color:#1a3a5a">위험&gt;70 · 경계50~70 · 중립30~50 · 낙관&lt;30</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- HY 스프레드 -->
+  <div class="rk-gauge" id="rkGauge1">
+    <div class="rk-g-top">
+      <div><div class="rk-g-lbl">HY CREDIT SPREAD (OAS)</div>
+        <div><span class="rk-g-val" id="rkHyVal">276</span><span class="rk-g-unit">bps</span></div>
+      </div>
+      <div class="rk-g-badge" id="rkHyBadge" style="background:#22d47a22;border:1px solid #22d47a55;color:#22d47a">안 정</div>
+    </div>
+    <div class="rk-bar-bg"><div class="rk-bar-fill" id="rkHyBar" style="width:54%;background:linear-gradient(90deg,#22d47a,#22d47a)"></div></div>
+    <div class="rk-g-detail" id="rkHyDetail">정상 범위 — 양호</div>
+    <div class="rk-g-range">안전&lt;400bps · 경계400~600 · 위험&gt;600 · 위기&gt;1000</div>
+  </div>
+
+  <!-- 10년물 금리 -->
+  <div class="rk-gauge" id="rkGauge2">
+    <div class="rk-g-top">
+      <div><div class="rk-g-lbl">US 10Y TREASURY YIELD</div>
+        <div><span class="rk-g-val" id="rkYldVal">4.48</span><span class="rk-g-unit">%</span></div>
+      </div>
+      <div class="rk-g-badge" id="rkYldBadge" style="background:#22d47a22;border:1px solid #22d47a55;color:#22d47a">안 정</div>
+    </div>
+    <div class="rk-bar-bg"><div class="rk-bar-fill" id="rkYldBar" style="width:54%;background:linear-gradient(90deg,#22d47a,#22d47a)"></div></div>
+    <div class="rk-g-detail" id="rkYldDetail">밸류에이션 양호</div>
+    <div class="rk-g-range">안전&lt;4.5% · 주의4.5~5% · 위험&gt;5% · 고위험&gt;5.5%</div>
+  </div>
+
+  <!-- VIX -->
+  <div class="rk-gauge" id="rkGauge3">
+    <div class="rk-g-top">
+      <div><div class="rk-g-lbl">VIX 공포지수</div>
+        <div><span class="rk-g-val" id="rkVixVal">17.8</span><span class="rk-g-unit"></span></div>
+      </div>
+      <div class="rk-g-badge" id="rkVixBadge" style="background:#22d47a22;border:1px solid #22d47a55;color:#22d47a">안 정</div>
+    </div>
+    <div class="rk-bar-bg"><div class="rk-bar-fill" id="rkVixBar" style="width:50%;background:linear-gradient(90deg,#22d47a,#22d47a)"></div></div>
+    <div class="rk-g-detail" id="rkVixDetail">정상 범위</div>
+    <div class="rk-g-range">낙관&lt;15 · 안정15~20 · 주의20~25 · 위험&gt;30 · 공황&gt;40</div>
+  </div>
+
+  <!-- AI 메시지 -->
+  <div class="rk-ai-msg" id="rkAiMsg"></div>
+
+  <!-- 조회 버튼 -->
+  <button class="rk-btn" id="rkFetchBtn" onclick="rkFetch()">⚡ AI 실시간 조회</button>
+  <div class="rk-updated" id="rkUpdated"></div>
+
+  <!-- 범례 -->
+  <div class="rk-legend">
+    <div class="rk-legend-lbl">RISK ZONE GUIDE</div>
+    <div class="rk-legend-row"><div class="rk-legend-dot" style="background:#22d47a"></div><div class="rk-legend-name">낙관 (0~30)</div><div class="rk-legend-desc">정상 투자 유지 / 매수 우호</div></div>
+    <div class="rk-legend-row"><div class="rk-legend-dot" style="background:#f5c842"></div><div class="rk-legend-name">중립 (30~50)</div><div class="rk-legend-desc">포지션 점검 / 신규 매수 신중</div></div>
+    <div class="rk-legend-row"><div class="rk-legend-dot" style="background:#f97316"></div><div class="rk-legend-name">경계 (50~70)</div><div class="rk-legend-desc">비중 축소 고려 / 방어주 관심</div></div>
+    <div class="rk-legend-row"><div class="rk-legend-dot" style="background:#ef4444"></div><div class="rk-legend-name">위험 (70~100)</div><div class="rk-legend-desc">현금 확대 / 손절 기준 재점검</div></div>
+  </div>
+  <div style="font-size:8px;color:#0f2035;margin-top:10px;text-align:center">데이터 출처: FRED · CBOE · ICE BofA — 투자 참고용</div>
+</div>
 </div>
 
 <!-- 설정 -->
@@ -1610,13 +1725,13 @@ function changePw() {
 // 탭 전환
 // =============================================
 function switchTab(tab) {
-  var tabs=["dashboard","domestic","overseas","pension","dividend","commandments","settings"];
+  var tabs=["dashboard","domestic","overseas","pension","dividend","commandments","risk","settings"];
   document.querySelectorAll(".tab").forEach(function(t,i){t.classList.toggle("active",tabs[i]===tab);});
   document.querySelectorAll(".panel").forEach(function(p){p.classList.toggle("active",p.id==="panel-"+tab);});
-  // 탭별 탭 버튼 색상
   var tabColors={
     dashboard:"#1976d2", domestic:"#f57f17", overseas:"#1976d2",
-    pension:"#7b1fa2", dividend:"#2e7d32", commandments:"#f57f17", settings:"#546e7a"
+    pension:"#7b1fa2", dividend:"#2e7d32", commandments:"#f57f17",
+    risk:"#0d7a8a", settings:"#546e7a"
   };
   document.querySelectorAll(".tab").forEach(function(t){
     t.style.color=""; t.style.borderColor=""; t.style.background="";
@@ -1625,6 +1740,7 @@ function switchTab(tab) {
     var c=tabColors[tab]||"#1565c0";
     t.style.color=c; t.style.borderColor=c; t.style.background="#fff";
   });
+  if(tab==="risk") rkRender();
 }
 
 // =============================================
@@ -1654,6 +1770,145 @@ function checkPw() {
 // =============================================
 // 실행
 // =============================================
+// =============================================
+// 시장위험 온도계
+// =============================================
+var rkData = {hy:276, yld:4.48, vix:17.8};
+
+function rkBlendColor(score) {
+  var stops=[[0,[34,212,122]],[30,[34,212,122]],[50,[245,200,66]],[70,[249,115,22]],[100,[239,68,68]]];
+  var lo=stops[0],hi=stops[stops.length-1];
+  for(var i=0;i<stops.length-1;i++){if(score>=stops[i][0]&&score<=stops[i+1][0]){lo=stops[i];hi=stops[i+1];break;}}
+  var t=(hi[0]-lo[0])===0?0:(score-lo[0])/(hi[0]-lo[0]);
+  var r=Math.round(lo[1][0]+(hi[1][0]-lo[1][0])*t);
+  var g=Math.round(lo[1][1]+(hi[1][1]-lo[1][1])*t);
+  var b=Math.round(lo[1][2]+(hi[1][2]-lo[1][2])*t);
+  return "rgb("+r+","+g+","+b+")";
+}
+function rkCalcHY(bps){
+  if(bps<250)return{score:15,zone:"과열 낙관",detail:"스프레드 역대 최저권 — 방심 구간"};
+  if(bps<400)return{score:30,zone:"안 정",detail:"정상 범위 — 양호"};
+  if(bps<600)return{score:55,zone:"경계 시작",detail:"리스크 의식 필요"};
+  if(bps<800)return{score:72,zone:"위 험",detail:"비중 축소 신호"};
+  if(bps<1000)return{score:86,zone:"고 위 험",detail:"방어적 전환 필요"};
+  return{score:97,zone:"위 기",detail:"금융위기 수준"};
+}
+function rkCalcYld(pct){
+  if(pct<4.0)return{score:15,zone:"완 화",detail:"채권→주식 유리"};
+  if(pct<4.5)return{score:30,zone:"안 정",detail:"밸류에이션 양호"};
+  if(pct<5.0)return{score:52,zone:"주 의",detail:"성장주 밸류 압박"};
+  if(pct<5.5)return{score:70,zone:"위 험",detail:"주식 할인율 부담"};
+  return{score:88,zone:"고 위 험",detail:"자금 이탈 가속"};
+}
+function rkCalcVix(v){
+  if(v<15)return{score:15,zone:"극도 낙관",detail:"공포 없음 — 역설 주의"};
+  if(v<20)return{score:28,zone:"안 정",detail:"정상 범위"};
+  if(v<25)return{score:50,zone:"중 립",detail:"불확실성 높아짐"};
+  if(v<30)return{score:65,zone:"경 계",detail:"변동성 확대"};
+  if(v<40)return{score:82,zone:"공 포",detail:"패닉 진입 단계"};
+  return{score:96,zone:"극 공 포",detail:"코로나·금융위기급"};
+}
+function rkScoreLabel(s){
+  if(s<30)return{text:"🟢 낙 관",col:"#22d47a"};
+  if(s<50)return{text:"🟡 중 립",col:"#f5c842"};
+  if(s<70)return{text:"🟠 경 계",col:"#f97316"};
+  return{text:"🔴 위 험",col:"#ef4444"};
+}
+function rkDrawThermo(score){
+  var fillH=200, fill=Math.round(fillH*score/100);
+  var top=58+(fillH-fill);
+  var col=rkBlendColor(score);
+  return '<svg width="70" height="280" viewBox="0 0 72 280" style="overflow:visible">'+
+    '<defs>'+
+      '<linearGradient id="rkGrad" x1="0" y1="1" x2="0" y2="0">'+
+        '<stop offset="0%" stop-color="#22d47a"/>'+
+        '<stop offset="45%" stop-color="#f5c842"/>'+
+        '<stop offset="75%" stop-color="#f97316"/>'+
+        '<stop offset="100%" stop-color="#ef4444"/>'+
+      '</linearGradient>'+
+      '<clipPath id="rkClip">'+
+        '<rect x="24" y="'+(58+(fillH-fill))+'" width="24" height="'+(fill+60)+'" rx="4"/>'+
+      '</clipPath>'+
+    '</defs>'+
+    '<line x1="48" y1="62" x2="54" y2="62" stroke="#334155" stroke-width="1.5"/>'+
+    '<text x="56" y="66" font-size="9" fill="#475569" font-family="monospace">위험</text>'+
+    '<line x1="48" y1="112" x2="54" y2="112" stroke="#334155" stroke-width="1.5"/>'+
+    '<text x="56" y="116" font-size="9" fill="#475569" font-family="monospace">경계</text>'+
+    '<line x1="48" y1="162" x2="54" y2="162" stroke="#334155" stroke-width="1.5"/>'+
+    '<text x="56" y="166" font-size="9" fill="#475569" font-family="monospace">중립</text>'+
+    '<line x1="48" y1="212" x2="54" y2="212" stroke="#334155" stroke-width="1.5"/>'+
+    '<text x="56" y="216" font-size="9" fill="#475569" font-family="monospace">안정</text>'+
+    '<rect x="24" y="58" width="24" height="200" rx="12" fill="#0f172a" stroke="#1e3a5f" stroke-width="1.5"/>'+
+    '<rect x="24" y="58" width="24" height="220" rx="12" fill="url(#rkGrad)" clip-path="url(#rkClip)"/>'+
+    '<circle cx="36" cy="250" r="22" fill="#0f172a" stroke="#1e3a5f" stroke-width="1.5"/>'+
+    '<circle cx="36" cy="250" r="17" fill="'+col+'"/>'+
+    '<text x="36" y="254" text-anchor="middle" font-size="11" font-weight="bold" fill="#fff" font-family="monospace">'+score+'</text>'+
+  '</svg>';
+}
+function rkSetGauge(valId,badgeId,barId,detailId,val,r){
+  var col=rkBlendColor(r.score);
+  document.getElementById(valId).textContent=val;
+  var badge=document.getElementById(badgeId);
+  badge.textContent=r.zone;
+  badge.style.background=col+"22"; badge.style.border="1px solid "+col+"55"; badge.style.color=col;
+  var bar=document.getElementById(barId);
+  bar.style.width=Math.min(r.score*1.8,100)+"px";
+  bar.style.background="linear-gradient(90deg,#22d47a,"+col+")";
+  document.getElementById(detailId).textContent=r.detail;
+}
+function rkRender(){
+  var hy=rkCalcHY(rkData.hy), yld=rkCalcYld(rkData.yld), vix=rkCalcVix(rkData.vix);
+  var total=Math.round(hy.score*0.45+yld.score*0.35+vix.score*0.20);
+  var col=rkBlendColor(total), lbl=rkScoreLabel(total);
+  // 온도계
+  document.getElementById("rkThermo").innerHTML=rkDrawThermo(total);
+  // 점수
+  var sn=document.getElementById("rkScoreNum");
+  sn.textContent=total; sn.style.color=col; sn.style.textShadow="0 0 20px "+col+"66";
+  var sl=document.getElementById("rkScoreLabel");
+  sl.textContent=lbl.text; sl.style.color=col;
+  // 메인 카드 glow
+  document.getElementById("rkMain").style.boxShadow="0 0 30px "+col+"18";
+  // 게이지
+  rkSetGauge("rkHyVal","rkHyBadge","rkHyBar","rkHyDetail",rkData.hy,hy);
+  rkSetGauge("rkYldVal","rkYldBadge","rkYldBar","rkYldDetail",rkData.yld.toFixed(2),yld);
+  rkSetGauge("rkVixVal","rkVixBadge","rkVixBar","rkVixDetail",rkData.vix.toFixed(1),vix);
+}
+async function rkFetch(){
+  var btn=document.getElementById("rkFetchBtn");
+  var msg=document.getElementById("rkAiMsg");
+  btn.disabled=true; btn.textContent="⏳ 조회 중...";
+  msg.style.display="block"; msg.textContent="🔍 실시간 데이터 조회 중...";
+  try{
+    var res=await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        model:"claude-sonnet-4-20250514",
+        max_tokens:800,
+        tools:[{type:"web_search_20250305",name:"web_search"}],
+        system:"You are a financial data assistant. Search and return ONLY a valid JSON object (no markdown, no backticks, no explanation):\n{\"hy_spread_bps\":<number>,\"yield_10y_pct\":<number>,\"vix\":<number>,\"summary\":\"<Korean 2-sentence market summary>\"}",
+        messages:[{role:"user",content:"Search: 1) ICE BofA US High Yield OAS current basis points 2) US 10-year treasury yield today 3) VIX index now. Return JSON only."}]
+      })
+    });
+    var json=await res.json();
+    var texts=(json.content||[]).filter(function(b){return b.type==="text";}).map(function(b){return b.text;}).join("");
+    var clean=texts.replace(/```json|```/g,"").trim();
+    var match=clean.match(/\{[\s\S]*\}/);
+    if(match){
+      var p=JSON.parse(match[0]);
+      if(p.hy_spread_bps) rkData.hy=p.hy_spread_bps;
+      if(p.yield_10y_pct) rkData.yld=p.yield_10y_pct;
+      if(p.vix) rkData.vix=p.vix;
+      msg.textContent="🤖 "+( p.summary||"데이터 업데이트 완료");
+      var now=new Date();
+      document.getElementById("rkUpdated").textContent="마지막 업데이트: "+now.toLocaleTimeString("ko-KR");
+    } else { msg.textContent="⚠️ 파싱 실패 — 이전 값 유지"; }
+    rkRender();
+  } catch(e){ msg.textContent="⚠️ 오류 발생: "+e.message; }
+  btn.disabled=false; btn.textContent="⚡ AI 실시간 조회";
+}
+
 window.addEventListener("load", function() {
   // 잠금화면
   if(sessionStorage.getItem("v5_auth")==="1") {
