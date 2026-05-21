@@ -1815,10 +1815,13 @@ function rkScoreLabel(s){
   return{text:"🔴 위 험",col:"#ef4444"};
 }
 function rkDrawThermo(score){
-  var fillH=200, fill=Math.round(fillH*score/100);
-  var top=58+(fillH-fill);
+  var tubeY=16, fillH=220, bulbCY=252;
+  var fill=Math.round(fillH*score/100);
+  var clipY=tubeY+(fillH-fill);
   var col=rkBlendColor(score);
-  return '<svg width="70" height="280" viewBox="0 0 72 280" style="overflow:visible">'+
+  // 눈금 위치: 점수 비례 (tubeY + (1-score/100)*fillH)
+  var yD=function(s){return tubeY+Math.round((1-s/100)*fillH);};
+  return '<svg width="70" height="286" viewBox="0 0 72 286" style="overflow:visible">'+
     '<defs>'+
       '<linearGradient id="rkGrad" x1="0" y1="1" x2="0" y2="0">'+
         '<stop offset="0%" stop-color="#22d47a"/>'+
@@ -1827,20 +1830,24 @@ function rkDrawThermo(score){
         '<stop offset="100%" stop-color="#ef4444"/>'+
       '</linearGradient>'+
       '<clipPath id="rkClip">'+
-        '<rect x="24" y="'+(58+(fillH-fill))+'" width="24" height="'+(fill+60)+'" rx="4"/>'+
+        '<rect x="24" y="'+clipY+'" width="24" height="'+(fill+60)+'" rx="4"/>'+
       '</clipPath>'+
     '</defs>'+
-    '<line x1="46" y1="118" x2="53" y2="118" stroke="#c0341a" stroke-width="2"/>'+
-    '<text x="55" y="123" font-size="11" font-weight="800" fill="#c0341a" font-family="monospace">위험70</text>'+
-    '<line x1="46" y1="158" x2="53" y2="158" stroke="#d06020" stroke-width="2"/>'+
-    '<text x="55" y="163" font-size="11" font-weight="800" fill="#d06020" font-family="monospace">경계50</text>'+
-    '<line x1="46" y1="198" x2="53" y2="198" stroke="#a09010" stroke-width="2"/>'+
-    '<text x="55" y="203" font-size="11" font-weight="800" fill="#a09010" font-family="monospace">중립30</text>'+
-    '<rect x="24" y="58" width="24" height="200" rx="12" fill="#d8eaf8" stroke="#90b8d8" stroke-width="1.5"/>'+
-    '<rect x="24" y="58" width="24" height="220" rx="12" fill="url(#rkGrad)" clip-path="url(#rkClip)"/>'+
-    '<circle cx="36" cy="250" r="22" fill="#d8eaf8" stroke="#90b8d8" stroke-width="1.5"/>'+
-    '<circle cx="36" cy="250" r="17" fill="'+col+'"/>'+
-    '<text x="36" y="254" text-anchor="middle" font-size="11" font-weight="bold" fill="#fff" font-family="monospace">'+score+'</text>'+
+    // 눈금선 + 라벨 (점수 비례 위치)
+    '<line x1="46" y1="'+yD(70)+'" x2="53" y2="'+yD(70)+'" stroke="#c0341a" stroke-width="2"/>'+
+    '<text x="55" y="'+(yD(70)+5)+'" font-size="11" font-weight="800" fill="#c0341a" font-family="monospace">위험70</text>'+
+    '<line x1="46" y1="'+yD(50)+'" x2="53" y2="'+yD(50)+'" stroke="#d06020" stroke-width="2"/>'+
+    '<text x="55" y="'+(yD(50)+5)+'" font-size="11" font-weight="800" fill="#d06020" font-family="monospace">경계50</text>'+
+    '<line x1="46" y1="'+yD(30)+'" x2="53" y2="'+yD(30)+'" stroke="#a09010" stroke-width="2"/>'+
+    '<text x="55" y="'+(yD(30)+5)+'" font-size="11" font-weight="800" fill="#a09010" font-family="monospace">중립30</text>'+
+    // 관 배경
+    '<rect x="24" y="'+tubeY+'" width="24" height="'+fillH+'" rx="12" fill="#d8eaf8" stroke="#90b8d8" stroke-width="1.5"/>'+
+    // 채움
+    '<rect x="24" y="'+tubeY+'" width="24" height="'+(fillH+20)+'" rx="12" fill="url(#rkGrad)" clip-path="url(#rkClip)"/>'+
+    // 구 (배경: 점수 색 연하게, 내부: 점수 색)
+    '<circle cx="36" cy="'+bulbCY+'" r="22" fill="'+col+'44" stroke="'+col+'99" stroke-width="2"/>'+
+    '<circle cx="36" cy="'+bulbCY+'" r="16" fill="'+col+'"/>'+
+    '<text x="36" y="'+(bulbCY+5)+'" text-anchor="middle" font-size="11" font-weight="bold" fill="#fff" font-family="monospace">'+score+'</text>'+
   '</svg>';
 }
 function rkSetGauge(valId,badgeId,barId,detailId,val,r){
