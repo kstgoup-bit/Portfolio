@@ -1182,8 +1182,8 @@ function renderStockList(listId, countId, type) {
             '</div>'+
             '<div class="bar-bg" style="margin:6px 0 4px"><div class="bar-fill" style="width:'+Math.min(w,100)+'%;background:'+color+'"></div></div>'+
             '<div class="item-btns">'+
-              '<button class="btn-edit'+(isEdit?" ok":"")+'" onclick="toggleEdit('+s.id+',\''+type+'\')">'+( isEdit?"✓ 저장":"수정")+'</button>'+
               '<button class="btn-del" onclick="delStock('+s.id+',\''+type+'\')">삭제</button>'+
+              '<button class="btn-edit'+(isEdit?" ok":"")+'" onclick="toggleEdit('+s.id+',\''+type+'\')">'+( isEdit?"✓ 저장":"수정")+'</button>'+
             '</div>'+
             (isEdit?renderEditForm(s,type):'')+
           '</div>'+
@@ -1202,8 +1202,8 @@ function renderStockList(listId, countId, type) {
           '<div class="item-top">'+
             '<div><div class="item-name">'+s.name+'</div><div class="item-ticker">'+s.ticker+'</div></div>'+
             '<div class="item-btns">'+
-              '<button class="btn-edit'+(isEdit?" ok":"")+'" onclick="toggleEdit('+s.id+',\''+type+'\')">'+( isEdit?"✓ 저장":"수정")+'</button>'+
               '<button class="btn-del" onclick="delStock('+s.id+',\''+type+'\')">삭제</button>'+
+              '<button class="btn-edit'+(isEdit?" ok":"")+'" onclick="toggleEdit('+s.id+',\''+type+'\')">'+( isEdit?"✓ 저장":"수정")+'</button>'+
             '</div>'+
           '</div>'+
           (isEdit?renderEditForm(s,type):renderValGrid(s,isUS))+
