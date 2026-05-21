@@ -1972,6 +1972,7 @@ window.addEventListener("load", function() {
   setTimeout(fetchFX, 1500);
   setTimeout(fetchKR, 2500);
   setTimeout(fetchUS, 3500);
+  setTimeout(rkFetch, 5000);  // 위험계 자동조회 (환율·주가 완료 후)
   setTimeout(function(){
     ['all','dom','ov','pen'].forEach(function(key){
       var stocks=key==='dom'?domStocks:key==='ov'?ovStocks:key==='pen'?penStocks:null;
