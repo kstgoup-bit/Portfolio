@@ -1877,7 +1877,7 @@ function rkRender(){
 // CORS 우회 fetch + 3초 타임아웃 + 재시도
 async function rkFetchOne(url) {
   var ctrl=new AbortController();
-  var timer=setTimeout(function(){ctrl.abort();},3000); // 3초 타임아웃
+  var timer=setTimeout(function(){ctrl.abort();},5000); // 5초 타임아웃
   try{
     var r=await fetch(url,{signal:ctrl.signal});
     clearTimeout(timer);
@@ -1921,6 +1921,14 @@ async function rkFetch(){
   msg.style.display="block"; msg.textContent="🔍 VIX · 10Y금리 · HY스프레드 조회 중...";
 
   var ok=[], fail=[];
+  var sleep=function(ms){return new Promise(function(r){setTimeout(r,ms);});};
+
+  // 캐시 불러오기 (실패 시 대비)
+  try{var c=JSON.parse(localStorage.getItem("v5_rkCache")||"{}");
+    if(c.vix) rkData.vix=c.vix;
+    if(c.yld) rkData.yld=c.yld;
+    if(c.hy)  rkData.hy=c.hy;
+  }catch(e){}
 
   // ① VIX — FRED VIXCLS
   try {
@@ -1929,6 +1937,7 @@ async function rkFetch(){
     if(v){ rkData.vix=parseFloat(v.toFixed(1)); ok.push("VIX "+rkData.vix); }
     else fail.push("VIX");
   } catch(e){ fail.push("VIX"); }
+  await sleep(1000);
 
   // ② 10Y 국채금리 — FRED DGS10
   try {
@@ -1937,6 +1946,7 @@ async function rkFetch(){
     if(v){ rkData.yld=parseFloat(v.toFixed(2)); ok.push("10Y "+rkData.yld+"%"); }
     else fail.push("10Y금리");
   } catch(e){ fail.push("10Y금리"); }
+  await sleep(1000);
 
   // ③ HY 스프레드 — FRED BAMLH0A0HYM2 (% → ×100 = bps)
   try {
@@ -1946,14 +1956,18 @@ async function rkFetch(){
     else fail.push("HY스프레드");
   } catch(e){ fail.push("HY스프레드"); }
 
+  // 성공한 값 캐시 저장
+  try{ localStorage.setItem("v5_rkCache", JSON.stringify({vix:rkData.vix,yld:rkData.yld,hy:rkData.hy})); }catch(e){}
+
   rkRender();
 
   if(fail.length===0){
     msg.textContent="✅ 업데이트 완료! "+ok.join(" · ");
   } else if(ok.length>0){
-    msg.textContent="⚠️ 일부 업데이트: "+ok.join(" · ")+" | 실패: "+fail.join(", ");
+    var cacheNote=fail.length>0?" (실패 항목은 이전 값 유지)":"";
+    msg.textContent="⚠️ "+ok.join(" · ")+" 업데이트 | "+fail.join(", ")+" 실패"+cacheNote;
   } else {
-    msg.textContent="❌ 조회 실패 — 잠시 후 다시 시도 (장 마감 후엔 지연될 수 있어요)";
+    msg.textContent="❌ 조회 실패 — 이전 캐시값 표시 중";
   }
 
   document.getElementById("rkUpdated").textContent="마지막 업데이트: "+new Date().toLocaleTimeString("ko-KR");
