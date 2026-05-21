@@ -1904,36 +1904,45 @@ async function rkFetch(){
 
   var ok=[], fail=[];
 
-  // ① VIX — Stooq ^VIX
+  // FRED CSV 파서 (공통)
+  function parseFred(csv) {
+    var lines=csv.trim().split("\n").filter(function(l){return l&&l[0]!=="D"&&l.indexOf(".")<20;});
+    for(var i=lines.length-1;i>=0;i--){
+      var cols=lines[i].split(",");
+      var v=parseFloat(cols[1]);
+      if(!isNaN(v)&&v>0) return v;
+    }
+    return null;
+  }
+
+  // ① VIX — FRED VIXCLS
   try {
     var csv=await (await rkFetchUrl(
-      "https://stooq.com/q/l/?s=%5Evix&f=sd2t2ohlcvn&h&e=csv"
+      "https://fred.stlouisfed.org/graph/fredgraph.csv?id=VIXCLS"
     )).text();
-    var v=parseStooq(csv);
-    if(v&&v>0){ rkData.vix=parseFloat(v.toFixed(1)); ok.push("VIX "+rkData.vix); }
+    var v=parseFred(csv);
+    if(v){ rkData.vix=parseFloat(v.toFixed(1)); ok.push("VIX "+rkData.vix); }
     else fail.push("VIX");
   } catch(e){ fail.push("VIX"); }
 
-  // ② 10Y 국채금리 — Stooq 10USY.B
+  // ② 10Y 국채금리 — FRED DGS10 (단위: %)
   try {
     var csv=await (await rkFetchUrl(
-      "https://stooq.com/q/l/?s=10usy.b&f=sd2t2ohlcvn&h&e=csv"
+      "https://fred.stlouisfed.org/graph/fredgraph.csv?id=DGS10"
     )).text();
-    var v=parseStooq(csv);
-    if(v&&v>0){ rkData.yld=parseFloat(v.toFixed(2)); ok.push("10Y "+rkData.yld+"%"); }
+    var v=parseFred(csv);
+    if(v){ rkData.yld=parseFloat(v.toFixed(2)); ok.push("10Y "+rkData.yld+"%"); }
     else fail.push("10Y금리");
   } catch(e){ fail.push("10Y금리"); }
 
-  // ③ HY 스프레드 — FRED CSV (단위: % → ×100 = bps)
+  // ③ HY 스프레드 — FRED BAMLH0A0HYM2 (단위: % → ×100 = bps)
   try {
     var csv=await (await rkFetchUrl(
       "https://fred.stlouisfed.org/graph/fredgraph.csv?id=BAMLH0A0HYM2"
     )).text();
-    var lines=csv.trim().split("\n").filter(function(l){return l&&l[0]!=="D";});
-    var last=lines[lines.length-1].split(",");
-    var hv=parseFloat(last[1]);
-    if(!isNaN(hv)&&hv>0){
-      rkData.hy=Math.round(hv*100);
+    var v=parseFred(csv);
+    if(v){
+      rkData.hy=Math.round(v*100);
       ok.push("HY "+rkData.hy+"bps");
     } else fail.push("HY스프레드");
   } catch(e){ fail.push("HY스프레드"); }
