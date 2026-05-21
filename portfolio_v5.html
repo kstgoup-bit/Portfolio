@@ -1874,27 +1874,38 @@ function rkRender(){
   rkSetGauge("rkYldVal","rkYldBadge","rkYldBar","rkYldDetail",rkData.yld.toFixed(2),yld);
   rkSetGauge("rkVixVal","rkVixBadge","rkVixBar","rkVixDetail",rkData.vix.toFixed(1),vix);
 }
-// CORS 우회 fetch (직접 → allorigins → corsproxy 순서로 시도)
-async function rkFetchUrl(url) {
-  // 1차: 직접
-  try { var r=await fetch(url); if(r.ok) return r; } catch(e){}
-  // 2차: allorigins
-  try {
-    var r=await fetch("https://api.allorigins.win/raw?url="+encodeURIComponent(url));
-    if(r.ok) return r;
-  } catch(e){}
-  // 3차: corsproxy
-  var r=await fetch("https://corsproxy.io/?"+encodeURIComponent(url));
-  if(!r.ok) throw new Error("all proxies failed");
-  return r;
+// CORS 우회 fetch + 재시도 (직접 → allorigins → corsproxy, 최대 2회)
+async function rkFetchUrl(url, retry) {
+  var proxies=[
+    url,
+    "https://api.allorigins.win/raw?url="+encodeURIComponent(url),
+    "https://corsproxy.io/?"+encodeURIComponent(url)
+  ];
+  for(var i=0;i<proxies.length;i++){
+    try{
+      var r=await fetch(proxies[i]);
+      if(r.ok){ var txt=await r.text(); if(txt&&txt.length>10) return txt; }
+    }catch(e){}
+    // 요청 간 200ms 간격 (FRED 연속 요청 안정화)
+    await new Promise(function(res){setTimeout(res,200);});
+  }
+  // 1회 자동 재시도
+  if(!retry){
+    await new Promise(function(res){setTimeout(res,800);});
+    return rkFetchUrl(url, true);
+  }
+  throw new Error("failed");
 }
-// Stooq CSV 파싱: Symbol,Date,Time,Open,High,Low,Close,Volume,Name
-function parseStooq(csv) {
-  var lines=csv.trim().split("\n").filter(function(l){return l&&l[0]!=="S";});
-  if(!lines.length) return null;
-  var cols=lines[lines.length-1].split(",");
-  var v=parseFloat(cols[6]); // Close
-  return isNaN(v)?null:v;
+// FRED CSV 파서: 날짜,값 형식, 역순으로 유효값 탐색
+function parseFred(csv) {
+  var lines=csv.trim().split("\n");
+  for(var i=lines.length-1;i>=0;i--){
+    var cols=lines[i].split(",");
+    if(cols.length<2) continue;
+    var v=parseFloat(cols[1]);
+    if(!isNaN(v)&&v>0) return v;
+  }
+  return null;
 }
 async function rkFetch(){
   var btn=document.getElementById("rkFetchBtn");
@@ -1904,47 +1915,28 @@ async function rkFetch(){
 
   var ok=[], fail=[];
 
-  // FRED CSV 파서 (공통)
-  function parseFred(csv) {
-    var lines=csv.trim().split("\n").filter(function(l){return l&&l[0]!=="D"&&l.indexOf(".")<20;});
-    for(var i=lines.length-1;i>=0;i--){
-      var cols=lines[i].split(",");
-      var v=parseFloat(cols[1]);
-      if(!isNaN(v)&&v>0) return v;
-    }
-    return null;
-  }
-
   // ① VIX — FRED VIXCLS
   try {
-    var csv=await (await rkFetchUrl(
-      "https://fred.stlouisfed.org/graph/fredgraph.csv?id=VIXCLS"
-    )).text();
+    var csv=await rkFetchUrl("https://fred.stlouisfed.org/graph/fredgraph.csv?id=VIXCLS");
     var v=parseFred(csv);
     if(v){ rkData.vix=parseFloat(v.toFixed(1)); ok.push("VIX "+rkData.vix); }
     else fail.push("VIX");
   } catch(e){ fail.push("VIX"); }
 
-  // ② 10Y 국채금리 — FRED DGS10 (단위: %)
+  // ② 10Y 국채금리 — FRED DGS10
   try {
-    var csv=await (await rkFetchUrl(
-      "https://fred.stlouisfed.org/graph/fredgraph.csv?id=DGS10"
-    )).text();
+    var csv=await rkFetchUrl("https://fred.stlouisfed.org/graph/fredgraph.csv?id=DGS10");
     var v=parseFred(csv);
     if(v){ rkData.yld=parseFloat(v.toFixed(2)); ok.push("10Y "+rkData.yld+"%"); }
     else fail.push("10Y금리");
   } catch(e){ fail.push("10Y금리"); }
 
-  // ③ HY 스프레드 — FRED BAMLH0A0HYM2 (단위: % → ×100 = bps)
+  // ③ HY 스프레드 — FRED BAMLH0A0HYM2 (% → ×100 = bps)
   try {
-    var csv=await (await rkFetchUrl(
-      "https://fred.stlouisfed.org/graph/fredgraph.csv?id=BAMLH0A0HYM2"
-    )).text();
+    var csv=await rkFetchUrl("https://fred.stlouisfed.org/graph/fredgraph.csv?id=BAMLH0A0HYM2");
     var v=parseFred(csv);
-    if(v){
-      rkData.hy=Math.round(v*100);
-      ok.push("HY "+rkData.hy+"bps");
-    } else fail.push("HY스프레드");
+    if(v){ rkData.hy=Math.round(v*100); ok.push("HY "+rkData.hy+"bps"); }
+    else fail.push("HY스프레드");
   } catch(e){ fail.push("HY스프레드"); }
 
   rkRender();
