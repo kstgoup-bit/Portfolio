@@ -1874,7 +1874,17 @@ function rkRender(){
   rkSetGauge("rkYldVal","rkYldBadge","rkYldBar","rkYldDetail",rkData.yld.toFixed(2),yld);
   rkSetGauge("rkVixVal","rkVixBadge","rkVixBar","rkVixDetail",rkData.vix.toFixed(1),vix);
 }
-// CORS 우회 fetch + 재시도 (직접 → allorigins → corsproxy, 최대 2회)
+// CORS 우회 fetch + 3초 타임아웃 + 재시도
+async function rkFetchOne(url) {
+  var ctrl=new AbortController();
+  var timer=setTimeout(function(){ctrl.abort();},3000); // 3초 타임아웃
+  try{
+    var r=await fetch(url,{signal:ctrl.signal});
+    clearTimeout(timer);
+    if(r.ok){ var txt=await r.text(); if(txt&&txt.length>10) return txt; }
+  }catch(e){ clearTimeout(timer); }
+  return null;
+}
 async function rkFetchUrl(url, retry) {
   var proxies=[
     url,
@@ -1882,16 +1892,13 @@ async function rkFetchUrl(url, retry) {
     "https://corsproxy.io/?"+encodeURIComponent(url)
   ];
   for(var i=0;i<proxies.length;i++){
-    try{
-      var r=await fetch(proxies[i]);
-      if(r.ok){ var txt=await r.text(); if(txt&&txt.length>10) return txt; }
-    }catch(e){}
-    // 요청 간 200ms 간격 (FRED 연속 요청 안정화)
+    var txt=await rkFetchOne(proxies[i]);
+    if(txt) return txt;
     await new Promise(function(res){setTimeout(res,200);});
   }
-  // 1회 자동 재시도
+  // 1회 자동 재시도 (1초 후)
   if(!retry){
-    await new Promise(function(res){setTimeout(res,800);});
+    await new Promise(function(res){setTimeout(res,1000);});
     return rkFetchUrl(url, true);
   }
   throw new Error("failed");
@@ -1972,7 +1979,7 @@ window.addEventListener("load", function() {
   setTimeout(fetchFX, 1500);
   setTimeout(fetchKR, 2500);
   setTimeout(fetchUS, 3500);
-  setTimeout(rkFetch, 5000);  // 위험계 자동조회 (환율·주가 완료 후)
+  setTimeout(rkFetch, 8000);  // 위험계 자동조회 (주가조회 완전히 끝난 후)
   setTimeout(function(){
     ['all','dom','ov','pen'].forEach(function(key){
       var stocks=key==='dom'?domStocks:key==='ov'?ovStocks:key==='pen'?penStocks:null;
