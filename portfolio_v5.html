@@ -116,6 +116,7 @@ body{background:var(--sky-bg);color:var(--text);font-family:'Noto Sans KR',sans-
 #panel-pension{background:var(--purple-bg)}
 #panel-dividend{background:var(--green-bg)}
 #panel-commandments{background:var(--cream-bg)}
+#panel-risk{background:#e8f4fd}
 #panel-settings{background:var(--sky-bg)}
 .panel.active{display:block}
 
@@ -1100,21 +1101,35 @@ function rkBarGrad(score) {
 function rkDrawThermo(score) {
   var el = document.getElementById("rkThermo");
   if(!el) return;
-  var fill = score>=70?"#ef4444":score>=50?"#f97316":score>=30?"#eab308":"#22c55e";
-  var pct  = Math.max(Math.min(score,100),0)/100;
-  var fh   = Math.round(86*pct);
-  var fy   = 20+86-fh;
-  el.innerHTML = '<svg viewBox="0 0 60 160" style="width:100%;height:150px">'+
-    '<rect x="22" y="18" width="16" height="88" rx="8" fill="#e2e8f0"/>'+
-    '<rect x="22" y="'+fy+'" width="16" height="'+fh+'" rx="4" fill="'+fill+'"/>'+
-    [100,75,50,25,0].map(function(v){
-      var y=20+Math.round(86*(1-v/100));
-      return '<line x1="38" y1="'+y+'" x2="44" y2="'+y+'" stroke="#94a3b8" stroke-width="1.5"/>'+
-             '<text x="47" y="'+(y+3)+'" font-size="7" fill="#64748b">'+v+'</text>';
-    }).join("")+
-    '<circle cx="30" cy="118" r="15" fill="'+fill+'"/>'+
-    '<circle cx="30" cy="118" r="10" fill="'+fill+'" opacity="0.45"/>'+
-    '<text x="30" y="123" text-anchor="middle" font-size="9" font-weight="800" fill="white">'+(score||"")+'</text>'+
+  var tubeY=16, fillH=220, bulbCY=252;
+  var fill=Math.round(fillH*Math.max(Math.min(score,100),0)/100);
+  var clipY=tubeY+(fillH-fill);
+  var col=score>=70?"#ef4444":score>=50?"#f97316":score>=30?"#eab308":"#22c55e";
+  var yD=function(s){return tubeY+Math.round((1-s/100)*fillH);};
+  el.innerHTML=
+    '<svg viewBox="0 0 72 286" style="width:100%;height:280px;overflow:visible">'+
+    '<defs>'+
+      '<linearGradient id="rkGrad" x1="0" y1="1" x2="0" y2="0">'+
+        '<stop offset="0%" stop-color="#22d47a"/>'+
+        '<stop offset="45%" stop-color="#f5c842"/>'+
+        '<stop offset="75%" stop-color="#f97316"/>'+
+        '<stop offset="100%" stop-color="#ef4444"/>'+
+      '</linearGradient>'+
+      '<clipPath id="rkClip">'+
+        '<rect x="24" y="'+clipY+'" width="24" height="'+(fill+60)+'" rx="4"/>'+
+      '</clipPath>'+
+    '</defs>'+
+    '<line x1="46" y1="'+yD(70)+'" x2="53" y2="'+yD(70)+'" stroke="#c0341a" stroke-width="2"/>'+
+    '<text x="55" y="'+(yD(70)+5)+'" font-size="10" font-weight="800" fill="#c0341a" font-family="monospace">위험70</text>'+
+    '<line x1="46" y1="'+yD(50)+'" x2="53" y2="'+yD(50)+'" stroke="#d06020" stroke-width="2"/>'+
+    '<text x="55" y="'+(yD(50)+5)+'" font-size="10" font-weight="800" fill="#d06020" font-family="monospace">경계50</text>'+
+    '<line x1="46" y1="'+yD(30)+'" x2="53" y2="'+yD(30)+'" stroke="#a09010" stroke-width="2"/>'+
+    '<text x="55" y="'+(yD(30)+5)+'" font-size="10" font-weight="800" fill="#a09010" font-family="monospace">중립30</text>'+
+    '<rect x="24" y="'+tubeY+'" width="24" height="'+fillH+'" rx="12" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1.5"/>'+
+    '<rect x="24" y="'+tubeY+'" width="24" height="'+(fillH+20)+'" rx="12" fill="url(#rkGrad)" clip-path="url(#rkClip)"/>'+
+    '<circle cx="36" cy="'+bulbCY+'" r="22" fill="'+col+'44" stroke="'+col+'99" stroke-width="2"/>'+
+    '<circle cx="36" cy="'+bulbCY+'" r="16" fill="'+col+'"/>'+
+    '<text x="36" y="'+(bulbCY+5)+'" text-anchor="middle" font-size="11" font-weight="bold" fill="#fff" font-family="monospace">'+(score||"")+'</text>'+
     '</svg>';
 }
 
@@ -1168,47 +1183,92 @@ function rkUpdateUI(hy, rate, vix) {
 }
 
 async function fetchRiskData() {
-  var btn = document.getElementById("rkFetchBtn");
-  var status = document.getElementById("rkStatus");
-  if(btn) {btn.disabled=true; btn.textContent="⏳ Claude가 검색 중...";}
-  if(status) {status.textContent="실시간 시장 데이터를 가져오고 있어요..."; status.style.color="#3b82f6";}
+  var btn=document.getElementById("rkFetchBtn");
+  var status=document.getElementById("rkStatus");
+  if(btn){btn.disabled=true; btn.textContent="⏳ 조회 중...";}
+  if(status){status.textContent="FRED에서 실시간 데이터 가져오는 중..."; status.style.color="#3b82f6";}
 
-  try {
-    var resp = await fetch("https://api.anthropic.com/v1/messages", {
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({
-        model:"claude-sonnet-4-20250514",
-        max_tokens:300,
-        tools:[{"type":"web_search_20250305","name":"web_search"}],
-        messages:[{role:"user",content:"미국 시장 현재 데이터를 검색해서 JSON만 반환해주세요. hy(HY OAS bps), rate10y(10년물금리%), vix(VIX지수) 세 값을 {hy:숫자,rate10y:숫자,vix:숫자} JSON만 반환하세요."}]
-      })
-    });
-    var data = await resp.json();
-    var text = data.content.filter(function(b){return b.type==="text";}).map(function(b){return b.text;}).join("").replace(/```json|```/g,"").trim();
-    var m = text.match(/\{[^}]+\}/);
-    if(!m) throw new Error("파싱 실패");
-    var parsed = JSON.parse(m[0]);
-    if(!parsed.hy||!parsed.rate10y||!parsed.vix) throw new Error("데이터 오류");
-    rkUpdateUI(parseFloat(parsed.hy), parseFloat(parsed.rate10y), parseFloat(parsed.vix));
-    if(status){status.textContent="✅ 조회 성공!"; status.style.color="#22c55e";}
-  } catch(e) {
-    var saved = localStorage.getItem("v5_riskData");
-    if(saved) {
-      try {
-        var s=JSON.parse(saved);
-        rkUpdateUI(s.hy, s.rate, s.vix);
-        var ago=Math.floor((Date.now()-s.ts)/60000);
-        var lu=document.getElementById("rkLastUpdate");
-        if(lu) lu.textContent="마지막 조회: "+new Date(s.ts).toLocaleString("ko-KR")+" ("+ago+"분 전)";
-        if(status){status.textContent="⚠️ 조회 실패 — 저장된 데이터 표시"; status.style.color="#f97316";}
-      } catch(e2){}
-    } else {
-      if(status){status.textContent="❌ 조회 실패. 잠시 후 다시 시도해주세요."; status.style.color="#ef4444";}
+  var sleep=function(ms){return new Promise(function(r){setTimeout(r,ms);});};
+
+  // 5초 타임아웃 + CORS 프록시 자동전환
+  async function tryFetch(url) {
+    var proxies=[url,
+      "https://api.allorigins.win/raw?url="+encodeURIComponent(url),
+      "https://corsproxy.io/?"+encodeURIComponent(url)];
+    for(var pass=0;pass<2;pass++){
+      for(var i=0;i<proxies.length;i++){
+        try{
+          var ctrl=new AbortController();
+          var t=setTimeout(function(){ctrl.abort();},5000);
+          var r=await fetch(proxies[i],{signal:ctrl.signal});
+          clearTimeout(t);
+          if(r.ok){var txt=await r.text(); if(txt&&txt.length>10) return txt;}
+        }catch(e){ }
+        await sleep(200);
+      }
+      if(pass===0) await sleep(1000);
     }
+    throw new Error("failed");
+  }
+
+  // FRED CSV 파서
+  function parseFred(csv){
+    var lines=csv.trim().split("\n");
+    for(var i=lines.length-1;i>=0;i--){
+      var cols=lines[i].split(",");
+      if(cols.length<2) continue;
+      var v=parseFloat(cols[1]);
+      if(!isNaN(v)&&v>0) return v;
+    }
+    return null;
+  }
+
+  var ok=[],fail=[],hy=null,rate=null,vix=null;
+  var cached={};
+  try{cached=JSON.parse(localStorage.getItem("v5_riskData")||"{}");} catch(e){}
+
+  // ① VIX
+  try{
+    var csv=await tryFetch("https://fred.stlouisfed.org/graph/fredgraph.csv?id=VIXCLS");
+    var v=parseFred(csv);
+    if(v){vix=parseFloat(v.toFixed(1)); ok.push("VIX "+vix);}
+    else fail.push("VIX");
+  }catch(e){fail.push("VIX");}
+  await sleep(1000);
+
+  // ② 10Y 금리
+  try{
+    var csv=await tryFetch("https://fred.stlouisfed.org/graph/fredgraph.csv?id=DGS10");
+    var v=parseFred(csv);
+    if(v){rate=parseFloat(v.toFixed(2)); ok.push("10Y "+rate+"%");}
+    else fail.push("10Y금리");
+  }catch(e){fail.push("10Y금리");}
+  await sleep(1000);
+
+  // ③ HY 스프레드
+  try{
+    var csv=await tryFetch("https://fred.stlouisfed.org/graph/fredgraph.csv?id=BAMLH0A0HYM2");
+    var v=parseFred(csv);
+    if(v){hy=Math.round(v*100); ok.push("HY "+hy+"bps");}
+    else fail.push("HY스프레드");
+  }catch(e){fail.push("HY스프레드");}
+
+  // 실패한 항목은 캐시값 사용
+  rkUpdateUI(
+    hy!==null?hy:(cached.hy||280),
+    rate!==null?rate:(cached.rate||4.5),
+    vix!==null?vix:(cached.vix||18)
+  );
+
+  if(fail.length===0){
+    if(status){status.textContent="✅ "+ok.join(" · "); status.style.color="#22c55e";}
+  } else if(ok.length>0){
+    if(status){status.textContent="⚠️ "+ok.join(" · ")+" | "+fail.join(", ")+" 실패(이전값유지)"; status.style.color="#f97316";}
+  } else {
+    if(status){status.textContent="❌ 조회 실패 — 캐시값 표시 중"; status.style.color="#ef4444";}
   }
   if(btn){btn.disabled=false; btn.textContent="🔄 실시간 위험 지수 조회";}
-  setTimeout(function(){if(status) status.textContent="";},6000);
+  setTimeout(function(){if(status)status.textContent="";},8000);
 }
 
 function loadRiskData() {
@@ -1903,7 +1963,7 @@ function changePw() {
 // 탭 전환
 // =============================================
 function switchTab(tab) {
-  var tabs=["dashboard","domestic","overseas","pension","dividend","commandments","settings"];
+  var tabs=["dashboard","domestic","overseas","pension","dividend","risk","commandments","settings"];
   document.querySelectorAll(".tab").forEach(function(t,i){t.classList.toggle("active",tabs[i]===tab);});
   document.querySelectorAll(".panel").forEach(function(p){p.classList.toggle("active",p.id==="panel-"+tab);});
   // 탭별 탭 버튼 색상
