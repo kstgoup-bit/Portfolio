@@ -1065,14 +1065,22 @@ function renderLineChart(period, btnId, chartId, snapKey, color) {
   var pts=data.filter(function(d){return ((now-d.ts)/86400000)<=days;});
   if(pts.length<2) pts=data.slice(-2);
   var vals=pts.map(function(d){return d.val;});
-  // 현재 매수금 계산
+  // 탭별 현재 매수금 계산
   var fx=parseFloat(document.getElementById("usdKrw").value)||1370;
-  var curCost=domStocks.filter(function(s){return s.quantity>0;}).reduce(function(s,x){return s+x.quantity*x.avgPrice;},0)
-    +ovStocks.filter(function(s){return s.quantity>0;}).reduce(function(s,x){return s+x.quantity*x.avgPrice*fx;},0)
-    +penStocks.filter(function(s){return s.quantity>0;}).reduce(function(s,x){return s+x.quantity*x.avgPrice;},0);
-  // cost 없는 포인트는 현재 매수금으로 채움
+  var curCost=0;
+  if(snapKey==="all"){
+    curCost=domStocks.filter(function(s){return s.quantity>0;}).reduce(function(s,x){return s+x.quantity*x.avgPrice;},0)
+      +ovStocks.filter(function(s){return s.quantity>0;}).reduce(function(s,x){return s+x.quantity*x.avgPrice*fx;},0)
+      +penStocks.filter(function(s){return s.quantity>0;}).reduce(function(s,x){return s+x.quantity*x.avgPrice;},0);
+  } else if(snapKey==="dom"){
+    curCost=domStocks.filter(function(s){return s.quantity>0;}).reduce(function(s,x){return s+x.quantity*x.avgPrice;},0);
+  } else if(snapKey==="ov"){
+    curCost=ovStocks.filter(function(s){return s.quantity>0;}).reduce(function(s,x){return s+x.quantity*x.avgPrice*fx;},0);
+  } else if(snapKey==="pen"){
+    curCost=penStocks.filter(function(s){return s.quantity>0;}).reduce(function(s,x){return s+x.quantity*x.avgPrice;},0);
+  }
   var costs=pts.map(function(d){return d.cost||curCost;});
-  var hasCost=snapKey==="all"&&curCost>0;
+  var hasCost=curCost>0;
   var allVals=hasCost?vals.concat(costs):vals;
   var minV=Math.min.apply(null,allVals), maxV=Math.max.apply(null,allVals);
   var range=maxV-minV||maxV*0.05||1;
