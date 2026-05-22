@@ -298,7 +298,6 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
     <div class="balance-warn" id="balWarn-all"></div>
     <div class="balance-ok" id="balOk-all"></div>
   </div>
-  <div id="mktSummary"></div>
   <!-- 전체 추세선 -->
   <div class="chart-wrap">
     <div class="chart-title">📉 전체 자산 변화 추이</div>
@@ -306,6 +305,8 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
     <svg id="allLineChart" viewBox="0 0 340 160" style="width:100%"></svg>
     <button class="record-btn" onclick="recordSnap('all')">📸 오늘 전체 자산 기록</button>
   </div>
+  <!-- 자산비중 + 수익률 + 국내해외연금 -->
+  <div id="mktSummary"></div>
 </div>
 
 <!-- 국내 -->
@@ -904,8 +905,8 @@ function renderDashboard() {
   });
   barSvg+='</svg>';
 
-  ms.innerHTML=cardsHtml+
-    '<div style="display:flex;gap:8px;align-items:center;margin-top:4px;padding:10px 2px 2px">'+
+  ms.innerHTML=
+    '<div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;padding:2px">'+
       '<div style="text-align:center">'+
         '<div style="font-size:11px;color:var(--text);font-weight:900;margin-bottom:4px">자산 비중</div>'+
         pieSvg+
@@ -914,7 +915,8 @@ function renderDashboard() {
         '<div style="font-size:11px;color:var(--text);font-weight:900;margin-bottom:4px">수익률 비교</div>'+
         barSvg+
       '</div>'+
-    '</div>';
+    '</div>'+
+    cardsHtml;
 
   // 추세선
   renderPeriodBtns("allPeriodBtns","allLineChart","all","#1565c0");
@@ -1063,7 +1065,10 @@ function renderLineChart(period, btnId, chartId, snapKey, color) {
   var pts=data.filter(function(d){return ((now-d.ts)/86400000)<=days;});
   if(pts.length<2) pts=data.slice(-2);
   var vals=pts.map(function(d){return d.val;});
-  var minV=Math.min.apply(null,vals), maxV=Math.max.apply(null,vals);
+  var costs=pts.map(function(d){return d.cost||0;});
+  var hasCost=snapKey==="all"&&costs.some(function(c){return c>0;});
+  var allVals=hasCost?vals.concat(costs.filter(function(c){return c>0;})):vals;
+  var minV=Math.min.apply(null,allVals), maxV=Math.max.apply(null,allVals);
   var range=maxV-minV||maxV*0.05||1;
   var L=55,R=10,T=10,B=35,W=340,H=160,cW=W-L-R,cH=H-T-B;
   var unitDiv=maxV>=100000000?100000000:maxV>=10000000?10000000:maxV>=1000000?1000000:10000;
@@ -1100,7 +1105,16 @@ function renderLineChart(period, btnId, chartId, snapKey, color) {
     yLabels+
     '<path d="'+fillD+'" fill="url(#grad'+snapKey+')"/>'+
     '<path d="'+pathD+'" fill="none" stroke="'+color+'" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>'+
-    (pts.length<=10?coords.map(function(c){return '<circle cx="'+c[0].toFixed(1)+'" cy="'+c[1].toFixed(1)+'" r="2.5" fill="'+color+'" stroke="white" stroke-width="1"/>';}).join(""):"") +
+    (hasCost?(function(){
+      var costCoords=pts.map(function(d,i){
+        var cv=d.cost||0;
+        return [L+i/(pts.length-1)*cW, cv>0?T+cH-(cH*((cv-minV)/range)):null];
+      }).filter(function(c){return c[1]!==null;});
+      if(costCoords.length<2) return '';
+      var costD=costCoords.map(function(c,i){return (i===0?"M":"L")+c[0].toFixed(1)+","+c[1].toFixed(1);}).join(" ");
+      return '<path d="'+costD+'" fill="none" stroke="#90a4ae" stroke-width="1.8" stroke-dasharray="5,3" stroke-linejoin="round"/>'+
+        '<text x="'+(costCoords[costCoords.length-1][0]+4)+'" y="'+(costCoords[costCoords.length-1][1]+3)+'" font-size="8" fill="#90a4ae">매수금</text>';
+    })():"")+(pts.length<=10?coords.map(function(c){return '<circle cx="'+c[0].toFixed(1)+'" cy="'+c[1].toFixed(1)+'" r="2.5" fill="'+color+'" stroke="white" stroke-width="1"/>';}).join(""):"") +
     '<circle cx="'+lx.toFixed(1)+'" cy="'+ly.toFixed(1)+'" r="4" fill="'+color+'" stroke="white" stroke-width="2"/>'+
     xLabels+
     '<text x="'+(W-R)+'" y="'+(T+12)+'" text-anchor="end" font-size="9" fill="'+(chg>=0?"#1b5e20":"#b71c1c")+'" font-weight="bold">'+(chg>=0?"▲":"▼")+" "+fmt(Math.abs(chg))+"원 ("+(chgP>=0?"+":"")+chgP.toFixed(1)+"%)"+
@@ -1140,8 +1154,18 @@ function recordSnap(key) {
   }
 
   var today = new Date().toDateString();
+  // 매수금 계산
+  var tc = 0;
+  if(arr) {
+    tc = arr.filter(function(s){return s.quantity>0&&s.avgPrice>0;})
+      .reduce(function(s,x){return s+x.quantity*x.avgPrice*(isUS?getRate():1);},0);
+  } else {
+    tc = domStocks.filter(function(s){return s.quantity>0;}).reduce(function(s,x){return s+x.quantity*x.avgPrice;},0)
+       + ovStocks.filter(function(s){return s.quantity>0;}).reduce(function(s,x){return s+x.quantity*x.avgPrice*getRate();},0)
+       + penStocks.filter(function(s){return s.quantity>0;}).reduce(function(s,x){return s+x.quantity*x.avgPrice;},0);
+  }
   snapshots[key] = snapshots[key].filter(function(d){ return new Date(d.ts).toDateString() !== today; });
-  snapshots[key].push({ts:Date.now(), val:tv});
+  snapshots[key].push({ts:Date.now(), val:tv, cost:tc});
   snapshots[key].sort(function(a,b){ return a.ts-b.ts; });
   save();
   renderAll(); updateHeaderH();
@@ -1684,9 +1708,17 @@ window.addEventListener("load", function() {
         tv=calcGroup(stocks,isUS).tv||0;
       }
       if(!tv) return;
+      var tc=0;
+      if(key==='all'){
+        tc=domStocks.filter(function(s){return s.quantity>0;}).reduce(function(s,x){return s+x.quantity*x.avgPrice;},0)
+          +ovStocks.filter(function(s){return s.quantity>0;}).reduce(function(s,x){return s+x.quantity*x.avgPrice*fx;},0)
+          +penStocks.filter(function(s){return s.quantity>0;}).reduce(function(s,x){return s+x.quantity*x.avgPrice;},0);
+      } else {
+        tc=stocks.filter(function(s){return s.quantity>0;}).reduce(function(s,x){return s+x.quantity*x.avgPrice*(key==='ov'?fx:1);},0);
+      }
       var today=new Date().toDateString();
       snapshots[key]=snapshots[key].filter(function(d){return new Date(d.ts).toDateString()!==today;});
-      snapshots[key].push({ts:Date.now(),val:tv});
+      snapshots[key].push({ts:Date.now(),val:tv,cost:tc});
       snapshots[key].sort(function(a,b){return a.ts-b.ts;});
     });
     save();
