@@ -1367,8 +1367,8 @@ function renderDividend() {
   var now=new Date();
   var yearDiv=divList.filter(function(d){return new Date(d.date).getFullYear()===now.getFullYear();}).reduce(function(s,d){return s+d.amount;},0);
   var totalDiv=divList.reduce(function(s,d){return s+d.amount;},0);
-  document.getElementById("divYear").textContent=fmt(yearDiv)+"원";
-  document.getElementById("divTotal").textContent=fmt(totalDiv)+"원";
+  document.getElementById("divYear").textContent=Math.round(yearDiv).toLocaleString()+"원";
+  document.getElementById("divTotal").textContent=Math.round(totalDiv).toLocaleString()+"원";
   renderDivBarChart();
   var el=document.getElementById("divList");
   if(!divList.length){el.innerHTML='<div class="empty">배당금을 입력해주세요</div>';return;}
@@ -1420,7 +1420,7 @@ function renderDivBarChart() {
     var lbl=k.substring(5)+"월";
     return '<rect x="'+x+'" y="'+y+'" width="'+barW+'" height="'+bh+'" fill="#2e7d32" rx="3"/>'+
       '<text x="'+(x+barW/2)+'" y="'+(H-6)+'" text-anchor="middle" font-size="8" fill="#546e7a">'+lbl+'</text>'+
-      (months[k]>0?'<text x="'+(x+barW/2)+'" y="'+(y-3)+'" text-anchor="middle" font-size="7" fill="#1b5e20" font-weight="bold">'+fmt(months[k])+'</text>':"");
+      (months[k]>0?'<text x="'+(x+barW/2)+'" y="'+(y-3)+'" text-anchor="middle" font-size="7" fill="#1b5e20" font-weight="bold">'+Math.round(months[k]).toLocaleString()+'</text>':"");
   }).join("");
   svg.innerHTML=bars;
 }
