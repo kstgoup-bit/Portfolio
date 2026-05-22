@@ -66,24 +66,24 @@ body{background:var(--sky-bg);color:var(--text);font-family:'Noto Sans KR',sans-
 .rk-hdr-line{height:2px;background:linear-gradient(90deg,#ef4444,#f97316,#eab308,#22c55e);border-radius:2px;margin:8px 0}
 .rk-main{display:flex;align-items:center;gap:16px;background:#fff;border-radius:16px;padding:16px;box-shadow:0 2px 12px #1a3a5a18;margin-bottom:12px}
 .rk-score-area{flex:1}
-.rk-score-lbl{font-size:10px;font-weight:700;color:#64748b;margin-bottom:4px}
+.rk-score-lbl{font-size:11px;font-weight:800;color:#475569;margin-bottom:4px}
 .rk-score-num{font-size:48px;font-weight:900;line-height:1;color:#22c55e}
-.rk-score-label{font-size:15px;font-weight:800;margin-top:4px}
-.rk-weight{font-size:9px;color:#94a3b8;margin-top:8px;line-height:1.6}
+.rk-score-label{font-size:17px;font-weight:900;margin-top:4px}
+.rk-weight{font-size:10px;color:#64748b;margin-top:8px;line-height:1.7}
 .rk-gauge{background:#fff;border-radius:14px;padding:14px;margin-bottom:10px;box-shadow:0 1px 8px #1a3a5a12}
 .rk-g-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
-.rk-g-lbl{font-size:9px;font-weight:800;color:#64748b;letter-spacing:0.5px}
-.rk-g-val{font-size:24px;font-weight:900;color:#1e293b}
-.rk-g-unit{font-size:11px;color:#94a3b8}
-.rk-g-badge{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:800;white-space:nowrap}
+.rk-g-lbl{font-size:10px;font-weight:800;color:#475569;letter-spacing:0.5px}
+.rk-g-val{font-size:26px;font-weight:900;color:#1e293b}
+.rk-g-unit{font-size:12px;color:#64748b;font-weight:600}
+.rk-g-badge{padding:5px 14px;border-radius:20px;font-size:13px;font-weight:800;white-space:nowrap}
 .rk-bar-bg{height:8px;background:#e2e8f0;border-radius:4px;overflow:hidden}
 .rk-bar-fill{height:100%;border-radius:4px;transition:width 1s ease}
-.rk-g-detail{font-size:10px;color:#475569;margin-top:7px;font-weight:600}
-.rk-g-range{font-size:9px;color:#94a3b8;margin-top:3px}
+.rk-g-detail{font-size:12px;color:#334155;margin-top:7px;font-weight:700}
+.rk-g-range{font-size:11px;color:#64748b;margin-top:4px;font-weight:600}
 .rk-btn{width:100%;padding:14px;background:linear-gradient(135deg,#1e40af,#2563eb);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:800;cursor:pointer;font-family:'Noto Sans KR',sans-serif;box-shadow:0 4px 14px #1e40af35;margin-top:4px}
 .rk-btn:active{transform:scale(0.98)}
-.rk-status{text-align:center;font-size:11px;margin-top:8px;min-height:16px;font-weight:600}
-.rk-update{text-align:center;font-size:10px;color:#94a3b8;margin-top:3px}
+.rk-status{text-align:center;font-size:12px;margin-top:8px;min-height:18px;font-weight:700}
+.rk-update{text-align:center;font-size:11px;color:#64748b;margin-top:4px}
 
 
 .role-badge{display:inline-block;font-size:9px;font-weight:800;padding:2px 6px;border-radius:10px;margin-left:4px;vertical-align:middle}
@@ -1157,7 +1157,7 @@ function rkUpdateUI(hy, rate, vix) {
 
   // 금리
   var rScore = rate<3.0?8:rate<3.5?20:rate<4.0?34:rate<4.5?50:rate<5.0?66:rate<5.5?80:95;
-  var rLv = rate<3.5?rkLevel(20):rate<4.5?rkLevel(50):rkLevel(75);
+  var rLv = rate<4.0?rkLevel(20):rate<4.5?rkLevel(38):rate<5.0?rkLevel(55):rkLevel(80);
   var rb=document.getElementById("rkRateBar"), rv=document.getElementById("rkRateVal"),
       rbg=document.getElementById("rkRateBadge"), rd=document.getElementById("rkRateDetail");
   if(rv) rv.textContent=rate.toFixed(2);
