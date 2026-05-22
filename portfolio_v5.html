@@ -1181,7 +1181,7 @@ async function fetchRiskData() {
         model:"claude-sonnet-4-20250514",
         max_tokens:300,
         tools:[{"type":"web_search_20250305","name":"web_search"}],
-        messages:[{role:"user",content:"미국 시장 현재 데이터를 검색해서 JSON만 반환해주세요. 필요한 값: 1)ICE BofA US High Yield OAS bps 2)미국 10년물 국채금리 % 3)VIX 지수. 반드시 {"hy":숫자,"rate10y":숫자,"vix":숫자} 형식 JSON만, 설명 없이."}]
+        messages:[{role:"user",content:"미국 시장 현재 데이터를 검색해서 JSON만 반환해주세요. hy(HY OAS bps), rate10y(10년물금리%), vix(VIX지수) 세 값을 {hy:숫자,rate10y:숫자,vix:숫자} JSON만 반환하세요."}]
       })
     });
     var data = await resp.json();
