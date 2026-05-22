@@ -1186,34 +1186,11 @@ async function fetchRiskData() {
   var btn=document.getElementById("rkFetchBtn");
   var status=document.getElementById("rkStatus");
   if(btn){btn.disabled=true; btn.textContent="⏳ 조회 중...";}
-  if(status){status.textContent="FRED에서 실시간 데이터 가져오는 중..."; status.style.color="#3b82f6";}
+  if(status){status.textContent="📡 데이터 조회 중..."; status.style.color="#3b82f6";}
 
-  var sleep=function(ms){return new Promise(function(r){setTimeout(r,ms);});};
-
-  // 5초 타임아웃 + CORS 프록시 자동전환
-  async function tryFetch(url) {
-    var proxies=[url,
-      "https://api.allorigins.win/raw?url="+encodeURIComponent(url),
-      "https://corsproxy.io/?"+encodeURIComponent(url)];
-    for(var pass=0;pass<2;pass++){
-      for(var i=0;i<proxies.length;i++){
-        try{
-          var ctrl=new AbortController();
-          var t=setTimeout(function(){ctrl.abort();},5000);
-          var r=await fetch(proxies[i],{signal:ctrl.signal});
-          clearTimeout(t);
-          if(r.ok){var txt=await r.text(); if(txt&&txt.length>10) return txt;}
-        }catch(e){ }
-        await sleep(200);
-      }
-      if(pass===0) await sleep(1000);
-    }
-    throw new Error("failed");
-  }
-
-  // FRED CSV 파서
-  function parseFred(csv){
-    var lines=csv.trim().split("\n");
+  // ── 파서 ──────────────────────────────
+  function parseFred(txt){
+    var lines=txt.trim().split("\n");
     for(var i=lines.length-1;i>=0;i--){
       var cols=lines[i].split(",");
       if(cols.length<2) continue;
@@ -1222,53 +1199,103 @@ async function fetchRiskData() {
     }
     return null;
   }
+  function parseYahoo(txt){
+    try{
+      var j=JSON.parse(txt);
+      var v=j.chart.result[0].meta.regularMarketPrice;
+      return v>0?parseFloat(v):null;
+    }catch(e){return null;}
+  }
 
-  var ok=[],fail=[],hy=null,rate=null,vix=null;
+  // ── 단일 URL fetch (4초 타임아웃) ──────
+  function fetchOne(url){
+    return new Promise(function(resolve){
+      var ctrl=new AbortController();
+      var t=setTimeout(function(){ctrl.abort();resolve(null);},4000);
+      fetch(url,{signal:ctrl.signal})
+        .then(function(r){clearTimeout(t); return r.ok?r.text():null;})
+        .then(function(txt){resolve(txt&&txt.length>10?txt:null);})
+        .catch(function(){clearTimeout(t);resolve(null);});
+    });
+  }
+
+  // ── 여러 URL 동시 시도 → 첫 성공 반환 ──
+  function raceUrls(urls){
+    return new Promise(function(resolve){
+      var done=false, left=urls.length;
+      urls.forEach(function(url){
+        fetchOne(url).then(function(txt){
+          left--;
+          if(txt&&!done){done=true;resolve(txt);}
+          else if(left===0&&!done){resolve(null);}
+        });
+      });
+    });
+  }
+
+  // ── URL 목록 생성 (FRED + Yahoo 동시) ──
+  function fredUrls(id){
+    var base="https://fred.stlouisfed.org/graph/fredgraph.csv?id="+id;
+    return [base,
+      "https://api.allorigins.win/raw?url="+encodeURIComponent(base),
+      "https://corsproxy.io/?"+encodeURIComponent(base)];
+  }
+  function yahooUrls(sym){
+    var base="https://query1.finance.yahoo.com/v8/finance/chart/"+sym+"?interval=1d&range=5d";
+    return [
+      "https://api.allorigins.win/raw?url="+encodeURIComponent(base),
+      "https://corsproxy.io/?"+encodeURIComponent(base)];
+  }
+
+  // ── 3개 동시 조회 ──────────────────────
   var cached={};
   try{cached=JSON.parse(localStorage.getItem("v5_riskData")||"{}");} catch(e){}
 
-  // ① VIX
-  try{
-    var csv=await tryFetch("https://fred.stlouisfed.org/graph/fredgraph.csv?id=VIXCLS");
-    var v=parseFred(csv);
+  var results=await Promise.all([
+    raceUrls(fredUrls("VIXCLS").concat(yahooUrls("%5EVIX"))),   // VIX
+    raceUrls(fredUrls("DGS10").concat(yahooUrls("%5ETNX"))),    // 10Y
+    raceUrls(fredUrls("BAMLH0A0HYM2"))                          // HY
+  ]);
+
+  var vixTxt=results[0], rateTxt=results[1], hyTxt=results[2];
+  var vix=null, rate=null, hy=null;
+  var ok=[], fail=[];
+
+  if(vixTxt){
+    var v=parseFred(vixTxt)||parseYahoo(vixTxt);
     if(v){vix=parseFloat(v.toFixed(1)); ok.push("VIX "+vix);}
     else fail.push("VIX");
-  }catch(e){fail.push("VIX");}
-  await sleep(1000);
+  } else fail.push("VIX");
 
-  // ② 10Y 금리
-  try{
-    var csv=await tryFetch("https://fred.stlouisfed.org/graph/fredgraph.csv?id=DGS10");
-    var v=parseFred(csv);
+  if(rateTxt){
+    var v=parseFred(rateTxt)||parseYahoo(rateTxt);
     if(v){rate=parseFloat(v.toFixed(2)); ok.push("10Y "+rate+"%");}
     else fail.push("10Y금리");
-  }catch(e){fail.push("10Y금리");}
-  await sleep(1000);
+  } else fail.push("10Y금리");
 
-  // ③ HY 스프레드
-  try{
-    var csv=await tryFetch("https://fred.stlouisfed.org/graph/fredgraph.csv?id=BAMLH0A0HYM2");
-    var v=parseFred(csv);
+  if(hyTxt){
+    var v=parseFred(hyTxt);
     if(v){hy=Math.round(v*100); ok.push("HY "+hy+"bps");}
     else fail.push("HY스프레드");
-  }catch(e){fail.push("HY스프레드");}
+  } else fail.push("HY스프레드");
 
-  // 실패한 항목은 캐시값 사용
   rkUpdateUI(
     hy!==null?hy:(cached.hy||280),
     rate!==null?rate:(cached.rate||4.5),
     vix!==null?vix:(cached.vix||18)
   );
 
+  // ── 상태 메시지 (사라지지 않음) ────────
+  var now=new Date().toLocaleTimeString("ko-KR");
   if(fail.length===0){
-    if(status){status.textContent="✅ "+ok.join(" · "); status.style.color="#22c55e";}
+    if(status){status.textContent="✅ "+ok.join(" · ")+" ("+now+")"; status.style.color="#16a34a";}
   } else if(ok.length>0){
-    if(status){status.textContent="⚠️ "+ok.join(" · ")+" | "+fail.join(", ")+" 실패(이전값유지)"; status.style.color="#f97316";}
+    if(status){status.textContent="⚠️ "+ok.join(" · ")+" 성공 | "+fail.join("·")+" 실패→이전값 ("+now+")"; status.style.color="#d97706";}
   } else {
-    if(status){status.textContent="❌ 조회 실패 — 캐시값 표시 중"; status.style.color="#ef4444";}
+    if(status){status.textContent="❌ 전체 실패 — 이전 저장값 표시 중 ("+now+")"; status.style.color="#dc2626";}
   }
   if(btn){btn.disabled=false; btn.textContent="🔄 실시간 위험 지수 조회";}
-  setTimeout(function(){if(status)status.textContent="";},8000);
+  // ★ 메시지 자동 삭제 없음 — 다음 조회 전까지 유지
 }
 
 function loadRiskData() {
