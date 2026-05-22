@@ -2028,31 +2028,32 @@ window.addEventListener("load", function() {
   setTimeout(fetchUS, 3500);
   setTimeout(fetchRiskData, 7000);
   setTimeout(function(){
+    // ★ 자동 자산기록 (로그인/새로고침 시 1회)
+    var rate=getRate(), today=new Date().toDateString(), recorded=false;
+    function tvFB(arr,us){ // currentPrice 없으면 avgPrice 폴백
+      return arr.filter(function(s){return s.quantity>0&&(s.currentPrice>0||s.avgPrice>0);})
+        .reduce(function(sum,x){var p=x.currentPrice>0?x.currentPrice:x.avgPrice;return sum+x.quantity*p*(us?rate:1);},0);
+    }
+    function tcFB(arr,us){
+      return arr.filter(function(s){return s.quantity>0&&s.avgPrice>0;})
+        .reduce(function(sum,x){return sum+x.quantity*x.avgPrice*(us?rate:1);},0);
+    }
     ['all','dom','ov','pen'].forEach(function(key){
-      var stocks=key==='dom'?domStocks:key==='ov'?ovStocks:key==='pen'?penStocks:null;
-      var isUS=key==='ov';
-      var tv=0;
+      var arr=key==='dom'?domStocks:key==='ov'?ovStocks:key==='pen'?penStocks:null;
+      var us=key==='ov', tv=0, tc=0;
       if(key==='all'){
-        tv=(calcGroup(domStocks,false).tv||0)+(calcGroup(ovStocks,true).tv||0)+(calcGroup(penStocks,false).tv||0);
+        tv=tvFB(domStocks,false)+tvFB(ovStocks,true)+tvFB(penStocks,false);
+        tc=tcFB(domStocks,false)+tcFB(ovStocks,true)+tcFB(penStocks,false);
       } else {
-        tv=calcGroup(stocks,isUS).tv||0;
+        tv=tvFB(arr,us); tc=tcFB(arr,us);
       }
       if(!tv) return;
-      var tc=0;
-      if(key==='all'){
-        tc=domStocks.filter(function(s){return s.quantity>0;}).reduce(function(s,x){return s+x.quantity*x.avgPrice;},0)
-          +ovStocks.filter(function(s){return s.quantity>0;}).reduce(function(s,x){return s+x.quantity*x.avgPrice*fx;},0)
-          +penStocks.filter(function(s){return s.quantity>0;}).reduce(function(s,x){return s+x.quantity*x.avgPrice;},0);
-      } else {
-        tc=stocks.filter(function(s){return s.quantity>0;}).reduce(function(s,x){return s+x.quantity*x.avgPrice*(key==='ov'?fx:1);},0);
-      }
-      var today=new Date().toDateString();
-      snapshots[key]=snapshots[key].filter(function(d){return new Date(d.ts).toDateString()!==today;});
+      snapshots[key]=(snapshots[key]||[]).filter(function(d){return new Date(d.ts).toDateString()!==today;});
       snapshots[key].push({ts:Date.now(),val:tv,cost:tc});
       snapshots[key].sort(function(a,b){return a.ts-b.ts;});
+      recorded=true;
     });
-    save();
-    renderAll();
+    if(recorded){save();renderAll();}
   }, 5000);
 });
 </script>
