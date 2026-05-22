@@ -255,6 +255,7 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
   <button class="tab" onclick="switchTab('pension')">🏦 연금</button>
   <button class="tab" onclick="switchTab('dividend')">💰 배당</button>
   <button class="tab" onclick="switchTab('commandments')">📜 10계명</button>
+  <button class="tab" onclick="switchTab('risk')">🌡️ 위험계</button>
   <button class="tab" onclick="switchTab('settings')">⚙️ 설정</button>
 </div>
 </div>
@@ -496,6 +497,97 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
     <div style="font-size:12px;color:#bbdefb;margin-top:4px">클로가 함께하는 10계명</div>
   </div>
   <div id="cmdList"></div>
+</div>
+
+<!-- 위험 온도계 -->
+<div class="panel" id="panel-risk" style="background:#f0f4f8">
+<div style="padding:2px 0 12px">
+
+  <!-- 헤더 -->
+  <div style="text-align:center;margin-bottom:14px">
+    <div style="font-size:10px;color:#64748b;letter-spacing:2px;font-weight:700">MARKET RISK MONITOR</div>
+    <div style="font-size:18px;font-weight:900;color:#1e293b;margin:2px 0">🌡️ 시장 위험 온도계</div>
+    <div style="height:2px;background:linear-gradient(90deg,#ef4444,#f97316,#eab308,#22c55e);border-radius:2px;margin:8px 0"></div>
+  </div>
+
+  <!-- 메인 카드 -->
+  <div style="background:#fff;border-radius:16px;padding:16px;box-shadow:0 2px 12px #00000012;margin-bottom:12px">
+    <div style="display:flex;align-items:center;gap:16px">
+      <svg id="rkThermo" viewBox="0 0 60 160" style="width:52px;height:140px;flex-shrink:0"></svg>
+      <div style="flex:1">
+        <div style="font-size:11px;color:#64748b;font-weight:700;margin-bottom:4px">종합 위험 지수</div>
+        <div id="rkScoreNum" style="font-size:44px;font-weight:900;line-height:1;color:#22c55e">—</div>
+        <div id="rkScoreLabel" style="font-size:14px;font-weight:800;margin-top:4px;color:#22c55e">🟢 데이터 없음</div>
+        <div style="font-size:9px;color:#94a3b8;margin-top:6px">HY스프레드45% + 10Y금리35% + VIX20%</div>
+        <div style="font-size:9px;color:#94a3b8">위험>70 · 경계50~70 · 중립30~50 · 낙관<30</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HY 스프레드 -->
+  <div style="background:#fff;border-radius:14px;padding:14px;margin-bottom:10px;box-shadow:0 1px 6px #0000000e">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <div>
+        <div style="font-size:10px;font-weight:800;color:#64748b">HY CREDIT SPREAD (OAS)</div>
+        <div style="display:flex;align-items:baseline;gap:3px;margin-top:2px">
+          <span id="rkHyVal" style="font-size:22px;font-weight:900;color:#1e293b">—</span>
+          <span style="font-size:11px;color:#94a3b8">bps</span>
+        </div>
+      </div>
+      <div id="rkHyBadge" style="padding:4px 10px;border-radius:20px;font-size:11px;font-weight:800;background:#dcfce7;color:#16a34a">—</div>
+    </div>
+    <div style="height:8px;background:#f1f5f9;border-radius:4px;overflow:hidden">
+      <div id="rkHyBar" style="height:100%;border-radius:4px;transition:width 0.8s;width:0%"></div>
+    </div>
+    <div id="rkHyDetail" style="font-size:10px;color:#64748b;margin-top:6px">—</div>
+    <div style="font-size:9px;color:#94a3b8;margin-top:2px">안전&lt;400 · 경계400~600 · 위험&gt;600 · 위기&gt;1000</div>
+  </div>
+
+  <!-- 10년물 금리 -->
+  <div style="background:#fff;border-radius:14px;padding:14px;margin-bottom:10px;box-shadow:0 1px 6px #0000000e">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <div>
+        <div style="font-size:10px;font-weight:800;color:#64748b">US 10Y TREASURY YIELD</div>
+        <div style="display:flex;align-items:baseline;gap:3px;margin-top:2px">
+          <span id="rkRateVal" style="font-size:22px;font-weight:900;color:#1e293b">—</span>
+          <span style="font-size:11px;color:#94a3b8">%</span>
+        </div>
+      </div>
+      <div id="rkRateBadge" style="padding:4px 10px;border-radius:20px;font-size:11px;font-weight:800;background:#dcfce7;color:#16a34a">—</div>
+    </div>
+    <div style="height:8px;background:#f1f5f9;border-radius:4px;overflow:hidden">
+      <div id="rkRateBar" style="height:100%;border-radius:4px;transition:width 0.8s;width:0%"></div>
+    </div>
+    <div id="rkRateDetail" style="font-size:10px;color:#64748b;margin-top:6px">—</div>
+    <div style="font-size:9px;color:#94a3b8;margin-top:2px">안전&lt;3.5% · 경계3.5~4.5% · 위험&gt;4.5%</div>
+  </div>
+
+  <!-- VIX -->
+  <div style="background:#fff;border-radius:14px;padding:14px;margin-bottom:14px;box-shadow:0 1px 6px #0000000e">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <div>
+        <div style="font-size:10px;font-weight:800;color:#64748b">VIX (공포 지수)</div>
+        <div style="display:flex;align-items:baseline;gap:3px;margin-top:2px">
+          <span id="rkVixVal" style="font-size:22px;font-weight:900;color:#1e293b">—</span>
+        </div>
+      </div>
+      <div id="rkVixBadge" style="padding:4px 10px;border-radius:20px;font-size:11px;font-weight:800;background:#dcfce7;color:#16a34a">—</div>
+    </div>
+    <div style="height:8px;background:#f1f5f9;border-radius:4px;overflow:hidden">
+      <div id="rkVixBar" style="height:100%;border-radius:4px;transition:width 0.8s;width:0%"></div>
+    </div>
+    <div id="rkVixDetail" style="font-size:10px;color:#64748b;margin-top:6px">—</div>
+    <div style="font-size:9px;color:#94a3b8;margin-top:2px">안전&lt;20 · 경계20~30 · 위험&gt;30 · 패닉&gt;40</div>
+  </div>
+
+  <!-- 조회 버튼 -->
+  <button onclick="fetchRiskData()" id="rkFetchBtn" style="width:100%;padding:14px;background:linear-gradient(135deg,#1e40af,#1d4ed8);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:800;cursor:pointer;font-family:'Noto Sans KR',sans-serif;box-shadow:0 4px 12px #1e40af40">
+    🔄 실시간 위험 지수 조회
+  </button>
+  <div id="rkStatus" style="text-align:center;font-size:10px;color:#94a3b8;margin-top:8px"></div>
+  <div id="rkLastUpdate" style="text-align:center;font-size:10px;color:#94a3b8;margin-top:2px"></div>
+
+</div>
 </div>
 
 <!-- 설정 -->
@@ -969,6 +1061,179 @@ function renderPension() {
 // =============================================
 // 파이차트
 // =============================================
+
+// =============================================
+// 위험 온도계
+// =============================================
+var riskData = {hy:0, rate10y:0, vix:0, score:0};
+
+function calcRiskScore(hy, rate, vix) {
+  // HY 스프레드 점수 (45%)
+  var hyScore = hy < 300 ? 10 : hy < 400 ? 25 : hy < 500 ? 40 : hy < 600 ? 55 : hy < 800 ? 70 : hy < 1000 ? 85 : 100;
+  // 10년물 금리 점수 (35%)
+  var rateScore = rate < 3.0 ? 10 : rate < 3.5 ? 20 : rate < 4.0 ? 35 : rate < 4.5 ? 50 : rate < 5.0 ? 65 : rate < 5.5 ? 80 : 95;
+  // VIX 점수 (20%)
+  var vixScore = vix < 15 ? 10 : vix < 20 ? 20 : vix < 25 ? 35 : vix < 30 ? 55 : vix < 40 ? 75 : 95;
+  return Math.round(hyScore * 0.45 + rateScore * 0.35 + vixScore * 0.20);
+}
+
+function getRiskLevel(score) {
+  if(score >= 70) return {label:"🔴 위 험", color:"#ef4444", bg:"#fee2e2", border:"#fca5a5"};
+  if(score >= 50) return {label:"🟠 경 계", color:"#f97316", bg:"#ffedd5", border:"#fdba74"};
+  if(score >= 30) return {label:"🟡 중 립", color:"#eab308", bg:"#fef9c3", border:"#fde047"};
+  return {label:"🟢 낙 관", color:"#22c55e", bg:"#dcfce7", border:"#86efac"};
+}
+
+function getBarColor(score) {
+  if(score >= 70) return "linear-gradient(90deg,#ef4444,#dc2626)";
+  if(score >= 50) return "linear-gradient(90deg,#f97316,#ea580c)";
+  if(score >= 30) return "linear-gradient(90deg,#eab308,#ca8a04)";
+  return "linear-gradient(90deg,#22c55e,#16a34a)";
+}
+
+function renderThermo(score) {
+  var svg = document.getElementById("rkThermo");
+  if(!svg) return;
+  var fill = score >= 70 ? "#ef4444" : score >= 50 ? "#f97316" : score >= 30 ? "#eab308" : "#22c55e";
+  var h = Math.max(score / 100, 0.03);
+  var fillH = Math.round(90 * h);
+  var fillY = 20 + 90 - fillH;
+  svg.innerHTML =
+    // 온도계 배경
+    '<rect x="22" y="15" width="16" height="90" rx="8" fill="#e2e8f0"/>' +
+    // 채워진 부분
+    '<rect x="22" y="' + fillY + '" width="16" height="' + fillH + '" rx="4" fill="' + fill + '"/>' +
+    // 눈금
+    [90,70,50,30,10].map(function(v,i){
+      var y = 20 + 90 - Math.round(90 * v / 100);
+      return '<line x1="38" y1="'+y+'" x2="44" y2="'+y+'" stroke="#94a3b8" stroke-width="1.5"/>' +
+             '<text x="47" y="'+( y+3)+'" font-size="7" fill="#64748b">'+v+'</text>';
+    }).join("") +
+    // 온도계 구 (하단)
+    '<circle cx="30" cy="118" r="14" fill="' + fill + '"/>' +
+    '<circle cx="30" cy="118" r="10" fill="' + fill + '" opacity="0.5"/>' +
+    // 점수 표시
+    '<text x="30" y="123" text-anchor="middle" font-size="9" font-weight="800" fill="white">' + (score||"") + '</text>';
+}
+
+function updateRiskUI(hy, rate, vix) {
+  var score = calcRiskScore(hy, rate, vix);
+  var lv = getRiskLevel(score);
+  riskData = {hy:hy, rate10y:rate, vix:vix, score:score};
+
+  // 종합
+  document.getElementById("rkScoreNum").textContent = score;
+  document.getElementById("rkScoreNum").style.color = lv.color;
+  document.getElementById("rkScoreLabel").textContent = lv.label;
+  document.getElementById("rkScoreLabel").style.color = lv.color;
+  renderThermo(score);
+
+  // HY
+  var hyBar = Math.min(hy / 12, 100);
+  var hyLv = hy < 400 ? {t:"안 정", c:"#16a34a", bg:"#dcfce7"} : hy < 600 ? {t:"경 계", c:"#d97706", bg:"#fef3c7"} : {t:"위 험", c:"#dc2626", bg:"#fee2e2"};
+  document.getElementById("rkHyVal").textContent = hy.toFixed(0);
+  document.getElementById("rkHyBar").style.width = hyBar + "%";
+  document.getElementById("rkHyBar").style.background = getBarColor(hy < 400 ? 20 : hy < 600 ? 55 : 80);
+  document.getElementById("rkHyBadge").textContent = hyLv.t;
+  document.getElementById("rkHyBadge").style.background = hyLv.bg;
+  document.getElementById("rkHyBadge").style.color = hyLv.c;
+  document.getElementById("rkHyDetail").textContent = hy < 400 ? "정상 범위 — 신용시장 안정" : hy < 600 ? "경계 수준 — 신용 스트레스 증가" : "위험 수준 — 신용시장 경색";
+
+  // 금리
+  var rateBar = Math.min((rate / 6) * 100, 100);
+  var rateLv = rate < 3.5 ? {t:"안 정", c:"#16a34a", bg:"#dcfce7"} : rate < 4.5 ? {t:"경 계", c:"#d97706", bg:"#fef3c7"} : {t:"위 험", c:"#dc2626", bg:"#fee2e2"};
+  document.getElementById("rkRateVal").textContent = rate.toFixed(2);
+  document.getElementById("rkRateBar").style.width = rateBar + "%";
+  document.getElementById("rkRateBar").style.background = getBarColor(rate < 3.5 ? 20 : rate < 4.5 ? 50 : 75);
+  document.getElementById("rkRateBadge").textContent = rateLv.t;
+  document.getElementById("rkRateBadge").style.background = rateLv.bg;
+  document.getElementById("rkRateBadge").style.color = rateLv.c;
+  document.getElementById("rkRateDetail").textContent = rate < 3.5 ? "낮은 금리 — 증시 우호적" : rate < 4.5 ? "중립 수준 — 주의 필요" : "높은 금리 — 증시 부담";
+
+  // VIX
+  var vixBar = Math.min((vix / 50) * 100, 100);
+  var vixLv = vix < 20 ? {t:"안 정", c:"#16a34a", bg:"#dcfce7"} : vix < 30 ? {t:"경 계", c:"#d97706", bg:"#fef3c7"} : {t:"공 포", c:"#dc2626", bg:"#fee2e2"};
+  document.getElementById("rkVixVal").textContent = vix.toFixed(1);
+  document.getElementById("rkVixBar").style.width = vixBar + "%";
+  document.getElementById("rkVixBar").style.background = getBarColor(vix < 20 ? 20 : vix < 30 ? 55 : 80);
+  document.getElementById("rkVixBadge").textContent = vixLv.t;
+  document.getElementById("rkVixBadge").style.background = vixLv.bg;
+  document.getElementById("rkVixBadge").style.color = vixLv.c;
+  document.getElementById("rkVixDetail").textContent = vix < 20 ? "공포 낮음 — 시장 안정" : vix < 30 ? "불안감 확대 — 변동성 주의" : "공포 구간 — 패닉 매도 가능";
+
+  // 마지막 업데이트
+  var now = new Date().toLocaleString("ko-KR");
+  document.getElementById("rkLastUpdate").textContent = "마지막 조회: " + now;
+  localStorage.setItem("v5_riskData", JSON.stringify({hy:hy, rate:rate, vix:vix, ts:Date.now()}));
+}
+
+async function fetchRiskData() {
+  var btn = document.getElementById("rkFetchBtn");
+  var status = document.getElementById("rkStatus");
+  btn.disabled = true;
+  btn.textContent = "⏳ 조회 중...";
+  status.textContent = "Claude가 실시간 시장 데이터를 검색하고 있어요...";
+  status.style.color = "#3b82f6";
+
+  try {
+    var response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 200,
+        tools: [{"type": "web_search_20250305", "name": "web_search"}],
+        messages: [{
+          role: "user",
+          content: "현재 미국 시장 3가지 지표를 검색해서 JSON만 반환해. 1)ICE BofA US High Yield OAS (bps 숫자) 2)미국 10년물 국채금리 (% 숫자) 3)VIX 지수 (숫자). 반드시 {\"hy\": 숫자, \"rate10y\": 숫자, \"vix\": 숫자} 형식 JSON만. 단위 제외, 설명 없이 JSON만."
+        }]
+      })
+    });
+
+    var data = await response.json();
+    var text = data.content.filter(function(b){return b.type==="text";}).map(function(b){return b.text;}).join("");
+    var clean = text.replace(/```json|```/g, "").trim();
+    var parsed = JSON.parse(clean);
+
+    if(parsed.hy && parsed.rate10y && parsed.vix) {
+      updateRiskUI(parseFloat(parsed.hy), parseFloat(parsed.rate10y), parseFloat(parsed.vix));
+      status.textContent = "✅ 조회 성공!";
+      status.style.color = "#22c55e";
+    } else {
+      throw new Error("데이터 형식 오류");
+    }
+  } catch(e) {
+    // 실패 시 마지막 저장값 로드
+    var saved = localStorage.getItem("v5_riskData");
+    if(saved) {
+      var s = JSON.parse(saved);
+      updateRiskUI(s.hy, s.rate, s.vix);
+      status.textContent = "⚠️ 조회 실패 — 마지막 저장 데이터 표시 중";
+      status.style.color = "#f97316";
+    } else {
+      status.textContent = "❌ 조회 실패. 잠시 후 다시 시도해주세요.";
+      status.style.color = "#ef4444";
+    }
+  }
+
+  btn.disabled = false;
+  btn.textContent = "🔄 실시간 위험 지수 조회";
+  setTimeout(function(){status.textContent="";}, 5000);
+}
+
+// 페이지 로드 시 저장값 표시
+function loadRiskData() {
+  var saved = localStorage.getItem("v5_riskData");
+  if(saved) {
+    try {
+      var s = JSON.parse(saved);
+      updateRiskUI(s.hy, s.rate, s.vix);
+      var ago = Math.floor((Date.now() - s.ts) / 60000);
+      document.getElementById("rkLastUpdate").textContent = "마지막 조회: " + new Date(s.ts).toLocaleString("ko-KR") + " (" + ago + "분 전)";
+    } catch(e) {}
+  }
+}
+
 function shortLabel(name, ticker) {
   var tickerMap = {
     '441640':'빅테크', '368590':'나스닥', '426030':'TF나스닥',
@@ -1182,7 +1447,7 @@ function recordSnap(key) {
   snapshots[key].push({ts:Date.now(), val:tv, cost:tc});
   snapshots[key].sort(function(a,b){ return a.ts-b.ts; });
   save();
-  renderAll(); updateHeaderH();
+  renderAll(); updateHeaderH(); loadRiskData();
   showToast("✅ 오늘 자산 기록 완료!  " + fmt(tv) + "원");
 }
 
@@ -1654,7 +1919,7 @@ function switchTab(tab) {
   // 탭별 탭 버튼 색상
   var tabColors={
     dashboard:"#1976d2", domestic:"#f57f17", overseas:"#1976d2",
-    pension:"#7b1fa2", dividend:"#2e7d32", commandments:"#f57f17", settings:"#546e7a"
+    pension:"#7b1fa2", dividend:"#2e7d32", commandments:"#f57f17", risk:"#1e40af", settings:"#546e7a"
   };
   document.querySelectorAll(".tab").forEach(function(t){
     t.style.color=""; t.style.borderColor=""; t.style.background="";
