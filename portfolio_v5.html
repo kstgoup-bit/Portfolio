@@ -573,7 +573,7 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
     </div>
     <div class="rk-bar-bg"><div class="rk-bar-fill" id="rkRateBar" style="width:0%"></div></div>
     <div class="rk-g-detail" id="rkRateDetail">—</div>
-    <div class="rk-g-range">안전&lt;3.5% · 경계3.5~4.5% · 위험&gt;4.5%</div>
+    <div class="rk-g-range">안전&lt;4.0% · 주의4.0~4.5% · 경계4.5~5.0% · 위험&gt;5.0%</div>
   </div>
 
   <div class="rk-gauge">
@@ -1081,14 +1081,14 @@ function rkCalcScore(hy, rate, vix) {
 }
 
 function rkLevel(score) {
-  if(score>=70) return {label:"🔴 위 험", color:"#ef4444", bg:"#fee2e2", border:"#fca5a5"};
-  if(score>=50) return {label:"🟠 경 계", color:"#f97316", bg:"#ffedd5", border:"#fdba74"};
-  if(score>=30) return {label:"🟡 중 립", color:"#eab308", bg:"#fef9c3", border:"#fde047"};
-  return          {label:"🟢 낙 관", color:"#22c55e", bg:"#dcfce7", border:"#86efac"};
+  if(score>=70) return {label:"🔴 위험", color:"#ef4444", bg:"#fee2e2", border:"#fca5a5"};
+  if(score>=50) return {label:"🟠 경계", color:"#f97316", bg:"#ffedd5", border:"#fdba74"};
+  if(score>=30) return {label:"🟡 중립", color:"#eab308", bg:"#fef9c3", border:"#fde047"};
+  return          {label:"🟢 낙관", color:"#22c55e", bg:"#dcfce7", border:"#86efac"};
 }
 
 function rkBadge(lv) {
-  return "background:"+lv.bg+";border:1px solid "+lv.border+";color:"+lv.color;
+  return "background:"+lv.bg+";border:1.5px solid "+lv.border+";color:#1a2e5a;font-weight:800";
 }
 
 function rkBarGrad(score) {
@@ -1152,7 +1152,7 @@ function rkUpdateUI(hy, rate, vix) {
       hbg=document.getElementById("rkHyBadge"), hd=document.getElementById("rkHyDetail");
   if(hv) hv.textContent=hy.toFixed(0);
   if(hb){hb.style.width=Math.min(hy/12,100)+"%"; hb.style.background=rkBarGrad(hyScore);}
-  if(hbg){hbg.textContent=hyLv.label.split(" ")[1]||"—"; hbg.style.cssText=rkBadge(hyLv);}
+  if(hbg){hbg.textContent=hyLv.label.replace(/^\S+\s*/,"").replace(/\s/g,""); hbg.style.cssText=rkBadge(hyLv);}
   if(hd) hd.textContent=hy<400?"정상 범위 — 신용시장 안정":hy<600?"경계 수준 — 신용 스트레스 증가":"위험 수준 — 신용시장 경색";
 
   // 금리
@@ -1162,7 +1162,7 @@ function rkUpdateUI(hy, rate, vix) {
       rbg=document.getElementById("rkRateBadge"), rd=document.getElementById("rkRateDetail");
   if(rv) rv.textContent=rate.toFixed(2);
   if(rb){rb.style.width=Math.min(rate/6*100,100)+"%"; rb.style.background=rkBarGrad(rScore);}
-  if(rbg){rbg.textContent=rLv.label.split(" ")[1]||"—"; rbg.style.cssText=rkBadge(rLv);}
+  if(rbg){rbg.textContent=rLv.label.replace(/^\S+\s*/,"").replace(/\s/g,""); rbg.style.cssText=rkBadge(rLv);}
   if(rd) rd.textContent=rate<3.5?"낮은 금리 — 증시 우호적":rate<4.5?"중립 수준 — 주의 필요":"높은 금리 — 증시 부담";
 
   // VIX
@@ -1172,7 +1172,7 @@ function rkUpdateUI(hy, rate, vix) {
       vbg=document.getElementById("rkVixBadge"), vd=document.getElementById("rkVixDetail");
   if(vv) vv.textContent=vix.toFixed(1);
   if(vb){vb.style.width=Math.min(vix/50*100,100)+"%"; vb.style.background=rkBarGrad(vScore);}
-  if(vbg){vbg.textContent=vLv.label.split(" ")[1]||"—"; vbg.style.cssText=rkBadge(vLv);}
+  if(vbg){vbg.textContent=vLv.label.replace(/^\S+\s*/,"").replace(/\s/g,""); vbg.style.cssText=rkBadge(vLv);}
   if(vd) vd.textContent=vix<20?"공포 낮음 — 시장 안정":vix<30?"불안감 확대 — 변동성 주의":"공포 구간 — 패닉 매도 가능";
 
   // 업데이트 시간 저장
