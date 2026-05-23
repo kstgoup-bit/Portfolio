@@ -958,8 +958,8 @@ function renderDashboard() {
   });
 
   // 파이차트 (왼쪽) - 크기 키움
-  var cx=80,cy=80,r=66,ri=15;
-  var pieSvg='<svg viewBox="0 0 160 160" style="width:160px;height:160px">';
+  var cx=75,cy=75,r=60,ri=14;
+  var pieSvg='<svg viewBox="0 0 150 150" style="width:150px;height:150px">';
   var cumAngle=-Math.PI/2;
   var slices=[];
   items.forEach(function(m){
@@ -978,11 +978,11 @@ function renderDashboard() {
       var tr=r*0.67;
       var tx=cx+tr*Math.cos(s.midAngle), ty=cy+tr*Math.sin(s.midAngle);
       var shortName=s.m.label.replace(/🇰🇷 |🇺🇸 |🏦 /g,"");
-      pieSvg+='<text x="'+tx+'" y="'+(ty-5)+'" text-anchor="middle" font-size="12" fill="white" font-weight="800">'+shortName+'</text>';
-      pieSvg+='<text x="'+tx+'" y="'+(ty+9)+'" text-anchor="middle" font-size="11" fill="white" font-weight="700">'+((s.m.g.tv/totalAllTV)*100).toFixed(0)+'%</text>';
+      pieSvg+='<text x="'+tx+'" y="'+(ty-4)+'" text-anchor="middle" font-size="10" fill="white" font-weight="800">'+shortName+'</text>';
+      pieSvg+='<text x="'+tx+'" y="'+(ty+7)+'" text-anchor="middle" font-size="9" fill="white" font-weight="700">'+((s.m.g.tv/totalAllTV)*100).toFixed(0)+'%</text>';
     }
   });
-  pieSvg+='<circle cx="'+cx+'" cy="'+cy+'" r="15" fill="white"/></svg>';
+  pieSvg+='<circle cx="'+cx+'" cy="'+cy+'" r="13" fill="white"/></svg>';
 
   // 수익률 막대 (오른쪽) - 글씨 크게, 막대 넓이 유지
   var maxPct=Math.max.apply(null,items.map(function(m){return Math.abs(m.g.pct||0);}));
