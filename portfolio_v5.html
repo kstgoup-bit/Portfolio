@@ -967,7 +967,15 @@ function renderDashboard() {
     slices.push({m:m,startAngle:cumAngle,angle:angle,midAngle:cumAngle+angle/2});
     cumAngle+=angle;
   });
-  slices.forEach(function(s){
+  // 비중 합계 100% 보정 - 가장 큰 조각이 보정값 흡수 (오차 최소화)
+  var rawPcts=slices.map(function(s){return Math.round((s.m.g.tv/totalAllTV)*100);});
+  var pctSum=rawPcts.reduce(function(a,b){return a+b;},0);
+  if(pctSum!==100){
+    var maxIdx=rawPcts.reduce(function(mi,v,i){return v>rawPcts[mi]?i:mi;},0);
+    rawPcts[maxIdx]+=(100-pctSum);
+  }
+
+  slices.forEach(function(s,si){
     var x1=cx+r*Math.cos(s.startAngle), y1=cy+r*Math.sin(s.startAngle);
     var x2=cx+r*Math.cos(s.startAngle+s.angle), y2=cy+r*Math.sin(s.startAngle+s.angle);
     var xi1=cx+ri*Math.cos(s.startAngle), yi1=cy+ri*Math.sin(s.startAngle);
@@ -979,7 +987,7 @@ function renderDashboard() {
       var tx=cx+tr*Math.cos(s.midAngle), ty=cy+tr*Math.sin(s.midAngle);
       var shortName=s.m.label.replace(/🇰🇷 |🇺🇸 |🏦 /g,"");
       pieSvg+='<text x="'+tx+'" y="'+(ty-4)+'" text-anchor="middle" font-size="10" fill="white" font-weight="800">'+shortName+'</text>';
-      pieSvg+='<text x="'+tx+'" y="'+(ty+7)+'" text-anchor="middle" font-size="9" fill="white" font-weight="700">'+((s.m.g.tv/totalAllTV)*100).toFixed(0)+'%</text>';
+      pieSvg+='<text x="'+tx+'" y="'+(ty+7)+'" text-anchor="middle" font-size="9" fill="white" font-weight="700">'+rawPcts[si]+'%</text>';
     }
   });
   pieSvg+='<circle cx="'+cx+'" cy="'+cy+'" r="13" fill="white"/></svg>';
