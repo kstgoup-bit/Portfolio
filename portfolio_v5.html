@@ -268,6 +268,94 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
   font-family:'JetBrains Mono', monospace !important;
   font-weight:700 !important;
 }
+
+/* ====== v5 세련미 업그레이드 ====== */
+@import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+body { font-family:'Pretendard',sans-serif !important; }
+
+/* 헤더 그라데이션 강화 */
+.main-header, #mainHeader {
+  background: linear-gradient(135deg, #1565c0 0%, #1976d2 50%, #1e88e5 100%) !important;
+  box-shadow: 0 4px 20px rgba(21,101,192,0.35) !important;
+}
+.header-title-text, .header-sub {
+  text-shadow: 0 1px 6px rgba(0,0,0,0.2);
+}
+
+/* 목표 달성바 그라데이션 + 빛나는 끝 */
+.goal-bar-fill, #goalFill {
+  background: linear-gradient(90deg, #7c3aed, #1565c0, #00b0ff) !important;
+  box-shadow: 0 0 10px rgba(0,176,255,0.5) !important;
+  border-radius: 99px !important;
+  transition: width 1s cubic-bezier(0.4,0,0.2,1) !important;
+}
+
+/* 탭 세련화 */
+.tab { border-radius: 20px !important; font-weight:700 !important; transition:all 0.25s !important; }
+.tab.active {
+  box-shadow: 0 2px 12px rgba(21,101,192,0.25) !important;
+  font-weight: 800 !important;
+}
+
+/* 카드 입체감 */
+.card, .chart-wrap, .balance-wrap {
+  box-shadow: 0 2px 16px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.05) !important;
+  border-radius: 20px !important;
+  transition: box-shadow 0.2s !important;
+}
+
+/* 총 평가금액 폰트 강화 */
+#allTotal, #domTotal, #ovTotal, #penTotal {
+  font-family:'Pretendard',sans-serif !important;
+  font-weight:900 !important;
+  letter-spacing:-1px !important;
+}
+
+/* 수익률 숫자 강화 */
+.sum-val, #allPnl, #allPct, #domPnl, #domPct, #ovPnl, #ovPct, #penPnl, #penPct {
+  font-family:'Pretendard',sans-serif !important;
+  font-weight:800 !important;
+}
+
+/* 위험지수 숫자 */
+#rkScoreNum, #rkHyVal, #rkRateVal, #rkVixVal, #usdKrw {
+  font-family:'JetBrains Mono',monospace !important;
+  font-weight:700 !important;
+}
+
+/* 종목 카드 왼쪽 컬러 액센트 */
+.stock-item {
+  border-radius: 16px !important;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.07) !important;
+  border-left-width: 4px !important;
+  transition: box-shadow 0.2s !important;
+}
+
+/* 브리핑 알림 박스 */
+.v5-brief {
+  background: linear-gradient(135deg, rgba(21,101,192,0.08), rgba(106,27,154,0.06));
+  border: 1px solid rgba(21,101,192,0.2);
+  border-radius: 16px;
+  padding: 12px 16px;
+  margin: 0 0 12px 0;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  animation: fadeIn 0.5s ease;
+}
+.v5-brief-icon { font-size: 20px; flex-shrink:0; margin-top:1px; }
+.v5-brief-text { font-size: 13px; line-height: 1.6; color: #1a2236; font-weight: 600; flex:1; }
+.v5-brief-badge {
+  font-size: 10px; padding: 2px 8px; border-radius: 10px;
+  font-weight: 800; white-space: nowrap; margin-left: 6px;
+  background: rgba(21,101,192,0.12); color: #1565c0;
+}
+.v5-brief.warn { background: linear-gradient(135deg, rgba(211,47,47,0.08), rgba(249,115,22,0.06)); border-color: rgba(211,47,47,0.25); }
+.v5-brief.warn .v5-brief-badge { background: rgba(211,47,47,0.12); color: #d32f2f; }
+.v5-brief.success { background: linear-gradient(135deg, rgba(46,125,50,0.08), rgba(0,176,255,0.06)); border-color: rgba(46,125,50,0.25); }
+.v5-brief.success .v5-brief-badge { background: rgba(46,125,50,0.12); color: #2e7d32; }
+
 </style>
 </head>
 <body>
@@ -296,6 +384,7 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
     </div>
     <div class="goal-bar"><div class="goal-fill" id="goalFill" style="width:0%"></div></div>
   </div>
+  <div id="v5Brief" class="v5-brief" style="display:none;margin:0 16px 8px"></div>
 </div>
 
 <!-- 탭 -->
@@ -798,10 +887,60 @@ function setSumVal(id, val, isAmt, text, positive) {
 }
 
 // =============================================
+// =============================================
+// 스마트 브리핑 알림 (규칙 기반)
+// =============================================
+function updateBrief() {
+  try {
+    var el = document.getElementById("v5Brief");
+    if(!el) return;
+
+    var dom = calcGroup(domStocks, false);
+    var ov  = calcGroup(ovStocks, true);
+    var pen = calcGroup(penStocks, false);
+    var allTV = dom.tv + ov.tv + pen.tv;
+    var allTC = dom.tc + ov.tc + pen.tc;
+    var allPct = allTC > 0 ? (allTV - allTC) / allTC * 100 : 0;
+    var goalPct = allTV / 1000000000 * 100;
+
+    var rk = {};
+    try { rk = JSON.parse(localStorage.getItem("v5_rkCache") || localStorage.getItem("v5_riskData") || "{}"); } catch(e){}
+    var vix  = rk.vix  || 0;
+    var rate = rk.yld  || rk.rate || 0;
+    var hy   = rk.hy   || 0;
+
+    var msgs = [];
+
+    if(vix >= 30)   msgs.push({cls:"warn",    icon:"🚨", badge:"위험",    txt:"VIX "+vix.toFixed(1)+" — 공포지수 위험! 현금 비중 점검 권고."});
+    if(rate >= 5.0) msgs.push({cls:"warn",    icon:"⚠️", badge:"경계",    txt:"10Y 금리 "+rate.toFixed(2)+"% — 고금리 구간. 성장주 밸류 압박."});
+    if(hy  >= 600)  msgs.push({cls:"warn",    icon:"🔴", badge:"경계",    txt:"HY스프레드 "+hy+"bps — 신용 경색 신호. 방어 비중 확인."});
+    if(vix>0&&vix<18&&rate>0&&rate<4.5&&hy>0&&hy<350)
+      msgs.push({cls:"success", icon:"✅", badge:"안정", txt:"VIX·금리·HY 모두 안정 — 매수 우호 환경."});
+    if(goalPct >= 50) msgs.push({cls:"success", icon:"🏆", badge:"50% 돌파!", txt:"10억 목표 "+goalPct.toFixed(1)+"% 달성! 절반 돌파!"});
+    else if(goalPct >= 25) msgs.push({cls:"success", icon:"🎯", badge:"25% 돌파!", txt:"목표 "+goalPct.toFixed(1)+"% 달성 중. 순항!"});
+    if(allPct >= 25) msgs.push({cls:"success", icon:"🔥", badge:"고수익", txt:"전체 수익률 +"+allPct.toFixed(1)+"% — 시장 초과 알파 달성 중!"});
+    else if(allPct < 0) msgs.push({cls:"warn", icon:"📉", badge:"마이너스", txt:"수익률 "+allPct.toFixed(1)+"% — 3계명: 하락장 패닉셀 금지!"});
+
+    if(!msgs.length) {
+      if(allTV > 0)
+        msgs.push({cls:"", icon:"👩‍💼", badge:"현황", txt:"총 "+Math.round(allTV/10000).toLocaleString()+"만원 · +"+allPct.toFixed(1)+"% · 목표 "+goalPct.toFixed(1)+"% 달성 중."});
+      else
+        msgs.push({cls:"", icon:"💎", badge:"안내", txt:"종목 정보를 입력하면 실시간 포트폴리오 분석이 시작됩니다."});
+    }
+
+    var m = msgs.find(function(x){return x.cls==="warn";}) || msgs[0];
+    el.className = "v5-brief" + (m.cls ? " "+m.cls : "");
+    el.style.display = "flex";
+    el.innerHTML =
+      '<div class="v5-brief-icon">'+m.icon+'</div>'+
+      '<div class="v5-brief-text">'+m.txt+'<span class="v5-brief-badge">'+m.badge+'</span></div>';
+  } catch(e) { /* 에러 방지 */ }
+}
+
 // 렌더
 // =============================================
 function renderAll() {
-  renderDashboard(); renderBalancePie();
+  renderDashboard(); renderBalancePie(); updateBrief();
   renderDomestic();
   renderOverseas();
   renderPension();
