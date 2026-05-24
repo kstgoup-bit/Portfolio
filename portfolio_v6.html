@@ -1460,16 +1460,18 @@ function getPortfolioContext() {
     "연금(" + Math.round(pen.tv/1e4) + "만): " + (penNames||"없음") + "\n";
 }
 
+// 모델별 엔드포인트 버전 매핑
 var ADV_MODELS = [
-  "gemini-2.0-flash-lite",
-  "gemini-2.0-flash",
-  "gemini-1.5-flash-latest"
+  {model:"gemini-2.0-flash-lite", ver:"v1beta"},
+  {model:"gemini-2.0-flash",      ver:"v1beta"},
+  {model:"gemini-1.5-flash",      ver:"v1"},
+  {model:"gemini-1.5-flash-001",  ver:"v1"}
 ];
 var advModelIdx = 0;
 
 async function callGemini(fullPrompt, retry) {
-  var model = ADV_MODELS[advModelIdx % ADV_MODELS.length];
-  var url = "https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent?key=" + ADV_GEMINI_KEY;
+  var m = ADV_MODELS[advModelIdx % ADV_MODELS.length];
+  var url = "https://generativelanguage.googleapis.com/" + m.ver + "/models/" + m.model + ":generateContent?key=" + ADV_GEMINI_KEY;
   var body = {
     contents: [{ parts: [{ text: fullPrompt }] }],
     generationConfig: { maxOutputTokens: 500, temperature: 0.7 }
@@ -1488,7 +1490,11 @@ async function callGemini(fullPrompt, retry) {
       await new Promise(function(res){setTimeout(res, wait);});
       return callGemini(fullPrompt, true);
     }
-    return "❌ API 오류(" + (j.error?j.error.code:"?") + "): " + (j.error?j.error.message:"").substring(0,80);
+    var msg = j.error ? j.error.message : "";
+    if(j.error && j.error.code === 429) {
+      return "⏳ 오늘 무료 할당량 초과 — 내일 자정 이후 다시 시도해 주세요.\n(테스트를 많이 하면 일일 한도 소진)";
+    }
+    return "❌ API 오류(" + (j.error?j.error.code:"?") + "): " + msg.substring(0,80);
   } catch(e) {
     return "❌ 네트워크 오류: " + e.message;
   }
