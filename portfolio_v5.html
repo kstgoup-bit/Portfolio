@@ -380,6 +380,30 @@ body { font-family:'Pretendard',sans-serif !important; }
 }
 .v5-brief.success .v5-brief-badge { background: rgba(104,159,56,0.15); color: #33691e; }
 
+
+/* ===== AI 자문 탭 ===== */
+#panel-advisor { background:var(--sky-bg); }
+.adv-intro { background:linear-gradient(135deg,rgba(106,27,154,0.06),rgba(21,101,192,0.06)); border:1px solid rgba(106,27,154,0.15); border-radius:14px; padding:12px 14px; margin-bottom:14px; font-size:12px; color:#4a148c; line-height:1.7; font-weight:600; }
+.adv-input-wrap { background:#fff; border:1px solid var(--border); border-radius:16px; padding:14px; margin-bottom:12px; box-shadow:0 2px 8px rgba(0,0,0,0.06); }
+.adv-textarea { width:100%; background:var(--sky-bg); border:1px solid var(--border); border-radius:10px; color:var(--text); padding:10px; font-size:13px; line-height:1.6; resize:none; outline:none; font-family:'Pretendard',sans-serif; }
+.adv-textarea:focus { border-color:#7b1fa2; }
+.adv-quick-btns { display:flex; gap:6px; flex-wrap:wrap; margin:8px 0; }
+.adv-quick-btn { font-size:11px; padding:5px 10px; border:1px solid var(--border); border-radius:20px; background:transparent; color:var(--muted); cursor:pointer; white-space:nowrap; }
+.adv-quick-btn:active { border-color:#7b1fa2; color:#7b1fa2; }
+.adv-submit-btn { width:100%; padding:13px; background:linear-gradient(135deg,#c62828,#6a1b9a); color:#fff; border:none; border-radius:12px; font-size:14px; font-weight:800; cursor:pointer; margin-top:8px; font-family:'Pretendard',sans-serif; }
+.adv-submit-btn:disabled { opacity:0.5; cursor:not-allowed; }
+.adv-card { border-radius:18px; padding:16px; border:1px solid; margin-bottom:12px; }
+.adv-card-gemma { background:rgba(198,40,40,0.04); border-color:rgba(198,40,40,0.25); }
+.adv-card-claude { background:rgba(21,101,192,0.04); border-color:rgba(21,101,192,0.25); }
+.adv-card-header { display:flex; align-items:center; gap:8px; margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+.adv-card-icon { font-size:20px; }
+.adv-card-name { font-size:15px; font-weight:900; }
+.adv-card-tag { font-size:10px; padding:2px 8px; border-radius:10px; font-weight:800; }
+.adv-card-body { font-size:13px; line-height:1.8; color:var(--text); white-space:pre-wrap; word-break:keep-all; }
+.adv-loading { text-align:center; padding:20px; color:var(--muted); font-size:13px; }
+.adv-notice { font-size:11px; color:var(--muted); text-align:center; margin-top:8px; }
+.adv-key-warn { background:#fff3e0; border:1px solid #ffb74d; border-radius:12px; padding:12px; font-size:12px; color:#e65100; font-weight:600; line-height:1.6; }
+
 </style>
 </head>
 <body>
@@ -435,6 +459,7 @@ body { font-family:'Pretendard',sans-serif !important; }
   <button class="tab" onclick="switchTab('dividend')">💰 배당</button>
   <button class="tab" onclick="switchTab('risk')">🌡️ 위험계</button>
   <button class="tab" onclick="switchTab('commandments')">📜 10계명</button>
+  <button class="tab" onclick="switchTab('advisor')">🤖 AI자문</button>
   <button class="tab" onclick="switchTab('settings')">⚙️ 설정</button>
 </div>
 </div>
@@ -745,9 +770,45 @@ body { font-family:'Pretendard',sans-serif !important; }
 </div>
 </div>
 
+
+<!-- AI 자문 -->
+<div class="panel" id="panel-advisor">
+  <div class="adv-intro">
+    ⚔️ <b style="color:#c62828">젬마</b>는 공격적 수익 극대화,
+    🛡 <b style="color:#1565c0">클로</b>는 리스크 관리·분산 관점으로 동시 답변해요.<br>
+    두 의견 비교해서 순태씨가 최종 결정하세요!
+  </div>
+  <div id="advKeyWarn" class="adv-key-warn" style="display:none;margin-bottom:12px">
+    ⚠️ Gemini API 키가 없어요. <b>설정 탭</b>에서 키를 먼저 입력해주세요.
+  </div>
+  <div class="adv-input-wrap">
+    <div style="font-size:12px;font-weight:700;color:#7b1fa2;margin-bottom:8px">💬 투자 질문 입력</div>
+    <textarea class="adv-textarea" id="advQuestion" rows="3" placeholder="예: TIGER 전력SMR 지금 매수해도 될까? / 해외 비중을 더 늘려야 할까?"></textarea>
+    <div class="adv-quick-btns">
+      <button class="adv-quick-btn" onclick="setAdvQ('현재 포트폴리오 전반적으로 평가해줘')">포트폴리오 평가</button>
+      <button class="adv-quick-btn" onclick="setAdvQ('지금 추가 매수할 종목 추천해줘')">추가 매수 추천</button>
+      <button class="adv-quick-btn" onclick="setAdvQ('10억 목표 달성을 위한 전략은?')">10억 전략</button>
+      <button class="adv-quick-btn" onclick="setAdvQ('리밸런싱이 필요한 시점인가?')">리밸런싱 점검</button>
+      <button class="adv-quick-btn" onclick="setAdvQ('지금 시장 위험 수준과 대응 전략은?')">위험 대응</button>
+    </div>
+    <button class="adv-submit-btn" id="advBtn" onclick="askBothAI()">⚡ 젬마 & 클로 동시 자문 받기</button>
+  </div>
+  <div id="advResults">
+    <div style="text-align:center;padding:30px;color:var(--muted);font-size:13px">💬 질문을 입력하고 버튼을 눌러주세요</div>
+  </div>
+  <div class="adv-notice" id="advNotice"></div>
+</div>
+
 <!-- 설정 -->
 <div class="panel" id="panel-settings">
   <div class="setting-title">⚙️ 설정</div>
+  <div class="card" style="border-left:4px solid #7b1fa2">
+    <div style="font-weight:800;margin-bottom:4px;color:#7b1fa2">🤖 Gemini API 키 (AI자문 탭)</div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.6">Google AI Studio에서 발급한 키를 여기에 입력하세요.<br>절대 대화창에 붙여넣지 마세요!</div>
+    <input class="f-inp" id="geminiKeyInput" type="password" placeholder="AIzaSy..." style="margin-bottom:8px;letter-spacing:1px">
+    <button class="btn-ok" style="width:auto;padding:8px 16px;font-size:12px;background:#7b1fa2" onclick="saveGeminiKey()">안전하게 저장</button>
+    <div style="font-size:10px;margin-top:8px" id="geminiKeyStatus"></div>
+  </div>
   <div class="card">
     <div style="font-weight:800;margin-bottom:6px">🌐 GAS URL (시세·환율 자동갱신)</div>
     <div style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.6">Google Apps Script 배포 URL을 입력하세요</div>
@@ -783,6 +844,139 @@ body { font-family:'Pretendard',sans-serif !important; }
 // =============================================
 // 데이터 & 상수
 // =============================================
+
+// =============================================
+// AI 자문 (젬마 ⚔️ + 클로 🛡) - 키는 설정탭에서
+// =============================================
+var ADV_MODELS = [
+  {model:"gemini-2.5-flash-lite", ver:"v1beta"},
+  {model:"gemini-2.5-flash",      ver:"v1beta"},
+  {model:"gemini-3.1-flash-lite", ver:"v1beta"}
+];
+var advModelIdx = 0;
+
+function saveGeminiKey() {
+  var key = document.getElementById("geminiKeyInput").value.trim();
+  if(!key || !key.startsWith("AIza")) {
+    document.getElementById("geminiKeyStatus").textContent = "❌ 올바른 키 형식이 아니에요 (AIza로 시작)";
+    document.getElementById("geminiKeyStatus").style.color = "#c62828";
+    return;
+  }
+  localStorage.setItem("v5_geminiKey", key);
+  document.getElementById("geminiKeyInput").value = "";
+  document.getElementById("geminiKeyStatus").textContent = "✅ 안전하게 저장됐어요!";
+  document.getElementById("geminiKeyStatus").style.color = "#2e7d32";
+  document.getElementById("advKeyWarn").style.display = "none";
+}
+
+function getGeminiKey() {
+  return localStorage.getItem("v5_geminiKey") || "";
+}
+
+function setAdvQ(q) {
+  document.getElementById("advQuestion").value = q;
+}
+
+function getPortfolioCtx() {
+  try {
+    var dom = calcGroup(domStocks, false);
+    var ov  = calcGroup(ovStocks, true);
+    var pen = calcGroup(penStocks, false);
+    var allTV = dom.tv + ov.tv + pen.tv;
+    var allTC = dom.tc + ov.tc + pen.tc;
+    var pct = allTC > 0 ? ((allTV-allTC)/allTC*100).toFixed(1) : 0;
+    var rate = getRate();
+    var domNames = domStocks.filter(function(s){return s.quantity>0;}).map(function(s){return s.name+"("+s.quantity+"주)";}).join(", ");
+    var ovNames  = ovStocks.filter(function(s){return s.quantity>0;}).map(function(s){return s.ticker+"("+s.quantity+"주)";}).join(", ");
+    var penNames = penStocks.filter(function(s){return s.quantity>0;}).map(function(s){return s.name+"("+s.quantity+"주)";}).join(", ");
+    return "【순태씨 포트폴리오】\n" +
+      "목표: 5년 안에 10억 | 현재 "+Math.round(allTV/1e4).toLocaleString()+"만원 | 달성률 "+(allTV/1e9*100).toFixed(1)+"% | 수익률 +"+pct+"%\n" +
+      "환율: "+rate+"원\n국내: "+(domNames||"없음")+"\n해외: "+(ovNames||"없음")+"\n연금: "+(penNames||"없음")+"\n";
+  } catch(e) { return "【포트폴리오 정보 없음】\n"; }
+}
+
+async function callGemini(fullPrompt, retry) {
+  var key = getGeminiKey();
+  if(!key) return "❌ API 키 없음 — 설정 탭에서 Gemini 키를 저장해주세요.";
+  var m = ADV_MODELS[advModelIdx % ADV_MODELS.length];
+  var url = "https://generativelanguage.googleapis.com/" + m.ver + "/models/" + m.model + ":generateContent?key=" + key;
+  var body = {
+    contents: [{ parts: [{ text: fullPrompt }] }],
+    generationConfig: { maxOutputTokens: 500, temperature: 0.7 }
+  };
+  try {
+    var r = await fetch(url, { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body) });
+    var j = await r.json();
+    if(j.candidates && j.candidates[0]) return j.candidates[0].content.parts[0].text;
+    if(j.error) {
+      if(j.error.code === 403 && (j.error.message||"").includes("leaked")) {
+        localStorage.removeItem("v5_geminiKey");
+        return "⚠️ API 키가 유출 신고됐어요. 설정 탭에서 새 키를 발급해 다시 입력해주세요.";
+      }
+      if(j.error.code === 429 && !retry) {
+        var mt = (j.error.message||"").match(/retry in ([\d.]+)s/i);
+        var wait = mt ? Math.ceil(parseFloat(mt[1])*1000)+2000 : 20000;
+        advModelIdx++;
+        await new Promise(function(res){setTimeout(res,wait);});
+        return callGemini(fullPrompt, true);
+      }
+      return "❌ API 오류("+j.error.code+"): "+(j.error.message||"").substring(0,80);
+    }
+    return "❌ 알 수 없는 오류";
+  } catch(e) { return "❌ 네트워크 오류: "+e.message; }
+}
+
+async function askBothAI() {
+  var q = document.getElementById("advQuestion").value.trim();
+  if(!q) { showToast("⚠️ 질문을 입력해주세요", true); return; }
+  var key = getGeminiKey();
+  if(!key) {
+    document.getElementById("advKeyWarn").style.display = "block";
+    showToast("⚠️ 설정 탭에서 Gemini 키를 먼저 입력해주세요", true);
+    return;
+  }
+  var btn = document.getElementById("advBtn");
+  var results = document.getElementById("advResults");
+  var notice = document.getElementById("advNotice");
+  btn.disabled = true;
+  var ctx = getPortfolioCtx();
+  var fullQ = ctx + "\n【질문】" + q;
+  var gemmaQ = "[역할: 공격적 투자 전략가 젬마. 5년 10억 목표, 고수익 추구, AI·SMR·성장주 집중 선호]\n"+fullQ+"\n위 역할로 한국어 3~5문장 핵심만 답변:";
+  var claudeQ = "[역할: 신중한 투자 전문가 클로. 리스크 관리, 분산, 장기 우상향 중시, 무리한 집중 경계]\n"+fullQ+"\n위 역할로 한국어 3~5문장 핵심만 답변:";
+
+  results.innerHTML = '<div class="adv-loading">⚔️ 젬마 분석 중...</div>';
+  btn.textContent = "⏳ 젬마 응답 중...";
+  var gemmaRes = await callGemini(gemmaQ);
+
+  results.innerHTML = '<div class="adv-loading">⚔️ 젬마 완료 → 🛡 클로 분석 중...</div>';
+  btn.textContent = "⏳ 클로 응답 중...";
+  await new Promise(function(res){setTimeout(res,3000);});
+  var claudeRes = await callGemini(claudeQ);
+
+  results.innerHTML =
+    '<div class="adv-card adv-card-gemma">' +
+      '<div class="adv-card-header">' +
+        '<div class="adv-card-icon">⚔️</div>' +
+        '<div class="adv-card-name" style="color:#c62828">젬마</div>' +
+        '<div class="adv-card-tag" style="background:rgba(198,40,40,0.12);color:#c62828">공격적</div>' +
+      '</div>' +
+      '<div class="adv-card-body">'+gemmaRes+'</div>' +
+    '</div>' +
+    '<div class="adv-card adv-card-claude">' +
+      '<div class="adv-card-header">' +
+        '<div class="adv-card-icon">🛡</div>' +
+        '<div class="adv-card-name" style="color:#1565c0">클로</div>' +
+        '<div class="adv-card-tag" style="background:rgba(21,101,192,0.12);color:#1565c0">신중</div>' +
+      '</div>' +
+      '<div class="adv-card-body">'+claudeRes+'</div>' +
+    '</div>';
+
+  notice.textContent = "📊 두 의견을 비교해서 최종 결정은 순태씨가! | Gemini API";
+  btn.disabled = false;
+  btn.textContent = "⚡ 젬마 & 클로 동시 자문 받기";
+}
+
+
 const GAS_DEFAULT = "https://script.google.com/macros/s/AKfycbxFmgDS7rNk9y9bfLtJmC1BhwYluHIFdF2jmo6AmfKjJhZQXYO6uqhIwvDlJcQwTSOZ/exec";
 const GOAL = 1000000000; // 10억
 const PW_DEFAULT = "kst0188";
@@ -861,6 +1055,12 @@ function load() {
   var savedFx = localStorage.getItem("v5_fx");
   if(savedFx) document.getElementById("usdKrw").value = savedFx;
   gasUrl = localStorage.getItem("v5_gas") || GAS_DEFAULT;
+  // Gemini 키 상태 표시
+  var gk = localStorage.getItem("v5_geminiKey");
+  var gks = document.getElementById("geminiKeyStatus");
+  if(gks) { if(gk){ gks.textContent="✅ 키 저장됨"; gks.style.color="#2e7d32"; } else { gks.textContent=""; } }
+  var aw = document.getElementById("advKeyWarn");
+  if(aw) aw.style.display = gk ? "none" : "none";
   var gi = document.getElementById("gasInput");
   if(gi) gi.value = gasUrl;
   if(gasUrl) document.getElementById("gasStatus").textContent = "✓ GAS URL 설정됨";
@@ -2198,13 +2398,13 @@ function changePw() {
 // 탭 전환
 // =============================================
 function switchTab(tab) {
-  var tabs=["dashboard","domestic","overseas","pension","dividend","risk","commandments","settings"];
+  var tabs=["dashboard","domestic","overseas","pension","dividend","risk","commandments","advisor","settings"];
   document.querySelectorAll(".tab").forEach(function(t,i){t.classList.toggle("active",tabs[i]===tab);});
   document.querySelectorAll(".panel").forEach(function(p){p.classList.toggle("active",p.id==="panel-"+tab);});
   // 탭별 탭 버튼 색상
   var tabColors={
-    dashboard:"#1976d2", domestic:"#f57f17", overseas:"#1976d2",
-    pension:"#7b1fa2", dividend:"#2e7d32", commandments:"#f57f17", risk:"#1e40af", settings:"#546e7a"
+    dashboard:"#1976d2", domestic:"#f57f17", overseas:"#00838f",
+    pension:"#7b1fa2", dividend:"#2e7d32", commandments:"#f57f17", risk:"#1e40af", advisor:"#6a1b9a", settings:"#546e7a"
   };
   document.querySelectorAll(".tab").forEach(function(t){
     t.style.color=""; t.style.borderColor=""; t.style.background="";
