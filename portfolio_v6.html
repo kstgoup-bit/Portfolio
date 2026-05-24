@@ -1460,12 +1460,10 @@ function getPortfolioContext() {
     "연금(" + Math.round(pen.tv/1e4) + "만): " + (penNames||"없음") + "\n";
 }
 
-async function callGemini(prompt, systemPrompt, retry) {
-  // 무료 등급 한도가 넉넉한 gemini-1.5-flash 사용
-  var url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + ADV_GEMINI_KEY;
+async function callGemini(fullPrompt, retry) {
+  var url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + ADV_GEMINI_KEY;
   var body = {
-    system_instruction: { parts: [{ text: systemPrompt }] },
-    contents: [{ parts: [{ text: prompt }] }],
+    contents: [{ parts: [{ text: fullPrompt }] }],
     generationConfig: { maxOutputTokens: 500, temperature: 0.7 }
   };
   try {
@@ -1473,12 +1471,11 @@ async function callGemini(prompt, systemPrompt, retry) {
     var j = await r.json();
     if(j.candidates && j.candidates[0])
       return j.candidates[0].content.parts[0].text;
-    // 429 한도 초과 → 5초 후 재시도
     if(j.error && j.error.code === 429 && !retry) {
-      await new Promise(function(res){setTimeout(res, 5000);});
-      return callGemini(prompt, systemPrompt, true);
+      await new Promise(function(res){setTimeout(res,8000);});
+      return callGemini(fullPrompt, true);
     }
-    return "❌ API 오류 (" + (j.error?j.error.code:"unknown") + "): " + (j.error?j.error.message:"");
+    return "❌ API 오류(" + (j.error?j.error.code:"?") + "): " + (j.error?j.error.message:"알 수 없음");
   } catch(e) {
     return "❌ 네트워크 오류: " + e.message;
   }
@@ -1495,19 +1492,19 @@ async function askBothAI() {
 
   var ctx = getPortfolioContext();
   var fullQ = ctx + "\n【질문】" + q;
-  var gemmaPrompt = "당신은 공격적인 투자 전략가 젬마입니다. 5년 안에 10억 달성을 위해 높은 수익률을 추구하며 AI·반도체·SMR 성장 테마 집중 투자를 선호합니다. 핵심만 간결하게 한국어로 3~5문장으로 답변하세요.";
-  var claudePrompt = "당신은 신중한 투자 전문가 클로입니다. 리스크 관리, 분산 투자, 장기 우상향을 중시합니다. 무리한 집중보다 안정적 수익률을 권장합니다. 핵심만 간결하게 한국어로 3~5문장으로 답변하세요.";
+  var gemmaQ = "[역할: 공격적 투자 전략가 젬마. 5년 10억 목표, 고수익 추구, AI·SMR·성장주 집중 선호]\n" + fullQ + "\n위 역할로 한국어 3~5문장 핵심만 답변:";
+  var claudeQ = "[역할: 신중한 투자 전문가 클로. 리스크 관리, 분산, 장기 우상향 중시, 무리한 집중 경계]\n" + fullQ + "\n위 역할로 한국어 3~5문장 핵심만 답변:";
 
-  // ① 젬마 먼저
+  // ① 젬마
   results.innerHTML = '<div class="adv-loading">⚔️ 젬마 분석 중...</div>';
   btn.textContent = "⏳ 젬마 응답 중...";
-  var gemmaRes = await callGemini(fullQ, gemmaPrompt);
+  var gemmaRes = await callGemini(gemmaQ);
 
-  // ② 2초 후 클로
-  results.innerHTML = '<div class="adv-loading">⚔️ 젬마 완료 → 🛡 클로 분석 중...</div>';
+  // ② 4초 후 클로 (rate limit 방지)
+  results.innerHTML = '<div class="adv-loading">⚔️ 젬마 완료! 🛡 클로 분석 중...</div>';
   btn.textContent = "⏳ 클로 응답 중...";
-  await new Promise(function(res){setTimeout(res, 2000);});
-  var claudeRes = await callGemini(fullQ, claudePrompt);
+  await new Promise(function(res){setTimeout(res, 4000);});
+  var claudeRes = await callGemini(claudeQ);
 
   results.innerHTML =
     '<div class="adv-card adv-card-gemma">' +
