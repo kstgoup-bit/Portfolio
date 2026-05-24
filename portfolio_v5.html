@@ -20,6 +20,7 @@
 
   /* 섹션별 배경색 */
   --sky-bg:#f0f8ff; --sky-card:#e3f2fd; --sky-border:#bbdefb; --sky-accent:#1976d2;
+  --teal-bg:#e8fdfb; --teal-card:#e0f7fa; --teal-border:#80deea; --teal-accent:#00838f;
   --yellow-bg:#fffef0; --yellow-card:#fffde7; --yellow-border:#fff176; --yellow-accent:#f57f17;
   --purple-bg:#fdf4ff; --purple-card:#f3e5f5; --purple-border:#ce93d8; --purple-accent:#7b1fa2;
   --green-bg:#f1f8f1; --green-card:#e8f5e9; --green-border:#a5d6a7; --green-accent:#2e7d32;
@@ -125,7 +126,7 @@ body{background:var(--sky-bg);color:var(--text);font-family:'Pretendard',sans-se
 .panel{display:none;padding:14px}
 #panel-dashboard{background:var(--sky-bg)}
 #panel-domestic{background:var(--yellow-bg)}
-#panel-overseas{background:var(--sky-bg)}
+#panel-overseas{background:var(--teal-bg)}
 #panel-pension{background:var(--purple-bg)}
 #panel-dividend{background:var(--green-bg)}
 #panel-commandments{background:var(--cream-bg)}
@@ -136,6 +137,7 @@ body{background:var(--sky-bg);color:var(--text);font-family:'Pretendard',sans-se
 /* 카드 */
 .card{background:#fff;border-radius:14px;padding:16px;border:1px solid var(--border);margin-bottom:10px;box-shadow:var(--shadow)}
 .card-blue{background:linear-gradient(180deg,#f5fbff 0%,#c9e4f8 100%);border-color:#bbdefb}
+.card-teal{background:linear-gradient(180deg,#f0fdfd 0%,#b2ebf2 100%);border-color:#80deea}
 .card-green{background:linear-gradient(180deg,#fffef8 0%,#fff0a0 100%);border-color:#fff176}
 .card-purple{background:linear-gradient(180deg,#fdf5fe 0%,#e8c8f0 100%);border-color:#ddb8e8}
 
@@ -534,7 +536,7 @@ body { font-family:'Pretendard',sans-serif !important; }
 
 <!-- 해외 -->
 <div class="panel" id="panel-overseas">
-  <div class="card card-blue">
+  <div class="card card-teal">
     <div class="total-label">🇺🇸 해외 총 평가금액</div>
     <div class="total-val" id="ovTotal">-</div>
     <div class="sum-grid" id="ovSumGrid" style="display:none">
