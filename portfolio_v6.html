@@ -238,6 +238,31 @@ body:not(.dark-mode) .header-title {
 /* JS 렌더 인라인 색상 오버라이드 */
 body:not(.dark-mode) [style*="color:#fff"] { color:var(--text) !important; }
 body.dark-mode [style*="color:var(--text)"] { color:#fff !important; }
+
+/* AI 자문 탭 */
+.adv-wrap{padding:4px;}
+.adv-intro{background:linear-gradient(135deg,rgba(21,101,192,0.08),rgba(213,0,249,0.08));border:1px solid var(--border);border-radius:16px;padding:14px 16px;margin-bottom:14px;font-size:12px;color:var(--muted);line-height:1.7;}
+.adv-input-wrap{background:var(--card-bg);border:1px solid var(--border);border-radius:16px;padding:14px;margin-bottom:12px;}
+.adv-textarea{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:10px;color:var(--text);padding:10px;font-size:13px;line-height:1.6;resize:none;outline:none;font-family:'Pretendard',sans-serif;}
+.adv-textarea:focus{border-color:var(--neon-blue);}
+.adv-quick-btns{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0;}
+.adv-quick-btn{font-size:11px;padding:5px 10px;border:1px solid var(--border);border-radius:20px;background:transparent;color:var(--muted);cursor:pointer;white-space:nowrap;}
+.adv-quick-btn:hover{border-color:var(--neon-blue);color:var(--neon-blue);}
+.adv-submit-btn{width:100%;padding:13px;background:linear-gradient(135deg,var(--neon-red),var(--neon-purple));color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:800;cursor:pointer;margin-top:8px;}
+.adv-submit-btn:disabled{opacity:0.5;cursor:not-allowed;}
+.adv-results{display:grid;grid-template-columns:1fr;gap:12px;margin-top:4px;}
+.adv-card{border-radius:20px;padding:16px;border:1px solid;}
+.adv-card-gemma{background:rgba(255,51,102,0.05);border-color:rgba(255,51,102,0.3);}
+.adv-card-claude{background:rgba(21,101,192,0.05);border-color:rgba(21,101,192,0.3);}
+body.dark-mode .adv-card-gemma{background:rgba(255,51,102,0.08);}
+body.dark-mode .adv-card-claude{background:rgba(0,229,255,0.08);}
+.adv-card-header{display:flex;align-items:center;gap:8px;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+.adv-card-icon{font-size:20px;}
+.adv-card-name{font-size:14px;font-weight:900;}
+.adv-card-tag{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:700;}
+.adv-card-body{font-size:13px;line-height:1.8;color:var(--text);white-space:pre-wrap;word-break:keep-all;}
+.adv-loading{text-align:center;padding:20px;color:var(--muted);font-size:13px;}
+.adv-api-notice{font-size:11px;color:var(--muted);text-align:center;margin-top:8px;}
 </style>
 </head>
 <body>
@@ -277,6 +302,7 @@ body.dark-mode [style*="color:var(--text)"] { color:#fff !important; }
     <button class="tab" onclick="switchTab('dividend')">💰 배당관리</button>
     <button class="tab" onclick="switchTab('risk')">🌡️ 위험지수</button>
     <button class="tab" onclick="switchTab('commandments')">📜 투자계명</button>
+    <button class="tab" onclick="switchTab('advisor')">🤖 AI자문</button>
     <button class="tab" onclick="switchTab('settings')">⚙️ 환경설정</button>
   </div>
 </div>
@@ -570,6 +596,38 @@ body.dark-mode [style*="color:var(--text)"] { color:#fff !important; }
     <div style="font-size:12px;color:rgba(255,255,255,0.7);margin-top:6px">젬마가 고도화한 투자 생존 철학</div>
   </div>
   <div id="cmdList"></div>
+</div>
+
+
+<!-- AI 자문 탭 -->
+<div class="panel" id="panel-advisor">
+  <div class="adv-wrap">
+    <div class="adv-intro">
+      ⚔️ <b style="color:var(--neon-red)">젬마</b>는 공격적 수익 극대화 관점에서,
+      🛡 <b style="color:var(--neon-blue)">클로</b>는 리스크 관리·분산 관점에서 동시에 답변해요.<br>
+      두 의견을 비교해서 순태씨가 최종 결정하세요!
+    </div>
+
+    <div class="adv-input-wrap">
+      <div style="font-size:12px;font-weight:700;color:var(--neon-blue);margin-bottom:8px">💬 투자 질문 입력</div>
+      <textarea class="adv-textarea" id="advQuestion" rows="3" placeholder="예: TIGER 전력SMR 지금 매수해도 될까? / 해외 비중을 더 늘려야 할까?"></textarea>
+      <div class="adv-quick-btns">
+        <button class="adv-quick-btn" onclick="setQ('현재 포트폴리오 전반적으로 평가해줘')">포트폴리오 평가</button>
+        <button class="adv-quick-btn" onclick="setQ('지금 추가 매수할 종목 추천해줘')">추가 매수 추천</button>
+        <button class="adv-quick-btn" onclick="setQ('10억 목표 달성을 위한 전략은?')">10억 전략</button>
+        <button class="adv-quick-btn" onclick="setQ('리밸런싱이 필요한 시점인가?')">리밸런싱 점검</button>
+        <button class="adv-quick-btn" onclick="setQ('지금 시장 위험 수준과 대응 전략은?')">위험 대응 전략</button>
+      </div>
+      <button class="adv-submit-btn" id="advBtn" onclick="askBothAI()">⚡ 젬마 & 클로 동시 자문 받기</button>
+    </div>
+
+    <div class="adv-results" id="advResults">
+      <div style="text-align:center;padding:30px;color:var(--muted);font-size:13px">
+        💬 질문을 입력하고 버튼을 눌러주세요
+      </div>
+    </div>
+    <div class="adv-api-notice" id="advNotice"></div>
+  </div>
 </div>
 
 <!-- 설정 -->
@@ -1370,6 +1428,101 @@ function changePw(){
 }
 
 
+
+// =============================================
+// AI 투자 자문 (젬마 ⚔️ + 클로 🛡)
+// =============================================
+var ADV_GEMINI_KEY = "AIzaSyBiQqlZavhRzLFrgYJhLGtL8I4I1ZZxYBY";
+
+function setQ(q) {
+  document.getElementById("advQuestion").value = q;
+}
+
+function getPortfolioContext() {
+  var rate = getRate();
+  var dom = calcGroup(domStocks, false);
+  var ov = calcGroup(ovStocks, true);
+  var pen = calcGroup(penStocks, false);
+  var allTV = dom.tv + ov.tv + pen.tv;
+  var allTC = dom.tc + ov.tc + pen.tc;
+  var pct = allTC > 0 ? ((allTV - allTC) / allTC * 100).toFixed(1) : 0;
+
+  var domNames = domStocks.filter(function(s){return s.quantity>0;}).map(function(s){return s.name+"("+s.quantity+"주)";}).join(", ");
+  var ovNames = ovStocks.filter(function(s){return s.quantity>0;}).map(function(s){return s.ticker+"("+s.quantity+"주)";}).join(", ");
+  var penNames = penStocks.filter(function(s){return s.quantity>0;}).map(function(s){return s.name+"("+s.quantity+"주)";}).join(", ");
+
+  return "【순태씨 포트폴리오 현황】\n" +
+    "목표: 5년 안에 10억원 달성 (현재 " + (allTV/1e8).toFixed(2) + "억원, 달성률 " + (allTV/1e9*100).toFixed(1) + "%)\n" +
+    "총 평가금액: " + Math.round(allTV/1e4) + "만원 | 수익률: +" + pct + "%\n" +
+    "환율: " + rate + "원\n" +
+    "국내(" + Math.round(dom.tv/1e4) + "만): " + (domNames||"없음") + "\n" +
+    "해외(" + Math.round(ov.tv/1e4) + "만): " + (ovNames||"없음") + "\n" +
+    "연금(" + Math.round(pen.tv/1e4) + "만): " + (penNames||"없음") + "\n";
+}
+
+async function callGemini(prompt, systemPrompt) {
+  var url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + ADV_GEMINI_KEY;
+  var body = {
+    system_instruction: { parts: [{ text: systemPrompt }] },
+    contents: [{ parts: [{ text: prompt }] }],
+    generationConfig: { maxOutputTokens: 600, temperature: 0.7 }
+  };
+  var r = await fetch(url, { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body) });
+  var j = await r.json();
+  if(j.candidates && j.candidates[0])
+    return j.candidates[0].content.parts[0].text;
+  return "응답 오류: " + JSON.stringify(j.error||j);
+}
+
+async function askBothAI() {
+  var q = document.getElementById("advQuestion").value.trim();
+  if(!q) { showToast("⚠️ 질문을 입력해주세요", true); return; }
+
+  var btn = document.getElementById("advBtn");
+  var results = document.getElementById("advResults");
+  var notice = document.getElementById("advNotice");
+  btn.disabled = true; btn.textContent = "⏳ 두 AI에게 자문 받는 중...";
+
+  var ctx = getPortfolioContext();
+  var fullQ = ctx + "\n【질문】" + q;
+
+  var gemmaPrompt = "당신은 공격적인 투자 전략가 젬마입니다. 5년 안에 10억 달성을 위해 높은 수익률을 추구하며, AI·반도체·SMR·우주항공 등 성장 테마에 집중 투자를 선호합니다. 시드 효율화와 공격적 리밸런싱을 강조합니다. 핵심만 간결하게 한국어로 답변하세요.";
+  var claudePrompt = "당신은 신중하고 균형잡힌 투자 전문가 클로입니다. 리스크 관리, 분산 투자, 장기 우상향을 중시합니다. 무리한 집중 투자보다 안정적 수익률을 권장하며 QUBT처럼 사전 확인 없는 매수를 경계합니다. 핵심만 간결하게 한국어로 답변하세요.";
+
+  results.innerHTML = '<div class="adv-loading">⚔️ 젬마와 🛡 클로가 분석 중입니다...</div>';
+
+  try {
+    var [gemmaRes, claudeRes] = await Promise.all([
+      callGemini(fullQ, gemmaPrompt),
+      callGemini(fullQ, claudePrompt)
+    ]);
+
+    results.innerHTML =
+      '<div class="adv-card adv-card-gemma">' +
+        '<div class="adv-card-header">' +
+          '<div class="adv-card-icon">⚔️</div>' +
+          '<div class="adv-card-name" style="color:var(--neon-red)">젬마</div>' +
+          '<div class="adv-card-tag" style="background:rgba(255,51,102,0.15);color:var(--neon-red)">공격적</div>' +
+        '</div>' +
+        '<div class="adv-card-body">' + gemmaRes + '</div>' +
+      '</div>' +
+      '<div class="adv-card adv-card-claude">' +
+        '<div class="adv-card-header">' +
+          '<div class="adv-card-icon">🛡</div>' +
+          '<div class="adv-card-name" style="color:var(--neon-blue)">클로</div>' +
+          '<div class="adv-card-tag" style="background:rgba(21,101,192,0.15);color:var(--neon-blue)">신중</div>' +
+        '</div>' +
+        '<div class="adv-card-body">' + claudeRes + '</div>' +
+      '</div>';
+
+    notice.textContent = "📊 두 의견을 비교해서 최종 결정은 순태씨가 하세요! | Gemini API 사용";
+  } catch(e) {
+    results.innerHTML = '<div class="adv-loading" style="color:var(--neon-red)">❌ 오류: ' + e.message + '</div>';
+  }
+
+  btn.disabled = false; btn.textContent = "⚡ 젬마 & 클로 동시 자문 받기";
+}
+
 function setTheme(mode) {
   if(mode === 'dark') {
     document.body.classList.add('dark-mode');
@@ -1385,7 +1538,7 @@ function loadTheme() {
 }
 
 function switchTab(tab){
-  var tabs=["dashboard","domestic","overseas","pension","dividend","risk","commandments","settings"];
+  var tabs=["dashboard","domestic","overseas","pension","dividend","risk","commandments","advisor","settings"];
   document.querySelectorAll(".tab").forEach(function(t,i){t.classList.toggle("active",tabs[i]===tab);});
   document.querySelectorAll(".panel").forEach(function(p){p.classList.toggle("active",p.id==="panel-"+tab);});
 }
