@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>순태씨의 5년 안에 10억!</title>
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600;700;800&display=swap');
+
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap');
 :root {
   --bg:#f8f9ff; --bg2:#ffffff; --border:#dde8f5;
@@ -24,7 +26,7 @@
   --cream-bg:#fffbf0; --cream-card:#fff8e1; --cream-border:#ffe082; --cream-accent:#f57f17;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{background:var(--sky-bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;max-width:480px;margin:0 auto;min-height:100vh;padding-bottom:20px}
+body{background:var(--sky-bg);color:var(--text);font-family:'Pretendard',sans-serif;max-width:480px;margin:0 auto;min-height:100vh;padding-bottom:20px}
 .mono{font-family:'JetBrains Mono',monospace}
 
 /* 잠금화면 */
@@ -128,7 +130,7 @@ body{background:var(--sky-bg);color:var(--text);font-family:'Noto Sans KR',sans-
 
 /* 총자산 카드 */
 .total-label{font-size:10px;color:var(--muted);font-weight:700;margin-bottom:4px}
-.total-val{font-size:24px;font-weight:900;color:var(--text);font-family:'JetBrains Mono',monospace;margin-bottom:10px}
+.total-val{font-size:24px;font-weight:900;color:var(--text);font-family:'Pretendard',sans-serif;margin-bottom:10px}
 .sum-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
 .sum-item{background:#ffffff88;border-radius:8px;padding:8px 10px;border:1px solid #00000015}
 .sum-lbl{font-size:9px;color:var(--muted);font-weight:700;margin-bottom:2px}
@@ -137,7 +139,7 @@ body{background:var(--sky-bg);color:var(--text);font-family:'Noto Sans KR',sans-
 /* 시장별 */
 .mkt-card{background:#fff;border-radius:10px;padding:10px 14px;border:1px solid var(--border);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;box-shadow:var(--shadow)}
 .mkt-lbl{font-size:11px;color:var(--blue);font-weight:700;margin-bottom:2px}
-.mkt-val{font-size:15px;font-weight:900;font-family:'JetBrains Mono',monospace;color:var(--text)}
+.mkt-val{font-size:15px;font-weight:900;font-family:'Pretendard',sans-serif;color:var(--text)}
 
 /* 환율 */
 .fx-row{display:flex;align-items:center;gap:10px}
@@ -160,7 +162,7 @@ body{background:var(--sky-bg);color:var(--text);font-family:'Noto Sans KR',sans-
 .leg-name{flex:1;font-size:13px;font-weight:700;color:var(--text)}
 .leg-sub{font-size:10px;color:var(--muted)}
 .leg-val{font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace}
-.leg-pct{font-size:14px;font-weight:800;font-family:'JetBrains Mono',monospace;min-width:44px;text-align:right}
+.leg-pct{font-size:14px;font-weight:800;font-family:'Pretendard',sans-serif;min-width:44px;text-align:right}
 
 /* 종목 카드 */
 .sec-lbl{font-size:11px;color:var(--blue);font-weight:800;margin:12px 0 8px;letter-spacing:0.5px}
@@ -202,7 +204,7 @@ body{background:var(--sky-bg);color:var(--text);font-family:'Noto Sans KR',sans-
 .val-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:8px}
 .vc{background:var(--blue-light);border-radius:6px;padding:6px 8px;border:1px solid #90caf9}
 .vc-lbl{font-size:9px;color:var(--blue);font-weight:700}
-.vc-val{font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--text)}
+.vc-val{font-size:12px;font-weight:700;font-family:'Pretendard',sans-serif;color:var(--text)}
 .calc-box{margin-top:10px;background:var(--blue-light);border-radius:8px;padding:10px;border:1px solid #90caf9}
 .calc-title{font-size:10px;font-weight:800;color:var(--blue);margin-bottom:8px}
 .calc-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:4px;align-items:center}
@@ -246,6 +248,26 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
 /* 토스트 메시지 */
 .toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#1a237e;color:#fff;padding:20px 32px;border-radius:16px;font-size:15px;font-weight:800;z-index:99999;opacity:0;transition:opacity 0.3s;box-shadow:0 8px 32px #00000060;max-width:85vw;text-align:center;line-height:1.6}
 .toast.show{opacity:1}
+
+/* v5 숫자 글자체 v6 스타일로 개선 */
+#allTotal, #domTotal, #ovTotal, #penTotal,
+.total-val, #allPnl, #allPct, #allCost,
+#domPnl, #domPct, #domCost,
+#ovPnl, #ovPct, #ovCost,
+#penPnl, #penPct, #penCost {
+  font-family:'Pretendard', sans-serif !important;
+  font-weight:900 !important;
+  letter-spacing:-0.5px;
+}
+.sum-val {
+  font-family:'Pretendard', sans-serif !important;
+  font-weight:800 !important;
+}
+#usdKrw, .rk-g-val, #rkScoreNum,
+#rkHyVal, #rkRateVal, #rkVixVal {
+  font-family:'JetBrains Mono', monospace !important;
+  font-weight:700 !important;
+}
 </style>
 </head>
 <body>
