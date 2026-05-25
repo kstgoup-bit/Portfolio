@@ -2183,14 +2183,14 @@ function renderStockList(listId, countId, type) {
           '<div style="flex:1;min-width:0">'+
             '<div style="display:flex;justify-content:space-between;align-items:center">'+
               '<div class="item-name">'+s.name+' <span style="font-size:10px">'+(s.role==="shield"?"🛡":"⚔️")+'</span></div>'+
-              '<div style="text-align:right;font-size:13px;font-weight:800;color:var(--text);font-family:'JetBrains Mono',monospace">'+fmt(v)+'원</div>'+
+              '<div style="text-align:right;font-size:13px;font-weight:800;color:var(--text);font-family:\'JetBrains Mono\',monospace">'+fmt(v)+'원</div>'+
             '</div>'+
             '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:1px">'+
               '<div class="item-ticker">'+s.ticker+' · '+(isUS?"🇺🇸":"🇰🇷")+' · '+s.quantity+'주'+(isUS?' · '+fmtUSD(s.quantity*s.currentPrice):'')+'</div>'+
               '<div style="font-size:10px;font-weight:800;color:'+color+'">'+w.toFixed(1)+'%</div>'+
             '</div>'+
             '<div style="display:flex;align-items:center;gap:6px;margin-top:4px">'+
-              '<span style="font-size:10px;font-weight:800;font-family:'JetBrains Mono',monospace;color:'+(pnlPos?"var(--red-mid)":"var(--blue)")+'">'+(pnlPos?"+":"")+fmt(pnl)+'원</span>'+
+              '<span style="font-size:10px;font-weight:800;font-family:\'JetBrains Mono\',monospace;color:'+(pnlPos?"var(--red-mid)":"var(--blue)")+'">'+(pnlPos?"+":"")+fmt(pnl)+'원</span>'+
               '<span class="st-pct-badge" style="background:'+(pnlPos?"var(--red-light)":"var(--blue-light)")+';color:'+(pnlPos?"var(--red-mid)":"var(--blue)")+'">'+fmtPct(pct)+'</span>'+
             '</div>'+
             '<div class="bar-bg" style="margin:6px 0 4px"><div class="bar-fill" style="width:'+Math.min(w,100)+'%;background:'+color+'"></div></div>'+
@@ -2264,7 +2264,7 @@ function renderEditForm(s, type) {
     '<div class="calc-title">🧮 평균단가 계산기 ('+accts.join("·")+')</div>'+
     '<div class="calc-row" style="font-size:9px;color:var(--muted);margin-bottom:2px"><span>수량</span><span>단가</span><span style="text-align:center">금액</span></div>'+
     calcRows+
-    '<div class="calc-result"><span style="font-size:11px;color:var(--blue);font-weight:700">계산된 평균단가</span><span style="font-size:13px;font-weight:800;color:var(--blue);font-family:'JetBrains Mono',monospace" id="calcResult_'+type+'_'+s.id+'">−</span></div>'+
+    '<div class="calc-result"><span style="font-size:11px;color:var(--blue);font-weight:700">계산된 평균단가</span><span style="font-size:13px;font-weight:800;color:var(--blue);font-family:\'JetBrains Mono\',monospace" id="calcResult_'+type+'_'+s.id+'">−</span></div>'+
     '<button class="calc-apply" onclick="applyAvg(\''+type+'\',\''+s.id+'\')">↑ 평균단가 자동입력</button>'+
     '</div>';
 }
