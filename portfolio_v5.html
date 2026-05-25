@@ -57,8 +57,8 @@ body{background:var(--sky-bg);color:var(--text);font-family:'Pretendard',sans-se
 .header-helper{font-size:12px;color:#bbdefb;margin-bottom:8px}
 .header-asset{background:#ffffff22;border-radius:10px;padding:8px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
 .ha-label{font-size:9px;color:#90caf9}
-.ha-val{font-size:17px;font-weight:900;color:#fff;font-family:'JetBrains Mono',monospace}
-.ha-pnl{font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace}
+.ha-val{font-size:17px;font-weight:900;color:#fff;font-family:'JetBrains Mono',monospace !important;}
+.ha-pnl{font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace !important;}
 .goal-bar-wrap{margin-bottom:10px}
 .goal-label{display:flex;justify-content:space-between;margin-bottom:4px}
 .goal-text{font-size:12px;color:#bbdefb}
@@ -143,7 +143,7 @@ body{background:var(--sky-bg);color:var(--text);font-family:'Pretendard',sans-se
 
 /* 총자산 카드 */
 .total-label{font-size:12px;color:var(--muted);font-weight:700;margin-bottom:4px}
-.total-val{font-size:22px;font-weight:700;color:var(--text);font-family:'Pretendard',sans-serif;margin-bottom:10px}
+.total-val{font-size:22px;font-weight:700;color:var(--text);font-family:'JetBrains Mono',monospace !important;margin-bottom:10px}
 .sum-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
 .sum-item{background:#ffffff88;border-radius:8px;padding:8px 10px;border:1px solid #00000015}
 .sum-lbl{font-size:9px;color:var(--muted);font-weight:700;margin-bottom:2px}
@@ -152,7 +152,7 @@ body{background:var(--sky-bg);color:var(--text);font-family:'Pretendard',sans-se
 /* 시장별 */
 .mkt-card{background:#fff;border-radius:10px;padding:10px 14px;border:1px solid var(--border);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;box-shadow:var(--shadow)}
   .mkt-lbl{font-size:13px;color:var(--blue);font-weight:700;margin-bottom:2px}
-.mkt-val{font-size:15px;font-weight:900;font-family:'Pretendard',sans-serif;color:var(--text)}
+.mkt-val{font-size:15px;font-weight:900;font-family:'JetBrains Mono',monospace !important;color:var(--text);}
 
 /* 환율 */
 .fx-row{display:flex;align-items:center;gap:10px}
@@ -174,8 +174,8 @@ body{background:var(--sky-bg);color:var(--text);font-family:'Pretendard',sans-se
 .leg-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
 .leg-name{flex:1;font-size:14px;font-weight:700;color:var(--text)}
 .leg-sub{font-size:12px;color:var(--muted)}
-.leg-val{font-size:13px;color:var(--muted);font-family:'JetBrains Mono',monospace}
-.leg-pct{font-size:14px;font-weight:800;font-family:'Pretendard',sans-serif;min-width:44px;text-align:right}
+.leg-val{font-size:13px;color:var(--muted);font-family:'JetBrains Mono',monospace !important;}
+.leg-pct{font-size:14px;font-weight:800;font-family:'JetBrains Mono',monospace;min-width:44px;text-align:right}
 
 /* 종목 카드 */
 .sec-lbl{font-size:11px;color:var(--blue);font-weight:800;margin:12px 0 8px;letter-spacing:0.5px}
@@ -183,10 +183,10 @@ body{background:var(--sky-bg);color:var(--text);font-family:'Pretendard',sans-se
 .st-top{display:flex;justify-content:space-between;align-items:flex-start}
 .st-name{font-weight:800;font-size:13px;color:var(--text)}
 .st-sub{font-size:10px;color:var(--muted);margin-top:2px}
-.st-pnl{font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace}
-.st-pct-badge{font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;font-family:'JetBrains Mono',monospace}
+.st-pnl{font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace !important;}
+.st-pct-badge{font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;font-family:'JetBrains Mono',monospace !important;}
 .st-right{text-align:right}
-.st-val{font-size:14px;font-weight:900;font-family:'JetBrains Mono',monospace}
+.st-val{font-size:14px;font-weight:900;font-family:'JetBrains Mono',monospace !important;}
 .bar-bg{height:3px;background:#e3f2fd;border-radius:2px;margin-top:8px}
 .bar-fill{height:100%;border-radius:2px;transition:width 0.5s}
 
@@ -217,7 +217,7 @@ body{background:var(--sky-bg);color:var(--text);font-family:'Pretendard',sans-se
 .val-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:8px}
 .vc{background:var(--blue-light);border-radius:6px;padding:6px 8px;border:1px solid #90caf9}
 .vc-lbl{font-size:9px;color:var(--blue);font-weight:700}
-.vc-val{font-size:12px;font-weight:700;font-family:'Pretendard',sans-serif;color:var(--text)}
+.vc-val{font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--text)}
 .calc-box{margin-top:10px;background:var(--blue-light);border-radius:8px;padding:10px;border:1px solid #90caf9}
 .calc-title{font-size:10px;font-weight:800;color:var(--blue);margin-bottom:8px}
 .calc-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:4px;align-items:center}
@@ -230,12 +230,12 @@ body{background:var(--sky-bg);color:var(--text);font-family:'Pretendard',sans-se
 .div-summary{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
 .div-card{background:#fff;border-radius:12px;padding:14px;border:1px solid var(--border);box-shadow:var(--shadow);text-align:center}
 .div-lbl{font-size:12px;color:var(--muted);margin-bottom:4px;font-weight:700}
-.div-val{font-size:20px;font-weight:700;color:var(--green-accent);font-family:'Pretendard',sans-serif;letter-spacing:-0.5px}
+.div-val{font-size:20px;font-weight:700;color:var(--green-accent);font-family:'JetBrains Mono',monospace !important;letter-spacing:-0.5px;}
 .div-add-form{background:#f8fbff;border-radius:12px;padding:14px;margin-bottom:10px;border:1px solid #a5d6a7}
 .div-list-item{background:#fff;border-radius:10px;padding:10px 14px;margin-bottom:6px;border:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;box-shadow:var(--shadow)}
 .div-item-left .name{font-size:13px;font-weight:700}
 .div-item-left .date{font-size:10px;color:var(--muted)}
-.div-item-right .amount{font-size:14px;font-weight:800;color:var(--green-mid);font-family:'JetBrains Mono',monospace}
+.div-item-right .amount{font-size:14px;font-weight:800;color:var(--green-mid);font-family:'JetBrains Mono',monospace !important;}
 .div-item-right .account{font-size:10px;color:var(--muted)}
 .btn-del-div{background:transparent;color:var(--red-mid);border:none;font-size:16px;cursor:pointer;padding:4px}
 
@@ -262,18 +262,18 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
 .toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#1a237e;color:#fff;padding:20px 32px;border-radius:16px;font-size:15px;font-weight:800;z-index:99999;opacity:0;transition:opacity 0.3s;box-shadow:0 8px 32px #00000060;max-width:85vw;text-align:center;line-height:1.6}
 .toast.show{opacity:1}
 
-/* v5 숫자 글자체 v6 스타일로 개선 */
+/* v5 숫자 글자체 통일 - JetBrains Mono */
 #allTotal, #domTotal, #ovTotal, #penTotal,
 .total-val, #allPnl, #allPct, #allCost,
 #domPnl, #domPct, #domCost,
 #ovPnl, #ovPct, #ovCost,
 #penPnl, #penPct, #penCost {
-  font-family:'Pretendard', sans-serif !important;
+  font-family:'JetBrains Mono', monospace !important;
   font-weight:900 !important;
   letter-spacing:-0.5px;
 }
 .sum-val {
-  font-family:'Pretendard', sans-serif !important;
+  font-family:'JetBrains Mono', monospace !important;
   font-weight:800 !important;
 }
 #usdKrw, .rk-g-val, #rkScoreNum,
@@ -325,14 +325,14 @@ body { font-family:'Pretendard',sans-serif !important; }
 
 /* 총 평가금액 폰트 강화 */
 #allTotal, #domTotal, #ovTotal, #penTotal {
-  font-family:'Pretendard',sans-serif !important;
+  font-family:'JetBrains Mono',monospace !important;
   font-weight:900 !important;
   letter-spacing:-1px !important;
 }
 
 /* 수익률 숫자 강화 */
 .sum-val, #allPnl, #allPct, #domPnl, #domPct, #ovPnl, #ovPct, #penPnl, #penPct {
-  font-family:'Pretendard',sans-serif !important;
+  font-family:'JetBrains Mono',monospace !important;
   font-weight:800 !important;
 }
 
@@ -2183,14 +2183,14 @@ function renderStockList(listId, countId, type) {
           '<div style="flex:1;min-width:0">'+
             '<div style="display:flex;justify-content:space-between;align-items:center">'+
               '<div class="item-name">'+s.name+' <span style="font-size:10px">'+(s.role==="shield"?"🛡":"⚔️")+'</span></div>'+
-              '<div style="text-align:right;font-size:13px;font-weight:800;color:var(--text)">'+fmt(v)+'원</div>'+
+              '<div style="text-align:right;font-size:13px;font-weight:800;color:var(--text);font-family:'JetBrains Mono',monospace">'+fmt(v)+'원</div>'+
             '</div>'+
             '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:1px">'+
               '<div class="item-ticker">'+s.ticker+' · '+(isUS?"🇺🇸":"🇰🇷")+' · '+s.quantity+'주'+(isUS?' · '+fmtUSD(s.quantity*s.currentPrice):'')+'</div>'+
               '<div style="font-size:10px;font-weight:800;color:'+color+'">'+w.toFixed(1)+'%</div>'+
             '</div>'+
             '<div style="display:flex;align-items:center;gap:6px;margin-top:4px">'+
-              '<span style="font-size:10px;font-weight:800;color:'+(pnlPos?"var(--red-mid)":"var(--blue)")+'">'+(pnlPos?"+":"")+fmt(pnl)+'원</span>'+
+              '<span style="font-size:10px;font-weight:800;font-family:'JetBrains Mono',monospace;color:'+(pnlPos?"var(--red-mid)":"var(--blue)")+'">'+(pnlPos?"+":"")+fmt(pnl)+'원</span>'+
               '<span class="st-pct-badge" style="background:'+(pnlPos?"var(--red-light)":"var(--blue-light)")+';color:'+(pnlPos?"var(--red-mid)":"var(--blue)")+'">'+fmtPct(pct)+'</span>'+
             '</div>'+
             '<div class="bar-bg" style="margin:6px 0 4px"><div class="bar-fill" style="width:'+Math.min(w,100)+'%;background:'+color+'"></div></div>'+
@@ -2264,7 +2264,7 @@ function renderEditForm(s, type) {
     '<div class="calc-title">🧮 평균단가 계산기 ('+accts.join("·")+')</div>'+
     '<div class="calc-row" style="font-size:9px;color:var(--muted);margin-bottom:2px"><span>수량</span><span>단가</span><span style="text-align:center">금액</span></div>'+
     calcRows+
-    '<div class="calc-result"><span style="font-size:11px;color:var(--blue);font-weight:700">계산된 평균단가</span><span style="font-size:13px;font-weight:800;color:var(--blue);font-family:monospace" id="calcResult_'+type+'_'+s.id+'">−</span></div>'+
+    '<div class="calc-result"><span style="font-size:11px;color:var(--blue);font-weight:700">계산된 평균단가</span><span style="font-size:13px;font-weight:800;color:var(--blue);font-family:'JetBrains Mono',monospace" id="calcResult_'+type+'_'+s.id+'">−</span></div>'+
     '<button class="calc-apply" onclick="applyAvg(\''+type+'\',\''+s.id+'\')">↑ 평균단가 자동입력</button>'+
     '</div>';
 }
