@@ -143,7 +143,7 @@ body{background:var(--sky-bg);color:var(--text);font-family:'Pretendard',sans-se
 
 /* 총자산 카드 */
 .total-label{font-size:12px;color:var(--muted);font-weight:700;margin-bottom:4px}
-.total-val{font-size:22px;font-weight:700;color:var(--text);font-family:'JetBrains Mono',monospace !important;margin-bottom:10px}
+.total-val{font-size:22px;font-weight:700;color:var(--text);font-family:'Pretendard',sans-serif !important;margin-bottom:10px}
 .sum-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
 .sum-item{background:#ffffff88;border-radius:8px;padding:8px 10px;border:1px solid #00000015}
 .sum-lbl{font-size:9px;color:var(--muted);font-weight:700;margin-bottom:2px}
@@ -152,7 +152,7 @@ body{background:var(--sky-bg);color:var(--text);font-family:'Pretendard',sans-se
 /* 시장별 */
 .mkt-card{background:#fff;border-radius:10px;padding:10px 14px;border:1px solid var(--border);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;box-shadow:var(--shadow)}
   .mkt-lbl{font-size:13px;color:var(--blue);font-weight:700;margin-bottom:2px}
-.mkt-val{font-size:15px;font-weight:900;font-family:'JetBrains Mono',monospace !important;color:var(--text);}
+.mkt-val{font-size:15px;font-weight:900;font-family:'Pretendard',sans-serif !important;color:var(--text);}}
 
 /* 환율 */
 .fx-row{display:flex;align-items:center;gap:10px}
@@ -230,7 +230,7 @@ body{background:var(--sky-bg);color:var(--text);font-family:'Pretendard',sans-se
 .div-summary{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
 .div-card{background:#fff;border-radius:12px;padding:14px;border:1px solid var(--border);box-shadow:var(--shadow);text-align:center}
 .div-lbl{font-size:12px;color:var(--muted);margin-bottom:4px;font-weight:700}
-.div-val{font-size:20px;font-weight:700;color:var(--green-accent);font-family:'JetBrains Mono',monospace !important;letter-spacing:-0.5px;}
+.div-val{font-size:20px;font-weight:700;color:var(--green-accent);font-family:'Pretendard',sans-serif !important;letter-spacing:-0.5px;}
 .div-add-form{background:#f8fbff;border-radius:12px;padding:14px;margin-bottom:10px;border:1px solid #a5d6a7}
 .div-list-item{background:#fff;border-radius:10px;padding:10px 14px;margin-bottom:6px;border:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;box-shadow:var(--shadow)}
 .div-item-left .name{font-size:13px;font-weight:700}
@@ -268,12 +268,12 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
 #domPnl, #domPct, #domCost,
 #ovPnl, #ovPct, #ovCost,
 #penPnl, #penPct, #penCost {
-  font-family:'JetBrains Mono', monospace !important;
+  font-family:'Pretendard', sans-serif !important;
   font-weight:900 !important;
   letter-spacing:-0.5px;
 }
 .sum-val {
-  font-family:'JetBrains Mono', monospace !important;
+  font-family:'Pretendard', sans-serif !important;
   font-weight:800 !important;
 }
 #usdKrw, .rk-g-val, #rkScoreNum,
@@ -325,14 +325,14 @@ body { font-family:'Pretendard',sans-serif !important; }
 
 /* 총 평가금액 폰트 강화 */
 #allTotal, #domTotal, #ovTotal, #penTotal {
-  font-family:'JetBrains Mono',monospace !important;
+  font-family:'Pretendard',sans-serif !important;
   font-weight:900 !important;
   letter-spacing:-1px !important;
 }
 
 /* 수익률 숫자 강화 */
 .sum-val, #allPnl, #allPct, #domPnl, #domPct, #ovPnl, #ovPct, #penPnl, #penPct {
-  font-family:'JetBrains Mono',monospace !important;
+  font-family:'Pretendard',sans-serif !important;
   font-weight:800 !important;
 }
 
@@ -2183,14 +2183,14 @@ function renderStockList(listId, countId, type) {
           '<div style="flex:1;min-width:0">'+
             '<div style="display:flex;justify-content:space-between;align-items:center">'+
               '<div class="item-name">'+s.name+' <span style="font-size:10px">'+(s.role==="shield"?"🛡":"⚔️")+'</span></div>'+
-              '<div style="text-align:right;font-size:13px;font-weight:800;color:var(--text);font-family:\'JetBrains Mono\',monospace">'+fmt(v)+'원</div>'+
+              '<div style="text-align:right;font-size:13px;font-weight:800;color:var(--text)">'+fmt(v)+'원</div>'+
             '</div>'+
             '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:1px">'+
               '<div class="item-ticker">'+s.ticker+' · '+(isUS?"🇺🇸":"🇰🇷")+' · '+s.quantity+'주'+(isUS?' · '+fmtUSD(s.quantity*s.currentPrice):'')+'</div>'+
               '<div style="font-size:10px;font-weight:800;color:'+color+'">'+w.toFixed(1)+'%</div>'+
             '</div>'+
             '<div style="display:flex;align-items:center;gap:6px;margin-top:4px">'+
-              '<span style="font-size:10px;font-weight:800;font-family:\'JetBrains Mono\',monospace;color:'+(pnlPos?"var(--red-mid)":"var(--blue)")+'">'+(pnlPos?"+":"")+fmt(pnl)+'원</span>'+
+              '<span style="font-size:10px;font-weight:800;color:'+(pnlPos?"var(--red-mid)":"var(--blue)")+'">'+(pnlPos?"+":"")+fmt(pnl)+'원</span>'+
               '<span class="st-pct-badge" style="background:'+(pnlPos?"var(--red-light)":"var(--blue-light)")+';color:'+(pnlPos?"var(--red-mid)":"var(--blue)")+'">'+fmtPct(pct)+'</span>'+
             '</div>'+
             '<div class="bar-bg" style="margin:6px 0 4px"><div class="bar-fill" style="width:'+Math.min(w,100)+'%;background:'+color+'"></div></div>'+
