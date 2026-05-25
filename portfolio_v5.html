@@ -458,7 +458,6 @@ body { font-family:'Pretendard',sans-serif !important; }
     </div>
     <div class="goal-bar"><div class="goal-fill" id="goalFill" style="width:0%"></div></div>
   </div>
-  <div id="v5Brief" class="v5-brief" style="display:none;margin:0 0 8px"></div>
 </div>
 
 <!-- 탭 -->
@@ -477,6 +476,7 @@ body { font-family:'Pretendard',sans-serif !important; }
 
 <!-- 현황 -->
 <div class="panel active" id="panel-dashboard">
+  <div id="v5Brief" class="v5-brief" style="display:none;margin-bottom:12px"></div>
   <div class="card card-blue">
     <div class="total-label">💰 전체 총 평가금액</div>
     <div class="total-val" id="allTotal">-</div>
@@ -1036,14 +1036,14 @@ function getPortfolioCtx() {
     var allTV = dom.tv + ov.tv + pen.tv;
     var allTC = dom.tc + ov.tc + pen.tc;
     var pct = allTC > 0 ? ((allTV-allTC)/allTC*100).toFixed(1) : 0;
-    var rate = getRate();
-    var domNames = domStocks.filter(function(s){return s.quantity>0;}).map(function(s){return s.name+"("+s.quantity+"주)";}).join(", ");
-    var ovNames  = ovStocks.filter(function(s){return s.quantity>0;}).map(function(s){return s.ticker+"("+s.quantity+"주)";}).join(", ");
-    var penNames = penStocks.filter(function(s){return s.quantity>0;}).map(function(s){return s.name+"("+s.quantity+"주)";}).join(", ");
-    return "【순태씨 포트폴리오】\n" +
-      "목표: 5년 안에 10억 | 현재 "+Math.round(allTV/1e4).toLocaleString()+"만원 | 달성률 "+(allTV/1e9*100).toFixed(1)+"% | 수익률 +"+pct+"%\n" +
-      "환율: "+rate+"원\n국내: "+(domNames||"없음")+"\n해외: "+(ovNames||"없음")+"\n연금: "+(penNames||"없음")+"\n";
-  } catch(e) { return "【포트폴리오 정보 없음】\n"; }
+    var ovTop = ovStocks.filter(function(s){return s.quantity>0;})
+      .sort(function(a,b){return vKRW(b,true)-vKRW(a,true);}).slice(0,5)
+      .map(function(s){return s.ticker;}).join(",");
+    var domTop = domStocks.filter(function(s){return s.quantity>0;})
+      .map(function(s){return s.name.substring(0,6);}).join(",");
+    return "[포트폴리오]총"+Math.round(allTV/1e4)+"만/수익+"+pct+"%/달성"+(allTV/1e9*100).toFixed(0)+"%"+
+      "/국내:"+domTop+"/해외:"+ovTop+"/환율:"+getRate()+"\n";
+  } catch(e) { return ""; }
 }
 
 async function callGemini(fullPrompt, retry) {
@@ -1333,46 +1333,57 @@ function updateBrief() {
     var el = document.getElementById("v5Brief");
     if(!el) return;
 
-    var dom = calcGroup(domStocks, false);
-    var ov  = calcGroup(ovStocks, true);
-    var pen = calcGroup(penStocks, false);
-    var allTV = dom.tv + ov.tv + pen.tv;
-    var allTC = dom.tc + ov.tc + pen.tc;
-    var allPct = allTC > 0 ? (allTV - allTC) / allTC * 100 : 0;
-    var goalPct = allTV / 1000000000 * 100;
-
     var rk = {};
-    try { rk = JSON.parse(localStorage.getItem("v5_rkCache") || localStorage.getItem("v5_riskData") || "{}"); } catch(e){}
-    var vix  = rk.vix  || 0;
-    var rate = rk.yld  || rk.rate || 0;
-    var hy   = rk.hy   || 0;
+    try { rk = JSON.parse(localStorage.getItem("v5_rkCache")||localStorage.getItem("v5_riskData")||"{}"); } catch(e){}
+    var vix = rk.vix||0, rate = rk.yld||rk.rate||0, hy = rk.hy||0;
 
+    // 이달 스냅샷 기록 여부 확인
+    var snaps = JSON.parse(localStorage.getItem("v5_snap")||"{}");
+    var allSnaps = snaps.all||[];
+    var today = new Date();
+    var thisMonth = today.getFullYear()+"-"+(today.getMonth()+1);
+    var hasSnap = allSnaps.some(function(d){
+      var dd = new Date(d.ts);
+      return (dd.getFullYear()+"-"+(dd.getMonth()+1)) === thisMonth;
+    });
+
+    // 배당 미입력 여부
+    var divs = JSON.parse(localStorage.getItem("v5_div")||"[]");
+    var thisMonthDiv = divs.some(function(d){
+      return d.date && d.date.substring(0,7) === today.toISOString().substring(0,7);
+    });
+
+    // 우선순위별 알림 목록
     var msgs = [];
 
-    if(vix >= 30)   msgs.push({cls:"warn",    icon:"🚨", badge:"위험",    txt:"VIX "+vix.toFixed(1)+" — 공포지수 위험! 현금 비중 점검 권고."});
-    if(rate >= 5.0) msgs.push({cls:"warn",    icon:"⚠️", badge:"경계",    txt:"10Y 금리 "+rate.toFixed(2)+"% — 고금리 구간. 성장주 밸류 압박."});
-    if(hy  >= 600)  msgs.push({cls:"warn",    icon:"🔴", badge:"경계",    txt:"HY스프레드 "+hy+"bps — 신용 경색 신호. 방어 비중 확인."});
-    if(vix>0&&vix<18&&rate>0&&rate<4.5&&hy>0&&hy<350)
-      msgs.push({cls:"success", icon:"✅", badge:"안정", txt:"VIX·금리·HY 모두 안정 — 매수 우호 환경."});
-    if(goalPct >= 50) msgs.push({cls:"success", icon:"🏆", badge:"50% 돌파!", txt:"10억 목표 "+goalPct.toFixed(1)+"% 달성! 절반 돌파!"});
-    else if(goalPct >= 25) msgs.push({cls:"success", icon:"🎯", badge:"25% 돌파!", txt:"목표 "+goalPct.toFixed(1)+"% 달성 중. 순항!"});
-    if(allPct >= 25) msgs.push({cls:"success", icon:"🔥", badge:"고수익", txt:"전체 수익률 +"+allPct.toFixed(1)+"% — 시장 초과 알파 달성 중!"});
-    else if(allPct < 0) msgs.push({cls:"warn", icon:"📉", badge:"마이너스", txt:"수익률 "+allPct.toFixed(1)+"% — 3계명: 하락장 패닉셀 금지!"});
+    // 🚨 시장 위험 경보 (최우선)
+    if(vix >= 30)   msgs.push({cls:"warn",    icon:"🚨", badge:"시장경보", txt:"VIX "+vix.toFixed(1)+" 위험 — 고변동성 구간. 추가 매수 신중, 현금 확보 고려."});
+    if(rate >= 5.0) msgs.push({cls:"warn",    icon:"⚠️", badge:"금리경계", txt:"미국 10Y 금리 "+rate.toFixed(2)+"% — 성장주 밸류 압박 구간. 방어주 비중 점검."});
+    if(hy  >= 600)  msgs.push({cls:"warn",    icon:"🔴", badge:"신용경색", txt:"HY 스프레드 "+hy+"bps — 기업 신용 위험 확대. SMR·양자 비중 축소 고려."});
 
-    if(!msgs.length) {
-      if(allTV > 0)
-        msgs.push({cls:"", icon:"👩‍💼", badge:"현황", txt:"총 "+Math.round(allTV/10000).toLocaleString()+"만원 · +"+allPct.toFixed(1)+"% · 목표 "+goalPct.toFixed(1)+"% 달성 중."});
-      else
-        msgs.push({cls:"", icon:"💎", badge:"안내", txt:"종목 정보를 입력하면 실시간 포트폴리오 분석이 시작됩니다."});
-    }
+    // ✅ 시장 안정 → 매수 기회
+    if(vix>0&&vix<18&&rate>0&&rate<4.5&&hy>0&&hy<350)
+      msgs.push({cls:"success", icon:"📈", badge:"매수우호", txt:"VIX "+vix.toFixed(1)+"·금리 "+rate.toFixed(2)+"%·HY "+hy+"bps 모두 안정 — 분할 매수 적기."});
+
+    // 📸 이달 스냅샷 미기록
+    if(!hasSnap)
+      msgs.push({cls:"warn", icon:"📸", badge:"할일", txt:"이번 달 자산 스냅샷 아직 미기록! '📸 오늘 전체 자산 기록' 버튼을 눌러주세요."});
+
+    // 💰 배당금 미입력
+    if(!thisMonthDiv && divs.length > 0)
+      msgs.push({cls:"", icon:"💰", badge:"확인", txt:"이번 달 배당금 입력했나요? 배당 탭에서 수령 내역을 기록해 두세요."});
+
+    // 기본
+    if(!msgs.length)
+      msgs.push({cls:"", icon:"💡", badge:"오늘", txt:"시장 안정 구간입니다. 위험계 탭에서 최신 지수를 확인해 보세요."});
 
     var m = msgs.find(function(x){return x.cls==="warn";}) || msgs[0];
-    el.className = "v5-brief" + (m.cls ? " "+m.cls : "");
+    el.className = "v5-brief" + (m.cls?" "+m.cls:"");
     el.style.display = "flex";
     el.innerHTML =
       '<div class="v5-brief-icon">'+m.icon+'</div>'+
       '<div class="v5-brief-text">'+m.txt+'<span class="v5-brief-badge">'+m.badge+'</span></div>';
-  } catch(e) { /* 에러 방지 */ }
+  } catch(e) {}
 }
 
 // 렌더
