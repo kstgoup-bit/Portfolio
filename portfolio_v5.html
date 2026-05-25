@@ -942,7 +942,7 @@ async function askBothAI() {
   var ctx = getPortfolioCtx();
   var fullQ = ctx + "\n【질문】" + q;
   var gemmaQ = "[역할: 공격적 투자 전략가 젬마. 5년 10억 목표, 고수익 추구, AI·SMR·성장주 집중 선호]\n"+fullQ+"\n위 역할로 한국어 3~5문장 핵심만 답변:";
-  var claudeQ = "[역할: 신중한 투자 전문가 클로. 리스크 관리, 분산, 장기 우상향 중시, 무리한 집중 경계]\n"+fullQ+"\n위 역할로 한국어 3~5문장 핵심만 답변:";
+  var claudeQ = "[역할: 신중하지만 실용적인 투자 전문가 클로. 리스크는 짚되 반드시 구체적 종목명이나 ETF를 1~2개 언급하며 실질적 조언을 해야 함. 추상적 원칙론 금지]\n"+fullQ+"\n위 역할로 한국어 3~5문장, 구체적 종목/ETF명 포함해서 답변:";
 
   results.innerHTML = '<div class="adv-loading">⚔️ 젬마 분석 중...</div>';
   btn.textContent = "⏳ 젬마 응답 중...";
