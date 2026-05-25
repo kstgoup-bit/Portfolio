@@ -1181,7 +1181,7 @@ async function askBothAI() {
 const GAS_DEFAULT = "https://script.google.com/macros/s/AKfycbxFmgDS7rNk9y9bfLtJmC1BhwYluHIFdF2jmo6AmfKjJhZQXYO6uqhIwvDlJcQwTSOZ/exec";
 const GOAL = 1000000000; // 10억
 const PW_DEFAULT = "kst0188";
-const COLORS = ["#1565c0","#c62828","#2e7d32","#e65100","#6a1b9a","#00838f","#ad1457","#4527a0","#558b2f","#ef6c00","#0277bd","#6d4c41","#37474f","#1b5e20","#b71c1c","#4a148c","#006064","#880e4f","#33691e","#e65100","#01579b"];
+const COLORS = ["#1565c0","#e53935","#2e7d32","#f57c00","#7b1fa2","#00838f","#c2185b","#3949ab","#689f38","#fb8c00","#0288d1","#8d6e63","#546e7a","#1b8a4c","#d32f2f","#512da8","#00796b","#e91e63","#827717","#5c6bc0","#00897b","#6d4c41"];
 
 const DOM_INIT = [
   {id:1,name:"ACE 미국빅테크TOP7",ticker:"441640",quantity:0,avgPrice:0,currentPrice:0},
@@ -1954,14 +1954,15 @@ function shortLabel(name, ticker) {
 
 function renderPie(svgId, legendId, stocks, isUS) {
   var active=stocks.filter(function(s){return s.quantity>0&&s.currentPrice>0;});
-  var pieData=active.map(function(s,i){
+  var pieData=active.map(function(s){
     var v=vKRW(s,isUS), c=cKRW(s,isUS), pnl=v-c, pct=c>0?(pnl/c)*100:0;
     return {
-      name:s.name, ticker:s.ticker, value:v, color:COLORS[i%COLORS.length],
+      name:s.name, ticker:s.ticker, id:s.id, value:v,
       role:s.role||"spear", pnl:pnl, pct:pct, qty:s.quantity,
       isUS:isUS, usdVal:s.quantity*s.currentPrice
     };
   }).sort(function(a,b){return b.value-a.value;});
+  pieData.forEach(function(d,i){d.color=COLORS[i%COLORS.length];});
   var total=pieData.reduce(function(s,d){return s+d.value;},0);
   var svg=document.getElementById(svgId);
   var ll=document.getElementById(legendId);
@@ -1977,14 +1978,15 @@ function renderPie(svgId, legendId, stocks, isUS) {
     var x2=80+70*Math.cos(cum),y2=80+70*Math.sin(cum);
     var mid=cum-angle/2, pct=d.value/total*100;
     var lx=80+52*Math.cos(mid),ly=80+52*Math.sin(mid);
-    paths+='<path d="M80,80 L'+x1+','+y1+' A70,70 0 '+(angle>Math.PI?1:0)+',1 '+x2+','+y2+' Z" fill="'+d.color+'" stroke="#f0f6ff" stroke-width="1.5"/>';
+    paths+='<path d="M80,80 L'+x1+','+y1+' A70,70 0 '+(angle>Math.PI?1:0)+',1 '+x2+','+y2+' Z" fill="'+d.color+'" stroke="rgba(255,255,255,0.85)" stroke-width="1.8"/>';
     if(pct>5) {
       var lbl=shortLabel(d.name,d.ticker);
       labels+='<text x="'+lx+'" y="'+(ly-4)+'" text-anchor="middle" font-size="6" fill="white" font-weight="bold">'+lbl+'</text>';
       labels+='<text x="'+lx+'" y="'+(ly+5)+'" text-anchor="middle" font-size="7" fill="white" font-weight="bold">'+pct.toFixed(0)+'%</text>';
     }
   });
-  svg.innerHTML=paths+labels+'<circle cx="80" cy="80" r="30" fill="#f0f6ff"/><text x="80" y="77" text-anchor="middle" font-size="7.5" fill="#1565c0" font-weight="bold">비중</text><text x="80" y="89" text-anchor="middle" font-size="7" fill="#1a237e">'+fmt(total)+'원</text>';
+  var glowDefs='<defs><filter id="pslice-sh" x="-15%" y="-15%" width="130%" height="130%"><feDropShadow dx="0" dy="0" stdDeviation="2.2" flood-color="rgba(0,0,0,0.28)"/></filter><radialGradient id="holeGrad" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#ffffff" stop-opacity="1"/><stop offset="100%" stop-color="#e8f4fd" stop-opacity="1"/></radialGradient></defs>';
+  svg.innerHTML=glowDefs+'<g filter="url(#pslice-sh)">'+paths+'</g>'+labels+'<circle cx="80" cy="80" r="31" fill="white" opacity="0.2"/><circle cx="80" cy="80" r="30" fill="url(#holeGrad)"/><circle cx="80" cy="80" r="30" fill="none" stroke="rgba(21,101,192,0.12)" stroke-width="1"/><text x="80" y="77" text-anchor="middle" font-size="7.5" fill="#1565c0" font-weight="bold">비중</text><text x="80" y="89" text-anchor="middle" font-size="7" fill="#1a237e">'+fmt(total)+'원</text>';
   ll.innerHTML="";
 }
 
