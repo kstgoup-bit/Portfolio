@@ -131,6 +131,13 @@ body{background:var(--sky-bg);color:var(--text);font-family:'Pretendard',sans-se
 #panel-dividend{background:var(--green-bg)}
 #panel-commandments{background:var(--cream-bg)}
 #panel-risk{background:#e8f4fd}
+.rk-diagnosis{background:#fff;border-radius:14px;padding:16px;margin-bottom:6px;border-left:5px solid #ef4444}
+.rk-diagnosis.ok{border-left-color:#22c55e}
+.rk-diagnosis.caution{border-left-color:#f97316}
+.rk-diagnosis-title{font-size:14px;font-weight:900;color:#1a2236;margin-bottom:8px}
+.rk-diagnosis-explain{font-size:12px;color:#374151;line-height:1.7;margin-bottom:10px;background:#f8fafc;border-radius:8px;padding:10px}
+.rk-diagnosis-action{font-size:12px;color:#1565c0;line-height:1.9;font-weight:700}
+.rk-diagnosis-action li{list-style:none;padding:2px 0}
 #panel-settings{background:var(--sky-bg)}
 .panel.active{display:block}
 
@@ -806,7 +813,7 @@ body { font-family:'Pretendard',sans-serif !important; }
       <div class="rk-score-lbl">종합 위험 지수</div>
       <div class="rk-score-num" id="rkScoreNum">—</div>
       <div class="rk-score-label" id="rkScoreLabel">🔵 대기 중</div>
-      <div class="rk-weight">HY스프레드 45% · 10Y금리 35% · VIX 20%<br>
+      <div class="rk-weight">HY 25%·금리 25%·VIX 15%·환율 15%·DXY 10%·금리차 10%<br>
         위험&gt;70 · 경계50~70 · 중립30~50 · 낙관&lt;30
       </div>
     </div>
@@ -851,6 +858,59 @@ body { font-family:'Pretendard',sans-serif !important; }
     <div class="rk-g-range">안전&lt;20 · 경계20~30 · 위험&gt;30 · 패닉&gt;40</div>
   </div>
 
+  <div class="rk-gauge">
+    <div class="rk-g-top">
+      <div>
+        <div class="rk-g-lbl">USD/KRW 환율 (52주 이평 대비)</div>
+        <div><span class="rk-g-val" id="rkFxVal">—</span><span class="rk-g-unit"> 원</span></div>
+      </div>
+      <div class="rk-g-badge" id="rkFxBadge">—</div>
+    </div>
+    <div class="rk-bar-bg"><div class="rk-bar-fill" id="rkFxBar" style="width:0%"></div></div>
+    <div class="rk-g-detail" id="rkFxDetail">—</div>
+    <div class="rk-g-range">완만&lt;±2% · 주의±4% · 경계±7% · 위험±10%이상</div>
+  </div>
+
+  <div class="rk-gauge">
+    <div class="rk-g-top">
+      <div>
+        <div class="rk-g-lbl">달러인덱스 DXY</div>
+        <div><span class="rk-g-val" id="rkDxyVal">—</span></div>
+      </div>
+      <div class="rk-g-badge" id="rkDxyBadge">—</div>
+    </div>
+    <div class="rk-bar-bg"><div class="rk-bar-fill" id="rkDxyBar" style="width:0%"></div></div>
+    <div class="rk-g-detail" id="rkDxyDetail">—</div>
+    <div class="rk-g-range">안전&lt;100 · 주의100~104 · 경계104~108 · 위험&gt;108</div>
+  </div>
+
+  <div class="rk-gauge">
+    <div class="rk-g-top">
+      <div>
+        <div class="rk-g-lbl">장단기 금리차 (10Y-2Y)</div>
+        <div><span class="rk-g-val" id="rkSpreadVal">—</span><span class="rk-g-unit"> %p</span></div>
+      </div>
+      <div class="rk-g-badge" id="rkSpreadBadge">—</div>
+    </div>
+    <div class="rk-bar-bg"><div class="rk-bar-fill" id="rkSpreadBar" style="width:0%"></div></div>
+    <div class="rk-g-detail" id="rkSpreadDetail">—</div>
+    <div class="rk-g-range">정상&gt;0% · 주의0~-0.5% · 경고&lt;-0.5% · 역전해소직후=위험</div>
+  </div>
+
+  <div class="rk-gauge">
+    <div class="rk-g-top">
+      <div>
+        <div class="rk-g-lbl">공포탐욕지수 (Fear&Greed)</div>
+        <div><span class="rk-g-val" id="rkFgVal">—</span></div>
+      </div>
+      <div class="rk-g-badge" id="rkFgBadge">—</div>
+    </div>
+    <div class="rk-bar-bg"><div class="rk-bar-fill" id="rkFgBar" style="width:0%"></div></div>
+    <div class="rk-g-detail" id="rkFgDetail">—</div>
+    <div class="rk-g-range">극공포0~25 · 공포25~45 · 중립45~55 · 탐욕55~75 · 극탐욕75~100</div>
+  </div>
+
+  <div id="rkDiagnosis" style="margin-bottom:14px;display:none"></div>
   <button class="rk-btn" onclick="fetchRiskData()" id="rkFetchBtn">🔄 실시간 위험 지수 조회</button>
   <div id="rkStatus" class="rk-status"></div>
   <div id="rkLastUpdate" class="rk-update"></div>
@@ -1406,6 +1466,15 @@ function setSumVal(id, val, isAmt, text, positive) {
 // =============================================
 // 스마트 브리핑 알림 (규칙 기반)
 // =============================================
+function mkDiag(icon, title, cls, explain, actions) {
+  return '<div class="rk-diagnosis '+(cls||'')+'">'+
+    '<div class="rk-diagnosis-title">'+icon+' '+title+'</div>'+
+    '<div class="rk-diagnosis-explain">'+explain+'</div>'+
+    '<div class="rk-diagnosis-action"><ul>'+
+      actions.map(function(a){return '<li>'+a+'</li>';}).join('')+
+    '</ul></div></div>';
+}
+
 function updateBrief() {
   try {
     var el = document.getElementById("v5Brief");
@@ -1413,54 +1482,101 @@ function updateBrief() {
 
     var rk = {};
     try { rk = JSON.parse(localStorage.getItem("v5_rkCache")||localStorage.getItem("v5_riskData")||"{}"); } catch(e){}
-    var vix = rk.vix||0, rate = rk.yld||rk.rate||0, hy = rk.hy||0;
+    var vix=rk.vix||0, rate=rk.yld||rk.rate||0, hy=rk.hy||0;
+    var dxy2=rk.dxy||0, spread2=rk.spread, fg2=rk.fg;
 
-    // 이달 스냅샷 기록 여부 확인
-    var snaps = JSON.parse(localStorage.getItem("v5_snap")||"{}");
-    var allSnaps = snaps.all||[];
-    var today = new Date();
-    var thisMonth = today.getFullYear()+"-"+(today.getMonth()+1);
-    var hasSnap = allSnaps.some(function(d){
-      var dd = new Date(d.ts);
-      return (dd.getFullYear()+"-"+(dd.getMonth()+1)) === thisMonth;
-    });
+    var snaps=JSON.parse(localStorage.getItem("v5_snap")||"{}");
+    var today=new Date(), thisMonth=today.getFullYear()+"-"+(today.getMonth()+1);
+    var hasSnap=(snaps.all||[]).some(function(d){var dd=new Date(d.ts);return(dd.getFullYear()+"-"+(dd.getMonth()+1))===thisMonth;});
+    var divs=JSON.parse(localStorage.getItem("v5_div")||"[]");
+    var thisMonthDiv=divs.some(function(d){return d.date&&d.date.substring(0,7)===today.toISOString().substring(0,7);});
 
-    // 배당 미입력 여부
-    var divs = JSON.parse(localStorage.getItem("v5_div")||"[]");
-    var thisMonthDiv = divs.some(function(d){
-      return d.date && d.date.substring(0,7) === today.toISOString().substring(0,7);
-    });
+    var msgs=[], diagHtml='';
 
-    // 우선순위별 알림 목록
-    var msgs = [];
+    // ── 위험 신호 ──
+    if(vix>=30){
+      msgs.push({cls:"warn",icon:"🚨",badge:"시장경보",txt:"주식시장이 매우 불안정합니다. 신규 매수 자제가 필요해요."});
+      diagHtml+=mkDiag("🚨","시장 공포 경보 (VIX "+vix.toFixed(1)+")",'',
+        "공포지수(VIX)가 "+vix.toFixed(1)+"까지 올랐습니다.\n쉽게 말하면 — 투자자 대부분이 겁을 먹고 주식을 팔고 있는 상태예요. 이럴 때 주식 시장이 크게 출렁거릴 수 있습니다.\n지금 당장 폭락한다는 뜻은 아니지만 무리하게 사면 손해볼 수 있어요.",
+        ["① 지금 당장 추가 매수는 멈추세요","② 가진 현금은 지키세요 — 기회 올 때 씁니다","③ IONQ·JOBY·SMR 등 테마주 일부 익절 검토","④ QTOP·NVDA·GOOGL 핵심주는 그대로 유지","⑤ 시장이 더 빠지면 오히려 분할매수 기회입니다"]);
+    }
+    if(hy>=600){
+      msgs.push({cls:"warn",icon:"🔴",badge:"신용경색",txt:"기업들이 돈 빌리기가 어려워지고 있어요. 경기 악화 신호입니다."});
+      diagHtml+=mkDiag("🔴","기업 신용 위험 (HY "+hy+"bps)",'',
+        "HY 스프레드가 "+hy+"bps입니다.\n쉽게 말하면 — 은행이 기업에 돈 빌려주기를 꺼리는 상태예요. 기업 실적이 나빠질 것 같다는 신호입니다.\n과거 이 수치가 600이 넘으면 6~12개월 안에 주식시장이 크게 흔들렸어요.",
+        ["① 테마주·소형주 비중 줄이기 검토 (리스크 높은 순서)","② IONQ·JOBY·SMR·ASTS 일부 현금화 고려","③ QTOP·QQQM·NVDA 등 대형 우량주 위주로 재편","④ 방패(채권·현금) 비중 15~20%로 높이기"]);
+    }
+    if(rate>=5.0){
+      msgs.push({cls:"warn",icon:"⚠️",badge:"금리경계",txt:"미국 금리가 높아서 성장주(나스닥)에 부담이 됩니다."});
+      diagHtml+=mkDiag("⚠️","미국 금리 부담 (10Y "+rate.toFixed(2)+"%)",'',
+        "미국 10년 국채 금리가 "+rate.toFixed(2)+"%입니다.\n쉽게 말하면 — 금리가 높으면 '안전한 채권'이 매력적으로 보여서 사람들이 주식을 팔고 채권을 사요. 특히 미래 성장을 보고 투자하는 나스닥·빅테크 주식이 제일 큰 타격을 받아요.",
+        ["① 성장·테마주 추가 매수 속도 늦추기","② 배당주·가치주 비중 일부 확보 고려","③ 기존 보유 QTOP·NVDA는 유지 (장기 관점)","④ 금리 5.5% 넘으면 방어 자산 비중 대폭 확대"]);
+    }
+    if(dxy2>=108){
+      msgs.push({cls:"warn",icon:"💵",badge:"달러급강세",txt:"전 세계 돈이 달러로 몰리고 있어요. 한국·나스닥 동반 하락 주의."});
+      diagHtml+=mkDiag("💵","달러 강세 경보 (DXY "+dxy2.toFixed(1)+")",'',
+        "달러인덱스가 "+dxy2.toFixed(1)+"까지 올랐습니다.\n쉽게 말하면 — 전 세계 투자자들이 불안해서 안전한 달러로 도망가는 상태예요. 이럴 때 한국 주식에서 외국인이 빠져나가고, 원화 가치가 떨어지며, 나스닥 기업들 해외 매출도 줄어들어요.",
+        ["① 국내주식 추가 매수 잠시 보류","② 해외(달러) 자산은 유지 — 환율 오르면 환차익","③ RISE 나스닥100 정기 적립은 계속해도 OK","④ 달러인덱스 112 넘으면 전체 비중 재검토"]);
+    }
+    if(spread2!==null&&spread2!==undefined&&spread2>-0.1&&spread2<0.5){
+      msgs.push({cls:"warn",icon:"📉",badge:"침체경고",txt:"경기침체 직전 패턴이 나타나고 있어요. 과거 7번 중 6번 침체가 왔습니다."});
+      diagHtml+=mkDiag("📉","경기침체 경고 (금리차 "+spread2.toFixed(2)+"%p)",'',
+        "10년 금리와 2년 금리 차이가 "+spread2.toFixed(2)+"%p입니다.\n쉽게 말하면 — 오랫동안 역전되어 있던 금리가 막 정상으로 돌아온 시점이에요. 역사적으로 이 시점 이후 1~2년 안에 경기침체가 거의 항상 왔어요(7번 중 6번). 지금 당장 폭락이 아니라 '폭풍 전 고요한 시기'입니다.",
+        ["① 신규 매수 속도를 평소의 절반으로 줄이세요","② 현금·방패 비중 10~15% 목표로 확보","③ 테마주(IONQ·JOBY·SMR) 30% 넘으면 일부 정리","④ QTOP·NVDA·GOOGL 핵심 우량주는 계속 보유","⑤ 폭락 시 '공포에 매수' 현금 미리 준비해두기"]);
+    } else if(spread2!==null&&spread2<-0.5){
+      msgs.push({cls:"warn",icon:"⚡",badge:"역전심화",txt:"장단기 금리가 역전됐습니다. 1~2년 내 침체 확률이 높아요."});
+      diagHtml+=mkDiag("⚡","금리 역전 심화 ("+spread2.toFixed(2)+"%p)",'',
+        "2년 금리가 10년 금리보다 "+Math.abs(spread2).toFixed(2)+"%p 더 높습니다.\n쉽게 말하면 — 시장이 '앞으로 경기가 나빠질 것'으로 예상하고 있는 신호예요. 아직 당장 문제는 없지만 1~2년 뒤를 대비해야 합니다.",
+        ["① 포트폴리오 전체 리밸런싱 계획 세우기","② 방패 비중(채권·현금) 조금씩 높이기","③ 지금은 관망하며 현금 확보 우선","④ 급등한 테마주 일부 차익실현 고려"]);
+    }
+    if(fg2&&fg2<20){
+      msgs.push({cls:"success",icon:"😱",badge:"극도공포=매수",txt:"모두가 겁먹고 팔 때 — 역사적으로 최고의 매수 기회입니다."});
+      diagHtml+=mkDiag("😱","극도공포 = 매수 적기 (공포탐욕 "+Math.round(fg2)+")",'ok',
+        "공포탐욕지수가 "+Math.round(fg2)+"입니다.\n쉽게 말하면 — 거의 모든 투자자가 겁에 질려 주식을 팔고 있는 상태예요. 그런데 역사적으로 이런 극도 공포 구간에서 매수한 사람들이 가장 큰 수익을 냈어요. 2020년 3월, 2022년 10월이 바로 이런 구간이었습니다.",
+        ["① 보유 주식 절대 팔지 마세요 — 최악의 타이밍","② 여유 현금이 있다면 분할매수 시작하세요","③ QTOP·QQQM·NVDA 우선 추가 매수","④ 한 번에 다 사지 말고 3~5회 나눠서 매수"]);
+    }
+    if(fg2&&fg2>80){
+      msgs.push({cls:"warn",icon:"🤑",badge:"극도탐욕=주의",txt:"모두가 욕심낼 때가 위험합니다. 2021년 11월 나스닥 고점 패턴이에요."});
+      diagHtml+=mkDiag("🤑","극도탐욕 = 과열 경고 (공포탐욕 "+Math.round(fg2)+")",'',
+        "공포탐욕지수가 "+Math.round(fg2)+"입니다.\n쉽게 말하면 — 거의 모든 투자자가 욕심에 눈이 멀어 마구 사고 있어요. '이게 끝없이 오를 것' 같은 기분이 드는 시점입니다. 2021년 11월 나스닥 고점이 정확히 이런 구간이었고, 이후 -33% 폭락이 왔어요.",
+        ["① 지금 당장 추가 매수는 자제하세요","② 많이 오른 종목 일부 익절 검토","③ IONQ +34%·NVDA +58% 등 고수익 종목 10~20% 매도 고려","④ 빠져나온 현금은 다음 공포 구간 때 재투자"]);
+    }
+    if(vix&&fg2&&vix<20&&fg2<30){
+      msgs.push({cls:"warn",icon:"🔍",badge:"기관이탈신호",txt:"겉은 조용한데 안에선 기관이 조용히 빠져나가고 있어요."});
+      diagHtml+=mkDiag("🔍","숨겨진 위험 신호 (VIX "+vix.toFixed(0)+" + 공포탐욕 "+Math.round(fg2)+")",'',
+        "공포지수(VIX)는 "+vix.toFixed(0)+"으로 조용한데 공포탐욕지수는 "+Math.round(fg2)+"으로 낮네요.\n쉽게 말하면 — 겉으로는 평온해 보이지만 내부적으로 큰 투자자들이 조용히 주식을 팔고 나가는 패턴이에요. 일반 투자자는 모르고 있다가 나중에 큰 하락에 당하는 경우가 많아요.",
+        ["① 포트폴리오 전체 점검 — 지금 팔기 아깝지 않은 종목 확인","② 테마주 비중이 30% 넘으면 일부 축소 검토","③ 신규 매수 속도 절반으로 줄이기","④ 손절 기준 미리 정해두기"]);
+    }
+    if(vix&&fg2&&vix>28&&fg2>65){
+      msgs.push({cls:"success",icon:"📈",badge:"반등신호",txt:"공포 속에서도 매수세가 강합니다. 단기 반등 가능성이 있어요."});
+      diagHtml+=mkDiag("📈","공포 속 매수세 감지 (VIX "+vix.toFixed(0)+" + 탐욕 "+Math.round(fg2)+")",'ok',
+        "공포지수(VIX)는 높은데 공포탐욕지수는 "+Math.round(fg2)+"으로 높네요.\n쉽게 말하면 — 시장이 흔들리는데도 투자자들이 오히려 사고 있는 상태예요. 이 패턴은 단기 반등이 나오는 경우가 많아요.",
+        ["① 보유 주식 급하게 팔지 마세요","② 여유 자금 일부 추가 매수 고려","③ 단, 전체 자금의 30% 이상은 한 번에 쓰지 마세요"]);
+    }
+    // 시장 안정
+    if(!msgs.some(function(m){return m.cls==="warn";})&&vix>0&&vix<18&&rate>0&&rate<4.5&&hy>0&&hy<350){
+      msgs.push({cls:"success",icon:"📈",badge:"매수우호",txt:"모든 위험 지표가 안정권입니다. 적립식 매수 계속하세요."});
+      diagHtml+=mkDiag("✅","시장 안정 — 매수 우호 환경",'ok',
+        "VIX "+vix.toFixed(1)+"·금리 "+rate.toFixed(2)+"%·HY "+hy+"bps 모두 안정권입니다.\n쉽게 말하면 — 지금은 주식을 사기 좋은 환경이에요. 이런 구간이 생각보다 자주 오지 않으니 꾸준히 적립하는 게 좋습니다.",
+        ["① 예정된 정기 매수 계속 진행하세요","② QTOP·QQQM·RISE나스닥100 적립 유지","③ 방패(채권·현금) 비중 10~20% 목표 유지","④ 다음 공포 구간 대비 현금 일부 확보"]);
+    }
 
-    // 🚨 시장 위험 경보 (최우선)
-    if(vix >= 30)   msgs.push({cls:"warn",    icon:"🚨", badge:"시장경보", txt:"VIX "+vix.toFixed(1)+" 위험 — 고변동성 구간. 추가 매수 신중, 현금 확보 고려."});
-    if(rate >= 5.0) msgs.push({cls:"warn",    icon:"⚠️", badge:"금리경계", txt:"미국 10Y 금리 "+rate.toFixed(2)+"% — 성장주 밸류 압박 구간. 방어주 비중 점검."});
-    if(hy  >= 600)  msgs.push({cls:"warn",    icon:"🔴", badge:"신용경색", txt:"HY 스프레드 "+hy+"bps — 기업 신용 위험 확대. SMR·양자 비중 축소 고려."});
+    // 할일 알림
+    if(!hasSnap) msgs.push({cls:"warn",icon:"📸",badge:"할일",txt:"이번 달 자산 스냅샷 미기록! '📸 오늘 전체 자산 기록' 버튼을 눌러주세요."});
+    if(!thisMonthDiv&&divs.length>0) msgs.push({cls:"",icon:"💰",badge:"확인",txt:"이번 달 배당금 입력했나요? 배당 탭에서 수령 내역을 기록해두세요."});
+    if(!msgs.length) msgs.push({cls:"",icon:"💡",badge:"오늘",txt:"위험계 탭에서 실시간 지수를 조회하면 정확한 진단을 받을 수 있어요."});
 
-    // ✅ 시장 안정 → 매수 기회
-    if(vix>0&&vix<18&&rate>0&&rate<4.5&&hy>0&&hy<350)
-      msgs.push({cls:"success", icon:"📈", badge:"매수우호", txt:"VIX "+vix.toFixed(1)+"·금리 "+rate.toFixed(2)+"%·HY "+hy+"bps 모두 안정 — 분할 매수 적기."});
+    var m=msgs.find(function(x){return x.cls==="warn";})||msgs[0];
+    el.className="v5-brief"+(m.cls?" "+m.cls:"");
+    el.style.display="flex";
+    el.innerHTML='<div class="v5-brief-icon">'+m.icon+'</div><div class="v5-brief-text">'+m.txt+'<span class="v5-brief-badge">'+m.badge+'</span></div>';
 
-    // 📸 이달 스냅샷 미기록
-    if(!hasSnap)
-      msgs.push({cls:"warn", icon:"📸", badge:"할일", txt:"이번 달 자산 스냅샷 아직 미기록! '📸 오늘 전체 자산 기록' 버튼을 눌러주세요."});
-
-    // 💰 배당금 미입력
-    if(!thisMonthDiv && divs.length > 0)
-      msgs.push({cls:"", icon:"💰", badge:"확인", txt:"이번 달 배당금 입력했나요? 배당 탭에서 수령 내역을 기록해 두세요."});
-
-    // 기본
-    if(!msgs.length)
-      msgs.push({cls:"", icon:"💡", badge:"오늘", txt:"시장 안정 구간입니다. 위험계 탭에서 최신 지수를 확인해 보세요."});
-
-    var m = msgs.find(function(x){return x.cls==="warn";}) || msgs[0];
-    el.className = "v5-brief" + (m.cls?" "+m.cls:"");
-    el.style.display = "flex";
-    el.innerHTML =
-      '<div class="v5-brief-icon">'+m.icon+'</div>'+
-      '<div class="v5-brief-text">'+m.txt+'<span class="v5-brief-badge">'+m.badge+'</span></div>';
+    // 종합 진단 카드 업데이트
+    var dg=document.getElementById("rkDiagnosis");
+    if(dg){
+      if(diagHtml){dg.innerHTML=diagHtml;dg.style.display="block";}
+      else{dg.innerHTML='<div class="rk-diagnosis ok"><div class="rk-diagnosis-title">✅ 현재 특별한 위험 신호 없음</div><div class="rk-diagnosis-explain">모든 지표가 정상 범위입니다. 실시간 조회 버튼으로 최신 데이터를 확인해보세요.</div></div>';dg.style.display="block";}
+    }
   } catch(e) {}
 }
 
@@ -1770,11 +1886,15 @@ function renderPension() {
 // =============================================
 var riskData = {};
 
-function rkCalcScore(hy, rate, vix) {
-  var hyS = hy<300?8:hy<400?22:hy<500?38:hy<600?55:hy<800?70:hy<1000?85:100;
-  var rS  = rate<3.0?8:rate<3.5?20:rate<4.0?34:rate<4.5?50:rate<5.0?66:rate<5.5?80:95;
-  var vS  = vix<15?8:vix<20?20:vix<25?35:vix<30?55:vix<40?75:100;
-  return Math.round(hyS*0.45 + rS*0.35 + vS*0.20);
+function rkCalcScore(hy, rate, vix, fxScore, dxyScore, spreadScore, fgScore) {
+  var hyS  = hy<300?8:hy<400?22:hy<500?38:hy<600?55:hy<800?70:hy<1000?85:100;
+  var rS   = rate<3.0?8:rate<3.5?20:rate<4.0?34:rate<4.5?50:rate<5.0?66:rate<5.5?80:95;
+  var vS   = vix<15?8:vix<20?20:vix<25?35:vix<30?55:vix<40?75:100;
+  var fxS  = fxScore||10;
+  var dxyS = dxyScore||10;
+  var spS  = spreadScore||10;
+  var fgS  = fgScore||50;
+  return Math.round(hyS*0.25 + rS*0.25 + vS*0.15 + fxS*0.15 + dxyS*0.10 + spS*0.10);
 }
 
 function rkLevel(score) {
@@ -1830,8 +1950,48 @@ function rkDrawThermo(score) {
     '</svg>';
 }
 
-function rkUpdateUI(hy, rate, vix) {
-  var score = rkCalcScore(hy, rate, vix);
+function rkUpdateUI(hy, rate, vix, fxScore, dxy, spread, fg) {
+  fxScore = fxScore||10;
+  // DXY
+  var dxyScore = !dxy?10:dxy<100?10:dxy<104?28:dxy<108?55:dxy<112?75:95;
+  var dxyLv = rkLevel(dxyScore);
+  var dxv=document.getElementById("rkDxyVal"), dxb=document.getElementById("rkDxyBar"),
+      dxbg=document.getElementById("rkDxyBadge"), dxd=document.getElementById("rkDxyDetail");
+  if(dxv) dxv.textContent=dxy?dxy.toFixed(2):"—";
+  if(dxb){dxb.style.width=dxy?Math.min((dxy-90)/30*100,100)+"%":"0%"; dxb.style.background=rkBarGrad(dxyScore);}
+  if(dxbg&&dxy){dxbg.textContent=dxyLv.label.replace(/^\S+\s*/,"").replace(/\s/g,""); dxbg.style.cssText=rkBadge(dxyLv);}
+  if(dxd&&dxy) dxd.textContent="DXY "+dxy.toFixed(2)+" · "+(dxy<100?"달러 약세 — 위험자산 우호적":dxy<104?"중립 구간":dxy<108?"달러 강세 — 신흥국 자금 이탈 주의":"달러 급강세 — 글로벌 위험 신호");
+  // 장단기 금리차
+  var spScore = !spread&&spread!==0?10:spread>1?5:spread>0?15:spread>-0.5?40:spread>-1?65:85;
+  // 역전해소 직후(0~0.5) 추가 경고
+  var spWarning = (spread!==null&&spread!==undefined&&spread>0&&spread<0.5);
+  if(spWarning) spScore=Math.max(spScore,55);
+  var spLv = rkLevel(spScore);
+  var spv=document.getElementById("rkSpreadVal"), spb=document.getElementById("rkSpreadBar"),
+      spbg=document.getElementById("rkSpreadBadge"), spd=document.getElementById("rkSpreadDetail");
+  if(spv) spv.textContent=(spread!==null&&spread!==undefined)?spread.toFixed(2):"—";
+  if(spb&&spread!==null){var spw=Math.min(Math.abs(spread)/2*100,100); spb.style.width=spw+"%"; spb.style.background=rkBarGrad(spScore);}
+  if(spbg&&spread!==null){spbg.textContent=spLv.label.replace(/^\S+\s*/,"").replace(/\s/g,""); spbg.style.cssText=rkBadge(spLv);}
+  if(spd&&spread!==null) spd.textContent=(spread>0.5?"정상 — 경기 우호적":spread>0?"⚠️ 역전 해소 직후 — 침체 시작 가능 구간":spread>-0.5?"주의 — 역전 진행 중":"경고 — 강한 역전, 침체 선행신호")+(spWarning?" 🚨 역전 해소 직후 가장 위험한 구간!":"");
+  // 공포탐욕지수
+  var fgScore = !fg?50:fg<15?90:fg<25?75:fg<45?50:fg<55?20:fg<75?35:90;
+  var fgLv = rkLevel(fgScore);
+  var fgv=document.getElementById("rkFgVal"), fgb=document.getElementById("rkFgBar"),
+      fgbg=document.getElementById("rkFgBadge"), fgd=document.getElementById("rkFgDetail");
+  if(fgv) fgv.textContent=fg?Math.round(fg):"—";
+  if(fgb&&fg){fgb.style.width=fg+"%"; fgb.style.background=rkBarGrad(fgScore);}
+  if(fgbg&&fg){fgbg.textContent=fgLv.label.replace(/^\S+\s*/,"").replace(/\s/g,""); fgbg.style.cssText=rkBadge(fgLv);}
+  if(fgd&&fg) fgd.textContent=(fg<15?"극도공포 — 역사적 매수 적기":fg<25?"공포 — 분할매수 고려":fg<45?"불안 — 관망 유지":fg<55?"중립":fg<75?"탐욕 — 추가매수 신중":fg<85?"강한탐욕 — 과열 주의":"극도탐욕 — 매도 검토 구간");
+  // VIX vs 공포탐욕 교차 신호
+  if(vix&&fg){
+    var crossMsg="";
+    if(vix<20&&fg<30) crossMsg="⚠️ VIX안정+공포탐욕공포 — 기관 조용히 이탈 중. 하락 경고!";
+    else if(vix>28&&fg>65) crossMsg="📈 VIX급등+탐욕 — 공포 속 매수세 강함. 단기 반등 가능!";
+    else if(vix<13&&fg>80) crossMsg="🔴 VIX극저+극탐욕 — 거품 경고! 2021년11월 나스닥 고점 패턴";
+    else if(vix>35&&fg<20) crossMsg="🟢 VIX극공포+극공포 — 역사적 바닥 근처. 분할매수 최적기!";
+    if(crossMsg&&fgd) fgd.textContent+=" | "+crossMsg;
+  }
+  var score = rkCalcScore(hy, rate, vix, fxScore, dxyScore, spScore, fgScore);
   var lv = rkLevel(score);
   riskData = {hy:hy, rate:rate, vix:vix, score:score};
 
@@ -1871,6 +2031,26 @@ function rkUpdateUI(hy, rate, vix) {
   if(vb){vb.style.width=Math.min(vix/50*100,100)+"%"; vb.style.background=rkBarGrad(vScore);}
   if(vbg){vbg.textContent=vLv.label.replace(/^\S+\s*/,"").replace(/\s/g,""); vbg.style.cssText=rkBadge(vLv);}
   if(vd) vd.textContent=vix<20?"공포 낮음 — 시장 안정":vix<30?"불안감 확대 — 변동성 주의":"공포 구간 — 패닉 매도 가능";
+
+  // 환율 52주 이평 대비 위험도
+  var fxNow=parseFloat((document.getElementById("usdKrw")||{}).value)||1370;
+  var fxHist=[]; try{fxHist=JSON.parse(localStorage.getItem("v5_fxHistory")||"[]");}catch(e){}
+  var today=new Date().toDateString();
+  if(!fxHist.length||fxHist[fxHist.length-1].d!==today) fxHist.push({d:today,v:fxNow});
+  else fxHist[fxHist.length-1].v=fxNow;
+  if(fxHist.length>365) fxHist=fxHist.slice(-365);
+  localStorage.setItem("v5_fxHistory",JSON.stringify(fxHist));
+  var fx52avg=Math.round(fxHist.reduce(function(s,x){return s+x.v;},0)/fxHist.length);
+  var fxDiff=((fxNow-fx52avg)/fx52avg)*100;
+  var fxAbs=Math.abs(fxDiff);
+  var fxScore=fxAbs<2?10:fxAbs<4?25:fxAbs<7?50:fxAbs<10?75:95;
+  var fxLv=fxScore<25?rkLevel(10):fxScore<45?rkLevel(25):fxScore<65?rkLevel(50):fxScore<85?rkLevel(75):rkLevel(95);
+  var fxv=document.getElementById("rkFxVal"), fxb=document.getElementById("rkFxBar"),
+      fxbg=document.getElementById("rkFxBadge"), fxd=document.getElementById("rkFxDetail");
+  if(fxv) fxv.textContent=fxNow.toLocaleString();
+  if(fxb){fxb.style.width=Math.min(fxAbs/12*100,100)+"%"; fxb.style.background=rkBarGrad(fxScore);}
+  if(fxbg){fxbg.textContent=fxLv.label.replace(/^\S+\s*/,"").replace(/\s/g,""); fxbg.style.cssText=rkBadge(fxLv);}
+  if(fxd) fxd.textContent="52주 평균 "+fx52avg.toLocaleString()+"원 대비 "+(fxDiff>=0?"+":"")+fxDiff.toFixed(1)+"% · "+(fxAbs<2?"완만 — 인플레이션 수준":fxAbs<4?"주의 구간":fxAbs<7?"급변 경고 — 점검 필요":"위험 — 자산 재배분 고려");
 
   // 업데이트 시간 저장
   var now = new Date();
@@ -1951,11 +2131,15 @@ async function fetchRiskData() {
   var results=await Promise.all([
     raceUrls(fredUrls("VIXCLS").concat(yahooUrls("%5EVIX"))),   // VIX
     raceUrls(fredUrls("DGS10").concat(yahooUrls("%5ETNX"))),    // 10Y
-    raceUrls(fredUrls("BAMLH0A0HYM2"))                          // HY
+    raceUrls(fredUrls("BAMLH0A0HYM2")),                         // HY
+    raceUrls(yahooUrls("DX-Y.NYB")),                            // DXY
+    raceUrls(fredUrls("DGS2").concat(yahooUrls("%5EIRX"))),     // 2Y
+    raceUrls(["https://api.allorigins.win/raw?url="+encodeURIComponent("https://production.dataviz.cnn.io/index/fearandgreed/graphdata")])  // F&G
   ]);
 
   var vixTxt=results[0], rateTxt=results[1], hyTxt=results[2];
-  var vix=null, rate=null, hy=null;
+  var dxyTxt=results[3], rate2Txt=results[4], fgTxt=results[5];
+  var vix=null, rate=null, hy=null, dxy=null, rate2=null, fg=null;
   var ok=[], fail=[];
 
   if(vixTxt){
@@ -1976,11 +2160,46 @@ async function fetchRiskData() {
     else fail.push("HY스프레드");
   } else fail.push("HY스프레드");
 
+  if(dxyTxt){
+    var v=parseYahoo(dxyTxt)||parseFred(dxyTxt);
+    if(v){dxy=parseFloat(v.toFixed(2)); ok.push("DXY "+dxy);}
+    else fail.push("DXY");
+  } else fail.push("DXY");
+
+  if(rate2Txt){
+    var v=parseFred(rate2Txt)||parseYahoo(rate2Txt);
+    if(v){rate2=parseFloat(v.toFixed(2)); ok.push("2Y "+rate2+"%");}
+    else fail.push("2Y금리");
+  } else fail.push("2Y금리");
+
+  if(fgTxt){
+    try{
+      var fgj=JSON.parse(fgTxt);
+      var fgv2=fgj.fear_and_greed&&fgj.fear_and_greed.score;
+      if(fgv2){fg=parseFloat(fgv2); ok.push("공포탐욕 "+Math.round(fg));}
+      else fail.push("공포탐욕");
+    }catch(e){fail.push("공포탐욕");}
+  } else fail.push("공포탐욕");
+
+  var spread=(rate!==null&&rate2!==null)?parseFloat((rate-rate2).toFixed(2)):null;
+
+  // 환율 위험점수 계산 (rkUpdateUI에서도 계산되지만 여기서 미리)
+  var fxNow2=parseFloat((document.getElementById("usdKrw")||{}).value)||1370;
+  var fxH2=[]; try{fxH2=JSON.parse(localStorage.getItem("v5_fxHistory")||"[]");}catch(e){}
+  var fx52a2=fxH2.length?Math.round(fxH2.reduce(function(s,x){return s+x.v;},0)/fxH2.length):fxNow2;
+  var fxDiff2=Math.abs(((fxNow2-fx52a2)/fx52a2)*100);
+  var fxScoreV=fxDiff2<2?10:fxDiff2<4?25:fxDiff2<7?50:fxDiff2<10?75:95;
+
   rkUpdateUI(
     hy!==null?hy:(cached.hy||280),
     rate!==null?rate:(cached.rate||4.5),
-    vix!==null?vix:(cached.vix||18)
+    vix!==null?vix:(cached.vix||18),
+    fxScoreV,
+    dxy!==null?dxy:(cached.dxy||100),
+    spread!==null?spread:(cached.spread||0.5),
+    fg!==null?fg:(cached.fg||null)
   );
+  localStorage.setItem("v5_riskData", JSON.stringify({hy:hy||(cached.hy||280),rate:rate||(cached.rate||4.5),vix:vix||(cached.vix||18),dxy:dxy||(cached.dxy||100),spread:spread,fg:fg,ts:Date.now()}));
 
   // ── 상태 메시지 (사라지지 않음) ────────
   var now=new Date().toLocaleTimeString("ko-KR");
@@ -2000,7 +2219,11 @@ function loadRiskData() {
   if(saved) {
     try {
       var s=JSON.parse(saved);
-      rkUpdateUI(s.hy, s.rate, s.vix);
+      var fxH3=[]; try{fxH3=JSON.parse(localStorage.getItem('v5_fxHistory')||'[]');}catch(e){}
+      var fx52a3=fxH3.length?Math.round(fxH3.reduce(function(a,x){return a+x.v;},0)/fxH3.length):1370;
+      var fxD3=Math.abs(((parseFloat((document.getElementById('usdKrw')||{}).value||1370)-fx52a3)/fx52a3)*100);
+      var fxSc3=fxD3<2?10:fxD3<4?25:fxD3<7?50:fxD3<10?75:95;
+      rkUpdateUI(s.hy, s.rate, s.vix, fxSc3, s.dxy, s.spread, s.fg);
       var ago=Math.floor((Date.now()-s.ts)/60000);
       var lu=document.getElementById("rkLastUpdate");
       if(lu) lu.textContent="마지막 조회: "+new Date(s.ts).toLocaleString("ko-KR")+" ("+ago+"분 전)";
