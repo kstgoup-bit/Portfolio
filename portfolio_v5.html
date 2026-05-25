@@ -468,8 +468,8 @@ body { font-family:'Pretendard',sans-serif !important; }
   <button class="tab" onclick="switchTab('pension')">🏦 연금</button>
   <button class="tab" onclick="switchTab('dividend')">💰 배당</button>
   <button class="tab" onclick="switchTab('risk')">🌡️ 위험계</button>
-  <button class="tab" onclick="switchTab('commandments')">📜 10계명</button>
   <button class="tab" onclick="switchTab('advisor')">🤖 AI자문</button>
+  <button class="tab" onclick="switchTab('commandments')">📜 10계명</button>
   <button class="tab" onclick="switchTab('settings')">⚙️ 설정</button>
 </div>
 </div>
@@ -2610,7 +2610,7 @@ function changePw() {
 // 탭 전환
 // =============================================
 function switchTab(tab) {
-  var tabs=["dashboard","domestic","overseas","pension","dividend","risk","commandments","advisor","settings"];
+  var tabs=["dashboard","domestic","overseas","pension","dividend","risk","advisor","commandments","settings"];
   document.querySelectorAll(".tab").forEach(function(t,i){t.classList.toggle("active",tabs[i]===tab);});
   document.querySelectorAll(".panel").forEach(function(p){p.classList.toggle("active",p.id==="panel-"+tab);});
   // 탭별 탭 버튼 색상
