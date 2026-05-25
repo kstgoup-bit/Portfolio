@@ -860,6 +860,32 @@ body { font-family:'Pretendard',sans-serif !important; }
 // AI 자문 (젬마 ⚔️ + 클로 🛡) - 키는 설정탭에서
 // =============================================
 
+
+function showResetChoice() {
+  return new Promise(function(resolve) {
+    // 기존 팝업 제거
+    var old = document.getElementById("resetChoiceBox");
+    if(old) old.remove();
+
+    var box = document.createElement("div");
+    box.id = "resetChoiceBox";
+    box.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9998;display:flex;align-items:center;justify-content:center;padding:24px";
+    box.innerHTML =
+      '<div style="background:#fff;border-radius:20px;padding:24px;width:100%;max-width:360px;box-shadow:0 8px 32px rgba(0,0,0,0.25)">' +
+        '<div style="font-size:16px;font-weight:900;color:#1a2236;margin-bottom:8px">💬 이전 토론이 있어요</div>' +
+        '<div style="font-size:13px;color:#666;margin-bottom:20px;line-height:1.6">'+advRound+'라운드까지 진행한 토론이 있어요.<br>어떻게 할까요?</div>' +
+        '<button id="choiceContinue" style="width:100%;padding:14px;background:linear-gradient(135deg,#1565c0,#7b1fa2);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:800;cursor:pointer;margin-bottom:10px">🔗 이전 토론 기억하고 이어가기</button>' +
+        '<button id="choiceNew" style="width:100%;padding:14px;background:#f5f5f5;color:#333;border:1px solid #ddd;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:10px">🆕 이전 거 잊고 새로 시작</button>' +
+        '<button id="choiceCancel" style="width:100%;padding:10px;background:transparent;color:#999;border:none;font-size:13px;cursor:pointer">취소</button>' +
+      '</div>';
+    document.body.appendChild(box);
+
+    document.getElementById("choiceContinue").onclick = function(){ box.remove(); resolve("continue"); };
+    document.getElementById("choiceNew").onclick     = function(){ box.remove(); resolve("new"); };
+    document.getElementById("choiceCancel").onclick  = function(){ box.remove(); resolve(null); };
+  });
+}
+
 // 대화 히스토리
 var advHistory = [];
 var advRound = 1;
@@ -1070,7 +1096,15 @@ async function askBothAI() {
   var results = document.getElementById("advResults");
   var notice = document.getElementById("advNotice");
   btn.disabled = true;
-  advHistory = []; advRound = 1; // 새 질문 시 히스토리 리셋
+  // 이전 토론이 있으면 이어갈지 새로 시작할지 선택
+  if(advHistory.length > 0) {
+    var choice = await showResetChoice();
+    if(choice === null) { btn.disabled = false; btn.textContent = "⚡ 젬마 & 클로 동시 자문 받기"; return; }
+    if(choice === "new") { advHistory = []; advRound = 1; }
+    // "continue"면 히스토리 유지
+  } else {
+    advHistory = []; advRound = 1;
+  }
   var ctx = getPortfolioCtx();
   var fullQ = ctx + "\n【질문】" + q;
   var gemmaQ = "[역할: 공격적 투자 전략가 젬마. 5년 10억 목표, 고수익 추구, AI·SMR·성장주 집중 선호]\n"+fullQ+"\n위 역할로 한국어 3~5문장 핵심만 답변:";
