@@ -404,6 +404,17 @@ body { font-family:'Pretendard',sans-serif !important; }
 .adv-notice { font-size:11px; color:var(--muted); text-align:center; margin-top:8px; }
 .adv-key-warn { background:#fff3e0; border:1px solid #ffb74d; border-radius:12px; padding:12px; font-size:12px; color:#e65100; font-weight:600; line-height:1.6; }
 
+
+/* 계속 토론 */
+.adv-continue-wrap { background:#fff; border:2px dashed rgba(106,27,154,0.3); border-radius:16px; padding:14px; margin-top:16px; }
+.adv-continue-label { font-size:12px; font-weight:800; color:#7b1fa2; margin-bottom:8px; }
+.adv-user-bubble { background:linear-gradient(135deg,rgba(106,27,154,0.08),rgba(21,101,192,0.06)); border:1px solid rgba(106,27,154,0.2); border-radius:14px; padding:12px 14px; margin:12px 0; }
+.adv-user-bubble-header { font-size:12px; font-weight:800; color:#7b1fa2; margin-bottom:4px; }
+.adv-user-bubble-text { font-size:13px; color:var(--text); line-height:1.6; }
+.adv-round-divider { display:flex; align-items:center; gap:8px; margin:16px 0 12px; }
+.adv-round-divider-line { flex:1; height:1px; background:var(--border); }
+.adv-round-label { font-size:11px; font-weight:800; color:var(--muted); white-space:nowrap; }
+
 </style>
 </head>
 <body>
@@ -848,6 +859,120 @@ body { font-family:'Pretendard',sans-serif !important; }
 // =============================================
 // AI 자문 (젬마 ⚔️ + 클로 🛡) - 키는 설정탭에서
 // =============================================
+
+// 대화 히스토리
+var advHistory = [];
+var advRound = 1;
+
+function buildHistoryCtx() {
+  if(!advHistory.length) return "";
+  var s = "\n\n【이전 토론 내용】\n";
+  advHistory.forEach(function(h) {
+    if(h.role==="gemma")     s += "⚔️ 젬마: "+h.text+"\n\n";
+    else if(h.role==="claude")    s += "🛡 클로: "+h.text+"\n\n";
+    else if(h.role==="user")      s += "💬 순태씨: "+h.text+"\n\n";
+    else if(h.role==="consensus") s += "⚖️ 합의안: "+h.text+"\n\n";
+  });
+  return s;
+}
+
+function showContinueBox() {
+  var results = document.getElementById("advResults");
+  var box = document.createElement("div");
+  box.className = "adv-continue-wrap";
+  box.id = "advContinueBox";
+  box.innerHTML =
+    '<div class="adv-continue-label">💬 순태씨 의견을 추가하고 토론을 계속하세요</div>' +
+    '<textarea class="adv-textarea" id="advContinueQ" rows="2" placeholder="예: IONQ 비중 10%로 올리는 건 어때? / 합의안대로 하겠어"></textarea>' +
+    '<button class="adv-submit-btn" style="margin-top:8px;font-size:13px" onclick="continueDebate()">🔄 토론 계속하기</button>';
+  results.appendChild(box);
+}
+
+async function continueDebate() {
+  var q2 = document.getElementById("advContinueQ").value.trim();
+  if(!q2) { showToast("⚠️ 의견을 입력해주세요", true); return; }
+
+  var key = getGeminiKey();
+  if(!key) { showToast("⚠️ 설정탭에서 Gemini 키를 입력해주세요", true); return; }
+
+  // 입력창 제거
+  var box = document.getElementById("advContinueBox");
+  if(box) box.remove();
+
+  var results = document.getElementById("advResults");
+  advRound++;
+
+  // 순태씨 말풍선
+  var userBubble = document.createElement("div");
+  userBubble.innerHTML =
+    '<div class="adv-round-divider"><div class="adv-round-divider-line"></div><div class="adv-round-label">💬 '+advRound+'라운드</div><div class="adv-round-divider-line"></div></div>' +
+    '<div class="adv-user-bubble"><div class="adv-user-bubble-header">👤 순태씨</div><div class="adv-user-bubble-text">'+q2+'</div></div>';
+  results.appendChild(userBubble);
+
+  advHistory.push({role:"user", text:q2});
+  var histCtx = buildHistoryCtx();
+  var ctx = getPortfolioCtx();
+
+  // 로딩
+  var loadEl = document.createElement("div");
+  loadEl.className = "adv-loading"; loadEl.textContent = "⚔️ 젬마 "+advRound+"라운드 준비 중...";
+  results.appendChild(loadEl);
+
+  // 젬마 반응
+  var gemmaQ3 = "[역할: 공격적 투자 전략가 젬마]\n"+ctx+histCtx+
+    "\n【순태씨 새 의견】"+q2+
+    "\n\n순태씨 의견에 직접 반응하고, 이전 토론 맥락을 고려해 구체적 종목/비중 포함해서 3~4문장 한국어로:";
+  loadEl.textContent = "⚔️ 젬마 "+advRound+"라운드 의견 작성 중...";
+  var g3 = await callGemini(gemmaQ3);
+
+  // 클로 반응
+  loadEl.textContent = "🛡 클로 "+advRound+"라운드 반응 중...";
+  await new Promise(function(res){setTimeout(res,3000);});
+  var claudeQ3 = "[역할: 신중하지만 실용적인 투자 전문가 클로]\n"+ctx+histCtx+
+    "\n【순태씨 새 의견】"+q2+
+    "\n【젬마 반응】"+g3+
+    "\n\n순태씨 의견과 젬마 반응 모두 고려해서 구체적 종목/ETF 포함, 3~4문장 한국어로:";
+  var c3 = await callGemini(claudeQ3);
+
+  // 합의안
+  loadEl.textContent = "⚖️ "+advRound+"라운드 합의안 도출 중...";
+  await new Promise(function(res){setTimeout(res,3000);});
+  var conQ3 = "[역할: 중립 투자 조정자]\n"+ctx+histCtx+
+    "\n【순태씨 의견】"+q2+"\n【젬마】"+g3+"\n【클로】"+c3+
+    "\n\n이번 라운드 토론을 종합해서 실행 가능한 합의안. 형식: ① 지금 할 것 ② 조심할 것. 구체적 종목/비중 포함, 각 1~2문장:";
+  var con3 = await callGemini(conQ3);
+
+  loadEl.remove();
+
+  // 결과 카드
+  var roundEl = document.createElement("div");
+  roundEl.innerHTML =
+    '<div class="adv-card adv-card-gemma" style="margin-top:4px">' +
+      '<div class="adv-card-header"><div class="adv-card-icon">⚔️</div>' +
+        '<div class="adv-card-name" style="color:#c62828">젬마 '+advRound+'라운드</div>' +
+        '<div class="adv-card-tag" style="background:rgba(198,40,40,0.12);color:#c62828">공격적</div></div>' +
+      '<div class="adv-card-body">'+g3+'</div></div>' +
+    '<div class="adv-card adv-card-claude">' +
+      '<div class="adv-card-header"><div class="adv-card-icon">🛡</div>' +
+        '<div class="adv-card-name" style="color:#1565c0">클로 '+advRound+'라운드</div>' +
+        '<div class="adv-card-tag" style="background:rgba(21,101,192,0.12);color:#1565c0">신중</div></div>' +
+      '<div class="adv-card-body">'+c3+'</div></div>' +
+    '<div class="adv-card" style="background:linear-gradient(135deg,rgba(46,125,50,0.06),rgba(21,101,192,0.06));border:2px solid rgba(46,125,50,0.4)">' +
+      '<div class="adv-card-header"><div class="adv-card-icon">⚖️</div>' +
+        '<div class="adv-card-name" style="color:#1b5e20">'+advRound+'라운드 합의안</div>' +
+        '<div class="adv-card-tag" style="background:rgba(46,125,50,0.15);color:#2e7d32">결론</div></div>' +
+      '<div class="adv-card-body">'+con3+'</div></div>';
+  results.appendChild(roundEl);
+
+  advHistory.push({role:"gemma", text:g3});
+  advHistory.push({role:"claude", text:c3});
+  advHistory.push({role:"consensus", text:con3});
+
+  // 다음 라운드 입력창
+  showContinueBox();
+  roundEl.scrollIntoView({behavior:"smooth"});
+}
+
 var ADV_MODELS = [
   {model:"gemini-2.5-flash-lite", ver:"v1beta"},
   {model:"gemini-2.5-flash",      ver:"v1beta"},
@@ -939,25 +1064,43 @@ async function askBothAI() {
   var results = document.getElementById("advResults");
   var notice = document.getElementById("advNotice");
   btn.disabled = true;
+  advHistory = []; advRound = 1; // 새 질문 시 히스토리 리셋
   var ctx = getPortfolioCtx();
   var fullQ = ctx + "\n【질문】" + q;
   var gemmaQ = "[역할: 공격적 투자 전략가 젬마. 5년 10억 목표, 고수익 추구, AI·SMR·성장주 집중 선호]\n"+fullQ+"\n위 역할로 한국어 3~5문장 핵심만 답변:";
   var claudeQ = "[역할: 신중하지만 실용적인 투자 전문가 클로. 리스크는 짚되 반드시 구체적 종목명이나 ETF를 1~2개 언급하며 실질적 조언을 해야 함. 추상적 원칙론 금지]\n"+fullQ+"\n위 역할로 한국어 3~5문장, 구체적 종목/ETF명 포함해서 답변:";
 
-  results.innerHTML = '<div class="adv-loading">⚔️ 젬마 분석 중...</div>';
-  btn.textContent = "⏳ 젬마 응답 중...";
+  // ① 젬마 초기 의견
+  results.innerHTML = '<div class="adv-loading">⚔️ 젬마 1차 의견 작성 중...</div>';
+  btn.textContent = "⏳ 1/3 젬마 분석 중...";
   var gemmaRes = await callGemini(gemmaQ);
 
-  results.innerHTML = '<div class="adv-loading">⚔️ 젬마 완료 → 🛡 클로 분석 중...</div>';
-  btn.textContent = "⏳ 클로 응답 중...";
+  // ② 클로가 젬마 의견 보고 반박/동의
+  results.innerHTML = '<div class="adv-loading">🛡 클로가 젬마 의견 검토 중...</div>';
+  btn.textContent = "⏳ 2/3 클로 반응 중...";
   await new Promise(function(res){setTimeout(res,3000);});
-  var claudeRes = await callGemini(claudeQ);
+  var claudeQ2 = "[역할: 신중하지만 실용적인 투자 전문가 클로]\n"+ctx+
+    "\n【질문】"+q+
+    "\n\n【젬마(공격적 전략가)의 의견】\n"+gemmaRes+
+    "\n\n위 젬마 의견을 보고: 동의하는 부분은 인정하고, 문제 있는 부분은 구체적 근거로 반박하며, 반드시 구체적 종목/ETF명을 언급해서 실질적 대안을 제시하라. 한국어 4~5문장:";
+  var claudeRes = await callGemini(claudeQ2);
+
+  // ③ 합의안 도출
+  results.innerHTML = '<div class="adv-loading">⚖️ 젬마·클로 합의안 도출 중...</div>';
+  btn.textContent = "⏳ 3/3 합의안 작성 중...";
+  await new Promise(function(res){setTimeout(res,3000);});
+  var consensusQ = "[역할: 중립적 투자 조정자]\n"+ctx+
+    "\n【질문】"+q+
+    "\n\n【젬마 의견】\n"+gemmaRes+
+    "\n\n【클로 의견】\n"+claudeRes+
+    "\n\n위 두 전문가의 토론을 종합해서 순태씨가 실제로 실행할 수 있는 최종 합의안을 작성하라. 형식: ① 지금 당장 할 것 ② 중기적으로 할 것 ③ 주의사항. 각 항목 1~2문장씩, 구체적 종목/ETF/비중 포함:";
+  var consensusRes = await callGemini(consensusQ);
 
   results.innerHTML =
     '<div class="adv-card adv-card-gemma">' +
       '<div class="adv-card-header">' +
         '<div class="adv-card-icon">⚔️</div>' +
-        '<div class="adv-card-name" style="color:#c62828">젬마</div>' +
+        '<div class="adv-card-name" style="color:#c62828">젬마 의견</div>' +
         '<div class="adv-card-tag" style="background:rgba(198,40,40,0.12);color:#c62828">공격적</div>' +
       '</div>' +
       '<div class="adv-card-body">'+gemmaRes+'</div>' +
@@ -965,13 +1108,29 @@ async function askBothAI() {
     '<div class="adv-card adv-card-claude">' +
       '<div class="adv-card-header">' +
         '<div class="adv-card-icon">🛡</div>' +
-        '<div class="adv-card-name" style="color:#1565c0">클로</div>' +
+        '<div class="adv-card-name" style="color:#1565c0">클로 반응</div>' +
         '<div class="adv-card-tag" style="background:rgba(21,101,192,0.12);color:#1565c0">신중</div>' +
       '</div>' +
       '<div class="adv-card-body">'+claudeRes+'</div>' +
+    '</div>' +
+    '<div class="adv-card" style="background:linear-gradient(135deg,rgba(46,125,50,0.06),rgba(21,101,192,0.06));border:2px solid rgba(46,125,50,0.4)">' +
+      '<div class="adv-card-header">' +
+        '<div class="adv-card-icon">⚖️</div>' +
+        '<div class="adv-card-name" style="color:#1b5e20">젬마·클로 최종 합의안</div>' +
+        '<div class="adv-card-tag" style="background:rgba(46,125,50,0.15);color:#2e7d32">결론</div>' +
+      '</div>' +
+      '<div class="adv-card-body">'+consensusRes+'</div>' +
     '</div>';
 
-  notice.textContent = "📊 두 의견을 비교해서 최종 결정은 순태씨가! | Gemini API";
+  notice.textContent = "⚖️ 합의안 기준으로 최종 결정은 순태씨가! | Gemini API 3회 사용";
+
+  // 대화 히스토리 저장
+  advHistory.push({role:"gemma", text:gemmaRes});
+  advHistory.push({role:"claude", text:claudeRes});
+  advHistory.push({role:"consensus", text:consensusRes});
+
+  // 계속 토론 입력창 표시
+  showContinueBox();
   btn.disabled = false;
   btn.textContent = "⚡ 젬마 & 클로 동시 자문 받기";
 }
