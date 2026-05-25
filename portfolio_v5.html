@@ -226,6 +226,35 @@ body{background:var(--sky-bg);color:var(--text);font-family:'Pretendard',sans-se
 .calc-result{margin-top:6px;padding:8px;background:#fff;border-radius:6px;display:flex;justify-content:space-between;align-items:center}
 .calc-apply{width:100%;margin-top:6px;background:var(--blue);color:#fff;border:none;border-radius:6px;padding:7px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif}
 
+
+/* ── 시뮬레이터 탭 ── */
+#panel-simulator{background:var(--sky-bg)}
+.sim-card{background:#fff;border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:0 2px 12px rgba(21,101,192,0.08);border:1px solid rgba(21,101,192,0.12)}
+.sim-title{font-size:15px;font-weight:800;color:#1565c0;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.sim-result-banner{background:linear-gradient(135deg,#1565c0,#7b1fa2);border-radius:14px;padding:16px;text-align:center;margin-bottom:14px;color:#fff}
+.sim-result-year{font-size:32px;font-weight:900;letter-spacing:-1px;margin:4px 0}
+.sim-result-sub{font-size:12px;opacity:.85;margin-top:4px}
+.sim-input-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.sim-input-lbl{font-size:12px;color:var(--muted);min-width:80px}
+.sim-input{flex:1;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-weight:700;color:var(--text);background:var(--sky-bg);text-align:right}
+.sim-unit{font-size:12px;color:var(--muted);white-space:nowrap}
+.invest-input-row{display:flex;gap:6px;margin-bottom:10px;align-items:center}
+.invest-input{padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;background:var(--sky-bg);color:var(--text)}
+.invest-add-btn{padding:8px 14px;background:#1565c0;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap}
+.invest-item{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--sky-bg);border-radius:8px;margin-bottom:6px;font-size:13px}
+.invest-item-left{display:flex;flex-direction:column;gap:2px}
+.invest-item-date{font-size:11px;color:var(--muted)}
+.invest-item-memo{font-size:12px;color:var(--muted)}
+.invest-item-amt{font-weight:800;color:#1565c0;font-size:14px}
+.invest-del-btn{background:none;border:none;color:#ef5350;font-size:16px;cursor:pointer;padding:0 4px}
+.sim-progress-wrap{margin:10px 0}
+.sim-progress-bar-bg{height:12px;background:#e3f2fd;border-radius:6px;overflow:hidden;margin-top:6px}
+.sim-progress-bar{height:12px;background:linear-gradient(90deg,#1565c0,#7b1fa2);border-radius:6px;transition:width 0.5s}
+.sim-stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.sim-stat-item{background:var(--sky-bg);border-radius:10px;padding:10px;text-align:center}
+.sim-stat-lbl{font-size:10px;color:var(--muted);margin-bottom:4px}
+.sim-stat-val{font-size:14px;font-weight:800;color:var(--text)}
+
 /* 배당 탭 */
 .div-summary{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
 .div-card{background:#fff;border-radius:12px;padding:14px;border:1px solid var(--border);box-shadow:var(--shadow);text-align:center}
@@ -467,6 +496,7 @@ body { font-family:'Pretendard',sans-serif !important; }
   <button class="tab" onclick="switchTab('overseas')">🇺🇸 해외</button>
   <button class="tab" onclick="switchTab('pension')">🏦 연금</button>
   <button class="tab" onclick="switchTab('dividend')">💰 배당</button>
+  <button class="tab" onclick="switchTab('simulator')">💹 시뮬</button>
   <button class="tab" onclick="switchTab('risk')">🌡️ 위험계</button>
   <button class="tab" onclick="switchTab('advisor')">🤖 AI자문</button>
   <button class="tab" onclick="switchTab('commandments')">📜 10계명</button>
@@ -702,6 +732,52 @@ body { font-family:'Pretendard',sans-serif !important; }
   </div>
   <div class="sec-lbl">배당 내역</div>
   <div id="divList"><div class="empty">배당금을 입력해주세요</div></div>
+</div>
+
+
+<!-- 시뮬레이터 탭 -->
+<div class="panel" id="panel-simulator">
+
+  <!-- ③ 10억 시뮬레이터 -->
+  <div class="sim-card">
+    <div class="sim-title">🎯 10억 시뮬레이터</div>
+    <div class="sim-input-row">
+      <span class="sim-input-lbl">월 적립액</span>
+      <input class="sim-input" type="number" id="simMonthly" value="200" oninput="renderSimulator()">
+      <span class="sim-unit">만원</span>
+    </div>
+    <div class="sim-input-row">
+      <span class="sim-input-lbl">연 기대수익률</span>
+      <input class="sim-input" type="number" id="simReturn" value="15" step="0.5" oninput="renderSimulator()">
+      <span class="sim-unit">%</span>
+    </div>
+    <div id="simResultBanner"></div>
+    <div class="sim-progress-wrap">
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted)">
+        <span>현재 달성률</span><span id="simPct">-</span>
+      </div>
+      <div class="sim-progress-bar-bg"><div class="sim-progress-bar" id="simProgressBar" style="width:0%"></div></div>
+    </div>
+    <div class="sim-stat-grid" id="simStatGrid"></div>
+    <svg id="simChart" viewBox="0 0 340 160" style="width:100%;margin-top:14px"></svg>
+  </div>
+
+  <!-- ② 투자 원금 유입 기록 -->
+  <div class="sim-card">
+    <div class="sim-title">📥 투자 원금 유입 기록</div>
+    <div class="invest-input-row">
+      <input class="invest-input" type="month" id="investDate" style="flex:1">
+      <input class="invest-input" type="number" id="investAmt" placeholder="금액(만원)" style="width:100px">
+      <input class="invest-input" type="text" id="investMemo" placeholder="메모" style="width:80px">
+      <button class="invest-add-btn" onclick="addInvest()">추가</button>
+    </div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:8px">
+      총 유입: <b id="investTotal" style="color:#1565c0">0</b>만원 &nbsp;|&nbsp;
+      월평균: <b id="investAvg" style="color:#7b1fa2">0</b>만원
+    </div>
+    <svg id="investBarChart" viewBox="0 0 340 120" style="width:100%;margin-bottom:10px"></svg>
+    <div id="investList"></div>
+  </div>
 </div>
 
 <!-- 10계명 -->
@@ -2706,6 +2782,208 @@ window.addEventListener("load", function() {
     if(recorded){save();renderAll();}
   }, 5000);
 });
+
+// ═══════════════════════════════════
+// 💹 시뮬레이터 & 투자 원금 기록
+// ═══════════════════════════════════
+var investHistory = []; // [{date:"2026-05", amount:200, memo:""}]
+var simCfg = {monthly:200, annualReturn:15};
+
+function loadSimData(){
+  try { investHistory = JSON.parse(localStorage.getItem("v5_invest"))||[]; } catch(e){ investHistory=[]; }
+  try { simCfg = JSON.parse(localStorage.getItem("v5_simCfg"))||{monthly:200,annualReturn:15}; } catch(e){}
+  var mEl=document.getElementById("simMonthly"), rEl=document.getElementById("simReturn");
+  if(mEl) mEl.value = simCfg.monthly;
+  if(rEl) rEl.value = simCfg.annualReturn;
+}
+function saveSimData(){
+  simCfg.monthly = parseFloat(document.getElementById("simMonthly").value)||200;
+  simCfg.annualReturn = parseFloat(document.getElementById("simReturn").value)||15;
+  localStorage.setItem("v5_invest", JSON.stringify(investHistory));
+  localStorage.setItem("v5_simCfg", JSON.stringify(simCfg));
+}
+
+// ③ 10억 시뮬레이터
+function renderSimulator(){
+  var pEl=document.getElementById("simMonthly"), rEl=document.getElementById("simReturn");
+  if(!pEl||!rEl) return;
+  var monthly = (parseFloat(pEl.value)||200)*10000;
+  var annualR = (parseFloat(rEl.value)||15)/100;
+  var r = annualR/12; // 월 수익률
+
+  // 현재 총자산 계산
+  var fx = parseFloat(document.getElementById("usdKrw").value)||1370;
+  function vKRW2(s,isUS){ return s.quantity*(isUS?s.currentPrice*fx:s.currentPrice); }
+  var totalNow = 0;
+  domStocks.forEach(function(s){ totalNow+=vKRW2(s,false); });
+  ovStocks.forEach(function(s){ totalNow+=vKRW2(s,true); });
+  penStocks.forEach(function(s){ totalNow+=vKRW2(s,false); });
+
+  // 목표 달성률
+  var pct = Math.min((totalNow/GOAL)*100, 100);
+  var pctEl=document.getElementById("simPct"), barEl=document.getElementById("simProgressBar");
+  if(pctEl) pctEl.textContent = pct.toFixed(1)+"%";
+  if(barEl) barEl.style.width = pct.toFixed(1)+"%";
+
+  // 복리 시뮬: FV = P*(1+r)^n + PMT*((1+r)^n-1)/r
+  var months=0, fv=totalNow, MAX_MONTHS=600; // 최대 50년
+  var chartData=[{m:0,v:totalNow}];
+  while(fv < GOAL && months < MAX_MONTHS){
+    fv = fv*(1+r) + monthly;
+    months++;
+    if(months%6===0 || fv>=GOAL) chartData.push({m:months,v:fv});
+  }
+
+  // 결과 배너
+  var banner=document.getElementById("simResultBanner");
+  if(banner){
+    var now=new Date(), targetDate=new Date(now.getFullYear(), now.getMonth()+months, 1);
+    var yr=targetDate.getFullYear(), mo=targetDate.getMonth()+1;
+    var yrsLeft=Math.floor(months/12), mosLeft=months%12;
+    var color = months<=60?"#1565c0":months<=84?"#f57c00":"#c62828";
+    if(fv>=GOAL){
+      banner.innerHTML='<div class="sim-result-banner" style="background:linear-gradient(135deg,'+color+',#7b1fa2)">'+
+        '<div style="font-size:13px;opacity:0.9">🏆 10억 달성 예상</div>'+
+        '<div class="sim-result-year">'+yr+'년 '+mo+'월</div>'+
+        '<div class="sim-result-sub">지금부터 '+yrsLeft+'년 '+mosLeft+'개월 후 ('+months+'개월)</div>'+
+        '</div>';
+    } else {
+      banner.innerHTML='<div class="sim-result-banner" style="background:linear-gradient(135deg,#c62828,#6a1b9a)">'+
+        '<div style="font-size:13px;opacity:0.9">⚠️ 수익률 또는 적립액을 높여보세요</div>'+
+        '<div class="sim-result-year">달성 불가</div></div>';
+    }
+  }
+
+  // 통계 카드
+  var totalInvest = totalNow + monthly*months;
+  var totalReturn = fv - totalInvest;
+  var statEl=document.getElementById("simStatGrid");
+  if(statEl){
+    statEl.innerHTML=
+      '<div class="sim-stat-item"><div class="sim-stat-lbl">현재 자산</div><div class="sim-stat-val">'+Math.round(totalNow/10000).toLocaleString()+'만</div></div>'+
+      '<div class="sim-stat-item"><div class="sim-stat-lbl">월 적립</div><div class="sim-stat-val">'+Math.round(monthly/10000).toLocaleString()+'만</div></div>'+
+      '<div class="sim-stat-item"><div class="sim-stat-lbl">총 납입 원금</div><div class="sim-stat-val">'+Math.round(totalInvest/100000000).toFixed(1)+'억</div></div>'+
+      '<div class="sim-stat-item"><div class="sim-stat-lbl">복리 수익</div><div class="sim-stat-val" style="color:#1565c0">+'+Math.round(totalReturn/100000000).toFixed(1)+'억</div></div>';
+  }
+
+  // 시뮬 차트 (라인)
+  var svgEl=document.getElementById("simChart");
+  if(!svgEl||chartData.length<2) return;
+  var W=340,H=160,PL=44,PR=12,PT=16,PB=28;
+  var minV=0, maxV=Math.max(GOAL*1.05, chartData[chartData.length-1].v);
+  var maxM=chartData[chartData.length-1].m||1;
+  function sx(m){return PL+(m/maxM)*(W-PL-PR);}
+  function sy(v){return PT+(1-(v-minV)/(maxV-minV))*(H-PT-PB);}
+
+  var pts=chartData.map(function(d){return sx(d.m)+","+sy(d.v);}).join(" ");
+  // 목표선 y
+  var goalY=sy(GOAL);
+  var html='';
+  // 배경 그라데이션
+  html+='<defs><linearGradient id="simGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1565c0" stop-opacity="0.18"/><stop offset="100%" stop-color="#1565c0" stop-opacity="0.01"/></linearGradient></defs>';
+  // 채움 영역
+  var areaPoints=chartData.map(function(d){return sx(d.m)+","+sy(d.v);}).join(" ");
+  var firstX=sx(0), lastX=sx(maxM);
+  html+='<polygon points="'+firstX+","+(H-PB)+" "+areaPoints+" "+lastX+","+(H-PB)+'" fill="url(#simGrad)"/>';
+  // 목표선
+  html+='<line x1="'+PL+'" y1="'+goalY+'" x2="'+(W-PR)+'" y2="'+goalY+'" stroke="#ef5350" stroke-width="1.2" stroke-dasharray="5,3"/>';
+  html+='<text x="'+(W-PR-2)+'" y="'+(goalY-3)+'" text-anchor="end" font-size="8" fill="#ef5350" font-weight="700">10억</text>';
+  // 라인
+  html+='<polyline points="'+pts+'" fill="none" stroke="#1565c0" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>';
+  // 달성점
+  if(months<MAX_MONTHS){
+    var gx=sx(months), gy=sy(GOAL);
+    html+='<circle cx="'+gx+'" cy="'+gy+'" r="5" fill="#1565c0" stroke="#fff" stroke-width="1.5"/>';
+  }
+  // y축 레이블
+  [0,0.25,0.5,0.75,1].forEach(function(t){
+    var v=t*maxV, y=sy(v);
+    html+='<line x1="'+PL+'" y1="'+y+'" x2="'+(W-PR)+'" y2="'+y+'" stroke="var(--border)" stroke-width="0.5"/>';
+    html+='<text x="'+(PL-3)+'" y="'+(y+3)+'" text-anchor="end" font-size="7.5" fill="var(--muted)">'+
+      (v>=100000000?(v/100000000).toFixed(1)+'억':(v/10000).toFixed(0)+'만')+'</text>';
+  });
+  // x축 레이블 (연도별)
+  for(var y2=1;y2<=Math.ceil(maxM/12);y2++){
+    var mx=y2*12; if(mx>maxM) break;
+    var lx=sx(mx);
+    html+='<text x="'+lx+'" y="'+(H-PB+10)+'" text-anchor="middle" font-size="7.5" fill="var(--muted)">'+y2+'년</text>';
+  }
+  svgEl.innerHTML=html;
+  saveSimData();
+}
+
+// ② 투자 원금 유입 기록
+function addInvest(){
+  var d=document.getElementById("investDate").value;
+  var a=parseFloat(document.getElementById("investAmt").value);
+  var m=document.getElementById("investMemo").value.trim();
+  if(!d||!a||a<=0) return alert("날짜와 금액을 입력해주세요");
+  investHistory.push({date:d, amount:a, memo:m});
+  investHistory.sort(function(a,b){return a.date>b.date?1:-1;});
+  document.getElementById("investAmt").value="";
+  document.getElementById("investMemo").value="";
+  saveSimData();
+  renderInvestHistory();
+}
+function delInvest(idx){
+  investHistory.splice(idx,1);
+  saveSimData();
+  renderInvestHistory();
+}
+function renderInvestHistory(){
+  var totEl=document.getElementById("investTotal"), avgEl=document.getElementById("investAvg");
+  var listEl=document.getElementById("investList"), svgEl=document.getElementById("investBarChart");
+  if(!listEl) return;
+  if(!investHistory.length){
+    if(totEl) totEl.textContent="0";
+    if(avgEl) avgEl.textContent="0";
+    listEl.innerHTML='<div style="text-align:center;font-size:12px;color:var(--muted);padding:12px">투자 원금 유입 기록이 없습니다</div>';
+    if(svgEl) svgEl.innerHTML='';
+    return;
+  }
+  var total=investHistory.reduce(function(s,x){return s+x.amount;},0);
+  var avg=Math.round(total/investHistory.length);
+  if(totEl) totEl.textContent=total.toLocaleString();
+  if(avgEl) avgEl.textContent=avg.toLocaleString();
+
+  // 목록 렌더
+  listEl.innerHTML=investHistory.map(function(item,i){
+    return '<div class="invest-item">'+
+      '<div class="invest-item-left">'+
+        '<span style="font-size:13px;font-weight:700;color:var(--text)">'+item.date+'</span>'+
+        (item.memo?'<span class="invest-item-memo">'+item.memo+'</span>':'')+
+      '</div>'+
+      '<div style="display:flex;align-items:center;gap:8px">'+
+        '<span class="invest-item-amt">+'+item.amount.toLocaleString()+'만원</span>'+
+        '<button class="invest-del-btn" onclick="delInvest('+i+')">×</button>'+
+      '</div>'+
+    '</div>';
+  }).reverse().join('');
+
+  // 막대 차트
+  if(!svgEl) return;
+  var W=340,H=120,PL=38,PR=8,PT=12,PB=24;
+  var maxA=Math.max.apply(null,investHistory.map(function(x){return x.amount;}));
+  var n=investHistory.length;
+  var bw=Math.max(6,Math.min(28,Math.floor((W-PL-PR)/(n+1))));
+  var html2='';
+  investHistory.forEach(function(item,i){
+    var x=PL+(i/(n-1||1))*(W-PL-PR);
+    var bh=((item.amount/maxA)*(H-PT-PB));
+    var by=(H-PB)-bh;
+    html2+='<rect x="'+(x-bw/2)+'" y="'+by+'" width="'+bw+'" height="'+bh+'" rx="3" fill="#1565c0" opacity="0.82"/>';
+    if(bw>12) html2+='<text x="'+x+'" y="'+(H-PB+10)+'" text-anchor="middle" font-size="7" fill="var(--muted)">'+item.date.slice(5)+'</text>';
+    html2+='<text x="'+x+'" y="'+(by-3)+'" text-anchor="middle" font-size="7" fill="#1565c0" font-weight="700">'+item.amount+'</text>';
+  });
+  // y축
+  [0,0.5,1].forEach(function(t){
+    var v=Math.round(t*maxA), y=(H-PB)-(t*(H-PT-PB));
+    html2+='<line x1="'+PL+'" y1="'+y+'" x2="'+(W-PR)+'" y2="'+y+'" stroke="var(--border)" stroke-width="0.5"/>';
+    html2+='<text x="'+(PL-3)+'" y="'+(y+3)+'" text-anchor="end" font-size="7.5" fill="var(--muted)">'+v+'</text>';
+  });
+  svgEl.innerHTML=html2;
+}
+
 </script>
 </body>
 </html>
