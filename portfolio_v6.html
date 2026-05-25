@@ -660,7 +660,7 @@ body.dark-mode .adv-card-claude{background:rgba(0,229,255,0.08);}
 const GAS_DEFAULT="https://script.google.com/macros/s/AKfycbxFmgDS7rNk9y9bfLtJmC1BhwYluHIFdF2jmo6AmfKjJhZQXYO6uqhIwvDlJcQwTSOZ/exec";
 const GOAL=1000000000;
 const PW_DEFAULT="kst0188";
-const COLORS=["#00e5ff","#ff3366","#00e676","#d500f9","#ffea00","#00b0ff","#ff9100","#4d7c0f","#06b6d4","#a855f7","#ec4899","#14b8a6"];
+const COLORS=["#00e5ff","#ff3366","#00e676","#d500f9","#ffea00","#00b0ff","#ff9100","#a3e635","#06b6d4","#a855f7","#ec4899","#14b8a6","#f472b6","#818cf8","#fb923c","#34d399","#60a5fa","#fbbf24","#c084fc","#4ade80","#38bdf8","#f87171"];
 
 const DOM_INIT=[
   {id:1,name:"ACE 미국빅테크TOP7",ticker:"441640",quantity:0,avgPrice:0,currentPrice:0,role:"spear"},
@@ -893,14 +893,14 @@ function renderSectorPie(stocks,isUS,pieId,legendId){
   var rawPcts=slices.map(function(sl){return Math.round((sl.v/totalV)*100);});
   var pctSum=rawPcts.reduce(function(a,b){return a+b;},0);
   if(pctSum!==100&&rawPcts.length){var mi=rawPcts.reduce(function(mi,v,i){return v>rawPcts[mi]?i:mi;},0);rawPcts[mi]+=(100-pctSum);}
-  var pieSvg='';
+  var pieSvg='<defs><filter id="sg-sh" x="-15%" y="-15%" width="130%" height="130%"><feDropShadow dx="0" dy="0" stdDeviation="2.5" flood-color="rgba(0,0,0,0.35)"/></filter><radialGradient id="sg-hole" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#ffffff" stop-opacity="1"/><stop offset="100%" stop-color="#f0f4f8" stop-opacity="1"/></radialGradient></defs><g filter="url(#sg-sh)">';
   slices.forEach(function(sl,si){
     var x1=cx+r*Math.cos(sl.startAngle),y1=cy+r*Math.sin(sl.startAngle);
     var x2=cx+r*Math.cos(sl.startAngle+sl.angle),y2=cy+r*Math.sin(sl.startAngle+sl.angle);
     var xi1=cx+ri*Math.cos(sl.startAngle),yi1=cy+ri*Math.sin(sl.startAngle);
     var xi2=cx+ri*Math.cos(sl.startAngle+sl.angle),yi2=cy+ri*Math.sin(sl.startAngle+sl.angle);
     var lg=sl.angle>Math.PI?1:0;
-    pieSvg+='<path d="M'+x1+','+y1+' A'+r+','+r+' 0 '+lg+',1 '+x2+','+y2+' L'+xi2+','+yi2+' A'+ri+','+ri+' 0 '+lg+',0 '+xi1+','+yi1+' Z" fill="'+sl.color+'"/>';
+    pieSvg+='<path d="M'+x1+','+y1+' A'+r+','+r+' 0 '+lg+',1 '+x2+','+y2+' L'+xi2+','+yi2+' A'+ri+','+ri+' 0 '+lg+',0 '+xi1+','+yi1+' Z" fill="'+sl.color+'" stroke="rgba(255,255,255,0.5)" stroke-width="1.2"/>';
     if(sl.angle>0.25){
       var tx=cx+r*0.65*Math.cos(sl.midAngle),ty=cy+r*0.65*Math.sin(sl.midAngle);
       var sn=sl.s.name.replace(/[A-Za-z]+\s*/g,'').substring(0,5)||sl.s.ticker.substring(0,5);
@@ -908,7 +908,7 @@ function renderSectorPie(stocks,isUS,pieId,legendId){
       pieSvg+='<text x="'+tx+'" y="'+(ty+7)+'" text-anchor="middle" font-size="9" fill="white" font-weight="900">'+rawPcts[si]+'%</text>';
     }
   });
-  pieSvg+='<circle cx="'+cx+'" cy="'+cy+'" r="18" fill="#ffffff"/>';
+  pieSvg+='</g><circle cx="'+cx+'" cy="'+cy+'" r="19" fill="white" opacity="0.3"/><circle cx="'+cx+'" cy="'+cy+'" r="18" fill="url(#sg-hole)"/>';
   svg.innerHTML=pieSvg;
   legendEl.innerHTML=slices.map(function(sl,si){
     var pct=sl.s.avgPrice>0?((sl.s.currentPrice-sl.s.avgPrice)/sl.s.avgPrice*100):0;
@@ -990,7 +990,7 @@ function renderDashboard(){
     var xi1=cx+ri*Math.cos(s.startAngle),yi1=cy+ri*Math.sin(s.startAngle);
     var xi2=cx+ri*Math.cos(s.startAngle+s.angle),yi2=cy+ri*Math.sin(s.startAngle+s.angle);
     var lg=s.angle>Math.PI?1:0;
-    pieSvg+='<path d="M'+x1+','+y1+' A'+r+','+r+' 0 '+lg+',1 '+x2+','+y2+' L'+xi2+','+yi2+' A'+ri+','+ri+' 0 '+lg+',0 '+xi1+','+yi1+' Z" fill="'+s.m.color+'"/>';
+    pieSvg+='<path d="M'+x1+','+y1+' A'+r+','+r+' 0 '+lg+',1 '+x2+','+y2+' L'+xi2+','+yi2+' A'+ri+','+ri+' 0 '+lg+',0 '+xi1+','+yi1+' Z" fill="'+s.m.color+'" stroke="rgba(255,255,255,0.45)" stroke-width="1"/>';
     if(s.angle>0.25){var tx=cx+r*0.6*Math.cos(s.midAngle),ty=cy+r*0.6*Math.sin(s.midAngle);pieSvg+='<text x="'+tx+'" y="'+ty+'" text-anchor="middle" font-size="9" fill="#0b0f19" font-weight="900">'+rawPcts[si]+'%</text>';}
   });
   pieSvg+='<circle cx="'+cx+'" cy="'+cy+'" r="18" fill="#f0f4f8"/></svg>';
