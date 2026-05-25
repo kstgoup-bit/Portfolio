@@ -1027,12 +1027,18 @@ async function callGemini(fullPrompt, retry) {
   var url = "https://generativelanguage.googleapis.com/" + m.ver + "/models/" + m.model + ":generateContent?key=" + key;
   var body = {
     contents: [{ parts: [{ text: fullPrompt }] }],
-    generationConfig: { maxOutputTokens: 500, temperature: 0.7 }
+    generationConfig: { maxOutputTokens: 800, temperature: 0.7 }
   };
   try {
     var r = await fetch(url, { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body) });
     var j = await r.json();
-    if(j.candidates && j.candidates[0]) return j.candidates[0].content.parts[0].text;
+    if(j.candidates && j.candidates[0]) {
+      var txt = j.candidates[0].content.parts[0].text;
+      // 마크다운 기호 제거
+      txt = txt.replace(/\*\*([^*]+)\*\*/g,'$1').replace(/\*([^*]+)\*/g,'$1');
+      txt = txt.replace(/^#{1,3}\s+/gm,'').replace(/^[-*]\s+/gm,'· ');
+      return txt.trim();
+    }
     if(j.error) {
       if(j.error.code === 403 && (j.error.message||"").includes("leaked")) {
         localStorage.removeItem("v5_geminiKey");
