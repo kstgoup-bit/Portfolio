@@ -303,15 +303,15 @@ body.dark-mode .adv-card-claude{background:rgba(0,229,255,0.08);}
     <div class="goal-bar-bg"><div class="goal-bar-fill" id="goalFill"></div></div>
   </div>
   <div class="tabs">
-    <button class="tab active" onclick="switchTab('dashboard')">📊 종합현황</button>
-    <button class="tab" onclick="switchTab('domestic')">🇰🇷 국내자산</button>
-    <button class="tab" onclick="switchTab('overseas')">🇺🇸 해외정예</button>
-    <button class="tab" onclick="switchTab('pension')">🏦 연금방패</button>
-    <button class="tab" onclick="switchTab('dividend')">💰 배당관리</button>
-    <button class="tab" onclick="switchTab('risk')">🌡️ 위험지수</button>
-    <button class="tab" onclick="switchTab('commandments')">📜 투자계명</button>
-    <button class="tab" onclick="switchTab('advisor')">🤖 AI자문</button>
-    <button class="tab" onclick="switchTab('settings')">⚙️ 환경설정</button>
+    <button class="tab active" onclick="switchTab('dashboard')">📊 현황</button>
+    <button class="tab" onclick="switchTab('domestic')">🇰🇷 국내</button>
+    <button class="tab" onclick="switchTab('overseas')">🇺🇸 해외</button>
+    <button class="tab" onclick="switchTab('pension')">🏦 연금</button>
+    <button class="tab" onclick="switchTab('dividend')">💰 배당</button>
+    <button class="tab" onclick="switchTab('risk')">🌡️ 위험</button>
+    <button class="tab" onclick="switchTab('commandments')">📜 계명</button>
+    <button class="tab" onclick="switchTab('advisor')">🤖 AI</button>
+    <button class="tab" onclick="switchTab('settings')">⚙️ 설정</button>
   </div>
 </div>
 
@@ -779,6 +779,9 @@ function setSumVal(id,val,isAmt,text,positive){
 function renderAll(){
   renderDashboard();renderBalancePie();
   renderDomestic();renderOverseas();renderPension();
+  renderSectorPie(domStocks,false,'domPie',null);
+  renderSectorPie(ovStocks,true,'ovPie',null);
+  renderSectorPie(penStocks,false,'penPie',null);
   renderDividend();renderCommandments();
 }
 
@@ -870,7 +873,8 @@ function renderSectorPie(stocks,isUS,pieId,legendId){
   var active=stocks.filter(function(s){return (s.quantity||0)>0&&((s.currentPrice||0)>0||(s.avgPrice||0)>0);});
   if(!active.length){
     svg.innerHTML='<text x="80" y="85" text-anchor="middle" fill="var(--muted)" font-size="11">보유 종목 없음</text>';
-    legendEl.innerHTML=''; return;
+    if(legendEl) legendEl.innerHTML='';
+    return;
   }
   // 비중 순 정렬
   active.sort(function(a,b){return vKRW(b,isUS)-vKRW(a,isUS);});
