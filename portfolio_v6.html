@@ -733,6 +733,7 @@ function load(){
   try{divList=JSON.parse(localStorage.getItem("v6_div"))||[];}catch{divList=[];}
   try{snapshots=JSON.parse(localStorage.getItem("v6_snap"))||{all:[],dom:[],ov:[],pen:[]};}catch(e){snapshots={all:[],dom:[],ov:[],pen:[]};}
   try{balGoals=JSON.parse(localStorage.getItem("v6_balGoals"))||{all:80,dom:80,ov:80,pen:80};}catch(e){balGoals={all:80,dom:80,ov:80,pen:80};}
+  ['all','dom','ov','pen'].forEach(function(k){var lbl=document.getElementById("balGoalLbl-"+k);if(lbl)lbl.textContent=balGoals[k]||80;});
   var savedFx=localStorage.getItem("v6_fx"); if(savedFx)document.getElementById("usdKrw").value=savedFx;
   gasUrl=localStorage.getItem("v6_gas")||GAS_DEFAULT;
   var gi=document.getElementById("gasInput"); if(gi)gi.value=gasUrl;
@@ -828,14 +829,14 @@ function renderBalancePieDonut(svgId,spearV,shieldV){
   var spearDeg=spearPct/100*360;
   if(spearDeg>=360||spearDeg<=0){
     var c=spearDeg>=360?"var(--neon-red)":"var(--neon-blue)";
-    svg.innerHTML='<circle cx="60" cy="60" r="46" fill="'+c+'"/><circle cx="60" cy="60" r="32" fill="#f0f4f8"/><text x="60" y="64" text-anchor="middle" font-size="12" font-weight="800" fill="#fff">'+(spearDeg>=360?"100":"0")+'%</text>';
+    svg.innerHTML='<circle cx="60" cy="60" r="46" fill="'+c+'"/><circle cx="60" cy="60" r="32" fill="var(--card-bg)"/><text x="60" y="64" text-anchor="middle" font-size="12" font-weight="800" fill="var(--text)">'+(spearDeg>=360?"100":"0")+'%</text>';
     return;
   }
   svg.innerHTML=
     '<path d="'+arc(-90,-90+spearDeg,r,ri)+'" fill="var(--neon-red)"/>'+
     '<path d="'+arc(-90+spearDeg,270,r,ri)+'" fill="var(--neon-blue)"/>'+
-    '<circle cx="60" cy="60" r="32" fill="#f0f4f8"/>'+
-    '<text x="60" y="64" text-anchor="middle" font-size="12" font-weight="800" fill="#fff">'+spearPct.toFixed(0)+'%</text>';
+    '<circle cx="60" cy="60" r="32" fill="var(--card-bg)"/>'+
+    '<text x="60" y="64" text-anchor="middle" font-size="12" font-weight="800" fill="var(--text)">'+spearPct.toFixed(0)+'%</text>';
 }
 
 function renderBalancePieFor(key){
@@ -1000,7 +1001,7 @@ function renderDashboard(){
     var xi2=cx+ri*Math.cos(s.startAngle+s.angle),yi2=cy+ri*Math.sin(s.startAngle+s.angle);
     var lg=s.angle>Math.PI?1:0;
     pieSvg+='<path d="M'+x1+','+y1+' A'+r+','+r+' 0 '+lg+',1 '+x2+','+y2+' L'+xi2+','+yi2+' A'+ri+','+ri+' 0 '+lg+',0 '+xi1+','+yi1+' Z" fill="'+s.m.color+'" stroke="rgba(255,255,255,0.45)" stroke-width="1"/>';
-    if(s.angle>0.25){var tx=cx+r*0.6*Math.cos(s.midAngle),ty=cy+r*0.6*Math.sin(s.midAngle);pieSvg+='<text x="'+tx+'" y="'+ty+'" text-anchor="middle" font-size="9" fill="#0b0f19" font-weight="900">'+rawPcts[si]+'%</text>';}
+    if(s.angle>0.25){var tx=cx+r*0.6*Math.cos(s.midAngle),ty=cy+r*0.6*Math.sin(s.midAngle);pieSvg+='<text x="'+tx+'" y="'+ty+'" text-anchor="middle" font-size="9" fill="var(--text)" font-weight="900">'+rawPcts[si]+'%</text>';}
   });
   pieSvg+='<circle cx="'+cx+'" cy="'+cy+'" r="18" fill="#f0f4f8"/></svg>';
   var maxPct=Math.max.apply(null,items.map(function(m){return Math.abs(m.g.pct||0);}))||1;
@@ -1340,7 +1341,7 @@ function rkUpdateUI(hy,rate,vix){
     '<rect x="24" y="16" width="24" height="240" rx="12" fill="url(#rkGrad)" clip-path="url(#rkClip)"/>'+
     '<circle cx="36" cy="252" r="22" fill="'+lv.color+'44" stroke="'+lv.color+'99" stroke-width="2"/>'+
     '<circle cx="36" cy="252" r="16" fill="'+lv.color+'"/>'+
-    '<text x="36" y="256" text-anchor="middle" font-size="11" font-weight="900" fill="#0b0f19">'+score+'</text></svg>';
+    '<text x="36" y="256" text-anchor="middle" font-size="11" font-weight="900" fill="var(--text)">'+score+'</text></svg>';
 
   document.getElementById("rkHyVal").textContent=hy.toFixed(0);
   document.getElementById("rkHyBar").style.width=Math.min(hy/12,100)+"%";document.getElementById("rkHyBar").style.background=lv.color;
