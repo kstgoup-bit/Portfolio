@@ -396,14 +396,8 @@ body.dark-mode .adv-card-claude{background:rgba(0,229,255,0.08);}
     <svg id="domLineChart" viewBox="0 0 340 160" style="width:100%"></svg>
     <button class="record-btn" onclick="recordSnap('dom')">📸 오늘 국내 자산 스냅샷 기록</button>
   </div>
-  <!-- ✅ 추가: 종목 비중 파이차트 -->
-  <div class="chart-wrap">
-    <div class="chart-title" style="color:var(--neon-yellow)">🥧 국내 종목 비중</div>
-    <div style="display:flex;justify-content:center;margin-bottom:12px">
-      <svg id="domPie" viewBox="0 0 160 160" style="width:160px;height:160px"></svg>
-    </div>
-    <div class="pie-legend-wrap" id="domLegend"></div>
-  </div>
+  <div class="chart-wrap"><div class="chart-title" style="color:var(--neon-yellow)">🥧 국내 종목 비중</div><div style="display:flex;justify-content:center;margin-bottom:4px"><svg id="domPie" viewBox="0 0 160 160" style="width:160px;height:160px"></svg></div></div>
+
   <div class="manage-hdr">
     <div style="font-size:13px;color:var(--muted)" id="domCount">0개</div>
     <button class="btn-add" onclick="toggleAdd('dom')">+ 국내종목 추가</button>
@@ -456,14 +450,8 @@ body.dark-mode .adv-card-claude{background:rgba(0,229,255,0.08);}
     <svg id="ovLineChart" viewBox="0 0 340 160" style="width:100%"></svg>
     <button class="record-btn" onclick="recordSnap('ov')">📸 오늘 해외 자산 스냅샷 기록</button>
   </div>
-  <!-- ✅ 추가: 종목 비중 파이차트 -->
-  <div class="chart-wrap">
-    <div class="chart-title" style="color:var(--neon-blue)">🥧 해외 종목 비중</div>
-    <div style="display:flex;justify-content:center;margin-bottom:12px">
-      <svg id="ovPie" viewBox="0 0 160 160" style="width:160px;height:160px"></svg>
-    </div>
-    <div class="pie-legend-wrap" id="ovLegend"></div>
-  </div>
+  <div class="chart-wrap"><div class="chart-title" style="color:var(--neon-blue)">🥧 해외 종목 비중</div><div style="display:flex;justify-content:center;margin-bottom:4px"><svg id="ovPie" viewBox="0 0 160 160" style="width:160px;height:160px"></svg></div></div>
+
   <div class="manage-hdr">
     <div style="font-size:13px;color:var(--muted)" id="ovCount">0개</div>
     <button class="btn-add" onclick="toggleAdd('ov')">+ 해외종목 추가</button>
@@ -507,14 +495,8 @@ body.dark-mode .adv-card-claude{background:rgba(0,229,255,0.08);}
     <svg id="penLineChart" viewBox="0 0 340 160" style="width:100%"></svg>
     <button class="record-btn" onclick="recordSnap('pen')">📸 오늘 연금 자산 스냅샷 기록</button>
   </div>
-  <!-- ✅ 추가: 종목 비중 파이차트 -->
-  <div class="chart-wrap">
-    <div class="chart-title" style="color:var(--neon-purple)">🥧 연금 종목 비중</div>
-    <div style="display:flex;justify-content:center;margin-bottom:12px">
-      <svg id="penPie" viewBox="0 0 160 160" style="width:160px;height:160px"></svg>
-    </div>
-    <div class="pie-legend-wrap" id="penLegend"></div>
-  </div>
+  <div class="chart-wrap"><div class="chart-title" style="color:var(--neon-purple)">🥧 연금 종목 비중</div><div style="display:flex;justify-content:center;margin-bottom:4px"><svg id="penPie" viewBox="0 0 160 160" style="width:160px;height:160px"></svg></div></div>
+
   <div class="manage-hdr">
     <div style="font-size:13px;color:var(--muted)" id="penCount">0개</div>
     <button class="btn-add" onclick="toggleAdd('pen')">+ 연금종목 추가</button>
@@ -882,8 +864,8 @@ function renderBalancePie(){["all","dom","ov","pen"].forEach(function(k){renderB
 // =============================================
 function renderSectorPie(stocks,isUS,pieId,legendId){
   var svg=document.getElementById(pieId);
-  var legendEl=document.getElementById(legendId);
-  if(!svg||!legendEl)return;
+  var legendEl=legendId?document.getElementById(legendId):null;
+  if(!svg)return;
   svg.style.filter='drop-shadow(0 3px 8px rgba(0,0,0,0.25))';
   var active=stocks.filter(function(s){return (s.quantity||0)>0&&((s.currentPrice||0)>0||(s.avgPrice||0)>0);});
   if(!active.length){
@@ -1022,7 +1004,6 @@ function renderDomestic(){
   var g=calcGroup(domStocks,false);setCard("dom",g);
   renderPeriodBtns("domPeriodBtns","domLineChart","dom","var(--neon-yellow)");
   renderLineChart("1W","domPeriodBtns","domLineChart","dom","var(--neon-yellow)");
-  renderSectorPie(domStocks,false,'domPie','domLegend'); // ✅ 추가
   renderStockList("domList","domCount","dom");
 }
 
@@ -1044,7 +1025,6 @@ function renderOverseas(){
   }else usdCard.style.display="none";
   renderPeriodBtns("ovPeriodBtns","ovLineChart","ov","var(--neon-blue)");
   renderLineChart("1W","ovPeriodBtns","ovLineChart","ov","var(--neon-blue)");
-  renderSectorPie(ovStocks,true,'ovPie','ovLegend'); // ✅ 추가
   renderStockList("ovList","ovCount","ov");
 }
 
@@ -1052,7 +1032,6 @@ function renderPension(){
   var g=calcGroup(penStocks,false);setCard("pen",g);
   renderPeriodBtns("penPeriodBtns","penLineChart","pen","var(--neon-purple)");
   renderLineChart("1W","penPeriodBtns","penLineChart","pen","var(--neon-purple)");
-  renderSectorPie(penStocks,false,'penPie','penLegend'); // ✅ 추가
   renderStockList("penList","penCount","pen");
 }
 
