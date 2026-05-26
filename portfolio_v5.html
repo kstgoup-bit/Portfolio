@@ -1733,12 +1733,8 @@ function renderDashboard() {
   });
   pieSvg+='<circle cx="'+cx+'" cy="'+cy+'" r="14" fill="rgba(255,255,255,0.3)"/><circle cx="'+cx+'" cy="'+cy+'" r="13" fill="url(#dashHole)"/></svg>';
 
-  // 전체 수익률 계산
-  var allTotalTV=(dom.tv||0)+(ov.tv||0)+(pen.tv||0);
-  var allTotalTC=(dom.cost||0)+(ov.cost||0)+(pen.cost||0);
-  var allTotalPct=allTotalTC>0?(allTotalTV-allTotalTC)/allTotalTC*100:0;
-  var allTotalPnl=allTotalTV-allTotalTC;
-  var allItem={label:"전체",g:{pct:allTotalPct,pnl:allTotalPnl,tv:allTotalTV},color:"url(#allGrad)"};
+  // 전체 수익률 (이미 계산된 값 재사용)
+  var allItem={label:"전체",g:{pct:allPct,pnl:allPnl,tv:allTV},color:"url(#allGrad)"};
   var barItems=[allItem].concat(items);
 
   // 수익률 막대 (오른쪽)
