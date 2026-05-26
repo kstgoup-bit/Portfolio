@@ -1743,8 +1743,11 @@ function renderDashboard() {
   var barW=24, barH=103, gap=10, topPad=24;
   var svgW=barItems.length*(barW+gap)-gap;
   var barSvg='<svg viewBox="0 0 '+svgW+' '+(barH+topPad+23)+'" style="width:100%;height:'+(barH+topPad+23)+'px">'+
-    '<defs><linearGradient id="allGrad" x1="0" y1="0" x2="0" y2="1">'+
-    '<stop offset="0%" stop-color="#1565c0"/><stop offset="100%" stop-color="#7b1fa2"/></linearGradient></defs>';
+    '<defs><linearGradient id="allGrad" x1="0" y1="1" x2="0" y2="0">'+
+    '<stop offset="0%" stop-color="#1565c0"/>'+
+    '<stop offset="33%" stop-color="#f9a825"/>'+
+    '<stop offset="66%" stop-color="#f57c00"/>'+
+    '<stop offset="100%" stop-color="#c62828"/></linearGradient></defs>';
   barItems.forEach(function(m,i){
     var h=Math.max(Math.abs(m.g.pct||0)/maxPct*barH,3);
     var x=i*(barW+gap);
