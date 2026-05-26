@@ -1981,15 +1981,17 @@ function rkUpdateUI(hy, rate, vix, fxScore, dxy, spread, fg) {
   if(spb&&spread!==null){var spw=Math.min(Math.abs(spread)/2*100,100); spb.style.width=spw+"%"; spb.style.background=rkBarGrad(spScore);}
   if(spbg&&spread!==null){spbg.textContent=spLv.label.replace(/^\S+\s*/,"").replace(/\s/g,""); spbg.style.cssText=rkBadge(spLv);}
   if(spd&&spread!==null) spd.textContent=(spread>0.5?"정상 — 경기 우호적":spread>0?"⚠️ 역전 해소 직후 — 침체 시작 가능 구간":spread>-0.5?"주의 — 역전 진행 중":"경고 — 강한 역전, 침체 선행신호")+(spWarning?" 🚨 역전 해소 직후 가장 위험한 구간!":"");
-  // 공포탐욕지수
+  // 공포탐욕지수 — 독자적 배지/색상
   var fgScore = !fg?50:fg<15?90:fg<25?75:fg<45?50:fg<55?20:fg<75?35:90;
-  var fgLv = rkLevel(fgScore);
+  var fgLabel = !fg?"—":fg<25?"극공포":fg<45?"공포":fg<55?"중립":fg<75?"탐욕":"극탐욕";
+  var fgColor = !fg?"#9ca3af":fg<25?"#c62828":fg<45?"#f57c00":fg<55?"#f9a825":fg<75?"#2e7d32":"#c62828";
+  var fgBarColor = !fg?"#e3f2fd":fg<25?"#ef9a9a":fg<45?"#ffcc80":fg<55?"#fff176":fg<75?"#a5d6a7":"#ef9a9a";
   var fgv=document.getElementById("rkFgVal"), fgb=document.getElementById("rkFgBar"),
       fgbg=document.getElementById("rkFgBadge"), fgd=document.getElementById("rkFgDetail");
   if(fgv) fgv.textContent=fg?Math.round(fg):"—";
-  if(fgb&&fg){fgb.style.width=fg+"%"; fgb.style.background=rkBarGrad(fgScore);}
-  if(fgbg&&fg){fgbg.textContent=fgLv.label.replace(/^\S+\s*/,"").replace(/\s/g,""); fgbg.style.cssText=rkBadge(fgLv);}
-  if(fgd&&fg) fgd.textContent=(fg<15?"극도공포 — 역사적 매수 적기":fg<25?"공포 — 분할매수 고려":fg<45?"불안 — 관망 유지":fg<55?"중립":fg<75?"탐욕 — 추가매수 신중":fg<85?"강한탐욕 — 과열 주의":"극도탐욕 — 매도 검토 구간");
+  if(fgb&&fg){fgb.style.width=fg+"%"; fgb.style.background=fgBarColor;}
+  if(fgbg&&fg){fgbg.textContent=fgLabel; fgbg.style.cssText="padding:4px 10px;border-radius:20px;font-size:11px;font-weight:800;background:"+fgColor+";color:#fff;";}
+  if(fgd&&fg) fgd.textContent=(fg<25?"극도공포 — 역사적 매수 적기 (2020년 3월, 2022년 10월 패턴)":fg<45?"공포 — 분할매수 고려 구간":fg<55?"중립 — 관망 유지":fg<75?"탐욕 — 추가매수 신중, 고점 주의":fg<85?"강한 탐욕 — 과열 경고":"극도탐욕 — 2021년 11월 나스닥 고점 패턴, 매도 검토");
   // VIX vs 공포탐욕 교차 신호
   if(vix&&fg){
     var crossMsg="";
