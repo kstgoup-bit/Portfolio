@@ -916,7 +916,7 @@ body { font-family:'Pretendard',sans-serif !important; }
     <div class="ldg-title" style="color:#1565c0">💰 수입</div>
     <div class="ldg-row">
       <input class="ldg-inp-name" id="ldgIncName" placeholder="항목명">
-      <input class="ldg-inp-amt" id="ldgIncAmt" type="number" placeholder="만원">
+      <input class="ldg-inp-amt" id="ldgIncAmt" type="number" placeholder="금액(원)">
       <button class="ldg-add-btn" style="background:#1565c0" onclick="addLedger('income')">추가</button>
     </div>
     <div id="ldgIncList"></div>
@@ -927,7 +927,7 @@ body { font-family:'Pretendard',sans-serif !important; }
     <div class="ldg-title" style="color:#c62828">💸 지출</div>
     <div class="ldg-row">
       <input class="ldg-inp-name" id="ldgExpName" placeholder="항목명">
-      <input class="ldg-inp-amt" id="ldgExpAmt" type="number" placeholder="만원">
+      <input class="ldg-inp-amt" id="ldgExpAmt" type="number" placeholder="금액(원)">
       <button class="ldg-add-btn" style="background:#c62828" onclick="addLedger('expense')">추가</button>
     </div>
     <div id="ldgExpList"></div>
@@ -938,7 +938,7 @@ body { font-family:'Pretendard',sans-serif !important; }
     <div class="ldg-title" style="color:#7b1fa2">📈 투자</div>
     <div class="ldg-row">
       <input class="ldg-inp-name" id="ldgInvName" placeholder="항목명 (예: QTOP, NVDA)">
-      <input class="ldg-inp-amt" id="ldgInvAmt" type="number" placeholder="만원">
+      <input class="ldg-inp-amt" id="ldgInvAmt" type="number" placeholder="금액(원)">
       <button class="ldg-add-btn" style="background:#7b1fa2" onclick="addLedger('invest')">추가</button>
     </div>
     <div id="ldgInvList"></div>
@@ -950,19 +950,19 @@ body { font-family:'Pretendard',sans-serif !important; }
     <div class="ldg-summary">
       <div class="ldg-sum-box">
         <div class="ldg-sum-lbl">총 수입</div>
-        <div class="ldg-sum-val" id="ldgTotalInc" style="color:#1565c0">0만원</div>
+        <div class="ldg-sum-val" id="ldgTotalInc" style="color:#1565c0">0원</div>
       </div>
       <div class="ldg-sum-box">
         <div class="ldg-sum-lbl">총 지출</div>
-        <div class="ldg-sum-val" id="ldgTotalExp" style="color:#c62828">0만원</div>
+        <div class="ldg-sum-val" id="ldgTotalExp" style="color:#c62828">0원</div>
       </div>
       <div class="ldg-sum-box">
         <div class="ldg-sum-lbl">총 투자</div>
-        <div class="ldg-sum-val" id="ldgTotalInv" style="color:#7b1fa2">0만원</div>
+        <div class="ldg-sum-val" id="ldgTotalInv" style="color:#7b1fa2">0원</div>
       </div>
       <div class="ldg-sum-box">
         <div class="ldg-sum-lbl">잔액</div>
-        <div class="ldg-sum-val" id="ldgBalance">0만원</div>
+        <div class="ldg-sum-val" id="ldgBalance">0원</div>
       </div>
     </div>
   </div>
@@ -3159,10 +3159,10 @@ function renderLedger(){
   var ti=document.getElementById("ldgTotalInc");
   var te=document.getElementById("ldgTotalExp");
   var tb=document.getElementById("ldgBalance");
-  if(ti) ti.textContent=totalInc.toLocaleString()+"만원";
-  if(te) te.textContent=totalExp.toLocaleString()+"만원";
+  if(ti) ti.textContent=totalInc.toLocaleString()+"원";
+  if(te) te.textContent=totalExp.toLocaleString()+"원";
   if(tb){
-    tb.textContent=(balance>=0?"+":"")+balance.toLocaleString()+"만원";
+    tb.textContent=(balance>=0?"+":"")+balance.toLocaleString()+"원";
     tb.style.color=balance>=0?"#00897b":"#c62828";
   }
 }
