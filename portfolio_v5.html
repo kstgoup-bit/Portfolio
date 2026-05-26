@@ -1733,21 +1733,31 @@ function renderDashboard() {
   });
   pieSvg+='<circle cx="'+cx+'" cy="'+cy+'" r="14" fill="rgba(255,255,255,0.3)"/><circle cx="'+cx+'" cy="'+cy+'" r="13" fill="url(#dashHole)"/></svg>';
 
-  // 수익률 막대 (오른쪽) - 글씨 크게, 막대 넓이 유지
-  var maxPct=Math.max.apply(null,items.map(function(m){return Math.abs(m.g.pct||0);}));
+  // 전체 수익률 계산
+  var allTotalTV=(dom.tv||0)+(ov.tv||0)+(pen.tv||0);
+  var allTotalTC=(dom.cost||0)+(ov.cost||0)+(pen.cost||0);
+  var allTotalPct=allTotalTC>0?(allTotalTV-allTotalTC)/allTotalTC*100:0;
+  var allTotalPnl=allTotalTV-allTotalTC;
+  var allItem={label:"전체",g:{pct:allTotalPct,pnl:allTotalPnl,tv:allTotalTV},color:"url(#allGrad)"};
+  var barItems=[allItem].concat(items);
+
+  // 수익률 막대 (오른쪽)
+  var maxPct=Math.max.apply(null,barItems.map(function(m){return Math.abs(m.g.pct||0);}));
   if(maxPct<1) maxPct=1;
-  var barW=27, barH=103, gap=12, topPad=24;
-  var svgW=items.length*(barW+gap)-gap;
-  var barSvg='<svg viewBox="0 0 '+svgW+' '+(barH+topPad+23)+'" style="width:100%;height:'+(barH+topPad+23)+'px">';
-  items.forEach(function(m,i){
-    var pos=m.g.pct>=0;
+  var barW=24, barH=103, gap=10, topPad=24;
+  var svgW=barItems.length*(barW+gap)-gap;
+  var barSvg='<svg viewBox="0 0 '+svgW+' '+(barH+topPad+23)+'" style="width:100%;height:'+(barH+topPad+23)+'px">'+
+    '<defs><linearGradient id="allGrad" x1="0" y1="0" x2="0" y2="1">'+
+    '<stop offset="0%" stop-color="#1565c0"/><stop offset="100%" stop-color="#7b1fa2"/></linearGradient></defs>';
+  barItems.forEach(function(m,i){
     var h=Math.max(Math.abs(m.g.pct||0)/maxPct*barH,3);
     var x=i*(barW+gap);
     var y=topPad+barH-h;
     var shortName=m.label.replace(/🇰🇷 |🇺🇸 |🏦 /g,"");
+    var txtColor=m.label==="전체"?"#1565c0":m.color;
     barSvg+='<rect x="'+x+'" y="'+y+'" width="'+barW+'" height="'+h+'" fill="'+m.color+'" rx="3"/>'+
-      '<text x="'+(x+barW/2)+'" y="'+(y-4)+'" text-anchor="middle" font-size="9.5" fill="'+m.color+'" font-weight="800">'+fmtPct(m.g.pct)+'</text>'+
-      '<text x="'+(x+barW/2)+'" y="'+(topPad+barH+14)+'" text-anchor="middle" font-size="10" fill="#444" font-weight="700">'+shortName+'</text>';
+      '<text x="'+(x+barW/2)+'" y="'+(y-4)+'" text-anchor="middle" font-size="9" fill="'+txtColor+'" font-weight="800">'+fmtPct(m.g.pct)+'</text>'+
+      '<text x="'+(x+barW/2)+'" y="'+(topPad+barH+14)+'" text-anchor="middle" font-size="9.5" fill="#444" font-weight="700">'+shortName+'</text>';
   });
   barSvg+='</svg>';
 
