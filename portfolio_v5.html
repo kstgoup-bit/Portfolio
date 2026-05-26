@@ -1990,7 +1990,12 @@ function rkUpdateUI(hy, rate, vix, fxScore, dxy, spread, fg) {
       fgbg=document.getElementById("rkFgBadge"), fgd=document.getElementById("rkFgDetail");
   if(fgv) fgv.textContent=fg?Math.round(fg):"—";
   if(fgb&&fg){fgb.style.width=fg+"%"; fgb.style.background=fgBarColor;}
-  if(fgbg&&fg){fgbg.textContent=fgLabel; fgbg.style.cssText="padding:4px 10px;border-radius:20px;font-size:11px;font-weight:800;background:"+fgColor+";color:#fff;";}
+  if(fgbg&&fg){
+    fgbg.textContent=fgLabel;
+    fgbg.style.background=fgColor;
+    fgbg.style.border="1.5px solid "+fgColor;
+    fgbg.style.color=(fg>=45&&fg<55)?"#1a2e5a":"#fff";
+  }
   if(fgd&&fg) fgd.textContent=(fg<25?"극도공포 — 역사적 매수 적기 (2020년 3월, 2022년 10월 패턴)":fg<45?"공포 — 분할매수 고려 구간":fg<55?"중립 — 관망 유지":fg<75?"탐욕 — 추가매수 신중, 고점 주의":fg<85?"강한 탐욕 — 과열 경고":"극도탐욕 — 2021년 11월 나스닥 고점 패턴, 매도 검토");
   // VIX vs 공포탐욕 교차 신호
   if(vix&&fg){
