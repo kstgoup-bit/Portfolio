@@ -240,10 +240,10 @@ body{background:var(--sky-bg);color:var(--text);font-family:'Pretendard',sans-se
 #panel-ledger{background:var(--sky-bg)}
 .ldg-card{background:#fff;border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:0 2px 10px rgba(0,128,100,0.08);border:1px solid rgba(0,137,123,0.15)}
 .ldg-title{font-size:15px;font-weight:800;margin-bottom:12px;display:flex;align-items:center;gap:6px}
-.ldg-row{display:flex;gap:8px;margin-bottom:8px;align-items:center}
-.ldg-inp-name{flex:1;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;background:var(--sky-bg);color:var(--text)}
-.ldg-inp-amt{width:80px;padding:8px 8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-weight:700;text-align:right;background:var(--sky-bg);color:var(--text)}
-.ldg-add-btn{padding:8px 12px;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;color:#fff;flex-shrink:0}
+.ldg-row{display:flex;gap:6px;margin-bottom:6px;align-items:center;flex-wrap:nowrap}
+.ldg-inp-name{flex:1;min-width:0;padding:8px 8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;background:var(--sky-bg);color:var(--text)}
+.ldg-inp-amt{width:72px;flex-shrink:0;padding:8px 6px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-weight:700;text-align:right;background:var(--sky-bg);color:var(--text)}
+.ldg-add-btn{padding:8px 10px;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;color:#fff;flex-shrink:0}
 .ldg-item{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--sky-bg);border-radius:8px;margin-bottom:5px}
 .ldg-item-name{font-size:13px;color:var(--text);font-weight:600}
 .ldg-item-amt{font-size:14px;font-weight:800}
@@ -3113,6 +3113,9 @@ function addLedger(type){
   var data=loadLedgerData();
   var key=getLedgerKey();
   if(!data[key]) data[key]={income:[],expense:[],invest:[]};
+  if(!data[key].income) data[key].income=[];
+  if(!data[key].expense) data[key].expense=[];
+  if(!data[key].invest) data[key].invest=[];
   data[key][type].push({name:name,amount:amt});
   saveLedgerData(data);
   nameEl.value=""; amtEl.value="";
