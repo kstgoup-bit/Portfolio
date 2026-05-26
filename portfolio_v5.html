@@ -868,7 +868,7 @@ body { font-family:'Pretendard',sans-serif !important; }
     </div>
     <div class="rk-bar-bg"><div class="rk-bar-fill" id="rkFxBar" style="width:0%"></div></div>
     <div class="rk-g-detail" id="rkFxDetail">—</div>
-    <div class="rk-g-range">완만&lt;±2% · 주의±4% · 경계±7% · 위험±10%이상</div>
+    <div class="rk-g-range">완만&lt;±2% · 주의±4% · 경계±7% · 위험±10%이상<br><span id="fxDataCount" style="font-size:10px;color:var(--muted)"></span></div>
   </div>
 
   <div class="rk-gauge">
@@ -900,13 +900,21 @@ body { font-family:'Pretendard',sans-serif !important; }
   <div class="rk-gauge">
     <div class="rk-g-top">
       <div>
-        <div class="rk-g-lbl">공포탐욕지수 (Fear&Greed)</div>
-        <div><span class="rk-g-val" id="rkFgVal">—</span></div>
+        <div class="rk-g-lbl">공포탐욕지수 (Fear &amp; Greed)
+          <a href="https://money.cnn.com/data/fear-and-greed/" target="_blank"
+             style="font-size:10px;color:#1565c0;margin-left:6px;text-decoration:none">🔗 CNN 확인</a>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:6px">
+          <input type="number" id="rkFgInput" min="0" max="100" placeholder="0~100 입력"
+            style="width:110px;padding:6px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:15px;font-weight:700;background:var(--sky-bg);color:var(--text);text-align:center"
+            oninput="applyFgManual()">
+          <span class="rk-g-val" id="rkFgVal" style="font-size:22px">—</span>
+        </div>
       </div>
       <div class="rk-g-badge" id="rkFgBadge">—</div>
     </div>
     <div class="rk-bar-bg"><div class="rk-bar-fill" id="rkFgBar" style="width:0%"></div></div>
-    <div class="rk-g-detail" id="rkFgDetail">—</div>
+    <div class="rk-g-detail" id="rkFgDetail">CNN Money에서 확인 후 값을 입력해주세요</div>
     <div class="rk-g-range">극공포0~25 · 공포25~45 · 중립45~55 · 탐욕55~75 · 극탐욕75~100</div>
   </div>
 
@@ -2051,6 +2059,8 @@ function rkUpdateUI(hy, rate, vix, fxScore, dxy, spread, fg) {
   if(fxb){fxb.style.width=Math.min(fxAbs/12*100,100)+"%"; fxb.style.background=rkBarGrad(fxScore);}
   if(fxbg){fxbg.textContent=fxLv.label.replace(/^\S+\s*/,"").replace(/\s/g,""); fxbg.style.cssText=rkBadge(fxLv);}
   if(fxd) fxd.textContent="52주 평균 "+fx52avg.toLocaleString()+"원 대비 "+(fxDiff>=0?"+":"")+fxDiff.toFixed(1)+"% · "+(fxAbs<2?"완만 — 인플레이션 수준":fxAbs<4?"주의 구간":fxAbs<7?"급변 경고 — 점검 필요":"위험 — 자산 재배분 고려");
+  var fxCnt=document.getElementById("fxDataCount");
+  if(fxCnt) fxCnt.textContent=fxHist.length<7?"📊 데이터 누적 중 ("+fxHist.length+"일째 · 7일 이상이면 신뢰도 상승)":"📊 "+fxHist.length+"일 데이터 기반";
 
   // 업데이트 시간 저장
   var now = new Date();
@@ -2134,7 +2144,7 @@ async function fetchRiskData() {
     raceUrls(fredUrls("BAMLH0A0HYM2")),                         // HY
     raceUrls(yahooUrls("DX-Y.NYB")),                            // DXY
     raceUrls(fredUrls("DGS2").concat(yahooUrls("%5EIRX"))),     // 2Y
-    raceUrls(["https://api.allorigins.win/raw?url="+encodeURIComponent("https://production.dataviz.cnn.io/index/fearandgreed/graphdata")])  // F&G
+    Promise.resolve(null)  // 공포탐욕 수동입력
   ]);
 
   var vixTxt=results[0], rateTxt=results[1], hyTxt=results[2];
@@ -2172,14 +2182,8 @@ async function fetchRiskData() {
     else fail.push("2Y금리");
   } else fail.push("2Y금리");
 
-  if(fgTxt){
-    try{
-      var fgj=JSON.parse(fgTxt);
-      var fgv2=fgj.fear_and_greed&&fgj.fear_and_greed.score;
-      if(fgv2){fg=parseFloat(fgv2); ok.push("공포탐욕 "+Math.round(fg));}
-      else fail.push("공포탐욕");
-    }catch(e){fail.push("공포탐욕");}
-  } else fail.push("공포탐욕");
+  // 공포탐욕지수 수동입력값 로드
+  try{var fgSaved=localStorage.getItem("v5_fg"); if(fgSaved){fg=parseFloat(fgSaved); ok.push("공포탐욕(수동) "+Math.round(fg));}}catch(e){}
 
   var spread=(rate!==null&&rate2!==null)?parseFloat((rate-rate2).toFixed(2)):null;
 
@@ -3205,6 +3209,36 @@ function renderInvestHistory(){
     html2+='<text x="'+(PL-3)+'" y="'+(y+3)+'" text-anchor="end" font-size="7.5" fill="var(--muted)">'+v+'</text>';
   });
   svgEl.innerHTML=html2;
+}
+
+
+// 공포탐욕지수 수동입력
+function applyFgManual(){
+  var inp=document.getElementById("rkFgInput");
+  if(!inp) return;
+  var val=parseFloat(inp.value);
+  if(isNaN(val)||val<0||val>100) return;
+  localStorage.setItem("v5_fg", val);
+  // 저장된 riskData에도 병합
+  var rk={}; try{rk=JSON.parse(localStorage.getItem("v5_riskData")||"{}");}catch(e){}
+  rk.fg=val; rk.ts=Date.now();
+  localStorage.setItem("v5_riskData",JSON.stringify(rk));
+  // UI 즉시 반영
+  var fxH=[];try{fxH=JSON.parse(localStorage.getItem("v5_fxHistory")||"[]");}catch(e){}
+  var fx52a=fxH.length?Math.round(fxH.reduce(function(s,x){return s+x.v;},0)/fxH.length):1370;
+  var fxNow3=parseFloat((document.getElementById("usdKrw")||{}).value)||1370;
+  var fxD3=Math.abs(((fxNow3-fx52a)/fx52a)*100);
+  var fxSc3=fxD3<2?10:fxD3<4?25:fxD3<7?50:fxD3<10?75:95;
+  rkUpdateUI(rk.hy||280, rk.rate||4.5, rk.vix||18, fxSc3, rk.dxy||100, rk.spread||0.5, val);
+  updateBrief();
+}
+
+// 로드 시 저장된 공포탐욕값 복원
+function loadFgManual(){
+  var saved=localStorage.getItem("v5_fg");
+  if(!saved) return;
+  var inp=document.getElementById("rkFgInput");
+  if(inp) inp.value=Math.round(parseFloat(saved));
 }
 
 </script>
