@@ -242,13 +242,13 @@ body{background:var(--sky-bg);color:var(--text);font-family:'Pretendard',sans-se
 .ldg-title{font-size:15px;font-weight:800;margin-bottom:12px;display:flex;align-items:center;gap:6px}
 .ldg-row{display:flex;gap:8px;margin-bottom:8px;align-items:center}
 .ldg-inp-name{flex:1;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;background:var(--sky-bg);color:var(--text)}
-.ldg-inp-amt{width:110px;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-weight:700;text-align:right;background:var(--sky-bg);color:var(--text)}
-.ldg-add-btn{padding:8px 14px;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;color:#fff}
+.ldg-inp-amt{width:80px;padding:8px 8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-weight:700;text-align:right;background:var(--sky-bg);color:var(--text)}
+.ldg-add-btn{padding:8px 12px;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;color:#fff;flex-shrink:0}
 .ldg-item{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--sky-bg);border-radius:8px;margin-bottom:5px}
 .ldg-item-name{font-size:13px;color:var(--text);font-weight:600}
 .ldg-item-amt{font-size:14px;font-weight:800}
 .ldg-del{background:none;border:none;color:#ef5350;font-size:16px;cursor:pointer;padding:0 4px;margin-left:8px}
-.ldg-summary{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:4px}
+.ldg-summary{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px}
 .ldg-sum-box{background:var(--sky-bg);border-radius:10px;padding:10px;text-align:center}
 .ldg-sum-lbl{font-size:10px;color:var(--muted);margin-bottom:4px}
 .ldg-sum-val{font-size:15px;font-weight:900}
@@ -915,9 +915,9 @@ body { font-family:'Pretendard',sans-serif !important; }
   <div class="ldg-card">
     <div class="ldg-title" style="color:#1565c0">💰 수입</div>
     <div class="ldg-row">
-      <input class="ldg-inp-name" id="ldgIncName" placeholder="항목 (예: 월급, 배당)">
-      <input class="ldg-inp-amt" id="ldgIncAmt" type="number" placeholder="금액(만원)">
-      <button class="ldg-add-btn" style="background:#1565c0" onclick="addLedger('income')">+ 추가</button>
+      <input class="ldg-inp-name" id="ldgIncName" placeholder="항목명">
+      <input class="ldg-inp-amt" id="ldgIncAmt" type="number" placeholder="만원">
+      <button class="ldg-add-btn" style="background:#1565c0" onclick="addLedger('income')">추가</button>
     </div>
     <div id="ldgIncList"></div>
   </div>
@@ -926,11 +926,22 @@ body { font-family:'Pretendard',sans-serif !important; }
   <div class="ldg-card">
     <div class="ldg-title" style="color:#c62828">💸 지출</div>
     <div class="ldg-row">
-      <input class="ldg-inp-name" id="ldgExpName" placeholder="항목 (예: 관리비, 보험)">
-      <input class="ldg-inp-amt" id="ldgExpAmt" type="number" placeholder="금액(만원)">
-      <button class="ldg-add-btn" style="background:#c62828" onclick="addLedger('expense')">+ 추가</button>
+      <input class="ldg-inp-name" id="ldgExpName" placeholder="항목명">
+      <input class="ldg-inp-amt" id="ldgExpAmt" type="number" placeholder="만원">
+      <button class="ldg-add-btn" style="background:#c62828" onclick="addLedger('expense')">추가</button>
     </div>
     <div id="ldgExpList"></div>
+  </div>
+
+  <!-- 투자 -->
+  <div class="ldg-card">
+    <div class="ldg-title" style="color:#7b1fa2">📈 투자</div>
+    <div class="ldg-row">
+      <input class="ldg-inp-name" id="ldgInvName" placeholder="항목명 (예: QTOP, NVDA)">
+      <input class="ldg-inp-amt" id="ldgInvAmt" type="number" placeholder="만원">
+      <button class="ldg-add-btn" style="background:#7b1fa2" onclick="addLedger('invest')">추가</button>
+    </div>
+    <div id="ldgInvList"></div>
   </div>
 
   <!-- 요약 -->
@@ -946,10 +957,20 @@ body { font-family:'Pretendard',sans-serif !important; }
         <div class="ldg-sum-val" id="ldgTotalExp" style="color:#c62828">0만원</div>
       </div>
       <div class="ldg-sum-box">
+        <div class="ldg-sum-lbl">총 투자</div>
+        <div class="ldg-sum-val" id="ldgTotalInv" style="color:#7b1fa2">0만원</div>
+      </div>
+      <div class="ldg-sum-box">
         <div class="ldg-sum-lbl">잔액</div>
         <div class="ldg-sum-val" id="ldgBalance">0만원</div>
       </div>
     </div>
+  </div>
+
+  <!-- 월별 투자 막대그래프 -->
+  <div class="ldg-card">
+    <div class="ldg-title" style="color:#7b1fa2">📊 월별 투자 추이</div>
+    <svg id="ldgInvChart" viewBox="0 0 340 130" style="width:100%"></svg>
   </div>
 </div>
 
@@ -3084,14 +3105,14 @@ function initLedgerMonth(){
   }
 }
 function addLedger(type){
-  var nameEl=document.getElementById(type==="income"?"ldgIncName":"ldgExpName");
-  var amtEl=document.getElementById(type==="income"?"ldgIncAmt":"ldgExpAmt");
+  var nameEl=document.getElementById(type==="income"?"ldgIncName":type==="expense"?"ldgExpName":"ldgInvName");
+  var amtEl=document.getElementById(type==="income"?"ldgIncAmt":type==="expense"?"ldgExpAmt":"ldgInvAmt");
   var name=(nameEl.value||"").trim();
   var amt=parseFloat(amtEl.value);
   if(!name||!amt||amt<=0){alert("항목명과 금액을 입력해주세요");return;}
   var data=loadLedgerData();
   var key=getLedgerKey();
-  if(!data[key]) data[key]={income:[],expense:[]};
+  if(!data[key]) data[key]={income:[],expense:[],invest:[]};
   data[key][type].push({name:name,amount:amt});
   saveLedgerData(data);
   nameEl.value=""; amtEl.value="";
