@@ -241,8 +241,8 @@ body{background:var(--sky-bg);color:var(--text);font-family:'Pretendard',sans-se
 .ldg-card{background:#fff;border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:0 2px 10px rgba(0,128,100,0.08);border:1px solid rgba(0,137,123,0.15)}
 .ldg-title{font-size:15px;font-weight:800;margin-bottom:12px;display:flex;align-items:center;gap:6px}
 .ldg-row{display:flex;gap:6px;margin-bottom:6px;align-items:center;flex-wrap:nowrap}
-.ldg-inp-name{flex:1;min-width:0;padding:8px 8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;background:var(--sky-bg);color:var(--text)}
-.ldg-inp-amt{width:72px;flex-shrink:0;padding:8px 6px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-weight:700;text-align:right;background:var(--sky-bg);color:var(--text)}
+.ldg-inp-name{width:120px;flex-shrink:0;padding:8px 8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;background:var(--sky-bg);color:var(--text)}
+.ldg-inp-amt{flex:1;min-width:0;padding:8px 8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-weight:700;text-align:right;background:var(--sky-bg);color:var(--text)}
 .ldg-add-btn{padding:8px 10px;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;color:#fff;flex-shrink:0}
 .ldg-item{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--sky-bg);border-radius:8px;margin-bottom:5px}
 .ldg-item-name{font-size:13px;color:var(--text);font-weight:600}
@@ -2858,7 +2858,12 @@ function exportData() {
     var k=localStorage.key(i);
     if(k&&(k.startsWith("calc_q")||k.startsWith("calc_p"))) calcData[k]=localStorage.getItem(k);
   }
-  var backup={version:"v5",date:new Date().toLocaleString("ko-KR"),domStocks:domStocks,ovStocks:ovStocks,penStocks:penStocks,divList:divList,snapshots:snapshots,gasUrl:gasUrl,usdKrw:parseFloat(document.getElementById("usdKrw").value)||1370,calcData:calcData};
+  var ledgerData={};
+  try{ledgerData=JSON.parse(localStorage.getItem("v5_ledger")||"{}");}catch(e){}
+  var fxHistory=[];
+  try{fxHistory=JSON.parse(localStorage.getItem("v5_fxHistory")||"[]");}catch(e){}
+  var fgVal=localStorage.getItem("v5_fg")||null;
+  var backup={version:"v5",date:new Date().toLocaleString("ko-KR"),domStocks:domStocks,ovStocks:ovStocks,penStocks:penStocks,divList:divList,snapshots:snapshots,gasUrl:gasUrl,usdKrw:parseFloat(document.getElementById("usdKrw").value)||1370,calcData:calcData,ledger:ledgerData,fxHistory:fxHistory,fg:fgVal};
   var blob=new Blob([JSON.stringify(backup,null,2)],{type:"application/json"});
   var url=URL.createObjectURL(blob);
   var a=document.createElement("a");
@@ -2923,7 +2928,9 @@ function importData(event) {
       if(data.gasUrl){gasUrl=data.gasUrl;document.getElementById("gasInput").value=gasUrl;localStorage.setItem("v5_gas",gasUrl);}
       if(data.usdKrw) document.getElementById("usdKrw").value=data.usdKrw;
       if(data.calcData){Object.keys(data.calcData).forEach(function(k){localStorage.setItem(k,data.calcData[k]);});}
-
+      if(data.ledger) localStorage.setItem("v5_ledger",JSON.stringify(data.ledger));
+      if(data.fxHistory) localStorage.setItem("v5_fxHistory",JSON.stringify(data.fxHistory));
+      if(data.fg) localStorage.setItem("v5_fg",data.fg);
       save(); renderAll();
       document.getElementById("backupMsg").textContent="✅ 복원 완료!";
       document.getElementById("backupMsg").style.color="var(--blue)";
@@ -3155,8 +3162,9 @@ function renderLedger(){
     return total;
   }
 
-  var totalInc=renderList(month.income,"income","ldgIncList","#1565c0");
-  var totalExp=renderList(month.expense,"expense","ldgExpList","#c62828");
+  var totalInc=renderList(month.income||[],"income","ldgIncList","#1565c0");
+  var totalExp=renderList(month.expense||[],"expense","ldgExpList","#c62828");
+  var totalInv=renderList(month.invest||[],"invest","ldgInvList","#7b1fa2");
   var balance=totalInc-totalExp;
 
   var ti=document.getElementById("ldgTotalInc");
