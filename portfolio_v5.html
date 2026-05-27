@@ -3069,90 +3069,180 @@ window.addEventListener("load", function() {
   if(!canvas) return;
   var ctx=canvas.getContext("2d");
   var W,H;
-  var particles=[];
-  var fireworks=[];
-  var animId=null;
+  var rockets=[], sparks=[], trails=[];
 
   function resize(){
     W=canvas.width=canvas.offsetWidth;
     H=canvas.height=canvas.offsetHeight;
   }
 
-  var colors=["#FFD700","#FF6B6B","#64B5F6","#81C784","#CE93D8","#FFB74D","#fff","#F06292","#4FC3F7"];
+  var palettes=[
+    ["#FF6B6B","#FF4444","#FF8888"],
+    ["#FFD700","#FFA500","#FFEC6E"],
+    ["#64B5F6","#1E90FF","#B3E5FC"],
+    ["#81C784","#00E676","#C8E6C9"],
+    ["#CE93D8","#9C27B0","#F3E5F5"],
+    ["#F06292","#E91E63","#F8BBD9"],
+    ["#4FC3F7","#00BCD4","#B2EBF2"],
+    ["#fff","#ffe082","#ffffff"],
+  ];
 
-  function Firework(x,y){
-    this.x=x; this.y=y;
-    this.vx=(Math.random()-0.5)*2;
-    this.vy=-Math.random()*6-4;
-    this.alpha=1;
-    this.color=colors[Math.floor(Math.random()*colors.length)];
-    this.r=3;
+  function Rocket(x){
+    this.x=x;
+    this.y=H;
+    this.vy=-(Math.random()*5+7);
+    this.vx=(Math.random()-0.5)*1.5;
+    this.targetY=H*(0.12+Math.random()*0.22); // 상단 12~34%에서 폭발
+    this.palette=palettes[Math.floor(Math.random()*palettes.length)];
+    this.trail=[];
     this.exploded=false;
+    this.alpha=1;
   }
-  Firework.prototype.update=function(){
+  Rocket.prototype.update=function(){
+    this.trail.push({x:this.x,y:this.y,a:1});
+    if(this.trail.length>18) this.trail.shift();
+    this.trail.forEach(function(t){t.a-=0.055;});
     this.vy+=0.18;
-    this.x+=this.vx; this.y+=this.vy;
-    if(!this.exploded&&this.vy>=0){ this.exploded=true; explode(this.x,this.y,this.color); }
-    this.alpha-=0.04;
+    this.x+=this.vx;
+    this.y+=this.vy;
+    if(this.y<=this.targetY&&!this.exploded){
+      this.exploded=true;
+      burst(this.x,this.y,this.palette);
+    }
   };
-  Firework.prototype.draw=function(){
-    ctx.save(); ctx.globalAlpha=Math.max(0,this.alpha);
-    ctx.fillStyle=this.color; ctx.beginPath();
-    ctx.arc(this.x,this.y,this.r,0,Math.PI*2); ctx.fill(); ctx.restore();
+  Rocket.prototype.draw=function(){
+    // 꼬리
+    for(var i=0;i<this.trail.length;i++){
+      var t=this.trail[i];
+      var r=2*(i/this.trail.length);
+      ctx.save();
+      ctx.globalAlpha=Math.max(0,t.a*0.7);
+      ctx.fillStyle="#ffcc44";
+      ctx.shadowColor="#ff8800";
+      ctx.shadowBlur=6;
+      ctx.beginPath();
+      ctx.arc(t.x,t.y,r,0,Math.PI*2);
+      ctx.fill();
+      ctx.restore();
+    }
+    // 로켓 헤드
+    if(!this.exploded){
+      ctx.save();
+      ctx.globalAlpha=1;
+      ctx.fillStyle="#fff";
+      ctx.shadowColor="#ffcc44";
+      ctx.shadowBlur=10;
+      ctx.beginPath();
+      ctx.arc(this.x,this.y,2.5,0,Math.PI*2);
+      ctx.fill();
+      ctx.restore();
+    }
   };
 
-  function Particle(x,y,color){
-    this.x=x; this.y=y;
-    var angle=Math.random()*Math.PI*2, speed=Math.random()*5+2;
-    this.vx=Math.cos(angle)*speed; this.vy=Math.sin(angle)*speed;
-    this.alpha=1; this.color=color;
-    this.r=Math.random()*3+1.5; this.gravity=0.12;
-    this.shape=Math.random()<0.5?"circle":"rect";
-    this.rot=Math.random()*360; this.rotV=(Math.random()-0.5)*8;
+  function burst(x,y,palette){
+    var count=80+Math.floor(Math.random()*40);
+    for(var i=0;i<count;i++){
+      sparks.push(new Spark(x,y,palette,i,count));
+    }
+    // 중심 플래시
+    sparks.push(new Flash(x,y,palette[0]));
   }
-  Particle.prototype.update=function(){
-    this.vy+=this.gravity; this.x+=this.vx; this.y+=this.vy;
-    this.vx*=0.98; this.alpha-=0.018; this.rot+=this.rotV;
+
+  function Spark(x,y,palette,i,total){
+    var angle=(i/total)*Math.PI*2 + (Math.random()-0.5)*0.3;
+    var speed=Math.random()*5+2;
+    this.x=x; this.y=y;
+    this.vx=Math.cos(angle)*speed;
+    this.vy=Math.sin(angle)*speed;
+    this.color=palette[Math.floor(Math.random()*palette.length)];
+    this.alpha=1;
+    this.gravity=0.09;
+    this.friction=0.97;
+    this.r=Math.random()*1.8+0.8;
+    this.tail=[];
+  }
+  Spark.prototype.update=function(){
+    this.tail.push({x:this.x,y:this.y});
+    if(this.tail.length>8) this.tail.shift();
+    this.vy+=this.gravity;
+    this.vx*=this.friction;
+    this.vy*=this.friction;
+    this.x+=this.vx;
+    this.y+=this.vy;
+    this.alpha-=0.013;
   };
-  Particle.prototype.draw=function(){
-    ctx.save(); ctx.globalAlpha=Math.max(0,this.alpha);
-    ctx.fillStyle=this.color; ctx.translate(this.x,this.y);
-    ctx.rotate(this.rot*Math.PI/180);
-    if(this.shape==="rect"){ ctx.fillRect(-this.r,-this.r/2,this.r*2,this.r); }
-    else { ctx.beginPath(); ctx.arc(0,0,this.r,0,Math.PI*2); ctx.fill(); }
+  Spark.prototype.draw=function(){
+    // 불꽃 꼬리
+    for(var i=0;i<this.tail.length-1;i++){
+      var a=this.alpha*(i/this.tail.length)*0.5;
+      ctx.save();
+      ctx.globalAlpha=Math.max(0,a);
+      ctx.strokeStyle=this.color;
+      ctx.lineWidth=this.r*0.8;
+      ctx.beginPath();
+      ctx.moveTo(this.tail[i].x,this.tail[i].y);
+      ctx.lineTo(this.tail[i+1].x,this.tail[i+1].y);
+      ctx.stroke();
+      ctx.restore();
+    }
+    // 불꽃 헤드
+    ctx.save();
+    ctx.globalAlpha=Math.max(0,this.alpha);
+    ctx.fillStyle=this.color;
+    ctx.shadowColor=this.color;
+    ctx.shadowBlur=8;
+    ctx.beginPath();
+    ctx.arc(this.x,this.y,this.r,0,Math.PI*2);
+    ctx.fill();
     ctx.restore();
   };
 
-  function explode(x,y,color){
-    var n=50+Math.floor(Math.random()*30);
-    for(var i=0;i<n;i++){
-      var c=Math.random()<0.3?colors[Math.floor(Math.random()*colors.length)]:color;
-      particles.push(new Particle(x,y,c));
-    }
+  function Flash(x,y,color){
+    this.x=x; this.y=y; this.color=color;
+    this.r=5; this.alpha=0.8;
   }
+  Flash.prototype.update=function(){
+    this.r+=6; this.alpha-=0.12;
+  };
+  Flash.prototype.draw=function(){
+    if(this.r<=0||this.alpha<=0) return;
+    ctx.save();
+    ctx.globalAlpha=Math.max(0,this.alpha);
+    var g=ctx.createRadialGradient(this.x,this.y,0,this.x,this.y,this.r);
+    g.addColorStop(0,"rgba(255,255,255,0.9)");
+    g.addColorStop(0.4,this.color+"99");
+    g.addColorStop(1,"rgba(0,0,0,0)");
+    ctx.fillStyle=g;
+    ctx.beginPath();
+    ctx.arc(this.x,this.y,this.r,0,Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+  };
 
   function launch(){
     var x=W*0.1+Math.random()*W*0.8;
-    fireworks.push(new Firework(x,H));
+    rockets.push(new Rocket(x));
   }
 
   var launchInterval=null;
   function startFireworks(){
     resize();
-    launch(); setTimeout(launch,300); setTimeout(launch,600);
+    launch(); setTimeout(launch,400); setTimeout(launch,800);
     launchInterval=setInterval(function(){
       if(document.getElementById("lockScreen").style.display==="none"){
         clearInterval(launchInterval); cancelAnimationFrame(animId); return;
       }
-      if(Math.random()<0.6) launch();
-    },1200);
+      launch();
+      if(Math.random()<0.4) setTimeout(launch,300);
+    },1500);
     loop();
   }
 
+  var animId=null;
   function loop(){
     ctx.clearRect(0,0,W,H);
-    fireworks=fireworks.filter(function(f){f.update();f.draw();return f.alpha>0;});
-    particles=particles.filter(function(p){p.update();p.draw();return p.alpha>0;});
+    rockets=rockets.filter(function(r){r.update();r.draw();return !r.exploded||r.trail.length>0;});
+    sparks=sparks.filter(function(s){s.update();s.draw();return s.alpha>0;});
     animId=requestAnimationFrame(loop);
   }
 
