@@ -763,7 +763,7 @@ body { font-family:'Pretendard',sans-serif !important; }
       <div class="rk-score-num" id="rkScoreNum">—</div>
       <div class="rk-score-label" id="rkScoreLabel">🔵 대기 중</div>
       <div class="rk-weight">HY 25%·금리 25%·VIX 15%·환율 15%·DXY 10%·금리차 10%<br>
-        위험&gt;70 · 경계50~70 · 중립30~50 · 낙관&lt;30
+        위험&gt;70 · 경계50~70 · 중립30~50 · 안전&lt;30
       </div>
     </div>
   </div>
@@ -1938,7 +1938,7 @@ function rkLevel(score) {
   if(score>=70) return {label:"🔴 위험", color:"#ef4444", bg:"#fee2e2", border:"#fca5a5"};
   if(score>=50) return {label:"🟠 경계", color:"#f97316", bg:"#ffedd5", border:"#fdba74"};
   if(score>=30) return {label:"🟡 중립", color:"#eab308", bg:"#fef9c3", border:"#fde047"};
-  return          {label:"🟢 낙관", color:"#22c55e", bg:"#dcfce7", border:"#86efac"};
+  return          {label:"🟢 안전", color:"#22c55e", bg:"#dcfce7", border:"#86efac"};
 }
 
 function rkBadge(lv) {
