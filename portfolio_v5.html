@@ -754,12 +754,15 @@ body { font-family:'Pretendard',sans-serif !important; }
     </div>
   </div>
 
-  <!-- 배당 자동 조회 -->
-  <div style="background:linear-gradient(135deg,#f1f8f1,#dcedc8);border-radius:14px;padding:14px;margin-bottom:12px;border:1px solid #c5e1a5">
-    <div style="font-size:13px;font-weight:800;color:#33691e;margin-bottom:4px">📥 배당 자동 조회</div>
-    <div style="font-size:11px;color:#558b2f;margin-bottom:10px">보유 종목의 최근 1년 배당을 자동으로 가져와요. 중복 방지됩니다.</div>
-    <button onclick="fetchDividends()" id="divFetchBtn" style="width:100%;padding:12px;background:linear-gradient(135deg,#66bb6a,#43a047);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;font-family:'Noto Sans KR',sans-serif;box-shadow:0 4px 14px rgba(67,160,71,0.35)">🔍 배당 내역 조회 후 즉시 추가</button>
-    <div id="divFetchStatus" style="font-size:12px;color:#558b2f;text-align:center;margin-top:8px;min-height:16px"></div>
+  <!-- 직접 입력 -->
+  <div class="div-add-form">
+    <div style="font-size:12px;font-weight:800;color:var(--green-mid);margin-bottom:10px">💰 배당금 직접 입력</div>
+    <div class="f-lbl">종목명</div><input class="f-inp" id="divName" placeholder="예: SPGI">
+    <div class="f-lbl">배당금액 (원)</div><input class="f-inp" type="number" id="divAmt" placeholder="0">
+    <div class="f-lbl">수령일</div><input class="f-inp" type="date" id="divDate">
+    <div class="f-btns">
+      <button class="btn-ok" style="background:linear-gradient(135deg,#66bb6a,#43a047);box-shadow:0 4px 14px rgba(67,160,71,0.35);border:none" onclick="addDiv()">추가</button>
+    </div>
   </div>
 
   <!-- 연도별 배당 차트 -->
@@ -772,17 +775,6 @@ body { font-family:'Pretendard',sans-serif !important; }
   <div class="chart-wrap" style="margin-bottom:10px">
     <div class="chart-title" style="color:var(--green-accent)">📌 종목별 배당 합계</div>
     <div id="divByTicker"><div style="text-align:center;font-size:12px;color:var(--muted);padding:8px">배당금을 입력하면 표시돼요</div></div>
-  </div>
-
-  <!-- 직접 입력 -->
-  <div class="div-add-form">
-    <div style="font-size:12px;font-weight:800;color:var(--green-mid);margin-bottom:10px">💰 배당금 직접 입력</div>
-    <div class="f-lbl">종목명</div><input class="f-inp" id="divName" placeholder="예: SPGI">
-    <div class="f-lbl">배당금액 (원)</div><input class="f-inp" type="number" id="divAmt" placeholder="0">
-    <div class="f-lbl">수령일</div><input class="f-inp" type="date" id="divDate">
-    <div class="f-btns">
-      <button class="btn-ok" style="background:linear-gradient(135deg,#66bb6a,#43a047);box-shadow:0 4px 14px rgba(67,160,71,0.35);border:none" onclick="addDiv()">추가</button>
-    </div>
   </div>
 
   <div class="sec-lbl">배당 내역</div>
@@ -2764,72 +2756,6 @@ function addStock(type) {
 // =============================================
 // 배당
 // =============================================
-
-// 배당 자동 조회 - 즉시 추가 (계좌 선택 없음)
-var divFetchResults=[];
-function fetchDividends(){
-  var btn=document.getElementById("divFetchBtn");
-  var status=document.getElementById("divFetchStatus");
-
-  var allStocks=[];
-  (ovStocks||[]).filter(function(s){return s.quantity>0&&s.ticker;})
-    .forEach(function(s){ allStocks.push({ticker:s.ticker,qty:s.quantity,name:s.name||s.ticker,isKR:false}); });
-  var krAll=[].concat(domStocks||[],penStocks||[]);
-  krAll.filter(function(s){return s.quantity>0&&s.ticker;})
-    .forEach(function(s){ allStocks.push({ticker:s.ticker+".KS",qty:s.quantity,name:s.name||s.ticker,isKR:true}); });
-
-  if(!allStocks.length){status.textContent="⚠️ 보유 종목이 없습니다";return;}
-  btn.disabled=true; btn.textContent="조회 중...";
-  status.textContent="";
-
-  var rate=getRate();
-  var now=Math.floor(Date.now()/1000);
-  var from=now-365*24*3600;
-  var done=0, found=[];
-
-  var existKeys={};
-  divList.forEach(function(d){ existKeys[(d.name+"_"+d.date)]=true; });
-
-  allStocks.forEach(function(stock){
-    var url="https://query1.finance.yahoo.com/v8/finance/chart/"+stock.ticker
-      +"?events=dividends&period1="+from+"&period2="+now+"&interval=1d";
-    fetch("https://corsproxy.io/?"+encodeURIComponent(url))
-      .then(function(r){return r.json();})
-      .then(function(data){
-        try{
-          var divs=data.chart.result[0].events.dividends;
-          if(divs){
-            Object.values(divs).forEach(function(ev){
-              var dateStr=new Date(ev.date*1000).toISOString().slice(0,10);
-              var displayName=stock.isKR?stock.name:stock.ticker;
-              var key=displayName+"_"+dateStr;
-              if(!existKeys[key]){
-                var amtKrw=stock.isKR
-                  ? Math.round(ev.amount*stock.qty)
-                  : Math.round(ev.amount*stock.qty*rate);
-                if(amtKrw>0) found.push({name:displayName,date:dateStr,amount:amtKrw});
-              }
-            });
-          }
-        }catch(e){}
-      })
-      .catch(function(){})
-      .finally(function(){
-        done++;
-        status.textContent="조회 중... ("+done+"/"+allStocks.length+")";
-        if(done===allStocks.length){
-          btn.disabled=false; btn.textContent="🔍 배당 내역 조회 후 즉시 추가";
-          if(!found.length){
-            status.textContent="✅ 새로 추가할 배당 내역이 없습니다";
-            return;
-          }
-          found.forEach(function(f){ divList.push(f); });
-          status.textContent="✅ "+found.length+"건 자동 추가 완료!";
-          save(); renderDividend();
-        }
-      });
-  });
-}
 
 function renderDividend() {
   var now=new Date();
