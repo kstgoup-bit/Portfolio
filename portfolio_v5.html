@@ -452,14 +452,7 @@ body { font-family:'Pretendard',sans-serif !important; }
 
 <div class="toast" id="toast"></div>
 
-<!-- 음악 -->
-<audio id="bgMusic" loop preload="none">
-  <source src="https://upload.wikimedia.org/wikipedia/commons/c/c6/Beethoven_Moonlight_1st_movement.ogg" type="audio/ogg">
-  <source src="https://archive.org/download/MoonlightSonata_845/moonlightsonata.mp3" type="audio/mpeg">
-</audio>
-<audio id="joyMusic" preload="none">
-  <source src="https://upload.wikimedia.org/wikipedia/commons/1/17/Ode_to_Joy.ogg" type="audio/ogg">
-</audio>
+<!-- 음악: Web Audio API 합성 -->
 
 <!-- 잠금화면 -->
 <div class="lock" id="lockScreen">
@@ -3187,33 +3180,96 @@ window.addEventListener("load", function() {
 
 // ═══════════════════════════════════════
 // ═══════════════════════════════
-// 🎵 음악 제어
+// 🎵 Web Audio 음악 합성
 // ═══════════════════════════════
+var _mCtx=null, _moonOn=false, _moonTimer=null;
+function _getCtx(){
+  if(!_mCtx) _mCtx=new(window.AudioContext||window.webkitAudioContext)();
+  return _mCtx;
+}
+// 음표 주파수
+var _N={
+  'E2':82.41,'Fs2':92.50,'Gs2':103.83,'A2':110,'As2':116.54,'B2':123.47,
+  'Cs3':138.59,'Ds3':155.56,'E3':164.81,'Fs3':184.99,'Gs3':207.65,'B3':246.94,
+  'C4':261.63,'Cs4':277.18,'D4':293.66,'Ds4':311.13,'E4':329.63,'F4':349.23,
+  'Fs4':369.99,'G4':392,'Gs4':415.30,'A4':440,'B4':493.88,
+  'C5':523.25,'D5':587.33,'E5':659.25
+};
+function _note(ctx,freq,t,dur,vol){
+  var o=ctx.createOscillator(), o2=ctx.createOscillator(), g=ctx.createGain();
+  o.connect(g); o2.connect(g); g.connect(ctx.destination);
+  o.type='triangle'; o.frequency.value=freq;
+  o2.type='sine'; o2.frequency.value=freq*2;
+  vol=vol||0.14;
+  g.gain.setValueAtTime(0,t);
+  g.gain.linearRampToValueAtTime(vol,t+0.012);
+  g.gain.exponentialRampToValueAtTime(vol*0.55,t+Math.min(0.25,dur*0.5));
+  g.gain.setValueAtTime(vol*0.55,Math.max(t+dur-0.07,t+0.25));
+  g.gain.linearRampToValueAtTime(0.0001,t+dur);
+  o.start(t); o.stop(t+dur+0.02);
+  o2.start(t); o2.stop(t+Math.min(dur*0.4,0.3)+0.02);
+}
+// 월광 소나타 4마디 루프
+function _moonLoop(ctx,t0){
+  var T=1/3, B=1;
+  var bars=[
+    {b:'Gs2',a:['Cs4','E4','Gs4'],m:['Gs4','Gs4','Gs4','Fs4']},
+    {b:'Fs2',a:['Cs4','E4','A4'], m:['Fs4','Fs4','Fs4','E4']},
+    {b:'E2', a:['B3','E4','Gs4'], m:['E4','Ds4','Ds4','Cs4']},
+    {b:'Cs3',a:['Gs3','Cs4','E4'],m:['B3','B3','B3','B3']},
+  ];
+  var t=t0;
+  bars.forEach(function(bar){
+    _note(ctx,_N[bar.b],t,B*4,0.18);
+    for(var b=0;b<4;b++){
+      bar.a.forEach(function(n,i){ _note(ctx,_N[n],t+b*B+i*T,T*0.85,0.10); });
+    }
+    bar.m.forEach(function(n,b2){ _note(ctx,_N[n],t+b2*B+2*T,T*1.4,0.15); });
+    t+=B*4;
+  });
+  return t-t0; // 16초
+}
+function _moonStart(){
+  var ctx=_getCtx();
+  if(ctx.state==='suspended') ctx.resume();
+  var dur=_moonLoop(ctx,ctx.currentTime+0.1);
+  _moonTimer=setTimeout(function(){ if(_moonOn) _moonStart(); },dur*1000-300);
+}
+// 환희의 송가
+function _joyPlay(){
+  var ctx=_getCtx();
+  if(ctx.state==='suspended') ctx.resume();
+  var seq=[
+    ['E4',0.4],['E4',0.4],['F4',0.4],['G4',0.4],
+    ['G4',0.4],['F4',0.4],['E4',0.4],['D4',0.4],
+    ['C4',0.4],['C4',0.4],['D4',0.4],['E4',0.4],
+    ['E4',0.6],['D4',0.2],['D4',0.8]
+  ];
+  var t=ctx.currentTime+0.1;
+  seq.forEach(function(s){ _note(ctx,_N[s[0]],t,s[1],0.28); t+=s[1]; });
+}
+// 공개 함수
 var bgMusicOn=false;
 function toggleBgMusic(){
-  var bg=document.getElementById("bgMusic");
   var btn=document.getElementById("musicBtn");
-  if(!bg) return;
   if(bgMusicOn){
-    bg.pause(); bgMusicOn=false;
+    bgMusicOn=false; _moonOn=false;
+    clearTimeout(_moonTimer);
+    if(_mCtx) _mCtx.suspend();
     if(btn) btn.textContent="🔇";
   } else {
-    bg.volume=0.35;
-    bg.load();
-    bg.play().then(function(){
-      bgMusicOn=true;
-      if(btn) btn.textContent="🎵";
-    }).catch(function(e){
-      if(btn) btn.textContent="❌";
-      console.log("음악 재생 실패:",e);
-    });
+    bgMusicOn=true; _moonOn=true;
+    _moonStart();
+    if(btn) btn.textContent="🎵";
   }
 }
 function playJoyMusic(){
-  var bg=document.getElementById("bgMusic");
-  var joy=document.getElementById("joyMusic");
-  if(bg){ bg.pause(); bgMusicOn=false; }
-  if(joy){ joy.volume=0.7; joy.currentTime=0; joy.play().catch(function(){}); setTimeout(function(){ if(joy) joy.pause(); },5000); }
+  bgMusicOn=false; _moonOn=false;
+  clearTimeout(_moonTimer);
+  if(_mCtx) _mCtx.suspend();
+  var btn=document.getElementById("musicBtn");
+  if(btn) btn.textContent="🔇";
+  _joyPlay();
 }
 
 // ═══════════════════════════════
