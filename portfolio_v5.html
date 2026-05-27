@@ -972,7 +972,7 @@ body { font-family:'Pretendard',sans-serif !important; }
 
   <!-- 월별 투자 막대그래프 -->
   <div class="ldg-card">
-    <div class="ldg-title" style="color:#7b1fa2">📊 월별 투자 추이</div>
+    <div class="ldg-title" style="color:#7b1fa2">📊 월별 투자 현황</div>
     <svg id="ldgInvChart" viewBox="0 0 340 130" style="width:100%"></svg>
   </div>
 </div>
@@ -3202,7 +3202,7 @@ function renderLedger(){
     // 최근 6개월 키 생성
     var months=[];
     var now=new Date();
-    for(var m=5;m>=0;m--){
+    for(var m=11;m>=0;m--){
       var d=new Date(now.getFullYear(),now.getMonth()-m,1);
       months.push(d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0"));
     }
