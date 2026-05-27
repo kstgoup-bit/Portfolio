@@ -713,8 +713,22 @@ body { font-family:'Pretendard',sans-serif !important; }
       <div class="div-val" id="divTotal">0원</div>
     </div>
   </div>
+
+  <!-- 배당 자동 조회 -->
+  <div style="background:linear-gradient(135deg,#f1f8f1,#dcedc8);border-radius:14px;padding:14px;margin-bottom:12px;border:1px solid #c5e1a5">
+    <div style="font-size:13px;font-weight:800;color:#33691e;margin-bottom:4px">📥 배당 자동 조회</div>
+    <div style="font-size:11px;color:#558b2f;margin-bottom:10px">해외·국내 보유 종목의 최근 배당 내역을 자동으로 가져와요. 이미 추가된 건 중복 방지됩니다.</div>
+    <button onclick="fetchDividends()" id="divFetchBtn" style="width:100%;padding:12px;background:linear-gradient(135deg,#66bb6a,#43a047);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;font-family:'Noto Sans KR',sans-serif;box-shadow:0 4px 14px rgba(67,160,71,0.35)">🔍 배당 내역 조회</button>
+    <div id="divFetchStatus" style="font-size:12px;color:#558b2f;text-align:center;margin-top:8px;min-height:16px"></div>
+    <div id="divFetchPreview" style="display:none;margin-top:10px">
+      <div style="font-size:12px;font-weight:800;color:#33691e;margin-bottom:6px">📋 추가할 배당 내역</div>
+      <div id="divFetchList"></div>
+      <button onclick="confirmDividends()" style="width:100%;margin-top:8px;padding:11px;background:linear-gradient(135deg,#43a047,#2e7d32);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;font-family:'Noto Sans KR',sans-serif;box-shadow:0 4px 12px rgba(46,125,50,0.3)">✅ 전체 추가</button>
+    </div>
+  </div>
+
   <div class="div-add-form">
-    <div style="font-size:12px;font-weight:800;color:var(--green-mid);margin-bottom:10px">💰 배당금 입력</div>
+    <div style="font-size:12px;font-weight:800;color:var(--green-mid);margin-bottom:10px">💰 배당금 직접 입력</div>
     <div class="f-lbl">종목명</div><input class="f-inp" id="divName" placeholder="예: SPGI">
     <div class="f-lbl">배당금액 (원)</div><input class="f-inp" type="number" id="divAmt" placeholder="0">
     <div class="f-lbl">수령일</div><input class="f-inp" type="date" id="divDate">
@@ -2710,6 +2724,118 @@ function addStock(type) {
 // =============================================
 // 배당
 // =============================================
+
+// 배당 자동 조회 - 야후파이낸스에서 해외+국내 보유종목 배당 내역 가져오기
+var divFetchResults=[];
+function fetchDividends(){
+  var btn=document.getElementById("divFetchBtn");
+  var status=document.getElementById("divFetchStatus");
+  var preview=document.getElementById("divFetchPreview");
+
+  // 해외: 그대로, 국내+연금: 티커에 .KS 붙임
+  var allStocks=[];
+  (ovStocks||[]).filter(function(s){return s.quantity>0&&s.ticker;})
+    .forEach(function(s){ allStocks.push({ticker:s.ticker,qty:s.quantity,name:s.name||s.ticker,isKR:false}); });
+  var krAll=[].concat(domStocks||[],penStocks||[]);
+  krAll.filter(function(s){return s.quantity>0&&s.ticker;})
+    .forEach(function(s){ allStocks.push({ticker:s.ticker+".KS",qty:s.quantity,name:s.name||s.ticker,isKR:true}); });
+
+  if(!allStocks.length){status.textContent="⚠️ 보유 종목이 없습니다";return;}
+  btn.disabled=true; btn.textContent="조회 중...";
+  status.textContent=""; preview.style.display="none";
+
+  var rate=getRate();
+  var now=Math.floor(Date.now()/1000);
+  var from=now-365*24*3600;
+  var done=0, found=[];
+
+  var existKeys={};
+  divList.forEach(function(d){ existKeys[(d.name+"_"+d.date)]=true; });
+
+  allStocks.forEach(function(stock){
+    var url="https://query1.finance.yahoo.com/v8/finance/chart/"+stock.ticker
+      +"?events=dividends&period1="+from+"&period2="+now+"&interval=1d";
+    var proxyUrl="https://corsproxy.io/?"+encodeURIComponent(url);
+
+    fetch(proxyUrl)
+      .then(function(r){return r.json();})
+      .then(function(data){
+        try{
+          var divs=data.chart.result[0].events.dividends;
+          if(divs){
+            Object.values(divs).forEach(function(ev){
+              var dateStr=new Date(ev.date*1000).toISOString().slice(0,10);
+              var displayName=stock.isKR?stock.name:stock.ticker;
+              var key=displayName+"_"+dateStr;
+              if(!existKeys[key]){
+                // 해외: 달러×수량×환율, 국내: 원×수량
+                var amtKrw=stock.isKR
+                  ? Math.round(ev.amount*stock.qty)
+                  : Math.round(ev.amount*stock.qty*rate);
+                if(amtKrw>0) found.push({
+                  name:displayName, date:dateStr,
+                  amount:amtKrw, account:"신한",
+                  perShare:ev.amount, qty:stock.qty, isKR:stock.isKR
+                });
+              }
+            });
+          }
+        }catch(e){}
+      })
+      .catch(function(){})
+      .finally(function(){
+        done++;
+        status.textContent="조회 중... ("+done+"/"+allStocks.length+")";
+        if(done===allStocks.length){
+          btn.disabled=false; btn.textContent="🔍 배당 내역 조회";
+          found.sort(function(a,b){return a.date<b.date?-1:1;});
+          divFetchResults=found;
+          showDivPreview(found);
+        }
+      });
+  });
+}
+
+function showDivPreview(found){
+  var status=document.getElementById("divFetchStatus");
+  var preview=document.getElementById("divFetchPreview");
+  var listEl=document.getElementById("divFetchList");
+  if(!found.length){
+    status.textContent="✅ 새로 추가할 배당 내역이 없습니다 (이미 모두 반영됨)";
+    return;
+  }
+  status.textContent="✅ "+found.length+"건 발견!";
+  preview.style.display="block";
+  listEl.innerHTML=found.map(function(f,i){
+    var unit=f.isKR?"원/주":"$/주";
+    return '<div style="background:#fff;border-radius:10px;padding:10px 12px;margin-bottom:6px;border:1px solid #c5e1a5;box-shadow:0 1px 4px rgba(0,0,0,0.06);display:flex;justify-content:space-between;align-items:center">'+
+      '<div>'+
+        '<span style="font-size:13px;font-weight:800;color:#2e7d32">'+f.name+'</span>'+
+        '<span style="font-size:10px;color:#888;margin-left:6px">'+f.date+'</span><br>'+
+        '<span style="font-size:10px;color:#aaa">'+f.perShare.toFixed(f.isKR?0:4)+unit+' × '+f.qty+'주</span>'+
+      '</div>'+
+      '<div style="text-align:right">'+
+        '<div style="font-size:14px;font-weight:800;color:#43a047">+'+f.amount.toLocaleString()+'원</div>'+
+        '<select onchange="divFetchResults['+i+'].account=this.value" style="font-size:10px;border:1px solid #c5e1a5;border-radius:6px;padding:2px 4px;margin-top:3px;color:#555">'+
+          '<option>신한</option><option>KB</option><option>메리츠</option><option>연금</option><option>기타</option>'+
+        '</select>'+
+      '</div>'+
+    '</div>';
+  }).join("");
+}
+
+function confirmDividends(){
+  if(!divFetchResults.length) return;
+  divFetchResults.forEach(function(f){
+    divList.push({name:f.name,amount:f.amount,date:f.date,account:f.account});
+  });
+  divFetchResults=[];
+  document.getElementById("divFetchPreview").style.display="none";
+  document.getElementById("divFetchStatus").textContent="✅ 추가 완료!";
+  save(); renderDividend();
+}
+
+
 function renderDividend() {
   var now=new Date();
   var yearDiv=divList.filter(function(d){return new Date(d.date).getFullYear()===now.getFullYear();}).reduce(function(s,d){return s+d.amount;},0);
@@ -2765,9 +2891,10 @@ function renderDivBarChart() {
     var x=pad+i*(barW+2);
     var y=H-20-bh;
     var lbl=k.substring(5)+"월";
-    return '<rect x="'+x+'" y="'+y+'" width="'+barW+'" height="'+bh+'" fill="#2e7d32" rx="3"/>'+
-      '<text x="'+(x+barW/2)+'" y="'+(H-6)+'" text-anchor="middle" font-size="8" fill="#546e7a">'+lbl+'</text>'+
-      (months[k]>0?'<text x="'+(x+barW/2)+'" y="'+(y-3)+'" text-anchor="middle" font-size="7" fill="#1b5e20" font-weight="bold">'+Math.round(months[k]).toLocaleString()+'</text>':"");
+    return '<defs><linearGradient id="divGrad'+i+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#81c784"/><stop offset="100%" stop-color="#43a047"/></linearGradient></defs>'+
+      '<rect x="'+x+'" y="'+y+'" width="'+barW+'" height="'+bh+'" fill="url(#divGrad'+i+')" rx="3" opacity="0.9"/>'+
+      '<text x="'+(x+barW/2)+'" y="'+(H-6)+'" text-anchor="middle" font-size="8" fill="#78909c">'+lbl+'</text>'+
+      (months[k]>0?'<text x="'+(x+barW/2)+'" y="'+(y-3)+'" text-anchor="middle" font-size="7" fill="#43a047" font-weight="bold">'+Math.round(months[k]).toLocaleString()+'</text>':"");
   }).join("");
   svg.innerHTML=bars;
 }
