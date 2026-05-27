@@ -453,14 +453,50 @@ body { font-family:'Pretendard',sans-serif !important; }
 <!-- 잠금화면 -->
 <div class="lock" id="lockScreen">
   <canvas id="confettiCanvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0"></canvas>
-  <div class="lock-illust">
-    <span class="lock-illust-main">🔐</span>
-    <div class="lock-illust-sub">
-      <span>🏅</span><span>💰</span><span>🪙</span><span>💎</span>
-    </div>
+
+  <!-- 10억 메달 -->
+  <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;margin-bottom:6px">
+    <svg width="120" height="140" viewBox="0 0 120 140">
+      <!-- 리본 왼쪽 -->
+      <polygon points="60,10 30,0 38,52" fill="#1565c0" opacity="0.9"/>
+      <!-- 리본 오른쪽 -->
+      <polygon points="60,10 90,0 82,52" fill="#1976d2" opacity="0.9"/>
+      <!-- 리본 접힌 부분 -->
+      <polygon points="38,52 60,42 82,52 60,58" fill="#1e88e5"/>
+      <!-- 메달 테두리 (그림자) -->
+      <circle cx="60" cy="95" r="42" fill="#e65100" opacity="0.3"/>
+      <!-- 메달 본체 그라데이션 -->
+      <defs>
+        <radialGradient id="medalGrad" cx="40%" cy="35%">
+          <stop offset="0%" stop-color="#FFE082"/>
+          <stop offset="40%" stop-color="#FFB300"/>
+          <stop offset="100%" stop-color="#E65100"/>
+        </radialGradient>
+        <radialGradient id="medalShine" cx="35%" cy="30%">
+          <stop offset="0%" stop-color="rgba(255,255,255,0.6)"/>
+          <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+        </radialGradient>
+      </defs>
+      <circle cx="60" cy="93" r="40" fill="url(#medalGrad)"/>
+      <!-- 메달 테두리 링 -->
+      <circle cx="60" cy="93" r="40" fill="none" stroke="#FF8F00" stroke-width="3"/>
+      <circle cx="60" cy="93" r="35" fill="none" stroke="#FFE082" stroke-width="1.5" opacity="0.7"/>
+      <!-- 광택 -->
+      <circle cx="60" cy="93" r="40" fill="url(#medalShine)"/>
+      <!-- 10억 텍스트 -->
+      <text x="60" y="100" text-anchor="middle" font-size="26" font-weight="900" fill="#7f3300" font-family="'Noto Sans KR',sans-serif" letter-spacing="-1">10억</text>
+      <!-- 연결고리 -->
+      <rect x="53" y="50" width="14" height="10" rx="3" fill="#FFB300" stroke="#FF8F00" stroke-width="1"/>
+    </svg>
   </div>
+
+  <!-- 축하합니다 -->
+  <div style="position:relative;z-index:1;font-size:22px;font-weight:900;color:#FFE082;letter-spacing:2px;margin-bottom:8px;text-shadow:0 2px 12px rgba(0,0,0,0.4)">🎊 축하합니다! 🎊</div>
+
+  <!-- 자기암시 타이틀 -->
   <div class="lock-title">순태씨의 5년 안에 10억!</div>
   <div class="lock-sub">개인 금융 정보 보호를 위해<br>지정한 비밀번호를 입력해주세요</div>
+
   <div class="lock-form">
     <input class="lock-input" type="password" id="lockInput" placeholder="비밀번호 입력" maxlength="20">
     <button class="lock-btn" id="lockBtn"><span>🔓</span><span>확인</span></button>
