@@ -973,7 +973,7 @@ body { font-family:'Pretendard',sans-serif !important; }
   <!-- 월별 투자 막대그래프 -->
   <div class="ldg-card">
     <div class="ldg-title" style="color:#7b1fa2">📊 월별 투자 현황</div>
-    <svg id="ldgInvChart" viewBox="0 0 340 130" style="width:100%"></svg>
+    <svg id="ldgInvChart" viewBox="0 0 340 140" style="width:100%"></svg>
   </div>
 </div>
 
@@ -3212,8 +3212,8 @@ function renderLedger(){
       return md.invest.reduce(function(s,x){return s+x.amount;},0);
     });
     var maxV=Math.max.apply(null,vals)||1;
-    var W=340,H=110,padL=10,padR=10,padT=10,padB=24;
-    var barW=Math.floor((W-padL-padR)/months.length*0.6);
+    var W=340,H=120,padL=10,padR=10,padT=10,padB=26;
+    var barW=Math.floor((W-padL-padR)/months.length*0.75);
     var gap=(W-padL-padR-barW*months.length)/(months.length+1);
     var html='';
     months.forEach(function(mk,i){
@@ -3226,9 +3226,9 @@ function renderLedger(){
       if(v>0){
         html+='<rect x="'+x+'" y="'+y+'" width="'+barW+'" height="'+barH+'" rx="3" fill="'+fill+'"/>';
         var label=v>=10000000?(v/10000000).toFixed(1)+'천만':v>=1000000?(v/1000000).toFixed(1)+'백만':v>=10000?(v/10000).toFixed(0)+'만':(v/1000).toFixed(0)+'천';
-        html+='<text x="'+(x+barW/2)+'" y="'+(y-3)+'" text-anchor="middle" font-size="9" fill="#7b1fa2" font-weight="700">'+label+'</text>';
+        html+='<text x="'+(x+barW/2)+'" y="'+(y-3)+'" text-anchor="middle" font-size="11" fill="#7b1fa2" font-weight="800">'+label+'</text>';
       }
-      html+='<text x="'+(x+barW/2)+'" y="'+(H-padB+14)+'" text-anchor="middle" font-size="10" fill="'+(isCurrent?"#7b1fa2":"#94a3b8")+'" font-weight="'+(isCurrent?"800":"400")+'">'+mk.slice(5)+'</text>';
+      html+='<text x="'+(x+barW/2)+'" y="'+(H-padB+16)+'" text-anchor="middle" font-size="11" fill="'+(isCurrent?"#7b1fa2":"#94a3b8")+'" font-weight="'+(isCurrent?"800":"400")+'">'+mk.slice(5)+'</text>';
     });
     svg.innerHTML=html;
   }
