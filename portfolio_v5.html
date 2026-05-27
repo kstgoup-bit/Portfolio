@@ -3194,6 +3194,44 @@ function renderLedger(){
     tb.textContent=(balance>=0?"+":"")+balance.toLocaleString()+"원";
     tb.style.color=balance>=0?"#00897b":"#c62828";
   }
+
+  // 월별 투자 막대그래프
+  var svg=document.getElementById("ldgInvChart");
+  if(svg){
+    var allData=loadLedgerData();
+    // 최근 6개월 키 생성
+    var months=[];
+    var now=new Date();
+    for(var m=5;m>=0;m--){
+      var d=new Date(now.getFullYear(),now.getMonth()-m,1);
+      months.push(d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0"));
+    }
+    var vals=months.map(function(mk){
+      var md=allData[mk];
+      if(!md||!md.invest||!md.invest.length) return 0;
+      return md.invest.reduce(function(s,x){return s+x.amount;},0);
+    });
+    var maxV=Math.max.apply(null,vals)||1;
+    var W=340,H=110,padL=10,padR=10,padT=10,padB=24;
+    var barW=Math.floor((W-padL-padR)/months.length*0.6);
+    var gap=(W-padL-padR-barW*months.length)/(months.length+1);
+    var html='';
+    months.forEach(function(mk,i){
+      var v=vals[i];
+      var barH=v>0?Math.max(Math.round((H-padT-padB)*v/maxV),4):0;
+      var x=padL+gap+(barW+gap)*i;
+      var y=H-padB-barH;
+      var isCurrent=(mk===getLedgerKey());
+      var fill=isCurrent?"#7b1fa2":"#ce93d8";
+      if(v>0){
+        html+='<rect x="'+x+'" y="'+y+'" width="'+barW+'" height="'+barH+'" rx="3" fill="'+fill+'"/>';
+        var label=v>=10000000?(v/10000000).toFixed(1)+'천만':v>=1000000?(v/1000000).toFixed(1)+'백만':v>=10000?(v/10000).toFixed(0)+'만':(v/1000).toFixed(0)+'천';
+        html+='<text x="'+(x+barW/2)+'" y="'+(y-3)+'" text-anchor="middle" font-size="9" fill="#7b1fa2" font-weight="700">'+label+'</text>';
+      }
+      html+='<text x="'+(x+barW/2)+'" y="'+(H-padB+14)+'" text-anchor="middle" font-size="10" fill="'+(isCurrent?"#7b1fa2":"#94a3b8")+'" font-weight="'+(isCurrent?"800":"400")+'">'+mk.slice(5)+'</text>';
+    });
+    svg.innerHTML=html;
+  }
 }
 
 </script>
