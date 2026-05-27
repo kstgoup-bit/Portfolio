@@ -2062,7 +2062,7 @@ function rkUpdateUI(hy, rate, vix, fxScore, dxy, spread, fg) {
   var rb=document.getElementById("rkRateBar"), rv=document.getElementById("rkRateVal"),
       rbg=document.getElementById("rkRateBadge"), rd=document.getElementById("rkRateDetail");
   if(rv) rv.textContent=rate.toFixed(2);
-  if(rb){rb.style.width=Math.min(rate/6*100,100)+"%"; rb.style.background=rkBarGrad(rScore);}
+  if(rb){rb.style.width=Math.min(rate/5.5*100,100)+"%"; rb.style.background=rkBarGrad(rScore);}
   if(rbg){rbg.textContent=rate<4.0?"안전":rate<4.5?"주의":rate<5.0?"경계":"위험"; rbg.style.cssText=rkBadge(rLv);}
   if(rd) rd.textContent=rate<4.0?"낮은 금리 — 증시 우호적":rate<4.5?"주의 수준 — 증시 부담 시작":rate<5.0?"높은 금리 — 증시 부담 심화":"위험 수준 — 성장주 매우 불리";
 
@@ -2992,6 +2992,7 @@ function checkPw() {
     document.getElementById("lockScreen").style.display="none";
     failCount=0;
     sessionStorage.setItem("v5_auth","1");
+    renderAll();
   } else {
     failCount++;
     document.getElementById("lockInput").value="";
@@ -3153,7 +3154,7 @@ function renderLedger(){
       html+='<div class="ldg-item">'+
         '<span class="ldg-item-name">'+item.name+'</span>'+
         '<div style="display:flex;align-items:center">'+
-          '<span class="ldg-item-amt" style="color:'+color+'">'+item.amount.toLocaleString()+'만원</span>'+
+          '<span class="ldg-item-amt" style="color:'+color+'">'+item.amount.toLocaleString()+'원</span>'+
           '<button class="ldg-del" onclick="delLedger(\''+type+'\','+i+')">×</button>'+
         '</div>'+
       '</div>';
@@ -3169,9 +3170,11 @@ function renderLedger(){
 
   var ti=document.getElementById("ldgTotalInc");
   var te=document.getElementById("ldgTotalExp");
+  var tiv=document.getElementById("ldgTotalInv");
   var tb=document.getElementById("ldgBalance");
   if(ti) ti.textContent=totalInc.toLocaleString()+"원";
   if(te) te.textContent=totalExp.toLocaleString()+"원";
+  if(tiv) tiv.textContent=totalInv.toLocaleString()+"원";
   if(tb){
     tb.textContent=(balance>=0?"+":"")+balance.toLocaleString()+"원";
     tb.style.color=balance>=0?"#00897b":"#c62828";
