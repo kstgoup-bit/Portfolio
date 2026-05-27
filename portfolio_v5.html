@@ -458,30 +458,47 @@ body { font-family:'Pretendard',sans-serif !important; }
   <!-- 상단 콘텐츠 -->
   <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;flex:1">
 
-    <!-- 10억 메달 -->
+    <!-- 보름달 10억 -->
     <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:10px">
-      <svg width="120" height="140" viewBox="0 0 120 140">
-        <polygon points="60,10 30,0 38,52" fill="#1565c0" opacity="0.9"/>
-        <polygon points="60,10 90,0 82,52" fill="#1976d2" opacity="0.9"/>
-        <polygon points="38,52 60,42 82,52 60,58" fill="#1e88e5"/>
-        <circle cx="60" cy="95" r="42" fill="#e65100" opacity="0.3"/>
+      <svg width="130" height="130" viewBox="0 0 130 130">
         <defs>
-          <radialGradient id="medalGrad" cx="40%" cy="35%">
-            <stop offset="0%" stop-color="#FFE082"/>
-            <stop offset="40%" stop-color="#FFB300"/>
-            <stop offset="100%" stop-color="#E65100"/>
+          <radialGradient id="moonGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="rgba(255,248,200,0.6)"/>
+            <stop offset="100%" stop-color="rgba(255,220,80,0)"/>
           </radialGradient>
-          <radialGradient id="medalShine" cx="35%" cy="30%">
-            <stop offset="0%" stop-color="rgba(255,255,255,0.6)"/>
+          <radialGradient id="moonBody" cx="38%" cy="32%">
+            <stop offset="0%" stop-color="#FFFDE7"/>
+            <stop offset="30%" stop-color="#FFF9C4"/>
+            <stop offset="70%" stop-color="#FFF176"/>
+            <stop offset="100%" stop-color="#F9A825"/>
+          </radialGradient>
+          <radialGradient id="moonShine" cx="32%" cy="28%">
+            <stop offset="0%" stop-color="rgba(255,255,255,0.7)"/>
             <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
           </radialGradient>
+          <filter id="moonFilter">
+            <feGaussianBlur stdDeviation="6" result="blur"/>
+            <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+          </filter>
         </defs>
-        <circle cx="60" cy="93" r="40" fill="url(#medalGrad)"/>
-        <circle cx="60" cy="93" r="40" fill="none" stroke="#FF8F00" stroke-width="3"/>
-        <circle cx="60" cy="93" r="35" fill="none" stroke="#FFE082" stroke-width="1.5" opacity="0.7"/>
-        <circle cx="60" cy="93" r="40" fill="url(#medalShine)"/>
-        <text x="60" y="100" text-anchor="middle" font-size="26" font-weight="900" fill="#7f3300" font-family="'Noto Sans KR',sans-serif" letter-spacing="-1">10억</text>
-        <rect x="53" y="50" width="14" height="10" rx="3" fill="#FFB300" stroke="#FF8F00" stroke-width="1"/>
+        <!-- 외부 발광 -->
+        <circle cx="65" cy="65" r="58" fill="url(#moonGlow)"/>
+        <!-- 달 본체 -->
+        <circle cx="65" cy="65" r="50" fill="url(#moonBody)"/>
+        <!-- 달 테두리 -->
+        <circle cx="65" cy="65" r="50" fill="none" stroke="#F9A825" stroke-width="1.5" opacity="0.6"/>
+        <!-- 크레이터들 -->
+        <circle cx="42" cy="48" r="7" fill="rgba(0,0,0,0.06)"/>
+        <circle cx="42" cy="48" r="5.5" fill="rgba(255,255,255,0.08)"/>
+        <circle cx="82" cy="38" r="4" fill="rgba(0,0,0,0.05)"/>
+        <circle cx="82" cy="38" r="3" fill="rgba(255,255,255,0.07)"/>
+        <circle cx="90" cy="75" r="5" fill="rgba(0,0,0,0.05)"/>
+        <circle cx="90" cy="75" r="3.5" fill="rgba(255,255,255,0.07)"/>
+        <circle cx="50" cy="85" r="3" fill="rgba(0,0,0,0.05)"/>
+        <!-- 광택 -->
+        <circle cx="65" cy="65" r="50" fill="url(#moonShine)"/>
+        <!-- 10억 텍스트 -->
+        <text x="65" y="72" text-anchor="middle" font-size="28" font-weight="900" fill="#5D4037" font-family="'Noto Sans KR',sans-serif" letter-spacing="-1">10억</text>
       </svg>
     </div>
 
@@ -499,8 +516,8 @@ body { font-family:'Pretendard',sans-serif !important; }
   <div style="position:relative;z-index:1;width:100%">
     <div class="lock-sub" style="margin-bottom:16px">개인 금융 정보 보호를 위해<br>지정한 비밀번호를 입력해주세요</div>
     <div class="lock-form">
-      <input class="lock-input" type="password" id="lockInput" placeholder="비밀번호 입력" maxlength="20" style="font-size:18px">
-      <button class="lock-btn" id="lockBtn" style="background:rgba(255,248,180,0.35);border:1.5px solid rgba(255,236,100,0.5)"><span>🔓</span><span>확인</span></button>
+      <input class="lock-input" type="password" id="lockInput" placeholder="비밀번호 입력" maxlength="20" style="font-size:17px">
+      <button class="lock-btn" id="lockBtn" style="background:rgba(255,248,180,0.35);border:1.5px solid rgba(255,236,100,0.5);font-size:17px;color:#1a1a2e"><span>🔓</span><span>확인</span></button>
       <div class="lock-err" id="lockErr"></div>
     </div>
   </div>
@@ -3165,54 +3182,61 @@ window.addEventListener("load", function() {
 
 
 
-// ═══════════════════════════════
-// 🎆 잠금화면 폭죽 애니메이션
-// ═══════════════════════════════
+
+// ═══════════════════════════════════════
+// 🎆 세계불꽃축제 애니메이션
+// ═══════════════════════════════════════
 (function(){
   var canvas=document.getElementById("confettiCanvas");
   if(!canvas) return;
   var ctx=canvas.getContext("2d");
   var W=0,H=0,animId=null,launchInterval=null;
-  var rockets=[],sparks=[];
-  var GRAV=0.14;
+  var rockets=[],particles=[];
+  var GRAV=0.13;
+  // 달 위치 (화면 상단 중앙, 달 SVG 기준)
+  var MOON_X_RATIO=0.5, MOON_Y=160;
 
   function resize(){
     W=canvas.width=window.innerWidth;
     H=canvas.height=window.innerHeight;
   }
 
-  var palettes=[
-    ["#FF4444","#FF8888","#FFCCCC","#FF6600"],
-    ["#FFD700","#FFA500","#FFEC6E","#FF8C00"],
-    ["#4FC3F7","#1E90FF","#B3E5FC","#00BFFF"],
-    ["#69F0AE","#00E676","#B9F6CA","#00C853"],
-    ["#CE93D8","#AB47BC","#F3E5F5","#9C27B0"],
-    ["#F48FB1","#E91E63","#FCE4EC","#FF4081"],
-    ["#FFFFFF","#FFF9C4","#FFFDE7","#FFE57F"],
-    ["#80DEEA","#00BCD4","#E0F7FA","#00ACC1"],
-  ];
+  var palettes={
+    gold:   ["#FFD700","#FFA500","#FFEC6E","#FF8C00","#FFFDE7"],
+    red:    ["#FF4444","#FF6B6B","#FF0000","#FFCCCC","#FF8A80"],
+    blue:   ["#4FC3F7","#1E90FF","#00BFFF","#B3E5FC","#82B1FF"],
+    green:  ["#69F0AE","#00E676","#B9F6CA","#00C853","#CCFF90"],
+    purple: ["#CE93D8","#AB47BC","#EA80FC","#E040FB","#F3E5F5"],
+    white:  ["#FFFFFF","#FFF9C4","#FFFDE7","#E3F2FD","#FCE4EC"],
+    pink:   ["#F48FB1","#FF4081","#FCE4EC","#FF80AB","#FF6090"],
+    cyan:   ["#80DEEA","#00BCD4","#A7FFEB","#1DE9B6","#E0F7FA"],
+    multi:  ["#FFD700","#FF4444","#4FC3F7","#69F0AE","#CE93D8","#FF80AB","#FFF"],
+  };
+  var paletteKeys=Object.keys(palettes);
 
-  // ── 로켓: targetY에 딱 도달하는 속도를 물리공식으로 계산 ──
-  function Rocket(x){
+  function randPalette(){ return palettes[paletteKeys[Math.floor(Math.random()*paletteKeys.length)]]; }
+
+  // ── 로켓 타입별 폭발 형태 ──
+  var types=["classic","willow","ring","chrysanthemum","palm","strobe","multicolor","crossette"];
+
+  function Rocket(x, targetY, type){
     this.x=x; this.y=H;
-    this.vx=(Math.random()-0.5)*1.5;
-    this.targetY=H*(0.08+Math.random()*0.22);
-    // vy² = 2*g*d → 정확히 targetY에서 속도=0
-    this.vy=-Math.sqrt(2*GRAV*(H-this.targetY))*1.05;
-    this.palette=palettes[Math.floor(Math.random()*palettes.length)];
-    this.trail=[];
-    this.done=false;
+    this.vx=(x - W*MOON_X_RATIO) * -(0.003 + Math.random()*0.002);
+    this.targetY=targetY || (H*(0.08+Math.random()*0.25));
+    this.vy=-Math.sqrt(2*GRAV*(H-this.targetY))*1.04;
+    this.palette=randPalette();
+    this.type=type||types[Math.floor(Math.random()*types.length)];
+    this.trail=[]; this.done=false;
   }
   Rocket.prototype.update=function(){
     if(this.done) return;
     this.trail.push({x:this.x,y:this.y,a:1});
-    if(this.trail.length>22) this.trail.shift();
-    this.trail.forEach(function(t){t.a-=0.045;});
-    this.vy+=GRAV;
-    this.x+=this.vx; this.y+=this.vy;
+    if(this.trail.length>24) this.trail.shift();
+    this.trail.forEach(function(t){t.a-=0.04;});
+    this.vy+=GRAV; this.x+=this.vx; this.y+=this.vy;
     if(this.y<=this.targetY||this.vy>=0){
       this.done=true;
-      burst(this.x,this.y,this.palette);
+      explode(this.x,this.y,this.palette,this.type);
     }
   };
   Rocket.prototype.draw=function(){
@@ -3220,147 +3244,257 @@ window.addEventListener("load", function() {
       var t=this.trail[i],tp=this.trail[i-1];
       ctx.save();
       ctx.globalAlpha=Math.max(0,t.a*0.9);
-      ctx.strokeStyle="#ffcc44";
-      ctx.shadowColor="#ff7700"; ctx.shadowBlur=10;
-      ctx.lineWidth=1.8*(i/this.trail.length)+0.5;
+      ctx.strokeStyle="#ffcc44"; ctx.shadowColor="#ff7700"; ctx.shadowBlur=10;
+      ctx.lineWidth=2.2*(i/this.trail.length)+0.3;
+      ctx.lineCap="round";
       ctx.beginPath(); ctx.moveTo(tp.x,tp.y); ctx.lineTo(t.x,t.y); ctx.stroke();
       ctx.restore();
     }
     if(!this.done){
-      ctx.save(); ctx.globalAlpha=1;
-      ctx.fillStyle="#fff";
-      ctx.shadowColor="#ffee88"; ctx.shadowBlur=14;
-      ctx.beginPath(); ctx.arc(this.x,this.y,3,0,Math.PI*2); ctx.fill();
-      ctx.restore();
+      ctx.save(); ctx.fillStyle="#fff"; ctx.shadowColor="#ffee88"; ctx.shadowBlur=14;
+      ctx.beginPath(); ctx.arc(this.x,this.y,3,0,Math.PI*2); ctx.fill(); ctx.restore();
     }
   };
   Rocket.prototype.alive=function(){ return !this.done; };
 
-  // ── 폭발: 3레이어 (플래시 + 빠른 내부 + 느린 외부) ──
-  function burst(x,y,palette){
-    // 플래시
-    sparks.push(new Flash(x,y,palette[0]));
-    // 내부 빠른 불꽃 (60개)
-    for(var i=0;i<60;i++){
-      var angle=(i/60)*Math.PI*2+(Math.random()-0.5)*0.3;
-      var speed=Math.random()*6+3;
-      sparks.push(new Spark(x,y,angle,speed,palette,0.016,0.09));
+  // ── 폭발 종류 ──
+  function explode(x,y,palette,type){
+    particles.push(new Flash(x,y,palette[0]));
+    if(type==="classic")      classicBurst(x,y,palette);
+    else if(type==="willow")  willowBurst(x,y,palette);
+    else if(type==="ring")    ringBurst(x,y,palette);
+    else if(type==="chrysanthemum") chrysBurst(x,y,palette);
+    else if(type==="palm")    palmBurst(x,y,palette);
+    else if(type==="strobe")  strobeBurst(x,y,palette);
+    else if(type==="multicolor") multicolorBurst(x,y);
+    else if(type==="crossette") crossetteBurst(x,y,palette);
+    else classicBurst(x,y,palette);
+  }
+
+  // 클래식: 균등 방사
+  function classicBurst(x,y,pal){
+    var n=100+Math.floor(Math.random()*30);
+    for(var i=0;i<n;i++){
+      var a=(i/n)*Math.PI*2, s=Math.random()*5+2;
+      particles.push(new Spark(x,y,Math.cos(a)*s,Math.sin(a)*s,pal,0.013,0.09,true));
     }
-    // 외부 느린 불꽃 (50개, 더 길고 밝음)
-    for(var j=0;j<50;j++){
-      var angle2=(j/50)*Math.PI*2+(Math.random()-0.5)*0.5;
-      var speed2=Math.random()*3+1;
-      sparks.push(new Spark(x,y,angle2,speed2,palette,0.011,0.06));
+  }
+  // 버드나무: 위로 퍼진 뒤 중력에 축 늘어짐
+  function willowBurst(x,y,pal){
+    var n=80;
+    for(var i=0;i<n;i++){
+      var a=(i/n)*Math.PI*2, s=Math.random()*4+1.5;
+      var p=new Spark(x,y,Math.cos(a)*s,Math.sin(a)*s-1,pal,0.008,0.18,true);
+      p.friction=0.96; particles.push(p);
     }
-    // 반짝이 (30개)
-    for(var k=0;k<30;k++){
-      sparks.push(new Glitter(x,y,palette));
+  }
+  // 링: 완벽한 원형
+  function ringBurst(x,y,pal){
+    var n=70, s=5;
+    for(var i=0;i<n;i++){
+      var a=(i/n)*Math.PI*2;
+      particles.push(new Spark(x,y,Math.cos(a)*s,Math.sin(a)*s,pal,0.012,0.07,false));
+    }
+  }
+  // 국화: 매우 조밀한 구형
+  function chrysBurst(x,y,pal){
+    var n=120;
+    for(var i=0;i<n;i++){
+      var a=(i/n)*Math.PI*2, s=Math.random()*6+2;
+      var p=new Spark(x,y,Math.cos(a)*s,Math.sin(a)*s,pal,0.011,0.06,true);
+      p.r=Math.random()*1.2+0.5; particles.push(p);
+    }
+  }
+  // 야자수: 위로 솟았다 떨어짐
+  function palmBurst(x,y,pal){
+    var n=60;
+    for(var i=0;i<n;i++){
+      var a=(i/n)*Math.PI*2, s=Math.random()*4+2;
+      var p=new Spark(x,y,Math.cos(a)*s,Math.sin(a)*s-3,pal,0.01,0.14,true);
+      p.friction=0.97; particles.push(p);
+    }
+  }
+  // 스트로브: 깜빡이는 별빛
+  function strobeBurst(x,y,pal){
+    var n=60;
+    for(var i=0;i<n;i++){
+      var a=Math.random()*Math.PI*2, s=Math.random()*5+1;
+      particles.push(new StrobeSpark(x,y,Math.cos(a)*s,Math.sin(a)*s,pal));
+    }
+  }
+  // 멀티컬러: 여러 색이 섞인 화려한 버스트
+  function multicolorBurst(x,y){
+    var n=110;
+    for(var i=0;i<n;i++){
+      var pal=palettes[paletteKeys[i%paletteKeys.length]];
+      var a=(i/n)*Math.PI*2, s=Math.random()*5+2;
+      particles.push(new Spark(x,y,Math.cos(a)*s,Math.sin(a)*s,pal,0.013,0.09,true));
+    }
+  }
+  // 크로세트: 분열 폭죽
+  function crossetteBurst(x,y,pal){
+    var n=20;
+    for(var i=0;i<n;i++){
+      var a=(i/n)*Math.PI*2, s=Math.random()*4+2;
+      particles.push(new CrossetteSpark(x,y,Math.cos(a)*s,Math.sin(a)*s,pal));
     }
   }
 
-  // ── 일반 불꽃 ──
-  function Spark(x,y,angle,speed,palette,fade,grav){
-    this.x=x; this.y=y;
-    this.vx=Math.cos(angle)*speed;
-    this.vy=Math.sin(angle)*speed;
+  // ── 파티클 종류 ──
+  function Spark(x,y,vx,vy,palette,fade,grav,hasTrail){
+    this.x=x; this.y=y; this.vx=vx; this.vy=vy;
     this.color=palette[Math.floor(Math.random()*palette.length)];
-    this.alpha=1; this.fade=fade; this.grav=grav; this.friction=0.96;
-    this.r=Math.random()*1.8+1;
-    this.px=x; this.py=y;
+    this.alpha=1; this.fade=fade||0.013; this.grav=grav||0.09;
+    this.friction=0.97; this.r=Math.random()*1.8+0.8;
+    this.px=x; this.py=y; this.hasTrail=hasTrail;
   }
   Spark.prototype.update=function(){
     this.px=this.x; this.py=this.y;
-    this.vy+=this.grav;
-    this.vx*=this.friction; this.vy*=this.friction;
-    this.x+=this.vx; this.y+=this.vy;
-    this.alpha-=this.fade;
+    this.vy+=this.grav; this.vx*=this.friction; this.vy*=this.friction;
+    this.x+=this.vx; this.y+=this.vy; this.alpha-=this.fade;
   };
   Spark.prototype.draw=function(){
-    ctx.save();
-    ctx.globalAlpha=Math.max(0,this.alpha);
-    ctx.strokeStyle=this.color;
-    ctx.shadowColor=this.color; ctx.shadowBlur=8;
-    ctx.lineWidth=this.r;
-    ctx.lineCap="round";
-    ctx.beginPath(); ctx.moveTo(this.px,this.py); ctx.lineTo(this.x,this.y); ctx.stroke();
+    ctx.save(); ctx.globalAlpha=Math.max(0,this.alpha);
+    if(this.hasTrail){
+      ctx.strokeStyle=this.color; ctx.shadowColor=this.color; ctx.shadowBlur=6;
+      ctx.lineWidth=this.r; ctx.lineCap="round";
+      ctx.beginPath(); ctx.moveTo(this.px,this.py); ctx.lineTo(this.x,this.y); ctx.stroke();
+    } else {
+      ctx.fillStyle=this.color; ctx.shadowColor=this.color; ctx.shadowBlur=8;
+      ctx.beginPath(); ctx.arc(this.x,this.y,this.r,0,Math.PI*2); ctx.fill();
+    }
     ctx.restore();
   };
 
-  // ── 반짝이 ──
-  function Glitter(x,y,palette){
-    var angle=Math.random()*Math.PI*2;
-    var speed=Math.random()*4+1;
-    this.x=x; this.y=y;
-    this.vx=Math.cos(angle)*speed; this.vy=Math.sin(angle)*speed;
+  // 스트로브 파티클
+  function StrobeSpark(x,y,vx,vy,palette){
+    this.x=x; this.y=y; this.vx=vx; this.vy=vy;
     this.color=palette[Math.floor(Math.random()*palette.length)];
-    this.alpha=1; this.grav=0.05; this.r=Math.random()*2.5+1;
-    this.twinkle=0;
+    this.alpha=1; this.grav=0.08; this.friction=0.97;
+    this.r=Math.random()*2.5+1; this.twinkle=Math.random()*Math.PI*2;
   }
-  Glitter.prototype.update=function(){
-    this.vy+=this.grav;
-    this.vx*=0.97; this.vy*=0.97;
+  StrobeSpark.prototype.update=function(){
+    this.vy+=this.grav; this.vx*=this.friction; this.vy*=this.friction;
     this.x+=this.vx; this.y+=this.vy;
-    this.twinkle+=0.3;
-    this.alpha-=0.012;
+    this.twinkle+=0.5; this.alpha-=0.012;
   };
-  Glitter.prototype.draw=function(){
+  StrobeSpark.prototype.draw=function(){
     var a=Math.max(0,this.alpha)*Math.abs(Math.sin(this.twinkle));
-    ctx.save();
-    ctx.globalAlpha=a;
-    ctx.fillStyle=this.color;
-    ctx.shadowColor="#fff"; ctx.shadowBlur=12;
+    ctx.save(); ctx.globalAlpha=a;
+    ctx.fillStyle=this.color; ctx.shadowColor="#fff"; ctx.shadowBlur=14;
     ctx.beginPath(); ctx.arc(this.x,this.y,this.r,0,Math.PI*2); ctx.fill();
     ctx.restore();
   };
 
-  // ── 플래시 ──
-  function Flash(x,y,color){
-    this.x=x; this.y=y; this.color=color; this.r=10; this.alpha=1;
+  // 분열 파티클 (2차 폭발)
+  function CrossetteSpark(x,y,vx,vy,palette){
+    this.x=x; this.y=y; this.vx=vx; this.vy=vy;
+    this.color=palette[Math.floor(Math.random()*palette.length)];
+    this.alpha=1; this.grav=0.08; this.friction=0.97;
+    this.r=1.5; this.life=0; this.exploded=false; this.palette=palette;
   }
-  Flash.prototype.update=function(){ this.r+=9; this.alpha-=0.14; };
+  CrossetteSpark.prototype.update=function(){
+    this.vy+=this.grav; this.vx*=this.friction; this.vy*=this.friction;
+    this.x+=this.vx; this.y+=this.vy;
+    this.life++; this.alpha-=0.025;
+    if(this.life===22&&!this.exploded){
+      this.exploded=true;
+      var pal=this.palette;
+      for(var i=0;i<12;i++){
+        var a=Math.random()*Math.PI*2, s=Math.random()*2+1;
+        particles.push(new Spark(this.x,this.y,Math.cos(a)*s,Math.sin(a)*s,pal,0.02,0.1,false));
+      }
+    }
+  };
+  CrossetteSpark.prototype.draw=function(){
+    ctx.save(); ctx.globalAlpha=Math.max(0,this.alpha);
+    ctx.fillStyle=this.color; ctx.shadowColor=this.color; ctx.shadowBlur=8;
+    ctx.beginPath(); ctx.arc(this.x,this.y,this.r,0,Math.PI*2); ctx.fill();
+    ctx.restore();
+  };
+
+  // 플래시
+  function Flash(x,y,color){
+    this.x=x; this.y=y; this.color=color; this.r=10; this.alpha=0.9;
+  }
+  Flash.prototype.update=function(){ this.r+=8; this.alpha-=0.13; };
   Flash.prototype.draw=function(){
     if(this.r<=0||this.alpha<=0) return;
-    ctx.save();
-    ctx.globalAlpha=Math.max(0,this.alpha);
+    ctx.save(); ctx.globalAlpha=Math.max(0,this.alpha);
     var g=ctx.createRadialGradient(this.x,this.y,0,this.x,this.y,this.r);
     g.addColorStop(0,"rgba(255,255,255,1)");
-    g.addColorStop(0.35,this.color+"dd");
+    g.addColorStop(0.3,this.color+"cc");
     g.addColorStop(1,"rgba(0,0,0,0)");
     ctx.fillStyle=g;
     ctx.beginPath(); ctx.arc(this.x,this.y,this.r,0,Math.PI*2); ctx.fill();
     ctx.restore();
   };
 
-  function launch(){
+  // ── 달 주변 집중 발사 패턴 ──
+  function launch(pattern){
     if(!W||!H) resize();
-    rockets.push(new Rocket(W*0.12+Math.random()*W*0.76));
+    var mx=W*MOON_X_RATIO;
+    var ty, x;
+    if(pattern==="moon"){
+      // 달 주변 집중
+      x=W*0.1+Math.random()*W*0.8;
+      ty=MOON_Y*(0.8+Math.random()*0.5);
+    } else if(pattern==="left"){
+      x=W*0.05+Math.random()*W*0.2;
+      ty=H*(0.1+Math.random()*0.2);
+    } else if(pattern==="right"){
+      x=W*0.75+Math.random()*W*0.2;
+      ty=H*(0.1+Math.random()*0.2);
+    } else {
+      x=W*0.05+Math.random()*W*0.9;
+      ty=H*(0.08+Math.random()*0.28);
+    }
+    rockets.push(new Rocket(x, ty));
+  }
+
+  // 연속 발사 패턴
+  function salvo(n, interval){
+    for(var i=0;i<n;i++){
+      (function(i){
+        setTimeout(function(){
+          launch(["moon","moon","left","right","moon"][i%5]);
+        }, i*interval);
+      })(i);
+    }
   }
 
   function startFireworks(){
     resize();
-    // 처음 3발 연속
-    launch(); setTimeout(launch,350); setTimeout(launch,700);
+    // 첫 화려한 인트로
+    salvo(5, 300);
+    setTimeout(function(){ salvo(3,250); }, 2500);
+
     launchInterval=setInterval(function(){
       if(document.getElementById("lockScreen").style.display==="none"){
         clearInterval(launchInterval); cancelAnimationFrame(animId); return;
       }
-      launch();
-      if(Math.random()<0.5) setTimeout(launch,300);
-      if(Math.random()<0.25) setTimeout(launch,600);
-    },1400);
+      var r=Math.random();
+      if(r<0.3) salvo(3,200);
+      else if(r<0.6) salvo(2,300);
+      else launch("moon");
+      if(Math.random()<0.3) setTimeout(function(){ launch("moon"); }, 150);
+    }, 1400);
     loop();
   }
 
   function loop(){
     ctx.clearRect(0,0,W,H);
     rockets=rockets.filter(function(r){ r.update(); r.draw(); return r.alive(); });
-    sparks=sparks.filter(function(s){ s.update(); s.draw(); return s.alpha>0; });
+    particles=particles.filter(function(p){ p.update(); p.draw(); return p.alpha>0; });
     animId=requestAnimationFrame(loop);
   }
 
   window.addEventListener("resize",resize);
   window.addEventListener("load",function(){ setTimeout(startFireworks,400); });
 })();
+
+
+
 
 
 
