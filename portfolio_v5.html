@@ -3153,9 +3153,17 @@ function renderLedger(){
     var el=document.getElementById(containerId);
     if(!el) return 0;
     if(!items.length){el.innerHTML='<div style="text-align:center;font-size:12px;color:var(--muted);padding:8px">아직 입력된 내용이 없습니다</div>';return 0;}
+    // 날짜 오름차순 정렬 (날짜 없으면 맨 뒤, 같은 날짜는 입력순 유지)
+    var sorted=items.map(function(item,i){return {item:item,idx:i};});
+    sorted.sort(function(a,b){
+      var da=a.item.date||"9999-99-99", db=b.item.date||"9999-99-99";
+      if(da===db) return a.idx-b.idx;
+      return da<db?-1:1;
+    });
     var total=0;
     var html='';
-    items.forEach(function(item,i){
+    sorted.forEach(function(obj){
+      var item=obj.item, i=obj.idx;
       total+=item.amount;
       var dateStr=item.date?'<span style="font-size:11px;font-weight:700;color:#fff;background:'+color+';border-radius:5px;padding:1px 6px;margin-right:6px">'+item.date.slice(5).replace('-','/')+'</span>':'';
       html+='<div class="ldg-item">'+
