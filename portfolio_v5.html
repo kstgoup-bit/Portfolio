@@ -2842,7 +2842,6 @@ function addDiv() {
 }
 
 function delDiv(i) {
-  if(!confirm("삭제하시겠어요?")) return;
   divList.splice(i,1);
   save(); renderDividend();
 }
