@@ -919,6 +919,7 @@ body { font-family:'Pretendard',sans-serif !important; }
       <input class="ldg-inp-amt" id="ldgIncAmt" type="number" placeholder="금액(원)">
       <button class="ldg-add-btn" style="background:#1565c0" onclick="addLedger('income')">추가</button>
     </div>
+    <div style="margin-bottom:8px"><input type="date" id="ldgIncDate" style="width:100%;padding:6px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;background:var(--sky-bg);color:var(--text)"></div>
     <div id="ldgIncList"></div>
   </div>
 
@@ -930,6 +931,7 @@ body { font-family:'Pretendard',sans-serif !important; }
       <input class="ldg-inp-amt" id="ldgExpAmt" type="number" placeholder="금액(원)">
       <button class="ldg-add-btn" style="background:#c62828" onclick="addLedger('expense')">추가</button>
     </div>
+    <div style="margin-bottom:8px"><input type="date" id="ldgExpDate" style="width:100%;padding:6px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;background:var(--sky-bg);color:var(--text)"></div>
     <div id="ldgExpList"></div>
   </div>
 
@@ -941,6 +943,7 @@ body { font-family:'Pretendard',sans-serif !important; }
       <input class="ldg-inp-amt" id="ldgInvAmt" type="number" placeholder="금액(원)">
       <button class="ldg-add-btn" style="background:#7b1fa2" onclick="addLedger('invest')">추가</button>
     </div>
+    <div style="margin-bottom:8px"><input type="date" id="ldgInvDate" style="width:100%;padding:6px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;background:var(--sky-bg);color:var(--text)"></div>
     <div id="ldgInvList"></div>
   </div>
 
@@ -3115,8 +3118,10 @@ function initLedgerMonth(){
 function addLedger(type){
   var nameEl=document.getElementById(type==="income"?"ldgIncName":type==="expense"?"ldgExpName":"ldgInvName");
   var amtEl=document.getElementById(type==="income"?"ldgIncAmt":type==="expense"?"ldgExpAmt":"ldgInvAmt");
+  var dateEl=document.getElementById(type==="income"?"ldgIncDate":type==="expense"?"ldgExpDate":"ldgInvDate");
   var name=(nameEl.value||"").trim();
   var amt=parseFloat(amtEl.value);
+  var date=dateEl?dateEl.value:"";
   if(!name||!amt||amt<=0){alert("항목명과 금액을 입력해주세요");return;}
   var data=loadLedgerData();
   var key=getLedgerKey();
@@ -3124,7 +3129,7 @@ function addLedger(type){
   if(!data[key].income) data[key].income=[];
   if(!data[key].expense) data[key].expense=[];
   if(!data[key].invest) data[key].invest=[];
-  data[key][type].push({name:name,amount:amt});
+  data[key][type].push({name:name,amount:amt,date:date});
   saveLedgerData(data);
   nameEl.value=""; amtEl.value="";
   renderLedger();
@@ -3151,8 +3156,9 @@ function renderLedger(){
     var html='';
     items.forEach(function(item,i){
       total+=item.amount;
+      var dateStr=item.date?'<span style="font-size:10px;color:var(--muted);margin-right:4px">'+item.date.slice(5).replace('-','/')+'</span>':'';
       html+='<div class="ldg-item">'+
-        '<span class="ldg-item-name">'+item.name+'</span>'+
+        '<span class="ldg-item-name">'+dateStr+item.name+'</span>'+
         '<div style="display:flex;align-items:center">'+
           '<span class="ldg-item-amt" style="color:'+color+'">'+item.amount.toLocaleString()+'원</span>'+
           '<button class="ldg-del" onclick="delLedger(\''+type+'\','+i+')">×</button>'+
