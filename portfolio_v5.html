@@ -762,7 +762,6 @@ body { font-family:'Pretendard',sans-serif !important; }
     <div class="f-lbl">수령일</div><input class="f-inp" type="date" id="divDate">
     <div class="f-btns">
       <button class="btn-ok" style="background:linear-gradient(135deg,#66bb6a,#43a047);box-shadow:0 4px 14px rgba(67,160,71,0.35);border:none" onclick="addDiv()">추가</button>
-      <button class="btn-ok" style="background:#e53935;font-size:11px;padding:10px 12px" onclick="resetDivExceptHana()">🗑 하나금융지주 외 전체삭제</button>
     </div>
   </div>
 
@@ -2822,13 +2821,6 @@ function renderDivByTicker(){
   }).join("");
 }
 
-
-function resetDivExceptHana(){
-  if(!confirm("하나금융지주 외 배당 내역을 모두 삭제할까요?")) return;
-  divList=divList.filter(function(d){ return d.name.indexOf("하나금융지주")>=0; });
-  save(); renderDividend();
-  alert("완료! 하나금융지주 "+divList.length+"건만 남았어요.");
-}
 
 function addDiv() {
   var name=document.getElementById("divName").value.trim();
