@@ -914,36 +914,36 @@ body { font-family:'Pretendard',sans-serif !important; }
   <!-- 수입 -->
   <div class="ldg-card">
     <div class="ldg-title" style="color:#1565c0">💰 수입</div>
+    <div style="margin-bottom:6px"><input type="date" id="ldgIncDate" style="width:100%;padding:6px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;background:var(--sky-bg);color:var(--text)"></div>
     <div class="ldg-row">
       <input class="ldg-inp-name" id="ldgIncName" placeholder="항목명">
       <input class="ldg-inp-amt" id="ldgIncAmt" type="number" placeholder="금액(원)">
       <button class="ldg-add-btn" style="background:#1565c0" onclick="addLedger('income')">추가</button>
     </div>
-    <div style="margin-bottom:8px"><input type="date" id="ldgIncDate" style="width:100%;padding:6px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;background:var(--sky-bg);color:var(--text)"></div>
     <div id="ldgIncList"></div>
   </div>
 
   <!-- 지출 -->
   <div class="ldg-card">
     <div class="ldg-title" style="color:#c62828">💸 지출</div>
+    <div style="margin-bottom:6px"><input type="date" id="ldgExpDate" style="width:100%;padding:6px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;background:var(--sky-bg);color:var(--text)"></div>
     <div class="ldg-row">
       <input class="ldg-inp-name" id="ldgExpName" placeholder="항목명">
       <input class="ldg-inp-amt" id="ldgExpAmt" type="number" placeholder="금액(원)">
       <button class="ldg-add-btn" style="background:#c62828" onclick="addLedger('expense')">추가</button>
     </div>
-    <div style="margin-bottom:8px"><input type="date" id="ldgExpDate" style="width:100%;padding:6px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;background:var(--sky-bg);color:var(--text)"></div>
     <div id="ldgExpList"></div>
   </div>
 
   <!-- 투자 -->
   <div class="ldg-card">
     <div class="ldg-title" style="color:#7b1fa2">📈 투자</div>
+    <div style="margin-bottom:6px"><input type="date" id="ldgInvDate" style="width:100%;padding:6px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;background:var(--sky-bg);color:var(--text)"></div>
     <div class="ldg-row">
       <input class="ldg-inp-name" id="ldgInvName" placeholder="항목명 (예: QTOP, NVDA)">
       <input class="ldg-inp-amt" id="ldgInvAmt" type="number" placeholder="금액(원)">
       <button class="ldg-add-btn" style="background:#7b1fa2" onclick="addLedger('invest')">추가</button>
     </div>
-    <div style="margin-bottom:8px"><input type="date" id="ldgInvDate" style="width:100%;padding:6px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;background:var(--sky-bg);color:var(--text)"></div>
     <div id="ldgInvList"></div>
   </div>
 
@@ -3156,7 +3156,7 @@ function renderLedger(){
     var html='';
     items.forEach(function(item,i){
       total+=item.amount;
-      var dateStr=item.date?'<span style="font-size:10px;color:var(--muted);margin-right:4px">'+item.date.slice(5).replace('-','/')+'</span>':'';
+      var dateStr=item.date?'<span style="font-size:11px;font-weight:700;color:#fff;background:'+color+';border-radius:5px;padding:1px 6px;margin-right:6px">'+item.date.slice(5).replace('-','/')+'</span>':'';
       html+='<div class="ldg-item">'+
         '<span class="ldg-item-name">'+dateStr+item.name+'</span>'+
         '<div style="display:flex;align-items:center">'+
