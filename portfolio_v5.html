@@ -8,6 +8,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600;700;800&display=swap');
 
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Gamja+Flower&display=swap');
 :root {
   --bg:#f8f9ff; --bg2:#ffffff; --border:#dde8f5;
   --blue:#1565c0; --blue2:#1976d2; --blue-light:#e8f4fd;
@@ -32,7 +33,7 @@ body{background:var(--sky-bg);color:var(--text);font-family:'Pretendard',sans-se
 
 /* 잠금화면 */
 /* 잠금화면 - 프리미엄 */
-.lock{position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:0;overflow:hidden;background:linear-gradient(175deg,#1565c0 0%,#1a3a8f 30%,#0d2257 65%,#071540 100%)}
+.lock{position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:40px 24px 24px;overflow:hidden;background:linear-gradient(175deg,#1565c0 0%,#1a3a8f 30%,#0d2257 65%,#071540 100%)}
 .lock::before{content:'';position:absolute;inset:0;background-image:repeating-linear-gradient(45deg,transparent 0px,transparent 60px,rgba(255,255,255,0.025) 60px,rgba(255,255,255,0.025) 61px),repeating-linear-gradient(-45deg,transparent 0px,transparent 60px,rgba(255,255,255,0.02) 60px,rgba(255,255,255,0.02) 61px);pointer-events:none}
 .lock::after{content:'';position:absolute;top:-80px;left:50%;transform:translateX(-50%);width:320px;height:320px;border-radius:50%;background:radial-gradient(circle,rgba(100,181,246,0.25) 0%,transparent 70%);pointer-events:none}
 .lock-illust{width:100%;padding:52px 0 16px;text-align:center;position:relative;z-index:1}
@@ -454,60 +455,53 @@ body { font-family:'Pretendard',sans-serif !important; }
 <div class="lock" id="lockScreen">
   <canvas id="confettiCanvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0"></canvas>
 
-  <!-- 10억 메달 -->
-  <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;margin-bottom:6px">
-    <svg width="120" height="140" viewBox="0 0 120 140">
-      <!-- 리본 왼쪽 -->
-      <polygon points="60,10 30,0 38,52" fill="#1565c0" opacity="0.9"/>
-      <!-- 리본 오른쪽 -->
-      <polygon points="60,10 90,0 82,52" fill="#1976d2" opacity="0.9"/>
-      <!-- 리본 접힌 부분 -->
-      <polygon points="38,52 60,42 82,52 60,58" fill="#1e88e5"/>
-      <!-- 메달 테두리 (그림자) -->
-      <circle cx="60" cy="95" r="42" fill="#e65100" opacity="0.3"/>
-      <!-- 메달 본체 그라데이션 -->
-      <defs>
-        <radialGradient id="medalGrad" cx="40%" cy="35%">
-          <stop offset="0%" stop-color="#FFE082"/>
-          <stop offset="40%" stop-color="#FFB300"/>
-          <stop offset="100%" stop-color="#E65100"/>
-        </radialGradient>
-        <radialGradient id="medalShine" cx="35%" cy="30%">
-          <stop offset="0%" stop-color="rgba(255,255,255,0.6)"/>
-          <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
-        </radialGradient>
-      </defs>
-      <circle cx="60" cy="93" r="40" fill="url(#medalGrad)"/>
-      <!-- 메달 테두리 링 -->
-      <circle cx="60" cy="93" r="40" fill="none" stroke="#FF8F00" stroke-width="3"/>
-      <circle cx="60" cy="93" r="35" fill="none" stroke="#FFE082" stroke-width="1.5" opacity="0.7"/>
-      <!-- 광택 -->
-      <circle cx="60" cy="93" r="40" fill="url(#medalShine)"/>
-      <!-- 10억 텍스트 -->
-      <text x="60" y="100" text-anchor="middle" font-size="26" font-weight="900" fill="#7f3300" font-family="'Noto Sans KR',sans-serif" letter-spacing="-1">10억</text>
-      <!-- 연결고리 -->
-      <rect x="53" y="50" width="14" height="10" rx="3" fill="#FFB300" stroke="#FF8F00" stroke-width="1"/>
-    </svg>
+  <!-- 상단 콘텐츠 -->
+  <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;flex:1">
+
+    <!-- 10억 메달 -->
+    <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:10px">
+      <svg width="120" height="140" viewBox="0 0 120 140">
+        <polygon points="60,10 30,0 38,52" fill="#1565c0" opacity="0.9"/>
+        <polygon points="60,10 90,0 82,52" fill="#1976d2" opacity="0.9"/>
+        <polygon points="38,52 60,42 82,52 60,58" fill="#1e88e5"/>
+        <circle cx="60" cy="95" r="42" fill="#e65100" opacity="0.3"/>
+        <defs>
+          <radialGradient id="medalGrad" cx="40%" cy="35%">
+            <stop offset="0%" stop-color="#FFE082"/>
+            <stop offset="40%" stop-color="#FFB300"/>
+            <stop offset="100%" stop-color="#E65100"/>
+          </radialGradient>
+          <radialGradient id="medalShine" cx="35%" cy="30%">
+            <stop offset="0%" stop-color="rgba(255,255,255,0.6)"/>
+            <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+          </radialGradient>
+        </defs>
+        <circle cx="60" cy="93" r="40" fill="url(#medalGrad)"/>
+        <circle cx="60" cy="93" r="40" fill="none" stroke="#FF8F00" stroke-width="3"/>
+        <circle cx="60" cy="93" r="35" fill="none" stroke="#FFE082" stroke-width="1.5" opacity="0.7"/>
+        <circle cx="60" cy="93" r="40" fill="url(#medalShine)"/>
+        <text x="60" y="100" text-anchor="middle" font-size="26" font-weight="900" fill="#7f3300" font-family="'Noto Sans KR',sans-serif" letter-spacing="-1">10억</text>
+        <rect x="53" y="50" width="14" height="10" rx="3" fill="#FFB300" stroke="#FF8F00" stroke-width="1"/>
+      </svg>
+    </div>
+
+    <!-- 축하합니다 - 감자꽃체 -->
+    <div style="font-family:'Gamja Flower',cursive;font-size:32px;color:#FFE082;letter-spacing:3px;margin-bottom:10px;text-shadow:0 2px 16px rgba(0,0,0,0.35)">✨ 축하합니다! ✨</div>
+
+    <!-- 자기암시 -->
+    <div class="lock-title">순태씨의 5년 안에 10억!</div>
   </div>
 
-  <!-- 축하합니다 -->
-  <div style="position:relative;z-index:1;font-size:22px;font-weight:900;color:#FFE082;letter-spacing:2px;margin-bottom:8px;text-shadow:0 2px 12px rgba(0,0,0,0.4)">🎊 축하합니다! 🎊</div>
+  <!-- 여유공간 -->
+  <div style="flex:1"></div>
 
-  <!-- 자기암시 타이틀 -->
-  <div class="lock-title">순태씨의 5년 안에 10억!</div>
-  <div class="lock-sub">개인 금융 정보 보호를 위해<br>지정한 비밀번호를 입력해주세요</div>
-
-  <div class="lock-form">
-    <input class="lock-input" type="password" id="lockInput" placeholder="비밀번호 입력" maxlength="20">
-    <button class="lock-btn" id="lockBtn"><span>🔓</span><span>확인</span></button>
-    <div class="lock-err" id="lockErr"></div>
-  </div>
-  <div class="lock-footer">
-    <div class="lock-footer-text">안전한 거래를 위해 본인인증을 완료해주세요.</div>
-    <div class="lock-badges">
-      <div class="lock-badge-item">🛡 K-ISA</div>
-      <div class="lock-badge-item">📋 FSS</div>
-      <div class="lock-badge-item">✅ ISO 27001</div>
+  <!-- 하단 폼 -->
+  <div style="position:relative;z-index:1;width:100%">
+    <div class="lock-sub" style="margin-bottom:16px">개인 금융 정보 보호를 위해<br>지정한 비밀번호를 입력해주세요</div>
+    <div class="lock-form">
+      <input class="lock-input" type="password" id="lockInput" placeholder="비밀번호 입력" maxlength="20" style="font-size:18px">
+      <button class="lock-btn" id="lockBtn" style="background:rgba(255,248,180,0.35);border:1.5px solid rgba(255,236,100,0.5)"><span>🔓</span><span>확인</span></button>
+      <div class="lock-err" id="lockErr"></div>
     </div>
   </div>
 </div>
