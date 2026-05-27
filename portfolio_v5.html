@@ -1996,7 +1996,7 @@ function rkUpdateUI(hy, rate, vix, fxScore, dxy, spread, fg) {
       dxbg=document.getElementById("rkDxyBadge"), dxd=document.getElementById("rkDxyDetail");
   if(dxv) dxv.textContent=dxy?dxy.toFixed(2):"—";
   if(dxb){dxb.style.width=dxy?Math.min((dxy-90)/30*100,100)+"%":"0%"; dxb.style.background=rkBarGrad(dxyScore);}
-  if(dxbg&&dxy){dxbg.textContent=dxyLv.label.replace(/^\S+\s*/,"").replace(/\s/g,""); dxbg.style.cssText=rkBadge(dxyLv);}
+  if(dxbg&&dxy){dxbg.textContent=dxy<100?"안전":dxy<104?"주의":dxy<108?"경계":"위험"; dxbg.style.cssText=rkBadge(dxyLv);}
   if(dxd&&dxy) dxd.textContent="DXY "+dxy.toFixed(2)+" · "+(dxy<100?"달러 약세 — 위험자산 우호적":dxy<104?"중립 구간":dxy<108?"달러 강세 — 신흥국 자금 이탈 주의":"달러 급강세 — 글로벌 위험 신호");
   // 장단기 금리차
   var spScore = !spread&&spread!==0?10:spread>1?5:spread>0?15:spread>-0.5?40:spread>-1?65:85;
@@ -2008,7 +2008,7 @@ function rkUpdateUI(hy, rate, vix, fxScore, dxy, spread, fg) {
       spbg=document.getElementById("rkSpreadBadge"), spd=document.getElementById("rkSpreadDetail");
   if(spv) spv.textContent=(spread!==null&&spread!==undefined)?spread.toFixed(2):"—";
   if(spb&&spread!==null){var spw=Math.min(Math.abs(spread)/2*100,100); spb.style.width=spw+"%"; spb.style.background=rkBarGrad(spScore);}
-  if(spbg&&spread!==null){spbg.textContent=spLv.label.replace(/^\S+\s*/,"").replace(/\s/g,""); spbg.style.cssText=rkBadge(spLv);}
+  if(spbg&&spread!==null){spbg.textContent=spread>0.5?"정상":spread>0?"주의":spread>-0.5?"경고":"위험"; spbg.style.cssText=rkBadge(spLv);}
   if(spd&&spread!==null) spd.textContent=(spread>0.5?"정상 — 경기 우호적":spread>0?"⚠️ 역전 해소 직후 — 침체 시작 가능 구간":spread>-0.5?"주의 — 역전 진행 중":"경고 — 강한 역전, 침체 선행신호")+(spWarning?" 🚨 역전 해소 직후 가장 위험한 구간!":"");
   // 공포탐욕지수 — 독자적 배지/색상
   var fgScore = !fg?50:fg<15?90:fg<25?75:fg<45?50:fg<55?20:fg<75?35:90;
@@ -2053,7 +2053,7 @@ function rkUpdateUI(hy, rate, vix, fxScore, dxy, spread, fg) {
       hbg=document.getElementById("rkHyBadge"), hd=document.getElementById("rkHyDetail");
   if(hv) hv.textContent=hy.toFixed(0);
   if(hb){hb.style.width=Math.min(hy/12,100)+"%"; hb.style.background=rkBarGrad(hyScore);}
-  if(hbg){hbg.textContent=hyLv.label.replace(/^\S+\s*/,"").replace(/\s/g,""); hbg.style.cssText=rkBadge(hyLv);}
+  if(hbg){hbg.textContent=hy<400?"안전":hy<600?"경계":"위험"; hbg.style.cssText=rkBadge(hyLv);}
   if(hd) hd.textContent=hy<400?"정상 범위 — 신용시장 안정":hy<600?"경계 수준 — 신용 스트레스 증가":"위험 수준 — 신용시장 경색";
 
   // 금리
@@ -2073,7 +2073,7 @@ function rkUpdateUI(hy, rate, vix, fxScore, dxy, spread, fg) {
       vbg=document.getElementById("rkVixBadge"), vd=document.getElementById("rkVixDetail");
   if(vv) vv.textContent=vix.toFixed(1);
   if(vb){vb.style.width=Math.min(vix/50*100,100)+"%"; vb.style.background=rkBarGrad(vScore);}
-  if(vbg){vbg.textContent=vLv.label.replace(/^\S+\s*/,"").replace(/\s/g,""); vbg.style.cssText=rkBadge(vLv);}
+  if(vbg){vbg.textContent=vix<20?"안전":vix<30?"경계":"위험"; vbg.style.cssText=rkBadge(vLv);}
   if(vd) vd.textContent=vix<20?"공포 낮음 — 시장 안정":vix<30?"불안감 확대 — 변동성 주의":"공포 구간 — 패닉 매도 가능";
 
   // 환율 52주 이평 대비 위험도
@@ -2093,7 +2093,7 @@ function rkUpdateUI(hy, rate, vix, fxScore, dxy, spread, fg) {
       fxbg=document.getElementById("rkFxBadge"), fxd=document.getElementById("rkFxDetail");
   if(fxv) fxv.textContent=fxNow.toLocaleString();
   if(fxb){fxb.style.width=Math.min(fxAbs/12*100,100)+"%"; fxb.style.background=rkBarGrad(fxScore);}
-  if(fxbg){fxbg.textContent=fxLv.label.replace(/^\S+\s*/,"").replace(/\s/g,""); fxbg.style.cssText=rkBadge(fxLv);}
+  if(fxbg){fxbg.textContent=fxAbs<2?"안전":fxAbs<4?"주의":fxAbs<7?"경계":"위험"; fxbg.style.cssText=rkBadge(fxLv);}
   if(fxd) fxd.textContent="52주 평균 "+fx52avg.toLocaleString()+"원 대비 "+(fxDiff>=0?"+":"")+fxDiff.toFixed(1)+"% · "+(fxAbs<2?"완만 — 인플레이션 수준":fxAbs<4?"주의 구간":fxAbs<7?"급변 경고 — 점검 필요":"위험 — 자산 재배분 고려");
   var fxCnt=document.getElementById("fxDataCount");
   if(fxCnt) fxCnt.textContent=fxHist.length<7?"📊 데이터 누적 중 ("+fxHist.length+"일째 · 7일 이상이면 신뢰도 상승)":"📊 "+fxHist.length+"일 데이터 기반";
