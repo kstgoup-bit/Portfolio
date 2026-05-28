@@ -560,7 +560,7 @@ body { font-family:'Pretendard',sans-serif !important; }
       <div class="mkt-item" id="mkt-GSPC"><span class="mkt-name">S&amp;P500</span><span class="mkt-val">-</span></div>
     </div>
   </div>
-  <div id="v5Brief" class="v5-brief" style="display:none;margin-bottom:12px"></div>
+  <div id="v5Brief" style="display:none"></div>
   <div class="card card-blue">
     <div class="total-label">💰 전체 총 평가금액</div>
     <div class="total-val" id="allTotal">-</div>
@@ -1707,31 +1707,34 @@ function updateBrief() {
 // 📊 실시간 시장 지수
 // ═══════════════════════════════
 function fetchMarketIndices(){
-  var syms=["^KS11","^KQ11","^IXIC","^GSPC"];
-  var names={"KS11":"코스피","KQ11":"코스닥","IXIC":"나스닥","GSPC":"S&P500"};
-  var url="https://query1.finance.yahoo.com/v7/finance/quote?symbols="+encodeURIComponent(syms.join(","));
-  fetch("https://corsproxy.io/?"+encodeURIComponent(url))
-    .then(function(r){return r.json();})
-    .then(function(data){
-      var results=(data.quoteResponse&&data.quoteResponse.result)||[];
-      results.forEach(function(q){
-        var id=q.symbol.replace("^","");
-        var el=document.getElementById("mkt-"+id);
-        if(!el) return;
-        var price=q.regularMarketPrice||0;
-        var chg=q.regularMarketChangePercent||0;
+  var indices=[
+    {sym:"%5EKS11",id:"KS11",name:"코스피"},
+    {sym:"%5EKQ11",id:"KQ11",name:"코스닥"},
+    {sym:"%5EIXIC",id:"IXIC",name:"나스닥"},
+    {sym:"%5EGSPC",id:"GSPC",name:"S&P500"}
+  ];
+  indices.forEach(function(idx){
+    var url="https://query2.finance.yahoo.com/v8/finance/chart/"+idx.sym+"?interval=1d&range=1d";
+    fetch("https://corsproxy.io/?"+encodeURIComponent(url))
+      .then(function(r){return r.json();})
+      .then(function(data){
+        var meta=data.chart&&data.chart.result&&data.chart.result[0]&&data.chart.result[0].meta;
+        if(!meta) return;
+        var price=meta.regularMarketPrice||0;
+        var prev=meta.chartPreviousClose||price;
+        var chg=prev?((price-prev)/prev*100):0;
         var up=chg>=0;
         var arrow=up?"▲":"▼";
         var cls=up?"mkt-up":"mkt-dn";
         var priceStr=price>=1000?Math.round(price).toLocaleString():price.toFixed(2);
-        el.innerHTML='<span class="mkt-name">'+(names[id]||id)+'</span>'
+        var el=document.getElementById("mkt-"+idx.id);
+        if(el) el.innerHTML='<span class="mkt-name">'+idx.name+'</span>'
           +'<span class="mkt-val"><b>'+priceStr+'</b>&nbsp;<span class="'+cls+'">'+arrow+Math.abs(chg).toFixed(2)+'%</span></span>';
-      });
-      var now=new Date();
-      var t=document.getElementById("mktTime");
-      if(t) t.textContent=now.getHours()+":"+String(now.getMinutes()).padStart(2,"0")+" 갱신";
-    })
-    .catch(function(){});
+      })
+      .catch(function(){});
+  });
+  var t=document.getElementById("mktTime");
+  if(t){var n=new Date(); t.textContent=n.getHours()+":"+String(n.getMinutes()).padStart(2,"0")+" 갱신";}
 }
 
 function renderAll() {
