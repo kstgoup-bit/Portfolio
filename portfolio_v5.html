@@ -2807,10 +2807,13 @@ function loadPortfolioNews(){
   list.innerHTML='';
 
   var headlines=[];
+  var done=0;
+  var total=tickers.length;
 
-  // 순차 처리 (corsproxy 동시 요청 제한 방지)
-  function fetchNext(idx){
-    if(idx>=tickers.length){
+  function oneDone(){
+    done++;
+    status.textContent="뉴스 수집 중... ("+done+"/"+total+")";
+    if(done>=total){
       if(!headlines.length){
         btn.disabled=false; btn.textContent="🔄 새로고침";
         status.textContent="";
@@ -2818,12 +2821,12 @@ function loadPortfolioNews(){
         return;
       }
       translateAndRender(headlines, btn, status, list, key);
-      return;
     }
-    var ticker=tickers[idx];
+  }
+
+  tickers.forEach(function(ticker){
     var q=encodeURIComponent(ticker+" stock");
     var url="https://news.google.com/rss/search?q="+q+"&hl=en-US&gl=US&ceid=US:en";
-    status.textContent="뉴스 수집 중... ("+( idx+1)+"/"+tickers.length+")";
     fetch("https://corsproxy.io/?"+encodeURIComponent(url))
       .then(function(r){return r.text();})
       .then(function(text){
@@ -2845,13 +2848,11 @@ function loadPortfolioNews(){
             count++;
           }
         });
-        fetchNext(idx+1);
+        oneDone();
       })
-      .catch(function(){ fetchNext(idx+1); });
-  }
-  fetchNext(0);
+      .catch(function(){ oneDone(); });
+  });
 }
-
 
 function translateAndRender(headlines, btn, status, list, key){
   status.textContent="한국어 번역 중...";
