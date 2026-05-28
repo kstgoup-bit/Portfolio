@@ -1035,7 +1035,7 @@ body { font-family:'Pretendard',sans-serif !important; }
 <div class="panel" id="panel-news">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
     <div style="font-size:16px;font-weight:900;color:var(--text)">📰 보유종목 뉴스</div>
-    <button onclick="loadPortfolioNews()" id="newsRefreshBtn" style="background:var(--accent);color:#fff;border:none;border-radius:10px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif;box-shadow:0 2px 8px rgba(0,0,0,0.15)">🔄 새로고침</button>
+    <button onclick="loadPortfolioNews()" id="newsRefreshBtn" style="background:var(--accent);color:#1a1a2e;border:none;border-radius:10px;padding:8px 16px;font-size:13px;font-weight:800;cursor:pointer;font-family:'Noto Sans KR',sans-serif;box-shadow:0 2px 8px rgba(0,0,0,0.15)">🔄 새로고침</button>
   </div>
   <div id="newsStatus" style="font-size:11px;color:var(--muted);margin-bottom:8px;text-align:center"></div>
   <div id="newsList">
@@ -2856,27 +2856,43 @@ function loadPortfolioNews(){
 function translateAndRender(headlines, btn, status, list, key){
   status.textContent="한국어 번역 중...";
   var titlesText=headlines.map(function(h,i){return(i+1)+". "+h.title;}).join("\n");
-  var models=[{m:"gemini-2.5-flash-lite",v:"v1beta"},{m:"gemini-2.5-flash",v:"v1beta"}];
-  var tried=0;
+  var prompt="다음 영어 주식 뉴스 헤드라인을 자연스러운 한국어로 번역해줘.\n번호와 번역문만 출력하고 다른 말은 하지 마:\n"+titlesText;
+  var models=[
+    {model:"gemini-2.5-flash-lite",ver:"v1beta"},
+    {model:"gemini-2.5-flash",ver:"v1beta"}
+  ];
 
   function tryModel(idx){
     if(idx>=models.length){
       renderNews(headlines, headlines.map(function(h){return h.title;}), btn, status, list);
       return;
     }
-    var url="https://generativelanguage.googleapis.com/"+models[idx].v+"/models/"+models[idx].m+":generateContent?key="+key;
-    fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({contents:[{parts:[{text:"다음 영어 주식 뉴스 헤드라인을 자연스러운 한국어로 번역해줘.\n각 줄 번호와 번역문만 출력:\n"+titlesText}]}]})})
+    var url="https://generativelanguage.googleapis.com/"+models[idx].ver+"/models/"+models[idx].model+":generateContent?key="+key;
+    fetch(url,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        contents:[{parts:[{text:prompt}]}],
+        generationConfig:{maxOutputTokens:1000,temperature:0.3}
+      })
+    })
       .then(function(r){return r.json();})
       .then(function(data){
+        if(!data.candidates||!data.candidates[0]){
+          console.log("번역 오류:",JSON.stringify(data).substring(0,200));
+          tryModel(idx+1); return;
+        }
         var raw=data.candidates[0].content.parts[0].text;
-        var lines=raw.trim().split("\n").map(function(l){return l.replace(/^\d+\.\s*/,"").trim();}).filter(function(l){return l.length>0;});
-        if(lines.length>=headlines.length*0.5){
+        var lines=raw.trim().split("\n")
+          .map(function(l){return l.replace(/^\d+\.\s*/,"").replace(/^\*+|\*+$/g,"").trim();})
+          .filter(function(l){return l.length>2;});
+        if(lines.length>=Math.ceil(headlines.length*0.5)){
           renderNews(headlines, lines, btn, status, list);
         } else {
           tryModel(idx+1);
         }
       })
-      .catch(function(){ tryModel(idx+1); });
+      .catch(function(e){ console.log("번역 fetch 오류:",e); tryModel(idx+1); });
   }
   tryModel(0);
 }
