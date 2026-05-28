@@ -542,7 +542,16 @@ body { font-family:'Pretendard',sans-serif !important; }
 
 <!-- 현황 -->
 <div class="panel active" id="panel-dashboard">
-  <div id="v5Brief" class="v5-brief" style="display:none;margin-bottom:12px"></div>
+  <div id="v5Brief" class="v5-brief" style="display:none;margin-bottom:12px;flex-direction:column;gap:0"></div>
+  <!-- 뉴스 섹션 (노랑카드 하단) -->
+  <div id="v5NewsWrap" style="display:none;margin-top:-8px;margin-bottom:12px;background:#fffde7;border:1.5px solid #ffe082;border-top:none;border-radius:0 0 14px 14px;padding:10px 14px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <span style="font-size:12px;font-weight:800;color:#5d4037">📰 보유종목 뉴스</span>
+      <button onclick="loadPortfolioNews()" id="newsRefreshBtn" style="background:#f9a825;color:#fff;border:none;border-radius:7px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif">새로고침</button>
+    </div>
+    <div id="newsStatus" style="font-size:10px;color:#a57c00;margin-bottom:4px"></div>
+    <div id="newsList" style="font-size:12px;color:#5d4037">탭하여 뉴스를 불러오세요</div>
+  </div>
   <div class="card card-blue">
     <div class="total-label">💰 전체 총 평가금액</div>
     <div class="total-val" id="allTotal">-</div>
@@ -559,15 +568,6 @@ body { font-family:'Pretendard',sans-serif !important; }
       <span style="font-size:10px;color:var(--muted)">원</span>
     </div>
     <div class="fx-time" id="fxTime"></div>
-  </div>
-  <!-- 보유종목 뉴스 -->
-  <div class="card" style="padding:14px">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-      <div style="font-size:14px;font-weight:800;color:var(--text)">📰 보유종목 뉴스</div>
-      <button onclick="loadPortfolioNews()" id="newsRefreshBtn" style="background:var(--accent);color:#fff;border:none;border-radius:8px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif">새로고침</button>
-    </div>
-    <div id="newsStatus" style="font-size:11px;color:var(--muted);margin-bottom:6px"></div>
-    <div id="newsList"><div style="text-align:center;font-size:12px;color:var(--muted);padding:12px 0">새로고침을 눌러 뉴스를 불러오세요</div></div>
   </div>
 
 
@@ -1662,7 +1662,12 @@ function updateBrief() {
     var m=msgs.find(function(x){return x.cls==="warn";})||msgs[0];
     el.className="v5-brief"+(m.cls?" "+m.cls:"");
     el.style.display="flex";
+    el.style.borderRadius="14px 14px 0 0";
+    el.style.borderBottom="none";
+    el.style.marginBottom="0";
     el.innerHTML='<div class="v5-brief-icon">'+m.icon+'</div><div class="v5-brief-text">'+m.txt+'<span class="v5-brief-badge">'+m.badge+'</span></div>';
+    var nw=document.getElementById("v5NewsWrap");
+    if(nw) nw.style.display="block";
 
     // 종합 진단 카드 업데이트
     var dg=document.getElementById("rkDiagnosis");
