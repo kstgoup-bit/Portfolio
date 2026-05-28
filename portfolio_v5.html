@@ -2867,17 +2867,21 @@ function loadPortfolioNews(){
 
 function translateAndRender(headlines, btn, status, list, key){
   status.textContent="한국어 번역 중...";
-  // 모든 제목을 줄바꿈으로 합쳐서 한 번에 번역
   var titles=headlines.map(function(h){return h.title;});
-  var combined=titles.join("\n");
-  var url="https://api.mymemory.translated.net/get?q="+encodeURIComponent(combined.substring(0,500))+"&langpair=en|ko";
+  // callGemini로 번역 - ||| 구분자 사용 (줄바꿈 파싱 오류 방지)
+  var prompt="다음 영어 뉴스 제목을 한국어로 번역해. 각 번역은 |||로 구분해서 번역문만 출력:\n"+titles.join(" ||| ");
 
-  fetch(url)
-    .then(function(r){return r.json();})
-    .then(function(data){
-      var raw=data.responseData&&data.responseData.translatedText||"";
-      var lines=raw.split("\n").map(function(l){return l.trim();});
-      var translated=titles.map(function(t,i){return lines[i]&&lines[i].indexOf("MYMEMORY WARNING")<0?lines[i]:t;});
+  callGemini(prompt)
+    .then(function(result){
+      // ||| 로 분리
+      var parts=result.split("|||").map(function(s){
+        return s.replace(/^\d+\.\s*/,"").replace(/^\*+|\*+$/g,"").trim();
+      }).filter(function(s){return s.length>1;});
+
+      var translated=titles.map(function(t,i){
+        var p=parts[i]&&parts[i].length>1&&!parts[i].startsWith("❌")&&!parts[i].startsWith("⚠️");
+        return p?parts[i]:t;
+      });
       renderNews(headlines, translated, btn, status, list);
     })
     .catch(function(){
