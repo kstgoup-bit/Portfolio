@@ -2806,6 +2806,7 @@ function loadPortfolioNews(){
   status.textContent="뉴스 수집 중...";
   list.innerHTML='';
 
+  list.innerHTML='<div style="font-size:12px;color:#888;padding:8px">종목: '+tickers.join(", ")+'</div>';
   status.textContent="종목 "+tickers.length+"개 수집 중...";
   var headlines=[];
   var done=0;
