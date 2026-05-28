@@ -2807,22 +2807,23 @@ function loadPortfolioNews(){
   list.innerHTML='';
 
   var headlines=[];
-  var done=0;
 
-  function onAllDone(){
-    if(done<tickers.length) return;
-    if(!headlines.length){
-      btn.disabled=false; btn.textContent="🔄 새로고침";
-      status.textContent="";
-      list.innerHTML='<div style="text-align:center;padding:30px 0;color:var(--muted);font-size:13px">뉴스를 가져오지 못했어요<br>잠시 후 다시 시도해주세요</div>';
+  // 순차 처리 (corsproxy 동시 요청 제한 방지)
+  function fetchNext(idx){
+    if(idx>=tickers.length){
+      if(!headlines.length){
+        btn.disabled=false; btn.textContent="🔄 새로고침";
+        status.textContent="";
+        list.innerHTML='<div style="text-align:center;padding:30px 0;color:var(--muted);font-size:13px">뉴스를 가져오지 못했어요<br>잠시 후 다시 시도해주세요</div>';
+        return;
+      }
+      translateAndRender(headlines, btn, status, list, key);
       return;
     }
-    translateAndRender(headlines, btn, status, list, key);
-  }
-
-  tickers.forEach(function(ticker, i){
+    var ticker=tickers[idx];
     var q=encodeURIComponent(ticker+" stock");
     var url="https://news.google.com/rss/search?q="+q+"&hl=en-US&gl=US&ceid=US:en";
+    status.textContent="뉴스 수집 중... ("+( idx+1)+"/"+tickers.length+")";
     fetch("https://corsproxy.io/?"+encodeURIComponent(url))
       .then(function(r){return r.text();})
       .then(function(text){
@@ -2835,33 +2836,20 @@ function loadPortfolioNews(){
           var titleEl=item.getElementsByTagName("title")[0];
           var linkEl=item.getElementsByTagName("link")[0];
           var dateEl=item.getElementsByTagName("pubDate")[0];
-          var descEl=item.getElementsByTagName("description")[0];
           var title=(titleEl&&titleEl.textContent)||"";
           var link=(linkEl&&linkEl.textContent)||"";
           var pubDate=(dateEl&&dateEl.textContent)||"";
-          var desc=(descEl&&descEl.textContent)||"";
-          // HTML 태그·출처명·제목 반복 제거
-          desc=desc.replace(/<[^>]+>/g," ").replace(/&[a-z]+;/g,"").replace(/\s+/g," ").trim();
-          // 제목이 반복되는 경우 제거
-          var shortTitle=title.replace(/\s*-\s*[^-]+$/,"").trim().substring(0,30);
-          if(desc.indexOf(shortTitle)===0) desc=desc.substring(shortTitle.length).replace(/^\s*[-·|]\s*/,"").trim();
-          desc=desc.substring(0,150);
           title=title.replace(/\s*-\s*[^-]+$/,"").trim();
           if(title.length>5){
-            headlines.push({ticker:ticker,title:title,link:link,date:pubDate,desc:desc});
+            headlines.push({ticker:ticker,title:title,link:link,date:pubDate});
             count++;
           }
         });
-        done++;
-        status.textContent="뉴스 수집 중... ("+done+"/"+tickers.length+")";
-        onAllDone();
+        fetchNext(idx+1);
       })
-      .catch(function(){
-        done++;
-        status.textContent="뉴스 수집 중... ("+done+"/"+tickers.length+")";
-        onAllDone();
-      });
-  });
+      .catch(function(){ fetchNext(idx+1); });
+  }
+  fetchNext(0);
 }
 
 
