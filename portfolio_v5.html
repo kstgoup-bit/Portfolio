@@ -2855,19 +2855,32 @@ function loadPortfolioNews(){
 
 function translateAndRender(headlines, btn, status, list, key){
   status.textContent="한국어 번역 중...";
-  var titlesText=headlines.map(function(h,i){return(i+1)+". "+h.title;}).join("\n");
-  var prompt="다음 영어 주식 뉴스 헤드라인을 자연스러운 한국어로 번역해줘. 번호와 번역문만 출력:\n"+titlesText;
+  // 구글 번역 무료 API (키 불필요)
+  var titles=headlines.map(function(h){return h.title;});
+  var combined=titles.join(" ||| ");
+  var url="https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ko&dt=t&q="+encodeURIComponent(combined);
 
-  callGemini(prompt)
-    .then(function(raw){
-      var lines=raw.trim().split("\n")
-        .map(function(l){return l.replace(/^\d+\.\s*/,"").replace(/^\*+|\*+$/g,"").trim();})
-        .filter(function(l){return l.length>2&&!l.startsWith("❌")&&!l.startsWith("⚠️");});
-      var translated=(lines.length>=Math.ceil(headlines.length*0.5))?lines:headlines.map(function(h){return h.title;});
-      renderNews(headlines, translated, btn, status, list);
+  fetch(url)
+    .then(function(r){return r.json();})
+    .then(function(data){
+      // data[0] = [[번역문, 원문, ...], ...]
+      var raw=data[0].map(function(seg){return seg[0]||"";}).join("");
+      var parts=raw.split("|||").map(function(s){return s.trim();});
+      renderNews(headlines, parts.length>=Math.ceil(titles.length*0.5)?parts:titles, btn, status, list);
     })
     .catch(function(){
-      renderNews(headlines, headlines.map(function(h){return h.title;}), btn, status, list);
+      // 직접 실패 시 corsproxy 경유
+      var proxy="https://corsproxy.io/?"+encodeURIComponent(url);
+      fetch(proxy)
+        .then(function(r){return r.json();})
+        .then(function(data){
+          var raw=data[0].map(function(seg){return seg[0]||"";}).join("");
+          var parts=raw.split("|||").map(function(s){return s.trim();});
+          renderNews(headlines, parts.length>=Math.ceil(titles.length*0.5)?parts:titles, btn, status, list);
+        })
+        .catch(function(){
+          renderNews(headlines, titles, btn, status, list);
+        });
     });
 }
 
