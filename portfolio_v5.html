@@ -2856,63 +2856,42 @@ function loadPortfolioNews(){
   });
 }
 
-function translateAndRender(headlines, btn, status, list, key){
-  status.textContent="한국어 번역 중...";
-  var total=headlines.length;
-  var done=0;
-  var translated=headlines.map(function(h){return h.title;});
-
-  function onOneDone(){
-    done++;
-    if(done>=total) renderNews(headlines, translated, btn, status, list);
-  }
-
-  headlines.forEach(function(h, i){
-    var q=encodeURIComponent(h.title.substring(0,200));
-    var url="https://api.mymemory.translated.net/get?q="+q+"&langpair=en|ko";
-    fetch(url)
-      .then(function(r){return r.json();})
-      .then(function(data){
-        if(data.responseData&&data.responseData.translatedText&&
-           data.responseData.translatedText.indexOf("MYMEMORY WARNING")<0){
-          translated[i]=data.responseData.translatedText;
-        }
-        onOneDone();
-      })
-      .catch(function(){onOneDone();});
-  });
-}
 
 function translateAndRender(headlines, btn, status, list, key){
   status.textContent="한국어 번역 중...";
-  var total=headlines.length;
+  var total=headlines.length*2; // 제목+요약 각각
   var done=0;
-  var translated=headlines.map(function(h){return {title:h.title,desc:h.desc||""};});
+  var translated=headlines.map(function(h){return {title:h.title,desc:""};});
 
   function onOneDone(){
     done++;
-    if(done>=total) renderNews(headlines, translated, btn, status, list);
+    if(done>=total) renderNews(headlines,translated,btn,status,list);
   }
 
-  headlines.forEach(function(h, i){
-    // 제목 + 요약 같이 번역
-    var combined=h.title+(h.desc?" ||| "+h.desc:"");
-    var q=encodeURIComponent(combined.substring(0,400));
-    var url="https://api.mymemory.translated.net/get?q="+q+"&langpair=en|ko";
+  function doTranslate(text, callback){
+    if(!text||text.length<3){callback(""); return;}
+    var url="https://api.mymemory.translated.net/get?q="+encodeURIComponent(text.substring(0,250))+"&langpair=en|ko";
     fetch(url)
       .then(function(r){return r.json();})
       .then(function(data){
-        if(data.responseData&&data.responseData.translatedText&&
-           data.responseData.translatedText.indexOf("MYMEMORY WARNING")<0){
-          var parts=data.responseData.translatedText.split("|||");
-          translated[i]={
-            title:parts[0]?parts[0].trim():h.title,
-            desc:parts[1]?parts[1].trim():""
-          };
-        }
-        onOneDone();
+        var t=data.responseData&&data.responseData.translatedText;
+        callback(t&&t.indexOf("MYMEMORY WARNING")<0?t:"");
       })
-      .catch(function(){onOneDone();});
+      .catch(function(){callback("");});
+  }
+
+  headlines.forEach(function(h,i){
+    // 제목 번역
+    doTranslate(h.title,function(t){
+      if(t) translated[i].title=t;
+      onOneDone();
+    });
+    // 요약 번역
+    var cleanDesc=(h.desc||"").replace(/[A-Z][a-z]+ [A-Z][a-z]+$/,"").trim(); // 출처명 제거
+    doTranslate(cleanDesc,function(t){
+      translated[i].desc=t||"";
+      onOneDone();
+    });
   });
 }
 
