@@ -2806,20 +2806,23 @@ function loadPortfolioNews(){
   status.textContent="뉴스 수집 중...";
   list.innerHTML='';
 
+  status.textContent="종목 "+tickers.length+"개 수집 중...";
   var headlines=[];
   var done=0;
   var total=tickers.length;
 
   function oneDone(){
     done++;
-    status.textContent="뉴스 수집 중... ("+done+"/"+total+")";
     if(done>=total){
       if(!headlines.length){
         btn.disabled=false; btn.textContent="🔄 새로고침";
         status.textContent="";
-        list.innerHTML='<div style="text-align:center;padding:30px 0;color:var(--muted);font-size:13px">뉴스를 가져오지 못했어요<br>잠시 후 다시 시도해주세요</div>';
+        list.innerHTML='<div style="text-align:center;padding:30px 0;color:var(--muted);font-size:13px">뉴스를 가져오지 못했어요</div>';
         return;
       }
+      // 1단계: 영어로 즉시 표시
+      renderNews(headlines, headlines.map(function(h){return h.title;}), btn, status, list);
+      // 2단계: 백그라운드 번역 후 업데이트
       translateAndRender(headlines, btn, status, list, key);
     }
   }
