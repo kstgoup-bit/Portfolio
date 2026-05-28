@@ -2835,9 +2835,12 @@ function loadPortfolioNews(){
           var title=(item.querySelector("title")||{}).textContent||"";
           var link=(item.querySelector("link")||{}).textContent||"";
           var pubDate=(item.querySelector("pubDate")||{}).textContent||"";
+          var desc=(item.querySelector("description")||{}).textContent||"";
+          // HTML 태그 제거
+          desc=desc.replace(/<[^>]+>/g,"").replace(/&quot;/g,'"').replace(/&amp;/g,"&").replace(/&#39;/g,"'").trim().substring(0,200);
           title=title.replace(/\s*-\s*[^-]+$/,"").trim();
           if(title.length>5){
-            headlines.push({ticker:ticker,title:title,link:link,date:pubDate});
+            headlines.push({ticker:ticker,title:title,link:link,date:pubDate,desc:desc});
             count++;
           }
         });
@@ -2880,12 +2883,47 @@ function translateAndRender(headlines, btn, status, list, key){
   });
 }
 
+function translateAndRender(headlines, btn, status, list, key){
+  status.textContent="한국어 번역 중...";
+  var total=headlines.length;
+  var done=0;
+  var translated=headlines.map(function(h){return {title:h.title,desc:h.desc||""};});
+
+  function onOneDone(){
+    done++;
+    if(done>=total) renderNews(headlines, translated, btn, status, list);
+  }
+
+  headlines.forEach(function(h, i){
+    // 제목 + 요약 같이 번역
+    var combined=h.title+(h.desc?" ||| "+h.desc:"");
+    var q=encodeURIComponent(combined.substring(0,400));
+    var url="https://api.mymemory.translated.net/get?q="+q+"&langpair=en|ko";
+    fetch(url)
+      .then(function(r){return r.json();})
+      .then(function(data){
+        if(data.responseData&&data.responseData.translatedText&&
+           data.responseData.translatedText.indexOf("MYMEMORY WARNING")<0){
+          var parts=data.responseData.translatedText.split("|||");
+          translated[i]={
+            title:parts[0]?parts[0].trim():h.title,
+            desc:parts[1]?parts[1].trim():""
+          };
+        }
+        onOneDone();
+      })
+      .catch(function(){onOneDone();});
+  });
+}
+
 function renderNews(headlines, translated, btn, status, list){
   btn.disabled=false; btn.textContent="🔄 새로고침";
   var now=new Date();
   status.textContent="업데이트: "+now.getHours()+":"+String(now.getMinutes()).padStart(2,"0");
   list.innerHTML=headlines.map(function(h,i){
-    var titleKo=translated[i]||h.title;
+    var tr=translated[i]||{title:h.title,desc:""};
+    var titleKo=tr.title||h.title;
+    var descKo=tr.desc||"";
     var dateStr="";
     if(h.date){
       var diff=Math.round((now-new Date(h.date))/3600000);
@@ -2896,8 +2934,9 @@ function renderNews(headlines, translated, btn, status, list){
         +'<span style="font-size:11px;font-weight:800;background:var(--accent);color:#fff;border-radius:5px;padding:2px 8px">'+h.ticker+'</span>'
         +(dateStr?'<span style="font-size:10px;color:var(--muted)">'+dateStr+'</span>':"")
       +'</div>'
-      +'<div style="font-size:13px;font-weight:600;color:var(--text);line-height:1.5;margin-bottom:6px">'+titleKo+'</div>'
-      +(h.link?'<a href="https://translate.google.com/translate?sl=en&tl=ko&u='+encodeURIComponent(h.link)+'" target="_blank" style="font-size:11px;color:var(--accent);font-weight:600">🇰🇷 한국어로 읽기 →</a>':"")
+      +'<div style="font-size:13px;font-weight:700;color:var(--text);line-height:1.5;margin-bottom:5px">'+titleKo+'</div>'
+      +(descKo?'<div style="font-size:12px;color:#555;line-height:1.5;margin-bottom:6px">'+descKo+'</div>':"")
+      +(h.link?'<a href="'+h.link+'" target="_blank" style="font-size:11px;color:var(--muted);font-weight:500">원문(영어) 보기 →</a>':"")
     +'</div>';
   }).join("");
 }
