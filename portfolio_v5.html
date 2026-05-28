@@ -61,11 +61,12 @@ body{background:var(--sky-bg);color:var(--text);font-family:'Pretendard',sans-se
 .ha-label{font-size:9px;color:#90caf9}
 .ha-val{font-size:17px;font-weight:900;color:#fff;font-family:'JetBrains Mono',monospace !important;}
 .ha-pnl{font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace !important;}
-.mkt-item{background:rgba(255,255,255,0.1);border-radius:10px;padding:10px 12px}
-.mkt-name{font-size:11px;color:rgba(255,255,255,0.7);font-weight:600;margin-bottom:4px}
-.mkt-price{font-size:17px;font-weight:900;color:#fff;letter-spacing:-0.5px}
-.mkt-chg{font-size:11px;font-weight:700;margin-top:2px}
-.mkt-up{color:#69f0ae}.mkt-dn{color:#ff6b6b}
+.mkt-item{background:linear-gradient(180deg,#f5fbff 0%,#c9e4f8 100%);border-radius:10px;padding:10px 12px}
+.mkt-name{font-size:11px;color:#5d7a8a;font-weight:700;margin-bottom:5px}
+.mkt-row{display:flex;align-items:baseline;justify-content:space-between;gap:4px}
+.mkt-price{font-size:17px;font-weight:900;color:#1a237e;letter-spacing:-0.5px}
+.mkt-chg{font-size:12px;font-weight:800}
+.mkt-up{color:#e53935}.mkt-dn{color:#1565c0}
 
 .goal-label{display:flex;justify-content:space-between;margin-bottom:4px}
 .goal-text{font-size:13px;color:#bbdefb}
@@ -549,16 +550,16 @@ body { font-family:'Pretendard',sans-serif !important; }
 <!-- 현황 -->
 <div class="panel active" id="panel-dashboard">
   <!-- 실시간 시장 지수 -->
-  <div style="background:linear-gradient(135deg,#1a237e,#283593);border-radius:16px;padding:14px 16px;margin-bottom:12px">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-      <span style="font-size:13px;font-weight:800;color:#fff">📊 실시간 시장 지수</span>
-      <span id="mktTime" style="font-size:10px;color:rgba(255,255,255,0.6)"></span>
+  <div style="background:linear-gradient(180deg,#fffde7 0%,#fff0a0 100%);border:1.5px solid #ffe082;border-radius:16px;padding:14px 16px;margin-bottom:12px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <span style="font-size:13px;font-weight:800;color:#5d4037">📊 실시간 시장 지수</span>
+      <span id="mktTime" style="font-size:10px;color:#a57c00"></span>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-      <div id="mkt-KS11" class="mkt-item"><div class="mkt-name">코스피</div><div class="mkt-price">-</div><div class="mkt-chg">-</div></div>
-      <div id="mkt-KQ11" class="mkt-item"><div class="mkt-name">코스닥</div><div class="mkt-price">-</div><div class="mkt-chg">-</div></div>
-      <div id="mkt-IXIC" class="mkt-item"><div class="mkt-name">나스닥</div><div class="mkt-price">-</div><div class="mkt-chg">-</div></div>
-      <div id="mkt-GSPC" class="mkt-item"><div class="mkt-name">S&amp;P500</div><div class="mkt-price">-</div><div class="mkt-chg">-</div></div>
+      <div id="mkt-KS11" class="mkt-item"><div class="mkt-name">코스피</div><div class="mkt-row"><span class="mkt-price">-</span><span class="mkt-chg">-</span></div></div>
+      <div id="mkt-KQ11" class="mkt-item"><div class="mkt-name">코스닥</div><div class="mkt-row"><span class="mkt-price">-</span><span class="mkt-chg">-</span></div></div>
+      <div id="mkt-IXIC" class="mkt-item"><div class="mkt-name">나스닥</div><div class="mkt-row"><span class="mkt-price">-</span><span class="mkt-chg">-</span></div></div>
+      <div id="mkt-GSPC" class="mkt-item"><div class="mkt-name">S&amp;P500</div><div class="mkt-row"><span class="mkt-price">-</span><span class="mkt-chg">-</span></div></div>
     </div>
   </div>
   <div id="v5Brief" style="display:none"></div>
