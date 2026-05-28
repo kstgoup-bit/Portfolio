@@ -2813,85 +2813,45 @@ function loadPortfolioNews(){
   status.textContent="뉴스 수집 중...";
   list.innerHTML='';
 
-  status.textContent="뉴스 수집 중...";
   var headlines=[];
+  var done=0;
 
-  // 티커→검색어 매핑 (회사명 포함)
-  var tickerSearch={
-    "QTOP":"QTOP ETF","QQQM":"QQQM Nasdaq",
-    "SPGI":"S&P Global SPGI","MSCI":"MSCI Inc",
-    "MS":"Morgan Stanley","GOOGL":"Alphabet Google GOOGL",
-    "MSFT":"Microsoft MSFT","NVDA":"Nvidia NVDA",
-    "AVGO":"Broadcom AVGO","IONQ":"IonQ quantum",
-    "JOBY":"Joby Aviation","SMR":"NuScale SMR",
-    "ASTS":"AST SpaceMobile","LRCX":"Lam Research LRCX"
-  };
-  // 티커→매칭 키워드
-  var tickerMatch={
-    "QTOP":["QTOP"],"QQQM":["QQQM","Nasdaq 100"],
-    "SPGI":["SPGI","S&P Global"],"MSCI":["MSCI"],
-    "MS":["Morgan Stanley"],"GOOGL":["Google","Alphabet","GOOGL"],
-    "MSFT":["Microsoft","MSFT"],"NVDA":["Nvidia","NVDA"],
-    "AVGO":["Broadcom","AVGO"],"IONQ":["IonQ"],
-    "JOBY":["Joby"],"SMR":["NuScale","SMR"],
-    "ASTS":["AST SpaceMobile","ASTS"],"LRCX":["Lam Research","LRCX"]
-  };
-
-  // 통합 OR 쿼리
-  var qParts=tickers.map(function(t){return tickerSearch[t]||t;});
-  var q=encodeURIComponent(qParts.join(" OR "));
-  var url="https://news.google.com/rss/search?q="+q+"&hl=en-US&gl=US&ceid=US:en";
-
-  fetch("https://corsproxy.io/?"+encodeURIComponent(url))
-    .then(function(r){return r.text();})
-    .then(function(text){
-      var parser=new DOMParser();
-      var doc=parser.parseFromString(text,"text/xml");
-      var items=doc.querySelectorAll("item");
-      var countMap={};
-
-      items.forEach(function(item){
-        var titleEl=item.getElementsByTagName("title")[0];
-        var linkEl=item.getElementsByTagName("link")[0];
-        var dateEl=item.getElementsByTagName("pubDate")[0];
-        var title=(titleEl&&titleEl.textContent)||"";
-        var link=(linkEl&&linkEl.textContent)||"";
-        var pubDate=(dateEl&&dateEl.textContent)||"";
-        title=title.replace(/\s*-\s*[^-]+$/,"").trim();
-        if(title.length<5) return;
-
-        // 어느 종목 기사인지 매칭 (회사명 포함)
-        var matched=null;
-        var titleUp=title.toUpperCase();
-        tickers.forEach(function(t){
-          if(matched) return;
-          var keywords=(tickerMatch[t]||[t]);
-          keywords.forEach(function(kw){
-            if(!matched&&titleUp.indexOf(kw.toUpperCase())>=0) matched=t;
-          });
-        });
-        if(!matched) return;
-        if((countMap[matched]||0)>=2) return;
-        countMap[matched]=(countMap[matched]||0)+1;
-        headlines.push({ticker:matched,title:title,link:link,date:pubDate});
-      });
-
-      if(!headlines.length){
-        btn.disabled=false; btn.textContent="🔄 새로고침";
-        status.textContent="";
-        list.innerHTML='<div style="text-align:center;padding:30px 0;color:var(--muted);font-size:13px">뉴스를 가져오지 못했어요</div>';
-        return;
-      }
-      // 즉시 영어로 표시
-      renderNews(headlines, headlines.map(function(h){return h.title;}), btn, status, list);
-      // 백그라운드 번역
-      translateAndRender(headlines, btn, status, list, key);
-    })
-    .catch(function(){
+  function oneDone(){
+    done++;
+    if(done<tickers.length) return;
+    if(!headlines.length){
       btn.disabled=false; btn.textContent="🔄 새로고침";
       status.textContent="";
       list.innerHTML='<div style="text-align:center;padding:30px 0;color:var(--muted);font-size:13px">뉴스를 가져오지 못했어요</div>';
-    });
+      return;
+    }
+    // 즉시 영어로 표시
+    renderNews(headlines, headlines.map(function(h){return h.title;}), btn, status, list);
+    // 백그라운드 한국어 번역
+    translateAndRender(headlines, btn, status, list, key);
+  }
+
+  tickers.forEach(function(ticker){
+    var url="https://news.google.com/rss/search?q="+encodeURIComponent(ticker+" stock")+"&hl=en-US&gl=US&ceid=US:en";
+    fetch("https://corsproxy.io/?"+encodeURIComponent(url))
+      .then(function(r){return r.text();})
+      .then(function(text){
+        var parser=new DOMParser();
+        var doc=parser.parseFromString(text,"text/xml");
+        var items=doc.querySelectorAll("item");
+        var count=0;
+        items.forEach(function(item){
+          if(count>=2) return;
+          var title=(item.querySelector("title")||{}).textContent||"";
+          var link=(item.querySelector("link")||{}).textContent||"";
+          var date=(item.querySelector("pubDate")||{}).textContent||"";
+          title=title.replace(/\s*-\s*[^-]+$/,"").trim();
+          if(title.length>5){ headlines.push({ticker:ticker,title:title,link:link,date:date}); count++; }
+        });
+        oneDone();
+      })
+      .catch(function(){ oneDone(); });
+  });
 }
 
 function translateAndRender(headlines, btn, status, list, key){
