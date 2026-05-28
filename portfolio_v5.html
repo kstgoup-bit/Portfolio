@@ -2893,7 +2893,8 @@ function renderNews(headlines, translated, btn, status, list){
         +'<span style="font-size:11px;font-weight:800;background:#1565c0;color:#fff;border-radius:5px;padding:2px 8px">'+h.ticker+'</span>'
         +(dateStr?'<span style="font-size:10px;color:#888">'+dateStr+'</span>':"")
       +'</div>'
-      +'<div style="font-size:13px;font-weight:700;color:#1a1a2e;line-height:1.5;margin-bottom:6px">'+titleKo+'</div>'
+      +'<div style="font-size:13px;font-weight:700;color:#1a1a2e;line-height:1.5;margin-bottom:4px">'+titleKo+'</div>'
+      +(h.desc?'<div style="font-size:11px;color:#777;line-height:1.4;margin-bottom:6px">'+h.desc.substring(0,100)+'...</div>':"")
       +(h.link?'<a href="'+h.link+'" target="_blank" style="font-size:11px;color:#1565c0">원문(영어) →</a>':"")
     +'</div>';
   }).join("");
@@ -3210,13 +3211,14 @@ function changePw() {
 // 탭 전환
 // =============================================
 function switchTab(tab) {
-  var tabs=["dashboard","domestic","overseas","pension","dividend","risk","advisor","commandments","ledger","settings"];
+  var tabs=["dashboard","domestic","overseas","pension","dividend","risk","advisor","ledger","news","commandments","settings"];
   document.querySelectorAll(".tab").forEach(function(t,i){t.classList.toggle("active",tabs[i]===tab);});
   document.querySelectorAll(".panel").forEach(function(p){p.classList.toggle("active",p.id==="panel-"+tab);});
-  // 탭별 탭 버튼 색상
   var tabColors={
     dashboard:"#1976d2", domestic:"#f57f17", overseas:"#00838f",
-    pension:"#7b1fa2", dividend:"#2e7d32", commandments:"#f57f17", risk:"#1e40af", advisor:"#6a1b9a", ledger:"#00897b", settings:"#546e7a"
+    pension:"#7b1fa2", dividend:"#2e7d32", commandments:"#f57f17",
+    risk:"#1e40af", advisor:"#6a1b9a", ledger:"#00897b",
+    news:"#e65100", settings:"#546e7a"
   };
   document.querySelectorAll(".tab").forEach(function(t){
     t.style.color=""; t.style.borderColor=""; t.style.background="";
