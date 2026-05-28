@@ -2856,45 +2856,19 @@ function loadPortfolioNews(){
 function translateAndRender(headlines, btn, status, list, key){
   status.textContent="한국어 번역 중...";
   var titlesText=headlines.map(function(h,i){return(i+1)+". "+h.title;}).join("\n");
-  var prompt="다음 영어 주식 뉴스 헤드라인을 자연스러운 한국어로 번역해줘.\n번호와 번역문만 출력하고 다른 말은 하지 마:\n"+titlesText;
-  var models=[
-    {model:"gemini-2.5-flash-lite",ver:"v1beta"},
-    {model:"gemini-2.5-flash",ver:"v1beta"}
-  ];
+  var prompt="다음 영어 주식 뉴스 헤드라인을 자연스러운 한국어로 번역해줘. 번호와 번역문만 출력:\n"+titlesText;
 
-  function tryModel(idx){
-    if(idx>=models.length){
-      renderNews(headlines, headlines.map(function(h){return h.title;}), btn, status, list);
-      return;
-    }
-    var url="https://generativelanguage.googleapis.com/"+models[idx].ver+"/models/"+models[idx].model+":generateContent?key="+key;
-    fetch(url,{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({
-        contents:[{parts:[{text:prompt}]}],
-        generationConfig:{maxOutputTokens:1000,temperature:0.3}
-      })
+  callGemini(prompt)
+    .then(function(raw){
+      var lines=raw.trim().split("\n")
+        .map(function(l){return l.replace(/^\d+\.\s*/,"").replace(/^\*+|\*+$/g,"").trim();})
+        .filter(function(l){return l.length>2&&!l.startsWith("❌")&&!l.startsWith("⚠️");});
+      var translated=(lines.length>=Math.ceil(headlines.length*0.5))?lines:headlines.map(function(h){return h.title;});
+      renderNews(headlines, translated, btn, status, list);
     })
-      .then(function(r){return r.json();})
-      .then(function(data){
-        if(!data.candidates||!data.candidates[0]){
-          console.log("번역 오류:",JSON.stringify(data).substring(0,200));
-          tryModel(idx+1); return;
-        }
-        var raw=data.candidates[0].content.parts[0].text;
-        var lines=raw.trim().split("\n")
-          .map(function(l){return l.replace(/^\d+\.\s*/,"").replace(/^\*+|\*+$/g,"").trim();})
-          .filter(function(l){return l.length>2;});
-        if(lines.length>=Math.ceil(headlines.length*0.5)){
-          renderNews(headlines, lines, btn, status, list);
-        } else {
-          tryModel(idx+1);
-        }
-      })
-      .catch(function(e){ console.log("번역 fetch 오류:",e); tryModel(idx+1); });
-  }
-  tryModel(0);
+    .catch(function(){
+      renderNews(headlines, headlines.map(function(h){return h.title;}), btn, status, list);
+    });
 }
 
 function renderNews(headlines, translated, btn, status, list){
