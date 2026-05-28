@@ -2918,7 +2918,7 @@ function renderNews(headlines, translated, btn, status, list){
         +(dateStr?'<span style="font-size:10px;color:#888">'+dateStr+'</span>':"")
       +'</div>'
       +'<div style="font-size:13px;font-weight:700;color:#1a1a2e;line-height:1.5;margin-bottom:6px">'+titleKo+'</div>'
-      +(h.link?'<a href="https://papago.naver.com/website?source=en&target=ko&url='+encodeURIComponent(h.link)+'" target="_blank" style="font-size:11px;color:#03c75a;font-weight:600">🟢 파파고 번역으로 읽기 →</a>':"")
+      +(h.link?'<a href="'+h.link+'" target="_blank" style="font-size:11px;color:#1565c0">원문(영어) →</a>':"")
     +'</div>';
   }).join("");
 }
