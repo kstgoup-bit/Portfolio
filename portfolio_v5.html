@@ -2795,9 +2795,15 @@ function loadPortfolioNews(){
     return;
   }
 
-  var tickers=(ovStocks||[])
-    .filter(function(s){return s.ticker&&/^[A-Z]/.test(s.ticker);})
-    .map(function(s){return s.ticker;}).slice(0,8);
+  var allOv=(ovStocks||[]);
+  var seen={};
+  var tickers=allOv.map(function(s){return s.ticker||s.sym||"";})
+    .filter(function(t){
+      if(!t||!/^[A-Z]/.test(t)||seen[t]) return false;
+      seen[t]=true; return true;
+    }).slice(0,8);
+  // 못 찾으면 기본 종목
+  if(!tickers.length) tickers=["QTOP","GOOGL","MSCI","NVDA","MSFT","SPGI"];
   if(!tickers.length){
     list.innerHTML='<div style="text-align:center;padding:30px 0;color:var(--muted);font-size:13px">해외 보유 종목이 없습니다</div>';
     return;
@@ -2809,53 +2815,58 @@ function loadPortfolioNews(){
 
   status.textContent="뉴스 수집 중...";
   var headlines=[];
-  var done=0;
-  var total=tickers.length;
 
-  function oneDone(){
-    done++;
-    if(done>=total){
+  // 하나의 통합 쿼리로 요청 (corsproxy 다중 요청 문제 해결)
+  var q=encodeURIComponent(tickers.join(" OR ")+" stock news");
+  var url="https://news.google.com/rss/search?q="+q+"&hl=en-US&gl=US&ceid=US:en";
+
+  fetch("https://corsproxy.io/?"+encodeURIComponent(url))
+    .then(function(r){return r.text();})
+    .then(function(text){
+      var parser=new DOMParser();
+      var doc=parser.parseFromString(text,"text/xml");
+      var items=doc.querySelectorAll("item");
+      var countMap={};
+
+      items.forEach(function(item){
+        var titleEl=item.getElementsByTagName("title")[0];
+        var linkEl=item.getElementsByTagName("link")[0];
+        var dateEl=item.getElementsByTagName("pubDate")[0];
+        var title=(titleEl&&titleEl.textContent)||"";
+        var link=(linkEl&&linkEl.textContent)||"";
+        var pubDate=(dateEl&&dateEl.textContent)||"";
+        title=title.replace(/\s*-\s*[^-]+$/,"").trim();
+        if(title.length<5) return;
+
+        // 어느 종목 기사인지 매칭
+        var matched=null;
+        tickers.forEach(function(t){
+          if(!matched&&title.toUpperCase().indexOf(t.toUpperCase())>=0){
+            matched=t;
+          }
+        });
+        if(!matched) return;
+        if((countMap[matched]||0)>=2) return;
+        countMap[matched]=(countMap[matched]||0)+1;
+        headlines.push({ticker:matched,title:title,link:link,date:pubDate});
+      });
+
       if(!headlines.length){
         btn.disabled=false; btn.textContent="🔄 새로고침";
         status.textContent="";
         list.innerHTML='<div style="text-align:center;padding:30px 0;color:var(--muted);font-size:13px">뉴스를 가져오지 못했어요</div>';
         return;
       }
-      // 1단계: 영어로 즉시 표시
+      // 즉시 영어로 표시
       renderNews(headlines, headlines.map(function(h){return h.title;}), btn, status, list);
-      // 2단계: 백그라운드 번역 후 업데이트
+      // 백그라운드 번역
       translateAndRender(headlines, btn, status, list, key);
-    }
-  }
-
-  tickers.forEach(function(ticker){
-    var q=encodeURIComponent(ticker+" stock");
-    var url="https://news.google.com/rss/search?q="+q+"&hl=en-US&gl=US&ceid=US:en";
-    fetch("https://corsproxy.io/?"+encodeURIComponent(url))
-      .then(function(r){return r.text();})
-      .then(function(text){
-        var parser=new DOMParser();
-        var doc=parser.parseFromString(text,"text/xml");
-        var items=doc.querySelectorAll("item");
-        var count=0;
-        items.forEach(function(item){
-          if(count>=2) return;
-          var titleEl=item.getElementsByTagName("title")[0];
-          var linkEl=item.getElementsByTagName("link")[0];
-          var dateEl=item.getElementsByTagName("pubDate")[0];
-          var title=(titleEl&&titleEl.textContent)||"";
-          var link=(linkEl&&linkEl.textContent)||"";
-          var pubDate=(dateEl&&dateEl.textContent)||"";
-          title=title.replace(/\s*-\s*[^-]+$/,"").trim();
-          if(title.length>5){
-            headlines.push({ticker:ticker,title:title,link:link,date:pubDate});
-            count++;
-          }
-        });
-        oneDone();
-      })
-      .catch(function(){ oneDone(); });
-  });
+    })
+    .catch(function(){
+      btn.disabled=false; btn.textContent="🔄 새로고침";
+      status.textContent="";
+      list.innerHTML='<div style="text-align:center;padding:30px 0;color:var(--muted);font-size:13px">뉴스를 가져오지 못했어요</div>';
+    });
 }
 
 function translateAndRender(headlines, btn, status, list, key){
