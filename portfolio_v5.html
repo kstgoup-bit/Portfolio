@@ -61,7 +61,7 @@ body{background:var(--sky-bg);color:var(--text);font-family:'Pretendard',sans-se
 .ha-label{font-size:9px;color:#90caf9}
 .ha-val{font-size:17px;font-weight:900;color:#fff;font-family:'JetBrains Mono',monospace !important;}
 .ha-pnl{font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace !important;}
-.mkt-item{background:linear-gradient(180deg,#f5fbff 0%,#c9e4f8 100%);border-radius:10px;padding:10px 12px}
+.mkt-item{background:linear-gradient(180deg,#f5fbff 0%,#c9e4f8 100%);border:1px solid #bbdefb;border-radius:10px;padding:10px 12px}
 .mkt-name{font-size:11px;color:#5d7a8a;font-weight:700;margin-bottom:5px}
 .mkt-row{display:flex;align-items:baseline;justify-content:space-between;gap:4px}
 .mkt-price{font-size:17px;font-weight:900;color:#1a237e;letter-spacing:-0.5px}
@@ -550,10 +550,10 @@ body { font-family:'Pretendard',sans-serif !important; }
 <!-- 현황 -->
 <div class="panel active" id="panel-dashboard">
   <!-- 실시간 시장 지수 -->
-  <div style="background:linear-gradient(180deg,#fffde7 0%,#fff0a0 100%);border:1.5px solid #ffe082;border-radius:16px;padding:14px 16px;margin-bottom:12px">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-      <span style="font-size:13px;font-weight:800;color:#5d4037">📊 실시간 시장 지수</span>
-      <span id="mktTime" style="font-size:10px;color:#a57c00"></span>
+  <div style="background:none;padding:0;margin-bottom:12px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;padding:0 2px">
+      <span style="font-size:13px;font-weight:800;color:var(--text)">📊 실시간 시장 지수</span>
+      <span id="mktTime" style="font-size:10px;color:var(--muted)"></span>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
       <div id="mkt-KS11" class="mkt-item"><div class="mkt-name">코스피</div><div class="mkt-row"><span class="mkt-price">-</span><span class="mkt-chg">-</span></div></div>
