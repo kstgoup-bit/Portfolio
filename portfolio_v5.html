@@ -2897,7 +2897,7 @@ function renderNews(headlines, translated, btn, status, list){
         +(dateStr?'<span style="font-size:10px;color:var(--muted)">'+dateStr+'</span>':"")
       +'</div>'
       +'<div style="font-size:13px;font-weight:600;color:var(--text);line-height:1.5;margin-bottom:6px">'+titleKo+'</div>'
-      +(h.link?'<a href="'+h.link+'" target="_blank" style="font-size:11px;color:var(--accent);font-weight:600">원문 보기 →</a>':"")
+      +(h.link?'<a href="https://translate.google.com/translate?sl=en&tl=ko&u='+encodeURIComponent(h.link)+'" target="_blank" style="font-size:11px;color:var(--accent);font-weight:600">🇰🇷 한국어로 읽기 →</a>':"")
     +'</div>';
   }).join("");
 }
