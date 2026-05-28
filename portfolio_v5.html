@@ -61,7 +61,11 @@ body{background:var(--sky-bg);color:var(--text);font-family:'Pretendard',sans-se
 .ha-label{font-size:9px;color:#90caf9}
 .ha-val{font-size:17px;font-weight:900;color:#fff;font-family:'JetBrains Mono',monospace !important;}
 .ha-pnl{font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace !important;}
-.goal-bar-wrap{margin-bottom:10px}
+.mkt-item{background:#fff;border-radius:8px;padding:7px 10px;display:flex;justify-content:space-between;align-items:center}
+.mkt-name{font-size:11px;font-weight:700;color:#5d4037}
+.mkt-val{font-size:11px;font-weight:800;color:#333}
+.mkt-up{color:#e53935}.mkt-dn{color:#1565c0}
+
 .goal-label{display:flex;justify-content:space-between;margin-bottom:4px}
 .goal-text{font-size:13px;color:#bbdefb}
 .goal-pct{font-size:13px;color:#fff;font-weight:700}
@@ -543,6 +547,19 @@ body { font-family:'Pretendard',sans-serif !important; }
 
 <!-- 현황 -->
 <div class="panel active" id="panel-dashboard">
+  <!-- 실시간 시장 지수 -->
+  <div id="mktCard" style="background:#fffde7;border:1.5px solid #ffe082;border-radius:14px;padding:10px 14px;margin-bottom:12px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <span style="font-size:12px;font-weight:800;color:#5d4037">📊 실시간 시장 지수</span>
+      <span id="mktTime" style="font-size:10px;color:#a57c00"></span>
+    </div>
+    <div id="mktGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+      <div class="mkt-item" id="mkt-KS11"><span class="mkt-name">코스피</span><span class="mkt-val">-</span></div>
+      <div class="mkt-item" id="mkt-KQ11"><span class="mkt-name">코스닥</span><span class="mkt-val">-</span></div>
+      <div class="mkt-item" id="mkt-IXIC"><span class="mkt-name">나스닥</span><span class="mkt-val">-</span></div>
+      <div class="mkt-item" id="mkt-GSPC"><span class="mkt-name">S&amp;P500</span><span class="mkt-val">-</span></div>
+    </div>
+  </div>
   <div id="v5Brief" class="v5-brief" style="display:none;margin-bottom:12px"></div>
   <div class="card card-blue">
     <div class="total-label">💰 전체 총 평가금액</div>
@@ -1663,7 +1680,7 @@ function updateBrief() {
     // 할일 알림
     if(!hasSnap) msgs.push({cls:"warn",icon:"📸",badge:"할일",txt:"이번 달 자산 스냅샷 미기록! '📸 오늘 전체 자산 기록' 버튼을 눌러주세요."});
     if(!thisMonthDiv&&divs.length>0) msgs.push({cls:"",icon:"💰",badge:"확인",txt:"이번 달 배당금 입력했나요? 배당 탭에서 수령 내역을 기록해두세요."});
-    if(!msgs.length) msgs.push({cls:"",icon:"🤖",badge:"클로",txt:"위험계 탭에서 실시간 지수를 조회하면 정확한 진단을 받을 수 있어요."});
+    if(!msgs.length) msgs.push({cls:"",icon:"💁‍♀️",badge:"클로",txt:"위험계 탭에서 실시간 지수를 조회하면 정확한 진단을 받을 수 있어요."});
 
     var m=msgs.find(function(x){return x.cls==="warn";})||msgs[0];
     el.className="v5-brief"+(m.cls?" "+m.cls:"");
@@ -1686,8 +1703,39 @@ function updateBrief() {
 
 // 렌더
 // =============================================
+// ═══════════════════════════════
+// 📊 실시간 시장 지수
+// ═══════════════════════════════
+function fetchMarketIndices(){
+  var syms=["^KS11","^KQ11","^IXIC","^GSPC"];
+  var names={"KS11":"코스피","KQ11":"코스닥","IXIC":"나스닥","GSPC":"S&P500"};
+  var url="https://query1.finance.yahoo.com/v7/finance/quote?symbols="+encodeURIComponent(syms.join(","));
+  fetch("https://corsproxy.io/?"+encodeURIComponent(url))
+    .then(function(r){return r.json();})
+    .then(function(data){
+      var results=(data.quoteResponse&&data.quoteResponse.result)||[];
+      results.forEach(function(q){
+        var id=q.symbol.replace("^","");
+        var el=document.getElementById("mkt-"+id);
+        if(!el) return;
+        var price=q.regularMarketPrice||0;
+        var chg=q.regularMarketChangePercent||0;
+        var up=chg>=0;
+        var arrow=up?"▲":"▼";
+        var cls=up?"mkt-up":"mkt-dn";
+        var priceStr=price>=1000?Math.round(price).toLocaleString():price.toFixed(2);
+        el.innerHTML='<span class="mkt-name">'+(names[id]||id)+'</span>'
+          +'<span class="mkt-val"><b>'+priceStr+'</b>&nbsp;<span class="'+cls+'">'+arrow+Math.abs(chg).toFixed(2)+'%</span></span>';
+      });
+      var now=new Date();
+      var t=document.getElementById("mktTime");
+      if(t) t.textContent=now.getHours()+":"+String(now.getMinutes()).padStart(2,"0")+" 갱신";
+    })
+    .catch(function(){});
+}
+
 function renderAll() {
-  renderDashboard(); renderBalancePie(); updateBrief();
+  renderDashboard(); renderBalancePie(); updateBrief(); fetchMarketIndices();
   renderDomestic();
   renderOverseas();
   renderPension();
@@ -2563,7 +2611,7 @@ function recordSnap(key) {
   snapshots[key].push({ts:Date.now(), val:tv, cost:tc});
   snapshots[key].sort(function(a,b){ return a.ts-b.ts; });
   save();
-  renderAll(); updateHeaderH(); loadRiskData();
+  renderAll(); updateHeaderH(); loadRiskData(); fetchMarketIndices();
   showToast("✅ 오늘 자산 기록 완료!  " + fmt(tv) + "원");
 }
 
