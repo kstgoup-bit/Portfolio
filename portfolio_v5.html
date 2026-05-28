@@ -2857,25 +2857,38 @@ function loadPortfolioNews(){
 function translateAndRender(headlines, btn, status, list, key){
   status.textContent="한국어 번역 중...";
   var titles=headlines.map(function(h){return h.title;});
-  // callGemini로 번역 - ||| 구분자 사용 (줄바꿈 파싱 오류 방지)
-  var prompt="다음 영어 뉴스 제목을 한국어로 번역해. 각 번역은 |||로 구분해서 번역문만 출력:\n"+titles.join(" ||| ");
+  var apiKey=getGeminiKey();
+  if(!apiKey){ renderNews(headlines,titles,btn,status,list); return; }
 
-  callGemini(prompt)
-    .then(function(result){
-      // ||| 로 분리
-      var parts=result.split("|||").map(function(s){
-        return s.replace(/^\d+\.\s*/,"").replace(/^\*+|\*+$/g,"").trim();
-      }).filter(function(s){return s.length>1;});
+  var numbered=titles.map(function(t,i){return (i+1)+". "+t;}).join("\n");
+  var prompt="Translate each headline to Korean. Output ONLY the numbered translations:\n"+numbered;
 
-      var translated=titles.map(function(t,i){
-        var p=parts[i]&&parts[i].length>1&&!parts[i].startsWith("❌")&&!parts[i].startsWith("⚠️");
-        return p?parts[i]:t;
-      });
-      renderNews(headlines, translated, btn, status, list);
+  var models=["gemini-2.5-flash-lite","gemini-2.5-flash","gemini-1.5-flash"];
+  function tryModel(idx){
+    if(idx>=models.length){ renderNews(headlines,titles,btn,status,list); return; }
+    var url="https://generativelanguage.googleapis.com/v1beta/models/"+models[idx]+":generateContent?key="+apiKey;
+    fetch(url,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        contents:[{parts:[{text:prompt}]}],
+        generationConfig:{temperature:0.1,maxOutputTokens:600}
+      })
     })
-    .catch(function(){
-      renderNews(headlines, titles, btn, status, list);
-    });
+    .then(function(r){return r.json();})
+    .then(function(data){
+      var raw="";
+      try{ raw=data.candidates[0].content.parts[0].text||""; }catch(e){}
+      if(!raw||raw.length<3){ tryModel(idx+1); return; }
+      var lines=raw.split("\n")
+        .map(function(l){return l.replace(/^\d+[\.\)]\s*/,"").replace(/^[·\-\*•]\s*/,"").trim();})
+        .filter(function(l){return l.length>1;});
+      var translated=titles.map(function(t,i){return (lines[i]&&lines[i].length>1)?lines[i]:t;});
+      renderNews(headlines,translated,btn,status,list);
+    })
+    .catch(function(){ tryModel(idx+1); });
+  }
+  tryModel(0);
 }
 
 function renderNews(headlines, translated, btn, status, list){
