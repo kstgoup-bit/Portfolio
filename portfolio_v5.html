@@ -2832,12 +2832,20 @@ function loadPortfolioNews(){
         var count=0;
         items.forEach(function(item){
           if(count>=2) return;
-          var title=(item.querySelector("title")||{}).textContent||"";
-          var link=(item.querySelector("link")||{}).textContent||"";
-          var pubDate=(item.querySelector("pubDate")||{}).textContent||"";
-          var desc=(item.querySelector("description")||{}).textContent||"";
-          // HTML 태그 제거
-          desc=desc.replace(/<[^>]+>/g,"").replace(/&quot;/g,'"').replace(/&amp;/g,"&").replace(/&#39;/g,"'").trim().substring(0,200);
+          var titleEl=item.getElementsByTagName("title")[0];
+          var linkEl=item.getElementsByTagName("link")[0];
+          var dateEl=item.getElementsByTagName("pubDate")[0];
+          var descEl=item.getElementsByTagName("description")[0];
+          var title=(titleEl&&titleEl.textContent)||"";
+          var link=(linkEl&&linkEl.textContent)||"";
+          var pubDate=(dateEl&&dateEl.textContent)||"";
+          var desc=(descEl&&descEl.textContent)||"";
+          // HTML 태그·출처명·제목 반복 제거
+          desc=desc.replace(/<[^>]+>/g," ").replace(/&[a-z]+;/g,"").replace(/\s+/g," ").trim();
+          // 제목이 반복되는 경우 제거
+          var shortTitle=title.replace(/\s*-\s*[^-]+$/,"").trim().substring(0,30);
+          if(desc.indexOf(shortTitle)===0) desc=desc.substring(shortTitle.length).replace(/^\s*[-·|]\s*/,"").trim();
+          desc=desc.substring(0,150);
           title=title.replace(/\s*-\s*[^-]+$/,"").trim();
           if(title.length>5){
             headlines.push({ticker:ticker,title:title,link:link,date:pubDate,desc:desc});
@@ -2894,7 +2902,7 @@ function renderNews(headlines, translated, btn, status, list){
         +(dateStr?'<span style="font-size:10px;color:#888">'+dateStr+'</span>':"")
       +'</div>'
       +'<div style="font-size:13px;font-weight:700;color:#1a1a2e;line-height:1.5;margin-bottom:4px">'+titleKo+'</div>'
-      +(h.desc?'<div style="font-size:11px;color:#777;line-height:1.4;margin-bottom:6px">'+h.desc.substring(0,100)+'...</div>':"")
+      +(h.desc&&h.desc.length>5?'<div style="font-size:11px;color:#777;line-height:1.4;margin-bottom:6px">'+h.desc+'</div>':"")
       +(h.link?'<a href="'+h.link+'" target="_blank" style="font-size:11px;color:#1565c0">원문(영어) →</a>':"")
     +'</div>';
   }).join("");
