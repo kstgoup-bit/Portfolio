@@ -2816,8 +2816,30 @@ function loadPortfolioNews(){
   status.textContent="뉴스 수집 중...";
   var headlines=[];
 
-  // 하나의 통합 쿼리로 요청 (corsproxy 다중 요청 문제 해결)
-  var q=encodeURIComponent(tickers.join(" OR ")+" stock news");
+  // 티커→검색어 매핑 (회사명 포함)
+  var tickerSearch={
+    "QTOP":"QTOP ETF","QQQM":"QQQM Nasdaq",
+    "SPGI":"S&P Global SPGI","MSCI":"MSCI Inc",
+    "MS":"Morgan Stanley","GOOGL":"Alphabet Google GOOGL",
+    "MSFT":"Microsoft MSFT","NVDA":"Nvidia NVDA",
+    "AVGO":"Broadcom AVGO","IONQ":"IonQ quantum",
+    "JOBY":"Joby Aviation","SMR":"NuScale SMR",
+    "ASTS":"AST SpaceMobile","LRCX":"Lam Research LRCX"
+  };
+  // 티커→매칭 키워드
+  var tickerMatch={
+    "QTOP":["QTOP"],"QQQM":["QQQM","Nasdaq 100"],
+    "SPGI":["SPGI","S&P Global"],"MSCI":["MSCI"],
+    "MS":["Morgan Stanley"],"GOOGL":["Google","Alphabet","GOOGL"],
+    "MSFT":["Microsoft","MSFT"],"NVDA":["Nvidia","NVDA"],
+    "AVGO":["Broadcom","AVGO"],"IONQ":["IonQ"],
+    "JOBY":["Joby"],"SMR":["NuScale","SMR"],
+    "ASTS":["AST SpaceMobile","ASTS"],"LRCX":["Lam Research","LRCX"]
+  };
+
+  // 통합 OR 쿼리
+  var qParts=tickers.map(function(t){return tickerSearch[t]||t;});
+  var q=encodeURIComponent(qParts.join(" OR "));
   var url="https://news.google.com/rss/search?q="+q+"&hl=en-US&gl=US&ceid=US:en";
 
   fetch("https://corsproxy.io/?"+encodeURIComponent(url))
@@ -2838,12 +2860,15 @@ function loadPortfolioNews(){
         title=title.replace(/\s*-\s*[^-]+$/,"").trim();
         if(title.length<5) return;
 
-        // 어느 종목 기사인지 매칭
+        // 어느 종목 기사인지 매칭 (회사명 포함)
         var matched=null;
+        var titleUp=title.toUpperCase();
         tickers.forEach(function(t){
-          if(!matched&&title.toUpperCase().indexOf(t.toUpperCase())>=0){
-            matched=t;
-          }
+          if(matched) return;
+          var keywords=(tickerMatch[t]||[t]);
+          keywords.forEach(function(kw){
+            if(!matched&&titleUp.indexOf(kw.toUpperCase())>=0) matched=t;
+          });
         });
         if(!matched) return;
         if((countMap[matched]||0)>=2) return;
