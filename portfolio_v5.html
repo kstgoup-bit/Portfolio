@@ -2855,33 +2855,29 @@ function loadPortfolioNews(){
 
 function translateAndRender(headlines, btn, status, list, key){
   status.textContent="한국어 번역 중...";
-  // 구글 번역 무료 API (키 불필요)
-  var titles=headlines.map(function(h){return h.title;});
-  var combined=titles.join(" ||| ");
-  var url="https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ko&dt=t&q="+encodeURIComponent(combined);
+  var total=headlines.length;
+  var done=0;
+  var translated=headlines.map(function(h){return h.title;});
 
-  fetch(url)
-    .then(function(r){return r.json();})
-    .then(function(data){
-      // data[0] = [[번역문, 원문, ...], ...]
-      var raw=data[0].map(function(seg){return seg[0]||"";}).join("");
-      var parts=raw.split("|||").map(function(s){return s.trim();});
-      renderNews(headlines, parts.length>=Math.ceil(titles.length*0.5)?parts:titles, btn, status, list);
-    })
-    .catch(function(){
-      // 직접 실패 시 corsproxy 경유
-      var proxy="https://corsproxy.io/?"+encodeURIComponent(url);
-      fetch(proxy)
-        .then(function(r){return r.json();})
-        .then(function(data){
-          var raw=data[0].map(function(seg){return seg[0]||"";}).join("");
-          var parts=raw.split("|||").map(function(s){return s.trim();});
-          renderNews(headlines, parts.length>=Math.ceil(titles.length*0.5)?parts:titles, btn, status, list);
-        })
-        .catch(function(){
-          renderNews(headlines, titles, btn, status, list);
-        });
-    });
+  function onOneDone(){
+    done++;
+    if(done>=total) renderNews(headlines, translated, btn, status, list);
+  }
+
+  headlines.forEach(function(h, i){
+    var q=encodeURIComponent(h.title.substring(0,200));
+    var url="https://api.mymemory.translated.net/get?q="+q+"&langpair=en|ko";
+    fetch(url)
+      .then(function(r){return r.json();})
+      .then(function(data){
+        if(data.responseData&&data.responseData.translatedText&&
+           data.responseData.translatedText.indexOf("MYMEMORY WARNING")<0){
+          translated[i]=data.responseData.translatedText;
+        }
+        onOneDone();
+      })
+      .catch(function(){onOneDone();});
+  });
 }
 
 function renderNews(headlines, translated, btn, status, list){
