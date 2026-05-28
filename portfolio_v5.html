@@ -61,10 +61,11 @@ body{background:var(--sky-bg);color:var(--text);font-family:'Pretendard',sans-se
 .ha-label{font-size:9px;color:#90caf9}
 .ha-val{font-size:17px;font-weight:900;color:#fff;font-family:'JetBrains Mono',monospace !important;}
 .ha-pnl{font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace !important;}
-.mkt-item{background:#fff;border-radius:8px;padding:7px 10px;display:flex;justify-content:space-between;align-items:center}
-.mkt-name{font-size:11px;font-weight:700;color:#5d4037}
-.mkt-val{font-size:11px;font-weight:800;color:#333}
-.mkt-up{color:#e53935}.mkt-dn{color:#1565c0}
+.mkt-item{background:rgba(255,255,255,0.1);border-radius:10px;padding:10px 12px}
+.mkt-name{font-size:11px;color:rgba(255,255,255,0.7);font-weight:600;margin-bottom:4px}
+.mkt-price{font-size:17px;font-weight:900;color:#fff;letter-spacing:-0.5px}
+.mkt-chg{font-size:11px;font-weight:700;margin-top:2px}
+.mkt-up{color:#69f0ae}.mkt-dn{color:#ff6b6b}
 
 .goal-label{display:flex;justify-content:space-between;margin-bottom:4px}
 .goal-text{font-size:13px;color:#bbdefb}
@@ -548,16 +549,16 @@ body { font-family:'Pretendard',sans-serif !important; }
 <!-- 현황 -->
 <div class="panel active" id="panel-dashboard">
   <!-- 실시간 시장 지수 -->
-  <div id="mktCard" style="background:#fffde7;border:1.5px solid #ffe082;border-radius:14px;padding:10px 14px;margin-bottom:12px">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-      <span style="font-size:12px;font-weight:800;color:#5d4037">📊 실시간 시장 지수</span>
-      <span id="mktTime" style="font-size:10px;color:#a57c00"></span>
+  <div style="background:linear-gradient(135deg,#1a237e,#283593);border-radius:16px;padding:14px 16px;margin-bottom:12px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <span style="font-size:13px;font-weight:800;color:#fff">📊 실시간 시장 지수</span>
+      <span id="mktTime" style="font-size:10px;color:rgba(255,255,255,0.6)"></span>
     </div>
-    <div id="mktGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
-      <div class="mkt-item" id="mkt-KS11"><span class="mkt-name">코스피</span><span class="mkt-val">-</span></div>
-      <div class="mkt-item" id="mkt-KQ11"><span class="mkt-name">코스닥</span><span class="mkt-val">-</span></div>
-      <div class="mkt-item" id="mkt-IXIC"><span class="mkt-name">나스닥</span><span class="mkt-val">-</span></div>
-      <div class="mkt-item" id="mkt-GSPC"><span class="mkt-name">S&amp;P500</span><span class="mkt-val">-</span></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div id="mkt-KS11" class="mkt-item"><div class="mkt-name">코스피</div><div class="mkt-price">-</div><div class="mkt-chg">-</div></div>
+      <div id="mkt-KQ11" class="mkt-item"><div class="mkt-name">코스닥</div><div class="mkt-price">-</div><div class="mkt-chg">-</div></div>
+      <div id="mkt-IXIC" class="mkt-item"><div class="mkt-name">나스닥</div><div class="mkt-price">-</div><div class="mkt-chg">-</div></div>
+      <div id="mkt-GSPC" class="mkt-item"><div class="mkt-name">S&amp;P500</div><div class="mkt-price">-</div><div class="mkt-chg">-</div></div>
     </div>
   </div>
   <div id="v5Brief" style="display:none"></div>
@@ -1682,15 +1683,8 @@ function updateBrief() {
     if(!thisMonthDiv&&divs.length>0) msgs.push({cls:"",icon:"💰",badge:"확인",txt:"이번 달 배당금 입력했나요? 배당 탭에서 수령 내역을 기록해두세요."});
     if(!msgs.length) msgs.push({cls:"",icon:"💁‍♀️",badge:"클로",txt:"위험계 탭에서 실시간 지수를 조회하면 정확한 진단을 받을 수 있어요."});
 
-    var m=msgs.find(function(x){return x.cls==="warn";})||msgs[0];
-    el.className="v5-brief"+(m.cls?" "+m.cls:"");
-    el.style.display="flex";
-    el.style.borderRadius="";
-    el.style.borderBottom="";
-    el.style.marginBottom="";
-    el.innerHTML='<div class="v5-brief-icon">'+m.icon+'</div><div class="v5-brief-text">'+m.txt+'<span class="v5-brief-badge">'+m.badge+'</span></div>';
-    var nw=document.getElementById("v5NewsWrap");
-    if(nw) nw.style.display="none";
+    // 알림판 비활성화
+    el.style.display="none"; return;
 
     // 종합 진단 카드 업데이트
     var dg=document.getElementById("rkDiagnosis");
@@ -1728,8 +1722,11 @@ function fetchMarketIndices(){
         var cls=up?"mkt-up":"mkt-dn";
         var priceStr=price>=1000?Math.round(price).toLocaleString():price.toFixed(2);
         var el=document.getElementById("mkt-"+idx.id);
-        if(el) el.innerHTML='<span class="mkt-name">'+idx.name+'</span>'
-          +'<span class="mkt-val"><b>'+priceStr+'</b>&nbsp;<span class="'+cls+'">'+arrow+Math.abs(chg).toFixed(2)+'%</span></span>';
+        if(!el) return;
+        el.querySelector(".mkt-price").textContent=priceStr;
+        var chgEl=el.querySelector(".mkt-chg");
+        chgEl.textContent=arrow+Math.abs(chg).toFixed(2)+"%";
+        chgEl.className="mkt-chg "+(up?"mkt-up":"mkt-dn");
       })
       .catch(function(){});
   });
