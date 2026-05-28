@@ -2821,8 +2821,8 @@ function loadPortfolioNews(){
   }
 
   tickers.forEach(function(ticker, i){
-    var q=encodeURIComponent(ticker+" stock");
-    var url="https://news.google.com/rss/search?q="+q+"&hl=en-US&gl=US&ceid=US:en";
+    var q=ticker;
+    var url="https://feeds.finance.yahoo.com/rss/2.0/headline?s="+q+"&region=US&lang=en-US";
     fetch("https://corsproxy.io/?"+encodeURIComponent(url))
       .then(function(r){return r.text();})
       .then(function(text){
@@ -2902,7 +2902,7 @@ function renderNews(headlines, translated, btn, status, list){
         +(dateStr?'<span style="font-size:10px;color:#888">'+dateStr+'</span>':"")
       +'</div>'
       +'<div style="font-size:13px;font-weight:700;color:#1a1a2e;line-height:1.5;margin-bottom:4px">'+titleKo+'</div>'
-      +(h.desc&&h.desc.length>5?'<div style="font-size:11px;color:#777;line-height:1.4;margin-bottom:6px">'+h.desc+'</div>':"")
+      +(h.desc&&h.desc.length>10?'<div style="font-size:11px;color:#555;line-height:1.5;margin-bottom:5px">'+h.desc+'</div>':"")
       +(h.link?'<a href="'+h.link+'" target="_blank" style="font-size:11px;color:#1565c0">원문(영어) →</a>':"")
     +'</div>';
   }).join("");
