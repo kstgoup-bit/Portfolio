@@ -2859,40 +2859,22 @@ function loadPortfolioNews(){
 
 function translateAndRender(headlines, btn, status, list, key){
   status.textContent="한국어 번역 중...";
-  var total=headlines.length*2; // 제목+요약 각각
-  var done=0;
-  var translated=headlines.map(function(h){return {title:h.title,desc:""};});
+  // 모든 제목을 줄바꿈으로 합쳐서 한 번에 번역
+  var titles=headlines.map(function(h){return h.title;});
+  var combined=titles.join("\n");
+  var url="https://api.mymemory.translated.net/get?q="+encodeURIComponent(combined.substring(0,500))+"&langpair=en|ko";
 
-  function onOneDone(){
-    done++;
-    if(done>=total) renderNews(headlines,translated,btn,status,list);
-  }
-
-  function doTranslate(text, callback){
-    if(!text||text.length<3){callback(""); return;}
-    var url="https://api.mymemory.translated.net/get?q="+encodeURIComponent(text.substring(0,250))+"&langpair=en|ko";
-    fetch(url)
-      .then(function(r){return r.json();})
-      .then(function(data){
-        var t=data.responseData&&data.responseData.translatedText;
-        callback(t&&t.indexOf("MYMEMORY WARNING")<0?t:"");
-      })
-      .catch(function(){callback("");});
-  }
-
-  headlines.forEach(function(h,i){
-    // 제목 번역
-    doTranslate(h.title,function(t){
-      if(t) translated[i].title=t;
-      onOneDone();
+  fetch(url)
+    .then(function(r){return r.json();})
+    .then(function(data){
+      var raw=data.responseData&&data.responseData.translatedText||"";
+      var lines=raw.split("\n").map(function(l){return l.trim();});
+      var translated=titles.map(function(t,i){return lines[i]&&lines[i].indexOf("MYMEMORY WARNING")<0?lines[i]:t;});
+      renderNews(headlines, translated, btn, status, list);
+    })
+    .catch(function(){
+      renderNews(headlines, titles, btn, status, list);
     });
-    // 요약 번역
-    var cleanDesc=(h.desc||"").replace(/[A-Z][a-z]+ [A-Z][a-z]+$/,"").trim(); // 출처명 제거
-    doTranslate(cleanDesc,function(t){
-      translated[i].desc=t||"";
-      onOneDone();
-    });
-  });
 }
 
 function renderNews(headlines, translated, btn, status, list){
@@ -2900,9 +2882,7 @@ function renderNews(headlines, translated, btn, status, list){
   var now=new Date();
   status.textContent="업데이트: "+now.getHours()+":"+String(now.getMinutes()).padStart(2,"0");
   list.innerHTML=headlines.map(function(h,i){
-    var tr=translated[i]||{title:h.title,desc:""};
-    var titleKo=tr.title||h.title;
-    var descKo=tr.desc||"";
+    var titleKo=translated[i]||h.title;
     var dateStr="";
     if(h.date){
       var diff=Math.round((now-new Date(h.date))/3600000);
@@ -2910,12 +2890,11 @@ function renderNews(headlines, translated, btn, status, list){
     }
     return '<div style="background:#fff;border-radius:12px;padding:12px 14px;margin-bottom:8px;box-shadow:0 1px 6px rgba(0,0,0,0.07)">'
       +'<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">'
-        +'<span style="font-size:11px;font-weight:800;background:var(--accent);color:#fff;border-radius:5px;padding:2px 8px">'+h.ticker+'</span>'
-        +(dateStr?'<span style="font-size:10px;color:var(--muted)">'+dateStr+'</span>':"")
+        +'<span style="font-size:11px;font-weight:800;background:#1565c0;color:#fff;border-radius:5px;padding:2px 8px">'+h.ticker+'</span>'
+        +(dateStr?'<span style="font-size:10px;color:#888">'+dateStr+'</span>':"")
       +'</div>'
-      +'<div style="font-size:13px;font-weight:700;color:var(--text);line-height:1.5;margin-bottom:5px">'+titleKo+'</div>'
-      +(descKo?'<div style="font-size:12px;color:#555;line-height:1.5;margin-bottom:6px">'+descKo+'</div>':"")
-      +(h.link?'<a href="'+h.link+'" target="_blank" style="font-size:11px;color:var(--muted);font-weight:500">원문(영어) 보기 →</a>':"")
+      +'<div style="font-size:13px;font-weight:700;color:#1a1a2e;line-height:1.5;margin-bottom:6px">'+titleKo+'</div>'
+      +(h.link?'<a href="'+h.link+'" target="_blank" style="font-size:11px;color:#1565c0">원문(영어) →</a>':"")
     +'</div>';
   }).join("");
 }
