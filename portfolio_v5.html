@@ -61,7 +61,7 @@ body{background:var(--sky-bg);color:var(--text);font-family:'Pretendard',sans-se
 .ha-label{font-size:9px;color:#90caf9}
 .ha-val{font-size:17px;font-weight:900;color:#fff;font-family:'JetBrains Mono',monospace !important;}
 .ha-pnl{font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace !important;}
-.mkt-item{background:linear-gradient(180deg,#fffef5 0%,#fff3b0 100%);border:1px solid #ffe082;border-radius:8px;padding:6px 10px}
+.mkt-item{background:linear-gradient(180deg,#ffffff 0%,#fffce8 100%);border:1px solid #ffe082;border-radius:8px;padding:8px 14px}
 .mkt-name{font-size:11px;color:#a57c00;font-weight:600;margin-bottom:3px}
 .mkt-row{display:flex;align-items:baseline;justify-content:flex-start;gap:8px}
 .mkt-price{font-size:17px;font-weight:900;color:#1a1a2e;letter-spacing:-0.5px}
@@ -170,9 +170,9 @@ body{background:var(--sky-bg);color:var(--text);font-family:'Pretendard',sans-se
 .mkt-val{font-size:15px;font-weight:900;font-family:'Pretendard',sans-serif !important;color:var(--text);}}
 
 /* 환율 */
-.fx-row{display:flex;align-items:center;gap:10px}
-.fx-input{background:var(--yellow-light);border:1px solid #f57f17;border-radius:8px;color:var(--yellow);padding:6px 10px;font-size:14px;font-weight:700;width:85px;font-family:'JetBrains Mono',monospace}
-.fx-time{font-size:10px;color:var(--muted);margin-top:5px}
+.fx-row{display:flex;align-items:center;justify-content:center;gap:8px}
+.fx-input{background:var(--yellow-light);border:1px solid #f57f17;border-radius:8px;color:var(--yellow);padding:5px 8px;font-size:16px;font-weight:800;width:90px;text-align:center;font-family:'JetBrains Mono',monospace}
+.fx-time{font-size:10px;color:var(--muted);margin-top:4px;text-align:center}
 
 /* 추세선 차트 */
 .chart-wrap{background:#fff;border-radius:14px;padding:16px;border:1px solid var(--border);margin-bottom:10px;box-shadow:var(--shadow)}
@@ -1702,36 +1702,30 @@ function updateBrief() {
 // 📊 실시간 시장 지수
 // ═══════════════════════════════
 function fetchMarketIndices(){
-  var indices=[
-    {sym:"%5EKS11",id:"KS11",name:"코스피"},
-    {sym:"%5EKQ11",id:"KQ11",name:"코스닥"},
-    {sym:"%5EIXIC",id:"IXIC",name:"나스닥"},
-    {sym:"%5EGSPC",id:"GSPC",name:"S&P500"}
-  ];
-  indices.forEach(function(idx){
-    var url="https://query2.finance.yahoo.com/v8/finance/chart/"+idx.sym+"?interval=1d&range=1d";
-    fetch("https://corsproxy.io/?"+encodeURIComponent(url))
-      .then(function(r){return r.json();})
-      .then(function(data){
-        var meta=data.chart&&data.chart.result&&data.chart.result[0]&&data.chart.result[0].meta;
-        if(!meta) return;
-        var price=meta.regularMarketPrice||0;
-        var chg=meta.regularMarketChangePercent||(meta.regularMarketChange&&meta.previousClose?(meta.regularMarketChange/meta.previousClose*100):0);
+  var names={"KS11":"코스피","KQ11":"코스닥","IXIC":"나스닥","GSPC":"S&P500"};
+  var url="https://query2.finance.yahoo.com/v7/finance/quote?symbols=%5EKS11,%5EKQ11,%5EIXIC,%5EGSPC";
+  fetch("https://corsproxy.io/?"+encodeURIComponent(url))
+    .then(function(r){return r.json();})
+    .then(function(data){
+      var results=(data.quoteResponse&&data.quoteResponse.result)||[];
+      results.forEach(function(q){
+        var id=q.symbol.replace("^","");
+        var el=document.getElementById("mkt-"+id);
+        if(!el) return;
+        var price=q.regularMarketPrice||0;
+        var chg=q.regularMarketChangePercent||0;
         var up=chg>=0;
         var arrow=up?"▲":"▼";
-        var cls=up?"mkt-up":"mkt-dn";
         var priceStr=price>=1000?Math.round(price).toLocaleString():price.toFixed(2);
-        var el=document.getElementById("mkt-"+idx.id);
-        if(!el) return;
         el.querySelector(".mkt-price").textContent=priceStr;
         var chgEl=el.querySelector(".mkt-chg");
         chgEl.textContent=arrow+Math.abs(chg).toFixed(2)+"%";
         chgEl.className="mkt-chg "+(up?"mkt-up":"mkt-dn");
-      })
-      .catch(function(){});
-  });
-  var t=document.getElementById("mktTime");
-  if(t){var n=new Date(); t.textContent=n.getHours()+":"+String(n.getMinutes()).padStart(2,"0")+" 갱신";}
+      });
+      var t=document.getElementById("mktTime");
+      if(t){var n=new Date(); t.textContent=n.getHours()+":"+String(n.getMinutes()).padStart(2,"0")+" 갱신";}
+    })
+    .catch(function(){});
 }
 
 function renderAll() {
