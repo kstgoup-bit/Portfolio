@@ -171,7 +171,7 @@ body{background:var(--sky-bg);color:var(--text);font-family:'Pretendard',sans-se
 
 /* 환율 */
 .fx-row{display:flex;align-items:center;justify-content:center;gap:8px}
-.fx-input{background:var(--yellow-light);border:1px solid #f57f17;border-radius:8px;color:var(--yellow);padding:5px 8px;font-size:16px;font-weight:800;width:90px;text-align:center;font-family:'JetBrains Mono',monospace}
+.fx-input{background:#fffce8;border:1px solid #f57f17;border-radius:8px;color:var(--yellow);padding:5px 8px;font-size:16px;font-weight:800;width:90px;text-align:center;font-family:'JetBrains Mono',monospace}
 .fx-time{font-size:10px;color:var(--muted);margin-top:4px}
 
 /* 추세선 차트 */
@@ -1709,7 +1709,7 @@ function fetchMarketIndices(){
     {sym:"^GSPC",id:"GSPC",name:"S&P500"}
   ];
   indices.forEach(function(idx){
-    var url="https://query1.finance.yahoo.com/v8/finance/chart/"+encodeURIComponent(idx.sym)+"?interval=1d&range=1d";
+    var url="https://query1.finance.yahoo.com/v8/finance/chart/"+encodeURIComponent(idx.sym)+"?interval=1m&range=1d";
     fetch("https://api.allorigins.win/raw?url="+encodeURIComponent(url))
       .then(function(r){return r.json();})
       .then(function(data){
