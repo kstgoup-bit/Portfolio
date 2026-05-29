@@ -771,7 +771,15 @@ body { font-family:'Pretendard',sans-serif !important; }
   <div class="div-add-form">
     <div style="font-size:12px;font-weight:800;color:var(--green-mid);margin-bottom:10px">💰 배당금 직접 입력</div>
     <div class="f-lbl">종목명</div><input class="f-inp" id="divName" placeholder="예: SPGI">
-    <div class="f-lbl">배당금액 (원)</div><input class="f-inp" type="number" id="divAmt" placeholder="0">
+    <div class="f-lbl">배당금액</div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <input class="f-inp" type="number" id="divAmt" placeholder="0" style="flex:1;margin-bottom:0">
+      <select id="divCur" style="border:1px solid var(--border);border-radius:8px;padding:10px 8px;font-size:13px;font-weight:700;background:#fff;color:var(--text);font-family:'Noto Sans KR',sans-serif">
+        <option value="KRW">₩ 원</option>
+        <option value="USD">$ 달러</option>
+      </select>
+    </div>
+    <div id="divUsdPreview" style="font-size:11px;color:var(--muted);margin-top:4px;margin-bottom:8px;display:none"></div>
     <div class="f-lbl">수령일</div><input class="f-inp" type="date" id="divDate">
     <div class="f-btns">
       <button class="btn-ok" style="background:linear-gradient(135deg,#66bb6a,#43a047);box-shadow:0 4px 14px rgba(67,160,71,0.35);border:none" onclick="addDiv()">추가</button>
@@ -3026,13 +3034,33 @@ function renderDivByTicker(){
 function addDiv() {
   var name=document.getElementById("divName").value.trim();
   var amt=parseFloat(document.getElementById("divAmt").value)||0;
+  var cur=document.getElementById("divCur").value;
   var date=document.getElementById("divDate").value;
   if(!name||!amt||!date){alert("모두 입력해주세요");return;}
-  divList.push({name:name,amount:amt,date:date});
+  var amtKrw=cur==="USD"?Math.round(amt*getRate()):Math.round(amt);
+  divList.push({name:name,amount:amtKrw,date:date,usd:cur==="USD"?amt:null});
   document.getElementById("divName").value="";
   document.getElementById("divAmt").value="";
+  document.getElementById("divUsdPreview").style.display="none";
   save(); renderDividend();
 }
+
+// 달러 입력 시 원화 미리보기
+document.addEventListener("DOMContentLoaded",function(){
+  var amtEl=document.getElementById("divAmt");
+  var curEl=document.getElementById("divCur");
+  var preview=document.getElementById("divUsdPreview");
+  function updatePreview(){
+    if(!amtEl||!curEl||!preview) return;
+    if(curEl.value==="USD"&&parseFloat(amtEl.value)>0){
+      var krw=Math.round(parseFloat(amtEl.value)*getRate());
+      preview.textContent="≈ "+krw.toLocaleString()+"원 (환율 "+getRate()+"원 기준)";
+      preview.style.display="block";
+    } else { preview.style.display="none"; }
+  }
+  if(amtEl) amtEl.addEventListener("input",updatePreview);
+  if(curEl) curEl.addEventListener("change",updatePreview);
+});
 
 function delDiv(i) {
   divList.splice(i,1);
