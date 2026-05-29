@@ -172,7 +172,7 @@ body{background:var(--sky-bg);color:var(--text);font-family:'Pretendard',sans-se
 /* 환율 */
 .fx-row{display:flex;align-items:center;justify-content:center;gap:8px}
 .fx-input{background:var(--yellow-light);border:1px solid #f57f17;border-radius:8px;color:var(--yellow);padding:5px 8px;font-size:16px;font-weight:800;width:90px;text-align:center;font-family:'JetBrains Mono',monospace}
-.fx-time{font-size:10px;color:var(--muted);margin-top:4px;text-align:center}
+.fx-time{font-size:10px;color:var(--muted);margin-top:4px}
 
 /* 추세선 차트 */
 .chart-wrap{background:#fff;border-radius:14px;padding:16px;border:1px solid var(--border);margin-bottom:10px;box-shadow:var(--shadow)}
@@ -1702,30 +1702,35 @@ function updateBrief() {
 // 📊 실시간 시장 지수
 // ═══════════════════════════════
 function fetchMarketIndices(){
-  var names={"KS11":"코스피","KQ11":"코스닥","IXIC":"나스닥","GSPC":"S&P500"};
-  var url="https://query2.finance.yahoo.com/v7/finance/quote?symbols=%5EKS11,%5EKQ11,%5EIXIC,%5EGSPC";
-  fetch("https://corsproxy.io/?"+encodeURIComponent(url))
-    .then(function(r){return r.json();})
-    .then(function(data){
-      var results=(data.quoteResponse&&data.quoteResponse.result)||[];
-      results.forEach(function(q){
-        var id=q.symbol.replace("^","");
-        var el=document.getElementById("mkt-"+id);
-        if(!el) return;
-        var price=q.regularMarketPrice||0;
-        var chg=q.regularMarketChangePercent||0;
+  var indices=[
+    {sym:"^KS11",id:"KS11",name:"코스피"},
+    {sym:"^KQ11",id:"KQ11",name:"코스닥"},
+    {sym:"^IXIC",id:"IXIC",name:"나스닥"},
+    {sym:"^GSPC",id:"GSPC",name:"S&P500"}
+  ];
+  indices.forEach(function(idx){
+    var url="https://query1.finance.yahoo.com/v8/finance/chart/"+encodeURIComponent(idx.sym)+"?interval=1d&range=1d";
+    fetch("https://api.allorigins.win/raw?url="+encodeURIComponent(url))
+      .then(function(r){return r.json();})
+      .then(function(data){
+        var meta=data.chart&&data.chart.result&&data.chart.result[0]&&data.chart.result[0].meta;
+        if(!meta) return;
+        var price=meta.regularMarketPrice||0;
+        var prev=meta.chartPreviousClose||meta.previousClose||price;
+        var chg=prev&&prev!==price?((price-prev)/prev*100):0;
         var up=chg>=0;
-        var arrow=up?"▲":"▼";
         var priceStr=price>=1000?Math.round(price).toLocaleString():price.toFixed(2);
+        var el=document.getElementById("mkt-"+idx.id);
+        if(!el) return;
         el.querySelector(".mkt-price").textContent=priceStr;
         var chgEl=el.querySelector(".mkt-chg");
-        chgEl.textContent=arrow+Math.abs(chg).toFixed(2)+"%";
+        chgEl.textContent=(up?"▲":"▼")+Math.abs(chg).toFixed(2)+"%";
         chgEl.className="mkt-chg "+(up?"mkt-up":"mkt-dn");
-      });
-      var t=document.getElementById("mktTime");
-      if(t){var n=new Date(); t.textContent=n.getHours()+":"+String(n.getMinutes()).padStart(2,"0")+" 갱신";}
-    })
-    .catch(function(){});
+      })
+      .catch(function(){});
+  });
+  var t=document.getElementById("mktTime");
+  if(t){var n=new Date();t.textContent=n.getHours()+":"+String(n.getMinutes()).padStart(2,"0")+" 갱신";}
 }
 
 function renderAll() {
