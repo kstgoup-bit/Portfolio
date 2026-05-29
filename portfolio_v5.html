@@ -61,7 +61,7 @@ body{background:var(--sky-bg);color:var(--text);font-family:'Pretendard',sans-se
 .ha-label{font-size:9px;color:#90caf9}
 .ha-val{font-size:17px;font-weight:900;color:#fff;font-family:'JetBrains Mono',monospace !important;}
 .ha-pnl{font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace !important;}
-.mkt-item{background:#fff;border:1px solid #e0e0e0;border-radius:10px;padding:10px 12px}
+.mkt-item{background:#fffde7;border:1px solid #ffe082;border-radius:8px;padding:6px 10px}
 .mkt-name{font-size:11px;color:var(--muted);font-weight:600;margin-bottom:4px}
 .mkt-row{display:flex;align-items:baseline;justify-content:space-between;gap:4px}
 .mkt-price{font-size:17px;font-weight:900;color:#1a1a2e;letter-spacing:-0.5px}
@@ -1716,8 +1716,7 @@ function fetchMarketIndices(){
         var meta=data.chart&&data.chart.result&&data.chart.result[0]&&data.chart.result[0].meta;
         if(!meta) return;
         var price=meta.regularMarketPrice||0;
-        var prev=meta.chartPreviousClose||price;
-        var chg=prev?((price-prev)/prev*100):0;
+        var chg=meta.regularMarketChangePercent||(meta.regularMarketChange&&meta.previousClose?(meta.regularMarketChange/meta.previousClose*100):0);
         var up=chg>=0;
         var arrow=up?"▲":"▼";
         var cls=up?"mkt-up":"mkt-dn";
