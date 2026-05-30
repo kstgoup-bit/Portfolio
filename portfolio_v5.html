@@ -985,11 +985,13 @@ body { font-family:'Pretendard',sans-serif !important; }
   <!-- 수입 -->
   <div class="ldg-card">
     <div class="ldg-title" style="color:#1565c0">💰 수입</div>
-    <div style="margin-bottom:6px"><input type="date" id="ldgIncDate" style="width:100%;padding:6px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;background:var(--sky-bg);color:var(--text)"></div>
+    <div class="ldg-row">
+      <input type="date" id="ldgIncDate" style="flex:1;min-width:0;padding:6px 8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;background:var(--sky-bg);color:var(--text)">
+      <button class="ldg-add-btn" style="background:#1565c0" onclick="addLedger('income')">추가</button>
+    </div>
     <div class="ldg-row">
       <input class="ldg-inp-name" id="ldgIncName" placeholder="항목명">
       <input class="ldg-inp-amt" id="ldgIncAmt" type="number" placeholder="금액(원)">
-      <button class="ldg-add-btn" style="background:#1565c0" onclick="addLedger('income')">추가</button>
     </div>
     <div id="ldgIncList"></div>
   </div>
@@ -997,11 +999,13 @@ body { font-family:'Pretendard',sans-serif !important; }
   <!-- 지출 -->
   <div class="ldg-card">
     <div class="ldg-title" style="color:#c62828">💸 지출</div>
-    <div style="margin-bottom:6px"><input type="date" id="ldgExpDate" style="width:100%;padding:6px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;background:var(--sky-bg);color:var(--text)"></div>
+    <div class="ldg-row">
+      <input type="date" id="ldgExpDate" style="flex:1;min-width:0;padding:6px 8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;background:var(--sky-bg);color:var(--text)">
+      <button class="ldg-add-btn" style="background:#c62828" onclick="addLedger('expense')">추가</button>
+    </div>
     <div class="ldg-row">
       <input class="ldg-inp-name" id="ldgExpName" placeholder="항목명">
       <input class="ldg-inp-amt" id="ldgExpAmt" type="number" placeholder="금액(원)">
-      <button class="ldg-add-btn" style="background:#c62828" onclick="addLedger('expense')">추가</button>
     </div>
     <div id="ldgExpList"></div>
   </div>
@@ -1009,11 +1013,20 @@ body { font-family:'Pretendard',sans-serif !important; }
   <!-- 투자 -->
   <div class="ldg-card">
     <div class="ldg-title" style="color:#7b1fa2">📈 투자</div>
-    <div style="margin-bottom:6px"><input type="date" id="ldgInvDate" style="width:100%;padding:6px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;background:var(--sky-bg);color:var(--text)"></div>
+    <div class="ldg-row">
+      <input type="date" id="ldgInvDate" style="flex:1;min-width:0;padding:6px 8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;background:var(--sky-bg);color:var(--text)">
+      <select id="ldgInvBroker" style="padding:6px 6px;border:1.5px solid var(--border);border-radius:8px;font-size:12px;font-weight:700;background:var(--sky-bg);color:var(--text);flex-shrink:0;font-family:'Noto Sans KR',sans-serif">
+        <option value="">증권사</option>
+        <option value="연금">연금</option>
+        <option value="신한">신한</option>
+        <option value="KB">KB</option>
+        <option value="메리츠">메리츠</option>
+      </select>
+      <button class="ldg-add-btn" style="background:#7b1fa2" onclick="addLedger('invest')">추가</button>
+    </div>
     <div class="ldg-row">
       <input class="ldg-inp-name" id="ldgInvName" placeholder="항목명 (예: QTOP, NVDA)">
       <input class="ldg-inp-amt" id="ldgInvAmt" type="number" placeholder="금액(원)">
-      <button class="ldg-add-btn" style="background:#7b1fa2" onclick="addLedger('invest')">추가</button>
     </div>
     <div id="ldgInvList"></div>
   </div>
@@ -3762,13 +3775,16 @@ function addLedger(type){
   var amt=parseFloat(amtEl.value);
   var date=dateEl?dateEl.value:"";
   if(!name||!amt||amt<=0){alert("항목명과 금액을 입력해주세요");return;}
+  var broker="";
+  if(type==="invest"){var bEl=document.getElementById("ldgInvBroker"); if(bEl) broker=bEl.value;}
+  var entry={name:(broker?broker+" ":"")+name,amount:amt,date:date};
   var data=loadLedgerData();
   var key=getLedgerKey();
   if(!data[key]) data[key]={income:[],expense:[],invest:[]};
   if(!data[key].income) data[key].income=[];
   if(!data[key].expense) data[key].expense=[];
   if(!data[key].invest) data[key].invest=[];
-  data[key][type].push({name:name,amount:amt,date:date});
+  data[key][type].push(entry);
   saveLedgerData(data);
   nameEl.value=""; amtEl.value="";
   renderLedger();
