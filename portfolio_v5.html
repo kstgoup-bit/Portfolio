@@ -340,8 +340,8 @@ body { font-family:'Pretendard',sans-serif !important; }
 
 /* 목표 달성바 그라데이션 + 빛나는 끝 */
 .goal-bar-fill, #goalFill {
-  background: linear-gradient(90deg, #FFF9C4, #FFD700, #7c3aed, #1a237e) !important;
-  box-shadow: 0 0 10px rgba(124,58,237,0.5) !important;
+  background: linear-gradient(90deg, #ffffff, #ff1744, #7c3aed, #1a237e) !important;
+  box-shadow: 0 0 12px rgba(255,23,68,0.5) !important;
   border-radius: 99px !important;
   transition: width 1s cubic-bezier(0.4,0,0.2,1) !important;
 }
@@ -3021,13 +3021,14 @@ function renderDivByTicker(){
     var name=pair[0], val=pair[1];
     var pct=Math.round(val/maxV*100);
     var ratio=Math.round(val/totalAll*100);
+    var barW=ratio; // 막대 너비 = 전체 합계 기준 비율
     return '<div style="margin-bottom:10px">'+
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'+
         '<span style="font-size:14px;font-weight:800;color:#1a1a2e">'+name+'</span>'+
         '<span style="font-size:13px;font-weight:700;color:#43a047">'+Math.round(val).toLocaleString()+'원 <span style="font-size:11px;color:#aaa">('+ratio+'%)</span></span>'+
       '</div>'+
       '<div style="height:8px;background:linear-gradient(90deg,#f1f8f1,#e8f5e9);border-radius:4px;overflow:hidden;padding:0 2px">'+
-        '<div style="height:100%;width:'+pct+'%;background:linear-gradient(90deg,#c8e6c9,#66bb6a,#43a047);border-radius:4px;transition:width 0.6s ease"></div>'+
+        '<div style="height:100%;width:'+barW+'%;background:linear-gradient(90deg,#c8e6c9,#66bb6a,#43a047);border-radius:4px;transition:width 0.6s ease"></div>'+
       '</div>'+
     '</div>';
   }).join("");
