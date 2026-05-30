@@ -3098,7 +3098,7 @@ function renderDivBarChart() {
     var amtLbl=v>=1000000?(v/10000).toFixed(0)+'만':v>=1000?(v/1000).toFixed(0)+'천':'';
     return (v>0?
       '<defs><linearGradient id="dgy'+i+'" x1="0" y1="0" x2="0" y2="1">'+
-        '<stop offset="0%" stop-color="#a5d6a7"/><stop offset="100%" stop-color="#43a047"/>'+
+        '<stop offset="0%" stop-color="#2e7d32"/><stop offset="100%" stop-color="#a5d6a7"/>'+
       '</linearGradient></defs>'+
       '<rect x="'+x+'" y="'+y+'" width="'+barW+'" height="'+bh+'" fill="url(#dgy'+i+')" rx="3"/>'+
       '<text x="'+cx+'" y="'+labelY+'" text-anchor="middle" font-size="10" fill="#2e7d32" font-weight="800">'+amtLbl+'</text>'
