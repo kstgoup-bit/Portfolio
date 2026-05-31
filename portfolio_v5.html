@@ -250,8 +250,8 @@ body{background:var(--sky-bg);color:var(--text);font-family:'Pretendard',sans-se
 .ldg-title{font-size:15px;font-weight:800;margin-bottom:12px;display:flex;align-items:center;gap:6px}
 .ldg-row{display:flex;gap:6px;margin-bottom:6px;align-items:center;flex-wrap:nowrap}
 .ldg-inp-name{flex:7;min-width:0;padding:8px 8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;background:var(--sky-bg);color:var(--text)}
-.ldg-inp-amt{flex:3;min-width:0;padding:8px 8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-weight:700;text-align:right;background:var(--sky-bg);color:var(--text)}
-.ldg-add-btn{padding:8px 10px;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;color:#fff;flex-shrink:0}
+.ldg-inp-amt{flex:3;min-width:0;padding:10px 8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-weight:700;text-align:right;background:var(--sky-bg);color:var(--text)}
+.ldg-add-btn{flex:3;min-width:0;padding:10px 0;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;color:#fff;text-align:center}
 .ldg-item{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--sky-bg);border-radius:8px;margin-bottom:5px}
 .ldg-item-name{font-size:13px;color:var(--text);font-weight:600}
 .ldg-item-amt{font-size:14px;font-weight:800}
@@ -987,7 +987,7 @@ body { font-family:'Pretendard',sans-serif !important; }
   <div class="ldg-card">
     <div class="ldg-title" style="color:#1565c0">💰 수입</div>
     <div class="ldg-row">
-      <input type="date" id="ldgIncDate" style="flex:1;min-width:0;padding:6px 8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;background:var(--sky-bg);color:var(--text)">
+      <input type="date" id="ldgIncDate" style="flex:4;min-width:0;padding:10px 8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;background:var(--sky-bg);color:var(--text)">
       <button class="ldg-add-btn" style="background:#42a5f5" onclick="addLedger('income')">추가</button>
     </div>
     <div class="ldg-row">
@@ -1001,7 +1001,7 @@ body { font-family:'Pretendard',sans-serif !important; }
   <div class="ldg-card">
     <div class="ldg-title" style="color:#c62828">💸 지출</div>
     <div class="ldg-row">
-      <input type="date" id="ldgExpDate" style="flex:1;min-width:0;padding:6px 8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;background:var(--sky-bg);color:var(--text)">
+      <input type="date" id="ldgExpDate" style="flex:4;min-width:0;padding:10px 8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;background:var(--sky-bg);color:var(--text)">
       <button class="ldg-add-btn" style="background:#ef5350" onclick="addLedger('expense')">추가</button>
     </div>
     <div class="ldg-row">
@@ -1015,7 +1015,7 @@ body { font-family:'Pretendard',sans-serif !important; }
   <div class="ldg-card">
     <div class="ldg-title" style="color:#7b1fa2">📈 투자</div>
     <div class="ldg-row">
-      <input type="date" id="ldgInvDate" style="flex:1;min-width:0;padding:6px 8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;background:var(--sky-bg);color:var(--text)">
+      <input type="date" id="ldgInvDate" style="flex:4;min-width:0;padding:10px 8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;background:var(--sky-bg);color:var(--text)">
       <select id="ldgInvBroker" style="padding:6px 6px;border:1.5px solid var(--border);border-radius:8px;font-size:12px;font-weight:700;background:var(--sky-bg);color:var(--text);flex-shrink:0;font-family:'Noto Sans KR',sans-serif">
         <option value="">증권사</option>
         <option value="연금">연금</option>
@@ -3888,9 +3888,9 @@ function renderLedger(){
     return total;
   }
 
-  var totalInc=renderList(month.income||[],"income","ldgIncList","#1565c0");
-  var totalExp=renderList(month.expense||[],"expense","ldgExpList","#c62828");
-  var totalInv=renderList(month.invest||[],"invest","ldgInvList","#7b1fa2");
+  var totalInc=renderList(month.income||[],"income","ldgIncList","#42a5f5");
+  var totalExp=renderList(month.expense||[],"expense","ldgExpList","#ef5350");
+  var totalInv=renderList(month.invest||[],"invest","ldgInvList","#ab47bc");
   var balance=totalInc-totalExp-totalInv;
 
   var ti=document.getElementById("ldgTotalInc");
