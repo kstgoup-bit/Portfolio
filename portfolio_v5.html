@@ -986,13 +986,13 @@ body { font-family:'Pretendard',sans-serif !important; }
   <!-- 수입 -->
   <div class="ldg-card">
     <div class="ldg-title" style="color:#1565c0">💰 수입</div>
-    <div class="ldg-row">
-      <input type="date" id="ldgIncDate" style="flex:7;min-width:0;height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--sky-bg);color:var(--text);box-sizing:border-box">
-      <button class="ldg-add-btn" style="background:#42a5f5" onclick="addLedger('income')">추가</button>
+    <div style="display:flex;gap:6px;margin-bottom:6px">
+      <input type="date" id="ldgIncDate" style="flex:7;height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--sky-bg);color:var(--text);box-sizing:border-box;min-width:0">
+      <button onclick="addLedger('income')" style="flex:3;height:38px;background:#42a5f5;border:none;border-radius:8px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;min-width:0">추가</button>
     </div>
-    <div class="ldg-row">
-      <input class="ldg-inp-name" id="ldgIncName" placeholder="항목명">
-      <input class="ldg-inp-amt" id="ldgIncAmt" type="number" placeholder="금액(원)">
+    <div style="display:flex;gap:6px;margin-bottom:6px">
+      <input id="ldgIncName" placeholder="항목명" style="flex:7;height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--sky-bg);color:var(--text);box-sizing:border-box;min-width:0">
+      <input id="ldgIncAmt" type="number" placeholder="금액(원)" style="flex:3;height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-weight:700;text-align:right;background:var(--sky-bg);color:var(--text);box-sizing:border-box;min-width:0">
     </div>
     <div id="ldgIncList"></div>
   </div>
@@ -1000,13 +1000,13 @@ body { font-family:'Pretendard',sans-serif !important; }
   <!-- 지출 -->
   <div class="ldg-card">
     <div class="ldg-title" style="color:#c62828">💸 지출</div>
-    <div class="ldg-row">
-      <input type="date" id="ldgExpDate" style="flex:7;min-width:0;height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--sky-bg);color:var(--text);box-sizing:border-box">
-      <button class="ldg-add-btn" style="background:#ef5350" onclick="addLedger('expense')">추가</button>
+    <div style="display:flex;gap:6px;margin-bottom:6px">
+      <input type="date" id="ldgExpDate" style="flex:7;height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--sky-bg);color:var(--text);box-sizing:border-box;min-width:0">
+      <button onclick="addLedger('expense')" style="flex:3;height:38px;background:#ef5350;border:none;border-radius:8px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;min-width:0">추가</button>
     </div>
-    <div class="ldg-row">
-      <input class="ldg-inp-name" id="ldgExpName" placeholder="항목명">
-      <input class="ldg-inp-amt" id="ldgExpAmt" type="number" placeholder="금액(원)">
+    <div style="display:flex;gap:6px;margin-bottom:6px">
+      <input id="ldgExpName" placeholder="항목명" style="flex:7;height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--sky-bg);color:var(--text);box-sizing:border-box;min-width:0">
+      <input id="ldgExpAmt" type="number" placeholder="금액(원)" style="flex:3;height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-weight:700;text-align:right;background:var(--sky-bg);color:var(--text);box-sizing:border-box;min-width:0">
     </div>
     <div id="ldgExpList"></div>
   </div>
@@ -1014,20 +1014,20 @@ body { font-family:'Pretendard',sans-serif !important; }
   <!-- 투자 -->
   <div class="ldg-card">
     <div class="ldg-title" style="color:#7b1fa2">📈 투자</div>
-    <div class="ldg-row">
-      <input type="date" id="ldgInvDate" style="flex:4;min-width:0;height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--sky-bg);color:var(--text);box-sizing:border-box">
-      <select id="ldgInvBroker" style="flex:3;min-width:0;height:38px;padding:0 6px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-weight:700;background:var(--sky-bg);color:var(--text);box-sizing:border-box;font-family:'Noto Sans KR',sans-serif">
+    <div style="display:flex;gap:6px;margin-bottom:6px">
+      <input type="date" id="ldgInvDate" style="flex:4;height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--sky-bg);color:var(--text);box-sizing:border-box;min-width:0">
+      <select id="ldgInvBroker" style="flex:3;height:38px;padding:0 4px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-weight:700;background:var(--sky-bg);color:var(--text);box-sizing:border-box;min-width:0;font-family:'Noto Sans KR',sans-serif">
         <option value="">증권사</option>
         <option value="연금">연금</option>
         <option value="신한">신한</option>
         <option value="KB">KB</option>
         <option value="메리츠">메리츠</option>
       </select>
-      <button class="ldg-add-btn" style="background:#ab47bc" onclick="addLedger('invest')">추가</button>
+      <button onclick="addLedger('invest')" style="flex:3;height:38px;background:#ab47bc;border:none;border-radius:8px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;min-width:0">추가</button>
     </div>
-    <div class="ldg-row">
-      <input class="ldg-inp-name" id="ldgInvName" placeholder="항목명 (예: QTOP, NVDA)">
-      <input class="ldg-inp-amt" id="ldgInvAmt" type="number" placeholder="금액(원)">
+    <div style="display:flex;gap:6px;margin-bottom:6px">
+      <input id="ldgInvName" placeholder="항목명 (예: QTOP, NVDA)" style="flex:7;height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--sky-bg);color:var(--text);box-sizing:border-box;min-width:0">
+      <input id="ldgInvAmt" type="number" placeholder="금액(원)" style="flex:3;height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-weight:700;text-align:right;background:var(--sky-bg);color:var(--text);box-sizing:border-box;min-width:0">
     </div>
     <div id="ldgInvList"></div>
   </div>
