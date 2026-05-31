@@ -249,9 +249,9 @@ body{background:var(--sky-bg);color:var(--text);font-family:'Pretendard',sans-se
 .ldg-card{background:#fff;border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:0 2px 10px rgba(0,128,100,0.08);border:1px solid rgba(0,137,123,0.15)}
 .ldg-title{font-size:15px;font-weight:800;margin-bottom:12px;display:flex;align-items:center;gap:6px}
 .ldg-row{display:flex;gap:6px;margin-bottom:6px;align-items:stretch;flex-wrap:nowrap}
-.ldg-inp-name{flex:7;min-width:0;padding:8px 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--sky-bg);color:var(--text)}
-.ldg-inp-amt{flex:3;min-width:0;padding:8px 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-weight:700;text-align:right;background:var(--sky-bg);color:var(--text)}
-.ldg-add-btn{flex:3;min-width:0;padding:8px 0;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap;color:#fff;text-align:center}
+.ldg-inp-name{flex:7;min-width:0;height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--sky-bg);color:var(--text);box-sizing:border-box}
+.ldg-inp-amt{flex:3;min-width:0;height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-weight:700;text-align:right;background:var(--sky-bg);color:var(--text);box-sizing:border-box}
+.ldg-add-btn{flex:3;min-width:0;height:38px;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;color:#fff;text-align:center;box-sizing:border-box}
 .ldg-item{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--sky-bg);border-radius:8px;margin-bottom:5px}
 .ldg-item-name{font-size:13px;color:var(--text);font-weight:600}
 .ldg-item-amt{font-size:14px;font-weight:800}
@@ -987,7 +987,7 @@ body { font-family:'Pretendard',sans-serif !important; }
   <div class="ldg-card">
     <div class="ldg-title" style="color:#1565c0">💰 수입</div>
     <div class="ldg-row">
-      <input type="date" id="ldgIncDate" style="flex:7;min-width:0;padding:8px 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--sky-bg);color:var(--text)">
+      <input type="date" id="ldgIncDate" style="flex:7;min-width:0;height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--sky-bg);color:var(--text);box-sizing:border-box">
       <button class="ldg-add-btn" style="background:#42a5f5" onclick="addLedger('income')">추가</button>
     </div>
     <div class="ldg-row">
@@ -1001,7 +1001,7 @@ body { font-family:'Pretendard',sans-serif !important; }
   <div class="ldg-card">
     <div class="ldg-title" style="color:#c62828">💸 지출</div>
     <div class="ldg-row">
-      <input type="date" id="ldgExpDate" style="flex:7;min-width:0;padding:8px 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--sky-bg);color:var(--text)">
+      <input type="date" id="ldgExpDate" style="flex:7;min-width:0;height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--sky-bg);color:var(--text);box-sizing:border-box">
       <button class="ldg-add-btn" style="background:#ef5350" onclick="addLedger('expense')">추가</button>
     </div>
     <div class="ldg-row">
@@ -1015,8 +1015,8 @@ body { font-family:'Pretendard',sans-serif !important; }
   <div class="ldg-card">
     <div class="ldg-title" style="color:#7b1fa2">📈 투자</div>
     <div class="ldg-row">
-      <input type="date" id="ldgInvDate" style="flex:4;min-width:0;padding:8px 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--sky-bg);color:var(--text)">
-      <select id="ldgInvBroker" style="flex:3;min-width:0;padding:8px 6px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-weight:700;background:var(--sky-bg);color:var(--text);font-family:'Noto Sans KR',sans-serif">
+      <input type="date" id="ldgInvDate" style="flex:4;min-width:0;height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--sky-bg);color:var(--text);box-sizing:border-box">
+      <select id="ldgInvBroker" style="flex:3;min-width:0;height:38px;padding:0 6px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-weight:700;background:var(--sky-bg);color:var(--text);box-sizing:border-box;font-family:'Noto Sans KR',sans-serif">
         <option value="">증권사</option>
         <option value="연금">연금</option>
         <option value="신한">신한</option>
