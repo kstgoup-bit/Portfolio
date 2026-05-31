@@ -3888,9 +3888,9 @@ function renderLedger(){
     return total;
   }
 
-  var totalInc=renderList(month.income||[],"income","ldgIncList","#42a5f5");
-  var totalExp=renderList(month.expense||[],"expense","ldgExpList","#ef5350");
-  var totalInv=renderList(month.invest||[],"invest","ldgInvList","#ab47bc");
+  var totalInc=renderList(month.income||[],"income","ldgIncList","#1565c0");
+  var totalExp=renderList(month.expense||[],"expense","ldgExpList","#c62828");
+  var totalInv=renderList(month.invest||[],"invest","ldgInvList","#7b1fa2");
   var balance=totalInc-totalExp-totalInv;
 
   var ti=document.getElementById("ldgTotalInc");
