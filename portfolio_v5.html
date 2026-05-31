@@ -986,11 +986,11 @@ body { font-family:'Pretendard',sans-serif !important; }
   <!-- 수입 -->
   <div class="ldg-card">
     <div class="ldg-title" style="color:#1565c0">💰 수입</div>
-    <div style="display:grid;grid-template-columns:7fr 3fr;gap:6px;margin-bottom:6px">
+    <div style="display:grid;grid-template-columns:6fr 4fr;gap:6px;margin-bottom:6px">
       <input type="date" id="ldgIncDate" style="height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--sky-bg);color:var(--text);box-sizing:border-box;width:100%">
       <button onclick="addLedger('income')" style="height:38px;background:#42a5f5;border:none;border-radius:8px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;width:100%">추가</button>
     </div>
-    <div style="display:grid;grid-template-columns:7fr 3fr;gap:6px;margin-bottom:6px">
+    <div style="display:grid;grid-template-columns:6fr 4fr;gap:6px;margin-bottom:6px">
       <input id="ldgIncName" placeholder="항목명" style="height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--sky-bg);color:var(--text);box-sizing:border-box;width:100%">
       <input id="ldgIncAmt" type="number" placeholder="금액(원)" style="height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-weight:700;text-align:right;background:var(--sky-bg);color:var(--text);box-sizing:border-box;width:100%">
     </div>
@@ -1000,11 +1000,11 @@ body { font-family:'Pretendard',sans-serif !important; }
   <!-- 지출 -->
   <div class="ldg-card">
     <div class="ldg-title" style="color:#c62828">💸 지출</div>
-    <div style="display:grid;grid-template-columns:7fr 3fr;gap:6px;margin-bottom:6px">
+    <div style="display:grid;grid-template-columns:6fr 4fr;gap:6px;margin-bottom:6px">
       <input type="date" id="ldgExpDate" style="height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--sky-bg);color:var(--text);box-sizing:border-box;width:100%">
       <button onclick="addLedger('expense')" style="height:38px;background:#ef5350;border:none;border-radius:8px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;width:100%">추가</button>
     </div>
-    <div style="display:grid;grid-template-columns:7fr 3fr;gap:6px;margin-bottom:6px">
+    <div style="display:grid;grid-template-columns:6fr 4fr;gap:6px;margin-bottom:6px">
       <input id="ldgExpName" placeholder="항목명" style="height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--sky-bg);color:var(--text);box-sizing:border-box;width:100%">
       <input id="ldgExpAmt" type="number" placeholder="금액(원)" style="height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-weight:700;text-align:right;background:var(--sky-bg);color:var(--text);box-sizing:border-box;width:100%">
     </div>
@@ -1014,7 +1014,7 @@ body { font-family:'Pretendard',sans-serif !important; }
   <!-- 투자 -->
   <div class="ldg-card">
     <div class="ldg-title" style="color:#7b1fa2">📈 투자</div>
-    <div style="display:grid;grid-template-columns:4fr 3fr 3fr;gap:6px;margin-bottom:6px">
+    <div style="display:grid;grid-template-columns:3fr 3fr 4fr;gap:6px;margin-bottom:6px">
       <input type="date" id="ldgInvDate" style="height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--sky-bg);color:var(--text);box-sizing:border-box;width:100%">
       <select id="ldgInvBroker" style="height:38px;padding:0 4px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-weight:700;background:var(--sky-bg);color:var(--text);box-sizing:border-box;width:100%;font-family:'Noto Sans KR',sans-serif">
         <option value="">증권사</option>
@@ -1025,7 +1025,7 @@ body { font-family:'Pretendard',sans-serif !important; }
       </select>
       <button onclick="addLedger('invest')" style="height:38px;background:#ab47bc;border:none;border-radius:8px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;width:100%">추가</button>
     </div>
-    <div style="display:grid;grid-template-columns:7fr 3fr;gap:6px;margin-bottom:6px">
+    <div style="display:grid;grid-template-columns:6fr 4fr;gap:6px;margin-bottom:6px">
       <input id="ldgInvName" placeholder="항목명 (예: QTOP, NVDA)" style="height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--sky-bg);color:var(--text);box-sizing:border-box;width:100%">
       <input id="ldgInvAmt" type="number" placeholder="금액(원)" style="height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-weight:700;text-align:right;background:var(--sky-bg);color:var(--text);box-sizing:border-box;width:100%">
     </div>
@@ -3902,7 +3902,7 @@ function renderLedger(){
   if(tiv) tiv.textContent=totalInv.toLocaleString()+"원";
   if(tb){
     tb.textContent=(balance>=0?"+":"")+balance.toLocaleString()+"원";
-    tb.style.color=balance>=0?"#00897b":"#c62828";
+    tb.style.color=balance>=0?"#1565c0":"#c62828";
   }
 
   // 월별 투자 막대그래프
