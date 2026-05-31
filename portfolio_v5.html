@@ -543,6 +543,7 @@ body { font-family:'Pretendard',sans-serif !important; }
   <button class="tab" onclick="switchTab('ledger')">📒 가계부</button>
   <button class="tab" onclick="switchTab('news')">📰 뉴스</button>
   <button class="tab" onclick="switchTab('commandments')">📜 10계명</button>
+  <button class="tab" onclick="switchTab('memo')">📝 메모</button>
   <button class="tab" onclick="switchTab('settings')">⚙️ 설정</button>
 </div>
 </div>
@@ -1073,6 +1074,19 @@ body { font-family:'Pretendard',sans-serif !important; }
       🔄 새로고침을 눌러<br>보유종목 최신 뉴스를 불러오세요
     </div>
   </div>
+</div>
+
+<!-- 메모 -->
+<div class="panel" id="panel-memo">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+    <div style="font-size:16px;font-weight:900;color:var(--text)">📝 메모장</div>
+    <span style="font-size:11px;color:var(--muted)" id="memoCount"></span>
+  </div>
+  <div style="display:flex;gap:8px;margin-bottom:14px">
+    <textarea id="memoInput" placeholder="생각나는 것을 메모해두세요..." style="flex:1;border:1.5px solid var(--border);border-radius:10px;padding:10px 12px;font-size:13px;font-family:'Noto Sans KR',sans-serif;resize:none;height:80px;background:var(--sky-bg);color:var(--text);outline:none"></textarea>
+    <button onclick="addMemo()" style="background:radial-gradient(circle at 40% 40%,#ffffff 0%,#e8f5e9 60%,#c8e6c9 100%);border:1.5px solid #a5d6a7;border-radius:10px;padding:0 14px;font-size:13px;font-weight:800;color:#1a1a2e;cursor:pointer;align-self:stretch;box-shadow:0 2px 6px rgba(67,160,71,0.2)">추가</button>
+  </div>
+  <div id="memoList"></div>
 </div>
 
 <!-- 설정 -->
@@ -3313,14 +3327,15 @@ function changePw() {
 // 탭 전환
 // =============================================
 function switchTab(tab) {
-  var tabs=["dashboard","domestic","overseas","pension","dividend","risk","advisor","ledger","news","commandments","settings"];
+  var tabs=["dashboard","domestic","overseas","pension","dividend","risk","advisor","ledger","news","commandments","memo","settings"];
   document.querySelectorAll(".tab").forEach(function(t,i){t.classList.toggle("active",tabs[i]===tab);});
   document.querySelectorAll(".panel").forEach(function(p){p.classList.toggle("active",p.id==="panel-"+tab);});
+  if(tab==="memo") renderMemo();
   var tabColors={
     dashboard:"#1976d2", domestic:"#f57f17", overseas:"#00838f",
     pension:"#7b1fa2", dividend:"#2e7d32", commandments:"#f57f17",
     risk:"#1e40af", advisor:"#6a1b9a", ledger:"#00897b",
-    news:"#e65100", settings:"#546e7a"
+    news:"#e65100", memo:"#795548", settings:"#546e7a"
   };
   document.querySelectorAll(".tab").forEach(function(t){
     t.style.color=""; t.style.borderColor=""; t.style.background="";
@@ -3711,6 +3726,44 @@ window.addEventListener("load", function() {
 
 
 
+// ═══════════════════════════════
+// 📝 메모장
+// ═══════════════════════════════
+function loadMemos(){ try{return JSON.parse(localStorage.getItem("v5_memos")||"[]");}catch(e){return [];} }
+function saveMemos(m){ localStorage.setItem("v5_memos",JSON.stringify(m)); }
+function addMemo(){
+  var inp=document.getElementById("memoInput");
+  var text=(inp.value||"").trim();
+  if(!text) return;
+  var memos=loadMemos();
+  var now=new Date();
+  var ds=(now.getMonth()+1)+"/"+(now.getDate())+" "+String(now.getHours()).padStart(2,"0")+":"+String(now.getMinutes()).padStart(2,"0");
+  memos.unshift({text:text,date:ds});
+  saveMemos(memos);
+  inp.value="";
+  renderMemo();
+}
+function delMemo(i){
+  var memos=loadMemos(); memos.splice(i,1); saveMemos(memos); renderMemo();
+}
+function renderMemo(){
+  var memos=loadMemos();
+  var list=document.getElementById("memoList");
+  var cnt=document.getElementById("memoCount");
+  if(!list) return;
+  if(cnt) cnt.textContent=memos.length+"개";
+  if(!memos.length){list.innerHTML='<div style="text-align:center;padding:40px 0;color:var(--muted);font-size:13px">📝 메모가 없어요</div>';return;}
+  list.innerHTML=memos.map(function(m,i){
+    return '<div style="background:#fff;border-radius:12px;padding:12px 14px;margin-bottom:8px;box-shadow:0 1px 6px rgba(0,0,0,0.07)">'
+      +'<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">'
+        +'<div style="font-size:13px;color:var(--text);line-height:1.6;flex:1;white-space:pre-wrap">'+m.text.replace(/</g,"&lt;").replace(/>/g,"&gt;")+'</div>'
+        +'<button onclick="delMemo('+i+')" style="color:#bbb;background:none;border:none;font-size:18px;cursor:pointer;padding:0;flex-shrink:0;line-height:1">×</button>'
+      +'</div>'
+      +'<div style="font-size:10px;color:var(--muted);margin-top:6px">'+m.date+'</div>'
+    +'</div>';
+  }).join("");
+}
+
 // 공포탐욕지수 수동입력
 function applyFgManual(){
   var inp=document.getElementById("rkFgInput");
@@ -3821,7 +3874,7 @@ function renderLedger(){
       total+=item.amount;
       var dateStr=item.date?'<span style="font-size:11px;font-weight:700;color:#fff;background:'+color+';border-radius:5px;padding:1px 6px;margin-right:6px">'+item.date.slice(5).replace('-','/')+'</span>':'';
       var nameDisplay=item.broker
-        ?'<b>'+item.name+'</b> <span style="font-size:11px;color:#9e9e9e;font-weight:400">'+item.broker+'</span>'
+        ?item.name+' <span style="font-size:11px;color:#616161">'+item.broker+'</span>'
         :item.name;
       html+='<div class="ldg-item">'+
         '<span class="ldg-item-name">'+dateStr+nameDisplay+'</span>'+
