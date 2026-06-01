@@ -593,7 +593,7 @@ body { font-family:'Pretendard',sans-serif !important; }
   <div class="chart-wrap">
     <div class="chart-title">📉 전체 자산 변화 추이</div>
     <div class="period-btns" id="allPeriodBtns"></div>
-    <svg id="allLineChart" viewBox="0 0 340 160" style="width:100%"></svg>
+    <svg id="allLineChart" viewBox="0 0 340 170" style="width:100%"></svg>
     <button class="record-btn" onclick="recordSnap('all')">📸 오늘 전체 자산 기록</button>
   </div>
   <!-- 자산비중 + 수익률 + 국내해외연금 -->
@@ -632,7 +632,7 @@ body { font-family:'Pretendard',sans-serif !important; }
   <div class="chart-wrap">
     <div class="chart-title" style="color:var(--yellow-accent)">📉 국내 자산 변화</div>
     <div class="period-btns" id="domPeriodBtns"></div>
-    <svg id="domLineChart" viewBox="0 0 340 160" style="width:100%"></svg>
+    <svg id="domLineChart" viewBox="0 0 340 170" style="width:100%"></svg>
     <button class="record-btn" style="background:var(--yellow-card);border-color:var(--yellow-border);color:var(--yellow-accent)" onclick="recordSnap('dom')">📸 오늘 국내 자산 기록</button>
   </div>
   <div class="pie-wrap"><svg id="domPie" viewBox="0 0 160 160" style="width:100%;max-width:200px"></svg></div>
@@ -687,7 +687,7 @@ body { font-family:'Pretendard',sans-serif !important; }
   <div class="chart-wrap">
     <div class="chart-title">📉 해외 자산 변화</div>
     <div class="period-btns" id="ovPeriodBtns"></div>
-    <svg id="ovLineChart" viewBox="0 0 340 160" style="width:100%"></svg>
+    <svg id="ovLineChart" viewBox="0 0 340 170" style="width:100%"></svg>
     <button class="record-btn" onclick="recordSnap('ov')">📸 오늘 해외 자산 기록</button>
   </div>
   <div class="pie-wrap"><svg id="ovPie" viewBox="0 0 160 160" style="width:100%;max-width:200px"></svg></div>
@@ -732,7 +732,7 @@ body { font-family:'Pretendard',sans-serif !important; }
   <div class="chart-wrap">
     <div class="chart-title" style="color:var(--purple)">📉 연금 자산 변화</div>
     <div class="period-btns" id="penPeriodBtns"></div>
-    <svg id="penLineChart" viewBox="0 0 340 160" style="width:100%"></svg>
+    <svg id="penLineChart" viewBox="0 0 340 170" style="width:100%"></svg>
     <button class="record-btn" style="background:var(--purple-light);border-color:#ce93d8;color:var(--purple)" onclick="recordSnap('pen')">📸 오늘 연금 자산 기록</button>
   </div>
   <div class="pie-wrap"><svg id="penPie" viewBox="0 0 160 160" style="width:100%;max-width:200px"></svg></div>
@@ -2518,7 +2518,7 @@ function selectPeriod(btnId, chartId, period, snapKey, color) {
 function renderLineChart(period, btnId, chartId, snapKey, color) {
   var svg=document.getElementById(chartId);
   if(!svg) return;
-  svg.setAttribute("viewBox","0 0 340 160");
+  svg.setAttribute("viewBox","0 0 340 170");
   var data=snapshots[snapKey]||[];
   if(data.length<2) {
     svg.innerHTML='<text x="170" y="80" text-anchor="middle" fill="#b0bec5" font-size="11">📸 자산 기록 버튼으로 데이터를 쌓아가세요</text>';
@@ -2549,7 +2549,7 @@ function renderLineChart(period, btnId, chartId, snapKey, color) {
   var allVals=hasCost?vals.concat(costs):vals;
   var minV=Math.min.apply(null,allVals), maxV=Math.max.apply(null,allVals);
   var range=maxV-minV||maxV*0.05||1;
-  var L=55,R=10,T=10,B=35,W=340,H=160,cW=W-L-R,cH=H-T-B;
+  var L=55,R=10,T=20,B=35,W=340,H=170,cW=W-L-R,cH=H-T-B;
   var unitDiv=maxV>=100000000?100000000:maxV>=10000000?10000000:maxV>=1000000?1000000:10000;
   var unitLbl=maxV>=100000000?"억원":maxV>=10000000?"천만원":maxV>=1000000?"백만원":"만원";
   var yLines="",yLabels="";
