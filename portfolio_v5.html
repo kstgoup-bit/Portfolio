@@ -3036,15 +3036,19 @@ function renderDividend() {
   var monthly=totalDiv/mCount;
 
   document.getElementById("divYear").textContent=Math.round(yearDiv).toLocaleString()+"원";
-  // 월 선택 드롭다운 채우기
+  // 월 선택 드롭다운 채우기 - 올해 전체 12개월
   var dsm=document.getElementById("divSumMonth");
   if(dsm){
     var curDsm=dsm.value;
-    var allMonths=[...new Set(divList.map(function(d){return d.date.substring(0,7);}))].sort().reverse();
+    var nowY=new Date().getFullYear();
+    var allMonths=[];
+    for(var mi=12;mi>=1;mi--){
+      allMonths.push(nowY+"-"+String(mi).padStart(2,"0"));
+    }
     dsm.innerHTML='<option value="">월 선택</option>'+allMonths.map(function(m){
       return '<option value="'+m+'"'+(m===curDsm?' selected':'')+'>'+m.replace('-','년 ')+'월</option>';
     }).join("");
-    if(!curDsm&&allMonths.length) dsm.value=allMonths[0];
+    if(!curDsm) dsm.value=nowY+"-"+String(new Date().getMonth()+1).padStart(2,"0");
   }
   updateDivSumMonth();
   document.getElementById("divAnnual").textContent=Math.round(annual).toLocaleString()+"원";
@@ -3060,7 +3064,11 @@ function renderDividend() {
   var mf=document.getElementById("divMonthFilter");
   if(mf){
     var curVal=mf.value;
-    var months2=[...new Set(divList.map(function(d){return d.date.substring(0,7);}))].sort().reverse();
+    var nowY2=new Date().getFullYear();
+    var months2=[];
+    for(var mi2=12;mi2>=1;mi2--){
+      months2.push(nowY2+"-"+String(mi2).padStart(2,"0"));
+    }
     mf.innerHTML='<option value="">전체</option>'+months2.map(function(m){
       return '<option value="'+m+'"'+(m===curVal?' selected':'')+'>'+m.replace('-','년 ')+'월</option>';
     }).join("");
