@@ -2580,7 +2580,7 @@ function renderLineChart(period, btnId, chartId, snapKey, color) {
     yLines+
     '<line x1="'+L+'" y1="'+T+'" x2="'+L+'" y2="'+(T+cH)+'" stroke="#c5d8f5" stroke-width="1"/>'+
     '<line x1="'+L+'" y1="'+(T+cH)+'" x2="'+(W-R)+'" y2="'+(T+cH)+'" stroke="#c5d8f5" stroke-width="1"/>'+
-    '<text x="10" y="'+(T+cH/2)+'" text-anchor="middle" font-size="8" fill="'+color+'" font-weight="bold" transform="rotate(-90,10,'+(T+cH/2)+')">'+unitLbl+'</text>'+
+    '<text x="'+(L-4)+'" y="'+(T-6)+'" text-anchor="end" font-size="8" fill="'+color+'" font-weight="bold">'+unitLbl+'</text>'+
     yLabels+
     '<path d="'+fillD+'" fill="url(#grad'+snapKey+')"/>'+
     '<path d="'+pathD+'" fill="none" stroke="'+color+'" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>'+
