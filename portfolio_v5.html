@@ -2591,7 +2591,7 @@ function renderLineChart(period, btnId, chartId, snapKey, color) {
       });
       if(costCoords.length<2) return '';
       var costD=costCoords.map(function(c,i){return (i===0?"M":"L")+c[0].toFixed(1)+","+c[1].toFixed(1);}).join(" ");
-      var costDots=costCoords.map(function(c){return '<circle cx="'+c[0].toFixed(1)+'" cy="'+c[1].toFixed(1)+'" r="2.5" fill="#fff" stroke="#90a4ae" stroke-width="1.5"/>';}).join("");
+      var costDots=costCoords.map(function(c){return '<circle cx="'+c[0].toFixed(1)+'" cy="'+c[1].toFixed(1)+'" r="1.8" fill="#fff" stroke="#90a4ae" stroke-width="1.2"/>';}).join("");
       return '<path d="'+costD+'" fill="none" stroke="#90a4ae" stroke-width="1.8" stroke-dasharray="5,3" stroke-linejoin="round"/>'+
         costDots+
         '<text x="'+(costCoords[costCoords.length-1][0]-4)+'" y="'+(costCoords[costCoords.length-1][1]-6)+'" font-size="8" fill="#78909c" font-weight="700" text-anchor="end">매수금</text>';
