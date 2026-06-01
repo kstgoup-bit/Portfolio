@@ -3141,6 +3141,7 @@ function renderDivByTicker(){
   filtered.forEach(function(d){ byTicker[d.name]=(byTicker[d.name]||0)+d.amount; });
   var sorted=Object.entries(byTicker).sort(function(a,b){return b[1]-a[1];});
   if(!sorted.length){el.innerHTML='<div style="text-align:center;font-size:12px;color:var(--muted);padding:8px">해당 연도 배당 내역이 없어요</div>';return;}
+  var maxV=sorted[0][1]||1;
   var totalAll=filtered.reduce(function(s,d){return s+d.amount;},0);
   el.innerHTML=sorted.map(function(pair){
     var name=pair[0], val=pair[1];
