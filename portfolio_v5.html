@@ -3102,7 +3102,7 @@ function renderDividend() {
   el.innerHTML=filtered.map(function(obj){
     var d=obj.d, i=obj.i;
     return '<div class="div-list-item">'+
-      '<div class="div-item-left"><div class="name">'+d.name+'</div><div class="date">'+d.date+'</div></div>'+
+      '<div class="div-item-left"><div class="name">'+d.name+(d.broker?' <span style="font-size:11px;color:#616161;font-weight:400">'+d.broker+'</span>':'')+'</div><div class="date">'+d.date+'</div></div>'+
       '<div style="display:flex;align-items:center;gap:8px">'+
       '<div class="div-item-right"><div class="amount">+'+Math.round(d.amount).toLocaleString()+'원</div></div>'+
       '<button class="btn-del-div" onclick="delDiv('+i+')">×</button>'+
