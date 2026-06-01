@@ -778,11 +778,21 @@ body { font-family:'Pretendard',sans-serif !important; }
       <div style="font-size:14px;font-weight:800;color:#1a1a2e">💰 배당금 직접 입력</div>
       <button onclick="addDiv()" style="background:radial-gradient(circle at 40% 40%,#ffffff 0%,#e8f5e9 60%,#c8e6c9 100%);border:1.5px solid #a5d6a7;border-radius:8px;padding:6px 16px;font-size:12px;font-weight:800;color:#1a1a2e;cursor:pointer;font-family:'Noto Sans KR',sans-serif;box-shadow:0 3px 8px rgba(67,160,71,0.25),inset 0 1px 1px rgba(255,255,255,0.8)">추가</button>
     </div>
-    <div class="f-lbl">종목명</div><input class="f-inp" id="divName" placeholder="예: SPGI">
+    <div class="f-lbl">종목명</div>
+    <div style="display:grid;grid-template-columns:7fr 3fr;gap:6px;margin-bottom:8px">
+      <input class="f-inp" id="divName" placeholder="예: SPGI" style="margin-bottom:0">
+      <select id="divBroker" style="border:1.5px solid var(--border);border-radius:8px;padding:0 6px;font-size:12px;font-weight:700;background:#fff;color:var(--text);font-family:'Noto Sans KR',sans-serif">
+        <option value="">증권사</option>
+        <option value="연금">연금</option>
+        <option value="신한">신한</option>
+        <option value="KB">KB</option>
+        <option value="메리츠">메리츠</option>
+      </select>
+    </div>
     <div class="f-lbl">배당금액</div>
-    <div style="display:flex;gap:8px;align-items:center">
-      <input class="f-inp" type="number" id="divAmt" placeholder="0" style="flex:1;margin-bottom:0">
-      <select id="divCur" style="border:1px solid var(--border);border-radius:8px;padding:10px 8px;font-size:13px;font-weight:700;background:#fff;color:var(--text);font-family:'Noto Sans KR',sans-serif">
+    <div style="display:grid;grid-template-columns:7fr 3fr;gap:6px;margin-bottom:4px">
+      <input class="f-inp" type="number" id="divAmt" placeholder="0" style="margin-bottom:0">
+      <select id="divCur" style="border:1.5px solid var(--border);border-radius:8px;padding:0 6px;font-size:12px;font-weight:700;background:#fff;color:var(--text);font-family:'Noto Sans KR',sans-serif">
         <option value="KRW">₩ 원</option>
         <option value="USD">$ 달러</option>
       </select>
@@ -802,7 +812,12 @@ body { font-family:'Pretendard',sans-serif !important; }
 
   <!-- 종목별 배당 현황 -->
   <div class="chart-wrap" style="margin-bottom:10px">
-    <div class="chart-title" style="color:#1a1a2e">📌 종목별 배당 합계</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <div class="chart-title" style="color:#1a1a2e;margin:0">📌 종목별 배당 합계</div>
+      <select id="divByTickerYear" onchange="renderDivByTicker()" style="border:1.5px solid var(--border);border-radius:8px;padding:4px 8px;font-size:12px;font-weight:700;background:var(--sky-bg);color:var(--text);font-family:'Noto Sans KR',sans-serif">
+        <option value="">전체</option>
+      </select>
+    </div>
     <div id="divByTicker"><div style="text-align:center;font-size:12px;color:var(--muted);padding:8px">배당금을 입력하면 표시돼요</div></div>
   </div>
 
@@ -3108,11 +3123,25 @@ function renderDivByTicker(){
   var el=document.getElementById("divByTicker");
   if(!el) return;
   if(!divList.length){el.innerHTML='<div style="text-align:center;font-size:12px;color:var(--muted);padding:8px">배당금을 입력하면 표시돼요</div>';return;}
+
+  // 연도 드롭다운 채우기
+  var ysel=document.getElementById("divByTickerYear");
+  if(ysel){
+    var curY=ysel.value;
+    var years=[...new Set(divList.map(function(d){return d.date.substring(0,4);}))].sort().reverse();
+    ysel.innerHTML='<option value="">전체</option>'+years.map(function(y){
+      return '<option value="'+y+'"'+(y===curY?' selected':'')+'>'+y+'년</option>';
+    }).join("");
+    if(curY) ysel.value=curY;
+  }
+
+  var filterY=ysel?ysel.value:"";
+  var filtered=filterY?divList.filter(function(d){return d.date.substring(0,4)===filterY;}):divList;
   var byTicker={};
-  divList.forEach(function(d){ byTicker[d.name]=(byTicker[d.name]||0)+d.amount; });
+  filtered.forEach(function(d){ byTicker[d.name]=(byTicker[d.name]||0)+d.amount; });
   var sorted=Object.entries(byTicker).sort(function(a,b){return b[1]-a[1];});
-  var maxV=sorted[0][1]||1;
-  var totalAll=divList.reduce(function(s,d){return s+d.amount;},0);
+  if(!sorted.length){el.innerHTML='<div style="text-align:center;font-size:12px;color:var(--muted);padding:8px">해당 연도 배당 내역이 없어요</div>';return;}
+  var totalAll=filtered.reduce(function(s,d){return s+d.amount;},0);
   el.innerHTML=sorted.map(function(pair){
     var name=pair[0], val=pair[1];
     var pct=Math.round(val/maxV*100);
@@ -3136,9 +3165,10 @@ function addDiv() {
   var amt=parseFloat(document.getElementById("divAmt").value)||0;
   var cur=document.getElementById("divCur").value;
   var date=document.getElementById("divDate").value;
+  var broker=(document.getElementById("divBroker")||{}).value||"";
   if(!name||!amt||!date){alert("모두 입력해주세요");return;}
   var amtKrw=cur==="USD"?Math.round(amt*getRate()):Math.round(amt);
-  divList.push({name:name,amount:amtKrw,date:date,usd:cur==="USD"?amt:null});
+  divList.push({name:name,amount:amtKrw,date:date,broker:broker,usd:cur==="USD"?amt:null});
   document.getElementById("divName").value="";
   document.getElementById("divAmt").value="";
   document.getElementById("divUsdPreview").style.display="none";
