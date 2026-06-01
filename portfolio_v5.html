@@ -755,8 +755,12 @@ body { font-family:'Pretendard',sans-serif !important; }
       <div class="div-val" id="divYear">0원</div>
     </div>
     <div class="div-card">
-      <div class="div-lbl">누적 배당 합계</div>
-      <div class="div-val" id="divTotal">0원</div>
+      <div class="div-lbl">
+        <select id="divSumMonth" onchange="updateDivSumMonth()" style="border:none;background:none;font-size:11px;font-weight:700;color:var(--green-accent);font-family:'Noto Sans KR',sans-serif;cursor:pointer;width:100%">
+          <option value="">월 선택</option>
+        </select>
+      </div>
+      <div class="div-val" id="divMonthSel" style="color:var(--green-accent)">-</div>
     </div>
     <div class="div-card">
       <div class="div-lbl">연간 예상 배당 <span style="font-size:9px;color:#aaa">(최근12개월)</span></div>
@@ -3032,7 +3036,17 @@ function renderDividend() {
   var monthly=totalDiv/mCount;
 
   document.getElementById("divYear").textContent=Math.round(yearDiv).toLocaleString()+"원";
-  document.getElementById("divTotal").textContent=Math.round(totalDiv).toLocaleString()+"원";
+  // 월 선택 드롭다운 채우기
+  var dsm=document.getElementById("divSumMonth");
+  if(dsm){
+    var curDsm=dsm.value;
+    var allMonths=[...new Set(divList.map(function(d){return d.date.substring(0,7);}))].sort().reverse();
+    dsm.innerHTML='<option value="">월 선택</option>'+allMonths.map(function(m){
+      return '<option value="'+m+'"'+(m===curDsm?' selected':'')+'>'+m.replace('-','년 ')+'월</option>';
+    }).join("");
+    if(!curDsm&&allMonths.length) dsm.value=allMonths[0];
+  }
+  updateDivSumMonth();
   document.getElementById("divAnnual").textContent=Math.round(annual).toLocaleString()+"원";
   document.getElementById("divMonthly").textContent=Math.round(monthly).toLocaleString()+"원";
 
@@ -3068,6 +3082,18 @@ function renderDividend() {
       '<button class="btn-del-div" onclick="delDiv('+i+')">×</button>'+
       '</div></div>';
   }).join("");
+}
+
+function updateDivSumMonth(){
+  var dsm=document.getElementById("divSumMonth");
+  var el=document.getElementById("divMonthSel");
+  if(!dsm||!el) return;
+  var m=dsm.value;
+  if(!m){el.textContent="-";return;}
+  var sum=divList.filter(function(d){return d.date.substring(0,7)===m;}).reduce(function(s,d){return s+d.amount;},0);
+  var label=m.replace('-','년 ')+'월';
+  el.textContent=sum?Math.round(sum).toLocaleString()+"원":"0원";
+  dsm.options[0]&&(dsm.title=label);
 }
 
 function renderDivByTicker(){
