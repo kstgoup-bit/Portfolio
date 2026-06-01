@@ -802,7 +802,12 @@ body { font-family:'Pretendard',sans-serif !important; }
     <div id="divByTicker"><div style="text-align:center;font-size:12px;color:var(--muted);padding:8px">배당금을 입력하면 표시돼요</div></div>
   </div>
 
-  <div style="font-size:14px;font-weight:800;color:#1a1a2e;margin:12px 0 8px">📋 배당 내역</div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin:12px 0 8px">
+    <div style="font-size:14px;font-weight:800;color:#1a1a2e">📋 배당 내역</div>
+    <select id="divMonthFilter" onchange="renderDividend()" style="border:1.5px solid var(--border);border-radius:8px;padding:4px 8px;font-size:12px;font-weight:700;background:var(--sky-bg);color:var(--text);font-family:'Noto Sans KR',sans-serif">
+      <option value="">전체</option>
+    </select>
+  </div>
   <div id="divList"><div class="empty">배당금을 입력해주세요</div></div>
 </div>
 
@@ -3036,9 +3041,25 @@ function renderDividend() {
 
   var el=document.getElementById("divList");
   if(!divList.length){el.innerHTML='<div class="empty">배당금을 입력해주세요</div>';return;}
-  var sorted=divList.map(function(d,i){return {d:d,i:i};})
+
+  // 월 목록 채우기
+  var mf=document.getElementById("divMonthFilter");
+  if(mf){
+    var curVal=mf.value;
+    var months2=[...new Set(divList.map(function(d){return d.date.substring(0,7);}))].sort().reverse();
+    mf.innerHTML='<option value="">전체</option>'+months2.map(function(m){
+      return '<option value="'+m+'"'+(m===curVal?' selected':'')+'>'+m.replace('-','년 ')+'월</option>';
+    }).join("");
+    mf.value=curVal||"";
+  }
+
+  var filterMonth=mf?mf.value:"";
+  var filtered=divList.map(function(d,i){return {d:d,i:i};})
+    .filter(function(obj){return !filterMonth||obj.d.date.substring(0,7)===filterMonth;})
     .sort(function(a,b){return new Date(b.d.date)-new Date(a.d.date);});
-  el.innerHTML=sorted.map(function(obj){
+
+  if(!filtered.length){el.innerHTML='<div class="empty">해당 월 배당 내역이 없어요</div>';return;}
+  el.innerHTML=filtered.map(function(obj){
     var d=obj.d, i=obj.i;
     return '<div class="div-list-item">'+
       '<div class="div-item-left"><div class="name">'+d.name+'</div><div class="date">'+d.date+'</div></div>'+
