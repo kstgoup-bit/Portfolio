@@ -267,12 +267,12 @@ body{background:var(--sky-bg);color:var(--text);font-family:'Pretendard',sans-se
 .div-summary{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
 .div-card{background:#fff;border-radius:12px;padding:14px;border:1px solid var(--border);box-shadow:var(--shadow);text-align:center}
 .div-lbl{font-size:12px;color:#1a1a2e;margin-bottom:4px;font-weight:700}
-.div-val{font-size:20px;font-weight:700;color:var(--green-accent);font-family:'Pretendard',sans-serif !important;letter-spacing:-0.5px;}
+.div-val{font-size:20px;font-weight:700;color:#1565c0;font-family:'Pretendard',sans-serif !important;letter-spacing:-0.5px;}
 .div-add-form{background:#f8fbff;border-radius:12px;padding:14px;margin-bottom:10px;border:1px solid #a5d6a7}
 .div-list-item{background:#fff;border-radius:10px;padding:10px 14px;margin-bottom:6px;border:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;box-shadow:var(--shadow)}
 .div-item-left .name{font-size:13px;font-weight:700}
 .div-item-left .date{font-size:10px;color:var(--muted)}
-.div-item-right .amount{font-size:14px;font-weight:800;color:var(--green-mid);font-family:'Pretendard',sans-serif !important;}
+.div-item-right .amount{font-size:14px;font-weight:800;color:#1565c0;font-family:'Pretendard',sans-serif !important;}
 .div-item-right .account{font-size:10px;color:var(--muted)}
 .btn-del-div{background:transparent;color:var(--red-mid);border:none;font-size:16px;cursor:pointer;padding:4px}
 
@@ -760,7 +760,7 @@ body { font-family:'Pretendard',sans-serif !important; }
           <option value="">월 선택</option>
         </select>
       </div>
-      <div class="div-val" id="divMonthSel" style="color:var(--green-accent)">-</div>
+      <div class="div-val" id="divMonthSel" style="color:#1565c0">-</div>
     </div>
     <div class="div-card">
       <div class="div-lbl">연간 예상 배당 <span style="font-size:9px;color:#aaa">(최근12개월)</span></div>
@@ -3156,7 +3156,7 @@ function renderDivByTicker(){
     return '<div style="margin-bottom:10px">'+
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'+
         '<span style="font-size:14px;font-weight:800;color:#1a1a2e">'+name+'</span>'+
-        '<span style="font-size:13px;font-weight:700;color:#43a047">'+Math.round(val).toLocaleString()+'원 <span style="font-size:11px;color:#aaa">('+ratio+'%)</span></span>'+
+        '<span style="font-size:13px;font-weight:700;color:#1565c0">'+Math.round(val).toLocaleString()+'원 <span style="font-size:11px;color:#aaa">('+ratio+'%)</span></span>'+
       '</div>'+
       '<div style="height:8px;background:linear-gradient(90deg,#f1f8f1,#e8f5e9);border-radius:4px;overflow:hidden;padding:0 2px">'+
         '<div style="height:100%;width:'+barW+'%;background:linear-gradient(90deg,#c8e6c9,#66bb6a,#43a047);border-radius:4px;transition:width 0.6s ease"></div>'+
