@@ -39,7 +39,7 @@ body{background:var(--bg);color:var(--text);font-family:'Pretendard',sans-serif;
 .goal-container{padding:0 20px 16px;}
 .goal-info{display:flex;justify-content:space-between;margin-bottom:6px;font-size:13px;font-weight:700;}
 .goal-bar-bg{height:8px;background:#dde3ed;border-radius:99px;overflow:hidden;}
-.goal-bar-fill{height:100%;background:linear-gradient(90deg,var(--neon-purple),var(--neon-blue));width:0%;transition:width 1s cubic-bezier(0.4,0,0.2,1);box-shadow:0 0 10px var(--neon-blue);}
+.goal-bar-fill{height:100%;background:linear-gradient(90deg,var(--neon-blue),var(--neon-purple));width:0%;transition:width 1s cubic-bezier(0.4,0,0.2,1);box-shadow:0 0 10px var(--neon-purple);border-radius:0 99px 99px 0;}
 .tabs{display:flex;gap:4px;padding:4px 16px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--border);}
 .tabs::-webkit-scrollbar{display:none;}
 .tab{flex:0 0 auto;padding:10px 16px;border:none;background:transparent;color:var(--muted);font-size:14px;font-weight:700;cursor:pointer;border-radius:12px;transition:0.2s;white-space:nowrap;}
@@ -56,10 +56,10 @@ body{background:var(--bg);color:var(--text);font-family:'Pretendard',sans-serif;
 .sum-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
 .sum-item{background:rgba(0,0,0,0.03);border:1px solid var(--border);border-radius:14px;padding:8px 4px;text-align:center;}
 .sum-lbl{font-size:10px;color:var(--muted);font-weight:600;margin-bottom:4px;white-space:nowrap;}
-.sum-val{font-size:13px;font-weight:800;white-space:nowrap;overflow:hidden;}
+.sum-val{font-size:15px;font-weight:800;white-space:nowrap;overflow:hidden;}
 .fx-row{display:flex;align-items:center;gap:12px;}
-.fx-input{background:rgba(30,40,60,0.95);border:2px solid var(--neon-yellow);border-radius:12px;color:#FFE066;padding:8px 14px;font-size:15px;font-weight:700;width:100px;text-align:center;outline:none;}
-.fx-input:focus{border-color:#FFE066;box-shadow:0 0 8px rgba(255,224,102,0.4);}
+.fx-input{background:rgba(255,255,255,0.9);border:1px solid var(--border);border-radius:12px;color:var(--neon-yellow);padding:8px 14px;font-size:15px;font-weight:700;width:100px;text-align:center;outline:none;}
+.fx-input:focus{border-color:var(--neon-yellow);}
 .balance-wrap{background:var(--card-bg);border-radius:24px;padding:20px;border:1px solid var(--border);margin-bottom:16px;box-shadow:var(--shadow);}
 .balance-title{font-size:15px;font-weight:800;color:var(--text);margin-bottom:14px;}
 .balance-chart-row{display:flex;align-items:center;gap:16px;}
@@ -290,10 +290,6 @@ body.dark-mode .adv-card-claude{background:rgba(0,229,255,0.08);}
       <div class="header-title">순태씨의 5년 안에 10억! 💎</div>
     </div>
     <button class="btn-theme-dark" onclick="setTheme('dark')">🌙 야간</button>
-  </div>
-  <div class="jemma-brief">
-    <div class="jemma-avatar">👩‍💼</div>
-    <div class="jemma-text" id="jemmaBriefText">순태씨 반가워요! 금을 털어낸 시드로 [TIGER 미국AI전력SMR]을 장착하여 자산 주머니의 완벽한 최적화가 진행 중입니다.</div>
   </div>
   <div class="goal-container">
     <div class="goal-info">
@@ -961,7 +957,7 @@ function renderDashboard(){
   if(allTC>0){asg.style.display="grid";setSumVal("allPnl",allPnl,true,null,allPnl>=0);setSumVal("allPct",null,null,fmtPct(allPct),allPct>=0);document.getElementById("allCost").textContent=fmt(allTC)+"원";}
   else asg.style.display="none";
   var jBrief=document.getElementById("jemmaBriefText");
-  if(allTV>0){
+  if(jBrief&&allTV>0){
     if(allPct>=15)jBrief.textContent="🔥 시장을 초월하는 알파 수익률 달성 중! 전력 SMR의 지지력을 계속 체크하세요.";
     else if(allPct<0)jBrief.textContent="🌡️ 단기 등락 구간입니다. 3계명(하락장 패닉셀 금지)을 기억하고 엔진주를 묵묵히 쌓아가세요.";
     else jBrief.textContent="👩‍💼 포트폴리오가 조화롭습니다. 해외 핵심주 방패벽과 국내 SMR 엔진이 톱니바퀴처럼 맞물려 가고 있습니다.";
