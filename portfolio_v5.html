@@ -4103,8 +4103,8 @@ function renderLedger(){
         '<span class="ldg-item-name">'+dateStr+nameDisplay+'</span>'+
         '<div style="display:flex;align-items:center;gap:4px">'+
           '<span class="ldg-item-amt" style="color:'+color+'">'+item.amount.toLocaleString()+'원</span>'+
-          '<button onclick="editLedger(\''+type+'\','+i+')" style="background:none;border:none;font-size:14px;cursor:pointer;color:#90a4ae;padding:2px 4px">✏️</button>'+
           '<button class="ldg-del" onclick="delLedger(\''+type+'\','+i+')">×</button>'+
+          '<button onclick="editLedger(\''+type+'\','+i+')" style="background:none;border:none;font-size:14px;cursor:pointer;color:#90a4ae;padding:2px 4px">✏️</button>'+
         '</div>'+
       '</div>';
     });
