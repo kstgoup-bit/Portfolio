@@ -1012,7 +1012,7 @@ body { font-family:'Pretendard',sans-serif !important; }
     <div class="ldg-title" style="color:#1565c0">💰 수입</div>
     <div style="display:grid;grid-template-columns:6.5fr 3.5fr;gap:6px;margin-bottom:6px">
       <input type="date" id="ldgIncDate" style="height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--sky-bg);color:var(--text);box-sizing:border-box;width:100%">
-      <button onclick="addLedger('income')" style="height:38px;background:#42a5f5;border:none;border-radius:8px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;width:100%">추가</button>
+      <button id="ldgIncomeBtn" onclick="addLedger('income')" style="height:38px;background:#42a5f5;border:none;border-radius:8px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;width:100%">추가</button>
     </div>
     <div style="display:grid;grid-template-columns:6.5fr 3.5fr;gap:6px;margin-bottom:6px">
       <input id="ldgIncName" placeholder="항목명" style="height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--sky-bg);color:var(--text);box-sizing:border-box;width:100%">
@@ -1026,7 +1026,7 @@ body { font-family:'Pretendard',sans-serif !important; }
     <div class="ldg-title" style="color:#c62828">💸 지출</div>
     <div style="display:grid;grid-template-columns:6.5fr 3.5fr;gap:6px;margin-bottom:6px">
       <input type="date" id="ldgExpDate" style="height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--sky-bg);color:var(--text);box-sizing:border-box;width:100%">
-      <button onclick="addLedger('expense')" style="height:38px;background:#ef5350;border:none;border-radius:8px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;width:100%">추가</button>
+      <button id="ldgExpenseBtn" onclick="addLedger('expense')" style="height:38px;background:#ef5350;border:none;border-radius:8px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;width:100%">추가</button>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px">
       <select id="ldgExpCat" style="height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-weight:700;background:#fff;color:var(--text);box-sizing:border-box;width:100%;font-family:'Noto Sans KR',sans-serif">
@@ -1060,7 +1060,7 @@ body { font-family:'Pretendard',sans-serif !important; }
         <option value="KB">KB</option>
         <option value="메리츠">메리츠</option>
       </select>
-      <button onclick="addLedger('invest')" style="height:38px;background:#ab47bc;border:none;border-radius:8px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;width:100%">추가</button>
+      <button id="ldgInvestBtn" onclick="addLedger('invest')" style="height:38px;background:#ab47bc;border:none;border-radius:8px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;width:100%">추가</button>
     </div>
     <div style="display:grid;grid-template-columns:6.5fr 3.5fr;gap:6px;margin-bottom:6px">
       <input id="ldgInvName" placeholder="항목명 (예: QTOP, NVDA)" style="height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--sky-bg);color:var(--text);box-sizing:border-box;width:100%">
@@ -3951,6 +3951,7 @@ function initLedgerMonth(){
     m.value=now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0");
   }
 }
+var _editMode={type:null,idx:null};
 function addLedger(type){
   var nameEl=document.getElementById(type==="income"?"ldgIncName":type==="expense"?"ldgExpName":"ldgInvName");
   var amtEl=document.getElementById(type==="income"?"ldgIncAmt":type==="expense"?"ldgExpAmt":"ldgInvAmt");
@@ -3970,11 +3971,69 @@ function addLedger(type){
   if(!data[key].income) data[key].income=[];
   if(!data[key].expense) data[key].expense=[];
   if(!data[key].invest) data[key].invest=[];
-  data[key][type].push(entry);
+
+  // 수정 모드
+  if(_editMode.type===type&&_editMode.idx!==null){
+    data[key][type][_editMode.idx]=entry;
+    cancelEdit();
+  } else {
+    data[key][type].push(entry);
+  }
   saveLedgerData(data);
   nameEl.value=""; amtEl.value="";
   renderLedger();
 }
+function editLedger(type,idx){
+  var data=loadLedgerData();
+  var key=getLedgerKey();
+  if(!data[key]||!data[key][type]) return;
+  var item=data[key][type][idx];
+  if(!item) return;
+
+  if(type==="income"){
+    var d=document.getElementById("ldgIncDate"); if(d) d.value=item.date||"";
+    var n=document.getElementById("ldgIncName"); if(n) n.value=item.name||"";
+    var a=document.getElementById("ldgIncAmt"); if(a) a.value=item.amount||"";
+    setEditMode("income",idx);
+  } else if(type==="expense"){
+    var d=document.getElementById("ldgExpDate"); if(d) d.value=item.date||"";
+    var c=document.getElementById("ldgExpCat"); if(c) c.value=item.cat||"";
+    var n=document.getElementById("ldgExpName"); if(n) n.value=item.name||"";
+    var a=document.getElementById("ldgExpAmt"); if(a) a.value=item.amount||"";
+    setEditMode("expense",idx);
+  } else if(type==="invest"){
+    var d=document.getElementById("ldgInvDate"); if(d) d.value=item.date||"";
+    var b=document.getElementById("ldgInvBroker"); if(b) b.value=item.broker||"";
+    var n=document.getElementById("ldgInvName"); if(n) n.value=item.name||"";
+    var a=document.getElementById("ldgInvAmt"); if(a) a.value=item.amount||"";
+    setEditMode("invest",idx);
+  }
+  // 해당 섹션으로 스크롤
+  var card=document.querySelector(".ldg-card");
+  if(card) card.scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+function setEditMode(type,idx){
+  _editMode={type:type,idx:idx};
+  var btnMap={income:"ldgIncBtn",expense:"ldgExpBtn",invest:"ldgInvBtn"};
+  ["income","expense","invest"].forEach(function(t){
+    var b=document.getElementById("ldg"+t.charAt(0).toUpperCase()+t.slice(1)+"Btn");
+    if(b){
+      if(t===type){b.textContent="수정";b.style.background="#f57f17";}
+      else{b.style.background=(t==="income"?"#42a5f5":t==="expense"?"#ef5350":"#ab47bc");b.textContent="추가";}
+    }
+  });
+}
+
+function cancelEdit(){
+  _editMode={type:null,idx:null};
+  ["income","expense","invest"].forEach(function(t){
+    var b=document.getElementById("ldg"+t.charAt(0).toUpperCase()+t.slice(1)+"Btn");
+    if(b){b.textContent="추가";b.style.background=(t==="income"?"#42a5f5":t==="expense"?"#ef5350":"#ab47bc");}
+  });
+}
+
+
 function delLedger(type,idx){
   var data=loadLedgerData();
   var key=getLedgerKey();
@@ -4042,8 +4101,9 @@ function renderLedger(){
         :item.name;
       html+='<div class="ldg-item">'+
         '<span class="ldg-item-name">'+dateStr+nameDisplay+'</span>'+
-        '<div style="display:flex;align-items:center">'+
+        '<div style="display:flex;align-items:center;gap:4px">'+
           '<span class="ldg-item-amt" style="color:'+color+'">'+item.amount.toLocaleString()+'원</span>'+
+          '<button onclick="editLedger(\''+type+'\','+i+')" style="background:none;border:none;font-size:14px;cursor:pointer;color:#90a4ae;padding:2px 4px">✏️</button>'+
           '<button class="ldg-del" onclick="delLedger(\''+type+'\','+i+')">×</button>'+
         '</div>'+
       '</div>';
