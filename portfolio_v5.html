@@ -2141,7 +2141,7 @@ function rkCalcScore(hy, rate, vix, fxScore, dxyScore, spreadScore, fgScore) {
 function rkLevel(score) {
   if(score>=70) return {label:"🔴 위험", color:"#ef4444", bg:"#fee2e2", border:"#fca5a5"};
   if(score>=50) return {label:"🟠 경계", color:"#f97316", bg:"#ffedd5", border:"#fdba74"};
-  if(score>=30) return {label:"🟡 중립", color:"#eab308", bg:"#fef9c3", border:"#fde047"};
+  if(score>=25) return {label:"🟡 주의", color:"#eab308", bg:"#fef9c3", border:"#fde047"};
   return          {label:"🟢 안전", color:"#22c55e", bg:"#dcfce7", border:"#86efac"};
 }
 
@@ -2152,7 +2152,7 @@ function rkBadge(lv) {
 function rkBarGrad(score) {
   if(score>=70) return "linear-gradient(90deg,#f87171,#ef4444)";
   if(score>=50) return "linear-gradient(90deg,#fb923c,#f97316)";
-  if(score>=30) return "linear-gradient(90deg,#facc15,#eab308)";
+  if(score>=25) return "linear-gradient(90deg,#facc15,#eab308)";
   return "linear-gradient(90deg,#4ade80,#22c55e)";
 }
 
@@ -2292,7 +2292,7 @@ function rkUpdateUI(hy, rate, vix, fxScore, dxy, spread, fg) {
   var fxDiff=((fxNow-fx52avg)/fx52avg)*100;
   var fxAbs=Math.abs(fxDiff);
   var fxScore=fxAbs<2?10:fxAbs<4?25:fxAbs<7?50:fxAbs<10?75:95;
-  var fxLv=fxScore<25?rkLevel(10):fxScore<45?rkLevel(25):fxScore<65?rkLevel(50):fxScore<85?rkLevel(75):rkLevel(95);
+  var fxLv=rkLevel(fxScore);
   var fxv=document.getElementById("rkFxVal"), fxb=document.getElementById("rkFxBar"),
       fxbg=document.getElementById("rkFxBadge"), fxd=document.getElementById("rkFxDetail");
   if(fxv) fxv.textContent=fxNow.toLocaleString();
