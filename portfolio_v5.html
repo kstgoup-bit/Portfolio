@@ -1028,8 +1028,21 @@ body { font-family:'Pretendard',sans-serif !important; }
       <input type="date" id="ldgExpDate" style="height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--sky-bg);color:var(--text);box-sizing:border-box;width:100%">
       <button onclick="addLedger('expense')" style="height:38px;background:#ef5350;border:none;border-radius:8px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;width:100%">추가</button>
     </div>
-    <div style="display:grid;grid-template-columns:6.5fr 3.5fr;gap:6px;margin-bottom:6px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px">
+      <select id="ldgExpCat" style="height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-weight:700;background:#fff;color:var(--text);box-sizing:border-box;width:100%;font-family:'Noto Sans KR',sans-serif">
+        <option value="">카테고리</option>
+        <option value="☕ 음료·카페">☕ 음료·카페</option>
+        <option value="🍽️ 외식">🍽️ 외식</option>
+        <option value="🚌 교통">🚌 교통</option>
+        <option value="🏥 의료">🏥 의료</option>
+        <option value="📱 통신">📱 통신</option>
+        <option value="🛒 생활용품">🛒 생활용품</option>
+        <option value="💳 기타">💳 기타</option>
+      </select>
       <input id="ldgExpName" placeholder="항목명" style="height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--sky-bg);color:var(--text);box-sizing:border-box;width:100%">
+    </div>
+    <div style="display:grid;grid-template-columns:6.5fr 3.5fr;gap:6px;margin-bottom:6px">
+      <div></div>
       <input id="ldgExpAmt" type="number" placeholder="금액(원)" style="height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-weight:700;text-align:right;background:var(--sky-bg);color:var(--text);box-sizing:border-box;width:100%">
     </div>
     <div id="ldgExpList"></div>
@@ -1083,6 +1096,12 @@ body { font-family:'Pretendard',sans-serif !important; }
   <div class="ldg-card">
     <div class="ldg-title" style="color:#7b1fa2">📊 월별 투자 현황</div>
     <svg id="ldgInvChart" viewBox="0 0 340 145" style="width:100%"></svg>
+  </div>
+
+  <!-- 카테고리별 지출 -->
+  <div class="card" style="margin-top:12px">
+    <div style="font-size:14px;font-weight:800;color:#c62828;margin-bottom:10px">📊 카테고리별 지출</div>
+    <div id="ldgCatChart"></div>
   </div>
 
   <!-- 월별 수입/지출 비교 차트 -->
@@ -3942,7 +3961,9 @@ function addLedger(type){
   if(!name||!amt||amt<=0){alert("항목명과 금액을 입력해주세요");return;}
   var broker="";
   if(type==="invest"){var bEl=document.getElementById("ldgInvBroker"); if(bEl) broker=bEl.value;}
-  var entry={name:name,amount:amt,date:date,broker:broker};
+  var cat="";
+  if(type==="expense"){var cEl=document.getElementById("ldgExpCat"); if(cEl) cat=cEl.value;}
+  var entry={name:name,amount:amt,date:date,broker:broker,cat:cat};
   var data=loadLedgerData();
   var key=getLedgerKey();
   if(!data[key]) data[key]={income:[],expense:[],invest:[]};
@@ -3962,11 +3983,40 @@ function delLedger(type,idx){
   saveLedgerData(data);
   renderLedger();
 }
+function renderCatChart(expList){
+  var el=document.getElementById("ldgCatChart");
+  if(!el) return;
+  var cats={};
+  var CAT_COLORS={"☕ 음료·카페":"#ff8f00","🍽️ 외식":"#e53935","🚌 교통":"#1e88e5","🏥 의료":"#43a047","📱 통신":"#8e24aa","🛒 생활용품":"#00897b","💳 기타":"#757575"};
+  expList.forEach(function(d){
+    var c=d.cat||"💳 기타";
+    cats[c]=(cats[c]||0)+d.amount;
+  });
+  var sorted=Object.entries(cats).sort(function(a,b){return b[1]-a[1];});
+  if(!sorted.length){el.innerHTML='<div style="text-align:center;font-size:12px;color:var(--muted);padding:8px">지출을 입력하면 표시돼요</div>';return;}
+  var maxV=sorted[0][1]||1;
+  el.innerHTML=sorted.map(function(item){
+    var cat=item[0], amt=item[1];
+    var pct=Math.round(amt/maxV*100);
+    var color=CAT_COLORS[cat]||"#9e9e9e";
+    return '<div style="margin-bottom:10px">'
+      +'<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px">'
+        +'<span style="font-weight:700">'+cat+'</span>'
+        +'<span style="color:'+color+';font-weight:800">'+Math.round(amt).toLocaleString()+'원</span>'
+      +'</div>'
+      +'<div style="background:#f0f0f0;border-radius:6px;height:10px;overflow:hidden">'
+        +'<div style="width:'+pct+'%;height:100%;background:'+color+';border-radius:6px;transition:width 0.6s ease"></div>'
+      +'</div>'
+    +'</div>';
+  }).join("");
+}
+
+
 function renderLedger(){
   initLedgerMonth();
   var data=loadLedgerData();
   var key=getLedgerKey();
-  var month=data[key]||{income:[],expense:[]};
+  var month=data[key]||{income:[],expense:[],invest:[]};
 
   function renderList(items,type,containerId,color){
     var el=document.getElementById(containerId);
@@ -3987,6 +4037,8 @@ function renderLedger(){
       var dateStr=item.date?'<span style="font-size:11px;font-weight:700;color:#fff;background:'+color+';border-radius:5px;padding:1px 6px;margin-right:6px">'+item.date.slice(5).replace('-','/')+'</span>':'';
       var nameDisplay=item.broker
         ?item.name+' <span style="font-size:11px;color:#616161">'+item.broker+'</span>'
+        :type==="expense"&&item.cat
+        ?'<span style="font-size:10px;background:#fff3e0;color:#e65100;border-radius:4px;padding:1px 5px;margin-right:4px;font-weight:600">'+item.cat+'</span>'+item.name
         :item.name;
       html+='<div class="ldg-item">'+
         '<span class="ldg-item-name">'+dateStr+nameDisplay+'</span>'+
@@ -4003,6 +4055,7 @@ function renderLedger(){
   var totalInc=renderList(month.income||[],"income","ldgIncList","#1565c0");
   var totalExp=renderList(month.expense||[],"expense","ldgExpList","#c62828");
   var totalInv=renderList(month.invest||[],"invest","ldgInvList","#7b1fa2");
+  renderCatChart(month.expense||[]);
   var balance=totalInc-totalExp-totalInv;
 
   var ti=document.getElementById("ldgTotalInc");
