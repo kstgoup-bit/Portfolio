@@ -2041,15 +2041,16 @@ function renderDashboard() {
   var barSvg='<svg viewBox="0 0 '+svgW+' '+(barH+topPad+23)+'" style="width:100%;height:'+(barH+topPad+23)+'px">'+
     '<defs><linearGradient id="allGrad" x1="0" y1="1" x2="0" y2="0">'+
     '<stop offset="0%" stop-color="#1565c0"/>'+
-    '<stop offset="33%" stop-color="#f9a825"/>'+
-    '<stop offset="66%" stop-color="#f57c00"/>'+
-    '<stop offset="100%" stop-color="#c62828"/></linearGradient></defs>';
+    '<stop offset="25%" stop-color="#f9a825"/>'+
+    '<stop offset="55%" stop-color="#f57c00"/>'+
+    '<stop offset="80%" stop-color="#c62828"/>'+
+    '<stop offset="100%" stop-color="#7b1fa2"/></linearGradient></defs>';
   barItems.forEach(function(m,i){
     var h=Math.max(Math.abs(m.g.pct||0)/maxPct*barH,3);
     var x=i*(barW+gap);
     var y=topPad+barH-h;
     var shortName=m.label.replace(/🇰🇷 |🇺🇸 |🏦 /g,"");
-    var txtColor=m.label==="전체"?"#1565c0":m.color;
+    var txtColor=m.label==="전체"?"#7b1fa2":m.color;
     barSvg+='<rect x="'+x+'" y="'+y+'" width="'+barW+'" height="'+h+'" fill="'+m.color+'" rx="3"/>'+
       '<text x="'+(x+barW/2)+'" y="'+(y-4)+'" text-anchor="middle" font-size="9" fill="'+txtColor+'" font-weight="800">'+fmtPct(m.g.pct)+'</text>'+
       '<text x="'+(x+barW/2)+'" y="'+(topPad+barH+14)+'" text-anchor="middle" font-size="9.5" fill="#444" font-weight="700">'+shortName+'</text>';
