@@ -2204,9 +2204,9 @@ function rkUpdateUI(hy, rate, vix, fxScore, dxy, spread, fg) {
   if(dxbg&&dxy){dxbg.textContent=dxy<100?"안전":dxy<104?"주의":dxy<108?"경계":"위험"; dxbg.style.cssText=rkBadge(dxyLv);}
   if(dxd&&dxy) dxd.textContent="DXY "+dxy.toFixed(2)+" · "+(dxy<100?"달러 약세 — 위험자산 우호적":dxy<104?"중립 구간":dxy<108?"달러 강세 — 신흥국 자금 이탈 주의":"달러 급강세 — 글로벌 위험 신호");
   // 장단기 금리차
-  var spScore = !spread&&spread!==0?10:spread>1?5:spread>0?15:spread>-0.5?40:spread>-1?65:85;
+  var spScore = !spread&&spread!==0?10:spread>1?5:spread>0.5?10:spread>0?28:spread>-0.5?40:spread>-1?65:85;
   // 역전해소 직후(0~0.5) 추가 경고
-  var spWarning = (spread!==null&&spread!==undefined&&spread>0&&spread<0.5);
+  var spWarning = (spread!==null&&spread!==undefined&&spread>0&&spread<=0.5);
   if(spWarning) spScore=Math.max(spScore,55);
   var spLv = rkLevel(spScore);
   var spv=document.getElementById("rkSpreadVal"), spb=document.getElementById("rkSpreadBar"),
