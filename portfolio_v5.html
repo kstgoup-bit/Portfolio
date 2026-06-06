@@ -55,8 +55,8 @@ body{background:var(--sky-bg);color:var(--text);font-family:'Pretendard',sans-se
 /* 헤더 */
 .header{background:linear-gradient(135deg,#1565c0,#1976d2);padding:12px 18px 10px;box-shadow:0 2px 12px #1565c040}
 .header-sub{font-size:9px;color:#90caf9;letter-spacing:3px;margin-bottom:3px}
-.header-title{font-size:17px;font-weight:900;color:#fff;margin-bottom:2px}
-.header-helper{font-size:12px;color:#bbdefb;margin-bottom:8px}
+.header-title{font-size:19px;font-weight:900;color:#fff;margin-bottom:2px}
+.header-helper{font-size:14px;color:#bbdefb;margin-bottom:8px}
 .header-asset{background:#ffffff22;border-radius:10px;padding:8px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
 .ha-label{font-size:9px;color:#90caf9}
 .ha-val{font-size:17px;font-weight:900;color:#fff;font-family:'JetBrains Mono',monospace !important;}
@@ -69,8 +69,8 @@ body{background:var(--sky-bg);color:var(--text);font-family:'Pretendard',sans-se
 .mkt-up{color:#e53935}.mkt-dn{color:#1565c0}
 
 .goal-label{display:flex;justify-content:space-between;margin-bottom:4px}
-.goal-text{font-size:13px;color:#bbdefb}
-.goal-pct{font-size:13px;color:#fff;font-weight:700}
+.goal-text{font-size:15px;color:#bbdefb}
+.goal-pct{font-size:15px;color:#fff;font-weight:700}
 .goal-bar{height:6px;background:#ffffff33;border-radius:3px}
 .goal-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#64b5f6,#fff);transition:width 0.8s ease}
 .refresh-row{display:flex;gap:6px}
@@ -522,14 +522,14 @@ body { font-family:'Pretendard',sans-serif !important; }
 <div class="header" id="mainHeader">
   <div class="header-title" style="text-align:center">순태씨의 5년 안에 10억! 💰</div>
   <div class="header-helper" style="text-align:center">클로가 도와드릴게요 😊 <span style="opacity:0.7">Since 2026. 5.</span></div>
-  <div style="text-align:center;font-size:10px;color:#e3f2fd;opacity:0.85;margin-top:2px;margin-bottom:2px;font-weight:900;letter-spacing:0.5px">🧭 시장을 예측하지 말고, 원칙을 지키며 생존하라</div>
-  <div class="goal-bar-wrap" id="goalWrap" style="display:none">
+  <div style="text-align:center;font-size:12px;color:#e3f2fd;opacity:0.85;margin-top:2px;margin-bottom:4px;font-weight:900;letter-spacing:0.5px">🧭 시장을 예측하지 말고, 원칙을 지키며 생존하라</div>
+</div>
+<div class="goal-bar-wrap" id="goalWrap" style="display:none;background:linear-gradient(135deg,#1565c0,#1976d2);padding:8px 18px 10px;box-shadow:0 2px 8px #1565c040;">
     <div class="goal-label">
       <span class="goal-text">🎯 10억 목표 달성률</span>
       <span class="goal-pct" id="goalPct">0%</span>
     </div>
     <div class="goal-bar"><div class="goal-fill" id="goalFill" style="width:0%"></div></div>
-  </div>
 </div>
 
 <!-- 탭 -->
