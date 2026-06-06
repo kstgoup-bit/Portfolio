@@ -524,12 +524,14 @@ body { font-family:'Pretendard',sans-serif !important; }
   <div class="header-helper" style="text-align:center">클로가 도와드릴게요 😊 <span style="opacity:0.7">Since 2026. 5.</span></div>
   <div style="text-align:center;font-size:12px;color:#e3f2fd;opacity:0.85;margin-top:2px;margin-bottom:4px;font-weight:900;letter-spacing:0.5px">🧭 시장을 예측하지 말고, 원칙을 지키며 생존하라</div>
 </div>
-<div class="goal-bar-wrap" id="goalWrap" style="display:none;background:#ffffff22;padding:8px 18px 10px;margin:6px 14px;border-radius:50px;">
+<div id="goalWrapOuter" style="display:none;background:linear-gradient(135deg,#1565c0,#1976d2);padding:4px 0 8px;box-shadow:0 2px 8px #1565c040;">
+<div class="goal-bar-wrap" id="goalWrap" style="background:#ffffff22;padding:8px 18px 10px;margin:0 14px;border-radius:50px;display:block;">
     <div class="goal-label">
       <span class="goal-text">🎯 10억 목표 달성률</span>
       <span class="goal-pct" id="goalPct">0%</span>
     </div>
     <div class="goal-bar"><div class="goal-fill" id="goalFill" style="width:0%"></div></div>
+</div>
 </div>
 
 <!-- 탭 -->
@@ -1954,12 +1956,13 @@ function renderDashboard() {
 
   // 헤더 자산
   var gw=document.getElementById("goalWrap");
+  var gwo=document.getElementById("goalWrapOuter");
   if(allTV>0) {
-    gw.style.display="block";
+    gwo.style.display="block";
     var pct=Math.min(allTV/GOAL*100,100);
     document.getElementById("goalPct").textContent=pct.toFixed(1)+"%";
     document.getElementById("goalFill").style.width=pct+"%";
-  } else { gw.style.display="none"; }
+  } else { gwo.style.display="none"; }
 
   // 전체 합산 카드
   document.getElementById("allTotal").textContent=allTV>0?fmt(allTV)+"원":"-";
