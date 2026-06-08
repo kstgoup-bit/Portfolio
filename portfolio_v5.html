@@ -1148,7 +1148,7 @@ body { font-family:'Pretendard',sans-serif !important; }
   </div>
   <div style="display:flex;gap:8px;margin-bottom:14px">
     <textarea id="memoInput" placeholder="생각나는 것을 메모해두세요..." style="flex:1;border:1.5px solid var(--border);border-radius:10px;padding:10px 12px;font-size:13px;font-family:'Noto Sans KR',sans-serif;resize:none;height:80px;background:var(--sky-bg);color:var(--text);outline:none"></textarea>
-    <button onclick="addMemo()" style="background:radial-gradient(circle at 40% 40%,#ffffff 0%,#efebe9 60%,#d7ccc8 100%);border:1.5px solid #a1887f;border-radius:10px;padding:0 14px;font-size:13px;font-weight:800;color:#1a1a2e;cursor:pointer;align-self:stretch;box-shadow:0 2px 6px rgba(121,85,72,0.2)">추가</button>
+    <button id="memoAddBtn" onclick="addMemo()" style="background:radial-gradient(circle at 40% 40%,#ffffff 0%,#efebe9 60%,#d7ccc8 100%);border:1.5px solid #a1887f;border-radius:10px;padding:0 14px;font-size:13px;font-weight:800;color:#1a1a2e;cursor:pointer;align-self:stretch;box-shadow:0 2px 6px rgba(121,85,72,0.2)">추가</button>
   </div>
   <div id="memoList"></div>
 </div>
@@ -3872,18 +3872,6 @@ window.addEventListener("load", function() {
 // ═══════════════════════════════
 function loadMemos(){ try{return JSON.parse(localStorage.getItem("v5_memos")||"[]");}catch(e){return [];} }
 function saveMemos(m){ localStorage.setItem("v5_memos",JSON.stringify(m)); }
-function addMemo(){
-  var inp=document.getElementById("memoInput");
-  var text=(inp.value||"").trim();
-  if(!text) return;
-  var memos=loadMemos();
-  var now=new Date();
-  var ds=(now.getMonth()+1)+"/"+(now.getDate())+" "+String(now.getHours()).padStart(2,"0")+":"+String(now.getMinutes()).padStart(2,"0");
-  memos.unshift({text:text,date:ds});
-  saveMemos(memos);
-  inp.value="";
-  renderMemo();
-}
 function delMemo(i){
   var memos=loadMemos(); memos.splice(i,1); saveMemos(memos); renderMemo();
 }
@@ -3898,11 +3886,47 @@ function renderMemo(){
     return '<div style="background:#fff;border-radius:12px;padding:12px 14px;margin-bottom:8px;box-shadow:0 1px 6px rgba(0,0,0,0.07)">'
       +'<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">'
         +'<div style="font-size:13px;color:var(--text);line-height:1.6;flex:1;white-space:pre-wrap">'+m.text.replace(/</g,"&lt;").replace(/>/g,"&gt;")+'</div>'
-        +'<button onclick="delMemo('+i+')" style="color:#bbb;background:none;border:none;font-size:18px;cursor:pointer;padding:0;flex-shrink:0;line-height:1">×</button>'
+        +'<div style="display:flex;gap:6px;flex-shrink:0;align-items:center">'
+          +'<button onclick="editMemo('+i+')" style="color:#795548;background:none;border:none;font-size:16px;cursor:pointer;padding:0;line-height:1" title="수정">✏️</button>'
+          +'<button onclick="delMemo('+i+')" style="color:#bbb;background:none;border:none;font-size:18px;cursor:pointer;padding:0;line-height:1">×</button>'
+        +'</div>'
       +'</div>'
       +'<div style="font-size:10px;color:var(--muted);margin-top:6px">'+m.date+'</div>'
     +'</div>';
   }).join("");
+}
+
+function editMemo(i){
+  var memos=loadMemos();
+  if(!memos[i]) return;
+  var inp=document.getElementById("memoInput");
+  var addBtn=document.getElementById("memoAddBtn");
+  if(!inp) return;
+  inp.value=memos[i].text;
+  inp.focus();
+  inp.dataset.editIdx=i;
+  if(addBtn){ addBtn.textContent="수정"; addBtn.style.background="#795548"; }
+}
+
+function addMemo(){
+  var inp=document.getElementById("memoInput");
+  var addBtn=document.getElementById("memoAddBtn");
+  var text=(inp.value||"").trim();
+  if(!text) return;
+  var memos=loadMemos();
+  var editIdx=inp.dataset.editIdx;
+  var now=new Date();
+  var ds=(now.getMonth()+1)+"/"+now.getDate()+" "+String(now.getHours()).padStart(2,"0")+":"+String(now.getMinutes()).padStart(2,"0");
+  if(editIdx!==undefined&&editIdx!==""){
+    memos[parseInt(editIdx)]={text:text,date:ds};
+    delete inp.dataset.editIdx;
+    if(addBtn){ addBtn.textContent="추가"; addBtn.style.background=""; }
+  } else {
+    memos.unshift({text:text,date:ds});
+  }
+  inp.value="";
+  saveMemos(memos);
+  renderMemo();
 }
 
 // 공포탐욕지수 수동입력
