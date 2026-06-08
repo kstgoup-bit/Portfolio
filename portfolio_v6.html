@@ -270,7 +270,31 @@ body.dark-mode .adv-card-claude{background:rgba(0,229,255,0.08);}
 .adv-card-tag{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:700;}
 .adv-card-body{font-size:14px;line-height:1.8;color:var(--text);white-space:pre-wrap;word-break:keep-all;}
 .adv-loading{text-align:center;padding:20px;color:var(--muted);font-size:13px;}
-.adv-api-notice{font-size:11px;color:var(--muted);text-align:center;margin-top:8px;}
+
+/* ===== 전체 버튼 터치 피드백 ===== */
+.lock-btn:active,.rk-btn:active,.role-btn:active,.period-btn:active,.record-btn:active,
+.btn-add:active,.btn-ok:active,.btn-cancel:active,.btn-edit:active,.btn-del:active,.btn-del-div:active,
+.adv-quick-btn:active,.adv-submit-btn:active,.btn-theme-light:active,.btn-theme-dark:active,button:active {
+  transform: scale(0.93);
+  filter: brightness(0.82);
+  transition: transform 0.07s ease, filter 0.07s ease;
+}
+.tab:active { transform: none; filter: none; }
+/* 가계부 */
+.ldg-card{background:var(--card-bg);border-radius:16px;padding:16px;margin-bottom:12px;border:1px solid var(--border);}
+.ldg-title{font-size:15px;font-weight:800;margin-bottom:12px;display:flex;align-items:center;gap:6px;}
+.ldg-inp-name{flex:7;min-width:0;height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--card-bg);color:var(--text);box-sizing:border-box;font-family:'Noto Sans KR',sans-serif;}
+.ldg-inp-amt{flex:3;min-width:0;height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-weight:700;text-align:right;background:var(--card-bg);color:var(--text);box-sizing:border-box;font-family:'Noto Sans KR',sans-serif;}
+.ldg-add-btn{flex:3;min-width:0;height:38px;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;color:#fff;text-align:center;box-sizing:border-box;}
+.ldg-item{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:rgba(255,255,255,0.04);border-radius:8px;margin-bottom:5px;border:1px solid var(--border);}
+.ldg-item-name{font-size:13px;color:var(--text);font-weight:600;}
+.ldg-item-amt{font-size:14px;font-weight:800;}
+.ldg-del{background:none;border:none;color:var(--neon-red);font-size:16px;cursor:pointer;padding:0 4px;margin-left:4px;}
+.ldg-summary{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px;}
+.ldg-sum-box{background:rgba(255,255,255,0.04);border-radius:10px;padding:10px;text-align:center;border:1px solid var(--border);}
+.ldg-sum-lbl{font-size:10px;color:var(--muted);margin-bottom:4px;}
+.ldg-sum-val{font-size:15px;font-weight:900;}
+.ldg-month-inp{padding:7px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-weight:700;background:var(--card-bg);color:var(--text);}
 </style>
 </head>
 <body>
@@ -307,6 +331,9 @@ body.dark-mode .adv-card-claude{background:rgba(0,229,255,0.08);}
     <button class="tab" onclick="switchTab('risk')">🌡️ 위험</button>
     <button class="tab" onclick="switchTab('commandments')">📜 계명</button>
     <button class="tab" onclick="switchTab('advisor')">🤖 AI</button>
+    <button class="tab" onclick="switchTab('ledger')">📒 가계부</button>
+    <button class="tab" onclick="switchTab('news')">📰 뉴스</button>
+    <button class="tab" onclick="switchTab('memo')">📝 메모</button>
     <button class="tab" onclick="switchTab('settings')">⚙️ 설정</button>
   </div>
 </div>
@@ -614,6 +641,129 @@ body.dark-mode .adv-card-claude{background:rgba(0,229,255,0.08);}
     </div>
     <div class="adv-api-notice" id="advNotice"></div>
   </div>
+</div>
+
+<!-- 가계부 -->
+<div class="panel" id="panel-ledger">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+    <div style="font-size:16px;font-weight:900;color:var(--neon-green)">📒 월별 가계부</div>
+    <input type="month" class="ldg-month-inp" id="ldgMonth" onchange="renderLedger()">
+  </div>
+  <!-- 수입 -->
+  <div class="ldg-card">
+    <div class="ldg-title" style="color:var(--neon-blue)">💰 수입</div>
+    <div style="display:grid;grid-template-columns:6.5fr 3.5fr;gap:6px;margin-bottom:6px">
+      <input type="date" id="ldgIncDate" style="height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--card-bg);color:var(--text);box-sizing:border-box;width:100%">
+      <button id="ldgIncomeBtn" onclick="addLedger('income')" style="height:38px;background:var(--neon-blue);border:none;border-radius:8px;font-size:14px;font-weight:700;color:#0b0f19;cursor:pointer;width:100%">추가</button>
+    </div>
+    <div style="display:grid;grid-template-columns:6.5fr 3.5fr;gap:6px;margin-bottom:6px">
+      <input id="ldgIncName" placeholder="항목명" class="ldg-inp-name">
+      <input id="ldgIncAmt" type="number" placeholder="금액(원)" class="ldg-inp-amt">
+    </div>
+    <div id="ldgIncList"></div>
+  </div>
+  <!-- 지출 -->
+  <div class="ldg-card">
+    <div class="ldg-title" style="color:var(--neon-red)">💸 지출</div>
+    <div style="display:grid;grid-template-columns:6.5fr 3.5fr;gap:6px;margin-bottom:6px">
+      <input type="date" id="ldgExpDate" style="height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--card-bg);color:var(--text);box-sizing:border-box;width:100%">
+      <button id="ldgExpenseBtn" onclick="addLedger('expense')" style="height:38px;background:var(--neon-red);border:none;border-radius:8px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;width:100%">추가</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px">
+      <select id="ldgExpCat" style="height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-weight:700;background:var(--card-bg);color:var(--text);box-sizing:border-box;width:100%;font-family:'Noto Sans KR',sans-serif">
+        <option value="">카테고리</option>
+        <option value="☕ 음료·카페">☕ 음료·카페</option>
+        <option value="🍽️ 외식">🍽️ 외식</option>
+        <option value="🚌 교통">🚌 교통</option>
+        <option value="🏥 의료">🏥 의료</option>
+        <option value="📱 통신">📱 통신</option>
+        <option value="🛒 생활용품">🛒 생활용품</option>
+        <option value="💳 기타">💳 기타</option>
+      </select>
+      <input id="ldgExpName" placeholder="항목명" class="ldg-inp-name">
+    </div>
+    <div style="display:grid;grid-template-columns:6.5fr 3.5fr;gap:6px;margin-bottom:6px">
+      <div></div>
+      <input id="ldgExpAmt" type="number" placeholder="금액(원)" class="ldg-inp-amt">
+    </div>
+    <div id="ldgExpList"></div>
+  </div>
+  <!-- 카테고리별 지출 -->
+  <div class="ldg-card">
+    <div class="ldg-title" style="color:var(--neon-red)">📊 카테고리별 지출</div>
+    <div id="ldgCatChart"></div>
+  </div>
+  <!-- 투자 -->
+  <div class="ldg-card">
+    <div class="ldg-title" style="color:var(--neon-purple)">📈 투자</div>
+    <div style="display:grid;grid-template-columns:4fr 2.5fr 3.5fr;gap:6px;margin-bottom:6px">
+      <input type="date" id="ldgInvDate" style="height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--card-bg);color:var(--text);box-sizing:border-box;width:100%">
+      <select id="ldgInvBroker" style="height:38px;padding:0 4px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-weight:700;background:var(--card-bg);color:var(--text);box-sizing:border-box;width:100%;font-family:'Noto Sans KR',sans-serif">
+        <option value="">증권사</option>
+        <option value="연금">연금</option>
+        <option value="신한">신한</option>
+        <option value="KB">KB</option>
+        <option value="메리츠">메리츠</option>
+      </select>
+      <button id="ldgInvestBtn" onclick="addLedger('invest')" style="height:38px;background:var(--neon-purple);border:none;border-radius:8px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;width:100%">추가</button>
+    </div>
+    <div style="display:grid;grid-template-columns:6.5fr 3.5fr;gap:6px;margin-bottom:6px">
+      <input id="ldgInvName" placeholder="항목명 (예: QTOP, NVDA)" class="ldg-inp-name">
+      <input id="ldgInvAmt" type="number" placeholder="금액(원)" class="ldg-inp-amt">
+    </div>
+    <div id="ldgInvList"></div>
+  </div>
+  <!-- 요약 -->
+  <div class="ldg-card">
+    <div class="ldg-title" style="color:var(--neon-green)">📊 이번 달 요약</div>
+    <div class="ldg-summary">
+      <div class="ldg-sum-box"><div class="ldg-sum-lbl">총 수입</div><div class="ldg-sum-val" id="ldgTotalInc" style="color:var(--neon-blue)">0원</div></div>
+      <div class="ldg-sum-box"><div class="ldg-sum-lbl">총 지출</div><div class="ldg-sum-val" id="ldgTotalExp" style="color:var(--neon-red)">0원</div></div>
+      <div class="ldg-sum-box"><div class="ldg-sum-lbl">총 투자</div><div class="ldg-sum-val" id="ldgTotalInv" style="color:var(--neon-purple)">0원</div></div>
+      <div class="ldg-sum-box"><div class="ldg-sum-lbl">잔액</div><div class="ldg-sum-val" id="ldgBalance">0원</div></div>
+    </div>
+  </div>
+  <!-- 월별 투자 차트 -->
+  <div class="ldg-card">
+    <div class="ldg-title" style="color:var(--neon-purple)">📊 월별 투자 현황</div>
+    <svg id="ldgInvChart" viewBox="0 0 340 145" style="width:100%"></svg>
+  </div>
+  <!-- 월별 수입/지출 비교 -->
+  <div class="ldg-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <div class="ldg-title" style="color:var(--text);margin:0">📊 월별 수입/지출 비교</div>
+      <div style="display:flex;gap:10px;font-size:11px;font-weight:700">
+        <span style="color:var(--neon-blue)">■ 수입</span>
+        <span style="color:var(--neon-red)">■ 지출</span>
+      </div>
+    </div>
+    <svg id="ldgIncExpChart" viewBox="0 0 340 155" style="width:100%"></svg>
+  </div>
+</div>
+
+<!-- 뉴스 -->
+<div class="panel" id="panel-news">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+    <div style="font-size:16px;font-weight:900;color:var(--text)">📰 보유종목 뉴스</div>
+    <button onclick="loadPortfolioNews()" id="newsRefreshBtn" style="background:linear-gradient(135deg,var(--neon-blue),var(--neon-purple));color:#0b0f19;border:none;border-radius:10px;padding:8px 16px;font-size:13px;font-weight:800;cursor:pointer;">🔄 새로고침</button>
+  </div>
+  <div id="newsStatus" style="font-size:11px;color:var(--muted);margin-bottom:8px;text-align:center"></div>
+  <div id="newsList">
+    <div style="text-align:center;padding:40px 0;color:var(--muted);font-size:13px">🔄 새로고침을 눌러<br>보유종목 최신 뉴스를 불러오세요</div>
+  </div>
+</div>
+
+<!-- 메모 -->
+<div class="panel" id="panel-memo">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+    <div style="font-size:16px;font-weight:900;color:var(--text)">📝 메모장</div>
+    <span style="font-size:11px;color:var(--muted)" id="memoCount"></span>
+  </div>
+  <div style="display:flex;gap:8px;margin-bottom:14px">
+    <textarea id="memoInput" placeholder="생각나는 것을 메모해두세요..." style="flex:1;border:1.5px solid var(--border);border-radius:10px;padding:10px 12px;font-size:13px;font-family:'Noto Sans KR',sans-serif;resize:none;height:80px;background:var(--card-bg);color:var(--text);outline:none"></textarea>
+    <button id="memoAddBtn" onclick="addMemo()" style="background:linear-gradient(135deg,var(--neon-blue),var(--neon-purple));border:none;border-radius:10px;padding:0 16px;font-size:13px;font-weight:800;color:#0b0f19;cursor:pointer;align-self:stretch;box-shadow:0 2px 10px rgba(0,229,255,0.2)">추가</button>
+  </div>
+  <div id="memoList"></div>
 </div>
 
 <!-- 설정 -->
@@ -1572,9 +1722,353 @@ function loadTheme() {
 }
 
 function switchTab(tab){
-  var tabs=["dashboard","domestic","overseas","pension","dividend","risk","commandments","advisor","settings"];
+  var tabs=["dashboard","domestic","overseas","pension","dividend","risk","commandments","advisor","ledger","news","memo","settings"];
   document.querySelectorAll(".tab").forEach(function(t,i){t.classList.toggle("active",tabs[i]===tab);});
   document.querySelectorAll(".panel").forEach(function(p){p.classList.toggle("active",p.id==="panel-"+tab);});
+  if(tab==="memo") renderMemo();
+  if(tab==="ledger"){initLedgerMonth();renderLedger();}
+  if(tab==="news") loadPortfolioNews();
+}
+
+// 📝 메모장
+// ═══════════════════════════════
+function loadMemos(){ try{return JSON.parse(localStorage.getItem("v6_memos")||"[]");}catch(e){return [];} }
+function saveMemos(m){ localStorage.setItem("v6_memos",JSON.stringify(m)); }
+function delMemo(i){
+  var memos=loadMemos(); memos.splice(i,1); saveMemos(memos); renderMemo();
+}
+function renderMemo(){
+  var memos=loadMemos();
+  var list=document.getElementById("memoList");
+  var cnt=document.getElementById("memoCount");
+  if(!list) return;
+  if(cnt) cnt.textContent=memos.length+"개";
+  if(!memos.length){list.innerHTML='<div style="text-align:center;padding:40px 0;color:var(--muted);font-size:13px">📝 메모가 없어요</div>';return;}
+  list.innerHTML=memos.map(function(m,i){
+    return '<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:8px">'
+      +'<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">'
+        +'<div style="font-size:13px;color:var(--text);line-height:1.6;flex:1;white-space:pre-wrap">'+m.text.replace(/</g,"&lt;").replace(/>/g,"&gt;")+'</div>'
+        +'<div style="display:flex;gap:6px;flex-shrink:0;align-items:center">'
+          +'<button onclick="delMemo('+i+')" style="color:var(--muted);background:none;border:none;font-size:18px;cursor:pointer;padding:0;line-height:1">×</button>'
+          +'<button onclick="editMemo('+i+')" style="background:none;border:none;font-size:16px;cursor:pointer;padding:0;line-height:1" title="수정">✏️</button>'
+        +'</div>'
+      +'</div>'
+      +'<div style="font-size:10px;color:var(--muted);margin-top:6px">'+m.date+'</div>'
+    +'</div>';
+  }).join("");
+}
+function editMemo(i){
+  var memos=loadMemos();
+  if(!memos[i]) return;
+  var inp=document.getElementById("memoInput");
+  var addBtn=document.getElementById("memoAddBtn");
+  if(!inp) return;
+  inp.value=memos[i].text;
+  inp.focus();
+  inp.dataset.editIdx=i;
+  if(addBtn){ addBtn.textContent="수정"; addBtn.style.background="var(--neon-purple)"; }
+}
+function addMemo(){
+  var inp=document.getElementById("memoInput");
+  var addBtn=document.getElementById("memoAddBtn");
+  var text=(inp.value||"").trim();
+  if(!text) return;
+  var memos=loadMemos();
+  var editIdx=inp.dataset.editIdx;
+  var now=new Date();
+  var ds=(now.getMonth()+1)+"/"+now.getDate()+" "+String(now.getHours()).padStart(2,"0")+":"+String(now.getMinutes()).padStart(2,"0");
+  if(editIdx!==undefined&&editIdx!==""){
+    memos[parseInt(editIdx)]={text:text,date:ds};
+    delete inp.dataset.editIdx;
+    if(addBtn){ addBtn.textContent="추가"; addBtn.style.background=""; }
+  } else {
+    memos.unshift({text:text,date:ds});
+  }
+  inp.value="";
+  saveMemos(memos);
+  renderMemo();
+}
+
+// 📰 뉴스
+// ═══════════════════════════════
+function loadPortfolioNews(){
+  var btn=document.getElementById("newsRefreshBtn");
+  var status=document.getElementById("newsStatus");
+  var list=document.getElementById("newsList");
+  if(!btn||!list) return;
+  var key=getGeminiKey();
+  if(!key){
+    list.innerHTML='<div style="background:rgba(255,152,0,0.1);border:1px solid rgba(255,152,0,0.3);border-radius:10px;padding:14px;font-size:13px;color:var(--neon-yellow)">⚠️ 설정 탭에서 Gemini API 키를 먼저 입력해주세요</div>';
+    return;
+  }
+  var allOv=(ovStocks||[]);
+  var seen={};
+  var tickers=allOv.map(function(s){return s.ticker||s.sym||"";})
+    .filter(function(t){if(!t||!/^[A-Z]/.test(t)||seen[t]) return false; seen[t]=true; return true;})
+    .slice(0,8);
+  if(!tickers.length) tickers=["QTOP","GOOGL","MSCI","NVDA","MSFT","SPGI"];
+  btn.disabled=true; btn.textContent="불러오는 중...";
+  status.textContent="뉴스 수집 중...";
+  list.innerHTML='';
+  var headlines=[]; var done=0;
+  function oneDone(){
+    done++;
+    if(done<tickers.length) return;
+    if(!headlines.length){
+      btn.disabled=false; btn.textContent="🔄 새로고침"; status.textContent="";
+      list.innerHTML='<div style="text-align:center;padding:30px 0;color:var(--muted);font-size:13px">뉴스를 가져오지 못했어요</div>';
+      return;
+    }
+    renderNews(headlines, headlines.map(function(h){return h.title;}), btn, status, list);
+    translateAndRender(headlines, btn, status, list, key);
+  }
+  tickers.forEach(function(ticker){
+    var url="https://news.google.com/rss/search?q="+encodeURIComponent(ticker+" stock")+"&hl=en-US&gl=US&ceid=US:en";
+    fetch("https://corsproxy.io/?"+encodeURIComponent(url))
+      .then(function(r){return r.text();})
+      .then(function(text){
+        var parser=new DOMParser();
+        var doc=parser.parseFromString(text,"text/xml");
+        var items=doc.querySelectorAll("item");
+        var count=0;
+        items.forEach(function(item){
+          if(count>=2) return;
+          var title=(item.querySelector("title")||{}).textContent||"";
+          var link=(item.querySelector("link")||{}).textContent||"";
+          var date=(item.querySelector("pubDate")||{}).textContent||"";
+          title=title.replace(/\s*-\s*[^-]+$/,"").trim();
+          if(title.length>5){headlines.push({ticker:ticker,title:title,link:link,date:date}); count++;}
+        });
+        oneDone();
+      })
+      .catch(function(){ oneDone(); });
+  });
+}
+function translateAndRender(headlines, btn, status, list, key){
+  var titles=headlines.map(function(h){return h.title;});
+  var apiKey=getGeminiKey();
+  if(!apiKey){renderNews(headlines,titles,btn,status,list); return;}
+  status.textContent="한국어 번역 중...";
+  var numbered=titles.map(function(t,i){return (i+1)+". "+t;}).join("\n");
+  var prompt="Translate each headline to Korean. Output ONLY the numbered translations:\n"+numbered;
+  var url="https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key="+apiKey;
+  fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{temperature:0.1,maxOutputTokens:600}})
+  })
+  .then(function(r){return r.json();})
+  .then(function(data){
+    if(data.error&&data.error.code===429){status.textContent="잠시 후 재시도 중..."; setTimeout(function(){translateAndRender(headlines,btn,status,list,key);},3000); return;}
+    if(data.error){status.textContent="번역 오류"; renderNews(headlines,titles,btn,status,list); return;}
+    var raw="";
+    try{raw=data.candidates[0].content.parts[0].text||"";}catch(e){renderNews(headlines,titles,btn,status,list); return;}
+    var lines=raw.split("\n").map(function(l){return l.replace(/^\d+[\.\)]\s*/,"").replace(/^[·\-\*•]\s*/,"").trim();}).filter(function(l){return l.length>1;});
+    var translated=titles.map(function(t,i){return (lines[i]&&lines[i].length>1)?lines[i]:t;});
+    renderNews(headlines,translated,btn,status,list);
+  })
+  .catch(function(){renderNews(headlines,titles,btn,status,list);});
+}
+function renderNews(headlines, translated, btn, status, list){
+  btn.disabled=false; btn.textContent="🔄 새로고침";
+  var now=new Date();
+  status.textContent="업데이트: "+now.getHours()+":"+String(now.getMinutes()).padStart(2,"0");
+  list.innerHTML=headlines.map(function(h,i){
+    var titleKo=translated[i]||h.title;
+    var dateStr="";
+    if(h.date){var diff=Math.round((now-new Date(h.date))/3600000); if(!isNaN(diff)) dateStr=diff<1?"방금":diff<24?diff+"시간 전":Math.round(diff/24)+"일 전";}
+    return '<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:8px">'
+      +'<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">'
+        +'<span style="font-size:11px;font-weight:800;background:var(--neon-blue);color:#0b0f19;border-radius:5px;padding:2px 8px">'+h.ticker+'</span>'
+        +(dateStr?'<span style="font-size:10px;color:var(--muted)">'+dateStr+'</span>':"")
+      +'</div>'
+      +'<div style="font-size:13px;font-weight:700;color:var(--text);line-height:1.5;margin-bottom:6px">'+titleKo+'</div>'
+      +(h.link?'<a href="'+h.link+'" target="_blank" style="font-size:11px;color:var(--neon-blue)">원문(영어) →</a>':"")
+    +'</div>';
+  }).join("");
+}
+
+// 📒 가계부
+// ═══════════════════════════════
+function getLedgerKey(){
+  var m=document.getElementById("ldgMonth");
+  if(!m||!m.value){var now=new Date(); return now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0");}
+  return m.value;
+}
+function loadLedgerData(){ var data={}; try{data=JSON.parse(localStorage.getItem("v6_ledger")||"{}");}catch(e){} return data; }
+function saveLedgerData(data){ localStorage.setItem("v6_ledger",JSON.stringify(data)); }
+function initLedgerMonth(){
+  var m=document.getElementById("ldgMonth");
+  if(m&&!m.value){var now=new Date(); m.value=now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0");}
+}
+var _editMode={type:null,idx:null};
+function addLedger(type){
+  var nameEl=document.getElementById(type==="income"?"ldgIncName":type==="expense"?"ldgExpName":"ldgInvName");
+  var amtEl=document.getElementById(type==="income"?"ldgIncAmt":type==="expense"?"ldgExpAmt":"ldgInvAmt");
+  var dateEl=document.getElementById(type==="income"?"ldgIncDate":type==="expense"?"ldgExpDate":"ldgInvDate");
+  var name=(nameEl.value||"").trim(); var amt=parseFloat(amtEl.value); var date=dateEl?dateEl.value:"";
+  if(!name||!amt||amt<=0){alert("항목명과 금액을 입력해주세요");return;}
+  var broker=""; if(type==="invest"){var bEl=document.getElementById("ldgInvBroker"); if(bEl) broker=bEl.value;}
+  var cat=""; if(type==="expense"){var cEl=document.getElementById("ldgExpCat"); if(cEl) cat=cEl.value;}
+  var entry={name:name,amount:amt,date:date,broker:broker,cat:cat};
+  var data=loadLedgerData(); var key=getLedgerKey();
+  if(!data[key]) data[key]={income:[],expense:[],invest:[]};
+  if(!data[key].income) data[key].income=[];
+  if(!data[key].expense) data[key].expense=[];
+  if(!data[key].invest) data[key].invest=[];
+  if(_editMode.type===type&&_editMode.idx!==null){data[key][type][_editMode.idx]=entry; cancelEdit();}
+  else{data[key][type].push(entry);}
+  saveLedgerData(data); nameEl.value=""; amtEl.value=""; renderLedger();
+}
+function editLedger(type,idx){
+  var data=loadLedgerData(); var key=getLedgerKey();
+  if(!data[key]||!data[key][type]) return;
+  var item=data[key][type][idx]; if(!item) return;
+  if(type==="income"){
+    var d=document.getElementById("ldgIncDate"); if(d) d.value=item.date||"";
+    var n=document.getElementById("ldgIncName"); if(n) n.value=item.name||"";
+    var a=document.getElementById("ldgIncAmt"); if(a) a.value=item.amount||"";
+    setEditMode("income",idx);
+  } else if(type==="expense"){
+    var d=document.getElementById("ldgExpDate"); if(d) d.value=item.date||"";
+    var c=document.getElementById("ldgExpCat"); if(c) c.value=item.cat||"";
+    var n=document.getElementById("ldgExpName"); if(n) n.value=item.name||"";
+    var a=document.getElementById("ldgExpAmt"); if(a) a.value=item.amount||"";
+    setEditMode("expense",idx);
+  } else if(type==="invest"){
+    var d=document.getElementById("ldgInvDate"); if(d) d.value=item.date||"";
+    var b=document.getElementById("ldgInvBroker"); if(b) b.value=item.broker||"";
+    var n=document.getElementById("ldgInvName"); if(n) n.value=item.name||"";
+    var a=document.getElementById("ldgInvAmt"); if(a) a.value=item.amount||"";
+    setEditMode("invest",idx);
+  }
+}
+function setEditMode(type,idx){
+  _editMode={type:type,idx:idx};
+  ["income","expense","invest"].forEach(function(t){
+    var b=document.getElementById("ldg"+t.charAt(0).toUpperCase()+t.slice(1)+"Btn");
+    if(b){
+      if(t===type){b.textContent="수정"; b.style.background="var(--neon-yellow)"; b.style.color="#0b0f19";}
+      else{b.style.background=(t==="income"?"var(--neon-blue)":t==="expense"?"var(--neon-red)":"var(--neon-purple)"); b.textContent="추가";}
+    }
+  });
+}
+function cancelEdit(){
+  _editMode={type:null,idx:null};
+  ["income","expense","invest"].forEach(function(t){
+    var b=document.getElementById("ldg"+t.charAt(0).toUpperCase()+t.slice(1)+"Btn");
+    if(b){b.textContent="추가"; b.style.background=(t==="income"?"var(--neon-blue)":t==="expense"?"var(--neon-red)":"var(--neon-purple)"); b.style.color=(t==="income"?"#0b0f19":"#fff");}
+  });
+}
+function delLedger(type,idx){
+  var data=loadLedgerData(); var key=getLedgerKey();
+  if(!data[key]||!data[key][type]) return;
+  data[key][type].splice(idx,1); saveLedgerData(data); renderLedger();
+}
+function renderCatChart(expList){
+  var el=document.getElementById("ldgCatChart"); if(!el) return;
+  var cats={};
+  var CAT_COLORS={"☕ 음료·카페":"#ff8f00","🍽️ 외식":"#e53935","🚌 교통":"#1e88e5","🏥 의료":"#43a047","📱 통신":"#8e24aa","🛒 생활용품":"#00897b","💳 기타":"#757575"};
+  expList.forEach(function(d){var c=d.cat||"💳 기타"; cats[c]=(cats[c]||0)+d.amount;});
+  var sorted=Object.entries(cats).sort(function(a,b){return b[1]-a[1];});
+  if(!sorted.length){el.innerHTML='<div style="text-align:center;font-size:12px;color:var(--muted);padding:8px">지출을 입력하면 표시돼요</div>';return;}
+  var maxV=sorted[0][1]||1;
+  el.innerHTML=sorted.map(function(item){
+    var cat=item[0], amt=item[1], pct=Math.round(amt/maxV*100), color=CAT_COLORS[cat]||"#9e9e9e";
+    return '<div style="margin-bottom:10px">'
+      +'<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px">'
+        +'<span style="font-weight:700;color:var(--text)">'+cat+'</span>'
+        +'<span style="color:'+color+';font-weight:800">'+Math.round(amt).toLocaleString()+'원</span>'
+      +'</div>'
+      +'<div style="background:rgba(255,255,255,0.08);border-radius:6px;height:10px;overflow:hidden">'
+        +'<div style="width:'+pct+'%;height:100%;background:'+color+';border-radius:6px;transition:width 0.6s ease"></div>'
+      +'</div>'
+    +'</div>';
+  }).join("");
+}
+function renderLedger(){
+  initLedgerMonth();
+  var data=loadLedgerData(); var key=getLedgerKey();
+  var month=data[key]||{income:[],expense:[],invest:[]};
+  function renderList(items,type,containerId,color){
+    var el=document.getElementById(containerId); if(!el) return 0;
+    if(!items.length){el.innerHTML='<div style="text-align:center;font-size:12px;color:var(--muted);padding:8px">아직 입력된 내용이 없습니다</div>';return 0;}
+    var sorted=items.map(function(item,i){return {item:item,idx:i};});
+    sorted.sort(function(a,b){var da=a.item.date||"9999-99-99", db=b.item.date||"9999-99-99"; if(da===db) return a.idx-b.idx; return da<db?-1:1;});
+    var total=0, html='';
+    sorted.forEach(function(obj){
+      var item=obj.item, i=obj.idx; total+=item.amount;
+      var dateStr=item.date?'<span style="font-size:11px;font-weight:700;color:#0b0f19;background:'+color+';border-radius:5px;padding:1px 6px;margin-right:6px">'+item.date.slice(5).replace('-','/')+'</span>':'';
+      var nameDisplay=item.broker
+        ?item.name+' <span style="font-size:11px;color:var(--muted)">'+item.broker+'</span>'
+        :type==="expense"&&item.cat
+        ?'<span style="font-size:10px;background:rgba(255,152,0,0.15);color:var(--neon-yellow);border-radius:4px;padding:1px 5px;margin-right:4px;font-weight:600">'+item.cat+'</span>'+item.name
+        :item.name;
+      html+='<div class="ldg-item">'
+        +'<span class="ldg-item-name">'+dateStr+nameDisplay+'</span>'
+        +'<div style="display:flex;align-items:center;gap:4px">'
+          +'<span class="ldg-item-amt" style="color:'+color+'">'+item.amount.toLocaleString()+'원</span>'
+          +'<button class="ldg-del" onclick="delLedger(\''+type+'\','+i+')">×</button>'
+          +'<button onclick="editLedger(\''+type+'\','+i+')" style="background:none;border:none;font-size:14px;cursor:pointer;color:var(--muted);padding:2px 4px">✏️</button>'
+        +'</div>'
+      +'</div>';
+    });
+    el.innerHTML=html; return total;
+  }
+  var totalInc=renderList(month.income||[],"income","ldgIncList","#00e5ff");
+  var totalExp=renderList(month.expense||[],"expense","ldgExpList","#ff3366");
+  var totalInv=renderList(month.invest||[],"invest","ldgInvList","#d500f9");
+  renderCatChart(month.expense||[]);
+  var balance=totalInc-totalExp-totalInv;
+  var ti=document.getElementById("ldgTotalInc"); var te=document.getElementById("ldgTotalExp");
+  var tiv=document.getElementById("ldgTotalInv"); var tb=document.getElementById("ldgBalance");
+  if(ti) ti.textContent=totalInc.toLocaleString()+"원";
+  if(te) te.textContent=totalExp.toLocaleString()+"원";
+  if(tiv) tiv.textContent=totalInv.toLocaleString()+"원";
+  if(tb){tb.textContent=(balance>=0?"+":"")+balance.toLocaleString()+"원"; tb.style.color=balance>=0?"#00e5ff":"#ff3366";}
+  // 월별 투자 차트
+  var svg=document.getElementById("ldgInvChart");
+  if(svg){
+    var allData=loadLedgerData();
+    var months=[]; var now=new Date();
+    for(var m=11;m>=0;m--){var d=new Date(now.getFullYear(),now.getMonth()-m,1); months.push(d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0"));}
+    var vals=months.map(function(mk){var md=allData[mk]; return md&&md.invest?md.invest.reduce(function(s,x){return s+x.amount;},0):0;});
+    var maxV=Math.max.apply(null,vals)||1;
+    var W=340,H=125,padL=4,padR=4,padT=22,padB=26;
+    var barW=Math.floor((W-padL-padR)/months.length*0.8);
+    var gap=(W-padL-padR-barW*months.length)/(months.length+1);
+    var html='';
+    months.forEach(function(mk,i){
+      var v=vals[i], isCurrent=(mk===getLedgerKey());
+      var barH=v>0?Math.max(Math.round((H-padT-padB)*v/maxV),4):0;
+      var x=padL+gap+(barW+gap)*i, y=H-padB-barH;
+      var fill=isCurrent?"#d500f9":"rgba(213,0,249,0.4)";
+      if(v>0){
+        html+='<rect x="'+x+'" y="'+y+'" width="'+barW+'" height="'+barH+'" rx="3" fill="'+fill+'"/>';
+        var label=v>=10000000?(v/10000000).toFixed(1)+'천만':v>=1000000?(v/1000000).toFixed(1)+'백만':v>=10000?(v/10000).toFixed(0)+'만':(v/1000).toFixed(0)+'천';
+        html+='<text x="'+(x+barW/2)+'" y="'+Math.max(y-4,14)+'" text-anchor="middle" font-size="11" fill="#d500f9" font-weight="800">'+label+'</text>';
+      }
+      html+='<text x="'+(x+barW/2)+'" y="'+(H-padB+16)+'" text-anchor="middle" font-size="13" fill="'+(isCurrent?"#d500f9":"#4a5568")+'" font-weight="'+(isCurrent?"800":"400")+'">'+mk.slice(5)+'</text>';
+    });
+    svg.innerHTML=html;
+  }
+  // 월별 수입/지출 비교 차트
+  var svg2=document.getElementById("ldgIncExpChart");
+  if(svg2){
+    var allData2=loadLedgerData();
+    var months2=[]; var now2=new Date();
+    for(var m2=11;m2>=0;m2--){var d2=new Date(now2.getFullYear(),now2.getMonth()-m2,1); months2.push(d2.getFullYear()+"-"+String(d2.getMonth()+1).padStart(2,"0"));}
+    var incVals=months2.map(function(mk){var md=allData2[mk]; return md&&md.income?md.income.reduce(function(s,x){return s+x.amount;},0):0;});
+    var expVals=months2.map(function(mk){var md=allData2[mk]; return md&&md.expense?md.expense.reduce(function(s,x){return s+x.amount;},0):0;});
+    var maxV2=Math.max.apply(null,incVals.concat(expVals))||1;
+    var W2=340,H2=135,padL2=4,padR2=4,padT2=22,padB2=26;
+    var slotW=(W2-padL2-padR2)/months2.length, bW=Math.floor(slotW*0.35), html2='';
+    months2.forEach(function(mk,i){
+      var inc=incVals[i], exp=expVals[i], cx=padL2+slotW*i+slotW/2, isCurrent=(mk===getLedgerKey());
+      if(inc>0){var bH=Math.max(Math.round((H2-padT2-padB2)*inc/maxV2),3), y=H2-padB2-bH; html2+='<rect x="'+(cx-bW-1)+'" y="'+y+'" width="'+bW+'" height="'+bH+'" rx="2" fill="'+(isCurrent?"#00e5ff":"rgba(0,229,255,0.3)")+'"/>';}
+      if(exp>0){var bH2=Math.max(Math.round((H2-padT2-padB2)*exp/maxV2),3), y2=H2-padB2-bH2; html2+='<rect x="'+(cx+1)+'" y="'+y2+'" width="'+bW+'" height="'+bH2+'" rx="2" fill="'+(isCurrent?"#ff3366":"rgba(255,51,102,0.3)")+'"/>';}
+      html2+='<text x="'+cx+'" y="'+(H2-padB2+16)+'" text-anchor="middle" font-size="13" fill="'+(isCurrent?"var(--text)":"#4a5568")+'" font-weight="'+(isCurrent?"800":"400")+'">'+mk.slice(5)+'</text>';
+    });
+    svg2.innerHTML=html2;
+  }
 }
 
 function checkPw(){
