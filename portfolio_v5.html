@@ -607,6 +607,19 @@ body { font-family:'Pretendard',sans-serif !important; }
   </div>
   <!-- 자산비중 + 수익률 + 국내해외연금 -->
   <div id="mktSummary"></div>
+  <!-- 5년 10억 로드맵 -->
+  <div class="card" id="roadmapCard" style="margin-top:14px">
+    <div style="font-size:15px;font-weight:900;color:var(--text);margin-bottom:14px">🗺️ 5년 10억 로드맵</div>
+    <div id="roadmapBody"></div>
+    <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border)">
+      <div style="font-size:13px;font-weight:800;color:#f57f17;margin-bottom:8px">💡 핵심 3원칙</div>
+      <div style="font-size:12px;color:var(--text);line-height:2">
+        ① 매월 150만원 꾸준히 납입 — 복리의 힘<br>
+        ② IONQ·JOBY 익절 타이밍 놓치지 말기<br>
+        ③ 🧭 시장 타이밍 예측 금지, 원칙 준수
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- 국내 -->
@@ -2082,6 +2095,66 @@ function renderDashboard() {
   // 추세선
   renderPeriodBtns("allPeriodBtns","allLineChart","all","#1565c0");
   renderLineChart("1W","allPeriodBtns","allLineChart","all","#1565c0");
+  renderRoadmap(allTV);
+}
+
+function renderRoadmap(allTV){
+  var el=document.getElementById("roadmapBody");
+  if(!el) return;
+  var curMan=Math.round((allTV||0)/1e4);
+
+  var steps=[
+    {year:2026, target:28000, label:"2.8억", event:"우량주 구조 완성"},
+    {year:2027, target:38000, label:"3.8억", event:"Copilot 기본탑재"},
+    {year:2028, target:52000, label:"5.2억", event:"SMR 수주 본격화"},
+    {year:2029, target:70000, label:"7.0억", event:"AI 수익화 본격화"},
+    {year:2030, target:100000, label:"10억!", event:"퇴직 + 목표달성", final:true}
+  ];
+
+  var curYear=new Date().getFullYear();
+  var html='<table style="width:100%;border-collapse:collapse">';
+  html+='<tr style="background:#1565c0;color:#fff">'
+    +'<td style="padding:8px 10px;font-weight:800;font-size:12px;border-radius:8px 0 0 0">연도</td>'
+    +'<td style="padding:8px 10px;font-weight:800;font-size:12px;text-align:center">목표</td>'
+    +'<td style="padding:8px 10px;font-weight:800;font-size:12px">달성률</td>'
+    +'<td style="padding:8px 10px;font-weight:800;font-size:12px;border-radius:0 8px 0 0">핵심 이벤트</td>'
+  +'</tr>';
+
+  steps.forEach(function(s){
+    var isCurrent=(s.year===curYear);
+    var isPast=(s.year<curYear);
+    var isFinal=s.final;
+    var pct=Math.min(Math.round(curMan/s.target*100),100);
+    var barColor=pct>=100?"#1565c0":pct>=70?"#2e7d32":pct>=40?"#f57f17":"#c62828";
+    var rowBg=isFinal?"#1565c0":isCurrent?"#e3f2fd":"transparent";
+    var yearColor=isFinal?"#facc15":isCurrent?"#1565c0":"#888";
+    var targetColor=isFinal?"#facc15":isCurrent?"#1a1a2e":"#555";
+    var border="border-bottom:1px solid #e0e0e0;";
+
+    html+='<tr style="background:'+rowBg+'">'
+      +'<td style="'+border+'padding:10px 10px;font-size:13px;font-weight:900;color:'+yearColor+'">'
+        +(isCurrent?"📍 ":"")+(isFinal?"🎯 ":"")+s.year+(isPast&&pct>=100?" ✅":"")
+      +'</td>'
+      +'<td style="'+border+'padding:10px 10px;font-size:14px;font-weight:900;color:'+targetColor+';text-align:center">'+s.label+'</td>'
+      +'<td style="'+border+'padding:10px 10px;min-width:90px">'
+        +'<div style="display:flex;align-items:center;gap:6px">'
+          +'<div style="flex:1;background:#e0e0e0;border-radius:99px;height:7px;overflow:hidden">'
+            +'<div style="width:'+pct+'%;height:100%;background:'+barColor+';border-radius:99px;transition:width 0.8s ease"></div>'
+          +'</div>'
+          +'<span style="font-size:11px;font-weight:800;color:'+barColor+';min-width:32px">'+pct+'%</span>'
+        +'</div>'
+      +'</td>'
+      +'<td style="'+border+'padding:10px 10px;font-size:12px;color:'+(isFinal?"#facc15":isCurrent?"#1a1a2e":"#666")+';font-weight:'+(isFinal||isCurrent?"800":"600")+'">'+s.event+'</td>'
+    +'</tr>';
+  });
+
+  html+='<tr><td colspan="4" style="padding:10px 10px 4px">'
+    +'<span style="font-size:11px;color:#888">📍 현재 자산: </span>'
+    +'<span style="font-size:13px;font-weight:900;color:#1565c0">'+(curMan/10000).toFixed(2)+'억원</span>'
+    +'<span style="font-size:11px;color:#888"> (10억 대비 '+(Math.round(curMan/1000))+'%)</span>'
+  +'</td></tr>';
+  html+='</table>';
+  el.innerHTML=html;
 }
 
 function renderDomestic() {
