@@ -2101,67 +2101,29 @@ function renderDashboard() {
 function renderRoadmap(allTV){
   var el=document.getElementById("roadmapBody");
   if(!el) return;
-  var curMan=Math.round((allTV||0)/1e4);
-
   var steps=[
-    {year:2026, from:19000, target:28000, label:"2.8억", event:"우량주 구조 완성"},
-    {year:2027, from:28000, target:38000, label:"3.8억", event:"Copilot 기본탑재"},
-    {year:2028, from:38000, target:52000, label:"5.2억", event:"SMR 수주 본격화"},
-    {year:2029, from:52000, target:70000, label:"7.0억", event:"AI 수익화 본격화"},
-    {year:2030, from:70000, target:100000, label:"10억!", event:"퇴직 + 목표달성", final:true}
+    {year:"2026", target:"2.8억", event:"우량주 구조 완성"},
+    {year:"2027", target:"3.8억", event:"Copilot 기본탑재"},
+    {year:"2028", target:"5.2억", event:"SMR 수주 본격화"},
+    {year:"2029", target:"7.0억", event:"AI 수익화 본격화"},
+    {year:"2030 🎯", target:"10억!", event:"퇴직 + 목표달성", final:true}
   ];
-
-  var curYear=new Date().getFullYear();
   var html='<table style="width:100%;border-collapse:collapse">';
   html+='<tr style="background:#1565c0;color:#fff">'
-    +'<td style="padding:8px 10px;font-weight:800;font-size:12px;border-radius:8px 0 0 8px;width:22%">연도</td>'
-    +'<td style="padding:8px 10px;font-weight:800;font-size:12px;text-align:center;width:18%">목표</td>'
-    +'<td style="padding:8px 10px;font-weight:800;font-size:12px;border-radius:0 8px 8px 0">핵심 이벤트</td>'
+    +'<td style="padding:10px 14px;font-weight:800;font-size:13px;border-radius:8px 0 0 0;width:20%">연도</td>'
+    +'<td style="padding:10px 14px;font-weight:800;font-size:13px;text-align:center;width:22%">목표 자산</td>'
+    +'<td style="padding:10px 14px;font-weight:800;font-size:13px;text-align:right;border-radius:0 8px 0 0">핵심 이벤트</td>'
   +'</tr>';
-
   steps.forEach(function(s){
-    var isCurrent=(s.year===curYear);
-    var isPast=(s.year<curYear);
-    var isFinal=s.final;
-
-    // 1년 구간 달성률: (현재자산 - 구간시작) / (구간목표 - 구간시작)
-    var range=s.target-s.from;
-    var progress=Math.max(curMan-s.from,0);
-    var pct=Math.min(Math.round(progress/range*100),100);
-    var barColor=pct>=100?"#1565c0":pct>=70?"#2e7d32":pct>=40?"#f57f17":"#c62828";
-
-    var rowBg=isFinal?"#1565c0":isCurrent?"#e3f2fd":"transparent";
-    var yearColor=isFinal?"#facc15":isCurrent?"#1565c0":"#888";
-    var targetColor=isFinal?"#facc15":isCurrent?"#1a1a2e":"#555";
-    var eventColor=isFinal?"#facc15":isCurrent?"#1a1a2e":"#666";
-    var border="border-bottom:1px solid #e0e0e0;";
-
-    // 연도/목표/이벤트 행
-    html+='<tr style="background:'+rowBg+'">'
-      +'<td style="padding:10px 10px 4px;font-size:13px;font-weight:900;color:'+yearColor+'">'
-        +(isCurrent?"📍 ":"")+(isFinal?"🎯 ":"")+s.year+(isPast&&pct>=100?" ✅":"")
-      +'</td>'
-      +'<td style="padding:10px 10px 4px;font-size:14px;font-weight:900;color:'+targetColor+';text-align:center">'+s.label+'</td>'
-      +'<td style="padding:10px 10px 4px;font-size:12px;color:'+eventColor+';font-weight:'+(isFinal||isCurrent?"800":"600")+'">'+s.event+'</td>'
-    +'</tr>';
-    // 달성률 바 행
-    html+='<tr style="background:'+rowBg+'">'
-      +'<td colspan="3" style="'+border+'padding:2px 10px 8px">'
-        +'<div style="display:flex;align-items:center;gap:8px">'
-          +'<div style="flex:1;background:#e0e0e0;border-radius:99px;height:8px;overflow:hidden">'
-            +'<div style="width:'+pct+'%;height:100%;background:'+barColor+';border-radius:99px;transition:width 0.8s ease"></div>'
-          +'</div>'
-          +'<span style="font-size:11px;font-weight:800;color:'+barColor+';min-width:36px">'+pct+'%</span>'
-        +'</div>'
-      +'</td>'
+    var f=s.final;
+    var bg=f?"#1565c0":"transparent";
+    var bd=f?"":"border-bottom:1px solid #e0e0e0;";
+    html+='<tr style="background:'+bg+'">'
+      +'<td style="'+bd+'padding:13px 14px;font-size:14px;font-weight:900;color:'+(f?"#facc15":"#1565c0")+'">'+s.year+'</td>'
+      +'<td style="'+bd+'padding:13px 14px;font-size:15px;font-weight:900;color:'+(f?"#facc15":"#1a1a2e")+';text-align:center">'+s.target+'</td>'
+      +'<td style="'+bd+'padding:13px 14px;font-size:13px;color:'+(f?"#fff":"#444")+';text-align:right;font-weight:'+(f?"800":"400")+'">'+s.event+'</td>'
     +'</tr>';
   });
-
-  html+='<tr><td colspan="3" style="padding:10px 10px 4px">'
-    +'<span style="font-size:11px;color:#888">📍 현재 자산: </span>'
-    +'<span style="font-size:13px;font-weight:900;color:#1565c0">'+(curMan/10000).toFixed(2)+'억원</span>'
-    +'<span style="font-size:11px;color:#888"> (10억 대비 '+(Math.round(curMan/1000))+'%)</span>'
-  +'</td></tr>';
   html+='</table>';
   el.innerHTML=html;
 }
