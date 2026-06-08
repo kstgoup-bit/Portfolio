@@ -1558,7 +1558,9 @@ function saveGas(){gasUrl=document.getElementById("gasInput").value.trim();local
 
 function exportData(){
   var calc={};for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k&&(k.startsWith("v6_calc_q")||k.startsWith("v6_calc_p")))calc[k]=localStorage.getItem(k);}
-  var b={version:"v6",date:new Date().toLocaleString("ko-KR"),domStocks:domStocks,ovStocks:ovStocks,penStocks:penStocks,divList:divList,snapshots:snapshots,gasUrl:gasUrl,usdKrw:getRate(),calcData:calc,balGoals:balGoals};
+  var ledger={}; try{ledger=JSON.parse(localStorage.getItem("v6_ledger")||"{}");}catch(e){}
+  var memos=[]; try{memos=JSON.parse(localStorage.getItem("v6_memos")||"[]");}catch(e){}
+  var b={version:"v6",date:new Date().toLocaleString("ko-KR"),domStocks:domStocks,ovStocks:ovStocks,penStocks:penStocks,divList:divList,snapshots:snapshots,gasUrl:gasUrl,usdKrw:getRate(),calcData:calc,balGoals:balGoals,ledger:ledger,memos:memos};
   var blob=new Blob([JSON.stringify(b,null,2)],{type:"application/json"});var url=URL.createObjectURL(blob);var a=document.createElement("a");a.href=url;a.download="순태씨_v6_백업_"+new Date().toISOString().slice(0,10)+".json";a.click();URL.revokeObjectURL(url);
   document.getElementById("backupMsg").textContent="📤 백업 파일 추출 완료.";
 }
@@ -1575,6 +1577,8 @@ function importData(e){
       if(d.gasUrl){gasUrl=d.gasUrl;document.getElementById("gasInput").value=gasUrl;localStorage.setItem("v6_gas",gasUrl);}
       if(d.usdKrw)document.getElementById("usdKrw").value=d.usdKrw;
       if(d.calcData){Object.keys(d.calcData).forEach(function(k){localStorage.setItem(k,d.calcData[k]);});}
+      if(d.ledger)localStorage.setItem("v6_ledger",JSON.stringify(d.ledger));
+      if(d.memos)localStorage.setItem("v6_memos",JSON.stringify(d.memos));
       save();renderAll();showToast("✅ 복원 완료!");
     }catch(err){alert("파일 오류: "+err.message);}
   };reader.readAsText(file);e.target.value="";
