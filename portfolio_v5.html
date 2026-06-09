@@ -2112,7 +2112,7 @@ function renderRoadmap(allTV){
   html+='<tr style="background:#1565c0;color:#fff">'
     +'<td style="padding:9px 10px;font-weight:800;font-size:12px;border-radius:8px 0 0 0;width:22%;white-space:nowrap">연도</td>'
     +'<td style="padding:9px 8px;font-weight:800;font-size:12px;text-align:center;width:20%;white-space:nowrap">목표자산</td>'
-    +'<td style="padding:9px 10px;font-weight:800;font-size:12px;text-align:right;border-radius:0 8px 0 0;white-space:nowrap">핵심 이벤트</td>'
+    +'<td style="padding:9px 10px;font-weight:800;font-size:12px;text-align:center;border-radius:0 8px 0 0;white-space:nowrap">핵심 이벤트</td>'
   +'</tr>';
   steps.forEach(function(s){
     var f=s.final;
@@ -2121,7 +2121,7 @@ function renderRoadmap(allTV){
     html+='<tr style="background:'+bg+'">'
       +'<td style="'+bd+'padding:11px 10px;font-size:13px;font-weight:900;color:'+(f?"#facc15":"#1565c0")+';white-space:nowrap">'+s.year+'</td>'
       +'<td style="'+bd+'padding:11px 8px;font-size:14px;font-weight:900;color:'+(f?"#facc15":"#1a1a2e")+';text-align:center;white-space:nowrap">'+s.target+'</td>'
-      +'<td style="'+bd+'padding:11px 10px;font-size:12px;color:'+(f?"#fff":"#444")+';text-align:right;font-weight:'+(f?"800":"400")+';white-space:nowrap">'+s.event+'</td>'
+      +'<td style="'+bd+'padding:11px 10px;font-size:12px;color:'+(f?"#fff":"#444")+';text-align:center;font-weight:'+(f?"800":"400")+';white-space:nowrap">'+s.event+'</td>'
     +'</tr>';
   });
   html+='</table>';
