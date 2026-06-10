@@ -2106,13 +2106,13 @@ function renderRoadmap(allTV){
     {year:"2027", target:"3.8억", event:"Copilot 기본탑재"},
     {year:"2028", target:"5.2억", event:"SMR 수주 본격화"},
     {year:"2029", target:"7.0억", event:"AI 수익화 본격화"},
-    {year:"2030 🎯", target:"10억!", event:"퇴직 + 목표달성", final:true}
+    {year:"2030 🎯", target:"10억!", event:"목표달성!", final:true}
   ];
   var html='<table style="width:100%;border-collapse:collapse;table-layout:fixed">';
   html+='<tr style="background:#1565c0;color:#fff">'
-    +'<td style="padding:9px 10px;font-weight:800;font-size:12px;border-radius:8px 0 0 0;width:33%;white-space:nowrap;text-align:center">연도</td>'
-    +'<td style="padding:9px 8px;font-weight:800;font-size:12px;text-align:center;width:33%;white-space:nowrap">목표자산</td>'
-    +'<td style="padding:9px 10px;font-weight:800;font-size:12px;text-align:center;border-radius:0 8px 0 0;width:34%;white-space:nowrap">핵심 이벤트</td>'
+    +'<td style="padding:9px 10px;font-weight:800;font-size:12px;border-radius:8px 0 0 0;width:20%;white-space:nowrap;text-align:center">연도</td>'
+    +'<td style="padding:9px 8px;font-weight:800;font-size:12px;text-align:center;width:30%;white-space:nowrap">목표자산</td>'
+    +'<td style="padding:9px 10px;font-weight:800;font-size:12px;text-align:center;border-radius:0 8px 0 0;width:50%;white-space:nowrap">핵심 이벤트</td>'
   +'</tr>';
   steps.forEach(function(s){
     var f=s.final;
@@ -2121,7 +2121,7 @@ function renderRoadmap(allTV){
     html+='<tr style="background:'+bg+'">'
       +'<td style="'+bd+'padding:11px 10px;font-size:13px;font-weight:900;color:'+(f?"#facc15":"#1565c0")+';white-space:nowrap;text-align:center">'+s.year+'</td>'
       +'<td style="'+bd+'padding:11px 8px;font-size:14px;font-weight:900;color:'+(f?"#facc15":"#1a1a2e")+';text-align:center;white-space:nowrap">'+s.target+'</td>'
-      +'<td style="'+bd+'padding:11px 10px;font-size:12px;color:'+(f?"#fff":"#444")+';text-align:center;font-weight:'+(f?"800":"400")+';white-space:nowrap">'+s.event+'</td>'
+      +'<td style="'+bd+'padding:11px 10px;font-size:12px;color:'+(f?"#fff":"#444")+';text-align:left;font-weight:'+(f?"800":"400")+';white-space:nowrap">'+s.event+'</td>'
     +'</tr>';
   });
   html+='</table>';
