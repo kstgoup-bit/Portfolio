@@ -1038,7 +1038,7 @@ body { font-family:'Pretendard',sans-serif !important; }
     </div>
     <div style="display:grid;grid-template-columns:6.5fr 3.5fr;gap:6px;margin-bottom:6px">
       <input id="ldgIncName" placeholder="항목명" style="height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--sky-bg);color:var(--text);box-sizing:border-box;width:100%">
-      <input id="ldgIncAmt" type="number" placeholder="금액(원)" style="height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-weight:700;text-align:right;background:var(--sky-bg);color:var(--text);box-sizing:border-box;width:100%">
+      <input id="ldgIncAmt" type="text" inputmode="numeric" placeholder="금액(원)" oninput="fmtAmtInp(this)" style="height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-weight:700;text-align:right;background:var(--sky-bg);color:var(--text);box-sizing:border-box;width:100%">
     </div>
     <div id="ldgIncList"></div>
   </div>
@@ -1059,13 +1059,14 @@ body { font-family:'Pretendard',sans-serif !important; }
         <option value="🏥 의료">🏥 의료</option>
         <option value="📱 통신">📱 통신</option>
         <option value="🛒 생활용품">🛒 생활용품</option>
+        <option value="🛡️ 보험">🛡️ 보험</option>
         <option value="💳 기타">💳 기타</option>
       </select>
       <input id="ldgExpName" placeholder="항목명" style="height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--sky-bg);color:var(--text);box-sizing:border-box;width:100%">
     </div>
     <div style="display:grid;grid-template-columns:6.5fr 3.5fr;gap:6px;margin-bottom:6px">
       <div></div>
-      <input id="ldgExpAmt" type="number" placeholder="금액(원)" style="height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-weight:700;text-align:right;background:var(--sky-bg);color:var(--text);box-sizing:border-box;width:100%">
+      <input id="ldgExpAmt" type="text" inputmode="numeric" placeholder="금액(원)" oninput="fmtAmtInp(this)" style="height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-weight:700;text-align:right;background:var(--sky-bg);color:var(--text);box-sizing:border-box;width:100%">
     </div>
     <div id="ldgExpList"></div>
   </div>
@@ -1092,7 +1093,7 @@ body { font-family:'Pretendard',sans-serif !important; }
     </div>
     <div style="display:grid;grid-template-columns:6.5fr 3.5fr;gap:6px;margin-bottom:6px">
       <input id="ldgInvName" placeholder="항목명 (예: QTOP, NVDA)" style="height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--sky-bg);color:var(--text);box-sizing:border-box;width:100%">
-      <input id="ldgInvAmt" type="number" placeholder="금액(원)" style="height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-weight:700;text-align:right;background:var(--sky-bg);color:var(--text);box-sizing:border-box;width:100%">
+      <input id="ldgInvAmt" type="text" inputmode="numeric" placeholder="금액(원)" oninput="fmtAmtInp(this)" style="height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-weight:700;text-align:right;background:var(--sky-bg);color:var(--text);box-sizing:border-box;width:100%">
     </div>
     <div id="ldgInvList"></div>
   </div>
@@ -4007,6 +4008,11 @@ function loadFgManual(){
 // ═══════════════════════════════
 // 📒 가계부
 // ═══════════════════════════════
+function fmtAmtInp(el){
+  var raw=el.value.replace(/[^0-9]/g,"");
+  el.value=raw?Number(raw).toLocaleString("ko-KR"):"";
+}
+
 function getLedgerKey(){
   var m=document.getElementById("ldgMonth");
   if(!m||!m.value){
@@ -4036,7 +4042,7 @@ function addLedger(type){
   var amtEl=document.getElementById(type==="income"?"ldgIncAmt":type==="expense"?"ldgExpAmt":"ldgInvAmt");
   var dateEl=document.getElementById(type==="income"?"ldgIncDate":type==="expense"?"ldgExpDate":"ldgInvDate");
   var name=(nameEl.value||"").trim();
-  var amt=parseFloat(amtEl.value);
+  var amt=parseFloat((amtEl.value||"").replace(/,/g,""));
   var date=dateEl?dateEl.value:"";
   if(!name||!amt||amt<=0){alert("항목명과 금액을 입력해주세요");return;}
   var broker="";
@@ -4072,19 +4078,19 @@ function editLedger(type,idx){
   if(type==="income"){
     var d=document.getElementById("ldgIncDate"); if(d) d.value=item.date||"";
     var n=document.getElementById("ldgIncName"); if(n) n.value=item.name||"";
-    var a=document.getElementById("ldgIncAmt"); if(a) a.value=item.amount||"";
+    var a=document.getElementById("ldgIncAmt"); if(a) a.value=item.amount?(Number(item.amount).toLocaleString("ko-KR")):"";
     setEditMode("income",idx);
   } else if(type==="expense"){
     var d=document.getElementById("ldgExpDate"); if(d) d.value=item.date||"";
     var c=document.getElementById("ldgExpCat"); if(c) c.value=item.cat||"";
     var n=document.getElementById("ldgExpName"); if(n) n.value=item.name||"";
-    var a=document.getElementById("ldgExpAmt"); if(a) a.value=item.amount||"";
+    var a=document.getElementById("ldgExpAmt"); if(a) a.value=item.amount?(Number(item.amount).toLocaleString("ko-KR")):"";
     setEditMode("expense",idx);
   } else if(type==="invest"){
     var d=document.getElementById("ldgInvDate"); if(d) d.value=item.date||"";
     var b=document.getElementById("ldgInvBroker"); if(b) b.value=item.broker||"";
     var n=document.getElementById("ldgInvName"); if(n) n.value=item.name||"";
-    var a=document.getElementById("ldgInvAmt"); if(a) a.value=item.amount||"";
+    var a=document.getElementById("ldgInvAmt"); if(a) a.value=item.amount?(Number(item.amount).toLocaleString("ko-KR")):"";
     setEditMode("invest",idx);
   }
   // 해당 섹션으로 스크롤
