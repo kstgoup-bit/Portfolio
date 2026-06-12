@@ -116,8 +116,8 @@ body{background:var(--sky-bg);color:var(--text);font-family:'Pretendard',sans-se
 .role-btn.active-shield{border-color:#1565c0;background:#e3f2fd;color:#1565c0}
 .balance-wrap{background:#fff;border-radius:14px;padding:14px;box-shadow:0 1px 8px #00000010;margin-bottom:12px}
 .balance-title{font-size:14px;font-weight:800;color:var(--text);margin-bottom:10px}
-.balance-chart-row{display:flex;align-items:flex-start;gap:8px;position:relative;padding-right:125px}
-.balance-legend{flex:1}
+.balance-chart-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.balance-legend{flex:1;min-width:0;max-width:calc(100% - 124px)}
 .balance-legend-item{display:flex;align-items:center;gap:6px;margin-bottom:6px;font-size:13px;white-space:nowrap;}
 .balance-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
 .balance-warn{background:#fff3e0;border:1.5px solid #ff9800;border-radius:10px;padding:10px 12px;margin-top:10px;font-size:12px;color:#e65100;font-weight:700;display:none}
@@ -592,7 +592,7 @@ body { font-family:'Pretendard',sans-serif !important; }
           <button onclick="stepBalGoal('all',+5)" style="padding:2px 8px;border-radius:4px;border:1.5px solid #ef5350;background:#fff;color:#ef5350;font-size:13px;font-weight:900;cursor:pointer;line-height:1">+</button>
         </div>
       </div>
-      <svg id="balancePie-all" viewBox="0 0 120 120" style="width:110px;height:110px;position:absolute;right:0;top:0"></svg>
+      <svg id="balancePie-all" viewBox="0 0 120 120" style="width:110px;height:110px;flex-shrink:0"></svg>
     </div>
     <div class="balance-warn" id="balWarn-all"></div>
     <div class="balance-ok" id="balOk-all"></div>
@@ -645,7 +645,7 @@ body { font-family:'Pretendard',sans-serif !important; }
           <button onclick="stepBalGoal('dom',+5)" style="padding:2px 8px;border-radius:4px;border:1.5px solid #ef5350;background:#fff;color:#ef5350;font-size:13px;font-weight:900;cursor:pointer;line-height:1">+</button>
         </div>
       </div>
-      <svg id="balancePie-dom" viewBox="0 0 120 120" style="width:110px;height:110px;position:absolute;right:0;top:0"></svg>
+      <svg id="balancePie-dom" viewBox="0 0 120 120" style="width:110px;height:110px;flex-shrink:0"></svg>
     </div>
     <div class="balance-warn" id="balWarn-dom"></div>
     <div class="balance-ok" id="balOk-dom"></div>
@@ -700,7 +700,7 @@ body { font-family:'Pretendard',sans-serif !important; }
           <button onclick="stepBalGoal('ov',+5)" style="padding:2px 8px;border-radius:4px;border:1.5px solid #ef5350;background:#fff;color:#ef5350;font-size:13px;font-weight:900;cursor:pointer;line-height:1">+</button>
         </div>
       </div>
-      <svg id="balancePie-ov" viewBox="0 0 120 120" style="width:110px;height:110px;position:absolute;right:0;top:0"></svg>
+      <svg id="balancePie-ov" viewBox="0 0 120 120" style="width:110px;height:110px;flex-shrink:0"></svg>
     </div>
     <div class="balance-warn" id="balWarn-ov"></div>
     <div class="balance-ok" id="balOk-ov"></div>
@@ -745,7 +745,7 @@ body { font-family:'Pretendard',sans-serif !important; }
           <button onclick="stepBalGoal('pen',+5)" style="padding:2px 8px;border-radius:4px;border:1.5px solid #ef5350;background:#fff;color:#ef5350;font-size:13px;font-weight:900;cursor:pointer;line-height:1">+</button>
         </div>
       </div>
-      <svg id="balancePie-pen" viewBox="0 0 120 120" style="width:110px;height:110px;position:absolute;right:0;top:0"></svg>
+      <svg id="balancePie-pen" viewBox="0 0 120 120" style="width:110px;height:110px;flex-shrink:0"></svg>
     </div>
     <div class="balance-warn" id="balWarn-pen"></div>
     <div class="balance-ok" id="balOk-pen"></div>
