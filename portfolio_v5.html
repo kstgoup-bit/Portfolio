@@ -3544,6 +3544,23 @@ function checkPw() {
     failCount=0;
     sessionStorage.setItem("v5_auth","1");
     renderAll();
+    // 로그인 시 매번 자동 스냅샷 (토스트 없이)
+    setTimeout(function(){
+      var today=new Date().toDateString();
+      var calcWithAvg=function(stocks,us){
+        return stocks.filter(function(s){return s.quantity>0&&(s.currentPrice>0||s.avgPrice>0);})
+          .reduce(function(s,x){var price=x.currentPrice>0?x.currentPrice:x.avgPrice;return s+x.quantity*price*(us?getRate():1);},0);
+      };
+      var tv=calcWithAvg(domStocks,false)+calcWithAvg(ovStocks,true)+calcWithAvg(penStocks,false);
+      if(!tv) return;
+      var tc=domStocks.filter(function(s){return s.quantity>0;}).reduce(function(s,x){return s+x.quantity*x.avgPrice;},0)
+        +ovStocks.filter(function(s){return s.quantity>0;}).reduce(function(s,x){return s+x.quantity*x.avgPrice*getRate();},0)
+        +penStocks.filter(function(s){return s.quantity>0;}).reduce(function(s,x){return s+x.quantity*x.avgPrice;},0);
+      snapshots["all"]=snapshots["all"].filter(function(d){return new Date(d.ts).toDateString()!==today;});
+      snapshots["all"].push({ts:Date.now(),val:tv,cost:tc});
+      snapshots["all"].sort(function(a,b){return a.ts-b.ts;});
+      save();
+    }, 500);
   } else {
     failCount++;
     document.getElementById("lockInput").value="";
