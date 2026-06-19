@@ -2727,7 +2727,7 @@ function renderLineChart(period, btnId, chartId, snapKey, color) {
   var maxDate=new Date(pts[maxIdx].ts);
   var maxDateStr=(maxDate.getMonth()+1)+"/"+(maxDate.getDate());
   var maxAnchor=maxC[0]<L+cW*0.2?"start":maxC[0]>L+cW*0.8?"end":"middle";
-  var peakSvg='<circle cx="'+maxC[0].toFixed(1)+'" cy="'+maxC[1].toFixed(1)+'" r="5" fill="#e53935" stroke="white" stroke-width="2"/>';
+  var peakSvg='<circle cx="'+maxC[0].toFixed(1)+'" cy="'+maxC[1].toFixed(1)+'" r="4" fill="#e53935" stroke="white" stroke-width="2"/>';
   if(!isLastPt) peakSvg+='<text x="'+maxC[0].toFixed(1)+'" y="'+(maxC[1]-8).toFixed(1)+'" text-anchor="'+maxAnchor+'" font-size="9" fill="#e53935" font-weight="bold">'+maxDateStr+'</text>';
 
   svg.innerHTML='<defs><linearGradient id="grad'+snapKey+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="'+color+'" stop-opacity="0.2"/><stop offset="100%" stop-color="'+color+'" stop-opacity="0.02"/></linearGradient></defs>'+
