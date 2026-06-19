@@ -2694,7 +2694,7 @@ function renderLineChart(period, btnId, chartId, snapKey, color) {
   var allVals=hasCost?vals.concat(costs):vals;
   var minV=Math.min.apply(null,allVals), maxV=Math.max.apply(null,allVals);
   var range=maxV-minV||maxV*0.05||1;
-  var L=55,R=10,T=20,B=35,W=340,H=170,cW=W-L-R,cH=H-T-B;
+  var L=40,R=10,T=20,B=35,W=340,H=170,cW=W-L-R,cH=H-T-B;
   var unitDiv=maxV>=100000000?100000000:maxV>=10000000?10000000:maxV>=1000000?1000000:10000;
   var unitLbl=maxV>=100000000?"억원":maxV>=10000000?"천만원":maxV>=1000000?"백만원":"만원";
   var yLines="",yLabels="";
@@ -2725,7 +2725,7 @@ function renderLineChart(period, btnId, chartId, snapKey, color) {
     yLines+
     '<line x1="'+L+'" y1="'+T+'" x2="'+L+'" y2="'+(T+cH)+'" stroke="#c5d8f5" stroke-width="1"/>'+
     '<line x1="'+L+'" y1="'+(T+cH)+'" x2="'+(W-R)+'" y2="'+(T+cH)+'" stroke="#c5d8f5" stroke-width="1"/>'+
-    '<text x="2" y="'+(T-4)+'" text-anchor="start" font-size="8" fill="'+color+'" font-weight="bold">'+unitLbl+'</text>'+
+    '<text x="'+(L-4)+'" y="'+(T-6)+'" text-anchor="end" font-size="8" fill="'+color+'" font-weight="bold">'+unitLbl+'</text>'+
     yLabels+
     '<path d="'+fillD+'" fill="url(#grad'+snapKey+')"/>'+
     '<path d="'+pathD+'" fill="none" stroke="'+color+'" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>'+
