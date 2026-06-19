@@ -602,10 +602,7 @@ body { font-family:'Pretendard',sans-serif !important; }
   <div class="chart-wrap">
     <div class="chart-title">📉 전체 자산 변화</div>
     <div class="period-btns" id="allPeriodBtns"></div>
-    <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
-      <span style="font-size:10px;color:var(--muted)">📅 직접선택:</span>
-      <input type="date" id="allDatePicker" style="font-size:10px;border:1px solid var(--border);border-radius:6px;padding:3px 6px;color:var(--text);background:#fff;" onchange="renderLineChartFromDate('allDatePicker','allLineChart','all','#1565c0')">
-    </div>
+    <input type="date" id="allDatePicker" style="display:none" onchange="datePickerChange(this,'allPeriodBtns','allLineChart','all','#1565c0')">
     <svg id="allLineChart" viewBox="0 0 340 170" style="width:100%"></svg>
     <button class="record-btn" onclick="recordSnap('all')">📸 오늘 전체 자산 기록</button>
   </div>
@@ -658,6 +655,7 @@ body { font-family:'Pretendard',sans-serif !important; }
   <div class="chart-wrap">
     <div class="chart-title" style="color:var(--yellow-accent)">📉 국내 자산 변화</div>
     <div class="period-btns" id="domPeriodBtns"></div>
+    <input type="date" id="domDatePicker" style="display:none" onchange="datePickerChange(this,'domPeriodBtns','domLineChart','dom','#f57f17')">
     <svg id="domLineChart" viewBox="0 0 340 170" style="width:100%"></svg>
     <button class="record-btn" style="background:var(--yellow-card);border-color:var(--yellow-border);color:var(--yellow-accent)" onclick="recordSnap('dom')">📸 오늘 국내 자산 기록</button>
   </div>
@@ -713,6 +711,7 @@ body { font-family:'Pretendard',sans-serif !important; }
   <div class="chart-wrap">
     <div class="chart-title">📉 해외 자산 변화</div>
     <div class="period-btns" id="ovPeriodBtns"></div>
+    <input type="date" id="ovDatePicker" style="display:none" onchange="datePickerChange(this,'ovPeriodBtns','ovLineChart','ov','#1565c0')">
     <svg id="ovLineChart" viewBox="0 0 340 170" style="width:100%"></svg>
     <button class="record-btn" onclick="recordSnap('ov')">📸 오늘 해외 자산 기록</button>
   </div>
@@ -758,6 +757,7 @@ body { font-family:'Pretendard',sans-serif !important; }
   <div class="chart-wrap">
     <div class="chart-title" style="color:var(--purple)">📉 연금 자산 변화</div>
     <div class="period-btns" id="penPeriodBtns"></div>
+    <input type="date" id="penDatePicker" style="display:none" onchange="datePickerChange(this,'penPeriodBtns','penLineChart','pen','#6a1b9a')">
     <svg id="penLineChart" viewBox="0 0 340 170" style="width:100%"></svg>
     <button class="record-btn" style="background:var(--purple-light);border-color:#ce93d8;color:var(--purple)" onclick="recordSnap('pen')">📸 오늘 연금 자산 기록</button>
   </div>
@@ -2602,16 +2602,37 @@ function renderPie(svgId, legendId, stocks, isUS) {
 var PERIODS = [{k:"1W",l:"1주",d:7},{k:"1M",l:"1달",d:30},{k:"3M",l:"3달",d:90},{k:"6M",l:"6달",d:180},{k:"9M",l:"9달",d:270},{k:"1Y",l:"1년",d:365},{k:"2Y",l:"2년",d:730},{k:"3Y",l:"3년",d:1095},{k:"4Y",l:"4년",d:1460},{k:"5Y",l:"🎯5년",d:1825}];
 var currentPeriods = {allPeriodBtns:"1W",domPeriodBtns:"1W",ovPeriodBtns:"1W",penPeriodBtns:"1W"};
 
-function renderPeriodBtns(btnId, chartId, snapKey, color) {
+function renderPeriodBtns(btnId, chartId, snapKey, color, selectedDate) {
   var el=document.getElementById(btnId);
   if(!el) return;
   var cur=currentPeriods[btnId]||"1W";
-  el.innerHTML=PERIODS.map(function(p){
+  var pickerMap={allPeriodBtns:"allDatePicker",domPeriodBtns:"domDatePicker",ovPeriodBtns:"ovDatePicker",penPeriodBtns:"penDatePicker"};
+  var pickerId=pickerMap[btnId]||"allDatePicker";
+  var dateLabel="📅 직접선택";
+  if(cur==="CUSTOM"&&selectedDate){
+    var d=new Date(selectedDate);
+    dateLabel="📅 "+(d.getMonth()+1)+"/"+(d.getDate());
+  }
+  var btns=PERIODS.map(function(p){
     var on=p.k===cur;
     var is5y=p.k==="5Y";
     var cls=on?(is5y?"period-btn on-p":"period-btn on"):"period-btn";
     return '<button class="'+cls+'" onclick="selectPeriod(\''+btnId+'\',\''+chartId+'\',\''+p.k+'\',\''+snapKey+'\',\''+color+'\')">'+p.l+'</button>';
   }).join("");
+  var customCls=cur==="CUSTOM"?"period-btn on":"period-btn";
+  btns+='<button class="'+customCls+'" style="min-width:64px;" onclick="document.getElementById(\''+pickerId+'\').click()">'+dateLabel+'</button>';
+  el.innerHTML=btns;
+}
+
+function datePickerChange(input, btnId, chartId, snapKey, color) {
+  if(!input.value) return;
+  var fromTs=new Date(input.value).getTime();
+  var days=Math.ceil((Date.now()-fromTs)/86400000);
+  if(days<1) days=1;
+  window._customDays=days;
+  currentPeriods[btnId]="CUSTOM";
+  renderPeriodBtns(btnId,chartId,snapKey,color,input.value);
+  renderLineChart("CUSTOM",btnId,chartId,snapKey,color);
 }
 
 function selectPeriod(btnId, chartId, period, snapKey, color) {
@@ -2633,9 +2654,9 @@ function renderLineChartFromDate(pickerId, chartId, snapKey, color) {
 }
 
 function renderLineChart(period, btnId, chartId, snapKey, color) {
-  // 날짜 선택기 초기화
-  var picker=document.getElementById('allDatePicker');
-  if(picker) picker.value='';
+  if(period!=='CUSTOM'){
+    ['allDatePicker','domDatePicker','ovDatePicker','penDatePicker'].forEach(function(id){var p=document.getElementById(id);if(p)p.value='';});
+  }
   var svg=document.getElementById(chartId);
   if(!svg) return;
   svg.setAttribute("viewBox","0 0 340 170");
