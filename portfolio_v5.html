@@ -2633,6 +2633,7 @@ function datePickerChange(input, btnId, chartId, snapKey, color) {
   var days=Math.ceil((Date.now()-fromTs)/86400000);
   if(days<1) days=1;
   window._customDays=days;
+  window._customFromTs=fromTs;
   currentPeriods[btnId]="CUSTOM";
   renderPeriodBtns(btnId,chartId,snapKey,color,input.value);
   renderLineChart("CUSTOM",btnId,chartId,snapKey,color);
@@ -2672,7 +2673,12 @@ function renderLineChart(period, btnId, chartId, snapKey, color) {
   var days=PERIODS.filter(function(p){return p.k===period;})[0];
   days=days?days.d:(period==='CUSTOM'?(window._customDays||7):7);
   var unifyStart=new Date('2026-05-02').getTime();
-  var pts=data.filter(function(d){return ((now-d.ts)/86400000)<=days && d.ts>=unifyStart;});
+  var pts;
+  if(period==='CUSTOM'&&window._customFromTs){
+    pts=data.filter(function(d){return d.ts>=window._customFromTs;});
+  } else {
+    pts=data.filter(function(d){return ((now-d.ts)/86400000)<=days&&d.ts>=unifyStart;});
+  }
   if(pts.length<2) pts=data.slice(-2);
   var vals=pts.map(function(d){return d.val;});
   // 탭별 현재 매수금 계산
