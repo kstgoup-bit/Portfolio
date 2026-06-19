@@ -600,8 +600,12 @@ body { font-family:'Pretendard',sans-serif !important; }
   </div>
   <!-- 전체 추세선 -->
   <div class="chart-wrap">
-    <div class="chart-title">📉 전체 자산 변화 추이</div>
+    <div class="chart-title">📉 전체 자산 변화</div>
     <div class="period-btns" id="allPeriodBtns"></div>
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+      <span style="font-size:10px;color:var(--muted)">📅 직접선택:</span>
+      <input type="date" id="allDatePicker" style="font-size:10px;border:1px solid var(--border);border-radius:6px;padding:3px 6px;color:var(--text);background:#fff;" onchange="renderLineChartFromDate('allDatePicker','allLineChart','all','#1565c0')">
+    </div>
     <svg id="allLineChart" viewBox="0 0 340 170" style="width:100%"></svg>
     <button class="record-btn" onclick="recordSnap('all')">📸 오늘 전체 자산 기록</button>
   </div>
@@ -2616,7 +2620,22 @@ function selectPeriod(btnId, chartId, period, snapKey, color) {
   renderLineChart(period,btnId,chartId,snapKey,color);
 }
 
+function renderLineChartFromDate(pickerId, chartId, snapKey, color) {
+  var picker=document.getElementById(pickerId);
+  if(!picker||!picker.value) return;
+  var fromTs=new Date(picker.value).getTime();
+  var days=Math.ceil((Date.now()-fromTs)/86400000);
+  if(days<1) days=1;
+  window._customDays=days;
+  var btns=document.querySelectorAll('#allPeriodBtns .period-btn');
+  btns.forEach(function(b){b.className='period-btn';});
+  renderLineChart('CUSTOM','allPeriodBtns',chartId,snapKey,color);
+}
+
 function renderLineChart(period, btnId, chartId, snapKey, color) {
+  // 날짜 선택기 초기화
+  var picker=document.getElementById('allDatePicker');
+  if(picker) picker.value='';
   var svg=document.getElementById(chartId);
   if(!svg) return;
   svg.setAttribute("viewBox","0 0 340 170");
@@ -2627,7 +2646,7 @@ function renderLineChart(period, btnId, chartId, snapKey, color) {
   }
   var now=Date.now();
   var days=PERIODS.filter(function(p){return p.k===period;})[0];
-  days=days?days.d:7;
+  days=days?days.d:(period==='CUSTOM'?(window._customDays||7):7);
   var pts=data.filter(function(d){return ((now-d.ts)/86400000)<=days;});
   if(pts.length<2) pts=data.slice(-2);
   var vals=pts.map(function(d){return d.val;});
