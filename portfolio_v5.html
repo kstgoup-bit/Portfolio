@@ -602,7 +602,7 @@ body { font-family:'Pretendard',sans-serif !important; }
   <div class="chart-wrap">
     <div class="chart-title">📉 전체 자산 변화</div>
     <div class="period-btns" id="allPeriodBtns"></div>
-    <input type="date" id="allDatePicker" style="display:none" onchange="datePickerChange(this,'allPeriodBtns','allLineChart','all','#1565c0')">
+
     <svg id="allLineChart" viewBox="0 0 340 170" style="width:100%"></svg>
     <button class="record-btn" onclick="recordSnap('all')">📸 오늘 전체 자산 기록</button>
   </div>
@@ -655,7 +655,7 @@ body { font-family:'Pretendard',sans-serif !important; }
   <div class="chart-wrap">
     <div class="chart-title" style="color:var(--yellow-accent)">📉 국내 자산 변화</div>
     <div class="period-btns" id="domPeriodBtns"></div>
-    <input type="date" id="domDatePicker" style="display:none" onchange="datePickerChange(this,'domPeriodBtns','domLineChart','dom','#f57f17')">
+
     <svg id="domLineChart" viewBox="0 0 340 170" style="width:100%"></svg>
     <button class="record-btn" style="background:var(--yellow-card);border-color:var(--yellow-border);color:var(--yellow-accent)" onclick="recordSnap('dom')">📸 오늘 국내 자산 기록</button>
   </div>
@@ -711,7 +711,7 @@ body { font-family:'Pretendard',sans-serif !important; }
   <div class="chart-wrap">
     <div class="chart-title">📉 해외 자산 변화</div>
     <div class="period-btns" id="ovPeriodBtns"></div>
-    <input type="date" id="ovDatePicker" style="display:none" onchange="datePickerChange(this,'ovPeriodBtns','ovLineChart','ov','#1565c0')">
+
     <svg id="ovLineChart" viewBox="0 0 340 170" style="width:100%"></svg>
     <button class="record-btn" onclick="recordSnap('ov')">📸 오늘 해외 자산 기록</button>
   </div>
@@ -757,7 +757,7 @@ body { font-family:'Pretendard',sans-serif !important; }
   <div class="chart-wrap">
     <div class="chart-title" style="color:var(--purple)">📉 연금 자산 변화</div>
     <div class="period-btns" id="penPeriodBtns"></div>
-    <input type="date" id="penDatePicker" style="display:none" onchange="datePickerChange(this,'penPeriodBtns','penLineChart','pen','#6a1b9a')">
+
     <svg id="penLineChart" viewBox="0 0 340 170" style="width:100%"></svg>
     <button class="record-btn" style="background:var(--purple-light);border-color:#ce93d8;color:var(--purple)" onclick="recordSnap('pen')">📸 오늘 연금 자산 기록</button>
   </div>
@@ -2620,7 +2620,10 @@ function renderPeriodBtns(btnId, chartId, snapKey, color, selectedDate) {
     return '<button class="'+cls+'" onclick="selectPeriod(\''+btnId+'\',\''+chartId+'\',\''+p.k+'\',\''+snapKey+'\',\''+color+'\')">'+p.l+'</button>';
   }).join("");
   var customCls=cur==="CUSTOM"?"period-btn on":"period-btn";
-  btns+='<button class="'+customCls+'" style="min-width:64px;" onclick="document.getElementById(\''+pickerId+'\').click()">'+dateLabel+'</button>';
+  btns+='<span class="'+customCls+'" style="position:relative;display:inline-flex;align-items:center;justify-content:center;min-width:64px;cursor:pointer;">'+
+    dateLabel+
+    '<input type="date" id="'+pickerId+'" style="position:absolute;left:0;top:0;width:100%;height:100%;opacity:0;cursor:pointer;" onchange="datePickerChange(this,\''+btnId+'\',\''+chartId+'\',\''+snapKey+'\',\''+color+'\')">'+
+  '</span>';
   el.innerHTML=btns;
 }
 
@@ -2668,7 +2671,8 @@ function renderLineChart(period, btnId, chartId, snapKey, color) {
   var now=Date.now();
   var days=PERIODS.filter(function(p){return p.k===period;})[0];
   days=days?days.d:(period==='CUSTOM'?(window._customDays||7):7);
-  var pts=data.filter(function(d){return ((now-d.ts)/86400000)<=days;});
+  var unifyStart=new Date('2026-05-02').getTime();
+  var pts=data.filter(function(d){return ((now-d.ts)/86400000)<=days && d.ts>=unifyStart;});
   if(pts.length<2) pts=data.slice(-2);
   var vals=pts.map(function(d){return d.val;});
   // 탭별 현재 매수금 계산
@@ -2721,7 +2725,7 @@ function renderLineChart(period, btnId, chartId, snapKey, color) {
     yLines+
     '<line x1="'+L+'" y1="'+T+'" x2="'+L+'" y2="'+(T+cH)+'" stroke="#c5d8f5" stroke-width="1"/>'+
     '<line x1="'+L+'" y1="'+(T+cH)+'" x2="'+(W-R)+'" y2="'+(T+cH)+'" stroke="#c5d8f5" stroke-width="1"/>'+
-    '<text x="'+(L-4)+'" y="'+(T-12)+'" text-anchor="end" font-size="8" fill="'+color+'" font-weight="bold">'+unitLbl+'</text>'+
+    '<text x="2" y="'+(T-4)+'" text-anchor="start" font-size="8" fill="'+color+'" font-weight="bold">'+unitLbl+'</text>'+
     yLabels+
     '<path d="'+fillD+'" fill="url(#grad'+snapKey+')"/>'+
     '<path d="'+pathD+'" fill="none" stroke="'+color+'" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>'+
