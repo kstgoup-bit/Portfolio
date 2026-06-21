@@ -4048,7 +4048,7 @@ function addMemo(){
   if(editIdx!==undefined&&editIdx!==""){
     memos[parseInt(editIdx)]={text:text,date:ds};
     delete inp.dataset.editIdx;
-    if(addBtn){ addBtn.textContent="추가"; addBtn.style.background=""; }
+    if(addBtn){ addBtn.textContent="추가"; addBtn.style.background="radial-gradient(circle at 40% 40%,#ffffff 0%,#efebe9 60%,#d7ccc8 100%)"; addBtn.style.color="#1a1a2e"; addBtn.style.border="1.5px solid #a1887f"; }
   } else {
     memos.unshift({text:text,date:ds});
   }
