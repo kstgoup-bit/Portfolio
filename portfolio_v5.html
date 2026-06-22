@@ -2096,10 +2096,6 @@ function renderDashboard() {
     var txtColor=m.label==="전체"?colorRanks[0].color:m.color;
     // 메인 막대
     barSvg+='<rect x="'+x+'" y="'+y+'" width="'+barW+'" height="'+h+'" fill="'+m.color+'" rx="4" filter="url(#barShadow)"/>';
-    // 왼쪽 하이라이트 (입체감)
-    barSvg+='<rect x="'+(x+2)+'" y="'+(y+3)+'" width="7" height="'+(h-6)+'" fill="rgba(255,255,255,0.28)" rx="3"/>';
-    // 상단 하이라이트
-    barSvg+='<rect x="'+(x+2)+'" y="'+y+'" width="'+(barW-4)+'" height="4" fill="rgba(255,255,255,0.35)" rx="2"/>';
     barSvg+='<text x="'+(x+barW/2)+'" y="'+(y-4)+'" text-anchor="middle" font-size="9" fill="'+txtColor+'" font-weight="800">'+fmtPct(m.g.pct)+'</text>'+
       '<text x="'+(x+barW/2)+'" y="'+(topPad+barH+14)+'" text-anchor="middle" font-size="9.5" fill="#444" font-weight="700">'+shortName+'</text>';
   });
