@@ -2125,27 +2125,20 @@ function renderDashboard() {
       ctx.lineTo(x,y+r);
       ctx.quadraticCurveTo(x,y,x+r,y);
       ctx.closePath();
-      // 그라데이션 적용
-      var grd;
-      if(m.isAll&&m.gradColors){
-        // 전체: 세로 그라데이션 메인 (아래=낮은수익률, 위=높은수익률)
-        grd=ctx.createLinearGradient(x,y+h,x,y);
-        grd.addColorStop(0,m.gradColors[2]);
-        grd.addColorStop(0.5,m.gradColors[1]);
-        grd.addColorStop(1,m.gradColors[0]);
-      } else {
-        // 개별: 좌우 그라데이션 입체감
-        grd=ctx.createLinearGradient(x,0,x+barW,0);
-        grd.addColorStop(0,m.mid);
-        grd.addColorStop(0.2,m.light+'88');
-        grd.addColorStop(0.5,m.mid);
-        grd.addColorStop(1,m.dark);
-      }
+      // 모든 막대 동일: 좌우 그라데이션 입체감
+      var midC=m.isAll?m.gradColors[1]:m.mid;
+      var lightC=m.isAll?m.gradColors[0]:m.light;
+      var darkC=m.isAll?m.gradColors[2]:m.dark;
+      var grd=ctx.createLinearGradient(x,0,x+barW,0);
+      grd.addColorStop(0,midC);
+      grd.addColorStop(0.2,lightC+'88');
+      grd.addColorStop(0.5,midC);
+      grd.addColorStop(1,darkC);
       ctx.fillStyle=grd;
       ctx.fill();
       ctx.restore();
-      // 전체 막대: 좌우 입체감 오버레이 추가
-      if(m.isAll){
+      // 전체 막대만 추가: 세로 색상 오버레이 (수익률 순서)
+      if(m.isAll&&m.gradColors){
         ctx.save();
         ctx.beginPath();
         ctx.moveTo(x+r,y);
@@ -2156,12 +2149,11 @@ function renderDashboard() {
         ctx.lineTo(x,y+r);
         ctx.quadraticCurveTo(x,y,x+r,y);
         ctx.closePath();
-        var ov=ctx.createLinearGradient(x,0,x+barW,0);
-        ov.addColorStop(0,'rgba(255,255,255,0.15)');
-        ov.addColorStop(0.3,'rgba(255,255,255,0.05)');
-        ov.addColorStop(0.7,'rgba(0,0,0,0.05)');
-        ov.addColorStop(1,'rgba(0,0,0,0.2)');
-        ctx.fillStyle=ov;
+        var vov=ctx.createLinearGradient(x,y+h,x,y);
+        vov.addColorStop(0,m.gradColors[2]+'aa');
+        vov.addColorStop(0.5,m.gradColors[1]+'66');
+        vov.addColorStop(1,m.gradColors[0]+'88');
+        ctx.fillStyle=vov;
         ctx.fill();
         ctx.restore();
       }
