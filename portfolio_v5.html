@@ -2068,26 +2068,24 @@ function renderDashboard() {
   var allItem={label:"전체",g:{pct:allPct,pnl:allPnl,tv:allTV},color:"url(#allGrad)"};
   var barItems=[allItem].concat(items);
 
-  // 수익률 막대 (오른쪽) - 동적 그라데이션 + 그림자
+  // 수익률 막대 (오른쪽) - 동적 그라데이션 + 입체감
   var maxPct=Math.max.apply(null,barItems.map(function(m){return Math.abs(m.g.pct||0);}));
   if(maxPct<1) maxPct=1;
-  // 수익률 순위별 색상 정렬 (높은 순 → 위에 표시)
-  var colorRanks=[
-    {pct:domPct, color:'#f57f17'},
-    {pct:ovPct,  color:'#1565c0'},
-    {pct:penPct, color:'#6a1b9a'}
-  ].sort(function(a,b){return b.pct-a.pct;});
+  // items에서 직접 수익률+색상 추출 후 정렬
+  var colorRanks=items.map(function(m){
+    return {pct:m.g.pct||0, color:m.color};
+  }).sort(function(a,b){return b.pct-a.pct;});
   var barW=24, barH=103, gap=10, topPad=24;
   var svgW=barItems.length*(barW+gap)-gap;
   var barSvg='<svg viewBox="0 0 '+svgW+' '+(barH+topPad+23)+'" style="width:100%;height:'+(barH+topPad+23)+'px">'+
     '<defs>'+
     '<linearGradient id="allGrad" x1="0" y1="1" x2="0" y2="0">'+
-    '<stop offset="0%" stop-color="'+colorRanks[2].color+'" stop-opacity="0.9"/>'+
-    '<stop offset="50%" stop-color="'+colorRanks[1].color+'" stop-opacity="0.9"/>'+
-    '<stop offset="100%" stop-color="'+colorRanks[0].color+'" stop-opacity="0.9"/>'+
+    '<stop offset="0%" stop-color="'+colorRanks[2].color+'"/>'+
+    '<stop offset="50%" stop-color="'+colorRanks[1].color+'"/>'+
+    '<stop offset="100%" stop-color="'+colorRanks[0].color+'"/>'+
     '</linearGradient>'+
-    '<filter id="barShadow" x="-30%" y="-10%" width="160%" height="130%">'+
-    '<feDropShadow dx="2" dy="3" stdDeviation="2.5" flood-color="rgba(0,0,0,0.28)"/>'+
+    '<filter id="barShadow" x="-40%" y="-10%" width="180%" height="140%">'+
+    '<feDropShadow dx="3" dy="4" stdDeviation="3.5" flood-color="rgba(0,0,0,0.45)"/>'+
     '</filter>'+
     '</defs>';
   barItems.forEach(function(m,i){
@@ -2096,8 +2094,13 @@ function renderDashboard() {
     var y=topPad+barH-h;
     var shortName=m.label.replace(/🇰🇷 |🇺🇸 |🏦 /g,"");
     var txtColor=m.label==="전체"?colorRanks[0].color:m.color;
-    barSvg+='<rect x="'+x+'" y="'+y+'" width="'+barW+'" height="'+h+'" fill="'+m.color+'" rx="3" filter="url(#barShadow)"/>'+
-      '<text x="'+(x+barW/2)+'" y="'+(y-4)+'" text-anchor="middle" font-size="9" fill="'+txtColor+'" font-weight="800">'+fmtPct(m.g.pct)+'</text>'+
+    // 메인 막대
+    barSvg+='<rect x="'+x+'" y="'+y+'" width="'+barW+'" height="'+h+'" fill="'+m.color+'" rx="4" filter="url(#barShadow)"/>';
+    // 왼쪽 하이라이트 (입체감)
+    barSvg+='<rect x="'+(x+2)+'" y="'+(y+3)+'" width="7" height="'+(h-6)+'" fill="rgba(255,255,255,0.28)" rx="3"/>';
+    // 상단 하이라이트
+    barSvg+='<rect x="'+(x+2)+'" y="'+y+'" width="'+(barW-4)+'" height="4" fill="rgba(255,255,255,0.35)" rx="2"/>';
+    barSvg+='<text x="'+(x+barW/2)+'" y="'+(y-4)+'" text-anchor="middle" font-size="9" fill="'+txtColor+'" font-weight="800">'+fmtPct(m.g.pct)+'</text>'+
       '<text x="'+(x+barW/2)+'" y="'+(topPad+barH+14)+'" text-anchor="middle" font-size="9.5" fill="#444" font-weight="700">'+shortName+'</text>';
   });
   barSvg+='</svg>';
