@@ -2329,7 +2329,7 @@ function rkDrawThermo(score) {
 function rkUpdateUI(hy, rate, vix, fxScore, dxy, spread, fg) {
   fxScore = fxScore||10;
   // DXY
-  var dxyScore = !dxy?10:dxy<100?10:dxy<104?28:dxy<108?55:dxy<112?75:95;
+  var dxyScore = !dxy?10:dxy<100?10:dxy<104?35:dxy<108?55:dxy<112?75:95;
   var dxyLv = rkLevel(dxyScore);
   var dxv=document.getElementById("rkDxyVal"), dxb=document.getElementById("rkDxyBar"),
       dxbg=document.getElementById("rkDxyBadge"), dxd=document.getElementById("rkDxyDetail");
