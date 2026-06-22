@@ -1064,6 +1064,7 @@ body { font-family:'Pretendard',sans-serif !important; }
         <option value="📱 통신">📱 통신</option>
         <option value="🛒 생활용품">🛒 생활용품</option>
         <option value="🛡️ 보험">🛡️ 보험</option>
+        <option value="🏦 대출이자">🏦 대출이자</option>
         <option value="💳 기타">💳 기타</option>
       </select>
       <input id="ldgExpName" placeholder="항목명" style="height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--sky-bg);color:var(--text);box-sizing:border-box;width:100%">
@@ -4213,7 +4214,7 @@ function renderCatChart(expList){
   var el=document.getElementById("ldgCatChart");
   if(!el) return;
   var cats={};
-  var CAT_COLORS={"☕ 음료·카페":"#ff8f00","🍽️ 외식":"#e53935","🚌 교통":"#1e88e5","🏥 의료":"#43a047","📱 통신":"#8e24aa","🛒 생활용품":"#00897b","💳 기타":"#757575"};
+  var CAT_COLORS={"☕ 음료·카페":"#ff8f00","🍽️ 외식":"#e53935","🚌 교통":"#1e88e5","🏥 의료":"#43a047","📱 통신":"#8e24aa","🛒 생활용품":"#00897b","🛡️ 보험":"#546e7a","🏦 대출이자":"#c62828","💳 기타":"#757575"};
   expList.forEach(function(d){
     var c=d.cat||"💳 기타";
     cats[c]=(cats[c]||0)+d.amount;
