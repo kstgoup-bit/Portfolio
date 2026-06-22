@@ -2125,38 +2125,41 @@ function renderDashboard() {
       ctx.lineTo(x,y+r);
       ctx.quadraticCurveTo(x,y,x+r,y);
       ctx.closePath();
-      // 모든 막대 동일: 좌우 그라데이션 입체감
-      var midC=m.isAll?m.gradColors[1]:m.mid;
-      var lightC=m.isAll?m.gradColors[0]:m.light;
-      var darkC=m.isAll?m.gradColors[2]:m.dark;
-      var grd=ctx.createLinearGradient(x,0,x+barW,0);
-      grd.addColorStop(0,midC);
-      grd.addColorStop(0.2,lightC+'88');
-      grd.addColorStop(0.5,midC);
-      grd.addColorStop(1,darkC);
-      ctx.fillStyle=grd;
+      // 1단계: 세로 색상 그라데이션 (아래→위, 수익률 순서)
+      var vgrd;
+      if(m.isAll&&m.gradColors){
+        vgrd=ctx.createLinearGradient(x,y+h,x,y);
+        vgrd.addColorStop(0,m.gradColors[2]);
+        vgrd.addColorStop(0.5,m.gradColors[1]);
+        vgrd.addColorStop(1,m.gradColors[0]);
+      } else {
+        vgrd=ctx.createLinearGradient(x,y+h,x,y);
+        vgrd.addColorStop(0,m.dark);
+        vgrd.addColorStop(0.5,m.mid);
+        vgrd.addColorStop(1,m.light);
+      }
+      ctx.fillStyle=vgrd;
       ctx.fill();
       ctx.restore();
-      // 전체 막대만 추가: 세로 색상 오버레이 (수익률 순서)
-      if(m.isAll&&m.gradColors){
-        ctx.save();
-        ctx.beginPath();
-        ctx.moveTo(x+r,y);
-        ctx.lineTo(x+barW-r,y);
-        ctx.quadraticCurveTo(x+barW,y,x+barW,y+r);
-        ctx.lineTo(x+barW,y+h);
-        ctx.lineTo(x,y+h);
-        ctx.lineTo(x,y+r);
-        ctx.quadraticCurveTo(x,y,x+r,y);
-        ctx.closePath();
-        var vov=ctx.createLinearGradient(x,y+h,x,y);
-        vov.addColorStop(0,m.gradColors[2]+'aa');
-        vov.addColorStop(0.5,m.gradColors[1]+'66');
-        vov.addColorStop(1,m.gradColors[0]+'88');
-        ctx.fillStyle=vov;
-        ctx.fill();
-        ctx.restore();
-      }
+      // 2단계: 좌우 입체감 오버레이 (모든 막대 동일)
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(x+r,y);
+      ctx.lineTo(x+barW-r,y);
+      ctx.quadraticCurveTo(x+barW,y,x+barW,y+r);
+      ctx.lineTo(x+barW,y+h);
+      ctx.lineTo(x,y+h);
+      ctx.lineTo(x,y+r);
+      ctx.quadraticCurveTo(x,y,x+r,y);
+      ctx.closePath();
+      var lgrd=ctx.createLinearGradient(x,0,x+barW,0);
+      lgrd.addColorStop(0,'rgba(255,255,255,0.35)');
+      lgrd.addColorStop(0.25,'rgba(255,255,255,0.1)');
+      lgrd.addColorStop(0.6,'rgba(0,0,0,0.05)');
+      lgrd.addColorStop(1,'rgba(0,0,0,0.28)');
+      ctx.fillStyle=lgrd;
+      ctx.fill();
+      ctx.restore();
 
       // 수익률 텍스트
       ctx.save();
