@@ -2128,20 +2128,43 @@ function renderDashboard() {
       // 그라데이션
       var grd;
       if(m.isAll&&m.gradColors){
+        // 전체: 세로 그라데이션 + 좌우 입체감 오버레이
         grd=ctx.createLinearGradient(x,y+h,x,y);
         grd.addColorStop(0,m.gradColors[2]);
         grd.addColorStop(0.5,m.gradColors[1]);
         grd.addColorStop(1,m.gradColors[0]);
       } else {
+        // 개별: 좌우 그라데이션 (덜 밝게)
         grd=ctx.createLinearGradient(x,0,x+barW,0);
-        grd.addColorStop(0,m.light);
-        grd.addColorStop(0.3,m.mid);
-        grd.addColorStop(0.7,m.mid);
+        grd.addColorStop(0,m.mid);
+        grd.addColorStop(0.2,m.light+'cc');
+        grd.addColorStop(0.5,m.mid);
         grd.addColorStop(1,m.dark);
       }
       ctx.fillStyle=grd;
       ctx.fill();
       ctx.restore();
+      // 전체 막대 좌우 입체감 오버레이
+      if(m.isAll){
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(x+r,y);
+        ctx.lineTo(x+barW-r,y);
+        ctx.quadraticCurveTo(x+barW,y,x+barW,y+r);
+        ctx.lineTo(x+barW,y+h);
+        ctx.lineTo(x,y+h);
+        ctx.lineTo(x,y+r);
+        ctx.quadraticCurveTo(x,y,x+r,y);
+        ctx.closePath();
+        var overlay=ctx.createLinearGradient(x,0,x+barW,0);
+        overlay.addColorStop(0,'rgba(255,255,255,0.12)');
+        overlay.addColorStop(0.3,'rgba(255,255,255,0.06)');
+        overlay.addColorStop(0.7,'rgba(0,0,0,0.06)');
+        overlay.addColorStop(1,'rgba(0,0,0,0.2)');
+        ctx.fillStyle=overlay;
+        ctx.fill();
+        ctx.restore();
+      }
 
       // 수익률 텍스트
       ctx.save();
