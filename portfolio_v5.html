@@ -2125,26 +2125,19 @@ function renderDashboard() {
       ctx.lineTo(x,y+r);
       ctx.quadraticCurveTo(x,y,x+r,y);
       ctx.closePath();
-      // 그라데이션
-      var grd;
-      if(m.isAll&&m.gradColors){
-        // 전체: 세로 그라데이션 + 좌우 입체감 오버레이
-        grd=ctx.createLinearGradient(x,y+h,x,y);
-        grd.addColorStop(0,m.gradColors[2]);
-        grd.addColorStop(0.5,m.gradColors[1]);
-        grd.addColorStop(1,m.gradColors[0]);
-      } else {
-        // 개별: 좌우 그라데이션 (덜 밝게)
-        grd=ctx.createLinearGradient(x,0,x+barW,0);
-        grd.addColorStop(0,m.mid);
-        grd.addColorStop(0.2,m.light+'cc');
-        grd.addColorStop(0.5,m.mid);
-        grd.addColorStop(1,m.dark);
-      }
+      // 모든 막대 동일하게 좌우 그라데이션 입체감
+      var midC=m.isAll?m.gradColors[1]:m.mid;
+      var lightC=m.isAll?m.gradColors[0]:m.light;
+      var darkC=m.isAll?m.gradColors[2]:m.dark;
+      var grd=ctx.createLinearGradient(x,0,x+barW,0);
+      grd.addColorStop(0,midC);
+      grd.addColorStop(0.2,lightC+'88');
+      grd.addColorStop(0.5,midC);
+      grd.addColorStop(1,darkC);
       ctx.fillStyle=grd;
       ctx.fill();
       ctx.restore();
-      // 전체 막대 좌우 입체감 오버레이
+      // 전체 막대: 세로 색상 변화 오버레이 추가
       if(m.isAll){
         ctx.save();
         ctx.beginPath();
@@ -2156,12 +2149,11 @@ function renderDashboard() {
         ctx.lineTo(x,y+r);
         ctx.quadraticCurveTo(x,y,x+r,y);
         ctx.closePath();
-        var overlay=ctx.createLinearGradient(x,0,x+barW,0);
-        overlay.addColorStop(0,'rgba(255,255,255,0.12)');
-        overlay.addColorStop(0.3,'rgba(255,255,255,0.06)');
-        overlay.addColorStop(0.7,'rgba(0,0,0,0.06)');
-        overlay.addColorStop(1,'rgba(0,0,0,0.2)');
-        ctx.fillStyle=overlay;
+        var vgrd=ctx.createLinearGradient(x,y+h,x,y);
+        vgrd.addColorStop(0,m.gradColors[2]+'99');
+        vgrd.addColorStop(0.5,m.gradColors[1]+'55');
+        vgrd.addColorStop(1,m.gradColors[0]+'77');
+        ctx.fillStyle=vgrd;
         ctx.fill();
         ctx.restore();
       }
