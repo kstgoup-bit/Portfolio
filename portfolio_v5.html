@@ -2068,25 +2068,35 @@ function renderDashboard() {
   var allItem={label:"전체",g:{pct:allPct,pnl:allPnl,tv:allTV},color:"url(#allGrad)"};
   var barItems=[allItem].concat(items);
 
-  // 수익률 막대 (오른쪽)
+  // 수익률 막대 (오른쪽) - 동적 그라데이션 + 그림자
   var maxPct=Math.max.apply(null,barItems.map(function(m){return Math.abs(m.g.pct||0);}));
   if(maxPct<1) maxPct=1;
+  // 수익률 순위별 색상 정렬 (높은 순 → 위에 표시)
+  var colorRanks=[
+    {pct:domPct, color:'#f57f17'},
+    {pct:ovPct,  color:'#1565c0'},
+    {pct:penPct, color:'#6a1b9a'}
+  ].sort(function(a,b){return b.pct-a.pct;});
   var barW=24, barH=103, gap=10, topPad=24;
   var svgW=barItems.length*(barW+gap)-gap;
   var barSvg='<svg viewBox="0 0 '+svgW+' '+(barH+topPad+23)+'" style="width:100%;height:'+(barH+topPad+23)+'px">'+
-    '<defs><linearGradient id="allGrad" x1="0" y1="1" x2="0" y2="0">'+
-    '<stop offset="0%" stop-color="#1565c0"/>'+
-    '<stop offset="25%" stop-color="#f9a825"/>'+
-    '<stop offset="55%" stop-color="#f57c00"/>'+
-    '<stop offset="80%" stop-color="#c62828"/>'+
-    '<stop offset="100%" stop-color="#7b1fa2"/></linearGradient></defs>';
+    '<defs>'+
+    '<linearGradient id="allGrad" x1="0" y1="1" x2="0" y2="0">'+
+    '<stop offset="0%" stop-color="'+colorRanks[2].color+'" stop-opacity="0.9"/>'+
+    '<stop offset="50%" stop-color="'+colorRanks[1].color+'" stop-opacity="0.9"/>'+
+    '<stop offset="100%" stop-color="'+colorRanks[0].color+'" stop-opacity="0.9"/>'+
+    '</linearGradient>'+
+    '<filter id="barShadow" x="-30%" y="-10%" width="160%" height="130%">'+
+    '<feDropShadow dx="2" dy="3" stdDeviation="2.5" flood-color="rgba(0,0,0,0.28)"/>'+
+    '</filter>'+
+    '</defs>';
   barItems.forEach(function(m,i){
     var h=Math.max(Math.abs(m.g.pct||0)/maxPct*barH,3);
     var x=i*(barW+gap);
     var y=topPad+barH-h;
     var shortName=m.label.replace(/🇰🇷 |🇺🇸 |🏦 /g,"");
-    var txtColor=m.label==="전체"?"#7b1fa2":m.color;
-    barSvg+='<rect x="'+x+'" y="'+y+'" width="'+barW+'" height="'+h+'" fill="'+m.color+'" rx="3"/>'+
+    var txtColor=m.label==="전체"?colorRanks[0].color:m.color;
+    barSvg+='<rect x="'+x+'" y="'+y+'" width="'+barW+'" height="'+h+'" fill="'+m.color+'" rx="3" filter="url(#barShadow)"/>'+
       '<text x="'+(x+barW/2)+'" y="'+(y-4)+'" text-anchor="middle" font-size="9" fill="'+txtColor+'" font-weight="800">'+fmtPct(m.g.pct)+'</text>'+
       '<text x="'+(x+barW/2)+'" y="'+(topPad+barH+14)+'" text-anchor="middle" font-size="9.5" fill="#444" font-weight="700">'+shortName+'</text>';
   });
