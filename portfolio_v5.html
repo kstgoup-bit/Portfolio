@@ -2125,27 +2125,20 @@ function renderDashboard() {
       ctx.lineTo(x,y+r);
       ctx.quadraticCurveTo(x,y,x+r,y);
       ctx.closePath();
-      // 개별: 좌우 그라데이션 입체감 / 전체: 세로+좌우 오버레이
-      var grd;
-      if(m.isAll&&m.gradColors){
-        // 전체: 세로 그라데이션 (아래=낮은, 위=높은 수익률)
-        grd=ctx.createLinearGradient(x,y+h,x,y);
-        grd.addColorStop(0,m.gradColors[2]);
-        grd.addColorStop(0.5,m.gradColors[1]);
-        grd.addColorStop(1,m.gradColors[0]);
-      } else {
-        // 개별: 좌우 그라데이션 입체감
-        grd=ctx.createLinearGradient(x,0,x+barW,0);
-        grd.addColorStop(0,m.mid);
-        grd.addColorStop(0.2,m.light+'88');
-        grd.addColorStop(0.5,m.mid);
-        grd.addColorStop(1,m.dark);
-      }
+      // 전체/개별 모두 동일한 좌우 그라데이션 입체감
+      var midC=m.isAll?m.gradColors[1]:m.mid;
+      var lightC=m.isAll?(colorVariants[m.gradColors[0]]||{light:m.gradColors[0]}).light||m.gradColors[0]:m.light;
+      var darkC=m.isAll?(colorVariants[m.gradColors[2]]||{dark:m.gradColors[2]}).dark||m.gradColors[2]:m.dark;
+      var grd=ctx.createLinearGradient(x,0,x+barW,0);
+      grd.addColorStop(0,midC);
+      grd.addColorStop(0.2,lightC+'88');
+      grd.addColorStop(0.5,midC);
+      grd.addColorStop(1,darkC);
       ctx.fillStyle=grd;
       ctx.fill();
       ctx.restore();
-      // 전체 막대: 개별과 동일한 강도의 좌우 오버레이
-      if(m.isAll){
+      // 전체 막대만: 세로 색상 변화 오버레이 (살짝)
+      if(m.isAll&&m.gradColors){
         ctx.save();
         ctx.beginPath();
         ctx.moveTo(x+r,y);
@@ -2156,12 +2149,11 @@ function renderDashboard() {
         ctx.lineTo(x,y+r);
         ctx.quadraticCurveTo(x,y,x+r,y);
         ctx.closePath();
-        var ov=ctx.createLinearGradient(x,0,x+barW,0);
-        ov.addColorStop(0,'rgba(255,255,255,0.35)');
-        ov.addColorStop(0.25,'rgba(255,255,255,0.1)');
-        ov.addColorStop(0.6,'rgba(0,0,0,0.05)');
-        ov.addColorStop(1,'rgba(0,0,0,0.28)');
-        ctx.fillStyle=ov;
+        var vov=ctx.createLinearGradient(x,y+h,x,y);
+        vov.addColorStop(0,m.gradColors[2]+'55');
+        vov.addColorStop(0.5,m.gradColors[1]+'33');
+        vov.addColorStop(1,m.gradColors[0]+'55');
+        ctx.fillStyle=vov;
         ctx.fill();
         ctx.restore();
       }
