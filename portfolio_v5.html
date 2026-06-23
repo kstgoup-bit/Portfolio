@@ -2801,6 +2801,23 @@ function renderLineChart(period, btnId, chartId, snapKey, color) {
   var lx=coords[coords.length-1][0], ly=coords[coords.length-1][1];
   var lastV=vals[vals.length-1], firstV=vals[0];
   var chg=lastV-firstV, chgP=firstV>0?(chg/firstV*100):0;
+  // 6/22 포폴 구조 완성 깃발 주석
+  var milestoneSvg='';
+  var milestoneIdx=-1;
+  pts.forEach(function(d,i){
+    var dd=new Date(d.ts);
+    if(dd.getFullYear()===2026&&dd.getMonth()===5&&dd.getDate()===22) milestoneIdx=i;
+  });
+  if(milestoneIdx>=0&&coords[milestoneIdx]){
+    var mc=coords[milestoneIdx];
+    var mx=mc[0].toFixed(1);
+    var mAnchor=mc[0]>L+cW*0.7?'end':'start';
+    milestoneSvg=
+      '<line x1="'+mx+'" y1="'+T+'" x2="'+mx+'" y2="'+(T+cH)+'" stroke="#1565c0" stroke-width="1" stroke-dasharray="3,2" opacity="0.6"/>'+
+      '<text x="'+mx+'" y="'+(T+8)+'" text-anchor="'+mAnchor+'" font-size="9" fill="#1565c0" font-weight="bold">🏁</text>'+
+      '<text x="'+mx+'" y="'+(T+18)+'" text-anchor="'+mAnchor+'" font-size="8" fill="#1565c0" font-weight="bold">구조완성</text>';
+  }
+
   var maxVal=Math.max.apply(null,vals);
   var maxIdx=vals.indexOf(maxVal);
   var maxC=coords[maxIdx];
@@ -2835,6 +2852,7 @@ function renderLineChart(period, btnId, chartId, snapKey, color) {
     '<circle cx="'+lx.toFixed(1)+'" cy="'+ly.toFixed(1)+'" r="4" fill="'+color+'" stroke="white" stroke-width="2"/>'+
     xLabels+
     peakSvg+
+    milestoneSvg+
     '<text x="'+(W-R)+'" y="'+(T+12)+'" text-anchor="end" font-size="9" fill="'+(chg>=0?"#1b5e20":"#b71c1c")+'" font-weight="bold">'+(chg>=0?"▲":"▼")+" "+fmt(Math.abs(chg))+"원 ("+(chgP>=0?"+":"")+chgP.toFixed(1)+"%)"+
     '</text>';
 }
