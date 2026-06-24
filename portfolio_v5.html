@@ -2814,8 +2814,8 @@ function renderLineChart(period, btnId, chartId, snapKey, color) {
     var mAnchor=mc[0]>L+cW*0.7?'end':'start';
     milestoneSvg=
       '<line x1="'+mx+'" y1="'+T+'" x2="'+mx+'" y2="'+(T+cH)+'" stroke="#1565c0" stroke-width="1" stroke-dasharray="3,2" opacity="0.6"/>'+
-      '<text x="'+mx+'" y="'+(T-8)+'" text-anchor="'+mAnchor+'" font-size="8" fill="#1565c0" font-weight="bold">구조완성</text>'+
-      '<text x="'+mx+'" y="'+(T+2)+'" text-anchor="'+mAnchor+'" font-size="9" fill="#1565c0" font-weight="bold">🏁</text>';
+      '<text x="'+mx+'" y="'+(T-8)+'" text-anchor="middle" font-size="8" fill="#1565c0" font-weight="bold">구조완성</text>'+
+      '<text x="'+mx+'" y="'+(T+2)+'" text-anchor="middle" font-size="9" fill="#1565c0" font-weight="bold">🏁</text>';
   }
 
   var maxVal=Math.max.apply(null,vals);
