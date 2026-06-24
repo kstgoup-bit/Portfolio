@@ -3062,6 +3062,8 @@ function applyAvg(type, id) {
 }
 
 function toggleEdit(id, type) {
+  // 키보드 먼저 닫기
+  document.activeElement && document.activeElement.blur();
   var stocks=type==="dom"?domStocks:type==="ov"?ovStocks:penStocks;
   if(editingId===id&&editingType===type) {
     var s=stocks.find(function(x){return x.id===id;});
