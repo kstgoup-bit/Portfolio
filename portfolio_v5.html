@@ -2162,7 +2162,7 @@ function renderDashboard() {
 
   // 테마별 전체 비중 계산
   var fx2=parseFloat(document.getElementById('usdKrw').value)||1370;
-  var themeMap={'426030':'나스닥ETF','QTOP':'나스닥ETF','QQQM':'나스닥ETF','446770':'반도체ETF','381180':'반도체ETF','MSFT':'빅테크','GOOGL':'빅테크','NVDA':'빅테크','AVGO':'빅테크','AAPL':'빅테크','MSFU':'빅테크','TSLA':'빅테크','PLTR':'빅테크','INFQ':'빅테크','465580':'빅테크','465610':'빅테크','441640':'빅테크','463050':'빅테크','JOBY':'우주·성장','IONQ':'우주·성장','RKLB':'우주·성장','SPCX':'우주·성장','LAES':'우주·성장','GLDM':'방어·금','SATL':'방어·금','00680K':'방어·금','0162Z0':'방어·금','034020':'SMR·에너지','0123G0':'SMR·에너지','237350':'SMR·에너지','005387':'SMR·에너지','MS':'금융·기타','SPGI':'금융·기타','MSCI':'금융·기타','SMR':'금융·기타'};
+  var themeMap={'426030':'나스닥ETF','QTOP':'나스닥ETF','QQQM':'나스닥ETF','446770':'반도체ETF','381180':'반도체ETF','MSFT':'빅테크','GOOGL':'빅테크','NVDA':'빅테크','AVGO':'빅테크','AAPL':'빅테크','MSFU':'빅테크','TSLA':'빅테크','PLTR':'우주·성장','INFQ':'우주·성장','465580':'빅테크','465610':'빅테크','441640':'빅테크','463050':'빅테크','JOBY':'우주·성장','IONQ':'우주·성장','RKLB':'우주·성장','SPCX':'우주·성장','LAES':'우주·성장','GLDM':'방어·금','SATL':'우주·성장','00680K':'방어·금','0162Z0':'방어·금','034020':'SMR·에너지','0123G0':'SMR·에너지','237350':'SMR·에너지','005387':'SMR·에너지','MS':'금융·기타','SPGI':'금융·기타','MSCI':'금융·기타','SMR':'금융·기타'};
   var themeColors={'나스닥ETF':'#1565c0','반도체ETF':'#e53935','빅테크':'#2e7d32','우주·성장':'#6a1b9a','방어·금':'#795548','SMR·에너지':'#f57f17','금융·기타':'#0097a7','기타':'#9e9e9e'};
   var themeTotals={};
   var allStkList=[];
@@ -2207,13 +2207,26 @@ function renderDashboard() {
   tPie+='<circle cx="'+tCx+'" cy="'+tCy+'" r="'+tRi+'" fill="url(#tHole)"/>';
   tPie+='</svg>';
   // 범례 (세로)
+  var themeDesc={
+    '나스닥ETF':'T나스닥·QTOP',
+    '반도체ETF':'ACE반도체',
+    '빅테크':'MSFT·GOOGL·NVDA·AVGO·AAPL·TSLA',
+    '우주·성장':'JOBY·IONQ·RKLB·SPCX·SATL·PLTR·INFQ',
+    '방어·금':'GLDM·미래에셋',
+    'SMR·에너지':'두산에너빌·현대차2우B',
+    '금융·기타':'MS·SPGI·MSCI',
+    '기타':'기타소액'
+  };
   tLegend='<div style="display:flex;flex-direction:column;gap:5px;justify-content:center">';
   tSlices.forEach(function(sl){
-    var pct=Math.round(sl.tv/totalAllTV*10)/10*10;
-    tLegend+='<div style="display:flex;align-items:center;gap:5px">'+
-      '<div style="width:10px;height:10px;border-radius:2px;background:'+sl.color+';flex-shrink:0"></div>'+
-      '<div style="font-size:9.5px;font-weight:700;color:var(--text)">'+sl.theme+'</div>'+
-      '<div style="font-size:9px;color:var(--muted);margin-left:auto;white-space:nowrap">'+Math.round(sl.tv/totalAllTV*1000)/10+'%</div>'+
+    var pct=Math.round(sl.tv/totalAllTV*1000)/10;
+    var desc=themeDesc[sl.theme]||'';
+    tLegend+='<div style="display:flex;align-items:flex-start;gap:5px">'+
+      '<div style="width:10px;height:10px;border-radius:2px;background:'+sl.color+';flex-shrink:0;margin-top:2px"></div>'+
+      '<div>'+
+        '<div style="font-size:9.5px;font-weight:700;color:var(--text)">'+sl.theme+' <span style="color:var(--muted);font-weight:400">'+pct+'%</span></div>'+
+        '<div style="font-size:8px;color:var(--muted)">'+desc+'</div>'+
+      '</div>'+
     '</div>';
   });
   tLegend+='</div>';
