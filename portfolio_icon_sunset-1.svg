@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <!-- 아이콘 전체 둥근 마스크 -->
+    <clipPath id="roundedClip">
+      <rect x="0" y="0" width="200" height="200" rx="46" ry="46"/>
+    </clipPath>
+
+    <!-- 하늘 그라데이션: 보라→빨강→주황 -->
+    <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3d1a4a"/>
+      <stop offset="30%" stop-color="#7a2535"/>
+      <stop offset="60%" stop-color="#c94a20"/>
+      <stop offset="80%" stop-color="#e8721a"/>
+      <stop offset="100%" stop-color="#f0a030"/>
+    </linearGradient>
+
+    <!-- 바다 그라데이션 -->
+    <linearGradient id="seaGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#c05020"/>
+      <stop offset="40%" stop-color="#7a3018"/>
+      <stop offset="100%" stop-color="#2a1510"/>
+    </linearGradient>
+
+    <!-- 해 빛 발산 -->
+    <radialGradient id="sunGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#fffde0" stop-opacity="1"/>
+      <stop offset="25%" stop-color="#ffe060" stop-opacity="0.9"/>
+      <stop offset="55%" stop-color="#ff8c20" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#e05010" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- 수면 반영 그라데이션 -->
+    <linearGradient id="reflectGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f0a030" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#e05010" stop-opacity="0.1"/>
+    </linearGradient>
+
+    <!-- 구름 그라데이션 -->
+    <linearGradient id="cloudGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#5a2040" stop-opacity="0.85"/>
+      <stop offset="100%" stop-color="#8a3030" stop-opacity="0.4"/>
+    </linearGradient>
+  </defs>
+
+  <g clip-path="url(#roundedClip)">
+    <!-- 하늘 배경 -->
+    <rect x="0" y="0" width="200" height="130" fill="url(#skyGrad)"/>
+
+    <!-- 바다 -->
+    <rect x="0" y="118" width="200" height="82" fill="url(#seaGrad)"/>
+
+    <!-- 수평선 미세 빛 -->
+    <rect x="0" y="117" width="200" height="4" fill="#f0b040" opacity="0.6"/>
+
+    <!-- 구름 왼쪽 위 -->
+    <ellipse cx="38" cy="28" rx="38" ry="14" fill="url(#cloudGrad)"/>
+    <ellipse cx="60" cy="20" rx="28" ry="11" fill="url(#cloudGrad)"/>
+
+    <!-- 구름 오른쪽 위 -->
+    <ellipse cx="168" cy="35" rx="32" ry="12" fill="url(#cloudGrad)" opacity="0.7"/>
+    <ellipse cx="155" cy="24" rx="20" ry="9" fill="url(#cloudGrad)" opacity="0.6"/>
+
+    <!-- 해 빛 아우라 -->
+    <ellipse cx="100" cy="118" rx="52" ry="52" fill="url(#sunGlow)" opacity="0.75"/>
+
+    <!-- 해 본체 -->
+    <circle cx="100" cy="118" r="18" fill="#fff8c0"/>
+    <circle cx="100" cy="118" r="14" fill="#fffde8"/>
+
+    <!-- 수면 반영 (세로 줄기) -->
+    <rect x="93" y="122" width="14" height="60" fill="url(#reflectGrad)" rx="6" opacity="0.7"/>
+
+    <!-- 반영 잔물결 -->
+    <ellipse cx="100" cy="138" rx="18" ry="3" fill="#f0a030" opacity="0.35"/>
+    <ellipse cx="100" cy="152" rx="13" ry="2.5" fill="#f0a030" opacity="0.25"/>
+    <ellipse cx="100" cy="164" rx="9" ry="2" fill="#f0a030" opacity="0.15"/>
+
+    <!-- 수평선 양쪽 은은한 물빛 -->
+    <ellipse cx="50" cy="125" rx="30" ry="5" fill="#c05020" opacity="0.2"/>
+    <ellipse cx="155" cy="128" rx="25" ry="4" fill="#c05020" opacity="0.15"/>
+
+    <!-- 텍스트 "My 포폴" -->
+    <text x="100" y="86" text-anchor="middle" font-family="'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif"
+          font-size="19" font-weight="900" fill="#fff8e0" opacity="0.95"
+          style="text-shadow: 0 1px 4px rgba(0,0,0,0.5)">My 포폴</text>
+  </g>
+
+  <!-- 아이콘 테두리 미세 -->
+  <rect x="0" y="0" width="200" height="200" rx="46" ry="46"
+        fill="none" stroke="#7a2535" stroke-width="2" opacity="0.4"/>
+</svg>
