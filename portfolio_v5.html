@@ -2180,7 +2180,7 @@ function renderDashboard() {
   });
   var themeOrder=['나스닥ETF','반도체ETF','빅테크','우주·성장','방어·금','SMR·에너지','금융·기타','기타'];
   // 테마별 파이차트 SVG
-  var tPie=''; var tLegend=''; var tCx=70,tCy=70,tR=58,tRi=20;
+  var tPie=''; var tLegend=''; var tCx=75,tCy=75,tR=62,tRi=22;
   var tSlices=[]; var tCumAngle=-Math.PI/2;
   themeOrder.forEach(function(theme){
     var tv=themeTotals[theme]||0; if(tv<=0) return;
@@ -2188,7 +2188,7 @@ function renderDashboard() {
     tSlices.push({theme:theme,tv:tv,angle:angle,startAngle:tCumAngle,color:themeColors[theme]||'#9e9e9e'});
     tCumAngle+=angle;
   });
-  tPie='<svg viewBox="0 0 140 140" style="width:140px;height:140px">';
+  tPie='<svg viewBox="0 0 150 150" style="width:150px;height:150px;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.12))">';
   tPie+='<defs><radialGradient id="tHole" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#fff"/><stop offset="100%" stop-color="#f5f5f5"/></radialGradient></defs>';
   tSlices.forEach(function(sl){
     var x1=tCx+tR*Math.cos(sl.startAngle),y1=tCy+tR*Math.sin(sl.startAngle);
@@ -2217,7 +2217,7 @@ function renderDashboard() {
     '금융·기타':'MS·MSCI',
     '기타':'기타소액'
   };
-  tLegend='<div style="display:flex;flex-direction:column;gap:5px;justify-content:center">';
+  tLegend='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 10px;margin-top:12px">';
   tSlices.forEach(function(sl){
     var pct=Math.round(sl.tv/totalAllTV*1000)/10;
     var desc=themeDesc[sl.theme]||'';
@@ -2232,9 +2232,8 @@ function renderDashboard() {
   tLegend+='</div>';
   var themeHtml='<div class="card" style="margin-top:10px;padding:12px 14px">'+
     '<div style="font-size:12px;font-weight:900;color:var(--text);margin-bottom:10px">📊 테마별 전체 비중</div>'+
-    '<div style="display:flex;gap:12px;align-items:center">'+
-      tPie+tLegend+
-    '</div>'+
+    '<div style="display:flex;justify-content:center">'+tPie+'</div>'+
+    tLegend+
   '</div>';
 
   ms.innerHTML=
