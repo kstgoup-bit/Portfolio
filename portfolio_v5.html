@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" style="background:#1a3a8f">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
@@ -38,7 +38,7 @@ body{background:var(--sky-bg);color:var(--text);font-family:'Pretendard',sans-se
 
 /* 잠금화면 */
 /* 잠금화면 - 프리미엄 */
-.lock{position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:40px 24px 24px;overflow:hidden;background:linear-gradient(175deg,#1565c0 0%,#1a3a8f 30%,#0d2257 65%,#071540 100%)}
+.lock{position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:40px 24px 24px;overflow:hidden;background:linear-gradient(175deg,#1565c0 0%,#1a3a8f 30%,#0d2257 65%,#071540 100%);animation:lockFadeIn 0.25s ease-out}@keyframes lockFadeIn{from{opacity:0;transform:scale(1.02)}to{opacity:1;transform:scale(1)}}
 .lock::before{content:'';position:absolute;inset:0;background-image:repeating-linear-gradient(45deg,transparent 0px,transparent 60px,rgba(255,255,255,0.025) 60px,rgba(255,255,255,0.025) 61px),repeating-linear-gradient(-45deg,transparent 0px,transparent 60px,rgba(255,255,255,0.02) 60px,rgba(255,255,255,0.02) 61px);pointer-events:none}
 .lock::after{content:'';position:absolute;top:-80px;left:50%;transform:translateX(-50%);width:320px;height:320px;border-radius:50%;background:radial-gradient(circle,rgba(100,181,246,0.25) 0%,transparent 70%);pointer-events:none}
 .lock-illust{width:100%;padding:52px 0 16px;text-align:center;position:relative;z-index:1}

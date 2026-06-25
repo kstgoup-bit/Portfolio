@@ -4,7 +4,7 @@
   "description": "클로 & 재미가 함께하는 투자 포트폴리오 앱",
   "start_url": "./portfolio_v5.html",
   "display": "standalone",
-  "background_color": "#e8f4fd",
+  "background_color": "#1a3a8f",
   "theme_color": "#1565c0",
   "orientation": "portrait",
   "icons": [
