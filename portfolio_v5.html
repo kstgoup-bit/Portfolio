@@ -2202,7 +2202,7 @@ function renderDashboard() {
       var midA=sl.startAngle+sl.angle/2; var tr=(tR+tRi)/2;
       var tx=tCx+tr*Math.cos(midA),ty=tCy+tr*Math.sin(midA);
       var pct=Math.round(sl.tv/totalAllTV*100);
-      tPie+='<text x="'+tx+'" y="'+(ty+3)+'" text-anchor="middle" font-size="9" fill="white" font-weight="800">'+pct+'%</text>';
+      tPie+='<text x="'+tx+'" y="'+(ty+3)+'" text-anchor="middle" font-size="9.5" fill="white" font-weight="800">'+pct+'%</text>';
     }
   });
   tPie+='<circle cx="'+tCx+'" cy="'+tCy+'" r="'+tRi+'" fill="url(#tHole)"/>';
