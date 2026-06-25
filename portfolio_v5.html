@@ -558,7 +558,7 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
   <button class="tab" onclick="switchTab('advisor')">🤖 AI자문</button>
   <button class="tab" onclick="switchTab('ledger')">📒 가계부</button>
   <button class="tab" onclick="switchTab('news')">📰 뉴스</button>
-  <button class="tab" onclick="switchTab('commandments')">📜 10계명</button>
+  <button class="tab" onclick="switchTab('commandments')">📜 12계명</button>
   <button class="tab" onclick="switchTab('memo')">📝 메모</button>
   <button class="tab" onclick="switchTab('settings')">⚙️ 설정</button>
 </div>
@@ -869,7 +869,7 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
   <div class="cmd-header">
     <div style="font-size:32px;margin-bottom:8px">🎯</div>
     <div style="font-size:16px;font-weight:900;color:#fff">순태씨의 5년 10억 달성</div>
-    <div style="font-size:12px;color:#bbdefb;margin-top:4px">클로가 함께하는 10계명</div>
+    <div style="font-size:12px;color:#bbdefb;margin-top:4px">클로가 함께하는 12계명</div>
   </div>
   <div id="cmdList"></div>
 </div>
@@ -1583,16 +1583,18 @@ const PEN_INIT = [
 ];
 
 const COMMANDMENTS = [
-  {num:1,icon:"🚫",title:"절대 몰빵하지 마라",desc:"아무리 확신이 들어도, 아무리 AI가 추천해도 한 종목·한 ETF에 전 재산을 넣지 않는다. 오늘 제미나이가 QTOP 몰빵을 추천했을 때를 기억하라. 분산이 곧 생존이다."},
-  {num:2,icon:"🌱",title:"매달 씨앗을 심어라",desc:"투자 수익률보다 추가 저축이 더 빠르다. 매달 일정 금액을 적립식으로 꾸준히 넣는 것이 가장 강력한 무기다. 복리는 시간이 만드는 마법이다."},
-  {num:3,icon:"💪",title:"하락장에 팔지 마라",desc:"장기 투자에서 가장 큰 실수는 공포에 팔고 뒤늦게 사는 것이다. 흔들릴 때일수록 버텨라. SOXL을 방치했더니 190%가 됐음을 기억하라."},
-  {num:4,icon:"🤖",title:"AI 조언은 참고만, 결정은 내가 한다",desc:"클로도 제미나이도 틀릴 수 있다. AI는 정보를 주는 도구이지 책임을 지는 존재가 아니다. 최종 결정과 책임은 항상 본인에게 있다."},
-  {num:5,icon:"📸",title:"매달 포트폴리오를 점검하고 기록하라",desc:"자산 기록 버튼을 매달 1일에 눌러라. 5년 후 우상향 그래프가 최고의 동기부여가 된다. 기록하지 않으면 성장을 느낄 수 없다."},
-  {num:6,icon:"🌍",title:"국장과 미장을 함께 가져가라",desc:"국내 주식만 하면 원화 리스크에 갇히고, 미국 주식만 하면 환율 변동에 취약하다. 국장+미장 동시 보유가 통화 분산이자 최강의 헤지 전략이다."},
-  {num:7,icon:"📰",title:"뉴스와 소음을 구별하라",desc:"매일 쏟아지는 경제 뉴스 중 99%는 소음이다. 단기 등락에 흔들리지 말고 3~5년 큰 그림을 봐라. 좋은 종목은 시간이 증명한다."},
-  {num:8,icon:"💡",title:"세금을 전략으로 활용하라",desc:"연금계좌(IRP·연금저축)는 세액공제+과세이연이라는 강력한 무기다. 연간 납입 한도를 채우는 것이 수익률을 높이는 가장 확실한 방법이다."},
-  {num:9,icon:"💪",title:"우량주가 비상금이다",desc:"갑작스러운 지출 대비 500~1,000만원은 파킹통장에 보관하라. 나머지 여유자금은 시장지수 ETF(QTOP·TIME) 또는 우량주(MSFT·GOOGL·AAPL)로 모아라. 우량주가 최고의 저장소다."},
-  {num:10,icon:"✂️",title:"장기투자하되 적절히 익절하라",desc:"레버리지·테마주·단기 급등주는 목표 수익률 도달 시 익절을 검토하라. 그러나 SPGI·MSCI·엔비디아 같은 우량주는 장기 투자하라. 익절은 종목 성격에 따라 달라야 한다."}
+  {num:1,icon:"🏛️",title:"지수와 메인 엔진이 70% 이상, 테마주는 10% 미만",desc:"지수와 메인 엔진(TIME 나스닥100·ACE 반도체·MSFT·GOOGL 등)이 전체 자산의 70% 이상을 차지하게 하고, 자잘한 보초병(테마주)은 5~10% 미만으로 통제하라. 구조가 단순할수록 강하다."},
+  {num:2,icon:"⚔️",title:"개인이 고래를 이기는 유일한 방법",desc:"개인이 고래(기관·세력)를 이기는 유일한 방법은 '시간'과 '분할 매수' 뿐이다. 기관은 분기 성과에 쫓기지만 개인은 10년을 기다릴 수 있다. 그것이 개인의 가장 강력한 무기다."},
+  {num:3,icon:"🚫",title:"절대 몰빵하지 마라",desc:"아무리 확신이 들어도, 아무리 AI가 추천해도 한 종목·한 ETF에 전 재산을 넣지 않는다. 오늘 제미나이가 QTOP 몰빵을 추천했을 때를 기억하라. 분산이 곧 생존이다."},
+  {num:4,icon:"🌱",title:"매달 씨앗을 심어라",desc:"투자 수익률보다 추가 저축이 더 빠르다. 매달 일정 금액을 적립식으로 꾸준히 넣는 것이 가장 강력한 무기다. 복리는 시간이 만드는 마법이다."},
+  {num:5,icon:"💪",title:"하락장에 팔지 마라",desc:"장기 투자에서 가장 큰 실수는 공포에 팔고 뒤늦게 사는 것이다. 흔들릴 때일수록 버텨라. SOXL을 방치했더니 190%가 됐음을 기억하라."},
+  {num:6,icon:"🤖",title:"AI 조언은 참고만, 결정은 내가 한다",desc:"클로도 제미나이도 틀릴 수 있다. AI는 정보를 주는 도구이지 책임을 지는 존재가 아니다. 최종 결정과 책임은 항상 본인에게 있다."},
+  {num:7,icon:"📸",title:"매달 포트폴리오를 점검하고 기록하라",desc:"자산 기록 버튼을 매달 1일에 눌러라. 5년 후 우상향 그래프가 최고의 동기부여가 된다. 기록하지 않으면 성장을 느낄 수 없다."},
+  {num:8,icon:"🌍",title:"국장과 미장을 함께 가져가라",desc:"국내 주식만 하면 원화 리스크에 갇히고, 미국 주식만 하면 환율 변동에 취약하다. 국장+미장 동시 보유가 통화 분산이자 최강의 헤지 전략이다."},
+  {num:9,icon:"📰",title:"뉴스와 소음을 구별하라",desc:"매일 쏟아지는 경제 뉴스 중 99%는 소음이다. 단기 등락에 흔들리지 말고 3~5년 큰 그림을 봐라. 좋은 종목은 시간이 증명한다."},
+  {num:10,icon:"💡",title:"세금을 전략으로 활용하라",desc:"연금계좌(IRP·연금저축)는 세액공제+과세이연이라는 강력한 무기다. 연간 납입 한도를 채우는 것이 수익률을 높이는 가장 확실한 방법이다."},
+  {num:11,icon:"💪",title:"우량주가 비상금이다",desc:"갑작스러운 지출 대비 500~1,000만원은 파킹통장에 보관하라. 나머지 여유자금은 시장지수 ETF(QTOP·TIME) 또는 우량주(MSFT·GOOGL·AAPL)로 모아라. 우량주가 최고의 저장소다."},
+  {num:12,icon:"✂️",title:"장기투자하되 적절히 익절하라",desc:"레버리지·테마주·단기 급등주는 목표 수익률 도달 시 익절을 검토하라. 그러나 SPGI·MSCI·엔비디아 같은 우량주는 장기 투자하라. 익절은 종목 성격에 따라 달라야 한다."}
 ];
 
 // =============================================
@@ -3483,7 +3485,7 @@ function renderCommandments() {
   COMMANDMENTS.forEach(function(c){
     html+='<div class="cmd-item"><div class="cmd-top"><div class="cmd-num">'+c.num+'</div><div class="cmd-title">'+c.icon+" "+c.title+'</div></div><div class="cmd-desc">'+c.desc+'</div></div>';
   });
-  html+='<div class="cmd-footer"><div style="font-size:24px;margin-bottom:8px">💪🎯</div><div style="font-size:14px;font-weight:800;color:#fff;margin-bottom:6px">클로가 응원합니다!</div><div style="font-size:11px;color:#bbdefb;line-height:1.7">이 10계명을 지키면서 매달 꾸준히 실천하면<br>5년 후 반드시 10억에 가까워져 있을 거예요.<br>순태 씨의 5년 여정을 클로가 함께할게요! 😊</div></div>';
+  html+='<div class="cmd-footer"><div style="font-size:24px;margin-bottom:8px">💪🎯</div><div style="font-size:14px;font-weight:800;color:#fff;margin-bottom:6px">클로가 응원합니다!</div><div style="font-size:11px;color:#bbdefb;line-height:1.7">이 12계명을 지키면서 매달 꾸준히 실천하면<br>5년 후 반드시 10억에 가까워져 있을 거예요.<br>순태 씨의 5년 여정을 클로가 함께할게요! 😊</div></div>';
   el.innerHTML=html;
 }
 
