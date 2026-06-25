@@ -2179,6 +2179,7 @@ function renderDashboard() {
     themeTotals[theme]=(themeTotals[theme]||0)+tv;
   });
   var themeOrder=['나스닥ETF','반도체ETF','빅테크','우주·성장','방어·금','SMR·에너지','금융·기타','기타'];
+  themeOrder.sort(function(a,b){return (themeTotals[b]||0)-(themeTotals[a]||0);});
   // 테마별 파이차트 SVG
   var tPie=''; var tLegend=''; var tCx=75,tCy=75,tR=62,tRi=22;
   var tSlices=[]; var tCumAngle=-Math.PI/2;
