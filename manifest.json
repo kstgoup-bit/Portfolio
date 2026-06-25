@@ -1,0 +1,22 @@
+{
+  "name": "순태씨의 5년 안에 10억",
+  "short_name": "10억 포폴",
+  "description": "클로 & 재미가 함께하는 투자 포트폴리오 앱",
+  "start_url": "./portfolio_v5.html",
+  "display": "standalone",
+  "background_color": "#e8f4fd",
+  "theme_color": "#1565c0",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

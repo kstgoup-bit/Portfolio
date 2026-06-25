@@ -3,6 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<link rel="manifest" href="manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="10억 포폴">
+<meta name="theme-color" content="#1565c0">
 <title>순태씨의 5년 안에 10억!</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600;700;800&display=swap');
@@ -4564,6 +4569,14 @@ function renderLedger(){
   }
 }
 
+// 서비스 워커 등록 (PWA)
+if('serviceWorker' in navigator){
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('./service-worker.js')
+      .then(function(reg){ console.log('PWA 준비 완료'); })
+      .catch(function(err){ /* GitHub Pages에서만 작동 */ });
+  });
+}
 </script>
 </body>
 </html>
