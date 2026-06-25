@@ -2218,19 +2218,33 @@ function renderDashboard() {
     '금융·기타':'MS·MSCI',
     '기타':'기타소액'
   };
-  tLegend='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 10px;margin-top:12px">';
-  tSlices.forEach(function(sl){
+  // 코어/새틀라이트 분류
+  var coreSet={'나스닥ETF':true,'반도체ETF':true,'빅테크':true};
+  var coreTv=0,satTv=0;
+  tSlices.forEach(function(sl){ if(coreSet[sl.theme]) coreTv+=sl.tv; else satTv+=sl.tv; });
+  var corePct=Math.round(coreTv/totalAllTV*1000)/10;
+  var satPct=Math.round(satTv/totalAllTV*1000)/10;
+  var coreSlices=tSlices.filter(function(sl){return coreSet[sl.theme];});
+  var satSlices=tSlices.filter(function(sl){return !coreSet[sl.theme];});
+  function mkLgItem(sl){
     var pct=Math.round(sl.tv/totalAllTV*1000)/10;
     var desc=themeDesc[sl.theme]||'';
-    tLegend+='<div style="display:flex;align-items:flex-start;gap:5px">'+
+    return '<div style="display:flex;align-items:flex-start;gap:5px">'+
       '<div style="width:10px;height:10px;border-radius:2px;background:'+sl.color+';flex-shrink:0;margin-top:2px"></div>'+
       '<div>'+
         '<div style="font-size:11.5px;font-weight:700;color:var(--text)">'+sl.theme+' <span style="color:#111;font-weight:600">'+pct+'%</span></div>'+
         '<div style="font-size:11px;color:var(--muted)">'+desc+'</div>'+
-      '</div>'+
-    '</div>';
-  });
-  tLegend+='</div>';
+      '</div></div>';
+  }
+  tLegend='<div style="margin-top:12px">'+
+    '<div style="font-size:11px;font-weight:900;color:#1565c0;margin-bottom:6px;padding:3px 8px;background:#e3f0ff;border-radius:6px;display:inline-block">🔵 코어 '+corePct+'%</div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:7px 10px;margin-bottom:12px">';
+  coreSlices.forEach(function(sl){tLegend+=mkLgItem(sl);});
+  tLegend+='</div>'+
+    '<div style="font-size:11px;font-weight:900;color:#6a1b9a;margin-bottom:6px;padding:3px 8px;background:#f3e5f5;border-radius:6px;display:inline-block">🛸 새틀라이트 '+satPct+'%</div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:7px 10px">';
+  satSlices.forEach(function(sl){tLegend+=mkLgItem(sl);});
+  tLegend+='</div></div>';
   var themeHtml='<div class="card" style="margin-top:10px;padding:12px 14px">'+
     '<div style="font-size:12px;font-weight:900;color:var(--text);margin-bottom:10px">📊 테마별 전체 비중</div>'+
     '<div style="display:flex;justify-content:center">'+tPie+'</div>'+
