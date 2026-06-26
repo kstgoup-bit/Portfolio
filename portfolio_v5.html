@@ -1612,28 +1612,7 @@ var domStocks=[], ovStocks=[], penStocks=[], divList=[], gasUrl="", snapshots={a
 var balGoals={all:80, dom:80, ov:80, pen:80};
 var editingId=null, editingType=null, failCount=0, lockUntil=0;
 // 종목별 별칭 (재미 해석 기반) - 전역
-var nickMap={
-  'MSFT':'🌳 배당 뿌리','AVGO':'💰 AI 통행세',
-  'GOOGL':'🌐 일상의 지배자','AAPL':'🍎 손안의 세계',
-  'NVDA':'🚀 선봉 엔진','TSLA':'🔭 미래 정찰병',
-  'MSFU':'🎯 집중 베팅','PLTR':'🧠 데이터 제국',
-  'RKLB':'🛸 우주 개척자','SPCX':'🌌 우주 바구니',
-  'JOBY':'🚁 하늘길 선점','IONQ':'⚛️ 양자 선구자',
-  'SATL':'📡 궤도 연결망','INFQ':'🤖 AI 인프라',
-  'GLDM':'🛡️ 위기의 방패','LAES':'🔐 양자 보안',
-  'SMR':'⚡ 원자력 미래','MU':'💾 메모리 심장',
-  'SPGI':'📊 시장의 심판','MSCI':'🌍 글로벌 척도',
-  'MS':'🏦 월가의 거인','QQQM':'📈 나스닥 압축판',
-  'QTOP':'🏆 나스닥 핵심','LRCX':'🔬 반도체 장인',
-  'ASTS':'🛰️ 우주 통신망',
-  '441640':'💼 빅테크TOP7','446770':'⚡ 반도체 바구니',
-  '381180':'🔬 반도체 정예','396500':'🌐 글로벌반도체',
-  '368590':'📈 나스닥100','426030':'🏆 빅테크 바구니',
-  '463050':'🚀 나스닥성장','034020':'🏭 두산에너빌',
-  '005387':'🚗 현대차우선주','237350':'⚡ SMR 에너지',
-  '00680K':'🏦 미래에셋우B','086790':'🏦 하나금융',
-  '472160':'⚛️ 양자컴퓨팅','475080':'☢️ 미국SMR'
-};
+var nickMap={};
 
 // =============================================
 // 초기화
@@ -3090,7 +3069,7 @@ function renderStockList(listId, countId, type) {
           '<div style="width:10px;height:10px;border-radius:50%;background:'+color+';flex-shrink:0;margin-top:4px"></div>'+
           '<div style="flex:1;min-width:0">'+
             '<div style="display:flex;justify-content:space-between;align-items:center">'+
-              '<div class="item-name">'+s.name+' <span style="font-size:10px">'+(s.role==="shield"?"🛡":"⚔️")+'</span>'+(nickMap[s.ticker]?'<span style="font-size:9px;font-weight:600;color:#1565c0;background:#e3f0ff;border-radius:10px;padding:1px 6px;margin-left:4px;white-space:nowrap">'+nickMap[s.ticker]+'</span>':'')+'</div>'+
+              '<div class="item-name">'+s.name+' <span style="font-size:10px">'+(s.role==="shield"?"🛡":"⚔️")+'</span></div>'+
               '<div style="text-align:right;font-size:13px;font-weight:800;color:var(--text)">'+fmt(v)+'원</div>'+
             '</div>'+
             '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:1px">'+
