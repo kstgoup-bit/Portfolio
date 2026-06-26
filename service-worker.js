@@ -1,4 +1,5 @@
-const CACHE_NAME = 'portfolio-v5-v2';
+// 날짜 기반 자동 캐시명 - 매일 자동 갱신되므로 수동 버전업 불필요
+const CACHE_NAME = 'portfolio-v5-' + new Date().toISOString().slice(0,10);
 const CACHE_FILES = [
   './portfolio_v5.html',
   './manifest.json',
@@ -29,23 +30,21 @@ self.addEventListener('activate', function(event) {
   self.clients.claim();
 });
 
-// 요청: 캐시 우선, 실패 시 네트워크
+// 요청: 네트워크 우선, 실패 시 캐시 (항상 최신 파일 우선)
 self.addEventListener('fetch', function(event) {
   event.respondWith(
-    caches.match(event.request).then(function(cached) {
-      if (cached) return cached;
-      return fetch(event.request).then(function(response) {
-        // 성공적인 응답은 캐시에 저장
-        if (response && response.status === 200) {
-          var clone = response.clone();
-          caches.open(CACHE_NAME).then(function(cache) {
-            cache.put(event.request, clone);
-          });
-        }
-        return response;
-      }).catch(function() {
-        // 오프라인이면 메인 앱 반환
-        return caches.match('./portfolio_v5.html');
+    fetch(event.request).then(function(response) {
+      if (response && response.status === 200) {
+        var clone = response.clone();
+        caches.open(CACHE_NAME).then(function(cache) {
+          cache.put(event.request, clone);
+        });
+      }
+      return response;
+    }).catch(function() {
+      // 오프라인일 때만 캐시 사용
+      return caches.match(event.request).then(function(cached) {
+        return cached || caches.match('./portfolio_v5.html');
       });
     })
   );
