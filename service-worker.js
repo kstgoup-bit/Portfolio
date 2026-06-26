@@ -1,4 +1,4 @@
-const CACHE_NAME = 'portfolio-v5-v1';
+const CACHE_NAME = 'portfolio-v5-v2';
 const CACHE_FILES = [
   './portfolio_v5.html',
   './manifest.json',
