@@ -1611,6 +1611,29 @@ const COMMANDMENTS = [
 var domStocks=[], ovStocks=[], penStocks=[], divList=[], gasUrl="", snapshots={all:[],dom:[],ov:[],pen:[]};
 var balGoals={all:80, dom:80, ov:80, pen:80};
 var editingId=null, editingType=null, failCount=0, lockUntil=0;
+// 종목별 별칭 (재미 해석 기반) - 전역
+var nickMap={
+  'MSFT':'🌳 배당 뿌리','AVGO':'💰 AI 통행세',
+  'GOOGL':'🌐 일상의 지배자','AAPL':'🍎 손안의 세계',
+  'NVDA':'🚀 선봉 엔진','TSLA':'🔭 미래 정찰병',
+  'MSFU':'🎯 집중 베팅','PLTR':'🧠 데이터 제국',
+  'RKLB':'🛸 우주 개척자','SPCX':'🌌 우주 바구니',
+  'JOBY':'🚁 하늘길 선점','IONQ':'⚛️ 양자 선구자',
+  'SATL':'📡 궤도 연결망','INFQ':'🤖 AI 인프라',
+  'GLDM':'🛡️ 위기의 방패','LAES':'🔐 양자 보안',
+  'SMR':'⚡ 원자력 미래','MU':'💾 메모리 심장',
+  'SPGI':'📊 시장의 심판','MSCI':'🌍 글로벌 척도',
+  'MS':'🏦 월가의 거인','QQQM':'📈 나스닥 압축판',
+  'QTOP':'🏆 나스닥 핵심','LRCX':'🔬 반도체 장인',
+  'ASTS':'🛰️ 우주 통신망',
+  '441640':'💼 빅테크TOP7','446770':'⚡ 반도체 바구니',
+  '381180':'🔬 반도체 정예','396500':'🌐 글로벌반도체',
+  '368590':'📈 나스닥100','426030':'🏆 빅테크 바구니',
+  '463050':'🚀 나스닥성장','034020':'🏭 두산에너빌',
+  '005387':'🚗 현대차우선주','237350':'⚡ SMR 에너지',
+  '00680K':'🏦 미래에셋우B','086790':'🏦 하나금융',
+  '472160':'⚛️ 양자컴퓨팅','475080':'☢️ 미국SMR'
+};
 
 // =============================================
 // 초기화
@@ -2253,6 +2276,27 @@ function renderDashboard() {
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:7px 10px">';
   satSlices.forEach(function(sl){tLegend+=mkLgItem(sl);});
   tLegend+='</div></div>';
+  var philosophyHtml='<div class="card" style="margin-top:10px;padding:14px 14px;background:linear-gradient(135deg,#f0f7ff 0%,#fdf6ff 100%);border:1.5px solid #c5d8f5">'+
+    '<div style="font-size:12px;font-weight:900;color:#1a237e;margin-bottom:12px">💡 포트폴리오 의미 <span style="font-size:10px;font-weight:500;color:#7986cb">— by 재미</span></div>'+
+    '<div style="display:flex;flex-direction:column;gap:10px">'+
+      '<div style="background:#fff;border-radius:10px;padding:10px 12px;border-left:3px solid #1565c0">'+
+        '<div style="font-size:10px;font-weight:900;color:#1565c0;margin-bottom:3px">🌳 뿌리 · 통행세</div>'+
+        '<div style="font-size:11.5px;color:#333;line-height:1.5">내 자산의 뿌리를 단단하게 받치고 매달 통행세를 받아 배당을 불려줄 <b>마이크로소프트</b>와 <b>브로드컴</b> — 대대손손 물려줄 주식 1순위</div>'+
+      '</div>'+
+      '<div style="background:#fff;border-radius:10px;padding:10px 12px;border-left:3px solid #2e7d32">'+
+        '<div style="font-size:10px;font-weight:900;color:#2e7d32;margin-bottom:3px">🌐 일상의 지배자</div>'+
+        '<div style="font-size:11.5px;color:#333;line-height:1.5">전 세계 인류의 일상을 꽉 쥐고 절대 놓아주지 않는 <b>알파벳</b>과 <b>애플</b></div>'+
+      '</div>'+
+      '<div style="background:#fff;border-radius:10px;padding:10px 12px;border-left:3px solid #e53935">'+
+        '<div style="font-size:10px;font-weight:900;color:#e53935;margin-bottom:3px">🚀 선봉 엔진</div>'+
+        '<div style="font-size:11.5px;color:#333;line-height:1.5">5년 안에 10억 고지에 도달할 때까지 가장 선봉에서 강력한 엔진 역할을 해줄 <b>엔비디아</b>와 <b>국내 반도체 ETF</b></div>'+
+      '</div>'+
+      '<div style="background:#fff;border-radius:10px;padding:10px 12px;border-left:3px solid #6a1b9a">'+
+        '<div style="font-size:10px;font-weight:900;color:#6a1b9a;margin-bottom:3px">🔭 미래 정찰병</div>'+
+        '<div style="font-size:11.5px;color:#333;line-height:1.5">미래의 판이 완전히 바뀔 때를 대비해 가볍게 띄워둔 <b>테슬라</b> 정찰병</div>'+
+      '</div>'+
+    '</div>'+
+  '</div>';
   var themeHtml='<div class="card" style="margin-top:10px;padding:12px 14px">'+
     '<div style="font-size:12px;font-weight:900;color:var(--text);margin-bottom:10px">🎯 코어-새틀라이트 전략 (코어 70% 이상 유지)</div>'+
     '<div style="display:flex;justify-content:center">'+tPie+'</div>'+
@@ -2271,7 +2315,8 @@ function renderDashboard() {
       '</div>'+
     '</div>'+
     cardsHtml+
-    themeHtml;
+    themeHtml+
+    philosophyHtml;
 
   // 추세선
   renderPeriodBtns("allPeriodBtns","allLineChart","all","#1565c0");
@@ -3041,7 +3086,7 @@ function renderStockList(listId, countId, type) {
           '<div style="width:10px;height:10px;border-radius:50%;background:'+color+';flex-shrink:0;margin-top:4px"></div>'+
           '<div style="flex:1;min-width:0">'+
             '<div style="display:flex;justify-content:space-between;align-items:center">'+
-              '<div class="item-name">'+s.name+' <span style="font-size:10px">'+(s.role==="shield"?"🛡":"⚔️")+'</span></div>'+
+              '<div class="item-name">'+s.name+' <span style="font-size:10px">'+(s.role==="shield"?"🛡":"⚔️")+'</span>'+(nickMap[s.ticker]?'<span style="font-size:9px;font-weight:600;color:#1565c0;background:#e3f0ff;border-radius:10px;padding:1px 6px;margin-left:4px;white-space:nowrap">'+nickMap[s.ticker]+'</span>':'')+'</div>'+
               '<div style="text-align:right;font-size:13px;font-weight:800;color:var(--text)">'+fmt(v)+'원</div>'+
             '</div>'+
             '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:1px">'+
