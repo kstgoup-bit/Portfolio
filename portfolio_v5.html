@@ -2811,13 +2811,10 @@ function renderPeriodBtns(btnId, chartId, snapKey, color, selectedDate) {
   var el=document.getElementById(btnId);
   if(!el) return;
   var cur=currentPeriods[btnId]||"1W";
-  var pickerMap={allPeriodBtns:"allDatePicker",domPeriodBtns:"domDatePicker",ovPeriodBtns:"ovDatePicker",penPeriodBtns:"penDatePicker"};
-  var pickerId=pickerMap[btnId]||"allDatePicker";
-  var dateLabel="📅 직접선택";
-  if(cur==="CUSTOM"&&selectedDate){
-    var d=new Date(selectedDate);
-    dateLabel="📅 "+(d.getMonth()+1)+"/"+(d.getDate());
-  }
+  var pickerFromMap={allPeriodBtns:"allDateFrom",domPeriodBtns:"domDateFrom",ovPeriodBtns:"ovDateFrom",penPeriodBtns:"penDateFrom"};
+  var pickerToMap={allPeriodBtns:"allDateTo",domPeriodBtns:"domDateTo",ovPeriodBtns:"ovDateTo",penPeriodBtns:"penDateTo"};
+  var fromId=pickerFromMap[btnId]||"allDateFrom";
+  var toId=pickerToMap[btnId]||"allDateTo";
   var btns=PERIODS.map(function(p){
     var on=p.k===cur;
     var is5y=p.k==="5Y";
@@ -2825,20 +2822,62 @@ function renderPeriodBtns(btnId, chartId, snapKey, color, selectedDate) {
     return '<button class="'+cls+'" onclick="selectPeriod(\''+btnId+'\',\''+chartId+'\',\''+p.k+'\',\''+snapKey+'\',\''+color+'\')">'+p.l+'</button>';
   }).join("");
   var customCls=cur==="CUSTOM"?"period-btn on":"period-btn";
-  btns+='<span class="'+customCls+'" style="position:relative;display:inline-flex;align-items:center;justify-content:center;min-width:64px;cursor:pointer;">'+
-    dateLabel+
-    '<input type="date" id="'+pickerId+'" style="position:absolute;left:0;top:0;width:100%;height:100%;opacity:0;cursor:pointer;" onchange="datePickerChange(this,\''+btnId+'\',\''+chartId+'\',\''+snapKey+'\',\''+color+'\')">'+
-  '</span>';
+  // 오늘 날짜 기본값
+  var todayStr=new Date().toISOString().slice(0,10);
+  var fromVal=window['_customFrom_'+btnId]||'';
+  var toVal=window['_customTo_'+btnId]||todayStr;
+  var rangeLabel=fromVal?(fromVal.slice(5).replace('-','/')+'~'+(toVal.slice(5).replace('-','/'))): '📅 직접선택';
+  btns+='<span class="'+customCls+'" style="position:relative;display:inline-flex;align-items:center;justify-content:center;min-width:72px;cursor:pointer;" onclick="showDateRangePicker(\''+btnId+'\',\''+chartId+'\',\''+snapKey+'\',\''+color+'\')">'+rangeLabel+'</span>';
   el.innerHTML=btns;
+  // 날짜범위 피커 팝업 (없으면 생성)
+  if(!document.getElementById('dateRangePopup_'+btnId)){
+    var pop=document.createElement('div');
+    pop.id='dateRangePopup_'+btnId;
+    pop.style.cssText='display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;border-radius:14px;padding:18px 16px;box-shadow:0 4px 24px rgba(0,0,0,0.18);z-index:9999;min-width:260px;';
+    pop.innerHTML=
+      '<div style="font-size:13px;font-weight:800;color:#1565c0;margin-bottom:12px">📅 날짜 범위 선택</div>'+
+      '<div style="display:flex;flex-direction:column;gap:8px">'+
+        '<div style="display:flex;align-items:center;gap:8px"><span style="font-size:11px;color:#666;width:36px">시작</span><input type="date" id="'+fromId+'" style="flex:1;border:1.5px solid #90caf9;border-radius:8px;padding:6px 8px;font-size:13px;" value="'+fromVal+'"></div>'+
+        '<div style="display:flex;align-items:center;gap:8px"><span style="font-size:11px;color:#666;width:36px">끝</span><input type="date" id="'+toId+'" style="flex:1;border:1.5px solid #90caf9;border-radius:8px;padding:6px 8px;font-size:13px;" value="'+toVal+'"></div>'+
+      '</div>'+
+      '<div style="display:flex;gap:8px;margin-top:14px">'+
+        '<button onclick="applyDateRange(\''+btnId+'\',\''+chartId+'\',\''+snapKey+'\',\''+color+'\')" style="flex:1;background:#1565c0;color:#fff;border:none;border-radius:8px;padding:9px;font-size:13px;font-weight:700;cursor:pointer;">적용</button>'+
+        '<button onclick="document.getElementById(\'dateRangePopup_'+btnId+'\').style.display=\'none\'" style="flex:1;background:#eee;color:#333;border:none;border-radius:8px;padding:9px;font-size:13px;cursor:pointer;">취소</button>'+
+      '</div>';
+    document.body.appendChild(pop);
+  }
+}
+
+function showDateRangePicker(btnId, chartId, snapKey, color) {
+  // 모든 팝업 닫기
+  document.querySelectorAll('[id^="dateRangePopup_"]').forEach(function(p){p.style.display='none';});
+  var pop=document.getElementById('dateRangePopup_'+btnId);
+  if(pop) pop.style.display='block';
+}
+
+function applyDateRange(btnId, chartId, snapKey, color) {
+  var pickerFromMap={allPeriodBtns:"allDateFrom",domPeriodBtns:"domDateFrom",ovPeriodBtns:"ovDateFrom",penPeriodBtns:"penDateFrom"};
+  var pickerToMap={allPeriodBtns:"allDateTo",domPeriodBtns:"domDateTo",ovPeriodBtns:"ovDateTo",penPeriodBtns:"penDateTo"};
+  var fromVal=document.getElementById(pickerFromMap[btnId]||"allDateFrom").value;
+  var toVal=document.getElementById(pickerToMap[btnId]||"allDateTo").value;
+  if(!fromVal) return;
+  var todayStr=new Date().toISOString().slice(0,10);
+  if(!toVal) toVal=todayStr;
+  window['_customFrom_'+btnId]=fromVal;
+  window['_customTo_'+btnId]=toVal;
+  window._customFromTs=new Date(fromVal).getTime();
+  window._customToTs=new Date(toVal).getTime()+86400000-1; // 끝날 23:59:59
+  currentPeriods[btnId]="CUSTOM";
+  document.getElementById('dateRangePopup_'+btnId).style.display='none';
+  renderPeriodBtns(btnId,chartId,snapKey,color,fromVal);
+  renderLineChart("CUSTOM",btnId,chartId,snapKey,color);
 }
 
 function datePickerChange(input, btnId, chartId, snapKey, color) {
   if(!input.value) return;
   var fromTs=new Date(input.value).getTime();
-  var days=Math.ceil((Date.now()-fromTs)/86400000);
-  if(days<1) days=1;
-  window._customDays=days;
   window._customFromTs=fromTs;
+  window._customToTs=null;
   currentPeriods[btnId]="CUSTOM";
   renderPeriodBtns(btnId,chartId,snapKey,color,input.value);
   renderLineChart("CUSTOM",btnId,chartId,snapKey,color);
@@ -2889,7 +2928,8 @@ function renderLineChart(period, btnId, chartId, snapKey, color) {
   }
   var pts;
   if(period==='CUSTOM'&&window._customFromTs){
-    pts=data.filter(function(d){return d.ts>=window._customFromTs;});
+    var toTs=window._customToTs||Date.now();
+    pts=data.filter(function(d){return d.ts>=window._customFromTs&&d.ts<=toTs;});
   } else {
     pts=data.filter(function(d){return ((now-d.ts)/86400000)<=days&&d.ts>=validStart;});
   }
