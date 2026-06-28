@@ -2877,12 +2877,21 @@ function renderLineChart(period, btnId, chartId, snapKey, color) {
   var now=Date.now();
   var days=PERIODS.filter(function(p){return p.k===period;})[0];
   days=days?days.d:(period==='CUSTOM'?(window._customDays||7):7);
-  var unifyStart=new Date('2026-05-02').getTime();
+  // 매수금 급락 구간 자동 감지 (직전 대비 15% 이상 하락 시 허수 구간으로 판단)
+  var validStart=new Date('2026-05-02').getTime();
+  var sortedData=data.slice().sort(function(a,b){return a.ts-b.ts;});
+  for(var si=1;si<sortedData.length;si++){
+    var prevCost=sortedData[si-1].cost||0;
+    var curCostChk=sortedData[si].cost||0;
+    if(prevCost>0&&curCostChk>0&&curCostChk<prevCost*0.85){
+      validStart=sortedData[si].ts; // 급락 다음 지점부터 시작
+    }
+  }
   var pts;
   if(period==='CUSTOM'&&window._customFromTs){
     pts=data.filter(function(d){return d.ts>=window._customFromTs;});
   } else {
-    pts=data.filter(function(d){return ((now-d.ts)/86400000)<=days&&d.ts>=unifyStart;});
+    pts=data.filter(function(d){return ((now-d.ts)/86400000)<=days&&d.ts>=validStart;});
   }
   if(pts.length<2) pts=data.slice(-2);
   var vals=pts.map(function(d){return d.val;});
