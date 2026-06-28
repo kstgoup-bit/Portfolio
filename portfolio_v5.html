@@ -2841,8 +2841,8 @@ function renderPeriodBtns(btnId, chartId, snapKey, color, selectedDate) {
         '<div style="display:flex;align-items:center;gap:8px"><span style="font-size:11px;color:#666;width:36px">끝</span><input type="date" id="'+toId+'" style="flex:1;border:1.5px solid #90caf9;border-radius:8px;padding:6px 8px;font-size:13px;" value="'+toVal+'"></div>'+
       '</div>'+
       '<div style="display:flex;gap:8px;margin-top:14px">'+
-        '<button onclick="applyDateRange(\''+btnId+'\',\''+chartId+'\',\''+snapKey+'\',\''+color+'\')" style="flex:1;background:#1565c0;color:#fff;border:none;border-radius:8px;padding:9px;font-size:13px;font-weight:700;cursor:pointer;">적용</button>'+
         '<button onclick="document.getElementById(\'dateRangePopup_'+btnId+'\').style.display=\'none\'" style="flex:1;background:#eee;color:#333;border:none;border-radius:8px;padding:9px;font-size:13px;cursor:pointer;">취소</button>'+
+        '<button onclick="applyDateRange(\''+btnId+'\',\''+chartId+'\',\''+snapKey+'\',\''+color+'\')" style="flex:1;background:#1565c0;color:#fff;border:none;border-radius:8px;padding:9px;font-size:13px;font-weight:700;cursor:pointer;">적용</button>'+
       '</div>';
     document.body.appendChild(pop);
   }
