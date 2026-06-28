@@ -2921,7 +2921,8 @@ function renderLineChart(period, btnId, chartId, snapKey, color) {
   var pts;
   if(period==='CUSTOM'&&window._customFromTs){
     var toTs=window._customToTs||Date.now();
-    pts=data.filter(function(d){return d.ts>=window._customFromTs&&d.ts<=toTs;});
+    var fromTs=Math.max(window._customFromTs, validStart);
+    pts=data.filter(function(d){return d.ts>=fromTs&&d.ts<=toTs;});
   } else {
     pts=data.filter(function(d){return ((now-d.ts)/86400000)<=days&&d.ts>=validStart;});
   }
