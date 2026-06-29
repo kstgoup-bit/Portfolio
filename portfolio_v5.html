@@ -255,7 +255,7 @@ body{background:var(--sky-bg);color:var(--text);font-family:'Pretendard',sans-se
 /* ── 가계부 탭 ── */
 #panel-ledger{background:var(--sky-bg)}
 .ldg-card{background:#fff;border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:0 2px 10px rgba(0,128,100,0.08);border:1px solid rgba(0,137,123,0.15)}
-.ldg-title{font-size:15px;font-weight:800;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.ldg-title{font-size:15px;font-weight:800;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:6px}
 .ldg-row{display:flex;gap:6px;margin-bottom:6px;align-items:stretch;flex-wrap:nowrap}
 .ldg-inp-name{flex:7;min-width:0;height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--sky-bg);color:var(--text);box-sizing:border-box}
 .ldg-inp-amt{flex:3;min-width:0;height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-weight:700;text-align:right;background:var(--sky-bg);color:var(--text);box-sizing:border-box}
@@ -4552,9 +4552,9 @@ function renderLedger(){
   var incTitle=document.getElementById('ldgIncTitle');
   var expTitle=document.getElementById('ldgExpTitle');
   var invTitle=document.getElementById('ldgInvTitle');
-  if(incTitle) incTitle.innerHTML='💰 수입 <span style="float:right;font-size:13px;font-weight:900;color:#1565c0">총 '+totalInc.toLocaleString()+'원</span>';
-  if(expTitle) expTitle.innerHTML='💸 지출 <span style="float:right;font-size:13px;font-weight:900;color:#c62828">총 '+totalExp.toLocaleString()+'원</span>';
-  if(invTitle) invTitle.innerHTML='📈 투자 <span style="float:right;font-size:13px;font-weight:900;color:#7b1fa2">총 '+totalInv.toLocaleString()+'원</span>';
+  if(incTitle) incTitle.innerHTML='<span>💰 수입</span><span style="font-size:inherit;font-weight:900;color:#1565c0">총 '+totalInc.toLocaleString()+'원</span>';
+  if(expTitle) expTitle.innerHTML='<span>💸 지출</span><span style="font-size:inherit;font-weight:900;color:#c62828">총 '+totalExp.toLocaleString()+'원</span>';
+  if(invTitle) invTitle.innerHTML='<span>📈 투자</span><span style="font-size:inherit;font-weight:900;color:#7b1fa2">총 '+totalInv.toLocaleString()+'원</span>';
   renderCatChart(month.expense||[]);
   var balance=totalInc-totalExp-totalInv;
 
