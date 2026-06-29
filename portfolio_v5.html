@@ -2180,6 +2180,9 @@ function renderDashboard() {
     'GLDM':'방어·금','0162Z0':'방어·금',
     '034020':'SMR·에너지','0123G0':'SMR·에너지','237350':'SMR·에너지','005387':'SMR·에너지','SMR':'SMR·에너지',
     'MS':'금융·인프라','MSCI':'금융·인프라','00680K':'금융·인프라'};
+  // 사용자 지정 테마 병합 (종목 추가 시 선택한 테마 우선 적용)
+  var utm=JSON.parse(localStorage.getItem('v5_userThemeMap')||'{}');
+  Object.keys(utm).forEach(function(k){ themeMap[k]=utm[k]; });
   var themeColors={'나스닥ETF':'#1565c0','반도체ETF':'#e53935','빅테크':'#2e7d32','우주·항공':'#6a1b9a','로봇·양자':'#f9a825','방어·금':'#795548','SMR·에너지':'#f57f17','금융·인프라':'#0097a7','기타':'#9e9e9e'};
   var themeTotals={};
   var allStkList=[];
@@ -3273,9 +3276,18 @@ function toggleEdit(id, type) {
 
 function delStock(id, type) {
   if(!confirm("삭제하시겠어요?")) return;
+  var stocks=type==="dom"?domStocks:type==="ov"?ovStocks:penStocks;
+  // 삭제할 종목 티커 찾기
+  var target=stocks.filter(function(s){return s.id===id;})[0];
   if(type==="dom") domStocks=domStocks.filter(function(s){return s.id!==id;});
   else if(type==="ov") ovStocks=ovStocks.filter(function(s){return s.id!==id;});
   else penStocks=penStocks.filter(function(s){return s.id!==id;});
+  // userThemeMap에서도 해당 티커 삭제
+  if(target && target.ticker){
+    var utm=JSON.parse(localStorage.getItem('v5_userThemeMap')||'{}');
+    delete utm[target.ticker];
+    localStorage.setItem('v5_userThemeMap', JSON.stringify(utm));
+  }
   save(); renderAll();
 }
 
@@ -3287,10 +3299,15 @@ function toggleAdd(type) {
   var f=document.getElementById(fId);
   if(f.style.display!=="none"&&f.innerHTML) { f.style.display="none"; return; }
   f.style.display="block";
+  var themeOptions=['나스닥ETF','반도체ETF','빅테크','우주·항공','로봇·양자','방어·금','SMR·에너지','금융·인프라','기타'];
+  var themeSelect='<select class="f-inp" id="ath_'+type+'" style="background:#fff">'+
+    themeOptions.map(function(t){return '<option value="'+t+'">'+t+'</option>';}).join('')+
+  '</select>';
   f.innerHTML='<div class="add-form">'+
     '<div style="font-size:12px;font-weight:800;color:var(--blue);margin-bottom:8px">새 종목 추가</div>'+
     '<div class="f-lbl">종목명</div><input class="f-inp" id="an_'+type+'" placeholder="예: NVIDIA">'+
     '<div class="f-lbl">티커/코드</div><input class="f-inp" id="at_'+type+'" placeholder="예: NVDA 또는 005930">'+
+    '<div class="f-lbl">테마</div>'+themeSelect+
     '<div class="f-lbl">보유수량</div><input class="f-inp" type="number" id="aq_'+type+'" placeholder="0">'+
     '<div class="f-lbl">평균단가</div><input class="f-inp" type="number" id="aa_'+type+'" placeholder="0">'+
     '<div class="f-lbl">현재가</div><input class="f-inp" type="number" id="ac_'+type+'" placeholder="0">'+
@@ -3302,11 +3319,16 @@ function toggleAdd(type) {
 
 function addStock(type) {
   var name=document.getElementById("an_"+type).value.trim();
-  var ticker=document.getElementById("at_"+type).value.trim();
+  var ticker=document.getElementById("at_"+type).value.trim().toUpperCase();
+  var theme=document.getElementById("ath_"+type).value;
   if(!name||!ticker){alert("종목명과 티커를 입력해주세요");return;}
   var stocks=type==="dom"?domStocks:type==="ov"?ovStocks:penStocks;
   var id=Math.max.apply(null,stocks.map(function(s){return s.id;})) + 1;
   stocks.push({id:id,name:name,ticker:ticker,quantity:parseFloat(document.getElementById("aq_"+type).value)||0,avgPrice:parseFloat(document.getElementById("aa_"+type).value)||0,currentPrice:parseFloat(document.getElementById("ac_"+type).value)||0});
+  // 사용자 지정 테마 저장
+  var utm=JSON.parse(localStorage.getItem('v5_userThemeMap')||'{}');
+  utm[ticker]=theme;
+  localStorage.setItem('v5_userThemeMap', JSON.stringify(utm));
   document.getElementById(type+"AddForm").style.display="none";
   save(); renderAll();
 }
