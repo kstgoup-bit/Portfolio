@@ -140,15 +140,15 @@ body{background:var(--sky-bg);color:var(--text);font-family:'Pretendard',sans-se
 
 /* 패널 */
 .panel{display:none;padding:14px}
-#panel-dashboard{background:var(--sky-bg)}
-#panel-domestic{background:var(--yellow-bg)}
-#panel-overseas{background:var(--teal-bg)}
-#panel-pension{background:var(--purple-bg)}
-#panel-dividend{background:var(--green-bg)}
-#panel-commandments{background:var(--cream-bg)}
-#panel-risk{background:#e8f4fd}
-#panel-memo{background:var(--sky-bg)}
-#panel-news{background:var(--sky-bg)}
+#panel-dashboard{background:var(--sky-bg);min-height:100vh}
+#panel-domestic{background:var(--yellow-bg);min-height:100vh}
+#panel-overseas{background:var(--teal-bg);min-height:100vh}
+#panel-pension{background:var(--purple-bg);min-height:100vh}
+#panel-dividend{background:var(--green-bg);min-height:100vh}
+#panel-commandments{background:var(--cream-bg);min-height:100vh}
+#panel-risk{background:#e8f4fd;min-height:100vh}
+#panel-memo{background:var(--sky-bg);min-height:100vh}
+#panel-news{background:var(--sky-bg);min-height:100vh}
 .rk-diagnosis{background:#fff;border-radius:14px;padding:16px;margin-bottom:6px;border-left:5px solid #ef4444}
 .rk-diagnosis.ok{border-left-color:#22c55e}
 .rk-diagnosis.caution{border-left-color:#f97316}
@@ -3830,7 +3830,11 @@ function exportData() {
   var fxHistory=[];
   try{fxHistory=JSON.parse(localStorage.getItem("v5_fxHistory")||"[]");}catch(e){}
   var fgVal=localStorage.getItem("v5_fg")||null;
-  var backup={version:"v5",date:new Date().toLocaleString("ko-KR"),domStocks:domStocks,ovStocks:ovStocks,penStocks:penStocks,divList:divList,snapshots:snapshots,gasUrl:gasUrl,usdKrw:parseFloat(document.getElementById("usdKrw").value)||1370,calcData:calcData,ledger:ledgerData,fxHistory:fxHistory,fg:fgVal};
+  var memoData=[];
+  try{memoData=JSON.parse(localStorage.getItem("v5_memos")||"[]");}catch(e){}
+  var userThemeMap={};
+  try{userThemeMap=JSON.parse(localStorage.getItem("v5_userThemeMap")||"{}");}catch(e){}
+  var backup={version:"v5",date:new Date().toLocaleString("ko-KR"),domStocks:domStocks,ovStocks:ovStocks,penStocks:penStocks,divList:divList,snapshots:snapshots,gasUrl:gasUrl,usdKrw:parseFloat(document.getElementById("usdKrw").value)||1370,calcData:calcData,ledger:ledgerData,fxHistory:fxHistory,fg:fgVal,memos:memoData,userThemeMap:userThemeMap};
   var blob=new Blob([JSON.stringify(backup,null,2)],{type:"application/json"});
   var url=URL.createObjectURL(blob);
   var a=document.createElement("a");
@@ -3898,6 +3902,8 @@ function importData(event) {
       if(data.ledger) localStorage.setItem("v5_ledger",JSON.stringify(data.ledger));
       if(data.fxHistory) localStorage.setItem("v5_fxHistory",JSON.stringify(data.fxHistory));
       if(data.fg) localStorage.setItem("v5_fg",data.fg);
+      if(data.memos) localStorage.setItem("v5_memos",JSON.stringify(data.memos));
+      if(data.userThemeMap) localStorage.setItem("v5_userThemeMap",JSON.stringify(data.userThemeMap));
       save(); renderAll();
       document.getElementById("backupMsg").textContent="✅ 복원 완료!";
       document.getElementById("backupMsg").style.color="var(--blue)";
