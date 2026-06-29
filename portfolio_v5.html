@@ -2183,6 +2183,7 @@ function renderDashboard() {
   // 사용자 지정 테마 병합 (종목 추가 시 선택한 테마 우선 적용)
   var utm=JSON.parse(localStorage.getItem('v5_userThemeMap')||'{}');
   Object.keys(utm).forEach(function(k){ themeMap[k]=utm[k]; });
+  window._themeMap=themeMap; // 수정 폼에서 참조용
   var themeColors={'나스닥ETF':'#1565c0','반도체ETF':'#e53935','빅테크':'#2e7d32','우주·항공':'#6a1b9a','로봇·양자':'#f9a825','방어·금':'#795548','SMR·에너지':'#f57f17','금융·인프라':'#0097a7','기타':'#9e9e9e'};
   var themeTotals={};
   var allStkList=[];
@@ -3196,9 +3197,16 @@ function renderEditForm(s, type) {
       '</div>';
   });
   var curRole=s.role||"spear";
-  return '<div style="display:flex;gap:6px;margin-top:12px;margin-bottom:8px">'+
+  var themeOptions=['나스닥ETF','반도체ETF','빅테크','우주·항공','로봇·양자','방어·금','SMR·에너지','금융·인프라','기타'];
+  var utm=JSON.parse(localStorage.getItem('v5_userThemeMap')||'{}');
+  var curTheme=utm[s.ticker]||(window._themeMap&&window._themeMap[s.ticker])||'기타';
+  var themeSelect='<select id="eth_'+type+'_'+s.id+'" onchange="saveThemeEdit(\''+s.ticker+'\',this.value)" style="flex:1;border:2px solid #ddd;border-radius:8px;padding:6px 4px;font-size:11px;font-weight:700;background:#fff;color:#333;cursor:pointer">'+
+    themeOptions.map(function(t){return '<option value="'+t+'"'+(t===curTheme?' selected':'')+'>'+t+'</option>';}).join('')+
+  '</select>';
+  return '<div style="display:flex;gap:6px;margin-top:12px;margin-bottom:8px;align-items:center">'+
     '<button id="rb_spear_'+type+'_'+s.id+'" class="role-btn'+(curRole==='spear'?' active-spear':'')+'" onclick="setRole(\'spear\','+s.id+',\''+type+'\')">⚔️ 창</button>'+
     '<button id="rb_shield_'+type+'_'+s.id+'" class="role-btn'+(curRole==='shield'?' active-shield':'')+'" onclick="setRole(\'shield\','+s.id+',\''+type+'\')">🛡 방패</button>'+
+    themeSelect+
     '</div>'+
     '<div class="edit-grid2">'+
     '<div><label style="font-size:9px;color:var(--muted);display:block;margin-bottom:2px">종목명</label><input style="width:100%;background:#fff;border:1px solid #90caf9;border-radius:6px;color:var(--text);padding:6px 8px;font-size:12px" id="en_'+type+'_'+s.id+'" value="'+s.name+'"></div>'+
@@ -3216,6 +3224,13 @@ function renderEditForm(s, type) {
     '<div class="calc-result"><span style="font-size:11px;color:var(--blue);font-weight:700">계산된 평균단가</span><span style="font-size:13px;font-weight:800;color:var(--blue);font-family:\'JetBrains Mono\',monospace" id="calcResult_'+type+'_'+s.id+'">−</span></div>'+
     '<button class="calc-apply" onclick="applyAvg(\''+type+'\',\''+s.id+'\')">↑ 평균단가 자동입력</button>'+
     '</div>';
+}
+
+function saveThemeEdit(ticker, theme) {
+  var utm=JSON.parse(localStorage.getItem('v5_userThemeMap')||'{}');
+  utm[ticker]=theme;
+  localStorage.setItem('v5_userThemeMap', JSON.stringify(utm));
+  renderDashboard();
 }
 
 function calcAvg(type, id) {
