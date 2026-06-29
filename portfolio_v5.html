@@ -2172,8 +2172,15 @@ function renderDashboard() {
 
   // 테마별 전체 비중 계산
   var fx2=parseFloat(document.getElementById('usdKrw').value)||1370;
-  var themeMap={'426030':'나스닥ETF','QTOP':'나스닥ETF','QQQM':'나스닥ETF','446770':'반도체ETF','381180':'반도체ETF','MSFT':'빅테크','GOOGL':'빅테크','NVDA':'빅테크','AVGO':'빅테크','AAPL':'빅테크','MSFU':'빅테크','TSLA':'빅테크','PLTR':'우주·성장','INFQ':'우주·성장','465580':'빅테크','465610':'빅테크','441640':'빅테크','463050':'빅테크','JOBY':'우주·성장','IONQ':'우주·성장','RKLB':'우주·성장','SPCX':'우주·성장','LAES':'우주·성장','GLDM':'방어·금','SATL':'우주·성장','00680K':'방어·금','0162Z0':'방어·금','034020':'SMR·에너지','0123G0':'SMR·에너지','237350':'SMR·에너지','005387':'SMR·에너지','MS':'금융·기타','MSCI':'금융·기타','SMR':'금융·기타'};
-  var themeColors={'나스닥ETF':'#1565c0','반도체ETF':'#e53935','빅테크':'#2e7d32','우주·성장':'#6a1b9a','방어·금':'#795548','SMR·에너지':'#f57f17','금융·기타':'#0097a7','기타':'#9e9e9e'};
+  var themeMap={'426030':'나스닥ETF','QTOP':'나스닥ETF','QQQM':'나스닥ETF','446770':'반도체ETF','381180':'반도체ETF','MU':'반도체ETF',
+    'MSFT':'빅테크','GOOGL':'빅테크','NVDA':'빅테크','AVGO':'빅테크','AAPL':'빅테크','MSFU':'빅테크','TSLA':'빅테크',
+    '465580':'빅테크','465610':'빅테크','441640':'빅테크','463050':'빅테크',
+    'JOBY':'우주·항공','RKLB':'우주·항공','SPCX':'우주·항공','SATL':'우주·항공','ASTS':'우주·항공','LAES':'우주·항공',
+    '012330':'로봇·양자','IONQ':'로봇·양자','INFQ':'로봇·양자',
+    'GLDM':'방어·금','0162Z0':'방어·금',
+    '034020':'SMR·에너지','0123G0':'SMR·에너지','237350':'SMR·에너지','005387':'SMR·에너지','SMR':'SMR·에너지',
+    'MS':'금융·인프라','MSCI':'금융·인프라','00680K':'금융·인프라'};
+  var themeColors={'나스닥ETF':'#1565c0','반도체ETF':'#e53935','빅테크':'#2e7d32','우주·항공':'#6a1b9a','로봇·양자':'#f9a825','방어·금':'#795548','SMR·에너지':'#f57f17','금융·인프라':'#0097a7','기타':'#9e9e9e'};
   var themeTotals={};
   var allStkList=[];
   domStocks.forEach(function(s){allStkList.push({s:s,isUS:false});});
@@ -2188,7 +2195,7 @@ function renderDashboard() {
     var theme=themeMap[s.ticker]||'기타';
     themeTotals[theme]=(themeTotals[theme]||0)+tv;
   });
-  var themeOrder=['나스닥ETF','반도체ETF','빅테크','우주·성장','방어·금','SMR·에너지','금융·기타','기타'];
+  var themeOrder=['나스닥ETF','반도체ETF','빅테크','우주·항공','로봇·양자','방어·금','SMR·에너지','금융·인프라','기타'];
   themeOrder.sort(function(a,b){return (themeTotals[b]||0)-(themeTotals[a]||0);});
   // 테마별 파이차트 SVG
   var tPie=''; var tLegend=''; var tCx=75,tCy=75,tR=62,tRi=22;
@@ -2217,17 +2224,27 @@ function renderDashboard() {
   });
   tPie+='<circle cx="'+tCx+'" cy="'+tCy+'" r="'+tRi+'" fill="url(#tHole)"/>';
   tPie+='</svg>';
-  // 범례 (세로)
-  var themeDesc={
-    '나스닥ETF':'T나스닥·QTOP',
-    '반도체ETF':'ACE반도체',
-    '빅테크':'MSFT·GOOGL·NVDA<br>AVGO·AAPL·TSLA',
-    '우주·성장':'JOBY·IONQ·RKLB·SPCX<br>SATL·PLTR·INFQ',
-    '방어·금':'GLDM·미래에셋',
-    'SMR·에너지':'두산에너빌·현대차2우B',
-    '금융·기타':'MS·MSCI',
-    '기타':'기타소액'
-  };
+  // 레전드 - 실제 보유 종목에서 자동생성
+  var themeStocks={};
+  allStkList.forEach(function(item){
+    var s=item.s;
+    var qty=parseFloat(s.quantity)||0;
+    var cur=parseFloat(s.currentPrice)||0;
+    if(qty<=0||cur<=0) return;
+    var theme=themeMap[s.ticker]||'기타';
+    if(!themeStocks[theme]) themeStocks[theme]=[];
+    var nm=s.name||s.ticker;
+    // 이름 짧게 (10자 초과시 앞 6자)
+    if(nm.length>10) nm=nm.slice(0,6)+'..';
+    if(themeStocks[theme].indexOf(nm)<0) themeStocks[theme].push(nm);
+  });
+  var themeDesc={};
+  Object.keys(themeStocks).forEach(function(theme){
+    var names=themeStocks[theme];
+    // 4개 초과시 두 줄로
+    if(names.length>4) themeDesc[theme]=names.slice(0,4).join('·')+'<br>'+names.slice(4).join('·');
+    else themeDesc[theme]=names.join('·');
+  });
   // 코어/새틀라이트 분류
   var coreSet={'나스닥ETF':true,'반도체ETF':true,'빅테크':true};
   var coreTv=0,satTv=0;
@@ -2746,7 +2763,7 @@ function shortLabel(name, ticker) {
     '00680K':'미래에셋', '086790':'하나금융', '472160':'양자컴',
     '475080':'SMR', '396500':'반도체', '463050':'빅테크+',
     '465580':'빅테크+', '465610':'빅테크+2', '446770':'반도체',
-    '034020':'두산에너빌', '005387':'현대차2우B', '0123G0':'AI전력SMR',
+    '034020':'두산에너빌', '005387':'현대모비스', '012330':'현대모비스', '0123G0':'AI전력SMR',
     '237350':'코스피100', '381180':'필라반도체', '0162Z0':'삼전닉스'
   };
   if(tickerMap[ticker]) return tickerMap[ticker];
