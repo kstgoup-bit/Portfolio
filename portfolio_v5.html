@@ -3510,8 +3510,8 @@ function renderDividend() {
       '<div class="div-item-left"><div class="name">'+d.name+(d.broker?' <span style="font-size:11px;color:#616161;font-weight:400">'+d.broker+'</span>':'')+'</div><div class="date">'+d.date+'</div></div>'+
       '<div style="display:flex;align-items:center;gap:8px">'+
       '<div class="div-item-right"><div class="amount">+'+Math.round(d.amount).toLocaleString()+'원</div></div>'+
-      '<button style="background:none;border:none;font-size:15px;cursor:pointer;padding:2px 4px;" onclick="toggleDivEdit('+i+')">✏️</button>'+
       '<button class="btn-del-div" onclick="delDiv('+i+')">×</button>'+
+      '<button style="background:none;border:none;font-size:15px;cursor:pointer;padding:2px 4px;" onclick="toggleDivEdit('+i+')">✏️</button>'+
       '</div>'+
       '<div id="divedit-'+i+'" style="display:none;margin-top:8px;padding:10px;background:#f5f5f5;border-radius:8px;width:100%">'+
         '<div style="display:flex;flex-direction:column;gap:6px">'+
