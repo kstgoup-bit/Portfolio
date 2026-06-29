@@ -119,7 +119,7 @@ body{background:var(--sky-bg);color:var(--text);font-family:'Pretendard',sans-se
 .role-badge{display:inline-block;font-size:9px;font-weight:800;padding:2px 6px;border-radius:10px;margin-left:4px;vertical-align:middle}
 .role-spear{background:#fce4e4;color:#c62828}
 .role-shield{background:#e3f2fd;color:#1565c0}
-.role-btn{flex:1;padding:6px;border-radius:8px;border:2px solid #ddd;font-size:12px;font-weight:800;cursor:pointer;background:#fff;color:#999;font-family:'Noto Sans KR',sans-serif;transition:.2s}
+.role-btn{flex:1;padding:6px;border-radius:8px;border:2px solid #ddd;font-size:12px;font-weight:800;cursor:pointer;background:#fff;color:#999;font-family:'Noto Sans KR',sans-serif;transition:.2s;height:36px}
 .role-btn.active-spear{border-color:#c62828;background:#fce4e4;color:#c62828}
 .role-btn.active-shield{border-color:#1565c0;background:#e3f2fd;color:#1565c0}
 .balance-wrap{background:#fff;border-radius:14px;padding:14px;box-shadow:0 1px 8px #00000010;margin-bottom:12px}
@@ -3200,7 +3200,7 @@ function renderEditForm(s, type) {
   var themeOptions=['나스닥ETF','반도체ETF','빅테크','우주·항공','로봇·양자','방어·금','SMR·에너지','금융·인프라','기타'];
   var utm=JSON.parse(localStorage.getItem('v5_userThemeMap')||'{}');
   var curTheme=utm[s.ticker]||(window._themeMap&&window._themeMap[s.ticker])||'기타';
-  var themeSelect='<select id="eth_'+type+'_'+s.id+'" onchange="saveThemeEdit(\''+s.ticker+'\',this.value)" style="flex:1;border:2px solid #ddd;border-radius:8px;padding:6px 4px;font-size:11px;font-weight:700;background:#fff;color:#333;cursor:pointer">'+
+  var themeSelect='<select id="eth_'+type+'_'+s.id+'" onchange="saveThemeEdit(\''+s.ticker+'\',this.value)" style="flex:1;border:2px solid #ddd;border-radius:8px;padding:6px 4px;font-size:11px;font-weight:700;background:#fff;color:#333;cursor:pointer;height:36px">'+
     themeOptions.map(function(t){return '<option value="'+t+'"'+(t===curTheme?' selected':'')+'>'+t+'</option>';}).join('')+
   '</select>';
   return '<div style="display:flex;gap:6px;margin-top:12px;margin-bottom:8px;align-items:center">'+
