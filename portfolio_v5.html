@@ -3506,13 +3506,46 @@ function renderDividend() {
   if(!filtered.length){el.innerHTML='<div class="empty">해당 월 배당 내역이 없어요</div>';return;}
   el.innerHTML=filtered.map(function(obj){
     var d=obj.d, i=obj.i;
-    return '<div class="div-list-item">'+
+    return '<div class="div-list-item" id="divitem-'+i+'">'+
       '<div class="div-item-left"><div class="name">'+d.name+(d.broker?' <span style="font-size:11px;color:#616161;font-weight:400">'+d.broker+'</span>':'')+'</div><div class="date">'+d.date+'</div></div>'+
       '<div style="display:flex;align-items:center;gap:8px">'+
       '<div class="div-item-right"><div class="amount">+'+Math.round(d.amount).toLocaleString()+'원</div></div>'+
+      '<button style="background:none;border:none;font-size:15px;cursor:pointer;padding:2px 4px;" onclick="toggleDivEdit('+i+')">✏️</button>'+
       '<button class="btn-del-div" onclick="delDiv('+i+')">×</button>'+
-      '</div></div>';
+      '</div>'+
+      '<div id="divedit-'+i+'" style="display:none;margin-top:8px;padding:10px;background:#f5f5f5;border-radius:8px;width:100%">'+
+        '<div style="display:flex;flex-direction:column;gap:6px">'+
+          '<input id="de-name-'+i+'" type="text" value="'+d.name+'" placeholder="종목명" style="border:1.5px solid #90caf9;border-radius:6px;padding:6px 8px;font-size:13px;width:100%;box-sizing:border-box">'+
+          '<input id="de-broker-'+i+'" type="text" value="'+(d.broker||'')+'" placeholder="증권사" style="border:1.5px solid #90caf9;border-radius:6px;padding:6px 8px;font-size:13px;width:100%;box-sizing:border-box">'+
+          '<input id="de-date-'+i+'" type="date" value="'+d.date+'" style="border:1.5px solid #90caf9;border-radius:6px;padding:6px 8px;font-size:13px;width:100%;box-sizing:border-box">'+
+          '<input id="de-amt-'+i+'" type="number" value="'+Math.round(d.amount)+'" placeholder="금액(원)" style="border:1.5px solid #90caf9;border-radius:6px;padding:6px 8px;font-size:13px;width:100%;box-sizing:border-box">'+
+          '<div style="display:flex;gap:6px">'+
+            '<button onclick="saveDivEdit('+i+')" style="flex:1;background:#1565c0;color:#fff;border:none;border-radius:6px;padding:7px;font-size:13px;font-weight:700;cursor:pointer;">저장</button>'+
+            '<button onclick="toggleDivEdit('+i+')" style="flex:1;background:#eee;color:#333;border:none;border-radius:6px;padding:7px;font-size:13px;cursor:pointer;">취소</button>'+
+          '</div>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
   }).join("");
+}
+
+function toggleDivEdit(i){
+  var el=document.getElementById('divedit-'+i);
+  if(el) el.style.display=el.style.display==='none'?'block':'none';
+}
+
+function saveDivEdit(i){
+  var name=document.getElementById('de-name-'+i).value.trim();
+  var broker=document.getElementById('de-broker-'+i).value.trim();
+  var date=document.getElementById('de-date-'+i).value;
+  var amt=parseFloat(document.getElementById('de-amt-'+i).value);
+  if(!name||!date||isNaN(amt)) return;
+  divList[i].name=name;
+  divList[i].broker=broker;
+  divList[i].date=date;
+  divList[i].amount=amt;
+  localStorage.setItem('v5_div', JSON.stringify(divList));
+  renderDividend();
 }
 
 function updateDivSumMonth(){
