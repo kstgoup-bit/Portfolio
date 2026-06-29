@@ -2242,7 +2242,7 @@ function renderDashboard() {
   Object.keys(themeStocks).forEach(function(theme){
     var names=themeStocks[theme];
     // 4개 초과시 두 줄로
-    if(names.length>4) themeDesc[theme]=names.slice(0,4).join('·')+'<br>'+names.slice(4).join('·');
+    if(names.length>5) themeDesc[theme]=names.slice(0,5).join('·')+'<br>'+names.slice(5).join('·');
     else themeDesc[theme]=names.join('·');
   });
   // 코어/새틀라이트 분류
