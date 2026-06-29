@@ -1049,7 +1049,7 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
 
   <!-- 수입 -->
   <div class="ldg-card">
-    <div class="ldg-title" style="color:#1565c0">💰 수입</div>
+    <div class="ldg-title" id="ldgIncTitle" style="color:#1565c0">💰 수입</div>
     <div style="display:grid;grid-template-columns:6.5fr 3.5fr;gap:6px;margin-bottom:6px">
       <input type="date" id="ldgIncDate" style="height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--sky-bg);color:var(--text);box-sizing:border-box;width:100%">
       <button id="ldgIncomeBtn" onclick="addLedger('income')" style="height:38px;background:#42a5f5;border:none;border-radius:8px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;width:100%">추가</button>
@@ -1063,7 +1063,7 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
 
   <!-- 지출 -->
   <div class="ldg-card">
-    <div class="ldg-title" style="color:#c62828">💸 지출</div>
+    <div class="ldg-title" id="ldgExpTitle" style="color:#c62828">💸 지출</div>
     <div style="display:grid;grid-template-columns:6.5fr 3.5fr;gap:6px;margin-bottom:6px">
       <input type="date" id="ldgExpDate" style="height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--sky-bg);color:var(--text);box-sizing:border-box;width:100%">
       <button id="ldgExpenseBtn" onclick="addLedger('expense')" style="height:38px;background:#ef5350;border:none;border-radius:8px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;width:100%">추가</button>
@@ -1098,7 +1098,7 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
 
   <!-- 투자 -->
   <div class="ldg-card">
-    <div class="ldg-title" style="color:#7b1fa2">📈 투자</div>
+    <div class="ldg-title" id="ldgInvTitle" style="color:#7b1fa2">📈 투자</div>
     <div style="display:grid;grid-template-columns:4fr 2.5fr 3.5fr;gap:6px;margin-bottom:6px">
       <input type="date" id="ldgInvDate" style="height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--sky-bg);color:var(--text);box-sizing:border-box;width:100%">
       <select id="ldgInvBroker" style="height:38px;padding:0 4px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-weight:700;background:var(--sky-bg);color:var(--text);box-sizing:border-box;width:100%;font-family:'Noto Sans KR',sans-serif">
@@ -4547,6 +4547,14 @@ function renderLedger(){
   var totalInc=renderList(month.income||[],"income","ldgIncList","#1565c0");
   var totalExp=renderList(month.expense||[],"expense","ldgExpList","#c62828");
   var totalInv=renderList(month.invest||[],"invest","ldgInvList","#7b1fa2");
+
+  // 타이틀 옆 총금액 표시
+  var incTitle=document.getElementById('ldgIncTitle');
+  var expTitle=document.getElementById('ldgExpTitle');
+  var invTitle=document.getElementById('ldgInvTitle');
+  if(incTitle) incTitle.innerHTML='💰 수입 <span style="float:right;font-size:13px;font-weight:900;color:#1565c0">총 '+totalInc.toLocaleString()+'원</span>';
+  if(expTitle) expTitle.innerHTML='💸 지출 <span style="float:right;font-size:13px;font-weight:900;color:#c62828">총 '+totalExp.toLocaleString()+'원</span>';
+  if(invTitle) invTitle.innerHTML='📈 투자 <span style="float:right;font-size:13px;font-weight:900;color:#7b1fa2">총 '+totalInv.toLocaleString()+'원</span>';
   renderCatChart(month.expense||[]);
   var balance=totalInc-totalExp-totalInv;
 
