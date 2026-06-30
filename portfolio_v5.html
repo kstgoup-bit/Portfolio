@@ -900,10 +900,14 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
       <div class="rk-score-lbl">종합 위험 지수</div>
       <div class="rk-score-num" id="rkScoreNum">—</div>
       <div class="rk-score-label" id="rkScoreLabel">🔵 대기 중</div>
-      <div class="rk-weight">HY 25%·금리 25%·VIX 15%·환율 15%·DXY 10%·금리차 10%<br>
+      <div class="rk-weight">HY 25%·VIX 20%·공포탐욕 15%·금리차 15%·DXY 10%·금리 5%·환율 5%·유가 5%<br>
         위험&gt;70 · 경계50~70 · 관찰30~49 · 안전&lt;30
       </div>
     </div>
+  </div>
+  <div id="rkActionBox" style="display:none;margin-top:10px;padding:12px 14px;border-radius:12px;border-left:4px solid #22c55e;background:#f0fdf4">
+    <div id="rkActionTitle" style="font-size:13px;font-weight:900;margin-bottom:8px;color:#166534">🟢 안전 구간 — 행동요령</div>
+    <div id="rkActionList" style="font-size:12px;color:#374151;line-height:1.9;font-weight:600"></div>
   </div>
 
   <div class="rk-gauge">
@@ -1018,7 +1022,7 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
       <div id="rkOilBar" style="height:100%;width:0%;background:#94a3b8;border-radius:6px;transition:width .6s"></div>
     </div>
     <div id="rkOilDetail" style="font-size:11px;color:#64748b;margin-top:5px">—</div>
-    <div style="font-size:10px;color:#94a3b8;margin-top:4px">경기침체&lt;$60 · 안정$60~80 · 주의$80~95 · 위험&gt;$95</div>
+    <div style="font-size:11px;color:#94a3b8;margin-top:4px">경기침체&lt;$60 · 안정$60~80 · 주의$80~95 · 위험&gt;$95</div>
   </div>
   <button class="rk-btn" onclick="fetchRiskData()" id="rkFetchBtn">🔄 실시간 위험 지수 조회</button>
   <div id="rkStatus" class="rk-status"></div>
@@ -1826,14 +1830,36 @@ function updateBrief() {
     if(!thisMonthDiv&&divs.length>0) msgs.push({cls:"",icon:"💰",badge:"확인",txt:"이번 달 배당금 입력했나요? 배당 탭에서 수령 내역을 기록해두세요."});
     if(!msgs.length) msgs.push({cls:"",icon:"💁‍♀️",badge:"클로",txt:"위험계 탭에서 실시간 지수를 조회하면 정확한 진단을 받을 수 있어요."});
 
-    // 알림판 비활성화
-    el.style.display="none"; return;
-
-    // 종합 진단 카드 업데이트
-    var dg=document.getElementById("rkDiagnosis");
-    if(dg){
-      if(diagHtml){dg.innerHTML=diagHtml;dg.style.display="block";}
-      else{dg.innerHTML='<div class="rk-diagnosis ok"><div class="rk-diagnosis-title">✅ 현재 특별한 위험 신호 없음</div><div class="rk-diagnosis-explain">모든 지표가 정상 범위입니다. 실시간 조회 버튼으로 최신 데이터를 확인해보세요.</div></div>';dg.style.display="block";}
+    // 종합점수 기반 행동요령 카드
+    var rk2={}; try{rk2=JSON.parse(localStorage.getItem("v5_riskData")||"{}");}catch(e){}
+    var sc=rk2.score||0;
+    if(sc>0){
+      var actionCard='';
+      if(sc<30){
+        actionCard=mkDiag("🟢","종합 위험지수 "+sc+"점 — 안전 구간",'ok',
+          "모든 주요 지표가 안정적입니다. 지금은 투자하기 좋은 환경이에요.",
+          ["① 정기 적립 매수 그대로 진행","② ⏳ 나스닥ETF·🌳 MSFT·AVGO 여유자금 우선 채우기","③ 방패 비중 10~20% 유지하며 다음 공포 구간 준비","④ 현재 보유 종목 홀드 — 조급하게 팔지 마세요"]);
+      } else if(sc<50){
+        actionCard=mkDiag("🟡","종합 위험지수 "+sc+"점 — 관찰 구간",'caution',
+          "일부 지표에 주의 신호가 있습니다. 큰 움직임보다 관망이 낫습니다.",
+          ["① 신규 매수 규모 평소의 50%로 축소","② 위성 종목(테마주) 추가 매수 자제","③ 코어 종목(나스닥ETF·MSFT·AVGO) 적립은 유지","④ 현금 비중 20~30%로 높여두기"]);
+      } else if(sc<70){
+        actionCard=mkDiag("🟠","종합 위험지수 "+sc+"점 — 경계 구간",'',
+          "위험 신호가 여러 지표에서 감지됩니다. 방어 모드로 전환하세요.",
+          ["① 추가 매수 중단 — 현금 확보 우선","② 위성 종목 일부 익절 고려 (수익 중인 것부터)","③ 코어 종목은 유지하되 레버리지(MSFU 등) 비중 축소","④ 현금 비중 30~40% 목표"]);
+      } else {
+        actionCard=mkDiag("🔴","종합 위험지수 "+sc+"점 — 위험 구간",'',
+          "복합적인 위험 신호가 감지됩니다. 적극적 방어가 필요합니다.",
+          ["① 레버리지 종목 즉시 비중 축소","② 위성 종목 손절 or 익절 실행","③ 코어는 분할 매도로 현금화 일부 진행","④ 현금 40~50% 확보 후 폭락 시 재진입 준비"]);
+      }
+      var dg=document.getElementById("rkDiagnosis");
+      if(dg){dg.innerHTML=actionCard+(diagHtml||'');dg.style.display="block";}
+    } else {
+      var dg=document.getElementById("rkDiagnosis");
+      if(dg){
+        if(diagHtml){dg.innerHTML=diagHtml;dg.style.display="block";}
+        else{dg.innerHTML='<div class="rk-diagnosis ok"><div class="rk-diagnosis-title">✅ 실시간 조회 후 진단이 표시됩니다</div><div class="rk-diagnosis-explain">위험계 탭에서 실시간 조회 버튼을 눌러주세요.</div></div>';dg.style.display="block";}
+      }
     }
   } catch(e) {}
 }
@@ -2429,7 +2455,7 @@ function renderPension() {
 // =============================================
 var riskData = {};
 
-function rkCalcScore(hy, rate, vix, fxScore, dxyScore, spreadScore, fgScore) {
+function rkCalcScore(hy, rate, vix, fxScore, dxyScore, spreadScore, fgScore, oilScore) {
   var hyS  = hy<300?8:hy<400?22:hy<500?38:hy<600?55:hy<800?70:hy<1000?85:100;
   var rS   = rate<3.0?8:rate<3.5?20:rate<4.0?34:rate<4.5?50:rate<5.0?66:rate<5.5?80:95;
   var vS   = vix<15?8:vix<20?20:vix<25?35:vix<30?55:vix<40?75:100;
@@ -2437,7 +2463,9 @@ function rkCalcScore(hy, rate, vix, fxScore, dxyScore, spreadScore, fgScore) {
   var dxyS = dxyScore||10;
   var spS  = spreadScore||10;
   var fgS  = fgScore||50;
-  return Math.round(hyS*0.25 + rS*0.25 + vS*0.15 + fxS*0.15 + dxyS*0.10 + spS*0.10);
+  var oilS = oilScore||10;
+  // HY 25%·VIX 20%·공포탐욕 15%·금리차 15%·DXY 10%·금리 5%·환율 5%·유가 5%
+  return Math.round(hyS*0.25 + vS*0.20 + fgS*0.15 + spS*0.15 + dxyS*0.10 + rS*0.05 + fxS*0.05 + oilS*0.05);
 }
 
 function rkLevel(score) {
@@ -2541,11 +2569,7 @@ function rkUpdateUI(hy, rate, vix, fxScore, dxy, spread, fg, oil) {
     else if(vix>35&&fg<20) crossMsg="🟢 VIX극공포+극공포 — 역사적 바닥 근처. 분할매수 최적기!";
     if(crossMsg&&fgd) fgd.textContent+=" | "+crossMsg;
   }
-  var score = rkCalcScore(hy, rate, vix, fxScore, dxyScore, spScore, fgScore);
-  var lv = rkLevel(score);
-  riskData = {hy:hy, rate:rate, vix:vix, score:score};
-
-  // WTI 유가
+  // WTI 유가 (종합점수 반영을 위해 먼저 계산)
   var oilScore = !oil?10:oil<60?70:oil<80?10:oil<95?40:oil<110?70:95;
   var oilLv = rkLevel(oilScore);
   var ov=document.getElementById("rkOilVal"), ob=document.getElementById("rkOilBar"),
@@ -2555,12 +2579,46 @@ function rkUpdateUI(hy, rate, vix, fxScore, dxy, spread, fg, oil) {
   if(obg&&oil){obg.textContent=oil<60?"경기침체":oil<80?"안정":oil<95?"주의":"위험"; obg.style.cssText=rkBadge(oilLv);}
   if(od&&oil) od.textContent=oil<60?"$"+oil.toFixed(1)+" — 수요 급감, 경기침체 신호":oil<80?"$"+oil.toFixed(1)+" — 안정 구간, 증시 우호적":oil<95?"$"+oil.toFixed(1)+" — 인플레이션 주의":"$"+oil.toFixed(1)+" — 위험 구간, 인플레이션·경기 압박";
 
+  var score = rkCalcScore(hy, rate, vix, fxScore, dxyScore, spScore, fgScore, oilScore);
+  var lv = rkLevel(score);
+  riskData = {hy:hy, rate:rate, vix:vix, score:score};
+
   // 종합
   var sn=document.getElementById("rkScoreNum");
   var sl=document.getElementById("rkScoreLabel");
   if(sn){sn.textContent=score; sn.style.color=lv.color;}
   if(sl){sl.textContent=lv.label; sl.style.color=lv.color;}
   rkDrawThermo(score);
+
+  // 행동요령 박스 업데이트
+  var ab=document.getElementById("rkActionBox");
+  var at=document.getElementById("rkActionTitle");
+  var al=document.getElementById("rkActionList");
+  if(ab&&at&&al){
+    var actions, borderColor, bgColor, titleColor;
+    if(score<30){
+      borderColor="#22c55e"; bgColor="#f0fdf4"; titleColor="#166534";
+      at.textContent="🟢 안전 구간 행동요령";
+      actions=["① 정기 적립 매수 그대로 진행","② ⏳ 나스닥ETF·🌳 MSFT·AVGO 여유자금 우선 채우기","③ 방패 비중 10~20% 유지하며 다음 공포 구간 준비","④ 보유 종목 홀드 — 조급하게 팔지 마세요"];
+    } else if(score<50){
+      borderColor="#eab308"; bgColor="#fefce8"; titleColor="#854d0e";
+      at.textContent="🟡 관찰 구간 행동요령";
+      actions=["① 신규 매수 규모 평소의 50%로 축소","② 위성 종목(테마주) 추가 매수 자제","③ 코어 종목(나스닥ETF·MSFT·AVGO) 적립은 유지","④ 현금 비중 20~30%로 높여두기"];
+    } else if(score<70){
+      borderColor="#f97316"; bgColor="#fff7ed"; titleColor="#9a3412";
+      at.textContent="🟠 경계 구간 행동요령";
+      actions=["① 추가 매수 중단 — 현금 확보 우선","② 위성 종목 수익 중인 것부터 일부 익절","③ 레버리지(MSFU 등) 비중 축소","④ 현금 비중 30~40% 목표"];
+    } else {
+      borderColor="#ef4444"; bgColor="#fef2f2"; titleColor="#991b1b";
+      at.textContent="🔴 위험 구간 행동요령";
+      actions=["① 레버리지 종목 즉시 비중 축소","② 위성 종목 손절 or 익절 실행","③ 코어 분할 매도로 현금화 일부 진행","④ 현금 40~50% 확보 후 폭락 시 재진입 준비"];
+    }
+    ab.style.borderLeftColor=borderColor;
+    ab.style.background=bgColor;
+    at.style.color=titleColor;
+    al.innerHTML=actions.map(function(a){return '<div>'+a+'</div>';}).join('');
+    ab.style.display="block";
+  }
 
   // HY
   var hyScore = hy<300?8:hy<400?22:hy<500?38:hy<600?55:hy<800?70:hy<1000?85:100;
