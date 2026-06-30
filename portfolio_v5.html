@@ -1006,6 +1006,19 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
   </div>
 
   <div id="rkDiagnosis" style="margin-bottom:14px;display:none"></div>
+  <div class="rk-gauge">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+      <div class="rk-g-lbl">🛢️ WTI 유가 (달러/배럴)</div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <span id="rkOilVal" style="font-size:16px;font-weight:900;color:#334155">—</span>
+        <span id="rkOilBadge" style="font-size:10px;font-weight:800;border-radius:6px;padding:2px 8px;border:1.5px solid #ddd;color:#888">대기중</span>
+      </div>
+    </div>
+    <div style="background:#f1f5f9;border-radius:6px;height:7px;overflow:hidden">
+      <div id="rkOilBar" style="height:100%;width:0%;background:#94a3b8;border-radius:6px;transition:width .6s"></div>
+    </div>
+    <div id="rkOilDetail" style="font-size:11px;color:#64748b;margin-top:5px">—</div>
+  </div>
   <button class="rk-btn" onclick="fetchRiskData()" id="rkFetchBtn">🔄 실시간 위험 지수 조회</button>
   <div id="rkStatus" class="rk-status"></div>
   <div id="rkLastUpdate" class="rk-update"></div>
@@ -2479,7 +2492,7 @@ function rkDrawThermo(score) {
     '</svg>';
 }
 
-function rkUpdateUI(hy, rate, vix, fxScore, dxy, spread, fg) {
+function rkUpdateUI(hy, rate, vix, fxScore, dxy, spread, fg, oil) {
   fxScore = fxScore||10;
   // DXY
   var dxyScore = !dxy?10:dxy<100?10:dxy<104?35:dxy<108?55:dxy<112?75:95;
@@ -2530,6 +2543,16 @@ function rkUpdateUI(hy, rate, vix, fxScore, dxy, spread, fg) {
   var score = rkCalcScore(hy, rate, vix, fxScore, dxyScore, spScore, fgScore);
   var lv = rkLevel(score);
   riskData = {hy:hy, rate:rate, vix:vix, score:score};
+
+  // WTI 유가
+  var oilScore = !oil?10:oil<60?70:oil<80?10:oil<95?40:oil<110?70:95;
+  var oilLv = rkLevel(oilScore);
+  var ov=document.getElementById("rkOilVal"), ob=document.getElementById("rkOilBar"),
+      obg=document.getElementById("rkOilBadge"), od=document.getElementById("rkOilDetail");
+  if(ov) ov.textContent=oil?"$"+oil.toFixed(1):"—";
+  if(ob&&oil){ob.style.width=Math.min(oil/120*100,100)+"%"; ob.style.background=rkBarGrad(oilScore);}
+  if(obg&&oil){obg.textContent=oil<60?"경기침체":oil<80?"안정":oil<95?"주의":"위험"; obg.style.cssText=rkBadge(oilLv);}
+  if(od&&oil) od.textContent=oil<60?"$"+oil.toFixed(1)+" — 수요 급감, 경기침체 신호":oil<80?"$"+oil.toFixed(1)+" — 안정 구간, 증시 우호적":oil<95?"$"+oil.toFixed(1)+" — 인플레이션 주의":"$"+oil.toFixed(1)+" — 위험 구간, 인플레이션·경기 압박";
 
   // 종합
   var sn=document.getElementById("rkScoreNum");
@@ -2672,12 +2695,13 @@ async function fetchRiskData() {
     raceUrls(fredUrls("BAMLH0A0HYM2")),                         // HY
     raceUrls(yahooUrls("DX-Y.NYB")),                            // DXY
     raceUrls(fredUrls("DGS2").concat(yahooUrls("%5EIRX"))),     // 2Y
-    Promise.resolve(null)  // 공포탐욕 수동입력
+    Promise.resolve(null),                                       // 공포탐욕 수동입력
+    raceUrls(fredUrls("DCOILWTICO").concat(yahooUrls("CL%3DF"))) // WTI 유가
   ]);
 
   var vixTxt=results[0], rateTxt=results[1], hyTxt=results[2];
-  var dxyTxt=results[3], rate2Txt=results[4], fgTxt=results[5];
-  var vix=null, rate=null, hy=null, dxy=null, rate2=null, fg=null;
+  var dxyTxt=results[3], rate2Txt=results[4], fgTxt=results[5], oilTxt=results[6];
+  var vix=null, rate=null, hy=null, dxy=null, rate2=null, fg=null, oil=null;
   var ok=[], fail=[];
 
   if(vixTxt){
@@ -2713,6 +2737,13 @@ async function fetchRiskData() {
   // 공포탐욕지수 수동입력값 로드
   try{var fgSaved=localStorage.getItem("v5_fg"); if(fgSaved){fg=parseFloat(fgSaved); ok.push("공포탐욕(수동) "+Math.round(fg));}}catch(e){}
 
+  // WTI 유가
+  if(oilTxt){
+    var v=parseFred(oilTxt)||parseYahoo(oilTxt);
+    if(v){oil=parseFloat(v.toFixed(2)); ok.push("WTI $"+oil);}
+    else fail.push("WTI유가");
+  } else fail.push("WTI유가");
+
   var spread=(rate!==null&&rate2!==null)?parseFloat((rate-rate2).toFixed(2)):null;
 
   // 환율 위험점수 계산 (rkUpdateUI에서도 계산되지만 여기서 미리)
@@ -2729,9 +2760,10 @@ async function fetchRiskData() {
     fxScoreV,
     dxy!==null?dxy:(cached.dxy||100),
     spread!==null?spread:(cached.spread||0.5),
-    fg!==null?fg:(cached.fg||null)
+    fg!==null?fg:(cached.fg||null),
+    oil!==null?oil:(cached.oil||null)
   );
-  localStorage.setItem("v5_riskData", JSON.stringify({hy:hy||(cached.hy||280),rate:rate||(cached.rate||4.5),vix:vix||(cached.vix||18),dxy:dxy||(cached.dxy||100),spread:spread,fg:fg,ts:Date.now()}));
+  localStorage.setItem("v5_riskData", JSON.stringify({hy:hy||(cached.hy||280),rate:rate||(cached.rate||4.5),vix:vix||(cached.vix||18),dxy:dxy||(cached.dxy||100),spread:spread,fg:fg,oil:oil,ts:Date.now()}));
 
   // ── 상태 메시지 (사라지지 않음) ────────
   var now=new Date().toLocaleTimeString("ko-KR");
@@ -2755,7 +2787,7 @@ function loadRiskData() {
       var fx52a3=fxH3.length?Math.round(fxH3.reduce(function(a,x){return a+x.v;},0)/fxH3.length):1370;
       var fxD3=Math.abs(((parseFloat((document.getElementById('usdKrw')||{}).value||1370)-fx52a3)/fx52a3)*100);
       var fxSc3=fxD3<2?10:fxD3<4?25:fxD3<7?50:fxD3<10?75:95;
-      rkUpdateUI(s.hy, s.rate, s.vix, fxSc3, s.dxy, s.spread, s.fg);
+      rkUpdateUI(s.hy, s.rate, s.vix, fxSc3, s.dxy, s.spread, s.fg, s.oil);
       var ago=Math.floor((Date.now()-s.ts)/60000);
       var lu=document.getElementById("rkLastUpdate");
       if(lu) lu.textContent="마지막 조회: "+new Date(s.ts).toLocaleString("ko-KR")+" ("+ago+"분 전)";
