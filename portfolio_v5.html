@@ -1011,13 +1011,14 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
       <div class="rk-g-lbl">🛢️ WTI 유가 (달러/배럴)</div>
       <div style="display:flex;align-items:center;gap:6px">
         <span id="rkOilVal" style="font-size:16px;font-weight:900;color:#334155">—</span>
-        <span id="rkOilBadge" style="font-size:10px;font-weight:800;border-radius:6px;padding:2px 8px;border:1.5px solid #ddd;color:#888">대기중</span>
+        <div class="rk-g-badge" id="rkOilBadge">—</div>
       </div>
     </div>
     <div style="background:#f1f5f9;border-radius:6px;height:7px;overflow:hidden">
       <div id="rkOilBar" style="height:100%;width:0%;background:#94a3b8;border-radius:6px;transition:width .6s"></div>
     </div>
     <div id="rkOilDetail" style="font-size:11px;color:#64748b;margin-top:5px">—</div>
+    <div style="font-size:10px;color:#94a3b8;margin-top:4px">경기침체&lt;$60 · 안정$60~80 · 주의$80~95 · 위험&gt;$95</div>
   </div>
   <button class="rk-btn" onclick="fetchRiskData()" id="rkFetchBtn">🔄 실시간 위험 지수 조회</button>
   <div id="rkStatus" class="rk-status"></div>
