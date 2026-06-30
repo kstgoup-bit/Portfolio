@@ -1853,13 +1853,10 @@ function updateBrief() {
           ["① 레버리지 종목 즉시 비중 축소","② 위성 종목 손절 or 익절 실행","③ 코어는 분할 매도로 현금화 일부 진행","④ 현금 40~50% 확보 후 폭락 시 재진입 준비"]);
       }
       var dg=document.getElementById("rkDiagnosis");
-      if(dg){dg.innerHTML=actionCard+(diagHtml||'');dg.style.display="block";}
+      if(dg){dg.style.display="none";}
     } else {
       var dg=document.getElementById("rkDiagnosis");
-      if(dg){
-        if(diagHtml){dg.innerHTML=diagHtml;dg.style.display="block";}
-        else{dg.innerHTML='<div class="rk-diagnosis ok"><div class="rk-diagnosis-title">✅ 실시간 조회 후 진단이 표시됩니다</div><div class="rk-diagnosis-explain">위험계 탭에서 실시간 조회 버튼을 눌러주세요.</div></div>';dg.style.display="block";}
-      }
+      if(dg){dg.style.display="none";}
     }
   } catch(e) {}
 }
