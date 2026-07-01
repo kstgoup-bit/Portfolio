@@ -3136,7 +3136,7 @@ function renderLineChart(period, btnId, chartId, snapKey, color) {
     xLabels+
     peakSvg+
     milestoneSvg+
-    '<text x="'+lx.toFixed(1)+'" y="'+(ly+14).toFixed(1)+'" text-anchor="end" font-size="9" fill="'+(chg>=0?"#1b5e20":"#b71c1c")+'" font-weight="bold">'+(chg>=0?"▲":"▼")+" "+fmt(Math.abs(chg))+"원 ("+(chgP>=0?"+":"")+chgP.toFixed(1)+"%)"+
+    '<text x="'+lx.toFixed(1)+'" y="'+(ly+14).toFixed(1)+'" text-anchor="end" font-size="9" fill="#333" font-weight="bold"><tspan fill="'+(chg>=0?"#c62828":"#1565c0")+'">'+(chg>=0?"▲":"▼")+'</tspan> '+fmt(Math.abs(chg))+"원 ("+(chgP>=0?"+":"")+chgP.toFixed(1)+"%)"+
     '</text>';
 }
 
