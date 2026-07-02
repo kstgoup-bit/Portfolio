@@ -3372,7 +3372,8 @@ function toggleEdit(id, type) {
       s.currentPrice=parseFloat(document.getElementById("ec_"+type+"_"+id).value)||0;
     }
     editingId=null; editingType=null;
-    save(); renderAll();
+    // 삼성 브라우저 키보드 닫힘 딜레이 대응
+    setTimeout(function(){ save(); renderAll(); }, 150);
   } else {
     editingId=id; editingType=type;
     renderAll();
