@@ -2211,7 +2211,7 @@ function renderDashboard() {
 
   // 테마별 전체 비중 계산
   var fx2=parseFloat(document.getElementById('usdKrw').value)||1370;
-  var themeMap={'426030':'나스닥ETF','QTOP':'나스닥ETF','QQQM':'나스닥ETF','446770':'반도체ETF','381180':'반도체ETF','MU':'반도체ETF',
+  var themeMap={'426030':'나스닥ETF','QTOP':'나스닥ETF','QQQM':'나스닥ETF','446770':'AI·반도체ETF','381180':'AI·반도체ETF','MU':'AI·반도체ETF',
     'MSFT':'빅테크','GOOGL':'빅테크','NVDA':'빅테크','AVGO':'빅테크','AAPL':'빅테크','MSFU':'빅테크','TSLA':'빅테크',
     '465580':'빅테크','465610':'빅테크','441640':'빅테크','463050':'빅테크',
     'JOBY':'우주·항공','RKLB':'우주·항공','SPCX':'우주·항공','SATL':'우주·항공','ASTS':'우주·항공','LAES':'우주·항공',
@@ -2223,7 +2223,7 @@ function renderDashboard() {
   var utm=JSON.parse(localStorage.getItem('v5_userThemeMap')||'{}');
   Object.keys(utm).forEach(function(k){ themeMap[k]=utm[k]; });
   window._themeMap=themeMap; // 수정 폼에서 참조용
-  var themeColors={'나스닥ETF':'#1565c0','반도체ETF':'#e53935','빅테크':'#2e7d32','우주·항공':'#6a1b9a','로봇·양자':'#f9a825','방어·금':'#795548','SMR·에너지':'#f57f17','금융·인프라':'#0097a7','기타':'#9e9e9e'};
+  var themeColors={'나스닥ETF':'#1565c0','AI·반도체ETF':'#e53935','빅테크':'#2e7d32','우주·항공':'#6a1b9a','로봇·양자':'#f9a825','방어·금':'#795548','SMR·에너지':'#f57f17','금융·인프라':'#0097a7','기타':'#9e9e9e'};
   var themeTotals={};
   var allStkList=[];
   domStocks.forEach(function(s){allStkList.push({s:s,isUS:false});});
@@ -2238,7 +2238,7 @@ function renderDashboard() {
     var theme=themeMap[s.ticker]||'기타';
     themeTotals[theme]=(themeTotals[theme]||0)+tv;
   });
-  var themeOrder=['나스닥ETF','반도체ETF','빅테크','우주·항공','로봇·양자','방어·금','SMR·에너지','금융·인프라','기타'];
+  var themeOrder=['나스닥ETF','AI·반도체ETF','빅테크','우주·항공','로봇·양자','방어·금','SMR·에너지','금융·인프라','기타'];
   themeOrder.sort(function(a,b){return (themeTotals[b]||0)-(themeTotals[a]||0);});
   // 테마별 파이차트 SVG
   var tPie=''; var tLegend=''; var tCx=75,tCy=75,tR=62,tRi=22;
@@ -2289,7 +2289,7 @@ function renderDashboard() {
     else themeDesc[theme]=names.join('·');
   });
   // 코어/새틀라이트 분류
-  var coreSet={'나스닥ETF':true,'반도체ETF':true,'빅테크':true};
+  var coreSet={'나스닥ETF':true,'AI·반도체ETF':true,'빅테크':true};
   var coreTv=0,satTv=0;
   tSlices.forEach(function(sl){ if(coreSet[sl.theme]) coreTv+=sl.tv; else satTv+=sl.tv; });
   var corePct=Math.round(coreTv/totalAllTV*1000)/10;
@@ -2332,7 +2332,7 @@ function renderDashboard() {
       '</div>'+
       '<div style="background:#fff;border-radius:10px;padding:10px 12px;border-left:3px solid #e53935">'+
         '<div style="font-size:12px;font-weight:900;color:#e53935;margin-bottom:3px">🚀 선봉 엔진</div>'+
-        '<div style="font-size:12.5px;color:#333;line-height:1.5">5년 안에 10억 고지에 도달할 때까지 가장 선봉에서 강력한 엔진 역할을 해줄 <b>엔비디아</b>와 <b>반도체 ETF</b></div>'+
+        '<div style="font-size:12.5px;color:#333;line-height:1.5">5년 안에 10억 고지에 도달할 때까지 가장 선봉에서 강력한 엔진 역할을 해줄 <b>엔비디아</b>와 <b>AI·반도체ETF</b></div>'+
       '</div>'+
       '<div style="background:#fff;border-radius:10px;padding:10px 12px;border-left:3px solid #6a1b9a">'+
         '<div style="font-size:12px;font-weight:900;color:#6a1b9a;margin-bottom:3px">🔭 미래 정찰병</div>'+
@@ -3287,7 +3287,7 @@ function renderEditForm(s, type) {
       '</div>';
   });
   var curRole=s.role||"spear";
-  var themeOptions=['나스닥ETF','반도체ETF','빅테크','우주·항공','로봇·양자','방어·금','SMR·에너지','금융·인프라','기타'];
+  var themeOptions=['나스닥ETF','AI·반도체ETF','빅테크','우주·항공','로봇·양자','방어·금','SMR·에너지','금융·인프라','기타'];
   var utm=JSON.parse(localStorage.getItem('v5_userThemeMap')||'{}');
   var curTheme=utm[s.ticker]||(window._themeMap&&window._themeMap[s.ticker])||'기타';
   var themeSelect='<select id="eth_'+type+'_'+s.id+'" onchange="saveThemeEdit(\''+s.ticker+'\',this.value)" style="flex:1;border:2px solid #ddd;border-radius:8px;padding:6px 4px;font-size:11px;font-weight:700;background:#fff;color:#333;cursor:pointer;height:36px">'+
@@ -3405,7 +3405,7 @@ function toggleAdd(type) {
   var f=document.getElementById(fId);
   if(f.style.display!=="none"&&f.innerHTML) { f.style.display="none"; return; }
   f.style.display="block";
-  var themeOptions=['나스닥ETF','반도체ETF','빅테크','우주·항공','로봇·양자','방어·금','SMR·에너지','금융·인프라','기타'];
+  var themeOptions=['나스닥ETF','AI·반도체ETF','빅테크','우주·항공','로봇·양자','방어·금','SMR·에너지','금융·인프라','기타'];
   var themeSelect='<select class="f-inp" id="ath_'+type+'" style="background:#fff">'+
     themeOptions.map(function(t){return '<option value="'+t+'">'+t+'</option>';}).join('')+
   '</select>';
