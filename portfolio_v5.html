@@ -2380,22 +2380,22 @@ function renderRoadmap(allTV){
   ];
   var html='<table style="width:100%;border-collapse:collapse;table-layout:fixed">';
   html+='<tr style="background:#1565c0;color:#fff">'
-    +'<td style="padding:0 8px;height:44px;font-weight:800;font-size:12px;border-radius:8px 0 0 0;width:17%;white-space:nowrap">연도</td>'
-    +'<td style="padding:0 4px;height:44px;font-weight:800;font-size:12px;text-align:center;width:16%;white-space:nowrap">예정</td>'
+    +'<td style="padding:0 8px;height:44px;font-weight:800;font-size:12px;border-radius:8px 0 0 0;width:17%;white-space:nowrap;text-align:center">연도</td>'
+    +'<td style="padding:0 4px;height:44px;font-weight:800;font-size:12px;text-align:center;width:16%;white-space:nowrap">기본</td>'
     +'<td style="padding:0 4px;height:44px;font-weight:800;font-size:12px;text-align:center;width:16%;white-space:nowrap">목표</td>'
     +'<td style="padding:0 8px;height:44px;font-weight:800;font-size:12px;text-align:center;border-radius:0 8px 0 0;white-space:nowrap">핵심 이벤트</td>'
   +'</tr>';
   steps.forEach(function(s){
     var f=s.final;
-    var bg=f?"#1565c0":"transparent";
+    var bg=f?"#ffeb3b":"transparent";
     var bd=f?"":"border-bottom:1px solid #e0e0e0;";
     var r0=f?"border-radius:0 0 0 8px;":"";
     var r1=f?"border-radius:0 0 8px 0;":"";
     html+='<tr style="background:'+bg+'">'
-      +'<td style="'+bd+r0+'padding:0 8px;height:44px;font-size:13px;font-weight:900;color:'+(f?"#facc15":"#1565c0")+';white-space:nowrap">'+s.year+'</td>'
-      +'<td style="'+bd+'padding:0 4px;height:44px;font-size:13px;font-weight:800;color:'+(f?"#90caf9":"#00897b")+';text-align:center;white-space:nowrap">'+s.plan+'</td>'
-      +'<td style="'+bd+'padding:0 4px;height:44px;font-size:14px;font-weight:900;color:'+(f?"#facc15":"#1a1a2e")+';text-align:center;white-space:nowrap">'+s.target+'</td>'
-      +'<td style="'+bd+r1+'padding:0 8px;height:44px;font-size:11px;color:'+(f?"#fff":"#444")+';text-align:center;font-weight:'+(f?"800":"400")+';white-space:nowrap">'+s.event+(s.done?'<span style="margin-left:4px;font-size:10px;font-weight:800;background:#43a047;color:#fff;border-radius:10px;padding:2px 5px;">✓</span>':'')+'</td>'
+      +'<td style="'+bd+r0+'padding:0 8px;height:44px;font-size:13px;font-weight:900;color:'+(f?"#000":"#1565c0")+';white-space:nowrap;text-align:center">'+s.year+'</td>'
+      +'<td style="'+bd+'padding:0 4px;height:44px;font-size:13px;font-weight:800;color:'+(f?"#000":"#00897b")+';text-align:center;white-space:nowrap">'+s.plan+'</td>'
+      +'<td style="'+bd+'padding:0 4px;height:44px;font-size:14px;font-weight:900;color:'+(f?"#000":"#1a1a2e")+';text-align:center;white-space:nowrap">'+s.target+'</td>'
+      +'<td style="'+bd+r1+'padding:0 8px;height:44px;font-size:11px;color:'+(f?"#000":"#444")+';text-align:center;font-weight:'+(f?"800":"400")+';white-space:nowrap">'+s.event+(s.done?'<span style="margin-left:4px;font-size:10px;font-weight:800;background:#43a047;color:#fff;border-radius:10px;padding:2px 5px;">✓</span>':'')+'</td>'
     +'</tr>';
   });
   html+='</table>';
