@@ -2372,17 +2372,18 @@ function renderRoadmap(allTV){
   var el=document.getElementById("roadmapBody");
   if(!el) return;
   var steps=[
-    {year:"2026", target:"2.8억", event:"우량주 구조 완성", done:true},
-    {year:"2027", target:"3.8억", event:"Copilot 기본탑재"},
-    {year:"2028", target:"5.2억", event:"SMR 수주 본격화"},
-    {year:"2029", target:"7.0억", event:"AI 수익화 본격화"},
-    {year:"2030 🎯", target:"10억!", event:"목표달성 + 노후준비", final:true}
+    {year:"2026", plan:"2.4억", target:"2.8억", event:"우량주 구조 완성", done:true},
+    {year:"2027", plan:"2.9억", target:"3.8억", event:"이주비 결정·JOBY 익절"},
+    {year:"2028", plan:"3.5억", target:"5.2억", event:"가로주택 조합·코어 집중"},
+    {year:"2029", plan:"4.1억", target:"7.0억", event:"분담금 준비·보유 결정"},
+    {year:"2030 🎯", plan:"5.0억", target:"10억!", event:"재개발 입주·목표달성", final:true}
   ];
   var html='<table style="width:100%;border-collapse:collapse;table-layout:fixed">';
   html+='<tr style="background:#1565c0;color:#fff">'
-    +'<td style="padding:0 10px;height:44px;font-weight:800;font-size:12px;border-radius:8px 0 0 0;width:22%;white-space:nowrap">연도</td>'
-    +'<td style="padding:0 8px;height:44px;font-weight:800;font-size:12px;text-align:center;width:20%;white-space:nowrap">목표자산</td>'
-    +'<td style="padding:0 10px;height:44px;font-weight:800;font-size:12px;text-align:center;border-radius:0 8px 0 0;white-space:nowrap">핵심 이벤트</td>'
+    +'<td style="padding:0 8px;height:44px;font-weight:800;font-size:12px;border-radius:8px 0 0 0;width:17%;white-space:nowrap">연도</td>'
+    +'<td style="padding:0 4px;height:44px;font-weight:800;font-size:12px;text-align:center;width:16%;white-space:nowrap">예정</td>'
+    +'<td style="padding:0 4px;height:44px;font-weight:800;font-size:12px;text-align:center;width:16%;white-space:nowrap">목표</td>'
+    +'<td style="padding:0 8px;height:44px;font-weight:800;font-size:12px;text-align:center;border-radius:0 8px 0 0;white-space:nowrap">핵심 이벤트</td>'
   +'</tr>';
   steps.forEach(function(s){
     var f=s.final;
@@ -2391,9 +2392,10 @@ function renderRoadmap(allTV){
     var r0=f?"border-radius:0 0 0 8px;":"";
     var r1=f?"border-radius:0 0 8px 0;":"";
     html+='<tr style="background:'+bg+'">'
-      +'<td style="'+bd+r0+'padding:0 10px;height:44px;font-size:13px;font-weight:900;color:'+(f?"#facc15":"#1565c0")+';white-space:nowrap">'+s.year+'</td>'
-      +'<td style="'+bd+'padding:0 8px;height:44px;font-size:14px;font-weight:900;color:'+(f?"#facc15":"#1a1a2e")+';text-align:center;white-space:nowrap">'+s.target+'</td>'
-      +'<td style="'+bd+r1+'padding:0 10px;height:44px;font-size:12px;color:'+(f?"#fff":"#444")+';text-align:center;font-weight:'+(f?"800":"400")+';white-space:nowrap">'+s.event+(s.done?'<span style="margin-left:6px;font-size:10px;font-weight:800;background:#43a047;color:#fff;border-radius:10px;padding:2px 6px;">✓ 달성</span>':'')+'</td>'
+      +'<td style="'+bd+r0+'padding:0 8px;height:44px;font-size:13px;font-weight:900;color:'+(f?"#facc15":"#1565c0")+';white-space:nowrap">'+s.year+'</td>'
+      +'<td style="'+bd+'padding:0 4px;height:44px;font-size:13px;font-weight:800;color:'+(f?"#90caf9":"#00897b")+';text-align:center;white-space:nowrap">'+s.plan+'</td>'
+      +'<td style="'+bd+'padding:0 4px;height:44px;font-size:14px;font-weight:900;color:'+(f?"#facc15":"#1a1a2e")+';text-align:center;white-space:nowrap">'+s.target+'</td>'
+      +'<td style="'+bd+r1+'padding:0 8px;height:44px;font-size:11px;color:'+(f?"#fff":"#444")+';text-align:center;font-weight:'+(f?"800":"400")+';white-space:nowrap">'+s.event+(s.done?'<span style="margin-left:4px;font-size:10px;font-weight:800;background:#43a047;color:#fff;border-radius:10px;padding:2px 5px;">✓</span>':'')+'</td>'
     +'</tr>';
   });
   html+='</table>';
