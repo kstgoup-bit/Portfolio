@@ -1979,8 +1979,8 @@ function returnRowHtml(p, key, current, now) {
     var pos=pct>=0;
     valCell='<span style="color:'+(pos?"#c62828":"#1565c0")+';font-weight:800">'+(pos?"+":"")+pct.toFixed(2)+'%</span>';
   }
-  return '<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 2px;border-bottom:1px solid var(--border);font-size:12.5px">'+
-    '<span style="color:var(--muted);font-weight:600">'+p.label+'</span>'+valCell+'</div>';
+  return '<div style="display:grid;grid-template-columns:54px 1fr;align-items:center;gap:8px;padding:7px 2px;border-bottom:1px solid var(--border);font-size:12.5px">'+
+    '<span style="color:var(--muted);font-weight:600">'+p.label+'</span><span style="text-align:left">'+valCell+'</span></div>';
 }
 
 function renderReturnsTable(key, tableId) {
@@ -1990,7 +1990,7 @@ function renderReturnsTable(key, tableId) {
   var now=Date.now();
   var leftHtml=RETURN_PERIODS_LEFT.map(function(p){ return returnRowHtml(p,key,current,now); }).join("");
   var rightHtml=RETURN_PERIODS_RIGHT.map(function(p){ return returnRowHtml(p,key,current,now); }).join("");
-  el.innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr;gap:0 14px">'+
+  el.innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr;gap:0 22px">'+
       '<div>'+leftHtml+'</div>'+
       '<div>'+rightHtml+'</div>'+
     '</div>'+
