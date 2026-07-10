@@ -1931,15 +1931,18 @@ function renderAll() {
 // - 오늘 기준 롤링 계산, 스냅샷 데이터가 없는 구간은 "-" 표시
 // - YTD만 올해 1/1 고정 기준
 // =============================================
-var RETURN_PERIODS = [
+var RETURN_PERIODS_LEFT = [
   {label:"1주", days:7},
   {label:"1개월", days:30},
   {label:"3개월", days:90},
   {label:"6개월", days:180},
-  {label:"YTD", ytd:true},
+  {label:"YTD", ytd:true}
+];
+var RETURN_PERIODS_RIGHT = [
   {label:"1년", days:365},
   {label:"2년", days:730},
   {label:"3년", days:1095},
+  {label:"4년", days:1460},
   {label:"5년", days:1825}
 ];
 
@@ -1960,31 +1963,38 @@ function getCurrentTotalByKey(key) {
   return dom.tv+ov.tv+pen.tv;
 }
 
+function returnRowHtml(p, key, current, now) {
+  var targetTs;
+  if (p.ytd) {
+    targetTs=new Date(new Date().getFullYear(),0,1).getTime();
+  } else {
+    targetTs=now-p.days*86400000;
+  }
+  var snap=findSnapAtOrBefore(key,targetTs);
+  var valCell;
+  if (!snap || !(snap.val>0) || !(current>0)) {
+    valCell='<span style="color:#b0bec5;font-weight:700">-</span>';
+  } else {
+    var pct=((current-snap.val)/snap.val)*100;
+    var pos=pct>=0;
+    valCell='<span style="color:'+(pos?"#c62828":"#1565c0")+';font-weight:800">'+(pos?"+":"")+pct.toFixed(2)+'%</span>';
+  }
+  return '<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 2px;border-bottom:1px solid var(--border);font-size:12.5px">'+
+    '<span style="color:var(--muted);font-weight:600">'+p.label+'</span>'+valCell+'</div>';
+}
+
 function renderReturnsTable(key, tableId) {
   var el=document.getElementById(tableId);
   if (!el) return;
   var current=getCurrentTotalByKey(key);
   var now=Date.now();
-  var rowsHtml=RETURN_PERIODS.map(function(p){
-    var targetTs;
-    if (p.ytd) {
-      targetTs=new Date(new Date().getFullYear(),0,1).getTime();
-    } else {
-      targetTs=now-p.days*86400000;
-    }
-    var snap=findSnapAtOrBefore(key,targetTs);
-    var valCell;
-    if (!snap || !(snap.val>0) || !(current>0)) {
-      valCell='<span style="color:#b0bec5;font-weight:700">-</span>';
-    } else {
-      var pct=((current-snap.val)/snap.val)*100;
-      var pos=pct>=0;
-      valCell='<span style="color:'+(pos?"#c62828":"#1565c0")+';font-weight:800">'+(pos?"▲ +":"▼ ")+Math.abs(pct).toFixed(2)+'%</span>';
-    }
-    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 2px;border-bottom:1px solid var(--border);font-size:13px">'+
-      '<span style="color:var(--muted);font-weight:600">'+p.label+'</span>'+valCell+'</div>';
-  }).join("");
-  el.innerHTML=rowsHtml+'<div style="font-size:10px;color:var(--muted);margin-top:8px;text-align:center">추적 시작: 2026-05-22 · 데이터가 쌓이는 대로 자동 표시됩니다</div>';
+  var leftHtml=RETURN_PERIODS_LEFT.map(function(p){ return returnRowHtml(p,key,current,now); }).join("");
+  var rightHtml=RETURN_PERIODS_RIGHT.map(function(p){ return returnRowHtml(p,key,current,now); }).join("");
+  el.innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr;gap:0 14px">'+
+      '<div>'+leftHtml+'</div>'+
+      '<div>'+rightHtml+'</div>'+
+    '</div>'+
+    '<div style="font-size:11px;color:var(--muted);margin-top:8px;text-align:center">추적 시작: 2026-05-22 · 데이터가 쌓이는 대로 자동 표시됩니다</div>';
 }
 
 function renderAllReturnsTables() {
