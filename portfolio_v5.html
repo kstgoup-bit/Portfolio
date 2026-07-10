@@ -623,6 +623,10 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
     <svg id="allLineChart" viewBox="0 0 340 170" style="width:100%"></svg>
     <button class="record-btn" onclick="recordSnap('all')">📸 오늘 전체 자산 기록</button>
   </div>
+  <div class="card" id="allReturnsCard" style="margin-top:14px">
+    <div class="chart-title">📅 전체 기간별 수익률</div>
+    <div id="allReturnsTable"></div>
+  </div>
   <!-- 자산비중 + 수익률 + 국내해외연금 -->
   <div id="mktSummary"></div>
   <!-- 5년 10억 로드맵 -->
@@ -675,6 +679,10 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
 
     <svg id="domLineChart" viewBox="0 0 340 170" style="width:100%"></svg>
     <button class="record-btn" style="background:var(--yellow-card);border-color:var(--yellow-border);color:var(--yellow-accent)" onclick="recordSnap('dom')">📸 오늘 국내 자산 기록</button>
+  </div>
+  <div class="card" id="domReturnsCard" style="margin-top:14px">
+    <div class="chart-title" style="color:var(--yellow-accent)">📅 국내 기간별 수익률</div>
+    <div id="domReturnsTable"></div>
   </div>
   <div class="pie-wrap"><svg id="domPie" viewBox="0 0 160 160" style="width:100%;max-width:200px"></svg></div>
   <div id="domLegend"></div>
@@ -732,6 +740,10 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
     <svg id="ovLineChart" viewBox="0 0 340 170" style="width:100%"></svg>
     <button class="record-btn" onclick="recordSnap('ov')">📸 오늘 해외 자산 기록</button>
   </div>
+  <div class="card" id="ovReturnsCard" style="margin-top:14px">
+    <div class="chart-title">📅 해외 기간별 수익률</div>
+    <div id="ovReturnsTable"></div>
+  </div>
   <div class="pie-wrap"><svg id="ovPie" viewBox="0 0 160 160" style="width:100%;max-width:200px"></svg></div>
   <div id="ovLegend"></div>
   <div class="manage-hdr" style="margin-top:14px">
@@ -777,6 +789,10 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
 
     <svg id="penLineChart" viewBox="0 0 340 170" style="width:100%"></svg>
     <button class="record-btn" style="background:var(--purple-light);border-color:#ce93d8;color:var(--purple)" onclick="recordSnap('pen')">📸 오늘 연금 자산 기록</button>
+  </div>
+  <div class="card" id="penReturnsCard" style="margin-top:14px">
+    <div class="chart-title" style="color:var(--purple)">📅 연금 기간별 수익률</div>
+    <div id="penReturnsTable"></div>
   </div>
   <div class="pie-wrap"><svg id="penPie" viewBox="0 0 160 160" style="width:100%;max-width:200px"></svg></div>
   <div id="penLegend"></div>
@@ -1907,6 +1923,75 @@ function renderAll() {
   renderDividend();
   renderCommandments();
   renderLedger();
+  renderAllReturnsTables();
+}
+
+// =============================================
+// 기간별 수익률 (전체/국내/해외/연금 공통)
+// - 오늘 기준 롤링 계산, 스냅샷 데이터가 없는 구간은 "-" 표시
+// - YTD만 올해 1/1 고정 기준
+// =============================================
+var RETURN_PERIODS = [
+  {label:"1주", days:7},
+  {label:"1개월", days:30},
+  {label:"3개월", days:90},
+  {label:"6개월", days:180},
+  {label:"YTD", ytd:true},
+  {label:"1년", days:365},
+  {label:"2년", days:730},
+  {label:"3년", days:1095},
+  {label:"5년", days:1825}
+];
+
+function findSnapAtOrBefore(snapKey, targetTs) {
+  var arr = snapshots[snapKey]||[];
+  var best = null;
+  for (var i=0;i<arr.length;i++){
+    if (arr[i].ts<=targetTs && (!best || arr[i].ts>best.ts)) best=arr[i];
+  }
+  return best;
+}
+
+function getCurrentTotalByKey(key) {
+  var dom=calcGroup(domStocks,false), ov=calcGroup(ovStocks,true), pen=calcGroup(penStocks,false);
+  if (key==="dom") return dom.tv;
+  if (key==="ov") return ov.tv;
+  if (key==="pen") return pen.tv;
+  return dom.tv+ov.tv+pen.tv;
+}
+
+function renderReturnsTable(key, tableId) {
+  var el=document.getElementById(tableId);
+  if (!el) return;
+  var current=getCurrentTotalByKey(key);
+  var now=Date.now();
+  var rowsHtml=RETURN_PERIODS.map(function(p){
+    var targetTs;
+    if (p.ytd) {
+      targetTs=new Date(new Date().getFullYear(),0,1).getTime();
+    } else {
+      targetTs=now-p.days*86400000;
+    }
+    var snap=findSnapAtOrBefore(key,targetTs);
+    var valCell;
+    if (!snap || !(snap.val>0) || !(current>0)) {
+      valCell='<span style="color:#b0bec5;font-weight:700">-</span>';
+    } else {
+      var pct=((current-snap.val)/snap.val)*100;
+      var pos=pct>=0;
+      valCell='<span style="color:'+(pos?"#c62828":"#1565c0")+';font-weight:800">'+(pos?"▲ +":"▼ ")+Math.abs(pct).toFixed(2)+'%</span>';
+    }
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 2px;border-bottom:1px solid var(--border);font-size:13px">'+
+      '<span style="color:var(--muted);font-weight:600">'+p.label+'</span>'+valCell+'</div>';
+  }).join("");
+  el.innerHTML=rowsHtml+'<div style="font-size:10px;color:var(--muted);margin-top:8px;text-align:center">추적 시작: 2026-05-22 · 데이터가 쌓이는 대로 자동 표시됩니다</div>';
+}
+
+function renderAllReturnsTables() {
+  renderReturnsTable("all","allReturnsTable");
+  renderReturnsTable("dom","domReturnsTable");
+  renderReturnsTable("ov","ovReturnsTable");
+  renderReturnsTable("pen","penReturnsTable");
 }
 
 function updateHeaderH(){
