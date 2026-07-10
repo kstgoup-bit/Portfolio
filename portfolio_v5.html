@@ -1979,8 +1979,9 @@ function returnRowHtml(p, key, current, now) {
     var pos=pct>=0;
     valCell='<span style="color:'+(pos?"#c62828":"#1565c0")+';font-weight:800">'+(pos?"+":"")+pct.toFixed(2)+'%</span>';
   }
-  return '<div style="display:grid;grid-template-columns:54px 1fr;align-items:center;gap:8px;padding:7px 2px;border-bottom:1px solid var(--border);font-size:12.5px">'+
-    '<span style="color:var(--muted);font-weight:600">'+p.label+'</span><span style="text-align:left">'+valCell+'</span></div>';
+  return '<div style="padding:7px 2px 0 2px">'+
+    '<div style="display:grid;grid-template-columns:54px 1fr;align-items:center;gap:8px;width:132px;padding-bottom:7px;border-bottom:1px solid var(--border)">'+
+    '<span style="color:var(--muted);font-weight:600;font-size:12.5px">'+p.label+'</span><span style="text-align:left;font-size:12.5px">'+valCell+'</span></div></div>';
 }
 
 function renderReturnsTable(key, tableId) {
