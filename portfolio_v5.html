@@ -1965,8 +1965,12 @@ function getCurrentTotalByKey(key) {
 
 function returnRowHtml(p, key, current, now) {
   var targetTs;
+  var TRACK_START = new Date('2026-05-22').getTime();
+  var TRACK_START_YEAR = new Date(TRACK_START).getFullYear();
   if (p.ytd) {
-    targetTs=new Date(new Date().getFullYear(),0,1).getTime();
+    var y=new Date().getFullYear();
+    // 추적 시작년도(2026)는 5/22 기준, 그 이후 해는 정상적으로 1/1 기준
+    targetTs = (y===TRACK_START_YEAR) ? TRACK_START : new Date(y,0,1).getTime();
   } else {
     targetTs=now-p.days*86400000;
   }
