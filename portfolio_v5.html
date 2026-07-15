@@ -678,8 +678,8 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
     <div class="period-btns" id="domPeriodBtns"></div>
 
     <svg id="domLineChart" viewBox="0 0 340 170" style="width:100%"></svg>
-    <button class="record-btn" style="background:var(--yellow-card);border-color:var(--yellow-border);color:var(--yellow-accent)" onclick="recordSnap('dom')">📸 오늘 국내 자산 기록</button>
-    <button class="record-btn" style="background:#fff;border:1px solid var(--yellow-border);color:var(--yellow-accent);margin-top:8px" onclick="addDeposit('dom')">💰 국내 입금 기록</button>
+    <button class="record-btn" style="background:#fff;border:1px solid var(--yellow-border);color:var(--yellow-accent)" onclick="addDeposit('dom')">💰 국내 입금 기록</button>
+    <button class="record-btn" style="background:var(--yellow-card);border-color:var(--yellow-border);color:var(--yellow-accent);margin-top:8px" onclick="recordSnap('dom')">📸 오늘 국내 자산 기록</button>
   </div>
   <div class="card" id="domReturnsCard" style="margin-top:14px">
     <div class="chart-title" style="color:var(--yellow-accent)">📅 국내 기간별 자산 변화율</div>
@@ -739,8 +739,8 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
     <div class="period-btns" id="ovPeriodBtns"></div>
 
     <svg id="ovLineChart" viewBox="0 0 340 170" style="width:100%"></svg>
-    <button class="record-btn" onclick="recordSnap('ov')">📸 오늘 해외 자산 기록</button>
-    <button class="record-btn" style="background:#fff;border:1px solid var(--border);color:var(--blue);margin-top:8px" onclick="addDeposit('ov')">💰 해외 입금 기록</button>
+    <button class="record-btn" style="background:#fff;border:1px solid var(--border);color:var(--blue)" onclick="addDeposit('ov')">💰 해외 입금 기록</button>
+    <button class="record-btn" style="margin-top:8px" onclick="recordSnap('ov')">📸 오늘 해외 자산 기록</button>
   </div>
   <div class="card" id="ovReturnsCard" style="margin-top:14px">
     <div class="chart-title">📅 해외 기간별 자산 변화율</div>
@@ -790,8 +790,8 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
     <div class="period-btns" id="penPeriodBtns"></div>
 
     <svg id="penLineChart" viewBox="0 0 340 170" style="width:100%"></svg>
-    <button class="record-btn" style="background:var(--purple-light);border-color:#ce93d8;color:var(--purple)" onclick="recordSnap('pen')">📸 오늘 연금 자산 기록</button>
-    <button class="record-btn" style="background:#fff;border:1px solid #ce93d8;color:var(--purple);margin-top:8px" onclick="addDeposit('pen')">💰 연금 입금 기록</button>
+    <button class="record-btn" style="background:#fff;border:1px solid #ce93d8;color:var(--purple)" onclick="addDeposit('pen')">💰 연금 입금 기록</button>
+    <button class="record-btn" style="background:var(--purple-light);border-color:#ce93d8;color:var(--purple);margin-top:8px" onclick="recordSnap('pen')">📸 오늘 연금 자산 기록</button>
   </div>
   <div class="card" id="penReturnsCard" style="margin-top:14px">
     <div class="chart-title" style="color:var(--purple)">📅 연금 기간별 자산 변화율</div>
