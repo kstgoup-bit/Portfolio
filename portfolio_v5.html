@@ -1894,14 +1894,14 @@ function fetchBenchmarkHistory(force) {
   var cached=null;
   try { cached=JSON.parse(localStorage.getItem("v5_benchHist")||"null"); } catch(e){}
   var today=new Date().toDateString();
-  var hasValidCache = cached && cached.KS11 && cached.KS11.length>0 && (cached.IXIC||cached.NDX) && (cached.IXIC||cached.NDX).length>0;
+  var hasValidCache = cached && cached.KS11 && cached.KS11.length>0 && cached.QQQ && cached.QQQ.length>0;
   if (hasValidCache && cached.fetchedAt===today && !force) {
-    benchmarkHistory={KS11:cached.KS11||[], NDX:cached.IXIC||cached.NDX||[]};
+    benchmarkHistory={KS11:cached.KS11||[], NDX:cached.QQQ||[]};
     renderAllReturnsTables();
     return;
   }
-  var syms=[{sym:"^KS11",id:"KS11"},{sym:"^IXIC",id:"IXIC"}];
-  var results={fetchedAt:today, KS11:(cached&&cached.KS11)||[], IXIC:(cached&&(cached.IXIC||cached.NDX))||[]};
+  var syms=[{sym:"^KS11",id:"KS11"},{sym:"QQQ",id:"QQQ"}];
+  var results={fetchedAt:today, KS11:(cached&&cached.KS11)||[], QQQ:(cached&&cached.QQQ)||[]};
 
   var PROXIES=[
     function(u){ return "https://api.allorigins.win/raw?url="+encodeURIComponent(u); },
@@ -1933,7 +1933,7 @@ function fetchBenchmarkHistory(force) {
   // 순차 실행 (동시 요청으로 인한 프록시 과부하 방지), 프록시별로 순회 시도
   fetchOne(syms[0], 0, function(){
     fetchOne(syms[1], 0, function(){
-      benchmarkHistory={KS11:results.KS11, NDX:results.IXIC};
+      benchmarkHistory={KS11:results.KS11, NDX:results.QQQ};
       try{ localStorage.setItem("v5_benchHist", JSON.stringify(results)); }catch(e){}
       renderAllReturnsTables();
     });
@@ -2134,7 +2134,7 @@ function renderReturnsTable(key, tableId) {
   var el=document.getElementById(tableId);
   if (!el) return;
   var KEY_LABELS={all:"전체",dom:"국내",ov:"해외",pen:"연금"};
-  var BENCH_LABELS={all:"코스피20%+나스닥종합 80%",dom:"코스피",ov:"나스닥종합",pen:"나스닥종합"};
+  var BENCH_LABELS={all:"코스피20%+QQQ(나스닥100) 80%",dom:"코스피",ov:"QQQ(나스닥100)",pen:"QQQ(나스닥100)"};
   var label=KEY_LABELS[key]||"";
   var benchLabel=BENCH_LABELS[key]||"";
   var current=getCurrentTotalByKey(key);
