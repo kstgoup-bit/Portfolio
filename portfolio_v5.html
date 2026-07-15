@@ -1650,7 +1650,7 @@ const COMMANDMENTS = [
 // =============================================
 var domStocks=[], ovStocks=[], penStocks=[], divList=[], gasUrl="", snapshots={all:[],dom:[],ov:[],pen:[]};
 var deposits={dom:[],ov:[],pen:[]};
-var benchmarkHistory={KS11:[],NDX:[]};
+var benchmarkHistory={KS200:[],NDX:[]};
 var balGoals={all:80, dom:80, ov:80, pen:80};
 var editingId=null, editingType=null, failCount=0, lockUntil=0;
 // 종목별 별칭 (재미 해석 기반) - 전역
@@ -1894,14 +1894,14 @@ function fetchBenchmarkHistory(force) {
   var cached=null;
   try { cached=JSON.parse(localStorage.getItem("v5_benchHist")||"null"); } catch(e){}
   var today=new Date().toDateString();
-  var hasValidCache = cached && cached.KS11 && cached.KS11.length>0 && cached.QQQ && cached.QQQ.length>0;
+  var hasValidCache = cached && cached.KS200 && cached.KS200.length>0 && cached.QQQ && cached.QQQ.length>0;
   if (hasValidCache && cached.fetchedAt===today && !force) {
-    benchmarkHistory={KS11:cached.KS11||[], NDX:cached.QQQ||[]};
+    benchmarkHistory={KS200:cached.KS200||[], NDX:cached.QQQ||[]};
     renderAllReturnsTables();
     return;
   }
-  var syms=[{sym:"^KS11",id:"KS11"},{sym:"QQQ",id:"QQQ"}];
-  var results={fetchedAt:today, KS11:(cached&&cached.KS11)||[], QQQ:(cached&&cached.QQQ)||[]};
+  var syms=[{sym:"069500.KS",id:"KS200"},{sym:"QQQ",id:"QQQ"}];
+  var results={fetchedAt:today, KS200:(cached&&cached.KS200)||[], QQQ:(cached&&cached.QQQ)||[]};
 
   var PROXIES=[
     function(u){ return "https://api.allorigins.win/raw?url="+encodeURIComponent(u); },
@@ -1933,7 +1933,7 @@ function fetchBenchmarkHistory(force) {
   // 순차 실행 (동시 요청으로 인한 프록시 과부하 방지), 프록시별로 순회 시도
   fetchOne(syms[0], 0, function(){
     fetchOne(syms[1], 0, function(){
-      benchmarkHistory={KS11:results.KS11, NDX:results.QQQ};
+      benchmarkHistory={KS200:results.KS200, NDX:results.QQQ};
       try{ localStorage.setItem("v5_benchHist", JSON.stringify(results)); }catch(e){}
       renderAllReturnsTables();
     });
@@ -1956,10 +1956,10 @@ function getBenchmarkReturnPct(key, targetTs, now) {
     if (!startPt || !endPt || !(startPt.close>0)) return null;
     return (endPt.close-startPt.close)/startPt.close*100;
   }
-  if (key==="dom") return retOf(benchmarkHistory.KS11);
+  if (key==="dom") return retOf(benchmarkHistory.KS200);
   if (key==="ov" || key==="pen") return retOf(benchmarkHistory.NDX);
   // 전체: 자산비중 반영 가중평균 (국내 20% + 해외·연금 80%)
-  var ksR=retOf(benchmarkHistory.KS11), ndR=retOf(benchmarkHistory.NDX);
+  var ksR=retOf(benchmarkHistory.KS200), ndR=retOf(benchmarkHistory.NDX);
   if (ksR===null || ndR===null) return null;
   return ksR*0.2 + ndR*0.8;
 }
@@ -2134,7 +2134,7 @@ function renderReturnsTable(key, tableId) {
   var el=document.getElementById(tableId);
   if (!el) return;
   var KEY_LABELS={all:"전체",dom:"국내",ov:"해외",pen:"연금"};
-  var BENCH_LABELS={all:"코스피20%+QQQ(나스닥100) 80%",dom:"코스피",ov:"QQQ(나스닥100)",pen:"QQQ(나스닥100)"};
+  var BENCH_LABELS={all:"코스피200 20% + QQQ(나스닥100) 80%",dom:"코스피200 (KODEX200)",ov:"QQQ(나스닥100)",pen:"QQQ(나스닥100)"};
   var label=KEY_LABELS[key]||"";
   var benchLabel=BENCH_LABELS[key]||"";
   var current=getCurrentTotalByKey(key);
@@ -2147,9 +2147,10 @@ function renderReturnsTable(key, tableId) {
     returnsSectionHtml(key, current, now, "dietz") +
     '<div style="font-size:11px;color:var(--muted);margin-top:8px;text-align:center">입금·매수금을 제외한 시장 운용 성과만 계산 (Modified Dietz)</div>' +
     '<div style="border-top:1px dashed var(--border);margin:16px 0 12px 0"></div>' +
-    '<div style="font-size:14px;font-weight:800;color:#00695c;margin-bottom:4px">📊 '+label+' 벤치마크 대비 (알파)</div>' +
+    '<div style="font-size:14px;font-weight:800;color:#00695c;margin-bottom:2px">📊 '+label+' 시장 대비 (알파)</div>' +
+    '<div style="font-size:11px;color:var(--muted);margin-bottom:6px">기준 지수: '+benchLabel+'</div>' +
     returnsSectionHtml(key, current, now, "alpha") +
-    '<div style="font-size:11px;color:var(--muted);margin-top:8px;text-align:center">벤치마크: '+benchLabel+' · 순수수익률 − 벤치마크 수익률 (%p)</div>';
+    '<div style="font-size:11px;color:var(--muted);margin-top:8px;text-align:center">순수수익률 − 시장(지수) 수익률 (%p)</div>';
 }
 
 function renderAllReturnsTables() {
