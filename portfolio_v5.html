@@ -1650,6 +1650,7 @@ const COMMANDMENTS = [
 // =============================================
 var domStocks=[], ovStocks=[], penStocks=[], divList=[], gasUrl="", snapshots={all:[],dom:[],ov:[],pen:[]};
 var deposits={dom:[],ov:[],pen:[]};
+var benchmarkHistory={KS11:[],NDX:[]};
 var balGoals={all:80, dom:80, ov:80, pen:80};
 var editingId=null, editingType=null, failCount=0, lockUntil=0;
 // 종목별 별칭 (재미 해석 기반) - 전역
@@ -1889,6 +1890,71 @@ function updateBrief() {
 // ═══════════════════════════════
 // 📊 실시간 시장 지수
 // ═══════════════════════════════
+function fetchBenchmarkHistory(force) {
+  var cached=null;
+  try { cached=JSON.parse(localStorage.getItem("v5_benchHist")||"null"); } catch(e){}
+  var today=new Date().toDateString();
+  if (cached && cached.fetchedAt===today && !force) {
+    benchmarkHistory={KS11:cached.KS11||[], NDX:cached.NDX||[]};
+    renderAllReturnsTables();
+    return;
+  }
+  var syms=[{sym:"^KS11",id:"KS11"},{sym:"^NDX",id:"NDX"}];
+  var results={fetchedAt:today, KS11:(cached&&cached.KS11)||[], NDX:(cached&&cached.NDX)||[]};
+  var pending=syms.length;
+  function checkDone(){
+    pending--;
+    if(pending<=0){
+      benchmarkHistory={KS11:results.KS11, NDX:results.NDX};
+      try{ localStorage.setItem("v5_benchHist", JSON.stringify(results)); }catch(e){}
+      renderAllReturnsTables();
+    }
+  }
+  syms.forEach(function(s){
+    var url="https://query1.finance.yahoo.com/v8/finance/chart/"+encodeURIComponent(s.sym)+"?interval=1d&range=5y";
+    fetch("https://api.allorigins.win/raw?url="+encodeURIComponent(url))
+      .then(function(r){return r.json();})
+      .then(function(data){
+        var res=data.chart&&data.chart.result&&data.chart.result[0];
+        if(res){
+          var ts=res.timestamp||[];
+          var closes=(res.indicators&&res.indicators.quote&&res.indicators.quote[0]&&res.indicators.quote[0].close)||[];
+          var hist=[];
+          for(var i=0;i<ts.length;i++){
+            if(closes[i]!=null) hist.push({ts:ts[i]*1000, close:closes[i]});
+          }
+          if(hist.length) results[s.id]=hist;
+        }
+        checkDone();
+      })
+      .catch(function(){ checkDone(); });
+  });
+}
+
+function findBenchAtOrBefore(hist, targetTs) {
+  var best=null;
+  for (var i=0;i<hist.length;i++){
+    if (hist[i].ts<=targetTs && (!best || hist[i].ts>best.ts)) best=hist[i];
+  }
+  return best;
+}
+
+function getBenchmarkReturnPct(key, targetTs, now) {
+  function retOf(hist) {
+    if (!hist || !hist.length) return null;
+    var startPt=findBenchAtOrBefore(hist, targetTs);
+    var endPt=findBenchAtOrBefore(hist, now);
+    if (!startPt || !endPt || !(startPt.close>0)) return null;
+    return (endPt.close-startPt.close)/startPt.close*100;
+  }
+  if (key==="dom") return retOf(benchmarkHistory.KS11);
+  if (key==="ov" || key==="pen") return retOf(benchmarkHistory.NDX);
+  // 전체: 자산비중 반영 가중평균 (국내 20% + 해외·연금 80%)
+  var ksR=retOf(benchmarkHistory.KS11), ndR=retOf(benchmarkHistory.NDX);
+  if (ksR===null || ndR===null) return null;
+  return ksR*0.2 + ndR*0.8;
+}
+
 function fetchMarketIndices(){
   var indices=[
     {sym:"^KS11",id:"KS11",name:"코스피"},
@@ -2003,7 +2069,7 @@ function getCurrentTotalByKey(key) {
   return dom.tv+ov.tv+pen.tv;
 }
 
-function returnRowHtml(p, key, current, now) {
+function returnRowHtml(p, key, current, now, mode) {
   var targetTs;
   var TRACK_START = new Date('2026-05-22').getTime();
   var TRACK_START_YEAR = new Date(TRACK_START).getFullYear();
@@ -2018,35 +2084,63 @@ function returnRowHtml(p, key, current, now) {
   var valCell;
   if (!snap || !(snap.val>0) || !(current>0)) {
     valCell='<span style="color:#b0bec5;font-weight:700">-</span>';
+  } else if (mode==="dietz") {
+    var dietz=calcModifiedDietz(key, targetTs, now, snap.val, current);
+    if (dietz===null) {
+      valCell='<span style="color:#b0bec5;font-weight:700">-</span>';
+    } else {
+      var dpos=dietz>=0;
+      valCell='<span style="color:'+(dpos?"#c62828":"#1565c0")+';font-weight:800">'+(dpos?"+":"")+dietz.toFixed(2)+'%</span>';
+    }
+  } else if (mode==="alpha") {
+    var dietz2=calcModifiedDietz(key, targetTs, now, snap.val, current);
+    var bench=getBenchmarkReturnPct(key, targetTs, now);
+    if (dietz2===null || bench===null) {
+      valCell='<span style="color:#b0bec5;font-weight:700">-</span>';
+    } else {
+      var alpha=dietz2-bench;
+      var apos=alpha>=0;
+      valCell='<span style="color:'+(apos?"#c62828":"#1565c0")+';font-weight:800">'+(apos?"+":"")+alpha.toFixed(2)+'%p</span>';
+    }
   } else {
     var pct=((current-snap.val)/snap.val)*100;
     var pos=pct>=0;
-    var mainLine='<span style="color:'+(pos?"#c62828":"#1565c0")+';font-weight:800">'+(pos?"+":"")+pct.toFixed(2)+'%</span>';
-    var dietz=calcModifiedDietz(key, targetTs, now, snap.val, current);
-    var subLine='';
-    if (dietz!==null) {
-      var dpos=dietz>=0;
-      subLine='<div style="font-size:10px;color:'+(dpos?"#e57373":"#64b5f6")+';font-weight:700;margin-top:1px">순수 '+(dpos?"+":"")+dietz.toFixed(2)+'%</div>';
-    }
-    valCell='<div>'+mainLine+subLine+'</div>';
+    valCell='<span style="color:'+(pos?"#c62828":"#1565c0")+';font-weight:800">'+(pos?"+":"")+pct.toFixed(2)+'%</span>';
   }
   return '<div style="padding:7px 2px 0 2px;display:flex;justify-content:center">'+
-    '<div style="display:grid;grid-template-columns:48px 1fr;align-items:center;gap:6px;width:118px;padding-bottom:7px;border-bottom:1px solid var(--border)">'+
+    '<div style="display:grid;grid-template-columns:48px 1fr;align-items:center;gap:6px;width:108px;padding-bottom:7px;border-bottom:1px solid var(--border)">'+
     '<span style="color:var(--muted);font-weight:600;font-size:12.5px">'+p.label+'</span><span style="text-align:left;font-size:12.5px">'+valCell+'</span></div></div>';
+}
+
+function returnsSectionHtml(key, current, now, mode) {
+  var leftHtml=RETURN_PERIODS_LEFT.map(function(p){ return returnRowHtml(p,key,current,now,mode); }).join("");
+  var rightHtml=RETURN_PERIODS_RIGHT.map(function(p){ return returnRowHtml(p,key,current,now,mode); }).join("");
+  return '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0 22px">'+
+      '<div>'+leftHtml+'</div>'+
+      '<div>'+rightHtml+'</div>'+
+    '</div>';
 }
 
 function renderReturnsTable(key, tableId) {
   var el=document.getElementById(tableId);
   if (!el) return;
+  var KEY_LABELS={all:"전체",dom:"국내",ov:"해외",pen:"연금"};
+  var BENCH_LABELS={all:"코스피20%+나스닥100 80%",dom:"코스피",ov:"나스닥100",pen:"나스닥100"};
+  var label=KEY_LABELS[key]||"";
+  var benchLabel=BENCH_LABELS[key]||"";
   var current=getCurrentTotalByKey(key);
   var now=Date.now();
-  var leftHtml=RETURN_PERIODS_LEFT.map(function(p){ return returnRowHtml(p,key,current,now); }).join("");
-  var rightHtml=RETURN_PERIODS_RIGHT.map(function(p){ return returnRowHtml(p,key,current,now); }).join("");
-  el.innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr;gap:0 22px">'+
-      '<div>'+leftHtml+'</div>'+
-      '<div>'+rightHtml+'</div>'+
-    '</div>'+
-    '<div style="font-size:11px;color:var(--muted);margin-top:8px;text-align:center">추적 시작: 2026-05-22 · 데이터가 쌓이는 대로 자동 표시됩니다</div>';
+  el.innerHTML =
+    returnsSectionHtml(key, current, now, "raw") +
+    '<div style="font-size:11px;color:var(--muted);margin-top:8px;text-align:center">추적 시작: 2026-05-22 · 데이터가 쌓이는 대로 자동 표시됩니다</div>' +
+    '<div style="border-top:1px dashed var(--border);margin:16px 0 12px 0"></div>' +
+    '<div style="font-size:14px;font-weight:800;color:#8e24aa;margin-bottom:4px">🎯 '+label+' 기간별 순수 수익률</div>' +
+    returnsSectionHtml(key, current, now, "dietz") +
+    '<div style="font-size:11px;color:var(--muted);margin-top:8px;text-align:center">입금·매수금을 제외한 시장 운용 성과만 계산 (Modified Dietz)</div>' +
+    '<div style="border-top:1px dashed var(--border);margin:16px 0 12px 0"></div>' +
+    '<div style="font-size:14px;font-weight:800;color:#00695c;margin-bottom:4px">📊 '+label+' 벤치마크 대비 (알파)</div>' +
+    returnsSectionHtml(key, current, now, "alpha") +
+    '<div style="font-size:11px;color:var(--muted);margin-top:8px;text-align:center">벤치마크: '+benchLabel+' · 순수수익률 − 벤치마크 수익률 (%p)</div>';
 }
 
 function renderAllReturnsTables() {
@@ -4249,6 +4343,7 @@ window.addEventListener("load", function() {
   // 데이터 로드
   load();
   renderAll();
+  fetchBenchmarkHistory();
   // 환율/국내/미국 자동갱신 + 완료 후 자산 자동기록
   setTimeout(fetchFX, 1500);
   setTimeout(fetchKR, 2500);
