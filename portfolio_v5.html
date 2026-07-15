@@ -3297,6 +3297,18 @@ function renderLineChart(period, btnId, chartId, snapKey, color) {
     pts=data.filter(function(d){return ((now-d.ts)/86400000)<=days&&d.ts>=validStart;});
   }
   if(pts.length<2) pts=data.filter(function(d){return d.ts>=validStart;}).slice(-2);
+  // 오늘자 지점을 실시간 평가액으로 갱신(있으면 덮어쓰기, 없으면 추가)
+  var liveNow=null;
+  try { liveNow=getCurrentTotalByKey(snapKey); } catch(e){}
+  if (liveNow>0) {
+    var todayStr=new Date().toDateString();
+    var lastPt=pts[pts.length-1];
+    if (lastPt && new Date(lastPt.ts).toDateString()===todayStr) {
+      pts=pts.slice(0,-1).concat([{ts:lastPt.ts, val:liveNow, cost:lastPt.cost}]);
+    } else if (lastPt) {
+      pts=pts.concat([{ts:Date.now(), val:liveNow, cost:lastPt.cost}]);
+    }
+  }
   var vals=pts.map(function(d){return d.val;});
   // 탭별 현재 매수금 계산
   var fx=parseFloat(document.getElementById("usdKrw").value)||1370;
