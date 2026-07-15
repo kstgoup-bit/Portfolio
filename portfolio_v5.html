@@ -679,6 +679,7 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
 
     <svg id="domLineChart" viewBox="0 0 340 170" style="width:100%"></svg>
     <button class="record-btn" style="background:var(--yellow-card);border-color:var(--yellow-border);color:var(--yellow-accent)" onclick="recordSnap('dom')">📸 오늘 국내 자산 기록</button>
+    <button class="record-btn" style="background:#fff;border:1px solid var(--yellow-border);color:var(--yellow-accent);margin-top:8px" onclick="addDeposit('dom')">💰 국내 입금 기록</button>
   </div>
   <div class="card" id="domReturnsCard" style="margin-top:14px">
     <div class="chart-title" style="color:var(--yellow-accent)">📅 국내 기간별 자산 변화율</div>
@@ -739,6 +740,7 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
 
     <svg id="ovLineChart" viewBox="0 0 340 170" style="width:100%"></svg>
     <button class="record-btn" onclick="recordSnap('ov')">📸 오늘 해외 자산 기록</button>
+    <button class="record-btn" style="background:#fff;border:1px solid var(--border);color:var(--blue);margin-top:8px" onclick="addDeposit('ov')">💰 해외 입금 기록</button>
   </div>
   <div class="card" id="ovReturnsCard" style="margin-top:14px">
     <div class="chart-title">📅 해외 기간별 자산 변화율</div>
@@ -789,6 +791,7 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
 
     <svg id="penLineChart" viewBox="0 0 340 170" style="width:100%"></svg>
     <button class="record-btn" style="background:var(--purple-light);border-color:#ce93d8;color:var(--purple)" onclick="recordSnap('pen')">📸 오늘 연금 자산 기록</button>
+    <button class="record-btn" style="background:#fff;border:1px solid #ce93d8;color:var(--purple);margin-top:8px" onclick="addDeposit('pen')">💰 연금 입금 기록</button>
   </div>
   <div class="card" id="penReturnsCard" style="margin-top:14px">
     <div class="chart-title" style="color:var(--purple)">📅 연금 기간별 자산 변화율</div>
@@ -1646,6 +1649,7 @@ const COMMANDMENTS = [
 // 상태 변수
 // =============================================
 var domStocks=[], ovStocks=[], penStocks=[], divList=[], gasUrl="", snapshots={all:[],dom:[],ov:[],pen:[]};
+var deposits={dom:[],ov:[],pen:[]};
 var balGoals={all:80, dom:80, ov:80, pen:80};
 var editingId=null, editingType=null, failCount=0, lockUntil=0;
 // 종목별 별칭 (재미 해석 기반) - 전역
@@ -1668,6 +1672,7 @@ function load() {
   try { penStocks = JSON.parse(localStorage.getItem("v5_pen")) || PEN_INIT; } catch { penStocks=PEN_INIT; }
   try { divList = JSON.parse(localStorage.getItem("v5_div")) || []; } catch { divList=[]; }
   try { snapshots = JSON.parse(localStorage.getItem("v5_snap")) || {all:[],dom:[],ov:[],pen:[]}; } catch { snapshots={all:[],dom:[],ov:[],pen:[]}; }
+  try { deposits = JSON.parse(localStorage.getItem("v5_deposits")) || {dom:[],ov:[],pen:[]}; } catch { deposits={dom:[],ov:[],pen:[]}; }
   // 환율 복원 (renderAll 전에 적용)
   try { balGoals=JSON.parse(localStorage.getItem("v5_balGoals"))||{all:80,dom:80,ov:80,pen:80}; } catch(e){balGoals={all:80,dom:80,ov:80,pen:80};}
   var savedFx = localStorage.getItem("v5_fx");
@@ -1691,6 +1696,7 @@ function save() {
     localStorage.setItem("v5_pen", JSON.stringify(penStocks));
     localStorage.setItem("v5_div", JSON.stringify(divList));
     localStorage.setItem("v5_snap", JSON.stringify(snapshots));
+    localStorage.setItem("v5_deposits", JSON.stringify(deposits));
     localStorage.setItem("v5_fx", document.getElementById("usdKrw").value||"1370");
     localStorage.setItem("v5_balGoals", JSON.stringify(balGoals));
   } catch(e) {}
@@ -1946,6 +1952,40 @@ var RETURN_PERIODS_RIGHT = [
   {label:"5년", days:1825}
 ];
 
+function addDeposit(key) {
+  var label = key==="dom"?"국내":key==="ov"?"해외":"연금";
+  var input = prompt("💰 "+label+" 오늘 입금(매수)한 금액을 입력하세요 (만원 단위, 예: 150)");
+  if(input===null) return;
+  var amt = parseFloat(String(input).replace(/[^0-9.\-]/g,""));
+  if(!amt || amt<=0) { showToast("⚠️ 올바른 금액을 입력해주세요", true); return; }
+  amt = amt*10000;
+  if(!deposits[key]) deposits[key]=[];
+  deposits[key].push({ts:Date.now(), amount:amt});
+  deposits[key].sort(function(a,b){ return a.ts-b.ts; });
+  save();
+  renderAllReturnsTables();
+  showToast("✅ "+label+" 입금 "+fmt(amt)+"원 기록 완료!");
+}
+
+function getDepositsForKey(key) {
+  if (key==="all") return (deposits.dom||[]).concat(deposits.ov||[],deposits.pen||[]);
+  return deposits[key]||[];
+}
+
+// Modified Dietz 방식: 기간 중 입금액(외부 유입)을 제외한 순수 운용수익률
+function calcModifiedDietz(key, startTs, endTs, startVal, endVal) {
+  if (!(startVal>0) || !(endVal>0) || endTs<=startTs) return null;
+  var cfs = getDepositsForKey(key).filter(function(d){ return d.ts>startTs && d.ts<=endTs; });
+  var netCF = cfs.reduce(function(s,d){ return s+d.amount; }, 0);
+  var weightedCF = cfs.reduce(function(s,d){
+    var w = (endTs-d.ts)/(endTs-startTs);
+    return s + d.amount*w;
+  }, 0);
+  var denom = startVal + weightedCF;
+  if (denom<=0) return null;
+  return ((endVal-startVal-netCF)/denom)*100;
+}
+
 function findSnapAtOrBefore(snapKey, targetTs) {
   var arr = snapshots[snapKey]||[];
   var best = null;
@@ -1981,10 +2021,17 @@ function returnRowHtml(p, key, current, now) {
   } else {
     var pct=((current-snap.val)/snap.val)*100;
     var pos=pct>=0;
-    valCell='<span style="color:'+(pos?"#c62828":"#1565c0")+';font-weight:800">'+(pos?"+":"")+pct.toFixed(2)+'%</span>';
+    var mainLine='<span style="color:'+(pos?"#c62828":"#1565c0")+';font-weight:800">'+(pos?"+":"")+pct.toFixed(2)+'%</span>';
+    var dietz=calcModifiedDietz(key, targetTs, now, snap.val, current);
+    var subLine='';
+    if (dietz!==null) {
+      var dpos=dietz>=0;
+      subLine='<div style="font-size:10px;color:'+(dpos?"#e57373":"#64b5f6")+';font-weight:700;margin-top:1px">순수 '+(dpos?"+":"")+dietz.toFixed(2)+'%</div>';
+    }
+    valCell='<div>'+mainLine+subLine+'</div>';
   }
   return '<div style="padding:7px 2px 0 2px;display:flex;justify-content:center">'+
-    '<div style="display:grid;grid-template-columns:48px 1fr;align-items:center;gap:6px;width:108px;padding-bottom:7px;border-bottom:1px solid var(--border)">'+
+    '<div style="display:grid;grid-template-columns:48px 1fr;align-items:center;gap:6px;width:118px;padding-bottom:7px;border-bottom:1px solid var(--border)">'+
     '<span style="color:var(--muted);font-weight:600;font-size:12.5px">'+p.label+'</span><span style="text-align:left;font-size:12.5px">'+valCell+'</span></div></div>';
 }
 
