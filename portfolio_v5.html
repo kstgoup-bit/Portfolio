@@ -2147,10 +2147,10 @@ function renderReturnsTable(key, tableId) {
     returnsSectionHtml(key, current, now, "dietz") +
     '<div style="font-size:11px;color:var(--muted);margin-top:8px;text-align:center">입금·매수금을 제외한 시장 운용 성과만 계산 (Modified Dietz)</div>' +
     '<div style="border-top:1px dashed var(--border);margin:16px 0 12px 0"></div>' +
-    '<div style="font-size:14px;font-weight:800;color:#00695c;margin-bottom:2px">📊 '+label+' 시장 대비 (알파)</div>' +
-    '<div style="font-size:11px;color:var(--muted);margin-bottom:6px">기준 지수: '+benchLabel+'</div>' +
+    '<div style="font-size:14px;font-weight:800;color:#00695c;margin-bottom:4px">📊 '+label+' 시장 대비 (알파)</div>' +
     returnsSectionHtml(key, current, now, "alpha") +
-    '<div style="font-size:11px;color:var(--muted);margin-top:8px;text-align:center">순수수익률 − 시장(지수) 수익률 (%p)</div>';
+    '<div style="font-size:11px;color:var(--muted);margin-top:8px;text-align:center">기준 지수: '+benchLabel+'</div>' +
+    '<div style="font-size:11px;color:var(--muted);text-align:center">알파: 순수 수익률 − 기준지수 수익률</div>';
 }
 
 function renderAllReturnsTables() {
