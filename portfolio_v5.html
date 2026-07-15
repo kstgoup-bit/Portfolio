@@ -1895,39 +1895,44 @@ function fetchBenchmarkHistory(force) {
   try { cached=JSON.parse(localStorage.getItem("v5_benchHist")||"null"); } catch(e){}
   var today=new Date().toDateString();
   if (cached && cached.fetchedAt===today && !force) {
-    benchmarkHistory={KS11:cached.KS11||[], NDX:cached.NDX||[]};
+    benchmarkHistory={KS11:cached.KS11||[], NDX:cached.IXIC||cached.NDX||[]};
     renderAllReturnsTables();
     return;
   }
-  var syms=[{sym:"^KS11",id:"KS11"},{sym:"^NDX",id:"NDX"}];
-  var results={fetchedAt:today, KS11:(cached&&cached.KS11)||[], NDX:(cached&&cached.NDX)||[]};
-  var pending=syms.length;
-  function checkDone(){
-    pending--;
-    if(pending<=0){
-      benchmarkHistory={KS11:results.KS11, NDX:results.NDX};
-      try{ localStorage.setItem("v5_benchHist", JSON.stringify(results)); }catch(e){}
-      renderAllReturnsTables();
-    }
-  }
-  syms.forEach(function(s){
+  var syms=[{sym:"^KS11",id:"KS11"},{sym:"^IXIC",id:"IXIC"}];
+  var results={fetchedAt:today, KS11:(cached&&cached.KS11)||[], IXIC:(cached&&(cached.IXIC||cached.NDX))||[]};
+
+  function fetchOne(s, retriesLeft, cb) {
     var url="https://query1.finance.yahoo.com/v8/finance/chart/"+encodeURIComponent(s.sym)+"?interval=1d&range=5y";
     fetch("https://api.allorigins.win/raw?url="+encodeURIComponent(url))
       .then(function(r){return r.json();})
       .then(function(data){
         var res=data.chart&&data.chart.result&&data.chart.result[0];
+        var hist=[];
         if(res){
           var ts=res.timestamp||[];
           var closes=(res.indicators&&res.indicators.quote&&res.indicators.quote[0]&&res.indicators.quote[0].close)||[];
-          var hist=[];
           for(var i=0;i<ts.length;i++){
             if(closes[i]!=null) hist.push({ts:ts[i]*1000, close:closes[i]});
           }
-          if(hist.length) results[s.id]=hist;
         }
-        checkDone();
+        if(hist.length) { results[s.id]=hist; cb(); }
+        else if(retriesLeft>0) { setTimeout(function(){ fetchOne(s, retriesLeft-1, cb); }, 1200); }
+        else cb();
       })
-      .catch(function(){ checkDone(); });
+      .catch(function(){
+        if(retriesLeft>0) setTimeout(function(){ fetchOne(s, retriesLeft-1, cb); }, 1200);
+        else cb();
+      });
+  }
+
+  // 순차 실행 (동시 요청으로 인한 프록시 과부하 방지)
+  fetchOne(syms[0], 1, function(){
+    fetchOne(syms[1], 1, function(){
+      benchmarkHistory={KS11:results.KS11, NDX:results.IXIC};
+      try{ localStorage.setItem("v5_benchHist", JSON.stringify(results)); }catch(e){}
+      renderAllReturnsTables();
+    });
   });
 }
 
@@ -2125,7 +2130,7 @@ function renderReturnsTable(key, tableId) {
   var el=document.getElementById(tableId);
   if (!el) return;
   var KEY_LABELS={all:"전체",dom:"국내",ov:"해외",pen:"연금"};
-  var BENCH_LABELS={all:"코스피20%+나스닥100 80%",dom:"코스피",ov:"나스닥100",pen:"나스닥100"};
+  var BENCH_LABELS={all:"코스피20%+나스닥종합 80%",dom:"코스피",ov:"나스닥종합",pen:"나스닥종합"};
   var label=KEY_LABELS[key]||"";
   var benchLabel=BENCH_LABELS[key]||"";
   var current=getCurrentTotalByKey(key);
