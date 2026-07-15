@@ -1894,7 +1894,8 @@ function fetchBenchmarkHistory(force) {
   var cached=null;
   try { cached=JSON.parse(localStorage.getItem("v5_benchHist")||"null"); } catch(e){}
   var today=new Date().toDateString();
-  if (cached && cached.fetchedAt===today && !force) {
+  var hasValidCache = cached && cached.KS11 && cached.KS11.length>0 && (cached.IXIC||cached.NDX) && (cached.IXIC||cached.NDX).length>0;
+  if (hasValidCache && cached.fetchedAt===today && !force) {
     benchmarkHistory={KS11:cached.KS11||[], NDX:cached.IXIC||cached.NDX||[]};
     renderAllReturnsTables();
     return;
@@ -1902,9 +1903,16 @@ function fetchBenchmarkHistory(force) {
   var syms=[{sym:"^KS11",id:"KS11"},{sym:"^IXIC",id:"IXIC"}];
   var results={fetchedAt:today, KS11:(cached&&cached.KS11)||[], IXIC:(cached&&(cached.IXIC||cached.NDX))||[]};
 
-  function fetchOne(s, retriesLeft, cb) {
+  var PROXIES=[
+    function(u){ return "https://api.allorigins.win/raw?url="+encodeURIComponent(u); },
+    function(u){ return "https://corsproxy.io/?url="+encodeURIComponent(u); },
+    function(u){ return "https://api.codetabs.com/v1/proxy?quest="+encodeURIComponent(u); }
+  ];
+
+  function fetchOne(s, proxyIdx, cb) {
+    if (proxyIdx>=PROXIES.length) { cb(); return; }
     var url="https://query1.finance.yahoo.com/v8/finance/chart/"+encodeURIComponent(s.sym)+"?interval=1d&range=5y";
-    fetch("https://api.allorigins.win/raw?url="+encodeURIComponent(url))
+    fetch(PROXIES[proxyIdx](url))
       .then(function(r){return r.json();})
       .then(function(data){
         var res=data.chart&&data.chart.result&&data.chart.result[0];
@@ -1917,18 +1925,14 @@ function fetchBenchmarkHistory(force) {
           }
         }
         if(hist.length) { results[s.id]=hist; cb(); }
-        else if(retriesLeft>0) { setTimeout(function(){ fetchOne(s, retriesLeft-1, cb); }, 1200); }
-        else cb();
+        else fetchOne(s, proxyIdx+1, cb);
       })
-      .catch(function(){
-        if(retriesLeft>0) setTimeout(function(){ fetchOne(s, retriesLeft-1, cb); }, 1200);
-        else cb();
-      });
+      .catch(function(){ fetchOne(s, proxyIdx+1, cb); });
   }
 
-  // 순차 실행 (동시 요청으로 인한 프록시 과부하 방지)
-  fetchOne(syms[0], 1, function(){
-    fetchOne(syms[1], 1, function(){
+  // 순차 실행 (동시 요청으로 인한 프록시 과부하 방지), 프록시별로 순회 시도
+  fetchOne(syms[0], 0, function(){
+    fetchOne(syms[1], 0, function(){
       benchmarkHistory={KS11:results.KS11, NDX:results.IXIC};
       try{ localStorage.setItem("v5_benchHist", JSON.stringify(results)); }catch(e){}
       renderAllReturnsTables();
