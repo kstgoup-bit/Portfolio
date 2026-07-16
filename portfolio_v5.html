@@ -4220,7 +4220,7 @@ function exportData() {
   try{memoData=JSON.parse(localStorage.getItem("v5_memos")||"[]");}catch(e){}
   var userThemeMap={};
   try{userThemeMap=JSON.parse(localStorage.getItem("v5_userThemeMap")||"{}");}catch(e){}
-  var backup={version:"v5",date:new Date().toLocaleString("ko-KR"),domStocks:domStocks,ovStocks:ovStocks,penStocks:penStocks,divList:divList,snapshots:snapshots,gasUrl:gasUrl,usdKrw:parseFloat(document.getElementById("usdKrw").value)||1370,calcData:calcData,ledger:ledgerData,fxHistory:fxHistory,fg:fgVal,memos:memoData,userThemeMap:userThemeMap};
+  var backup={version:"v5",date:new Date().toLocaleString("ko-KR"),domStocks:domStocks,ovStocks:ovStocks,penStocks:penStocks,divList:divList,snapshots:snapshots,deposits:deposits,gasUrl:gasUrl,usdKrw:parseFloat(document.getElementById("usdKrw").value)||1370,calcData:calcData,ledger:ledgerData,fxHistory:fxHistory,fg:fgVal,memos:memoData,userThemeMap:userThemeMap};
   var blob=new Blob([JSON.stringify(backup,null,2)],{type:"application/json"});
   var url=URL.createObjectURL(blob);
   var a=document.createElement("a");
@@ -4245,6 +4245,7 @@ function importData(event) {
       if(data.penStocks) penStocks=data.penStocks;
       if(data.divList) divList=data.divList;
       if(data.snapshots) snapshots=data.snapshots;
+      if(data.deposits) deposits=data.deposits;
 
       // v4 형식 호환 (stocks → domStocks + ovStocks 분리)
       if(data.stocks && !data.domStocks) {
