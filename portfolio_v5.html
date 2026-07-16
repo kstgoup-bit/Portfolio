@@ -682,6 +682,7 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
       <button class="record-btn" style="background:#fff;border:1px solid var(--yellow-border);color:var(--yellow-accent);flex:1" onclick="addDeposit('dom')">💰 국내 입금 기록</button>
       <button class="record-btn" style="background:var(--yellow-card);border-color:var(--yellow-border);color:var(--yellow-accent);flex:1" onclick="recordSnap('dom')">📸 국내 자산 기록</button>
     </div>
+    <div style="text-align:center;margin-top:6px"><span style="font-size:12px;color:var(--yellow-accent);text-decoration:underline" onclick="manageDeposits('dom')">📝 입금내역 보기/삭제</span></div>
   </div>
   <div class="card" id="domReturnsCard" style="margin-top:14px">
     <div class="chart-title" style="color:var(--yellow-accent)">📅 국내 기간별 자산 변화율</div>
@@ -745,6 +746,7 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
       <button class="record-btn" style="background:#fff;border:1px solid var(--border);color:var(--blue);flex:1" onclick="addDeposit('ov')">💰 해외 입금 기록</button>
       <button class="record-btn" style="flex:1" onclick="recordSnap('ov')">📸 해외 자산 기록</button>
     </div>
+    <div style="text-align:center;margin-top:6px"><span style="font-size:12px;color:var(--blue);text-decoration:underline" onclick="manageDeposits('ov')">📝 입금내역 보기/삭제</span></div>
   </div>
   <div class="card" id="ovReturnsCard" style="margin-top:14px">
     <div class="chart-title">📅 해외 기간별 자산 변화율</div>
@@ -798,6 +800,7 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
       <button class="record-btn" style="background:#fff;border:1px solid #ce93d8;color:var(--purple);flex:1" onclick="addDeposit('pen')">💰 연금 입금 기록</button>
       <button class="record-btn" style="background:var(--purple-light);border-color:#ce93d8;color:var(--purple);flex:1" onclick="recordSnap('pen')">📸 연금 자산 기록</button>
     </div>
+    <div style="text-align:center;margin-top:6px"><span style="font-size:12px;color:var(--purple);text-decoration:underline" onclick="manageDeposits('pen')">📝 입금내역 보기/삭제</span></div>
   </div>
   <div class="card" id="penReturnsCard" style="margin-top:14px">
     <div class="chart-title" style="color:var(--purple)">📅 연금 기간별 자산 변화율</div>
@@ -2047,6 +2050,29 @@ function addDeposit(key) {
   renderAllReturnsTables();
   showToast("✅ "+label+" 입금 "+fmt(amt)+"원 기록 완료!");
 }
+
+function manageDeposits(key) {
+  var label = key==="dom"?"국내":key==="ov"?"해외":"연금";
+  var list = (deposits[key]||[]).slice().sort(function(a,b){ return b.ts-a.ts; });
+  if (!list.length) { showToast("📭 "+label+" 입금 기록이 없습니다", true); return; }
+  var lines = list.map(function(d,i){
+    var dt = new Date(d.ts);
+    var mm = dt.getMonth()+1, dd = dt.getDate();
+    var hh = String(dt.getHours()).padStart(2,"0"), mi = String(dt.getMinutes()).padStart(2,"0");
+    return (i+1)+". "+mm+"/"+dd+" "+hh+":"+mi+" - "+fmt(d.amount)+"원";
+  }).join("\n");
+  var input = prompt("💰 "+label+" 입금 기록 목록\n\n"+lines+"\n\n삭제할 번호를 입력하세요 (취소하려면 그냥 확인/취소)");
+  if (input===null || input.trim()==="") return;
+  var idx = parseInt(input,10)-1;
+  if (isNaN(idx) || idx<0 || idx>=list.length) { showToast("⚠️ 올바른 번호를 입력해주세요", true); return; }
+  var target = list[idx];
+  if (!confirm(mm2(target)+" - "+fmt(target.amount)+"원 기록을 삭제할까요?\n(수정하시려면 삭제 후 입금 기록 버튼으로 다시 입력해주세요)")) return;
+  deposits[key] = (deposits[key]||[]).filter(function(d){ return d.ts!==target.ts; });
+  save();
+  renderAllReturnsTables();
+  showToast("🗑️ 입금 기록 삭제 완료");
+}
+function mm2(d){ var dt=new Date(d.ts); return (dt.getMonth()+1)+"/"+dt.getDate(); }
 
 function getDepositsForKey(key) {
   if (key==="all") return (deposits.dom||[]).concat(deposits.ov||[],deposits.pen||[]);
