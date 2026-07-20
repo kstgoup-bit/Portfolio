@@ -2058,14 +2058,14 @@ function manageDeposits(key) {
     var dt = new Date(d.ts);
     var mm = dt.getMonth()+1, dd = dt.getDate();
     var hh = String(dt.getHours()).padStart(2,"0"), mi = String(dt.getMinutes()).padStart(2,"0");
-    return (i+1)+". "+mm+"/"+dd+" "+hh+":"+mi+" - "+fmt(d.amount)+"원";
+    return (i+1)+". "+mm+"/"+dd+" "+hh+":"+mi+" - "+Math.round(d.amount).toLocaleString()+"원";
   }).join("\n");
   var input = prompt("💰 "+label+" 입금 기록 목록\n\n"+lines+"\n\n삭제할 번호를 입력하세요 (취소하려면 그냥 확인/취소)");
   if (input===null || input.trim()==="") return;
   var idx = parseInt(input,10)-1;
   if (isNaN(idx) || idx<0 || idx>=list.length) { showToast("⚠️ 올바른 번호를 입력해주세요", true); return; }
   var target = list[idx];
-  if (!confirm(mm2(target)+" - "+fmt(target.amount)+"원 기록을 삭제할까요?\n(수정하시려면 삭제 후 입금 기록 버튼으로 다시 입력해주세요)")) return;
+  if (!confirm(mm2(target)+" - "+Math.round(target.amount).toLocaleString()+"원 기록을 삭제할까요?\n(수정하시려면 삭제 후 입금 기록 버튼으로 다시 입력해주세요)")) return;
   deposits[key] = (deposits[key]||[]).filter(function(d){ return d.ts!==target.ts; });
   save();
   renderAllReturnsTables();
