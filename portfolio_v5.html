@@ -2038,11 +2038,10 @@ var RETURN_PERIODS_RIGHT = [
 
 function addDeposit(key) {
   var label = key==="dom"?"국내":key==="ov"?"해외":"연금";
-  var input = prompt("💰 "+label+" 오늘 입금(매수)한 금액을 입력하세요 (만원 단위, 예: 150)");
+  var input = prompt("💰 "+label+" 오늘 입금(매수)한 금액을 입력하세요 (원 단위, 예: 870000)");
   if(input===null) return;
   var amt = parseFloat(String(input).replace(/[^0-9.\-]/g,""));
   if(!amt || amt<=0) { showToast("⚠️ 올바른 금액을 입력해주세요", true); return; }
-  amt = amt*10000;
   if(!deposits[key]) deposits[key]=[];
   deposits[key].push({ts:Date.now(), amount:amt});
   deposits[key].sort(function(a,b){ return a.ts-b.ts; });
