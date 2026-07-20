@@ -33,7 +33,7 @@ self.addEventListener('activate', function(event) {
 // 요청: 네트워크 우선, 실패 시 캐시 (항상 최신 파일 우선)
 self.addEventListener('fetch', function(event) {
   event.respondWith(
-    fetch(event.request).then(function(response) {
+    fetch(event.request, {cache: 'no-store'}).then(function(response) {
       if (response && response.status === 200) {
         var clone = response.clone();
         caches.open(CACHE_NAME).then(function(cache) {
