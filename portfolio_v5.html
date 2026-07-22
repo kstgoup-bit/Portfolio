@@ -879,6 +879,7 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
   <div class="chart-wrap">
     <div class="chart-title" style="color:#1a1a2e">📊 올해 월별 배당금</div>
     <svg id="divBarChart" viewBox="0 0 340 130" style="width:100%"></svg>
+    <div id="divYearTotal" style="text-align:center;font-size:13px;font-weight:800;color:#2e7d32;margin-top:4px"></div>
   </div>
 
   <!-- 종목별 배당 현황 -->
@@ -4084,7 +4085,7 @@ function delDiv(i) {
 
 function renderDivBarChart() {
   var svg=document.getElementById("divBarChart");
-  if(!divList.length){svg.innerHTML='<text x="170" y="60" text-anchor="middle" fill="#b0bec5" font-size="11">배당금을 입력하면 차트가 표시돼요</text>';return;}
+  if(!divList.length){svg.innerHTML='<text x="170" y="60" text-anchor="middle" fill="#b0bec5" font-size="11">배당금을 입력하면 차트가 표시돼요</text>';var te0=document.getElementById("divYearTotal");if(te0)te0.textContent="";return;}
   var thisYear=String(new Date().getFullYear());
   // 올해 1~12월 고정
   var keys=[];
@@ -4117,6 +4118,9 @@ function renderDivBarChart() {
     '<text x="'+cx+'" y="'+(H-padB+16)+'" text-anchor="middle" font-size="10" fill="'+(v>0?"#2e7d32":"#b0bec5")+'" font-weight="'+(v>0?"700":"400")+'">'+lbl+'</text>';
   }).join("");
   svg.innerHTML=bars;
+  var yearTotal=vals.reduce(function(a,b){return a+b;},0);
+  var totalEl=document.getElementById("divYearTotal");
+  if(totalEl) totalEl.textContent="올해 배당금 합계: "+Math.round(yearTotal).toLocaleString()+"원";
 }
 
 // =============================================
