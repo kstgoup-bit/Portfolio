@@ -879,7 +879,7 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
   <div class="chart-wrap">
     <div class="chart-title" style="color:#1a1a2e">📊 올해 월별 배당금</div>
     <svg id="divBarChart" viewBox="0 0 340 130" style="width:100%"></svg>
-    <div id="divYearTotal" style="text-align:center;font-size:13px;font-weight:800;color:#2e7d32;margin-top:4px"></div>
+    <div id="divYearTotal" style="text-align:left;font-size:14px;font-weight:800;color:#1a1a2e;margin-top:4px"></div>
   </div>
 
   <!-- 종목별 배당 현황 -->
@@ -4120,7 +4120,7 @@ function renderDivBarChart() {
   svg.innerHTML=bars;
   var yearTotal=vals.reduce(function(a,b){return a+b;},0);
   var totalEl=document.getElementById("divYearTotal");
-  if(totalEl) totalEl.textContent="올해 배당금 합계: "+Math.round(yearTotal).toLocaleString()+"원";
+  if(totalEl) totalEl.textContent="💰 올해 배당금 합계: "+Math.round(yearTotal).toLocaleString()+"원";
 }
 
 // =============================================
