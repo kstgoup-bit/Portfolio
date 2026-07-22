@@ -822,7 +822,11 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
   <!-- 요약 4칸 -->
   <div class="div-summary" style="grid-template-columns:1fr 1fr">
     <div class="div-card">
-      <div class="div-lbl">올해 수령 배당</div>
+      <div class="div-lbl">
+        <select id="divSumYear" onchange="updateDivSumYear()" style="border:none;background:none;font-size:12px;font-weight:700;color:#1a1a2e;font-family:'Noto Sans KR',sans-serif;cursor:pointer;width:100%">
+          <option value="">년 선택</option>
+        </select>
+      </div>
       <div class="div-val" id="divYear">0원</div>
     </div>
     <div class="div-card">
@@ -3884,7 +3888,7 @@ function renderNews(headlines, translated, btn, status, list){
 function renderDividend() {
   var now=new Date();
   var yr=now.getFullYear();
-  // 올해 수령
+  // 올해 수령 (기본값, 드롭다운 채운 뒤 updateDivSumYear가 실제 표시값을 다시 계산함)
   var yearDiv=divList.filter(function(d){return new Date(d.date).getFullYear()===yr;}).reduce(function(s,d){return s+d.amount;},0);
   // 누적
   var totalDiv=divList.reduce(function(s,d){return s+d.amount;},0);
@@ -3897,7 +3901,20 @@ function renderDividend() {
   var mCount=Object.keys(months).length||1;
   var monthly=totalDiv/mCount;
 
-  document.getElementById("divYear").textContent=Math.round(yearDiv).toLocaleString()+"원";
+  // 년 선택 드롭다운 채우기 - 데이터에 있는 연도 + 올해(데이터 없어도 항상 포함)
+  var dsy=document.getElementById("divSumYear");
+  if(dsy){
+    var savedY=localStorage.getItem("v5_divSumYear");
+    var curDsy=savedY||dsy.value;
+    var yearsSet={}; yearsSet[yr]=true;
+    divList.forEach(function(d){ yearsSet[new Date(d.date).getFullYear()]=true; });
+    var yearsArr=Object.keys(yearsSet).map(Number).sort(function(a,b){return b-a;});
+    dsy.innerHTML=yearsArr.map(function(y){
+      return '<option value="'+y+'"'+(String(y)===curDsy?' selected':'')+'>'+y+'년 수령 배당</option>';
+    }).join("");
+    dsy.value=curDsy&&yearsSet[curDsy]?curDsy:String(yr);
+  }
+  updateDivSumYear();
   // 월 선택 드롭다운 채우기 - 올해 전체 12개월
   var dsm=document.getElementById("divSumMonth");
   if(dsm){
@@ -3988,6 +4005,17 @@ function saveDivEdit(i){
   divList[i].amount=amt;
   localStorage.setItem('v5_div', JSON.stringify(divList));
   renderDividend();
+}
+
+function updateDivSumYear(){
+  var dsy=document.getElementById("divSumYear");
+  var el=document.getElementById("divYear");
+  if(!dsy||!el) return;
+  var y=dsy.value;
+  localStorage.setItem("v5_divSumYear", y);
+  if(!y){el.textContent="0원";return;}
+  var sum=divList.filter(function(d){return String(new Date(d.date).getFullYear())===y;}).reduce(function(s,d){return s+d.amount;},0);
+  el.textContent=Math.round(sum).toLocaleString()+"원";
 }
 
 function updateDivSumMonth(){
