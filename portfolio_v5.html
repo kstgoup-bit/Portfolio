@@ -2043,16 +2043,42 @@ var RETURN_PERIODS_RIGHT = [
 
 function addDeposit(key) {
   var label = key==="dom"?"국내":key==="ov"?"해외":"연금";
-  var input = prompt("💰 "+label+" 오늘 입금(매수)한 금액을 입력하세요 (원 단위, 예: 870000)");
-  if(input===null) return;
-  var amt = parseFloat(String(input).replace(/[^0-9.\-]/g,""));
-  if(!amt || amt<=0) { showToast("⚠️ 올바른 금액을 입력해주세요", true); return; }
-  if(!deposits[key]) deposits[key]=[];
-  deposits[key].push({ts:Date.now(), amount:amt});
-  deposits[key].sort(function(a,b){ return a.ts-b.ts; });
-  save();
-  renderAllReturnsTables();
-  showToast("✅ "+label+" 입금 "+fmt(amt)+"원 기록 완료!");
+  var old = document.getElementById("depositInputBox");
+  if(old) old.remove();
+
+  var box = document.createElement("div");
+  box.id = "depositInputBox";
+  box.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9998;display:flex;align-items:center;justify-content:center;padding:24px";
+  box.innerHTML =
+    '<div style="background:#fff;border-radius:20px;padding:24px;width:100%;max-width:360px;box-shadow:0 8px 32px rgba(0,0,0,0.25)">' +
+      '<div style="font-size:16px;font-weight:900;color:#1a2236;margin-bottom:14px">💰 '+label+' 오늘 입금(매수)한 금액을 입력하세요</div>' +
+      '<input id="depositAmtInput" type="text" inputmode="numeric" placeholder="예: 870,000" oninput="fmtAmtInp(this)" style="width:100%;box-sizing:border-box;border:1.5px solid #90caf9;border-radius:10px;padding:12px;font-size:16px;font-weight:700;margin-bottom:6px;text-align:right">' +
+      '<div style="font-size:12px;color:#999;text-align:right;margin-bottom:18px">원 단위</div>' +
+      '<div style="display:flex;gap:8px">' +
+        '<button id="depositCancelBtn" style="flex:1;padding:12px;background:#f5f5f5;color:#333;border:1px solid #ddd;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer">취소</button>' +
+        '<button id="depositConfirmBtn" style="flex:1;padding:12px;background:linear-gradient(135deg,#1565c0,#1976d2);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer">확인</button>' +
+      '</div>' +
+    '</div>';
+  document.body.appendChild(box);
+
+  var inputEl = document.getElementById("depositAmtInput");
+  inputEl.focus();
+
+  function confirm(){
+    var amt = parseFloat(inputEl.value.replace(/[^0-9.\-]/g,""));
+    if(!amt || amt<=0) { showToast("⚠️ 올바른 금액을 입력해주세요", true); return; }
+    if(!deposits[key]) deposits[key]=[];
+    deposits[key].push({ts:Date.now(), amount:amt});
+    deposits[key].sort(function(a,b){ return a.ts-b.ts; });
+    save();
+    renderAllReturnsTables();
+    showToast("✅ "+label+" 입금 "+fmt(amt)+"원 기록 완료!");
+    box.remove();
+  }
+
+  document.getElementById("depositConfirmBtn").onclick = confirm;
+  document.getElementById("depositCancelBtn").onclick = function(){ box.remove(); };
+  inputEl.onkeydown = function(e){ if(e.key==="Enter") confirm(); };
 }
 
 function manageDeposits(key) {
