@@ -1235,8 +1235,8 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
 
   <div class="card" style="border-left:4px solid #c62828;background:linear-gradient(180deg,#fff8f7 0%,#ffe9e5 100%)">
     <div style="font-size:11px;color:var(--muted);margin-bottom:6px">80세 최종 수령 예상액</div>
-    <div style="font-size:26px;font-weight:900;color:#b71c1c">33,663.2만원</div>
-    <div style="font-size:11px;color:var(--muted);margin-top:8px">원금 12,825만원 + 순이자 20,838.2만원 (비과세)</div>
+    <div style="font-size:26px;font-weight:900;color:#b71c1c">35,499.5만원</div>
+    <div style="font-size:11px;color:var(--muted);margin-top:8px">원금 13,950만원(69세 칠순축하금 450, 79세 팔순축하금 675 포함) + 순이자 21,549.5만원 (비과세)</div>
   </div>
 
   <div class="card">
@@ -4454,20 +4454,20 @@ var NOTOUCH_DATA=[
   {age:66,pay:450.0,int:432.0,bal:5964.7},
   {age:67,pay:450.0,int:507.0,bal:6921.7},
   {age:68,pay:450.0,int:588.4,bal:7960.1},
-  {age:69,pay:450.0,int:676.6,bal:9086.7},
-  {age:70,pay:600.0,int:772.4,bal:10459.1},
-  {age:71,pay:600.0,int:889.0,bal:11948.1},
-  {age:72,pay:600.0,int:1015.6,bal:13563.7},
-  {age:73,pay:600.0,int:1152.9,bal:15316.6},
-  {age:74,pay:600.0,int:1301.9,bal:17218.5},
-  {age:75,pay:750.0,int:1463.6,bal:19432.1},
-  {age:76,pay:750.0,int:1651.7,bal:21833.8},
-  {age:77,pay:750.0,int:1855.9,bal:24439.7},
-  {age:78,pay:750.0,int:2077.4,bal:27267.0},
-  {age:79,pay:750.0,int:2317.7,bal:30334.7},
-  {age:80,pay:750.0,int:2578.4,bal:33663.2}
+  {age:69,pay:900.0,int:676.6,bal:9536.7},
+  {age:70,pay:600.0,int:810.6,bal:10947.3},
+  {age:71,pay:600.0,int:930.5,bal:12477.8},
+  {age:72,pay:600.0,int:1060.6,bal:14138.5},
+  {age:73,pay:600.0,int:1201.8,bal:15940.2},
+  {age:74,pay:600.0,int:1354.9,bal:17895.1},
+  {age:75,pay:750.0,int:1521.1,bal:20166.2},
+  {age:76,pay:750.0,int:1714.1,bal:22630.4},
+  {age:77,pay:750.0,int:1923.6,bal:25303.9},
+  {age:78,pay:750.0,int:2150.8,bal:28204.8},
+  {age:79,pay:1425.0,int:2397.4,bal:32027.2},
+  {age:80,pay:750.0,int:2722.3,bal:35499.5}
 ];
-var NOTOUCH_TOTAL=33663.2, NOTOUCH_TOTAL_INT=20838.2;
+var NOTOUCH_TOTAL=35499.5, NOTOUCH_TOTAL_INT=21549.5;
 function fmtWon(n){
   var s=n.toFixed(1);
   var parts=s.split(".");
@@ -4520,10 +4520,14 @@ function renderNotouchForgone(){
     '</div>';
 }
 function getFace(ageUpTo){
-  // 56세부터 ageUpTo까지 명목 지급액 누계
+  // 56세부터 ageUpTo까지 명목 지급액 누계 (69세 칠순축하금 +450, 79세 팔순축하금 +675 포함)
   var sum=0;
   for(var a=56;a<=ageUpTo;a++){
-    if(a<=59) sum+=300; else if(a<=64) sum+=375; else if(a<=69) sum+=450; else if(a<=74) sum+=600; else sum+=750;
+    var p;
+    if(a<=59) p=300; else if(a<=64) p=375; else if(a<=69) p=450; else if(a<=74) p=600; else p=750;
+    if(a===69) p+=450;
+    if(a===79) p+=675;
+    sum+=p;
   }
   return sum;
 }
