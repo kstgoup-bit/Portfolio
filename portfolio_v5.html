@@ -1231,17 +1231,22 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
 <!-- 노터치 자산 -->
 <div class="panel" id="panel-notouch" style="background:#fdf3f0">
   <div style="font-size:16px;font-weight:900;color:var(--text);margin-bottom:4px">🔒 노터치 자산</div>
-  <div style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.6">55~69세 연금보험 미수령분, 연 8.5% 복리·비과세.<br>69세까지 절대 손대지 않고 70세 일시 수령이 원칙.</div>
+  <div style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.6">55~80세 연금보험 미수령분, 연 8.5% 복리·비과세.<br>80세까지 절대 손대지 않고 일시 수령이 원칙. (종신형이라 81세 이후도 생존 시 매년 750만원 별도 수령, 단 증액 없음)</div>
 
   <div class="card" style="border-left:4px solid #c62828;background:linear-gradient(180deg,#fff8f7 0%,#ffe9e5 100%)">
-    <div style="font-size:11px;color:var(--muted);margin-bottom:6px">70세 최종 수령 예상액</div>
-    <div style="font-size:26px;font-weight:900;color:#b71c1c">9,859.1만원</div>
-    <div style="font-size:11px;color:var(--muted);margin-top:8px">원금 5,325만원 + 순이자 4,534.1만원 (비과세)</div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:6px">80세 최종 수령 예상액</div>
+    <div style="font-size:26px;font-weight:900;color:#b71c1c">33,663.2만원</div>
+    <div style="font-size:11px;color:var(--muted);margin-top:8px">원금 12,825만원 + 순이자 20,838.2만원 (비과세)</div>
   </div>
 
   <div class="card">
-    <div style="font-size:13px;font-weight:800;color:var(--text);margin-bottom:10px">📋 연도별 누적표 (56세~70세)</div>
-    <div style="overflow-x:auto">
+    <div style="font-size:13px;font-weight:800;color:var(--text);margin-bottom:10px">📈 나이별 누적잔액 곡선 (56세~80세)</div>
+    <svg id="notouchChart" width="100%" viewBox="0 0 340 190" style="display:block"></svg>
+  </div>
+
+  <div class="card">
+    <div style="font-size:13px;font-weight:800;color:var(--text);margin-bottom:10px">📋 연도별 누적표 (56세~80세)</div>
+    <div style="overflow-x:auto;max-height:320px;overflow-y:auto">
     <table style="width:100%;border-collapse:collapse;font-size:11.5px">
       <tr style="background:#f5f5f5;font-weight:800;color:var(--muted)">
         <td style="padding:6px 4px;border-bottom:1.5px solid var(--border)">나이</td>
@@ -4439,7 +4444,7 @@ var NOTOUCH_DATA=[
   {age:56,pay:300.0,int:0.0,bal:300.0},
   {age:57,pay:300.0,int:25.5,bal:625.5},
   {age:58,pay:300.0,int:53.2,bal:978.7},
-  {age:59,pay:300.0,int:83.2,bal:1361.9},
+  {age:59,pay:300.0,int:83.2,bal:1361.8},
   {age:60,pay:375.0,int:115.8,bal:1852.6},
   {age:61,pay:375.0,int:157.5,bal:2385.1},
   {age:62,pay:375.0,int:202.7,bal:2962.8},
@@ -4448,20 +4453,30 @@ var NOTOUCH_DATA=[
   {age:65,pay:450.0,int:362.9,bal:5082.7},
   {age:66,pay:450.0,int:432.0,bal:5964.7},
   {age:67,pay:450.0,int:507.0,bal:6921.7},
-  {age:68,pay:450.0,int:588.3,bal:7960.1},
+  {age:68,pay:450.0,int:588.4,bal:7960.1},
   {age:69,pay:450.0,int:676.6,bal:9086.7},
-  {age:70,pay:null,int:772.4,bal:9859.1}
+  {age:70,pay:600.0,int:772.4,bal:10459.1},
+  {age:71,pay:600.0,int:889.0,bal:11948.1},
+  {age:72,pay:600.0,int:1015.6,bal:13563.7},
+  {age:73,pay:600.0,int:1152.9,bal:15316.6},
+  {age:74,pay:600.0,int:1301.9,bal:17218.5},
+  {age:75,pay:750.0,int:1463.6,bal:19432.1},
+  {age:76,pay:750.0,int:1651.7,bal:21833.8},
+  {age:77,pay:750.0,int:1855.9,bal:24439.7},
+  {age:78,pay:750.0,int:2077.4,bal:27267.0},
+  {age:79,pay:750.0,int:2317.7,bal:30334.7},
+  {age:80,pay:750.0,int:2578.4,bal:33663.2}
 ];
-var NOTOUCH_TOTAL=9859.1, NOTOUCH_TOTAL_INT=4534.1;
+var NOTOUCH_TOTAL=33663.2, NOTOUCH_TOTAL_INT=20838.2;
 function renderNotouch(){
   var tb=document.getElementById("notouchTableBody");
   if(!tb) return;
   var rows="";
   NOTOUCH_DATA.forEach(function(d){
-    var isLast=d.age===70;
+    var isLast=d.age===80;
     rows+='<tr style="'+(isLast?'background:#fff3e0;font-weight:900':'')+'">'+
       '<td style="padding:6px 4px;border-bottom:1px solid var(--border)">'+d.age+'세'+(isLast?' (수령)':'')+'</td>'+
-      '<td style="padding:6px 4px;border-bottom:1px solid var(--border);text-align:right">'+(d.pay!==null?d.pay.toFixed(1)+'만원':'—')+'</td>'+
+      '<td style="padding:6px 4px;border-bottom:1px solid var(--border);text-align:right">'+d.pay.toFixed(1)+'만원</td>'+
       '<td style="padding:6px 4px;border-bottom:1px solid var(--border);text-align:right">'+d.int.toFixed(1)+'만원</td>'+
       '<td style="padding:6px 4px;border-bottom:1px solid var(--border);text-align:right;font-weight:800">'+d.bal.toFixed(1)+'만원</td>'+
       '</tr>';
@@ -4470,13 +4485,14 @@ function renderNotouch(){
 
   var sel=document.getElementById("notouchAgeSel");
   if(sel && sel.options.length===0){
-    for(var a=56;a<=69;a++){
+    for(var a=56;a<=79;a++){
       var opt=document.createElement("option");
       opt.value=a; opt.textContent=a+"세부터 매년 수령 전환";
       sel.appendChild(opt);
     }
   }
   renderNotouchForgone();
+  renderNotouchChart();
 }
 function renderNotouchForgone(){
   var sel=document.getElementById("notouchAgeSel");
@@ -4499,9 +4515,50 @@ function getFace(ageUpTo){
   // 56세부터 ageUpTo까지 명목 지급액 누계
   var sum=0;
   for(var a=56;a<=ageUpTo;a++){
-    if(a<=59) sum+=300; else if(a<=64) sum+=375; else sum+=450;
+    if(a<=59) sum+=300; else if(a<=64) sum+=375; else if(a<=69) sum+=450; else if(a<=74) sum+=600; else sum+=750;
   }
   return sum;
+}
+function renderNotouchChart(){
+  var svg=document.getElementById("notouchChart");
+  if(!svg) return;
+  var L=42,R=10,T=14,B=26,W=340,H=190,cW=W-L-R,cH=H-T-B;
+  var maxV=NOTOUCH_DATA[NOTOUCH_DATA.length-1].bal;
+  var minV=0;
+  var range=maxV-minV;
+  var coords=NOTOUCH_DATA.map(function(d,i){
+    return [L+i/(NOTOUCH_DATA.length-1)*cW, T+cH-(cH*((d.bal-minV)/range)), d];
+  });
+  var pathD=coords.map(function(c,i){return (i===0?"M":"L")+c[0].toFixed(1)+","+c[1].toFixed(1);}).join(" ");
+  var fillD=pathD+" L"+coords[coords.length-1][0].toFixed(1)+","+(T+cH)+" L"+coords[0][0].toFixed(1)+","+(T+cH)+" Z";
+  var yLines="",yLabels="";
+  for(var i=0;i<=4;i++){
+    var yVal=minV+range*(i/4);
+    var yPos=T+cH-(cH*(i/4));
+    yLines+='<line x1="'+L+'" y1="'+yPos+'" x2="'+(W-R)+'" y2="'+yPos+'" stroke="#eee" stroke-width="0.6" stroke-dasharray="3,3"/>';
+    yLabels+='<text x="'+(L-5)+'" y="'+(yPos+3)+'" text-anchor="end" font-size="8.5" fill="#546e7a">'+(yVal/10000).toFixed(1)+'억</text>';
+  }
+  var xLabels="";
+  coords.forEach(function(c,i){
+    var age=c[2].age;
+    if(age%5===0||age===56||age===80){
+      xLabels+='<text x="'+c[0].toFixed(1)+'" y="'+(T+cH+14)+'" text-anchor="middle" font-size="8.5" fill="#546e7a">'+age+'세</text>';
+    }
+  });
+  var lastC=coords[coords.length-1];
+  var markers='';
+  [56,60,65,70,75,80].forEach(function(ma){
+    var mc=coords.find(function(c){return c[2].age===ma;});
+    if(mc) markers+='<circle cx="'+mc[0].toFixed(1)+'" cy="'+mc[1].toFixed(1)+'" r="2.5" fill="#b71c1c"/>';
+  });
+  svg.innerHTML=
+    yLines+yLabels+
+    '<path d="'+fillD+'" fill="#ffcdd2" opacity="0.35"/>'+
+    '<path d="'+pathD+'" fill="none" stroke="#b71c1c" stroke-width="2"/>'+
+    markers+
+    '<circle cx="'+lastC[0].toFixed(1)+'" cy="'+lastC[1].toFixed(1)+'" r="3.5" fill="#b71c1c"/>'+
+    '<text x="'+lastC[0].toFixed(1)+'" y="'+(lastC[1]-8).toFixed(1)+'" text-anchor="end" font-size="10" fill="#b71c1c" font-weight="800">'+(lastC[2].bal/10000).toFixed(2)+'억</text>'+
+    xLabels;
 }
 
 // =============================================
