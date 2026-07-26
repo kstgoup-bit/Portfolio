@@ -1230,24 +1230,24 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
 
 <!-- 노터치 자산 -->
 <div class="panel" id="panel-notouch" style="background:#fdf3f0">
-  <div style="font-size:16px;font-weight:900;color:var(--text);margin-bottom:4px">🔒 노터치 자산</div>
-  <div style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.6">55~80세 연금보험 미수령분, 연 8.5% 복리·비과세.<br>80세까지 절대 손대지 않고 일시 수령이 원칙. (종신형이라 81세 이후도 생존 시 매년 750만원 별도 수령, 단 증액 없음)</div>
+  <div style="font-size:17px;font-weight:900;color:var(--text);margin-bottom:4px">🔒 노터치 자산</div>
+  <div style="font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.6">55~80세 연금보험 미수령분, 연 8.5% 복리·비과세.<br>80세까지 절대 손대지 않고 일시 수령이 원칙. (종신형이라 81세 이후도 생존 시 매년 750만원 별도 수령, 단 증액 없음)</div>
 
   <div class="card" style="border-left:4px solid #c62828;background:linear-gradient(180deg,#fff8f7 0%,#ffe9e5 100%)">
-    <div style="font-size:11px;color:var(--muted);margin-bottom:6px">80세 최종 수령 예상액</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:6px">80세 최종 수령 예상액</div>
     <div style="font-size:26px;font-weight:900;color:#b71c1c">35,499.5만원</div>
-    <div style="font-size:11px;color:var(--muted);margin-top:8px">원금 13,950만원(69세 칠순축하금 450, 79세 팔순축하금 675 포함) + 순이자 21,549.5만원 (비과세)</div>
+    <div style="font-size:12px;color:var(--muted);margin-top:8px">원금 13,950만원(69세 칠순축하금 450, 79세 팔순축하금 675 포함) + 순이자 21,549.5만원 (비과세)</div>
   </div>
 
   <div class="card">
-    <div style="font-size:13px;font-weight:800;color:var(--text);margin-bottom:10px">📈 나이별 누적잔액 곡선 (56세~80세)</div>
+    <div style="font-size:14px;font-weight:800;color:var(--text);margin-bottom:10px">📈 나이별 누적잔액 곡선 (56세~80세)</div>
     <svg id="notouchChart" width="100%" viewBox="0 0 340 190" style="display:block"></svg>
   </div>
 
   <div class="card">
-    <div style="font-size:13px;font-weight:800;color:var(--text);margin-bottom:10px">📋 연도별 누적표 (56세~80세)</div>
+    <div style="font-size:14px;font-weight:800;color:var(--text);margin-bottom:10px">📋 연도별 누적표 (56세~80세)</div>
     <div style="overflow-x:auto;max-height:320px;overflow-y:auto">
-    <table style="width:100%;border-collapse:collapse;font-size:11.5px">
+    <table style="width:100%;border-collapse:collapse;font-size:12.5px">
       <thead>
       <tr style="background:#f5f5f5;font-weight:800;color:var(--muted)">
         <td style="position:sticky;top:0;background:#f5f5f5;padding:6px 4px;border-bottom:1.5px solid var(--border);z-index:1">나이</td>
@@ -1262,11 +1262,11 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
   </div>
 
   <div class="card" style="border-left:4px solid #f57f17;background:linear-gradient(180deg,#fffef8 0%,#fff5c0 100%)">
-    <div style="font-size:13px;font-weight:800;color:var(--text);margin-bottom:10px">⚠️ 지금 유혹이 온다면?</div>
-    <div style="font-size:12px;color:var(--muted);margin-bottom:8px">몇 세부터 매년 수령으로 전환할지 선택해보세요</div>
-    <select id="notouchAgeSel" onchange="renderNotouchForgone()" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-family:'Pretendard',sans-serif;background:#fff;color:var(--text);margin-bottom:10px"></select>
+    <div style="font-size:14px;font-weight:800;color:var(--text);margin-bottom:10px">⚠️ 지금 유혹이 온다면?</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:8px">몇 세부터 매년 수령으로 전환할지 선택해보세요</div>
+    <select id="notouchAgeSel" onchange="renderNotouchForgone()" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:'Pretendard',sans-serif;background:#fff;color:var(--text);margin-bottom:10px"></select>
     <div id="notouchForgoneResult"></div>
-    <div style="font-size:10px;color:var(--muted);margin-top:8px;line-height:1.5">※ 전환 시점까지 쌓인 금액은 그대로 두고, 이후 회차는 명목금액 그대로(복리 없이) 수령한다고 가정한 참고용 추정치입니다. 실제 정산은 약관 기준을 따릅니다.</div>
+    <div style="font-size:11px;color:var(--muted);margin-top:8px;line-height:1.5">※ 전환 시점까지 쌓인 금액은 그대로 두고, 이후 회차는 명목금액 그대로(복리 없이) 수령한다고 가정한 참고용 추정치입니다. 실제 정산은 약관 기준을 따릅니다.</div>
   </div>
 </div>
 
@@ -4517,7 +4517,7 @@ function renderNotouchForgone(){
   }
   var forgone=NOTOUCH_TOTAL_INT-cumIntBeforeX;
   out.innerHTML='<div style="text-align:center;padding:10px;background:#fff;border-radius:10px;border:1.5px solid #f57f17">'+
-    '<div style="font-size:11px;color:var(--muted)">'+X+'세부터 전환 시 포기하는 이자</div>'+
+    '<div style="font-size:12px;color:var(--muted)">'+X+'세부터 전환 시 포기하는 이자</div>'+
     '<div style="font-size:22px;font-weight:900;color:#e65100;margin-top:4px">'+fmtWon(forgone)+'만원</div>'+
     '</div>';
 }
@@ -4550,13 +4550,13 @@ function renderNotouchChart(){
     var yVal=minV+range*(i/4);
     var yPos=T+cH-(cH*(i/4));
     yLines+='<line x1="'+L+'" y1="'+yPos+'" x2="'+(W-R)+'" y2="'+yPos+'" stroke="#eee" stroke-width="0.6" stroke-dasharray="3,3"/>';
-    yLabels+='<text x="'+(L-5)+'" y="'+(yPos+3)+'" text-anchor="end" font-size="8.5" fill="#546e7a">'+(yVal/10000).toFixed(1)+'억</text>';
+    yLabels+='<text x="'+(L-5)+'" y="'+(yPos+3)+'" text-anchor="end" font-size="9.5" fill="#546e7a">'+(yVal/10000).toFixed(1)+'억</text>';
   }
   var xLabels="";
   coords.forEach(function(c,i){
     var age=c[2].age;
     if(age%5===0||age===56||age===80){
-      xLabels+='<text x="'+c[0].toFixed(1)+'" y="'+(T+cH+14)+'" text-anchor="middle" font-size="8.5" fill="#546e7a">'+age+'세</text>';
+      xLabels+='<text x="'+c[0].toFixed(1)+'" y="'+(T+cH+14)+'" text-anchor="middle" font-size="9.5" fill="#546e7a">'+age+'세</text>';
     }
   });
   var lastC=coords[coords.length-1];
@@ -4571,7 +4571,7 @@ function renderNotouchChart(){
     var cx=crossC[0].toFixed(1), cy=crossC[1].toFixed(1);
     crossSvg='<line x1="'+cx+'" y1="'+(T)+'" x2="'+cx+'" y2="'+(T+cH)+'" stroke="#1565c0" stroke-width="1.2" stroke-dasharray="4,3"/>'+
       '<circle cx="'+cx+'" cy="'+cy+'" r="4" fill="#1565c0" stroke="#fff" stroke-width="1.5"/>'+
-      '<text x="'+cx+'" y="'+(T+9)+'" text-anchor="middle" font-size="8.5" fill="#1565c0" font-weight="800">67세 이자&gt;원금 역전</text>';
+      '<text x="'+cx+'" y="'+(T+9)+'" text-anchor="middle" font-size="9.5" fill="#1565c0" font-weight="800">67세 이자&gt;원금 역전</text>';
   }
   svg.innerHTML=
     yLines+yLabels+
