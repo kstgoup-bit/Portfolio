@@ -4468,6 +4468,12 @@ var NOTOUCH_DATA=[
   {age:80,pay:750.0,int:2578.4,bal:33663.2}
 ];
 var NOTOUCH_TOTAL=33663.2, NOTOUCH_TOTAL_INT=20838.2;
+function fmtWon(n){
+  var s=n.toFixed(1);
+  var parts=s.split(".");
+  parts[0]=parts[0].replace(/\B(?=(\d{3})+(?!\d))/g,",");
+  return parts.join(".");
+}
 function renderNotouch(){
   var tb=document.getElementById("notouchTableBody");
   if(!tb) return;
@@ -4478,9 +4484,9 @@ function renderNotouch(){
     var rowStyle=isLast?'background:#fff3e0;font-weight:900':(isCross?'background:#e3f2fd;font-weight:900':'');
     rows+='<tr style="'+rowStyle+'">'+
       '<td style="padding:6px 4px;border-bottom:1px solid var(--border)">'+d.age+'세'+(isLast?' (수령)':'')+(isCross?' 🔵역전':'')+'</td>'+
-      '<td style="padding:6px 4px;border-bottom:1px solid var(--border);text-align:right">'+d.pay.toFixed(1)+'만원</td>'+
-      '<td style="padding:6px 4px;border-bottom:1px solid var(--border);text-align:right">'+d.int.toFixed(1)+'만원</td>'+
-      '<td style="padding:6px 4px;border-bottom:1px solid var(--border);text-align:right;font-weight:800">'+d.bal.toFixed(1)+'만원</td>'+
+      '<td style="padding:6px 4px;border-bottom:1px solid var(--border);text-align:right">'+fmtWon(d.pay)+'만원</td>'+
+      '<td style="padding:6px 4px;border-bottom:1px solid var(--border);text-align:right">'+fmtWon(d.int)+'만원</td>'+
+      '<td style="padding:6px 4px;border-bottom:1px solid var(--border);text-align:right;font-weight:800">'+fmtWon(d.bal)+'만원</td>'+
       '</tr>';
   });
   tb.innerHTML=rows;
@@ -4510,7 +4516,7 @@ function renderNotouchForgone(){
   var forgone=NOTOUCH_TOTAL_INT-cumIntBeforeX;
   out.innerHTML='<div style="text-align:center;padding:10px;background:#fff;border-radius:10px;border:1.5px solid #f57f17">'+
     '<div style="font-size:11px;color:var(--muted)">'+X+'세부터 전환 시 포기하는 이자</div>'+
-    '<div style="font-size:22px;font-weight:900;color:#e65100;margin-top:4px">'+forgone.toFixed(1)+'만원</div>'+
+    '<div style="font-size:22px;font-weight:900;color:#e65100;margin-top:4px">'+fmtWon(forgone)+'만원</div>'+
     '</div>';
 }
 function getFace(ageUpTo){
