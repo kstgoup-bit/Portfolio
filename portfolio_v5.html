@@ -4474,8 +4474,10 @@ function renderNotouch(){
   var rows="";
   NOTOUCH_DATA.forEach(function(d){
     var isLast=d.age===80;
-    rows+='<tr style="'+(isLast?'background:#fff3e0;font-weight:900':'')+'">'+
-      '<td style="padding:6px 4px;border-bottom:1px solid var(--border)">'+d.age+'세'+(isLast?' (수령)':'')+'</td>'+
+    var isCross=d.age===67;
+    var rowStyle=isLast?'background:#fff3e0;font-weight:900':(isCross?'background:#e3f2fd;font-weight:900':'');
+    rows+='<tr style="'+rowStyle+'">'+
+      '<td style="padding:6px 4px;border-bottom:1px solid var(--border)">'+d.age+'세'+(isLast?' (수령)':'')+(isCross?' 🔵역전':'')+'</td>'+
       '<td style="padding:6px 4px;border-bottom:1px solid var(--border);text-align:right">'+d.pay.toFixed(1)+'만원</td>'+
       '<td style="padding:6px 4px;border-bottom:1px solid var(--border);text-align:right">'+d.int.toFixed(1)+'만원</td>'+
       '<td style="padding:6px 4px;border-bottom:1px solid var(--border);text-align:right;font-weight:800">'+d.bal.toFixed(1)+'만원</td>'+
@@ -4551,11 +4553,20 @@ function renderNotouchChart(){
     var mc=coords.find(function(c){return c[2].age===ma;});
     if(mc) markers+='<circle cx="'+mc[0].toFixed(1)+'" cy="'+mc[1].toFixed(1)+'" r="2.5" fill="#b71c1c"/>';
   });
+  var crossC=coords.find(function(c){return c[2].age===67;});
+  var crossSvg='';
+  if(crossC){
+    var cx=crossC[0].toFixed(1), cy=crossC[1].toFixed(1);
+    crossSvg='<line x1="'+cx+'" y1="'+(T)+'" x2="'+cx+'" y2="'+(T+cH)+'" stroke="#1565c0" stroke-width="1.2" stroke-dasharray="4,3"/>'+
+      '<circle cx="'+cx+'" cy="'+cy+'" r="4" fill="#1565c0" stroke="#fff" stroke-width="1.5"/>'+
+      '<text x="'+cx+'" y="'+(T+9)+'" text-anchor="middle" font-size="8.5" fill="#1565c0" font-weight="800">67세 이자&gt;원금 역전</text>';
+  }
   svg.innerHTML=
     yLines+yLabels+
     '<path d="'+fillD+'" fill="#ffcdd2" opacity="0.35"/>'+
     '<path d="'+pathD+'" fill="none" stroke="#b71c1c" stroke-width="2"/>'+
     markers+
+    crossSvg+
     '<circle cx="'+lastC[0].toFixed(1)+'" cy="'+lastC[1].toFixed(1)+'" r="3.5" fill="#b71c1c"/>'+
     '<text x="'+lastC[0].toFixed(1)+'" y="'+(lastC[1]-8).toFixed(1)+'" text-anchor="end" font-size="10" fill="#b71c1c" font-weight="800">'+(lastC[2].bal/10000).toFixed(2)+'억</text>'+
     xLabels;
