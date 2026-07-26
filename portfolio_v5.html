@@ -572,6 +572,7 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
   <button class="tab" onclick="switchTab('commandments')">📜 12계명</button>
   <button class="tab" onclick="switchTab('memo')">📝 메모</button>
   <button class="tab" onclick="switchTab('settings')">⚙️ 설정</button>
+  <button class="tab" onclick="switchTab('notouch')">🔒 노터치자산</button>
 </div>
 </div>
 
@@ -1224,6 +1225,41 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
     <div style="text-align:center;padding:40px 0;color:var(--muted);font-size:13px">
       🔄 새로고침을 눌러<br>보유종목 최신 뉴스를 불러오세요
     </div>
+  </div>
+</div>
+
+<!-- 노터치 자산 -->
+<div class="panel" id="panel-notouch" style="background:#fdf3f0">
+  <div style="font-size:16px;font-weight:900;color:var(--text);margin-bottom:4px">🔒 노터치 자산</div>
+  <div style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.6">55~69세 연금보험 미수령분, 연 8.5% 복리·비과세.<br>69세까지 절대 손대지 않고 70세 일시 수령이 원칙.</div>
+
+  <div class="card" style="border-left:4px solid #c62828;background:linear-gradient(180deg,#fff8f7 0%,#ffe9e5 100%)">
+    <div style="font-size:11px;color:var(--muted);margin-bottom:6px">70세 최종 수령 예상액</div>
+    <div style="font-size:26px;font-weight:900;color:#b71c1c">9,859.1만원</div>
+    <div style="font-size:11px;color:var(--muted);margin-top:8px">원금 5,325만원 + 순이자 4,534.1만원 (비과세)</div>
+  </div>
+
+  <div class="card">
+    <div style="font-size:13px;font-weight:800;color:var(--text);margin-bottom:10px">📋 연도별 누적표 (56세~70세)</div>
+    <div style="overflow-x:auto">
+    <table style="width:100%;border-collapse:collapse;font-size:11.5px">
+      <tr style="background:#f5f5f5;font-weight:800;color:var(--muted)">
+        <td style="padding:6px 4px;border-bottom:1.5px solid var(--border)">나이</td>
+        <td style="padding:6px 4px;border-bottom:1.5px solid var(--border);text-align:right">당해 미수령액</td>
+        <td style="padding:6px 4px;border-bottom:1.5px solid var(--border);text-align:right">당해 이자</td>
+        <td style="padding:6px 4px;border-bottom:1.5px solid var(--border);text-align:right">누적잔액</td>
+      </tr>
+      <tbody id="notouchTableBody"></tbody>
+    </table>
+    </div>
+  </div>
+
+  <div class="card" style="border-left:4px solid #f57f17;background:linear-gradient(180deg,#fffef8 0%,#fff5c0 100%)">
+    <div style="font-size:13px;font-weight:800;color:var(--text);margin-bottom:10px">⚠️ 지금 유혹이 온다면?</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:8px">몇 세부터 매년 수령으로 전환할지 선택해보세요</div>
+    <select id="notouchAgeSel" onchange="renderNotouchForgone()" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-family:'Pretendard',sans-serif;background:#fff;color:var(--text);margin-bottom:10px"></select>
+    <div id="notouchForgoneResult"></div>
+    <div style="font-size:10px;color:var(--muted);margin-top:8px;line-height:1.5">※ 전환 시점까지 쌓인 금액은 그대로 두고, 이후 회차는 명목금액 그대로(복리 없이) 수령한다고 가정한 참고용 추정치입니다. 실제 정산은 약관 기준을 따릅니다.</div>
   </div>
 </div>
 
@@ -4376,15 +4412,16 @@ function changePw() {
 // 탭 전환
 // =============================================
 function switchTab(tab) {
-  var tabs=["dashboard","domestic","overseas","pension","dividend","risk","advisor","ledger","news","commandments","memo","settings"];
+  var tabs=["dashboard","domestic","overseas","pension","dividend","risk","advisor","ledger","news","commandments","memo","settings","notouch"];
   document.querySelectorAll(".tab").forEach(function(t,i){t.classList.toggle("active",tabs[i]===tab);});
   document.querySelectorAll(".panel").forEach(function(p){p.classList.toggle("active",p.id==="panel-"+tab);});
   if(tab==="memo") renderMemo();
+  if(tab==="notouch") renderNotouch();
   var tabColors={
     dashboard:"#1976d2", domestic:"#f57f17", overseas:"#00838f",
     pension:"#7b1fa2", dividend:"#2e7d32", commandments:"#f57f17",
     risk:"#1e40af", advisor:"#6a1b9a", ledger:"#00897b",
-    news:"#e65100", memo:"#795548", settings:"#546e7a"
+    news:"#e65100", notouch:"#b71c1c", memo:"#795548", settings:"#546e7a"
   };
   document.querySelectorAll(".tab").forEach(function(t){
     t.style.color=""; t.style.borderColor=""; t.style.background="";
@@ -4393,6 +4430,78 @@ function switchTab(tab) {
     var c=tabColors[tab]||"#1565c0";
     t.style.color=c; t.style.borderColor=c; t.style.background="#fff";
   });
+}
+
+// =============================================
+// 노터치 자산 (연금보험 미수령 누적표)
+// =============================================
+var NOTOUCH_DATA=[
+  {age:56,pay:300.0,int:0.0,bal:300.0},
+  {age:57,pay:300.0,int:25.5,bal:625.5},
+  {age:58,pay:300.0,int:53.2,bal:978.7},
+  {age:59,pay:300.0,int:83.2,bal:1361.9},
+  {age:60,pay:375.0,int:115.8,bal:1852.6},
+  {age:61,pay:375.0,int:157.5,bal:2385.1},
+  {age:62,pay:375.0,int:202.7,bal:2962.8},
+  {age:63,pay:375.0,int:251.8,bal:3589.7},
+  {age:64,pay:375.0,int:305.1,bal:4269.8},
+  {age:65,pay:450.0,int:362.9,bal:5082.7},
+  {age:66,pay:450.0,int:432.0,bal:5964.7},
+  {age:67,pay:450.0,int:507.0,bal:6921.7},
+  {age:68,pay:450.0,int:588.3,bal:7960.1},
+  {age:69,pay:450.0,int:676.6,bal:9086.7},
+  {age:70,pay:null,int:772.4,bal:9859.1}
+];
+var NOTOUCH_TOTAL=9859.1, NOTOUCH_TOTAL_INT=4534.1;
+function renderNotouch(){
+  var tb=document.getElementById("notouchTableBody");
+  if(!tb) return;
+  var rows="";
+  NOTOUCH_DATA.forEach(function(d){
+    var isLast=d.age===70;
+    rows+='<tr style="'+(isLast?'background:#fff3e0;font-weight:900':'')+'">'+
+      '<td style="padding:6px 4px;border-bottom:1px solid var(--border)">'+d.age+'세'+(isLast?' (수령)':'')+'</td>'+
+      '<td style="padding:6px 4px;border-bottom:1px solid var(--border);text-align:right">'+(d.pay!==null?d.pay.toFixed(1)+'만원':'—')+'</td>'+
+      '<td style="padding:6px 4px;border-bottom:1px solid var(--border);text-align:right">'+d.int.toFixed(1)+'만원</td>'+
+      '<td style="padding:6px 4px;border-bottom:1px solid var(--border);text-align:right;font-weight:800">'+d.bal.toFixed(1)+'만원</td>'+
+      '</tr>';
+  });
+  tb.innerHTML=rows;
+
+  var sel=document.getElementById("notouchAgeSel");
+  if(sel && sel.options.length===0){
+    for(var a=56;a<=69;a++){
+      var opt=document.createElement("option");
+      opt.value=a; opt.textContent=a+"세부터 매년 수령 전환";
+      sel.appendChild(opt);
+    }
+  }
+  renderNotouchForgone();
+}
+function renderNotouchForgone(){
+  var sel=document.getElementById("notouchAgeSel");
+  var out=document.getElementById("notouchForgoneResult");
+  if(!sel||!out) return;
+  var X=parseInt(sel.value||56,10);
+  // X-1세까지 이미 발생한 이자는 유지되고, 그 이후 발생할 이자를 포기하는 것으로 계산
+  var cumIntBeforeX=0;
+  if(X>56){
+    var prev=NOTOUCH_DATA.find(function(d){return d.age===X-1;});
+    if(prev) cumIntBeforeX=prev.bal-getFace(X-1);
+  }
+  var forgone=NOTOUCH_TOTAL_INT-cumIntBeforeX;
+  out.innerHTML='<div style="text-align:center;padding:10px;background:#fff;border-radius:10px;border:1.5px solid #f57f17">'+
+    '<div style="font-size:11px;color:var(--muted)">'+X+'세부터 전환 시 포기하는 이자</div>'+
+    '<div style="font-size:22px;font-weight:900;color:#e65100;margin-top:4px">'+forgone.toFixed(1)+'만원</div>'+
+    '</div>';
+}
+function getFace(ageUpTo){
+  // 56세부터 ageUpTo까지 명목 지급액 누계
+  var sum=0;
+  for(var a=56;a<=ageUpTo;a++){
+    if(a<=59) sum+=300; else if(a<=64) sum+=375; else sum+=450;
+  }
+  return sum;
 }
 
 // =============================================
