@@ -2204,7 +2204,15 @@ function returnRowHtml(p, key, current, now, mode) {
       valCell='<span style="color:#b0bec5;font-weight:700">-</span>';
     } else {
       var dpos=dietz>=0;
-      valCell='<span style="color:'+(dpos?"#c62828":"#1565c0")+';font-weight:800">'+(dpos?"+":"")+dietz.toFixed(2)+'%</span>';
+      var dietzCagrStr="";
+      if (p.days && p.days>365) {
+        var dActualDays=(now-snap.ts)/86400000;
+        if (dActualDays>0) {
+          var dCagr=(Math.pow(1+dietz/100,365/dActualDays)-1)*100;
+          dietzCagrStr=' <span style="font-size:0.85em;opacity:0.75">(연 '+(dCagr>=0?"+":"")+dCagr.toFixed(1)+'%)</span>';
+        }
+      }
+      valCell='<span style="color:'+(dpos?"#c62828":"#1565c0")+';font-weight:800">'+(dpos?"+":"")+dietz.toFixed(2)+'%'+dietzCagrStr+'</span>';
     }
   } else if (mode==="alpha") {
     var dietz2=calcModifiedDietz(key, targetTs, now, snap.val, current);
@@ -2219,7 +2227,15 @@ function returnRowHtml(p, key, current, now, mode) {
   } else {
     var pct=((current-snap.val)/snap.val)*100;
     var pos=pct>=0;
-    valCell='<span style="color:'+(pos?"#c62828":"#1565c0")+';font-weight:800">'+(pos?"+":"")+pct.toFixed(2)+'%</span>';
+    var rawCagrStr="";
+    if (p.days && p.days>365) {
+      var rActualDays=(now-snap.ts)/86400000;
+      if (rActualDays>0) {
+        var rCagr=(Math.pow(current/snap.val,365/rActualDays)-1)*100;
+        rawCagrStr=' <span style="font-size:0.85em;opacity:0.75">(연 '+(rCagr>=0?"+":"")+rCagr.toFixed(1)+'%)</span>';
+      }
+    }
+    valCell='<span style="color:'+(pos?"#c62828":"#1565c0")+';font-weight:800">'+(pos?"+":"")+pct.toFixed(2)+'%'+rawCagrStr+'</span>';
   }
   return '<div style="padding:7px 2px 0 2px;display:flex;justify-content:center">'+
     '<div style="display:grid;grid-template-columns:48px 1fr;align-items:center;gap:6px;width:108px;padding-bottom:7px;border-bottom:1px solid var(--border)">'+
