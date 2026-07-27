@@ -2194,7 +2194,8 @@ function returnRowHtml(p, key, current, now, mode) {
   } else {
     targetTs=now-p.days*86400000;
   }
-  var snap=findSnapAtOrBefore(key,targetTs);
+  // 추적 시작일(TRACK_START) 이전 시점은 개발단계 테스트 데이터라 조회 자체를 막음
+  var snap = (!p.ytd && targetTs < TRACK_START) ? null : findSnapAtOrBefore(key,targetTs);
   var valCell;
   if (!snap || !(snap.val>0) || !(current>0)) {
     valCell='<span style="color:#b0bec5;font-weight:700">-</span>';
