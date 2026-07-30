@@ -1274,10 +1274,10 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
 <!-- 은퇴설계 -->
 <div class="panel" id="panel-retirement" style="background:#f2f3fc">
   <div style="font-size:17px;font-weight:900;color:var(--text);margin-bottom:4px">🧭 은퇴설계</div>
-  <div style="font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.6">공무원연금 → 국민연금 임의가입 → 연금 개시로 이어지는 은퇴 소득 타임라인입니다.</div>
+  <div style="font-size:14px;color:var(--muted);margin-bottom:14px;line-height:1.6">공무원연금 → 국민연금 임의가입 → 연금 개시로 이어지는 은퇴 소득 타임라인입니다.</div>
 
   <div class="card" style="border-left:4px solid #3949ab;background:linear-gradient(180deg,#f8f8ff 0%,#e8e9fb 100%)">
-    <div style="font-size:14px;font-weight:800;color:var(--text);margin-bottom:12px">📅 타임라인</div>
+    <div style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:12px">📅 타임라인</div>
     <div id="retirementTimeline"></div>
   </div>
 
@@ -4555,12 +4555,12 @@ function fmtWon(n){
   return parts.join(".");
 }
 var RETIREMENT_MILESTONES=[
-  {date:"2029-02-28", label:"공무원연금 납부 종료", sub:"'29.2", color:"#3949ab"},
-  {date:"2029-06-30", label:"명예퇴직", sub:"'29.6", color:"#f57f17"},
-  {date:"2030-01-31", label:"국민연금 임의가입", sub:"'30초", color:"#2e7d32"},
-  {date:"2030-06-07", label:"60세 도달 전 (임의가입 마감)", sub:"'30.6.7", color:"#8e24aa"},
+  {date:"2029-02-28", label:"공무원연금 납부 종료", sub:"'29.2", color:"#3949ab", subBig:true},
+  {date:"2029-12-01", label:"명예퇴직", sub:"'29.12.~'30.4.", color:"#f57f17"},
+  {date:"2030-06-07", label:"60세 도달 전 (국민연금 임의가입)", sub:"'30.6.7", color:"#8e24aa"},
   {date:"2030-06-09", label:"임의계속가입 전환", sub:"'30.6.9", color:"#00838f"},
-  {date:"2033-06-01", label:"국민연금 개시 (63세)", sub:"'33.6", color:"#c62828"}
+  {date:"2033-06-01", label:"공무원연금 개시 (63세)", sub:"'33.6", color:"#c62828"},
+  {date:"2040-06-01", label:"국민연금 개시", sub:"'40.6", color:"#ad1457"}
 ];
 function renderRetirement(){
   var el=document.getElementById("retirementTimeline");
@@ -4572,6 +4572,7 @@ function renderRetirement(){
     var diffDays=Math.ceil((d-today)/86400000);
     var status = diffDays<0 ? "완료" : ("D-"+diffDays);
     var statusColor = diffDays<0 ? "#9e9e9e" : m.color;
+    var subSize = m.subBig ? 13 : 12;
     html+='<div style="display:flex;gap:10px;position:relative;padding-bottom:'+(i===RETIREMENT_MILESTONES.length-1?0:18)+'px">';
     html+='<div style="display:flex;flex-direction:column;align-items:center">';
     html+='<div style="width:11px;height:11px;border-radius:50%;background:'+m.color+';flex-shrink:0;margin-top:2px"></div>';
@@ -4579,10 +4580,10 @@ function renderRetirement(){
     html+='</div>';
     html+='<div style="flex:1">';
     html+='<div style="display:flex;justify-content:space-between;align-items:center">';
-    html+='<span style="font-size:13px;font-weight:800;color:var(--text)">'+m.label+'</span>';
-    html+='<span style="font-size:10px;font-weight:700;color:'+statusColor+';background:'+statusColor+'18;padding:2px 8px;border-radius:8px;white-space:nowrap;margin-left:6px">'+status+'</span>';
+    html+='<span style="font-size:14px;font-weight:800;color:var(--text)">'+m.label+'</span>';
+    html+='<span style="font-size:11px;font-weight:700;color:'+statusColor+';background:'+statusColor+'18;padding:2px 8px;border-radius:8px;white-space:nowrap;margin-left:6px">'+status+'</span>';
     html+='</div>';
-    html+='<div style="font-size:11px;color:var(--muted);margin-top:2px">'+m.sub+'</div>';
+    html+='<div style="font-size:'+subSize+'px;color:var(--muted);margin-top:2px">'+m.sub+'</div>';
     html+='</div></div>';
   });
   el.innerHTML=html;
