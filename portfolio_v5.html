@@ -1860,7 +1860,7 @@ function setCard(idPre, g, colorClass) {
 function setSumVal(id, val, isAmt, text, positive) {
   var el=document.getElementById(id);
   if(!el) return;
-  el.textContent = text||(val>=0?"+":"")+fmt(Math.abs(val))+(isAmt?"원":"");
+  el.textContent = text||(val>=0?"+":"-")+fmt(Math.abs(val))+(isAmt?"원":"");
   var isPos = (positive !== undefined && positive !== null) ? positive : val>=0;
   el.style.color = isPos ? "#c62828" : "#1565c0";
   el.style.fontWeight = "800";
