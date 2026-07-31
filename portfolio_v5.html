@@ -575,6 +575,7 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
   <button class="tab" onclick="switchTab('notouch')">🔒 노터치자산</button>
   <button class="tab" onclick="switchTab('retirement')">🧭 은퇴설계</button>
   <button class="tab" onclick="switchTab('debt')">💳 부채관리</button>
+  <button class="tab" onclick="switchTab('networth')">💎 순자산</button>
 </div>
 </div>
 
@@ -1358,6 +1359,50 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
       <button onclick="openDebtModal('house')" style="font-size:12px;font-weight:700;color:#ad1457;background:#fbe4ec;border:none;border-radius:8px;padding:6px 10px;cursor:pointer">+ 항목 추가</button>
     </div>
     <div id="debtHouseList"></div>
+  </div>
+</div>
+
+<!-- 순자산 -->
+<div class="panel" id="panel-networth" style="background:#eef8f6">
+  <div style="font-size:17px;font-weight:900;color:var(--text);margin-bottom:4px">💎 순자산</div>
+  <div style="font-size:14px;color:var(--muted);margin-bottom:14px;line-height:1.6">총자산(주식+비금융자산)에서 총부채를 뺀 실질 순자산입니다.</div>
+
+  <div class="card" style="border-left:4px solid #00695c;background:linear-gradient(180deg,#f4fffd 0%,#d4f2ec 100%)">
+    <div style="font-size:13px;color:var(--muted);margin-bottom:4px">순자산</div>
+    <div style="font-size:24px;font-weight:900;color:#00695c" id="nwNetAmt">0원</div>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:10px;font-size:12px;color:var(--muted)">
+      <div>총자산 <span id="nwAssetTotal" style="font-weight:800;color:var(--text)">0원</span></div>
+      <div>−</div>
+      <div>총부채 <span id="nwDebtTotal" style="font-weight:800;color:var(--text)">0원</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:10px">📊 자산 구성</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div style="background:var(--sky-bg);border-radius:10px;padding:12px">
+        <div style="font-size:12px;color:var(--muted);margin-bottom:4px">주식 자산 (연동)</div>
+        <div style="font-size:16px;font-weight:900;color:var(--text)" id="nwStockAmt">0원</div>
+      </div>
+      <div style="background:var(--sky-bg);border-radius:10px;padding:12px">
+        <div style="font-size:12px;color:var(--muted);margin-bottom:4px">비금융자산</div>
+        <div style="font-size:16px;font-weight:900;color:var(--text)" id="nwRealAmt">0원</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div style="font-size:15px;font-weight:800;color:var(--text)">🏘️ 비금융자산</div>
+      <button onclick="openAssetModal()" style="font-size:12px;font-weight:700;color:#00695c;background:#d4f2ec;border:none;border-radius:8px;padding:6px 10px;cursor:pointer">+ 자산 추가</button>
+    </div>
+    <div id="nwAssetList"></div>
+  </div>
+
+  <div class="card" style="border-left:4px solid #ad1457;background:linear-gradient(180deg,#fff8fa 0%,#fbe4ec 100%)">
+    <div style="font-size:13px;color:var(--muted);margin-bottom:4px">총부채 (연동)</div>
+    <div style="font-size:16px;font-weight:900;color:#ad1457" id="nwDebtAmt2">0원</div>
+    <div style="font-size:11px;color:var(--muted);margin-top:4px">부채관리 탭에서 관리한 은행대출+주택보증금 부채가 자동 반영됩니다.</div>
   </div>
 </div>
 
@@ -4527,19 +4572,20 @@ function changePw() {
 // 탭 전환
 // =============================================
 function switchTab(tab) {
-  var tabs=["dashboard","domestic","overseas","pension","dividend","risk","advisor","ledger","news","commandments","memo","settings","notouch","retirement","debt"];
+  var tabs=["dashboard","domestic","overseas","pension","dividend","risk","advisor","ledger","news","commandments","memo","settings","notouch","retirement","debt","networth"];
   document.querySelectorAll(".tab").forEach(function(t,i){t.classList.toggle("active",tabs[i]===tab);});
   document.querySelectorAll(".panel").forEach(function(p){p.classList.toggle("active",p.id==="panel-"+tab);});
   if(tab==="memo") renderMemo();
   if(tab==="notouch") renderNotouch();
   if(tab==="retirement") renderRetirement();
   if(tab==="debt") renderDebt();
+  if(tab==="networth") renderNetWorth();
   var tabColors={
     dashboard:"#1976d2", domestic:"#f57f17", overseas:"#00838f",
     pension:"#7b1fa2", dividend:"#2e7d32", commandments:"#f57f17",
     risk:"#1e40af", advisor:"#6a1b9a", ledger:"#00897b",
     news:"#e65100", notouch:"#b71c1c", memo:"#795548", settings:"#546e7a",
-    retirement:"#3949ab", debt:"#ad1457"
+    retirement:"#3949ab", debt:"#ad1457", networth:"#00695c"
   };
   document.querySelectorAll(".tab").forEach(function(t){
     t.style.color=""; t.style.borderColor=""; t.style.background="";
@@ -4675,8 +4721,8 @@ function renderDebt(){
             +'</div>'
             +'<div style="display:flex;gap:6px;flex-shrink:0;align-items:center">'
               +(dday?'<span style="font-size:11px;font-weight:700;color:#ad1457;background:#fbe4ec;padding:2px 7px;border-radius:7px;white-space:nowrap">'+dday+'</span>':'')
-              +'<button onclick="openDebtModal(\'bank\','+i+')" style="color:#795548;background:none;border:none;font-size:16px;cursor:pointer;padding:0" title="수정">✏️</button>'
               +'<button onclick="deleteDebtItem(\'bank\','+i+')" style="color:#bbb;background:none;border:none;font-size:19px;cursor:pointer;padding:0;line-height:1">×</button>'
+              +'<button onclick="openDebtModal(\'bank\','+i+')" style="color:#795548;background:none;border:none;font-size:16px;cursor:pointer;padding:0" title="수정">✏️</button>'
             +'</div>'
           +'</div>'
           +'<div style="display:flex;justify-content:space-between;margin-top:8px;font-size:13px">'
@@ -4697,8 +4743,8 @@ function renderDebt(){
           +'<div style="font-size:14px;font-weight:700;color:var(--text)">'+item.name+'</div>'
           +'<div style="display:flex;align-items:center;gap:8px">'
             +'<span style="font-size:14px;font-weight:800;color:var(--text)">'+fmt(item.amount||0)+'원</span>'
-            +'<button onclick="openDebtModal(\'house\','+i+')" style="color:#795548;background:none;border:none;font-size:16px;cursor:pointer;padding:0" title="수정">✏️</button>'
             +'<button onclick="deleteDebtItem(\'house\','+i+')" style="color:#bbb;background:none;border:none;font-size:19px;cursor:pointer;padding:0;line-height:1">×</button>'
+            +'<button onclick="openDebtModal(\'house\','+i+')" style="color:#795548;background:none;border:none;font-size:16px;cursor:pointer;padding:0" title="수정">✏️</button>'
           +'</div>'
         +'</div>';
       }).join("");
@@ -4779,6 +4825,110 @@ function openDebtModal(type, editIdx){
 
   document.getElementById("debtConfirmBtn").onclick=confirmFn;
   document.getElementById("debtCancelBtn").onclick=function(){box.remove();};
+  box.addEventListener("click", function(e){ if(e.target===box) box.remove(); });
+}
+
+// =============================================
+// 순자산 (총자산 - 총부채)
+// =============================================
+var NONFIN_ASSET_SEED=[
+  {name:"동원빌라 202호", amount:300000000},
+  {name:"대명빌라 지층 101호", amount:150000000},
+  {name:"문화빌라 지층 101호", amount:80000000},
+  {name:"원흥푸", amount:175000000},
+  {name:"엠버418", amount:140000000}
+];
+function loadNonFinAssets(){ try{var v=localStorage.getItem("v5_nonFinAssets"); return v?JSON.parse(v):NONFIN_ASSET_SEED.slice();}catch(e){return NONFIN_ASSET_SEED.slice();} }
+function saveNonFinAssets(list){ localStorage.setItem("v5_nonFinAssets",JSON.stringify(list)); }
+
+function renderNetWorth(){
+  // 주식 자산 (연동)
+  var dom=calcGroup(domStocks,false), ov=calcGroup(ovStocks,true), pen=calcGroup(penStocks,false);
+  var stockTotal=dom.tv+ov.tv+pen.tv;
+
+  // 비금융자산
+  var assets=loadNonFinAssets();
+  var realTotal=assets.reduce(function(s,x){return s+(x.amount||0);},0);
+
+  // 부채 (연동)
+  var bankTotal=loadDebtBank().reduce(function(s,x){return s+(x.balance||0);},0);
+  var houseTotal=loadDebtHouse().reduce(function(s,x){return s+(x.amount||0);},0);
+  var debtTotal=bankTotal+houseTotal;
+
+  var assetTotal=stockTotal+realTotal;
+  var netWorth=assetTotal-debtTotal;
+
+  var netEl=document.getElementById("nwNetAmt");
+  if(netEl){ netEl.textContent=fmt(netWorth)+"원"; netEl.style.color=netWorth>=0?"#00695c":"#1565c0"; }
+  var atEl=document.getElementById("nwAssetTotal"); if(atEl) atEl.textContent=fmt(assetTotal)+"원";
+  var dtEl=document.getElementById("nwDebtTotal"); if(dtEl) dtEl.textContent=fmt(debtTotal)+"원";
+  var stEl=document.getElementById("nwStockAmt"); if(stEl) stEl.textContent=fmt(stockTotal)+"원";
+  var reEl=document.getElementById("nwRealAmt"); if(reEl) reEl.textContent=fmt(realTotal)+"원";
+  var dt2El=document.getElementById("nwDebtAmt2"); if(dt2El) dt2El.textContent=fmt(debtTotal)+"원";
+
+  var listEl=document.getElementById("nwAssetList");
+  if(listEl){
+    if(!assets.length){ listEl.innerHTML='<div style="text-align:center;padding:20px 0;color:var(--muted);font-size:13px">등록된 자산이 없어요</div>'; }
+    else {
+      listEl.innerHTML=assets.map(function(item,i){
+        return '<div style="display:flex;justify-content:space-between;align-items:center;background:#fff;border-radius:12px;padding:12px 14px;margin-bottom:8px;box-shadow:0 1px 6px rgba(0,0,0,0.06)">'
+          +'<div style="font-size:14px;font-weight:700;color:var(--text)">'+item.name+'</div>'
+          +'<div style="display:flex;align-items:center;gap:8px">'
+            +'<span style="font-size:14px;font-weight:800;color:var(--text)">'+fmt(item.amount||0)+'원</span>'
+            +'<button onclick="deleteAssetItem('+i+')" style="color:#bbb;background:none;border:none;font-size:19px;cursor:pointer;padding:0;line-height:1">×</button>'
+            +'<button onclick="openAssetModal('+i+')" style="color:#795548;background:none;border:none;font-size:16px;cursor:pointer;padding:0" title="수정">✏️</button>'
+          +'</div>'
+        +'</div>';
+      }).join("");
+    }
+  }
+}
+
+function deleteAssetItem(idx){
+  if(!confirm("삭제하시겠어요?")) return;
+  var list=loadNonFinAssets(); list.splice(idx,1); saveNonFinAssets(list);
+  renderNetWorth();
+  showToast("🗑️ 삭제되었습니다");
+}
+
+function openAssetModal(editIdx){
+  var old=document.getElementById("assetInputBox");
+  if(old) old.remove();
+  var isEdit = editIdx!==undefined && editIdx!==null;
+  var item = isEdit ? loadNonFinAssets()[editIdx] : null;
+
+  var box=document.createElement("div");
+  box.id="assetInputBox";
+  box.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9998;display:flex;align-items:center;justify-content:center;padding:24px";
+  box.innerHTML =
+    '<div style="background:#fff;border-radius:20px;padding:24px;width:100%;max-width:360px;box-shadow:0 8px 32px rgba(0,0,0,0.25)">'
+      +'<div style="font-size:16px;font-weight:900;color:#1a2236;margin-bottom:14px">🏘️ '+(isEdit?"자산 수정":"자산 추가")+'</div>'
+      +'<input id="assetName" type="text" placeholder="자산명 (예: 동원빌라 202호)" value="'+(item?item.name:'')+'" style="width:100%;box-sizing:border-box;border:1.5px solid #80cbc4;border-radius:10px;padding:10px;font-size:14px;font-weight:700;margin-bottom:8px">'
+      +'<input id="assetAmt" type="text" inputmode="numeric" placeholder="시가 (원)" value="'+(item?Number(item.amount).toLocaleString("ko-KR"):'')+'" oninput="fmtAmtInp(this)" style="width:100%;box-sizing:border-box;border:1.5px solid #80cbc4;border-radius:10px;padding:10px;font-size:14px;font-weight:700;margin-bottom:14px;text-align:right">'
+      +'<div style="display:flex;gap:8px">'
+        +'<button id="assetCancelBtn" style="flex:1;padding:12px;background:#f5f5f5;color:#333;border:1px solid #ddd;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer">취소</button>'
+        +'<button id="assetConfirmBtn" style="flex:1;padding:12px;background:linear-gradient(135deg,#00695c,#00897b);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer">'+(isEdit?"수정":"추가")+'</button>'
+      +'</div>'
+    +'</div>';
+  document.body.appendChild(box);
+
+  function confirmFn(){
+    var name=(document.getElementById("assetName").value||"").trim();
+    if(!name){ showToast("⚠️ 이름을 입력해주세요", true); return; }
+    var amtInp=document.getElementById("assetAmt");
+    var amt=parseFloat((amtInp.value||"").replace(/[^0-9.\-]/g,""));
+    if(!amt||amt<=0){ showToast("⚠️ 올바른 금액을 입력해주세요", true); return; }
+    var list=loadNonFinAssets();
+    var newItem={name:name, amount:amt};
+    if(isEdit) list[editIdx]=newItem; else list.push(newItem);
+    saveNonFinAssets(list);
+    renderNetWorth();
+    showToast(isEdit?"✅ 수정되었습니다":"✅ 추가되었습니다");
+    box.remove();
+  }
+
+  document.getElementById("assetConfirmBtn").onclick=confirmFn;
+  document.getElementById("assetCancelBtn").onclick=function(){box.remove();};
   box.addEventListener("click", function(e){ if(e.target===box) box.remove(); });
 }
 
