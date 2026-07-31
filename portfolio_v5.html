@@ -1347,7 +1347,7 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
 
   <div class="card">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-      <div style="font-size:15px;font-weight:800;color:var(--text)">🏦 은행 대출</div>
+      <div style="font-size:15px;font-weight:800;color:var(--text)">🏦 금융기관 대출</div>
       <button onclick="openDebtModal('bank')" style="font-size:12px;font-weight:700;color:#ad1457;background:#fbe4ec;border:none;border-radius:8px;padding:6px 10px;cursor:pointer">+ 대출 추가</button>
     </div>
     <div id="debtBankList"></div>
@@ -4676,22 +4676,42 @@ var DEBT_BANK_SEED=[
   {name:"KB 공무원우대대출(퇴직금에 의한 대출)", account:"006216-00-938553", balance:23000000, principal:23000000, maturity:"2026-10-23"},
   {name:"KB 무궁화 신용대출(경찰)", account:"270116-04-180713", balance:90000000, principal:90000000, maturity:"2027-08-21"},
   {name:"KB 무궁화 신용대출(경찰)", account:"509016-01-587291", balance:45000000, principal:45000000, maturity:"2027-07-12"},
-  {name:"KB 무궁화 신용대출(경찰)", account:"509016-01-587642", balance:32000000, principal:32000000, maturity:"2027-07-22"}
+  {name:"KB 무궁화 신용대출(경찰)", account:"509016-01-587642", balance:32000000, principal:32000000, maturity:"2027-07-22"},
+  {name:"지윤 대출", account:"", balance:175000000, principal:175000000, maturity:""},
+  {name:"공제회 대출", account:"", balance:70000000, principal:70000000, maturity:""}
 ];
 var DEBT_HOUSE_SEED=[
   {name:"동원빌라 202호", amount:10000000},
   {name:"엠버418 920호", amount:10000000},
   {name:"대명 지층 101호", amount:40000000},
-  {name:"원흥푸 808호", amount:5000000},
-  {name:"지윤 대출", amount:175000000},
-  {name:"공제회 대출", amount:70000000}
+  {name:"원흥푸 808호", amount:5000000}
 ];
 function loadDebtBank(){ try{var v=localStorage.getItem("v5_debtBank"); return v?JSON.parse(v):DEBT_BANK_SEED.slice();}catch(e){return DEBT_BANK_SEED.slice();} }
 function saveDebtBank(list){ localStorage.setItem("v5_debtBank",JSON.stringify(list)); }
 function loadDebtHouse(){ try{var v=localStorage.getItem("v5_debtHouse"); return v?JSON.parse(v):DEBT_HOUSE_SEED.slice();}catch(e){return DEBT_HOUSE_SEED.slice();} }
 function saveDebtHouse(list){ localStorage.setItem("v5_debtHouse",JSON.stringify(list)); }
 
+// 기존에 저장된 데이터에서 '지윤 대출'/'공제회 대출'이 주택보증금 쪽에 남아있으면 금융기관대출로 자동 이동
+function migrateDebtItems(){
+  var moveNames=["지윤 대출","공제회 대출"];
+  var house=loadDebtHouse();
+  var bank=loadDebtBank();
+  var changed=false;
+  house=house.filter(function(item){
+    if(moveNames.indexOf(item.name)!==-1){
+      if(!bank.some(function(b){return b.name===item.name;})){
+        bank.push({name:item.name, account:"", balance:item.amount||0, principal:item.amount||0, maturity:""});
+      }
+      changed=true;
+      return false;
+    }
+    return true;
+  });
+  if(changed){ saveDebtHouse(house); saveDebtBank(bank); }
+}
+
 function renderDebt(){
+  migrateDebtItems();
   var bankList=loadDebtBank();
   var houseList=loadDebtHouse();
   var bankTotal=bankList.reduce(function(s,x){return s+(x.balance||0);},0);
