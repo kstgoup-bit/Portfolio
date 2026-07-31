@@ -574,6 +574,7 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
   <button class="tab" onclick="switchTab('settings')">⚙️ 설정</button>
   <button class="tab" onclick="switchTab('notouch')">🔒 노터치자산</button>
   <button class="tab" onclick="switchTab('retirement')">🧭 은퇴설계</button>
+  <button class="tab" onclick="switchTab('debt')">💳 부채관리</button>
 </div>
 </div>
 
@@ -1326,6 +1327,37 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
 
   <div class="card" style="border-left:4px solid #f57f17;background:linear-gradient(180deg,#fffef8 0%,#fff5c0 100%)">
     <div style="font-size:12px;color:var(--muted);line-height:1.6">※ 국민연금은 매년 기준소득월액·보험료율이 조정되므로, 실제 신청 전 국민연금공단(1355)에서 최신 예상액을 재확인하세요. 표의 수치는 계획 시점 기준 추정치입니다.</div>
+  </div>
+</div>
+
+<!-- 부채관리 -->
+<div class="panel" id="panel-debt" style="background:#fdf1f6">
+  <div style="font-size:17px;font-weight:900;color:var(--text);margin-bottom:4px">💳 부채관리</div>
+  <div style="font-size:14px;color:var(--muted);margin-bottom:14px;line-height:1.6">은행 대출과 주택 보증금 부채를 한눈에 관리합니다.</div>
+
+  <div class="card" style="border-left:4px solid #ad1457;background:linear-gradient(180deg,#fff8fa 0%,#fbe4ec 100%)">
+    <div style="font-size:13px;color:var(--muted);margin-bottom:4px">총 부채</div>
+    <div style="font-size:22px;font-weight:900;color:#ad1457" id="debtTotalAmt">0원</div>
+    <div style="display:flex;gap:12px;margin-top:8px;font-size:12px;color:var(--muted)">
+      <div>은행대출 <span id="debtBankTotal" style="font-weight:800;color:var(--text)">0원</span></div>
+      <div>주택보증금 <span id="debtHouseTotal" style="font-weight:800;color:var(--text)">0원</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div style="font-size:15px;font-weight:800;color:var(--text)">🏦 은행 대출</div>
+      <button onclick="openDebtModal('bank')" style="font-size:12px;font-weight:700;color:#ad1457;background:#fbe4ec;border:none;border-radius:8px;padding:6px 10px;cursor:pointer">+ 대출 추가</button>
+    </div>
+    <div id="debtBankList"></div>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div style="font-size:15px;font-weight:800;color:var(--text)">🏠 주택 보증금 부채</div>
+      <button onclick="openDebtModal('house')" style="font-size:12px;font-weight:700;color:#ad1457;background:#fbe4ec;border:none;border-radius:8px;padding:6px 10px;cursor:pointer">+ 항목 추가</button>
+    </div>
+    <div id="debtHouseList"></div>
   </div>
 </div>
 
@@ -4495,18 +4527,19 @@ function changePw() {
 // 탭 전환
 // =============================================
 function switchTab(tab) {
-  var tabs=["dashboard","domestic","overseas","pension","dividend","risk","advisor","ledger","news","commandments","memo","settings","notouch","retirement"];
+  var tabs=["dashboard","domestic","overseas","pension","dividend","risk","advisor","ledger","news","commandments","memo","settings","notouch","retirement","debt"];
   document.querySelectorAll(".tab").forEach(function(t,i){t.classList.toggle("active",tabs[i]===tab);});
   document.querySelectorAll(".panel").forEach(function(p){p.classList.toggle("active",p.id==="panel-"+tab);});
   if(tab==="memo") renderMemo();
   if(tab==="notouch") renderNotouch();
   if(tab==="retirement") renderRetirement();
+  if(tab==="debt") renderDebt();
   var tabColors={
     dashboard:"#1976d2", domestic:"#f57f17", overseas:"#00838f",
     pension:"#7b1fa2", dividend:"#2e7d32", commandments:"#f57f17",
     risk:"#1e40af", advisor:"#6a1b9a", ledger:"#00897b",
     news:"#e65100", notouch:"#b71c1c", memo:"#795548", settings:"#546e7a",
-    retirement:"#3949ab"
+    retirement:"#3949ab", debt:"#ad1457"
   };
   document.querySelectorAll(".tab").forEach(function(t){
     t.style.color=""; t.style.borderColor=""; t.style.background="";
@@ -4588,6 +4621,167 @@ function renderRetirement(){
   });
   el.innerHTML=html;
 }
+
+// =============================================
+// 부채관리
+// =============================================
+var DEBT_BANK_SEED=[
+  {name:"KB 무궁화 신용대출(경찰)", account:"509001-01-579638", balance:7059223, principal:10000000, maturity:"2026-08-26"},
+  {name:"KB 공무원우대대출(퇴직금에 의한 대출)", account:"006216-00-938553", balance:23000000, principal:23000000, maturity:"2026-10-23"},
+  {name:"KB 무궁화 신용대출(경찰)", account:"270116-04-180713", balance:90000000, principal:90000000, maturity:"2027-08-21"},
+  {name:"KB 무궁화 신용대출(경찰)", account:"509016-01-587291", balance:45000000, principal:45000000, maturity:"2027-07-12"},
+  {name:"KB 무궁화 신용대출(경찰)", account:"509016-01-587642", balance:32000000, principal:32000000, maturity:"2027-07-22"}
+];
+var DEBT_HOUSE_SEED=[
+  {name:"동원빌라 202호", amount:10000000},
+  {name:"엠버418 920호", amount:10000000},
+  {name:"대명 지층 101호", amount:40000000},
+  {name:"원흥푸 808호", amount:5000000},
+  {name:"지윤 대출", amount:175000000},
+  {name:"공제회 대출", amount:70000000}
+];
+function loadDebtBank(){ try{var v=localStorage.getItem("v5_debtBank"); return v?JSON.parse(v):DEBT_BANK_SEED.slice();}catch(e){return DEBT_BANK_SEED.slice();} }
+function saveDebtBank(list){ localStorage.setItem("v5_debtBank",JSON.stringify(list)); }
+function loadDebtHouse(){ try{var v=localStorage.getItem("v5_debtHouse"); return v?JSON.parse(v):DEBT_HOUSE_SEED.slice();}catch(e){return DEBT_HOUSE_SEED.slice();} }
+function saveDebtHouse(list){ localStorage.setItem("v5_debtHouse",JSON.stringify(list)); }
+
+function renderDebt(){
+  var bankList=loadDebtBank();
+  var houseList=loadDebtHouse();
+  var bankTotal=bankList.reduce(function(s,x){return s+(x.balance||0);},0);
+  var houseTotal=houseList.reduce(function(s,x){return s+(x.amount||0);},0);
+  var totalEl=document.getElementById("debtTotalAmt");
+  if(totalEl) totalEl.textContent=fmt(bankTotal+houseTotal)+"원";
+  var bt=document.getElementById("debtBankTotal"); if(bt) bt.textContent=fmt(bankTotal)+"원";
+  var ht=document.getElementById("debtHouseTotal"); if(ht) ht.textContent=fmt(houseTotal)+"원";
+
+  var bankListEl=document.getElementById("debtBankList");
+  if(bankListEl){
+    if(!bankList.length){ bankListEl.innerHTML='<div style="text-align:center;padding:20px 0;color:var(--muted);font-size:13px">등록된 대출이 없어요</div>'; }
+    else {
+      var today=new Date();
+      bankListEl.innerHTML=bankList.map(function(item,i){
+        var dday="";
+        if(item.maturity){
+          var d=new Date(item.maturity);
+          var diff=Math.ceil((d-today)/86400000);
+          dday=diff<0?"만기경과":("D-"+diff);
+        }
+        return '<div style="background:#fff;border-radius:12px;padding:12px 14px;margin-bottom:8px;box-shadow:0 1px 6px rgba(0,0,0,0.06)">'
+          +'<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">'
+            +'<div style="flex:1">'
+              +'<div style="font-size:14px;font-weight:800;color:var(--text)">'+item.name+'</div>'
+              +'<div style="font-size:12px;color:var(--muted);margin-top:2px">'+(item.account||'')+'</div>'
+            +'</div>'
+            +'<div style="display:flex;gap:6px;flex-shrink:0;align-items:center">'
+              +(dday?'<span style="font-size:11px;font-weight:700;color:#ad1457;background:#fbe4ec;padding:2px 7px;border-radius:7px;white-space:nowrap">'+dday+'</span>':'')
+              +'<button onclick="openDebtModal(\'bank\','+i+')" style="color:#795548;background:none;border:none;font-size:16px;cursor:pointer;padding:0" title="수정">✏️</button>'
+              +'<button onclick="deleteDebtItem(\'bank\','+i+')" style="color:#bbb;background:none;border:none;font-size:19px;cursor:pointer;padding:0;line-height:1">×</button>'
+            +'</div>'
+          +'</div>'
+          +'<div style="display:flex;justify-content:space-between;margin-top:8px;font-size:13px">'
+            +'<span style="color:var(--muted)">대출잔액</span><span style="font-weight:800;color:var(--text)">'+fmt(item.balance||0)+'원</span>'
+          +'</div>'
+          +(item.maturity?'<div style="font-size:11px;color:var(--muted);margin-top:2px;text-align:right">만기 '+item.maturity+'</div>':'')
+        +'</div>';
+      }).join("");
+    }
+  }
+
+  var houseListEl=document.getElementById("debtHouseList");
+  if(houseListEl){
+    if(!houseList.length){ houseListEl.innerHTML='<div style="text-align:center;padding:20px 0;color:var(--muted);font-size:13px">등록된 항목이 없어요</div>'; }
+    else {
+      houseListEl.innerHTML=houseList.map(function(item,i){
+        return '<div style="display:flex;justify-content:space-between;align-items:center;background:#fff;border-radius:12px;padding:12px 14px;margin-bottom:8px;box-shadow:0 1px 6px rgba(0,0,0,0.06)">'
+          +'<div style="font-size:14px;font-weight:700;color:var(--text)">'+item.name+'</div>'
+          +'<div style="display:flex;align-items:center;gap:8px">'
+            +'<span style="font-size:14px;font-weight:800;color:var(--text)">'+fmt(item.amount||0)+'원</span>'
+            +'<button onclick="openDebtModal(\'house\','+i+')" style="color:#795548;background:none;border:none;font-size:16px;cursor:pointer;padding:0" title="수정">✏️</button>'
+            +'<button onclick="deleteDebtItem(\'house\','+i+')" style="color:#bbb;background:none;border:none;font-size:19px;cursor:pointer;padding:0;line-height:1">×</button>'
+          +'</div>'
+        +'</div>';
+      }).join("");
+    }
+  }
+}
+
+function deleteDebtItem(type,idx){
+  if(!confirm("삭제하시겠어요?")) return;
+  if(type==="bank"){
+    var list=loadDebtBank(); list.splice(idx,1); saveDebtBank(list);
+  } else {
+    var list2=loadDebtHouse(); list2.splice(idx,1); saveDebtHouse(list2);
+  }
+  renderDebt();
+  showToast("🗑️ 삭제되었습니다");
+}
+
+function openDebtModal(type, editIdx){
+  var old=document.getElementById("debtInputBox");
+  if(old) old.remove();
+  var isEdit = editIdx!==undefined && editIdx!==null;
+  var item = isEdit ? (type==="bank"?loadDebtBank():loadDebtHouse())[editIdx] : null;
+
+  var box=document.createElement("div");
+  box.id="debtInputBox";
+  box.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9998;display:flex;align-items:center;justify-content:center;padding:24px";
+
+  var fieldsHtml="";
+  if(type==="bank"){
+    fieldsHtml =
+      '<div style="font-size:16px;font-weight:900;color:#1a2236;margin-bottom:14px">🏦 '+(isEdit?"대출 수정":"대출 추가")+'</div>'
+      +'<input id="debtName" type="text" placeholder="대출명 (예: KB 무궁화 신용대출)" value="'+(item?item.name:'')+'" style="width:100%;box-sizing:border-box;border:1.5px solid #f8bbd0;border-radius:10px;padding:10px;font-size:14px;font-weight:700;margin-bottom:8px">'
+      +'<input id="debtAccount" type="text" placeholder="계좌번호" value="'+(item?(item.account||''):'')+'" style="width:100%;box-sizing:border-box;border:1.5px solid #f8bbd0;border-radius:10px;padding:10px;font-size:14px;margin-bottom:8px">'
+      +'<input id="debtBalance" type="text" inputmode="numeric" placeholder="대출잔액 (원)" value="'+(item?Number(item.balance).toLocaleString("ko-KR"):'')+'" oninput="fmtAmtInp(this)" style="width:100%;box-sizing:border-box;border:1.5px solid #f8bbd0;border-radius:10px;padding:10px;font-size:14px;font-weight:700;margin-bottom:8px;text-align:right">'
+      +'<input id="debtMaturity" type="date" value="'+(item&&item.maturity?item.maturity:'')+'" style="width:100%;box-sizing:border-box;border:1.5px solid #f8bbd0;border-radius:10px;padding:10px;font-size:14px;margin-bottom:14px">';
+  } else {
+    fieldsHtml =
+      '<div style="font-size:16px;font-weight:900;color:#1a2236;margin-bottom:14px">🏠 '+(isEdit?"항목 수정":"항목 추가")+'</div>'
+      +'<input id="debtName" type="text" placeholder="항목명 (예: 동원빌라 202호)" value="'+(item?item.name:'')+'" style="width:100%;box-sizing:border-box;border:1.5px solid #f8bbd0;border-radius:10px;padding:10px;font-size:14px;font-weight:700;margin-bottom:8px">'
+      +'<input id="debtBalance" type="text" inputmode="numeric" placeholder="금액 (원)" value="'+(item?Number(item.amount).toLocaleString("ko-KR"):'')+'" oninput="fmtAmtInp(this)" style="width:100%;box-sizing:border-box;border:1.5px solid #f8bbd0;border-radius:10px;padding:10px;font-size:14px;font-weight:700;margin-bottom:14px;text-align:right">';
+  }
+
+  box.innerHTML =
+    '<div style="background:#fff;border-radius:20px;padding:24px;width:100%;max-width:360px;box-shadow:0 8px 32px rgba(0,0,0,0.25)">'
+      + fieldsHtml
+      + '<div style="display:flex;gap:8px">'
+        +'<button id="debtCancelBtn" style="flex:1;padding:12px;background:#f5f5f5;color:#333;border:1px solid #ddd;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer">취소</button>'
+        +'<button id="debtConfirmBtn" style="flex:1;padding:12px;background:linear-gradient(135deg,#ad1457,#c2185b);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer">'+(isEdit?"수정":"추가")+'</button>'
+      +'</div>'
+    +'</div>';
+  document.body.appendChild(box);
+
+  function confirmFn(){
+    var name=(document.getElementById("debtName").value||"").trim();
+    if(!name){ showToast("⚠️ 이름을 입력해주세요", true); return; }
+    var balInp=document.getElementById("debtBalance");
+    var amt=parseFloat((balInp.value||"").replace(/[^0-9.\-]/g,""));
+    if(!amt||amt<=0){ showToast("⚠️ 올바른 금액을 입력해주세요", true); return; }
+
+    if(type==="bank"){
+      var list=loadDebtBank();
+      var account=(document.getElementById("debtAccount").value||"").trim();
+      var maturity=(document.getElementById("debtMaturity").value||"");
+      var newItem={name:name, account:account, balance:amt, principal:isEdit?(item.principal||amt):amt, maturity:maturity};
+      if(isEdit) list[editIdx]=newItem; else list.push(newItem);
+      saveDebtBank(list);
+    } else {
+      var list2=loadDebtHouse();
+      var newItem2={name:name, amount:amt};
+      if(isEdit) list2[editIdx]=newItem2; else list2.push(newItem2);
+      saveDebtHouse(list2);
+    }
+    renderDebt();
+    showToast(isEdit?"✅ 수정되었습니다":"✅ 추가되었습니다");
+    box.remove();
+  }
+
+  document.getElementById("debtConfirmBtn").onclick=confirmFn;
+  document.getElementById("debtCancelBtn").onclick=function(){box.remove();};
+  box.addEventListener("click", function(e){ if(e.target===box) box.remove(); });
+}
+
 function renderNotouch(){
   var tb=document.getElementById("notouchTableBody");
   if(!tb) return;
