@@ -1378,7 +1378,7 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
   </div>
 
   <div class="card">
-    <div style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:10px">📊 자산 구성</div>
+    <div style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:10px">📊 총자산: <span id="nwAssetTitleAmt">0원</span></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
       <div style="background:var(--sky-bg);border-radius:10px;padding:12px">
         <div style="font-size:12px;color:var(--muted);margin-bottom:4px">주식 자산 (연동)</div>
@@ -4861,6 +4861,7 @@ function renderNetWorth(){
   var netEl=document.getElementById("nwNetAmt");
   if(netEl){ netEl.textContent=fmt(netWorth)+"원"; netEl.style.color=netWorth>=0?"#00695c":"#1565c0"; }
   var atEl=document.getElementById("nwAssetTotal"); if(atEl) atEl.textContent=fmt(assetTotal)+"원";
+  var atTitleEl=document.getElementById("nwAssetTitleAmt"); if(atTitleEl) atTitleEl.textContent=fmt(assetTotal)+"원";
   var dtEl=document.getElementById("nwDebtTotal"); if(dtEl) dtEl.textContent=fmt(debtTotal)+"원";
   var stEl=document.getElementById("nwStockAmt"); if(stEl) stEl.textContent=fmt(stockTotal)+"원";
   var reEl=document.getElementById("nwRealAmt"); if(reEl) reEl.textContent=fmt(realTotal)+"원";
