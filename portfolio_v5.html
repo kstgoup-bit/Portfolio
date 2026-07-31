@@ -591,14 +591,6 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
       <div class="sum-item"><div class="sum-lbl">매수금</div><div class="sum-val" id="allCost">-</div></div>
     </div>
   </div>
-  <div class="card">
-    <div class="fx-row">
-      <span style="font-size:11px;color:var(--muted);white-space:nowrap">💱 USD/KRW</span>
-      <input class="fx-input" type="number" id="usdKrw" value="1370" oninput="renderAll()">
-      <span style="font-size:10px;color:var(--muted)">원</span>
-    </div>
-    <div class="fx-time" id="fxTime"></div>
-  </div>
 
 
   <div class="balance-wrap">
@@ -715,12 +707,18 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
   </div>
   <!-- 달러 자산 -->
   <div class="card" id="usdAssetCard" style="display:none">
-    <div style="font-size:11px;font-weight:800;color:var(--blue);margin-bottom:10px">💵 달러 자산</div>
+    <div style="font-size:12px;font-weight:800;color:var(--blue);margin-bottom:10px">💵 달러 자산</div>
+    <div class="fx-row" style="margin-bottom:10px">
+      <span style="font-size:12px;color:var(--muted);white-space:nowrap">💱 USD/KRW</span>
+      <input class="fx-input" type="number" id="usdKrw" value="1370" oninput="renderAll()">
+      <span style="font-size:11px;color:var(--muted)">원</span>
+    </div>
+    <div class="fx-time" id="fxTime"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-      <div class="vc"><div class="vc-lbl">달러 평가금액</div><div class="vc-val" id="usdTotal" style="color:var(--blue)">$0</div></div>
-      <div class="vc"><div class="vc-lbl">원화 환산</div><div class="vc-val" id="usdKrwVal">0원</div></div>
-      <div class="vc"><div class="vc-lbl">달러 매수금</div><div class="vc-val" id="usdCostVal">$0</div></div>
-      <div class="vc"><div class="vc-lbl">달러 손익</div><div class="vc-val" id="usdPnlVal">$0</div></div>
+      <div class="vc"><div class="vc-lbl" style="font-size:10px">달러 평가금액</div><div class="vc-val" style="font-size:13px;color:var(--blue)" id="usdTotal">$0</div></div>
+      <div class="vc"><div class="vc-lbl" style="font-size:10px">원화 환산</div><div class="vc-val" style="font-size:13px" id="usdKrwVal">0원</div></div>
+      <div class="vc"><div class="vc-lbl" style="font-size:10px">달러 매수금</div><div class="vc-val" style="font-size:13px" id="usdCostVal">$0</div></div>
+      <div class="vc"><div class="vc-lbl" style="font-size:10px">달러 손익</div><div class="vc-val" style="font-size:13px" id="usdPnlVal">$0</div></div>
     </div>
   </div>
   <div class="balance-wrap" style="margin-top:8px">
