@@ -576,6 +576,7 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
   <button class="tab" onclick="switchTab('retirement')">🧭 은퇴설계</button>
   <button class="tab" onclick="switchTab('debt')">💳 부채관리</button>
   <button class="tab" onclick="switchTab('networth')">💎 순자산</button>
+  <button class="tab" onclick="switchTab('principledash')">📋 투자원칙</button>
 </div>
 </div>
 
@@ -1432,6 +1433,20 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
     <div style="font-size:13px;color:var(--muted);margin-bottom:4px">총부채 (연동)</div>
     <div style="font-size:16px;font-weight:900;color:#ad1457" id="nwDebtAmt2">0원</div>
     <div style="font-size:11px;color:var(--muted);margin-top:4px">부채관리 탭에서 관리한 은행대출+주택보증금 부채가 자동 반영됩니다.</div>
+  </div>
+</div>
+
+<!-- 투자원칙 대시보드 -->
+<div class="panel" id="panel-principledash" style="background:#f5f2fc">
+  <div style="font-size:17px;font-weight:900;color:var(--text);margin-bottom:4px">📋 투자원칙 대시보드</div>
+  <div style="font-size:14px;color:var(--muted);margin-bottom:14px;line-height:1.6">보유 종목의 원칙 준수 현황을 한눈에 확인합니다. 행을 누르면 원칙 상세로 이동합니다.</div>
+
+  <div class="card">
+    <div id="principleDashList"></div>
+  </div>
+
+  <div class="card" style="border-left:4px solid #5e35b1;background:linear-gradient(180deg,#fbf9ff 0%,#ede7f6 100%)">
+    <div style="font-size:12px;color:var(--muted);line-height:1.6">💡 각 종목 카드의 "📋 원칙" 버튼에서 투자 이유·확신점수·상태·체크포인트를 기록하면 여기에 자동으로 모입니다. 실적 발표일은 원칙 모달에서 직접 입력해서 관리하는 방식입니다.</div>
   </div>
 </div>
 
@@ -3774,7 +3789,7 @@ function renderStockList(listId, countId, type) {
           '<div style="width:10px;height:10px;border-radius:50%;background:'+color+';flex-shrink:0;margin-top:4px"></div>'+
           '<div style="flex:1;min-width:0">'+
             '<div style="display:flex;justify-content:space-between;align-items:center">'+
-              '<div class="item-name">'+s.name+' <span style="font-size:10px">'+(s.role==="shield"?"🛡":"⚔️")+'</span></div>'+
+              '<div class="item-name">'+s.name+' <span style="font-size:10px">'+(s.role==="shield"?"🛡":"⚔️")+'</span>'+getPrincipleStatusDot(type,s.id)+'</div>'+
               '<div style="text-align:right;font-size:13px;font-weight:800;color:var(--text)">'+fmt(v)+'원</div>'+
             '</div>'+
             '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:1px">'+
@@ -3789,6 +3804,7 @@ function renderStockList(listId, countId, type) {
             '<div class="item-btns">'+
               '<button class="btn-del" onclick="delStock('+s.id+',\''+type+'\')">삭제</button>'+
               '<button class="btn-edit'+(isEdit?" ok":"")+'" onclick="toggleEdit('+s.id+',\''+type+'\')">'+( isEdit?"✓ 저장":"수정")+'</button>'+
+              '<button class="btn-edit" style="background:#ede7f6;color:#5e35b1;border:1px solid #b39ddb" onclick="openPrincipleModal('+s.id+',\''+type+'\')">📋 원칙</button>'+
             '</div>'+
             (isEdit?renderEditForm(s,type):'')+
           '</div>'+
@@ -3947,6 +3963,375 @@ function delStock(id, type) {
     localStorage.setItem('v5_userThemeMap', JSON.stringify(utm));
   }
   save(); renderAll();
+}
+
+// =============================================
+// 투자원칙 관리 (투자 비서)
+// =============================================
+var PRINCIPLE_STATUS_COLORS={green:"#2e7d32", yellow:"#f9a825", red:"#c62828"};
+var PRINCIPLE_STATUS_LABELS={green:"양호", yellow:"주의", red:"위험"};
+
+function loadPrinciples(){ try{var v=localStorage.getItem("v5_investPrinciples"); return v?JSON.parse(v):{};}catch(e){return {};} }
+function savePrinciples(obj){ localStorage.setItem("v5_investPrinciples",JSON.stringify(obj)); }
+function principleKey(type,id){ return type+"-"+id; }
+
+function getPrincipleStatusDot(type,id){
+  var all=loadPrinciples();
+  var p=all[principleKey(type,id)];
+  if(!p||!p.status) return "";
+  var color=PRINCIPLE_STATUS_COLORS[p.status]||"#bbb";
+  return '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:'+color+';margin-left:5px;vertical-align:middle" title="'+(PRINCIPLE_STATUS_LABELS[p.status]||"")+'"></span>';
+}
+
+function getStockName(type,id){
+  var stocks=type==="dom"?domStocks:type==="ov"?ovStocks:penStocks;
+  var s=stocks.filter(function(x){return x.id===id;})[0];
+  return s?s.name:"";
+}
+
+function closeAnyModal(elId){ var e=document.getElementById(elId); if(e) e.remove(); }
+
+function openPrincipleModal(id, type){
+  closeAnyModal("principleBox");
+  var name=getStockName(type,id);
+  var key=principleKey(type,id);
+  var all=loadPrinciples();
+  var p=all[key] || {status:"", confidence:3, thesis:"", logic:"", sellCondition:"", checkpoints:[], diary:[], quarterly:[]};
+  if(!p.checkpoints) p.checkpoints=[];
+
+  var box=document.createElement("div");
+  box.id="principleBox";
+  box.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9998;display:flex;align-items:flex-end;justify-content:center";
+
+  var statusBtns=["green","yellow","red"].map(function(st){
+    var active=p.status===st;
+    var color=PRINCIPLE_STATUS_COLORS[st];
+    return '<button data-status="'+st+'" onclick="selectPrincipleStatus(this,\''+st+'\')" style="flex:1;padding:10px;border-radius:10px;border:2px solid '+(active?color:"#eee")+';background:'+(active?color+"22":"#fafafa")+';font-size:13px;font-weight:800;color:'+color+';cursor:pointer">'+ (st==="green"?"🟢":st==="yellow"?"🟡":"🔴") +' '+PRINCIPLE_STATUS_LABELS[st]+'</button>';
+  }).join("");
+
+  var starBtns="";
+  for(var i=1;i<=5;i++){
+    var filled=i<=(p.confidence||0);
+    starBtns+='<button data-star="'+i+'" onclick="selectPrincipleStar(this,'+i+')" style="background:none;border:none;font-size:24px;cursor:pointer;padding:2px;color:'+(filled?"#f9a825":"#ddd")+'">★</button>';
+  }
+
+  var cpHtml=(p.checkpoints||[]).map(function(cp,i){
+    return '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">'
+      +'<input type="checkbox" '+(cp.done?"checked":"")+' onchange="togglePrincipleCheckpoint('+i+')" style="width:18px;height:18px;flex-shrink:0">'
+      +'<input type="text" value="'+(cp.text||"").replace(/"/g,'&quot;')+'" data-cp-idx="'+i+'" placeholder="체크포인트 내용" style="flex:1;border:1px solid #ddd;border-radius:8px;padding:7px 9px;font-size:13px">'
+      +'<button onclick="removePrincipleCheckpoint('+i+')" style="background:none;border:none;color:#bbb;font-size:18px;cursor:pointer;padding:0 4px">×</button>'
+    +'</div>';
+  }).join("");
+
+  box.innerHTML =
+    '<div style="background:#fff;border-radius:20px 20px 0 0;padding:20px;width:100%;max-width:480px;max-height:88vh;overflow-y:auto;box-shadow:0 -4px 32px rgba(0,0,0,0.25)">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'
+        +'<div style="font-size:17px;font-weight:900;color:#1a2236">📋 '+name+'</div>'
+        +'<button onclick="document.getElementById(\'principleBox\').remove()" style="background:none;border:none;font-size:22px;color:#999;cursor:pointer">×</button>'
+      +'</div>'
+      +'<div style="font-size:12px;color:#888;margin-bottom:16px">투자 원칙과 근거를 기록해두면 감정적 매매를 줄이는 데 도움이 됩니다.</div>'
+
+      +'<div style="font-size:13px;font-weight:800;color:#333;margin-bottom:8px">현재 상태</div>'
+      +'<div style="display:flex;gap:8px;margin-bottom:16px" id="principleStatusRow">'+statusBtns+'</div>'
+
+      +'<div style="font-size:13px;font-weight:800;color:#333;margin-bottom:8px">확신 점수</div>'
+      +'<div style="margin-bottom:16px" id="principleStarRow">'+starBtns+'</div>'
+
+      +'<div style="font-size:13px;font-weight:800;color:#333;margin-bottom:6px">투자 이유</div>'
+      +'<textarea id="principleThesis" placeholder="이 종목을 왜 샀는가" style="width:100%;box-sizing:border-box;border:1.5px solid #ddd;border-radius:10px;padding:10px;font-size:13px;min-height:56px;margin-bottom:14px;font-family:inherit">'+(p.thesis||"")+'</textarea>'
+
+      +'<div style="font-size:13px;font-weight:800;color:#333;margin-bottom:6px">핵심 논리</div>'
+      +'<textarea id="principleLogic" placeholder="이 투자가 성립하는 핵심 전제" style="width:100%;box-sizing:border-box;border:1.5px solid #ddd;border-radius:10px;padding:10px;font-size:13px;min-height:56px;margin-bottom:14px;font-family:inherit">'+(p.logic||"")+'</textarea>'
+
+      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">'
+        +'<div style="font-size:13px;font-weight:800;color:#333">분기 체크포인트 (3~5개)</div>'
+        +'<button onclick="addPrincipleCheckpoint()" style="font-size:11px;font-weight:700;color:#5e35b1;background:#ede7f6;border:none;border-radius:7px;padding:5px 9px;cursor:pointer">+ 추가</button>'
+      +'</div>'
+      +'<div id="principleCpList" style="margin-bottom:14px">'+cpHtml+'</div>'
+
+      +'<div style="font-size:13px;font-weight:800;color:#333;margin-bottom:6px">매도 조건</div>'
+      +'<textarea id="principleSell" placeholder="이 조건이 되면 판다" style="width:100%;box-sizing:border-box;border:1.5px solid #ddd;border-radius:10px;padding:10px;font-size:13px;min-height:56px;margin-bottom:14px;font-family:inherit">'+(p.sellCondition||"")+'</textarea>'
+
+      +'<div style="font-size:13px;font-weight:800;color:#333;margin-bottom:6px">최근 실적 발표일</div>'
+      +'<input id="principleEarningsDate" type="date" value="'+(p.earningsDate||"")+'" style="width:100%;box-sizing:border-box;border:1.5px solid #ddd;border-radius:10px;padding:10px;font-size:13px;margin-bottom:16px">'
+
+      +'<div style="background:#f3f0ff;border:1px solid #d1c4e9;border-radius:12px;padding:14px;margin-bottom:16px">'
+        +'<div style="font-size:13px;font-weight:800;color:#5e35b1;margin-bottom:8px">🤖 Gemini AI 분석</div>'
+        +'<div style="font-size:11px;color:#888;margin-bottom:8px;line-height:1.5">실적 발표 내용이나 뉴스 기사 원문을 붙여넣으면, 저장된 투자 이유·핵심 논리와 비교해 3줄 요약 / 투자논리 유지 여부 / 긍정·부정 요인 / 다음 분기 확인할 것을 정리해줍니다.</div>'
+        +'<textarea id="principleAiInput" placeholder="실적발표 내용, 기사, 공시 원문 등을 붙여넣으세요" style="width:100%;box-sizing:border-box;border:1.5px solid #b39ddb;border-radius:10px;padding:9px;font-size:12px;min-height:70px;margin-bottom:8px;font-family:inherit"></textarea>'
+        +'<button id="principleAiBtn" style="width:100%;padding:10px;background:linear-gradient(135deg,#5e35b1,#7e57c2);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer">🤖 분석 요청</button>'
+        +'<div id="principleAiResult" style="display:none;margin-top:10px;background:#fff;border-radius:10px;padding:12px;font-size:12px;color:#333;white-space:pre-wrap;line-height:1.6"></div>'
+        +'<button id="principleAiSaveBtn" style="display:none;width:100%;margin-top:8px;padding:9px;background:#fff3e0;color:#e65100;border:1px solid #ffcc80;border-radius:10px;font-size:12px;font-weight:800;cursor:pointer">📓 이 분석을 투자일기에 저장</button>'
+      +'</div>'
+
+      +'<div style="display:flex;gap:8px;margin-bottom:12px">'
+        +'<button onclick="openDiaryModal(\''+type+'\','+id+')" style="flex:1;padding:11px;background:#fff3e0;color:#e65100;border:1px solid #ffcc80;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer">📓 투자일기</button>'
+        +'<button onclick="openQuarterlyModal(\''+type+'\','+id+')" style="flex:1;padding:11px;background:#e8f5e9;color:#2e7d32;border:1px solid #a5d6a7;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer">📅 분기실적체크</button>'
+      +'</div>'
+
+      +'<button id="principleSaveBtn" style="width:100%;padding:13px;background:linear-gradient(135deg,#5e35b1,#7e57c2);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:800;cursor:pointer">저장</button>'
+    +'</div>';
+  document.body.appendChild(box);
+
+  box._data=p;
+  box._key=key;
+
+  document.getElementById("principleAiBtn").onclick=async function(){
+    var input=document.getElementById("principleAiInput").value.trim();
+    if(!input){ showToast("⚠️ 원문을 붙여넣어주세요", true); return; }
+    if(!getGeminiKey()){ showToast("⚠️ 설정 탭에서 Gemini API 키를 먼저 입력해주세요", true); return; }
+    var btn=document.getElementById("principleAiBtn");
+    btn.textContent="분석 중...";
+    btn.disabled=true;
+    var thesis=document.getElementById("principleThesis").value||"(미입력)";
+    var logic=document.getElementById("principleLogic").value||"(미입력)";
+    var sell=document.getElementById("principleSell").value||"(미입력)";
+    var prompt="당신은 개인 투자자의 원칙 중심 투자를 돕는 분석가입니다. 아래는 '"+name+"' 종목에 대해 투자자가 기록해둔 원래 투자 논리와, 새로 나온 실적/뉴스 원문입니다.\n\n"
+      +"[투자 이유]\n"+thesis+"\n\n[핵심 논리]\n"+logic+"\n\n[매도 조건]\n"+sell+"\n\n"
+      +"[새 실적/뉴스 원문]\n"+input+"\n\n"
+      +"다음 형식으로 정리해주세요. 마크다운 기호(#, ** 등) 없이 일반 텍스트로만 답하세요.\n"
+      +"1. 3줄 요약\n2. 투자논리 유지 여부(유지/약화/재검토 필요 중 하나와 이유)\n3. 긍정 요인\n4. 부정 요인\n5. 다음 분기에 확인할 것";
+    var result=await callGemini(prompt);
+    btn.textContent="🤖 분석 요청";
+    btn.disabled=false;
+    var resEl=document.getElementById("principleAiResult");
+    resEl.style.display="block";
+    resEl.textContent=result;
+    document.getElementById("principleAiSaveBtn").style.display="block";
+    document.getElementById("principleAiSaveBtn").onclick=function(){
+      var all3=loadPrinciples();
+      var cur3=all3[key]||{checkpoints:[],diary:[],quarterly:[]};
+      cur3.diary=cur3.diary||[];
+      var today=new Date();
+      var dateStr=today.getFullYear()+"-"+String(today.getMonth()+1).padStart(2,"0")+"-"+String(today.getDate()).padStart(2,"0");
+      cur3.diary.push({date:dateStr, text:"[Gemini AI 분석]\n"+result});
+      all3[key]=cur3;
+      savePrinciples(all3);
+      showToast("✅ 투자일기에 저장했어요");
+    };
+  };
+
+  document.getElementById("principleSaveBtn").onclick=function(){
+    var all2=loadPrinciples();
+    var cur=all2[key]||{};
+    cur.status=box._data.status||"";
+    cur.confidence=box._data.confidence||0;
+    cur.thesis=document.getElementById("principleThesis").value;
+    cur.logic=document.getElementById("principleLogic").value;
+    cur.sellCondition=document.getElementById("principleSell").value;
+    cur.earningsDate=document.getElementById("principleEarningsDate").value;
+    var cpInputs=box.querySelectorAll('[data-cp-idx]');
+    var checkboxes=box.querySelectorAll('#principleCpList input[type="checkbox"]');
+    var newCps=[];
+    cpInputs.forEach(function(inp,i){
+      newCps.push({text:inp.value, done: checkboxes[i]?checkboxes[i].checked:false});
+    });
+    cur.checkpoints=newCps;
+    cur.diary=cur.diary||[];
+    cur.quarterly=cur.quarterly||[];
+    all2[key]=cur;
+    savePrinciples(all2);
+    renderAll();
+    showToast("✅ 저장되었습니다");
+    box.remove();
+  };
+
+  box.addEventListener("click", function(e){ if(e.target===box) box.remove(); });
+}
+
+function selectPrincipleStatus(btn, st){
+  var box=document.getElementById("principleBox");
+  box._data.status=st;
+  var row=document.getElementById("principleStatusRow");
+  row.querySelectorAll("button").forEach(function(b){
+    var s=b.getAttribute("data-status");
+    var color=PRINCIPLE_STATUS_COLORS[s];
+    var active=s===st;
+    b.style.border="2px solid "+(active?color:"#eee");
+    b.style.background=active?color+"22":"#fafafa";
+  });
+}
+function selectPrincipleStar(btn, n){
+  var box=document.getElementById("principleBox");
+  box._data.confidence=n;
+  var row=document.getElementById("principleStarRow");
+  row.querySelectorAll("button").forEach(function(b){
+    var i=parseInt(b.getAttribute("data-star"),10);
+    b.style.color = i<=n ? "#f9a825" : "#ddd";
+  });
+}
+function addPrincipleCheckpoint(){
+  var list=document.getElementById("principleCpList");
+  var cpInputs=list.querySelectorAll('[data-cp-idx]');
+  if(cpInputs.length>=5){ showToast("⚠️ 체크포인트는 최대 5개까지예요", true); return; }
+  var idx=cpInputs.length;
+  var div=document.createElement("div");
+  div.style.cssText="display:flex;align-items:center;gap:6px;margin-bottom:6px";
+  div.innerHTML='<input type="checkbox" style="width:18px;height:18px;flex-shrink:0">'
+    +'<input type="text" data-cp-idx="'+idx+'" placeholder="체크포인트 내용" style="flex:1;border:1px solid #ddd;border-radius:8px;padding:7px 9px;font-size:13px">'
+    +'<button onclick="this.parentElement.remove()" style="background:none;border:none;color:#bbb;font-size:18px;cursor:pointer;padding:0 4px">×</button>';
+  list.appendChild(div);
+}
+function removePrincipleCheckpoint(idx){
+  var list=document.getElementById("principleCpList");
+  var rows=list.children;
+  if(rows[idx]) rows[idx].remove();
+}
+function togglePrincipleCheckpoint(idx){ /* 체크 상태는 저장 시 일괄 반영 */ }
+
+// ---- 투자일기 ----
+function openDiaryModal(type, id){
+  var name=getStockName(type,id);
+  var key=principleKey(type,id);
+  var all=loadPrinciples();
+  var p=all[key]||{diary:[]};
+  var diary=(p.diary||[]).slice().sort(function(a,b){return (b.date||"").localeCompare(a.date||"");});
+
+  closeAnyModal("subBox");
+  var box=document.createElement("div");
+  box.id="subBox";
+  box.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9999;display:flex;align-items:flex-end;justify-content:center";
+
+  var listHtml=diary.length
+    ? diary.map(function(d){
+        return '<div style="background:#fafafa;border-radius:10px;padding:10px 12px;margin-bottom:8px">'
+          +'<div style="font-size:11px;font-weight:700;color:#e65100;margin-bottom:4px">'+d.date+'</div>'
+          +'<div style="font-size:13px;color:#333;white-space:pre-wrap;line-height:1.5">'+(d.text||"").replace(/</g,"&lt;")+'</div>'
+        +'</div>';
+      }).join("")
+    : '<div style="text-align:center;color:#999;font-size:13px;padding:16px 0">아직 작성된 일기가 없어요</div>';
+
+  box.innerHTML =
+    '<div style="background:#fff;border-radius:20px 20px 0 0;padding:20px;width:100%;max-width:480px;max-height:85vh;overflow-y:auto;box-shadow:0 -4px 32px rgba(0,0,0,0.25)">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">'
+        +'<div style="font-size:16px;font-weight:900;color:#1a2236">📓 '+name+' 투자일기</div>'
+        +'<button onclick="document.getElementById(\'subBox\').remove()" style="background:none;border:none;font-size:22px;color:#999;cursor:pointer">×</button>'
+      +'</div>'
+      +'<textarea id="diaryNewText" placeholder="오늘 이 종목에 대해 든 생각을 기록해보세요" style="width:100%;box-sizing:border-box;border:1.5px solid #ffcc80;border-radius:10px;padding:10px;font-size:13px;min-height:70px;margin-bottom:8px;font-family:inherit"></textarea>'
+      +'<button id="diaryAddBtn" style="width:100%;padding:11px;background:linear-gradient(135deg,#e65100,#f57c00);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;margin-bottom:16px">일기 추가</button>'
+      +'<div id="diaryList">'+listHtml+'</div>'
+    +'</div>';
+  document.body.appendChild(box);
+
+  document.getElementById("diaryAddBtn").onclick=function(){
+    var txt=document.getElementById("diaryNewText").value.trim();
+    if(!txt){ showToast("⚠️ 내용을 입력해주세요", true); return; }
+    var all2=loadPrinciples();
+    var cur=all2[key]||{checkpoints:[],diary:[],quarterly:[]};
+    cur.diary=cur.diary||[];
+    var today=new Date();
+    var dateStr=today.getFullYear()+"-"+String(today.getMonth()+1).padStart(2,"0")+"-"+String(today.getDate()).padStart(2,"0");
+    cur.diary.push({date:dateStr, text:txt});
+    all2[key]=cur;
+    savePrinciples(all2);
+    showToast("✅ 일기가 저장되었습니다");
+    box.remove();
+    openDiaryModal(type,id);
+  };
+  box.addEventListener("click", function(e){ if(e.target===box) box.remove(); });
+}
+
+// ---- 분기실적체크 ----
+function openQuarterlyModal(type, id){
+  var name=getStockName(type,id);
+  var key=principleKey(type,id);
+  var all=loadPrinciples();
+  var p=all[key]||{quarterly:[]};
+  var qlist=(p.quarterly||[]).slice().sort(function(a,b){return (b.date||"").localeCompare(a.date||"");});
+
+  closeAnyModal("subBox");
+  var box=document.createElement("div");
+  box.id="subBox";
+  box.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9999;display:flex;align-items:flex-end;justify-content:center";
+
+  var listHtml=qlist.length
+    ? qlist.map(function(q){
+        return '<div style="background:#fafafa;border-radius:10px;padding:10px 12px;margin-bottom:8px">'
+          +'<div style="font-size:11px;font-weight:700;color:#2e7d32;margin-bottom:4px">'+q.date+'</div>'
+          +'<div style="font-size:13px;color:#333;white-space:pre-wrap;line-height:1.5">'+(q.note||"").replace(/</g,"&lt;")+'</div>'
+        +'</div>';
+      }).join("")
+    : '<div style="text-align:center;color:#999;font-size:13px;padding:16px 0">아직 기록된 분기체크가 없어요</div>';
+
+  box.innerHTML =
+    '<div style="background:#fff;border-radius:20px 20px 0 0;padding:20px;width:100%;max-width:480px;max-height:85vh;overflow-y:auto;box-shadow:0 -4px 32px rgba(0,0,0,0.25)">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">'
+        +'<div style="font-size:16px;font-weight:900;color:#1a2236">📅 '+name+' 분기실적체크</div>'
+        +'<button onclick="document.getElementById(\'subBox\').remove()" style="background:none;border:none;font-size:22px;color:#999;cursor:pointer">×</button>'
+      +'</div>'
+      +'<textarea id="quarterlyNewText" placeholder="이번 분기 실적/가이던스가 투자 논리를 여전히 뒷받침하는가?" style="width:100%;box-sizing:border-box;border:1.5px solid #a5d6a7;border-radius:10px;padding:10px;font-size:13px;min-height:70px;margin-bottom:8px;font-family:inherit"></textarea>'
+      +'<button id="quarterlyAddBtn" style="width:100%;padding:11px;background:linear-gradient(135deg,#2e7d32,#43a047);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;margin-bottom:16px">체크 기록 추가</button>'
+      +'<div id="quarterlyList">'+listHtml+'</div>'
+    +'</div>';
+  document.body.appendChild(box);
+
+  document.getElementById("quarterlyAddBtn").onclick=function(){
+    var txt=document.getElementById("quarterlyNewText").value.trim();
+    if(!txt){ showToast("⚠️ 내용을 입력해주세요", true); return; }
+    var all2=loadPrinciples();
+    var cur=all2[key]||{checkpoints:[],diary:[],quarterly:[]};
+    cur.quarterly=cur.quarterly||[];
+    var today=new Date();
+    var dateStr=today.getFullYear()+"-"+String(today.getMonth()+1).padStart(2,"0")+"-"+String(today.getDate()).padStart(2,"0");
+    cur.quarterly.push({date:dateStr, note:txt});
+    all2[key]=cur;
+    savePrinciples(all2);
+    showToast("✅ 분기체크가 저장되었습니다");
+    box.remove();
+    openQuarterlyModal(type,id);
+  };
+  box.addEventListener("click", function(e){ if(e.target===box) box.remove(); });
+}
+
+// ---- 투자원칙 대시보드 ----
+function renderPrincipleDash(){
+  var el=document.getElementById("principleDashList");
+  if(!el) return;
+  var all=loadPrinciples();
+  var rows=[];
+  [["dom",domStocks,false],["ov",ovStocks,true],["pen",penStocks,false]].forEach(function(g){
+    var type=g[0], stocks=g[1], isUS=g[2];
+    stocks.filter(function(s){return s.quantity>0;}).forEach(function(s){
+      var key=principleKey(type,s.id);
+      var p=all[key]||{};
+      var v=vKRW(s,isUS), c=cKRW(s,isUS), pnl=v-c, pct=c>0?(pnl/c)*100:0;
+      var lastCheck="";
+      if(p.quarterly&&p.quarterly.length){
+        lastCheck=p.quarterly.slice().sort(function(a,b){return (b.date||"").localeCompare(a.date||"");})[0].date;
+      }
+      rows.push({type:type,id:s.id,name:s.name,pct:pct,status:p.status||"",confidence:p.confidence||0,earningsDate:p.earningsDate||"",lastCheck:lastCheck,hasData: !!all[key]});
+    });
+  });
+
+  if(!rows.length){ el.innerHTML='<div style="text-align:center;padding:24px 0;color:var(--muted);font-size:13px">보유 중인 종목이 없어요</div>'; return; }
+
+  // 상태 우선순위: 빨강 > 노랑 > 미설정 > 초록
+  var order={red:0, yellow:1, "":2, green:3};
+  rows.sort(function(a,b){ return (order[a.status]!=null?order[a.status]:2) - (order[b.status]!=null?order[b.status]:2); });
+
+  el.innerHTML = rows.map(function(r){
+    var statusColor=PRINCIPLE_STATUS_COLORS[r.status]||"#bbb";
+    var statusLabel=r.status?PRINCIPLE_STATUS_LABELS[r.status]:"미설정";
+    var stars = r.confidence ? "★".repeat(r.confidence)+"☆".repeat(5-r.confidence) : "-";
+    var pctPos = r.pct>=0;
+    return '<div onclick="openPrincipleModal('+r.id+',\''+r.type+'\')" style="background:#fff;border-radius:12px;padding:12px 14px;margin-bottom:8px;box-shadow:0 1px 6px rgba(0,0,0,0.06);cursor:pointer">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">'
+        +'<div style="display:flex;align-items:center;gap:6px">'
+          +'<span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:'+statusColor+'"></span>'
+          +'<span style="font-size:14px;font-weight:800;color:var(--text)">'+r.name+'</span>'
+        +'</div>'
+        +'<span style="font-size:13px;font-weight:800;color:'+(pctPos?"var(--red-mid)":"var(--blue)")+'">'+(pctPos?"+":"")+r.pct.toFixed(1)+'%</span>'
+      +'</div>'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--muted)">'
+        +'<span>확신 <span style="color:#f9a825;letter-spacing:1px">'+stars+'</span></span>'
+        +'<span>'+statusLabel+'</span>'
+      +'</div>'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;font-size:10px;color:var(--muted);margin-top:4px">'
+        +'<span>실적발표 '+(r.earningsDate||"-")+'</span>'
+        +'<span>마지막 점검 '+(r.lastCheck||"-")+'</span>'
+      +'</div>'
+    +'</div>';
+  }).join("");
 }
 
 // =============================================
@@ -4601,7 +4986,7 @@ function changePw() {
 // 탭 전환
 // =============================================
 function switchTab(tab) {
-  var tabs=["dashboard","domestic","overseas","pension","dividend","risk","advisor","ledger","news","commandments","memo","settings","notouch","retirement","debt","networth"];
+  var tabs=["dashboard","domestic","overseas","pension","dividend","risk","advisor","ledger","news","commandments","memo","settings","notouch","retirement","debt","networth","principledash"];
   document.querySelectorAll(".tab").forEach(function(t,i){t.classList.toggle("active",tabs[i]===tab);});
   document.querySelectorAll(".panel").forEach(function(p){p.classList.toggle("active",p.id==="panel-"+tab);});
   if(tab==="memo") renderMemo();
@@ -4609,12 +4994,13 @@ function switchTab(tab) {
   if(tab==="retirement") renderRetirement();
   if(tab==="debt") renderDebt();
   if(tab==="networth") renderNetWorth();
+  if(tab==="principledash") renderPrincipleDash();
   var tabColors={
     dashboard:"#1976d2", domestic:"#f57f17", overseas:"#00838f",
     pension:"#7b1fa2", dividend:"#2e7d32", commandments:"#f57f17",
     risk:"#1e40af", advisor:"#6a1b9a", ledger:"#00897b",
     news:"#e65100", notouch:"#b71c1c", memo:"#795548", settings:"#546e7a",
-    retirement:"#3949ab", debt:"#ad1457", networth:"#00695c"
+    retirement:"#3949ab", debt:"#ad1457", networth:"#00695c", principledash:"#5e35b1"
   };
   document.querySelectorAll(".tab").forEach(function(t){
     t.style.color=""; t.style.borderColor=""; t.style.background="";
