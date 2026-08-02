@@ -4249,6 +4249,76 @@ function renderFundamentalsHtml(f){
     +(when?'<div style="font-size:10px;color:#999;margin-top:4px">조회: '+when+'</div>':"");
 }
 
+// =============================================
+// 클로 추천 투자논리 (알려진 종목 기준, 참고용)
+// =============================================
+var PRINCIPLE_KNOWLEDGE_TICKER={
+  "NVDA":{thesis:"AI 인프라 투자 사이클의 최대 수혜주. GPU·데이터센터向 수요가 압도적.",
+    logic:"하이퍼스케일러(MS·구글·아마존·메타)의 AI 데이터센터 capex 증가가 지속되고, CUDA 생태계 경쟁우위가 유지되는 한 유효.",
+    logicBreak:"빅테크 4사의 AI capex 가이던스가 전분기 대비 감소로 전환되거나, 자체 AI칩(구글 TPU·아마존 Trainium 등)으로의 전환이 매출 성장 둔화로 이어질 때."},
+  "MSFT":{thesis:"Azure 클라우드 + Copilot(생성형AI) 결합한 엔터프라이즈 AI 수익화 선두주자.",
+    logic:"Azure 매출 성장률이 시장 기대치를 상회하고, AI 관련 매출이 클라우드 성장에 실질적으로 기여하는 한 유효.",
+    logicBreak:"Azure 성장률이 2분기 연속 뚜렷하게 둔화되거나, Copilot 유료 전환율이 정체될 때."},
+  "GOOGL":{thesis:"검색광고 본업 캐시카우 + Gemini AI 통합 + 클라우드(GCP) 성장 트라이앵글.",
+    logic:"AI가 검색 광고매출을 잠식하지 않고 보완하며, GCP가 점유율을 지속 확대하는 한 유효.",
+    logicBreak:"AI 검색으로의 전환이 광고매출 성장을 훼손하는 신호가 나타나거나, GCP 성장률이 Azure·AWS 대비 뚜렷이 뒤처질 때."},
+  "GOOG":{thesis:"검색광고 본업 캐시카우 + Gemini AI 통합 + 클라우드(GCP) 성장 트라이앵글.",
+    logic:"AI가 검색 광고매출을 잠식하지 않고 보완하며, GCP가 점유율을 지속 확대하는 한 유효.",
+    logicBreak:"AI 검색으로의 전환이 광고매출 성장을 훼손하는 신호가 나타나거나, GCP 성장률이 Azure·AWS 대비 뚜렷이 뒤처질 때."},
+  "AAPL":{thesis:"하드웨어 생태계 락인 + 서비스 매출 고마진 성장.",
+    logic:"iPhone 교체수요와 서비스(앱스토어·아이클라우드 등) 매출이 안정적으로 성장하는 한 유효.",
+    logicBreak:"중국向 iPhone 판매가 구조적으로 감소하거나, 서비스 매출 성장률이 한 자릿수 초반까지 둔화될 때."},
+  "AVGO":{thesis:"커스텀 AI반도체(ASIC)+네트워킹 칩+VMware 결합한 AI 인프라 핵심 공급자.",
+    logic:"구글·메타 등 하이퍼스케일러의 자체 AI칩 설계 파트너십이 지속되고, AI 데이터센터向 네트워킹 수요가 증가하는 한 유효.",
+    logicBreak:"주요 하이퍼스케일러 고객이 ASIC 파트너를 이원화·축소하거나, VMware 인수 시너지가 기대에 못 미칠 때."},
+  "MU":{thesis:"AI 서버向 HBM(고대역폭메모리) 수요 폭발의 최대 수혜 메모리 기업.",
+    logic:"HBM 공급부족 국면이 지속되고 메모리 가격이 우상향하는 한 유효.",
+    logicBreak:"메모리 다운사이클 전환 신호(가격 하락·재고 증가)가 나타나거나, 경쟁사 HBM 점유율 확대로 마진이 훼손될 때."},
+  "JOBY":{thesis:"도심항공모빌리티(eVTOL) 상용화 초기 선두주자 베팅.",
+    logic:"FAA 인증 절차가 계획대로 진행되고 상업 서비스 출시가 지연되지 않는 한 유효. 아직 매출이 없는 고위험 종목.",
+    logicBreak:"FAA 인증 일정이 크게 지연되거나, 추가 유상증자가 어려워지거나, 경쟁사에 상용화 순서가 밀릴 때."},
+  "IONQ":{thesis:"양자컴퓨팅 상용화 초기 선두기업(트랩드 이온 방식) 베팅.",
+    logic:"큐비트 품질 개선이 로드맵대로 진행되고 정부·기업 파트너십이 확대되는 한 유효. 매출 대비 시총이 극히 높은 고위험 종목.",
+    logicBreak:"기술 로드맵 지연이 공식화되거나, 경쟁사 대비 기술격차가 벌어지거나, 추가 자금조달 없이 운영이 어려운 재무상태가 될 때."},
+  "SATL":{thesis:"위성 이미징·우주 인프라 테마 베팅.",
+    logic:"위성 데이터 수요(정부·상업) 확대와 계약 수주가 이어지는 한 유효.",
+    logicBreak:"주요 고객 계약이 갱신되지 않거나 매출 성장이 뚜렷하게 정체될 때. (이미 원금회수 완료, 일부 익절 검토 대상으로 메모된 종목)"},
+  "PLTR":{thesis:"정부·기업向 AI 데이터분석 플랫폼(AIP) 확장 베팅.",
+    logic:"AIP 상업부문 고객수·계약규모가 계속 확대되는 한 유효. 다만 밸류에이션이 펀더멘털 대비 과도하다는 지적이 지속됨.",
+    logicBreak:"상업부문 매출 성장률이 둔화되거나 정부계약 의존도가 다시 높아질 때. (전량 매도 검토 대상으로 메모된 종목)"},
+  "MSFU":{thesis:"MSFT 상승에 베팅한 2배 레버리지 상품(단기 트레이딩용).",
+    logic:"레버리지 ETF는 변동성 감가(decay) 때문에 장기보유에 부적합. MSFT가 뚜렷하게 우상향할 때만 단기적으로 유효.",
+    logicBreak:"이미 손실 구간에서 추가매수(물타기) 중단을 결정한 종목. 원칙상 추가 매수 없이 비중 축소·정리 대상."}
+};
+var PRINCIPLE_KNOWLEDGE_KEYWORD=[
+  {kw:["반도체"], thesis:"글로벌 반도체 밸류체인 상위 종목에 분산투자.",
+    logic:"AI 인프라 투자 사이클이 반도체 수요를 견인하는 구조가 유지되는 한 유효.",
+    logicBreak:"반도체 업종 전반에 걸쳐 하이퍼스케일러向 capex 둔화 신호가 확인될 때."},
+  {kw:["나스닥"], thesis:"미국 대형 기술주 100개 종목에 분산 투자.",
+    logic:"빅테크 실적 성장이 지수 전체를 견인하는 구조가 유지되는 한 유효.",
+    logicBreak:"빅테크 대형주 다수의 이익 성장률이 동시에 둔화될 때."},
+  {kw:["빅테크"], thesis:"매그니피센트7 등 미국 최상위 빅테크 집중투자.",
+    logic:"소수 빅테크 기업의 이익 집중도가 유지되고 AI 투자 사이클 수혜가 지속되는 한 유효.",
+    logicBreak:"빅테크 다수의 성장률이 동시에 둔화되거나 반독점 규제 리스크가 현실화될 때."},
+  {kw:["AI"], thesis:"AI 밸류체인 전반(반도체+소프트웨어+인프라)에 분산투자.",
+    logic:"AI 산업 전반의 투자 사이클이 지속되는 한 유효.",
+    logicBreak:"AI 관련 기업들의 실적이 시장 기대치를 하회하는 구간이 반복될 때."},
+  {kw:["금현물","금 ETF","KRX금"], thesis:"포트폴리오 헤지용 금 실물 연동 자산.",
+    logic:"달러 약세·지정학적 리스크·인플레이션 헤지 수요가 유효한 한 보유 근거 유지.",
+    logicBreak:"실질금리가 큰 폭으로 상승해 금 보유의 기회비용이 커질 때."}
+];
+function getPrincipleSuggestion(type, name, ticker){
+  if(type==="ov" && ticker && PRINCIPLE_KNOWLEDGE_TICKER[ticker.toUpperCase()]){
+    return PRINCIPLE_KNOWLEDGE_TICKER[ticker.toUpperCase()];
+  }
+  var found=null;
+  PRINCIPLE_KNOWLEDGE_KEYWORD.forEach(function(row){
+    if(found) return;
+    if(row.kw.some(function(k){return (name||"").indexOf(k)!==-1;})) found=row;
+  });
+  return found;
+}
+
 function openPrincipleModal(id, type){
   closeAnyModal("principleBox");
   var name=getStockName(type,id);
@@ -4305,7 +4375,9 @@ function openPrincipleModal(id, type){
         +'<div style="font-size:17px;font-weight:900;color:#1a2236">📋 '+name+'</div>'
         +'<button onclick="document.getElementById(\'principleBox\').remove()" style="background:none;border:none;font-size:22px;color:#999;cursor:pointer">×</button>'
       +'</div>'
-      +'<div style="font-size:12px;color:#888;margin-bottom:16px">수익보다 생존, 주가가 아니라 사업을 본다.</div>'
+      +'<div style="font-size:12px;color:#888;margin-bottom:12px">수익보다 생존, 주가가 아니라 사업을 본다.</div>'
+
+      +'<button id="principleKnowledgeBtn" style="width:100%;padding:10px;background:#fff;color:#5e35b1;border:1.5px dashed #b39ddb;border-radius:10px;font-size:12px;font-weight:800;cursor:pointer;margin-bottom:16px">🧠 클로 추천 논리 불러오기 (매수이유·핵심논리·훼손조건)</button>'
 
       +'<div style="font-size:13px;font-weight:800;color:#333;margin-bottom:8px">🧭 투자논리 상태</div>'
       +'<div style="display:flex;gap:6px;margin-bottom:16px" id="principleLogicRow">'+logicBtns+'</div>'
@@ -4417,6 +4489,25 @@ function openPrincipleModal(id, type){
 
   updatePrincipleScoreBadge(document.getElementById("principleScore").value);
   updateBuyApproval();
+
+  var knowledgeBtn=document.getElementById("principleKnowledgeBtn");
+  if(knowledgeBtn){
+    knowledgeBtn.onclick=function(){
+      var sug=getPrincipleSuggestion(type, name, tickerForFund);
+      if(!sug){ showToast("⚠️ '"+name+"'에 대한 추천 논리가 아직 없어요. 직접 입력해주세요.", true); return; }
+      var thesisEl=document.getElementById("principleThesis");
+      var logicEl=document.getElementById("principleLogic");
+      var breakEl=document.getElementById("principleLogicBreak");
+      var hasExisting = thesisEl.value.trim() || logicEl.value.trim() || breakEl.value.trim();
+      if(hasExisting){
+        if(!confirm("이미 입력된 내용이 있어요. 클로 추천 내용으로 덮어쓸까요?")) return;
+      }
+      thesisEl.value=sug.thesis;
+      logicEl.value=sug.logic;
+      breakEl.value=sug.logicBreak;
+      showToast("✅ 클로 추천 논리를 불러왔어요. 내용 확인 후 저장해주세요.");
+    };
+  }
 
   var fundBtn=document.getElementById("principleFundBtn");
   if(fundBtn){
