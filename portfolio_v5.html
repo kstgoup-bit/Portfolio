@@ -1080,7 +1080,7 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
 <div class="panel" id="panel-advisor">
   <div class="adv-intro">
     🤖 Gemini가 공격형 관점과 방어형 관점으로 나누어 답변합니다.<br>
-    ⚔️ <b style="color:#c62828">젬마(공격형)</b>는 공격적 수익 극대화, 🛡 <b style="color:#1565c0">방어형</b>은 리스크 관리·분산 관점입니다.<br>
+    ⚔️ <b style="color:#c62828">재미(공격형)</b>는 공격적 수익 극대화, 🛡 <b style="color:#1565c0">방어형</b>은 리스크 관리·분산 관점입니다.<br>
     실제로는 하나의 Gemini API가 두 가지 페르소나로 답변하는 방식이며, Claude나 GPT가 별도로 연결된 것이 아닙니다.<br>
     두 의견 비교해서 순태씨가 최종 결정하세요!
   </div>
@@ -1549,7 +1549,7 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
 // =============================================
 
 // =============================================
-// AI 자문 (젬마 ⚔️ + 방어형 🛡) - 키는 설정탭에서
+// AI 자문 (재미 ⚔️ + 방어형 🛡) - 키는 설정탭에서
 // =============================================
 
 
@@ -1588,7 +1588,7 @@ function buildHistoryCtx() {
   var recent = advHistory.slice(-6);
   var s = "\n[이전토론요약]";
   recent.forEach(function(h) {
-    if(h.role==="gemma")      s += "젬마:"+h.text.substring(0,80)+".. ";
+    if(h.role==="gemma")      s += "재미:"+h.text.substring(0,80)+".. ";
     else if(h.role==="claude")     s += "방어형:"+h.text.substring(0,80)+".. ";
     else if(h.role==="user")       s += "순태씨:"+h.text+" ";
     else if(h.role==="consensus")  s += "합의:"+h.text.substring(0,60)+".. ";
@@ -1635,14 +1635,14 @@ async function continueDebate() {
 
   // 로딩
   var loadEl = document.createElement("div");
-  loadEl.className = "adv-loading"; loadEl.textContent = "⚔️ 젬마 "+advRound+"라운드 준비 중...";
+  loadEl.className = "adv-loading"; loadEl.textContent = "⚔️ 재미 "+advRound+"라운드 준비 중...";
   results.appendChild(loadEl);
 
-  // 젬마 반응
-  var gemmaQ3 = "[역할: 공격적 투자 전략가 젬마]\n"+ctx+histCtx+
+  // 재미 반응
+  var gemmaQ3 = "[역할: 공격적 투자 전략가 재미]\n"+ctx+histCtx+
     "\n【순태씨 새 의견】"+q2+
     "\n\n순태씨 의견에 직접 반응하고, 이전 토론 맥락을 고려해 구체적 종목/비중 포함해서 3~4문장 한국어로:";
-  loadEl.textContent = "⚔️ 젬마 "+advRound+"라운드 의견 작성 중...";
+  loadEl.textContent = "⚔️ 재미 "+advRound+"라운드 의견 작성 중...";
   var g3 = await callGemini(gemmaQ3);
 
   // 방어형 반응
@@ -1650,15 +1650,15 @@ async function continueDebate() {
   await new Promise(function(res){setTimeout(res,3000);});
   var claudeQ3 = "[역할: 신중하지만 실용적인 투자 전문가 방어형]\n"+ctx+histCtx+
     "\n【순태씨 새 의견】"+q2+
-    "\n【젬마 반응】"+g3+
-    "\n\n순태씨 의견과 젬마 반응 모두 고려해서 구체적 종목/ETF 포함, 3~4문장 한국어로:";
+    "\n【재미 반응】"+g3+
+    "\n\n순태씨 의견과 재미 반응 모두 고려해서 구체적 종목/ETF 포함, 3~4문장 한국어로:";
   var c3 = await callGemini(claudeQ3);
 
   // 합의안
   loadEl.textContent = "⚖️ "+advRound+"라운드 합의안 도출 중...";
   await new Promise(function(res){setTimeout(res,3000);});
   var conQ3 = "[역할: 중립 투자 조정자]\n"+ctx+histCtx+
-    "\n【순태씨 의견】"+q2+"\n【젬마】"+g3+"\n【방어형】"+c3+
+    "\n【순태씨 의견】"+q2+"\n【재미】"+g3+"\n【방어형】"+c3+
     "\n\n이번 라운드 토론을 종합해서 실행 가능한 합의안. 형식: ① 지금 할 것 ② 조심할 것. 구체적 종목/비중 포함, 각 1~2문장:";
   var con3 = await callGemini(conQ3);
 
@@ -1669,7 +1669,7 @@ async function continueDebate() {
   roundEl.innerHTML =
     '<div class="adv-card adv-card-gemma" style="margin-top:4px">' +
       '<div class="adv-card-header"><div class="adv-card-icon">⚔️</div>' +
-        '<div class="adv-card-name" style="color:#c62828">젬마 '+advRound+'라운드</div>' +
+        '<div class="adv-card-name" style="color:#c62828">재미 '+advRound+'라운드</div>' +
         '<div class="adv-card-tag" style="background:rgba(198,40,40,0.12);color:#c62828">공격적</div></div>' +
       '<div class="adv-card-body">'+g3+'</div></div>' +
     '<div class="adv-card adv-card-claude">' +
@@ -1949,31 +1949,31 @@ async function askBothAI() {
   }
   var ctx = getPortfolioCtx();
   var fullQ = ctx + "\n【질문】" + q;
-  var gemmaQ = "[역할: 공격적 투자 전략가 젬마. 5년 10억 목표, 고수익 추구, AI·SMR·성장주 집중 선호]\n"+fullQ+"\n위 역할로 한국어로 답변(200자 이내, 반드시 마침표로 끝낼 것):";
+  var gemmaQ = "[역할: 공격적 투자 전략가 재미. 5년 10억 목표, 고수익 추구, AI·SMR·성장주 집중 선호]\n"+fullQ+"\n위 역할로 한국어로 답변(200자 이내, 반드시 마침표로 끝낼 것):";
   var claudeQ = "[역할: 신중하지만 실용적인 투자 전문가 방어형. 리스크는 짚되 반드시 구체적 종목명이나 ETF를 1~2개 언급하며 실질적 조언을 해야 함. 추상적 원칙론 금지]\n"+fullQ+"\n위 역할로 한국어 3~5문장, 구체적 종목/ETF명 포함해서 답변:";
 
-  // ① 젬마 초기 의견
-  results.innerHTML = '<div class="adv-loading">⚔️ 젬마 1차 의견 작성 중...</div>';
-  btn.textContent = "⏳ 1/3 젬마 분석 중...";
+  // ① 재미 초기 의견
+  results.innerHTML = '<div class="adv-loading">⚔️ 재미 1차 의견 작성 중...</div>';
+  btn.textContent = "⏳ 1/3 재미 분석 중...";
   var gemmaRes = await callGemini(gemmaQ);
 
-  // ② 방어형가 젬마 의견 보고 반박/동의
-  results.innerHTML = '<div class="adv-loading">🛡 방어형가 젬마 의견 검토 중...</div>';
+  // ② 방어형이 재미 의견 보고 반박/동의
+  results.innerHTML = '<div class="adv-loading">🛡 방어형이 재미 의견 검토 중...</div>';
   btn.textContent = "⏳ 2/3 방어형 반응 중...";
   await new Promise(function(res){setTimeout(res,3000);});
   var claudeQ2 = "[역할: 신중하지만 실용적인 투자 전문가 방어형]\n"+ctx+
     "\n【질문】"+q+
-    "\n\n【젬마(공격적 전략가)의 의견】\n"+gemmaRes+
-    "\n\n위 젬마 의견을 보고: 동의하는 부분은 인정하고, 문제 있는 부분은 구체적 근거로 반박하며, 반드시 구체적 종목/ETF명을 언급해서 실질적 대안을 제시하라. 한국어 4~5문장:";
+    "\n\n【재미(공격적 전략가)의 의견】\n"+gemmaRes+
+    "\n\n위 재미 의견을 보고: 동의하는 부분은 인정하고, 문제 있는 부분은 구체적 근거로 반박하며, 반드시 구체적 종목/ETF명을 언급해서 실질적 대안을 제시하라. 한국어 4~5문장:";
   var claudeRes = await callGemini(claudeQ2);
 
   // ③ 합의안 도출
-  results.innerHTML = '<div class="adv-loading">⚖️ 젬마·방어형 합의안 도출 중...</div>';
+  results.innerHTML = '<div class="adv-loading">⚖️ 재미·방어형 합의안 도출 중...</div>';
   btn.textContent = "⏳ 3/3 합의안 작성 중...";
   await new Promise(function(res){setTimeout(res,3000);});
   var consensusQ = "[역할: 중립적 투자 조정자]\n"+ctx+
     "\n【질문】"+q+
-    "\n\n【젬마 의견】\n"+gemmaRes+
+    "\n\n【재미 의견】\n"+gemmaRes+
     "\n\n【방어형 의견】\n"+claudeRes+
     "\n\n위 두 전문가의 토론을 종합해서 순태씨가 실제로 실행할 수 있는 최종 합의안을 작성하라. 형식: ① 지금 당장 할 것 ② 중기적으로 할 것 ③ 주의사항. 형식 없이 핵심 3가지만 종목/비중 포함해서 150자 이내로:";
   var consensusRes = await callGemini(consensusQ);
@@ -1982,7 +1982,7 @@ async function askBothAI() {
     '<div class="adv-card adv-card-gemma">' +
       '<div class="adv-card-header">' +
         '<div class="adv-card-icon">⚔️</div>' +
-        '<div class="adv-card-name" style="color:#c62828">젬마 의견</div>' +
+        '<div class="adv-card-name" style="color:#c62828">재미 의견</div>' +
         '<div class="adv-card-tag" style="background:rgba(198,40,40,0.12);color:#c62828">공격적</div>' +
       '</div>' +
       '<div class="adv-card-body">'+gemmaRes+'</div>' +
@@ -1998,7 +1998,7 @@ async function askBothAI() {
     '<div class="adv-card" style="background:linear-gradient(135deg,rgba(46,125,50,0.06),rgba(21,101,192,0.06));border:2px solid rgba(46,125,50,0.4)">' +
       '<div class="adv-card-header">' +
         '<div class="adv-card-icon">⚖️</div>' +
-        '<div class="adv-card-name" style="color:#1b5e20">젬마·방어형 최종 합의안</div>' +
+        '<div class="adv-card-name" style="color:#1b5e20">재미·방어형 최종 합의안</div>' +
         '<div class="adv-card-tag" style="background:rgba(46,125,50,0.15);color:#2e7d32">결론</div>' +
       '</div>' +
       '<div class="adv-card-body">'+consensusRes+'</div>' +
@@ -4324,6 +4324,46 @@ var PRINCIPLE_KNOWLEDGE_TICKER={
     checkpoints:["HBM 매출 비중 및 성장률","메모리 가격(D램·낸드) 추이","경쟁사 HBM 점유율 변화","설비투자(capex) 계획 변화"],
     maxWeight:12, buyChecklist:{business:true, earnings:true, funding:true},
     earningsDate:"2026-06-24", nextCheckDate:"2026-09-23"},
+  "CRDO":{thesis:"AI 데이터센터 GPU 클러스터 간 초고속 연결(SerDes·광통신) 병목을 해결하는 핵심 커넥티비티 공급자.",
+    logic:"하이퍼스케일러들의 AI 클러스터 확장이 지속되고, 구리·광 인터커넥트 수요가 400G→800G→1.6T로 고도화되는 한 유효.",
+    logicBreak:"소수 대형 고객(하이퍼스케일러)에 매출이 집중된 구조라, 주요 고객사 발주 축소나 자체개발·경쟁사 전환이 확인될 때.",
+    role:"growth", survivalScore:70, confidence:3, logicState:"maintained",
+    sellCondition:"매출 성장이 뚜렷하게 둔화되거나 고객 집중도 리스크가 매출 급감으로 현실화될 때.",
+    reduceCondition:"밸류에이션 과열(현재 고P/E) 상태에서 목표비중 초과 시 일부 정리.",
+    buyMoreCondition:"조정 시 고객 다변화·매출 성장세 유지 확인되면 분할 매수.",
+    checkpoints:["매출 성장률(YoY) 확인","고객 집중도(상위 고객 매출 비중) 변화","1.6T 신제품 램프업 진행상황","경쟁사(마벨 등) 점유율 변화"],
+    maxWeight:8, buyChecklist:{business:true, earnings:true, funding:true},
+    earningsDate:"2026-06-01", nextCheckDate:"2026-09-09"},
+  "RKLB":{thesis:"소형 발사체(Electron)와 우주 시스템 사업을 겸하는 우주산업 성장주. 대형 발사체 Neutron 개발이 다음 성장 동력.",
+    logic:"발사 수주와 우주시스템(위성부품 등) 매출이 동시에 고성장하고, Neutron 개발이 일정대로 진행되는 한 유효.",
+    logicBreak:"Neutron 첫 발사가 크게 지연되거나, 발사 실패가 반복되거나, 백로그(수주잔고) 전환율이 뚜렷하게 둔화될 때.",
+    role:"option", survivalScore:60, confidence:3, logicState:"maintained",
+    sellCondition:"Neutron 프로젝트가 사실상 좌초되거나 핵심 고객 이탈로 백로그가 크게 줄어들 때.",
+    reduceCondition:"주가 급등(+50% 이상) 또는 목표비중 초과 시 일부 차익실현.",
+    buyMoreCondition:"Neutron 마일스톤 통과 등 명확한 호재로 논리 강화 확인 시 분할 매수.",
+    checkpoints:["분기 매출 성장률(발사·우주시스템 부문 각각)","백로그(수주잔고) 규모 변화","Neutron 개발·첫 발사 일정 준수 여부","현금 소진율 및 자금 여력"],
+    maxWeight:5, buyChecklist:{business:true, earnings:false, funding:true},
+    earningsDate:"2026-05-07", nextCheckDate:"2026-08-10"},
+  "ASTS":{thesis:"스마트폰이 별도 장비 없이 위성과 직접 통신하는 우주기반 셀룰러 브로드밴드(D2D) 선두 기업.",
+    logic:"통신사 파트너십과 정부 계약이 확대되고, 위성 발사·상업서비스 확장이 계획대로 진행되는 한 유효. 아직 본격 매출 발생 전 초기 단계.",
+    logicBreak:"위성 발사 일정이 크게 지연되거나, 통신사 파트너십이 축소되거나, 매출 가이던스($1.5~2억, '26년 기준)를 크게 하회할 때.",
+    role:"option", survivalScore:40, confidence:2, logicState:"maintained",
+    sellCondition:"핵심 기술(위성-직접통신) 상용화가 좌초되거나 주요 통신사 파트너가 이탈할 때.",
+    reduceCondition:"주가 급등 시 일부 차익실현, 목표비중 초과 시 정리.",
+    buyMoreCondition:"상업서비스 본격 개시, 매출 가이던스 상향 등 명확한 호재 확인 시 분할 매수.",
+    checkpoints:["위성 발사 진행상황(궤도 위성 수)","통신사 파트너십·계약 확대 여부","분기 매출 성장(가이던스 대비)","현금 잔고 및 추가 자금조달 여부"],
+    maxWeight:5, buyChecklist:{business:true, earnings:false, funding:true},
+    earningsDate:"2026-05-11", nextCheckDate:"2026-08-10"},
+  "SPCX":{thesis:"스페이스X(로켓 발사·스타링크 위성인터넷·AI 사업 그록/X) — 2026년 6월 나스닥 상장. 압도적 발사 시장 지배력과 스타링크 가입자 기반이 핵심 자산.",
+    logic:"발사 서비스 독점적 지위와 스타링크 매출 성장이 지속되고, AI 사업(그록/X)이 추가 성장동력으로 자리잡는 한 유효. 다만 상장 초기라 검증된 이력이 짧음.",
+    logicBreak:"스타십 개발·안전 이슈가 반복되거나, 스타링크 가입자 성장이 둔화되거나, 밸류에이션(시총 1.4조달러 이상) 대비 이익 성장이 크게 못 미칠 때.",
+    role:"option", survivalScore:55, confidence:2, logicState:"maintained",
+    sellCondition:"핵심 사업(발사·스타링크) 성장이 구조적으로 꺾이거나 대형 안전사고로 사업 신뢰도가 크게 훼손될 때.",
+    reduceCondition:"상장 초기 밸류에이션 과열 국면에서 목표비중 초과 시 일부 정리.",
+    buyMoreCondition:"첫 분기 실적으로 펀더멘털 확인되고 조정 시 분할 매수 검토.",
+    checkpoints:["첫 공개 분기 실적('26.8.4) 세부 내용","스타링크 가입자·매출 성장률","스타십 개발·안전 이슈 여부","AI(그록/X) 사업 매출 기여도"],
+    maxWeight:5, buyChecklist:{business:true, earnings:false, funding:true},
+    earningsDate:"", nextCheckDate:"2026-08-04"},
   "JOBY":{thesis:"도심항공모빌리티(eVTOL) 상용화 초기 선두주자 베팅.",
     logic:"FAA 인증 절차가 계획대로 진행되고 상업 서비스 출시가 지연되지 않는 한 유효. 아직 매출이 없는 고위험 종목.",
     logicBreak:"FAA 인증 일정이 크게 지연되거나, 추가 유상증자가 어려워지거나, 경쟁사에 상용화 순서가 밀릴 때.",
@@ -4415,6 +4455,15 @@ var PRINCIPLE_KNOWLEDGE_KEYWORD=[
     reduceCondition:"목표비중 초과 시 일부 정리.",
     buyMoreCondition:"신규 자금 유입 시 헤지 목적으로 매수 예정(기존 계획).",
     checkpoints:["실질금리·달러 인덱스 추이","지정학적 리스크 점검","포트폴리오 내 헤지 비중 점검"],
+    maxWeight:10, buyChecklist:{business:true, earnings:true, funding:true}},
+  {kw:["미래에셋"], thesis:"국내 대형 증권사(미래에셋증권) 우선주. 배당 매력과 보통주 대비 할인 거래가 핵심 매수 포인트.",
+    logic:"증권업 실적(거래대금·IB·자산관리 수익)이 안정적으로 유지되고, 배당 정책이 유지되는 한 유효.",
+    logicBreak:"증시 거래대금이 구조적으로 급감하거나, 배당이 삭감되거나, 우선주-보통주 괴리율이 극단적으로 좁혀져 매력이 사라질 때.",
+    role:"core", survivalScore:70, confidence:3, logicState:"maintained",
+    sellCondition:"배당 정책이 훼손되거나 증권업 실적이 구조적으로 악화될 때.",
+    reduceCondition:"목표비중 초과 시 일부 정리.",
+    buyMoreCondition:"우선주 괴리율이 확대(저평가)되고 배당 매력이 유지될 때 분할 매수.",
+    checkpoints:["분기 실적(거래대금·IB 수익) 확인","배당 정책 유지 여부","보통주 대비 괴리율 변화"],
     maxWeight:10, buyChecklist:{business:true, earnings:true, funding:true}}
 ];
 function renderCheckpointRowsHtml(checkpoints){
