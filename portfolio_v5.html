@@ -482,10 +482,6 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }
-  transform: scale(0.93);
-  filter: brightness(0.82);
-  transition: transform 0.07s ease, filter 0.07s ease;
-}
 .tab:active { transform: none; filter: none; }
 </style>
 
@@ -1083,8 +1079,9 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
 <!-- AI 자문 -->
 <div class="panel" id="panel-advisor">
   <div class="adv-intro">
-    ⚔️ <b style="color:#c62828">젬마</b>는 공격적 수익 극대화,
-    🛡 <b style="color:#1565c0">클로</b>는 리스크 관리·분산 관점으로 동시 답변해요.<br>
+    🤖 Gemini가 공격형 관점과 방어형 관점으로 나누어 답변합니다.<br>
+    ⚔️ <b style="color:#c62828">젬마(공격형)</b>는 공격적 수익 극대화, 🛡 <b style="color:#1565c0">방어형</b>은 리스크 관리·분산 관점입니다.<br>
+    실제로는 하나의 Gemini API가 두 가지 페르소나로 답변하는 방식이며, Claude나 GPT가 별도로 연결된 것이 아닙니다.<br>
     두 의견 비교해서 순태씨가 최종 결정하세요!
   </div>
   <div id="advKeyWarn" class="adv-key-warn" style="display:none;margin-bottom:12px">
@@ -1100,7 +1097,7 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
       <button class="adv-quick-btn" onclick="setAdvQ('리밸런싱이 필요한 시점인가?')">리밸런싱 점검</button>
       <button class="adv-quick-btn" onclick="setAdvQ('지금 시장 위험 수준과 대응 전략은?')">위험 대응</button>
     </div>
-    <button class="adv-submit-btn" id="advBtn" onclick="askBothAI()">⚡ 젬마 & 클로 동시 자문 받기</button>
+    <button class="adv-submit-btn" id="advBtn" onclick="askBothAI()">⚡ 공격형·방어형 동시 자문 받기</button>
   </div>
   <div id="advResults">
     <div style="text-align:center;padding:30px;color:var(--muted);font-size:13px">💬 질문을 입력하고 버튼을 눌러주세요</div>
@@ -1552,7 +1549,7 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
 // =============================================
 
 // =============================================
-// AI 자문 (젬마 ⚔️ + 클로 🛡) - 키는 설정탭에서
+// AI 자문 (젬마 ⚔️ + 방어형 🛡) - 키는 설정탭에서
 // =============================================
 
 
@@ -1592,7 +1589,7 @@ function buildHistoryCtx() {
   var s = "\n[이전토론요약]";
   recent.forEach(function(h) {
     if(h.role==="gemma")      s += "젬마:"+h.text.substring(0,80)+".. ";
-    else if(h.role==="claude")     s += "클로:"+h.text.substring(0,80)+".. ";
+    else if(h.role==="claude")     s += "방어형:"+h.text.substring(0,80)+".. ";
     else if(h.role==="user")       s += "순태씨:"+h.text+" ";
     else if(h.role==="consensus")  s += "합의:"+h.text.substring(0,60)+".. ";
   });
@@ -1648,10 +1645,10 @@ async function continueDebate() {
   loadEl.textContent = "⚔️ 젬마 "+advRound+"라운드 의견 작성 중...";
   var g3 = await callGemini(gemmaQ3);
 
-  // 클로 반응
-  loadEl.textContent = "🛡 클로 "+advRound+"라운드 반응 중...";
+  // 방어형 반응
+  loadEl.textContent = "🛡 방어형 "+advRound+"라운드 반응 중...";
   await new Promise(function(res){setTimeout(res,3000);});
-  var claudeQ3 = "[역할: 신중하지만 실용적인 투자 전문가 클로]\n"+ctx+histCtx+
+  var claudeQ3 = "[역할: 신중하지만 실용적인 투자 전문가 방어형]\n"+ctx+histCtx+
     "\n【순태씨 새 의견】"+q2+
     "\n【젬마 반응】"+g3+
     "\n\n순태씨 의견과 젬마 반응 모두 고려해서 구체적 종목/ETF 포함, 3~4문장 한국어로:";
@@ -1661,7 +1658,7 @@ async function continueDebate() {
   loadEl.textContent = "⚖️ "+advRound+"라운드 합의안 도출 중...";
   await new Promise(function(res){setTimeout(res,3000);});
   var conQ3 = "[역할: 중립 투자 조정자]\n"+ctx+histCtx+
-    "\n【순태씨 의견】"+q2+"\n【젬마】"+g3+"\n【클로】"+c3+
+    "\n【순태씨 의견】"+q2+"\n【젬마】"+g3+"\n【방어형】"+c3+
     "\n\n이번 라운드 토론을 종합해서 실행 가능한 합의안. 형식: ① 지금 할 것 ② 조심할 것. 구체적 종목/비중 포함, 각 1~2문장:";
   var con3 = await callGemini(conQ3);
 
@@ -1677,7 +1674,7 @@ async function continueDebate() {
       '<div class="adv-card-body">'+g3+'</div></div>' +
     '<div class="adv-card adv-card-claude">' +
       '<div class="adv-card-header"><div class="adv-card-icon">🛡</div>' +
-        '<div class="adv-card-name" style="color:#1565c0">클로 '+advRound+'라운드</div>' +
+        '<div class="adv-card-name" style="color:#1565c0">방어형 '+advRound+'라운드</div>' +
         '<div class="adv-card-tag" style="background:rgba(21,101,192,0.12);color:#1565c0">신중</div></div>' +
       '<div class="adv-card-body">'+c3+'</div></div>' +
     '<div class="adv-card" style="background:linear-gradient(135deg,rgba(46,125,50,0.06),rgba(21,101,192,0.06));border:2px solid rgba(46,125,50,0.4)">' +
@@ -1712,7 +1709,7 @@ function saveGeminiKey() {
   }
   localStorage.setItem("v5_geminiKey", key);
   document.getElementById("geminiKeyInput").value = "";
-  document.getElementById("geminiKeyStatus").textContent = "✅ 안전하게 저장됐어요!";
+  document.getElementById("geminiKeyStatus").textContent = "✅ 이 기기의 브라우저에 저장됐어요. 공용 기기에서는 사용하지 마세요.";
   document.getElementById("geminiKeyStatus").style.color = "#2e7d32";
   document.getElementById("advKeyWarn").style.display = "none";
 }
@@ -1730,7 +1727,7 @@ function saveAlphaVantageKey() {
   }
   localStorage.setItem("v5_alphaVantageKey", key);
   document.getElementById("alphaVantageKeyInput").value = "";
-  document.getElementById("alphaVantageKeyStatus").textContent = "✅ 안전하게 저장됐어요!";
+  document.getElementById("alphaVantageKeyStatus").textContent = "✅ 이 기기의 브라우저에 저장됐어요. 공용 기기에서는 사용하지 마세요.";
   document.getElementById("alphaVantageKeyStatus").style.color = "#2e7d32";
   updateAlphaVantageQuotaStatus();
 }
@@ -1944,7 +1941,7 @@ async function askBothAI() {
   // 이전 토론이 있으면 이어갈지 새로 시작할지 선택
   if(advHistory.length > 0) {
     var choice = await showResetChoice();
-    if(choice === null) { btn.disabled = false; btn.textContent = "⚡ 젬마 & 클로 동시 자문 받기"; return; }
+    if(choice === null) { btn.disabled = false; btn.textContent = "⚡ 공격형·방어형 동시 자문 받기"; return; }
     if(choice === "new") { advHistory = []; advRound = 1; }
     // "continue"면 히스토리 유지
   } else {
@@ -1953,31 +1950,31 @@ async function askBothAI() {
   var ctx = getPortfolioCtx();
   var fullQ = ctx + "\n【질문】" + q;
   var gemmaQ = "[역할: 공격적 투자 전략가 젬마. 5년 10억 목표, 고수익 추구, AI·SMR·성장주 집중 선호]\n"+fullQ+"\n위 역할로 한국어로 답변(200자 이내, 반드시 마침표로 끝낼 것):";
-  var claudeQ = "[역할: 신중하지만 실용적인 투자 전문가 클로. 리스크는 짚되 반드시 구체적 종목명이나 ETF를 1~2개 언급하며 실질적 조언을 해야 함. 추상적 원칙론 금지]\n"+fullQ+"\n위 역할로 한국어 3~5문장, 구체적 종목/ETF명 포함해서 답변:";
+  var claudeQ = "[역할: 신중하지만 실용적인 투자 전문가 방어형. 리스크는 짚되 반드시 구체적 종목명이나 ETF를 1~2개 언급하며 실질적 조언을 해야 함. 추상적 원칙론 금지]\n"+fullQ+"\n위 역할로 한국어 3~5문장, 구체적 종목/ETF명 포함해서 답변:";
 
   // ① 젬마 초기 의견
   results.innerHTML = '<div class="adv-loading">⚔️ 젬마 1차 의견 작성 중...</div>';
   btn.textContent = "⏳ 1/3 젬마 분석 중...";
   var gemmaRes = await callGemini(gemmaQ);
 
-  // ② 클로가 젬마 의견 보고 반박/동의
-  results.innerHTML = '<div class="adv-loading">🛡 클로가 젬마 의견 검토 중...</div>';
-  btn.textContent = "⏳ 2/3 클로 반응 중...";
+  // ② 방어형가 젬마 의견 보고 반박/동의
+  results.innerHTML = '<div class="adv-loading">🛡 방어형가 젬마 의견 검토 중...</div>';
+  btn.textContent = "⏳ 2/3 방어형 반응 중...";
   await new Promise(function(res){setTimeout(res,3000);});
-  var claudeQ2 = "[역할: 신중하지만 실용적인 투자 전문가 클로]\n"+ctx+
+  var claudeQ2 = "[역할: 신중하지만 실용적인 투자 전문가 방어형]\n"+ctx+
     "\n【질문】"+q+
     "\n\n【젬마(공격적 전략가)의 의견】\n"+gemmaRes+
     "\n\n위 젬마 의견을 보고: 동의하는 부분은 인정하고, 문제 있는 부분은 구체적 근거로 반박하며, 반드시 구체적 종목/ETF명을 언급해서 실질적 대안을 제시하라. 한국어 4~5문장:";
   var claudeRes = await callGemini(claudeQ2);
 
   // ③ 합의안 도출
-  results.innerHTML = '<div class="adv-loading">⚖️ 젬마·클로 합의안 도출 중...</div>';
+  results.innerHTML = '<div class="adv-loading">⚖️ 젬마·방어형 합의안 도출 중...</div>';
   btn.textContent = "⏳ 3/3 합의안 작성 중...";
   await new Promise(function(res){setTimeout(res,3000);});
   var consensusQ = "[역할: 중립적 투자 조정자]\n"+ctx+
     "\n【질문】"+q+
     "\n\n【젬마 의견】\n"+gemmaRes+
-    "\n\n【클로 의견】\n"+claudeRes+
+    "\n\n【방어형 의견】\n"+claudeRes+
     "\n\n위 두 전문가의 토론을 종합해서 순태씨가 실제로 실행할 수 있는 최종 합의안을 작성하라. 형식: ① 지금 당장 할 것 ② 중기적으로 할 것 ③ 주의사항. 형식 없이 핵심 3가지만 종목/비중 포함해서 150자 이내로:";
   var consensusRes = await callGemini(consensusQ);
 
@@ -1993,7 +1990,7 @@ async function askBothAI() {
     '<div class="adv-card adv-card-claude">' +
       '<div class="adv-card-header">' +
         '<div class="adv-card-icon">🛡</div>' +
-        '<div class="adv-card-name" style="color:#1565c0">클로 반응</div>' +
+        '<div class="adv-card-name" style="color:#1565c0">방어형 반응</div>' +
         '<div class="adv-card-tag" style="background:rgba(21,101,192,0.12);color:#1565c0">신중</div>' +
       '</div>' +
       '<div class="adv-card-body">'+claudeRes+'</div>' +
@@ -2001,7 +1998,7 @@ async function askBothAI() {
     '<div class="adv-card" style="background:linear-gradient(135deg,rgba(46,125,50,0.06),rgba(21,101,192,0.06));border:2px solid rgba(46,125,50,0.4)">' +
       '<div class="adv-card-header">' +
         '<div class="adv-card-icon">⚖️</div>' +
-        '<div class="adv-card-name" style="color:#1b5e20">젬마·클로 최종 합의안</div>' +
+        '<div class="adv-card-name" style="color:#1b5e20">젬마·방어형 최종 합의안</div>' +
         '<div class="adv-card-tag" style="background:rgba(46,125,50,0.15);color:#2e7d32">결론</div>' +
       '</div>' +
       '<div class="adv-card-body">'+consensusRes+'</div>' +
@@ -2017,7 +2014,7 @@ async function askBothAI() {
   // 계속 토론 입력창 표시
   showContinueBox();
   btn.disabled = false;
-  btn.textContent = "⚡ 젬마 & 클로 동시 자문 받기";
+  btn.textContent = "⚡ 공격형·방어형 동시 자문 받기";
 }
 
 
