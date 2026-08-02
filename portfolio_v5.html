@@ -570,7 +570,6 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
 <div class="tabs group-tabs" id="groupTabs">
   <button class="gtab active" id="gtab-invest" onclick="switchGroup('invest')">💰 투자</button>
   <button class="gtab" id="gtab-risk" onclick="switchGroup('risk')">🛡️ 위험관리</button>
-  <button class="gtab" id="gtab-record" onclick="switchGroup('record')">📝 기록</button>
   <button class="gtab" id="gtab-asset" onclick="switchGroup('asset')">💎 자산관리</button>
   <button class="gtab" id="gtab-settings" onclick="switchGroup('settings')">⚙️ 설정</button>
 </div>
@@ -590,15 +589,12 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
   <button class="tab" onclick="switchTab('commandments')">📜 12계명</button>
   <button class="tab" onclick="switchTab('news')">📰 뉴스</button>
 </div>
-<div class="tabs sub-tabs" id="subtabs-record" style="display:none">
-  <button class="tab" onclick="switchTab('ledger')">📒 가계부</button>
-  <button class="tab" onclick="switchTab('memo')">📝 메모</button>
-</div>
 <div class="tabs sub-tabs" id="subtabs-asset" style="display:none">
+  <button class="tab" onclick="switchTab('ledger')">📒 가계부</button>
   <button class="tab" onclick="switchTab('networth')">💎 순자산</button>
   <button class="tab" onclick="switchTab('debt')">💳 부채관리</button>
   <button class="tab" onclick="switchTab('retirement')">🧭 은퇴설계</button>
-  <button class="tab" onclick="switchTab('notouch')">🔒 노터치자산</button>
+  <button class="tab" onclick="switchTab('memo')">📝 메모</button>
 </div>
 </div>
 
@@ -1253,49 +1249,7 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
   </div>
 </div>
 
-<!-- 노터치 자산 -->
-<div class="panel" id="panel-notouch" style="background:#fdf3f0">
-  <div style="font-size:17px;font-weight:900;color:var(--text);margin-bottom:4px">🔒 노터치 자산</div>
-  <div style="font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.6">55~80세 연금보험 미수령분, 연 8.5% 복리·비과세.<br>80세까지 절대 손대지 않고 일시 수령이 원칙. (종신형이라 81세 이후도 생존 시 매년 750만원 별도 수령, 단 증액 없음)</div>
-
-  <div class="card" style="border-left:4px solid #c62828;background:linear-gradient(180deg,#fff8f7 0%,#ffe9e5 100%)">
-    <div style="font-size:12px;color:var(--muted);margin-bottom:6px">80세 최종 수령 예상액</div>
-    <div style="font-size:26px;font-weight:900;color:#b71c1c">35,499.5만원</div>
-    <div style="font-size:12px;color:var(--muted);margin-top:8px">원금 13,950만원(69세 칠순축하금 450, 79세 팔순축하금 675 포함) + 순이자 21,549.5만원 (비과세)</div>
-  </div>
-
-  <div class="card">
-    <div style="font-size:14px;font-weight:800;color:var(--text);margin-bottom:10px">📈 나이별 누적잔액 곡선 (56세~80세)</div>
-    <svg id="notouchChart" width="100%" viewBox="0 0 340 198" style="display:block"></svg>
-  </div>
-
-  <div class="card">
-    <div style="font-size:14px;font-weight:800;color:var(--text);margin-bottom:10px">📋 연도별 누적표 (56세~80세)</div>
-    <div style="overflow-x:auto;max-height:320px;overflow-y:auto">
-    <table style="width:100%;border-collapse:collapse;font-size:11.5px">
-      <thead>
-      <tr style="background:#f5f5f5;font-weight:800;color:var(--muted)">
-        <td style="position:sticky;top:0;background:#f5f5f5;padding:6px 4px;border-bottom:1.5px solid var(--border);white-space:nowrap;z-index:1">나이</td>
-        <td style="position:sticky;top:0;background:#f5f5f5;padding:6px 4px;border-bottom:1.5px solid var(--border);text-align:right;white-space:nowrap;z-index:1">당해 미수령액</td>
-        <td style="position:sticky;top:0;background:#f5f5f5;padding:6px 4px;border-bottom:1.5px solid var(--border);text-align:right;white-space:nowrap;z-index:1">당해 이자</td>
-        <td style="position:sticky;top:0;background:#f5f5f5;padding:6px 4px;border-bottom:1.5px solid var(--border);text-align:right;white-space:nowrap;z-index:1">누적잔액</td>
-      </tr>
-      </thead>
-      <tbody id="notouchTableBody"></tbody>
-    </table>
-    </div>
-  </div>
-
-  <div class="card" style="border-left:4px solid #f57f17;background:linear-gradient(180deg,#fffef8 0%,#fff5c0 100%)">
-    <div style="font-size:14px;font-weight:800;color:var(--text);margin-bottom:10px">⚠️ 지금 유혹이 온다면?</div>
-    <div style="font-size:13px;color:var(--muted);margin-bottom:8px">몇 세부터 매년 수령으로 전환할지 선택해보세요</div>
-    <select id="notouchAgeSel" onchange="renderNotouchForgone()" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:'Pretendard',sans-serif;background:#fff;color:var(--text);margin-bottom:10px"></select>
-    <div id="notouchForgoneResult"></div>
-    <div style="font-size:11px;color:var(--muted);margin-top:8px;line-height:1.5">※ 전환 시점까지 쌓인 금액은 그대로 두고, 이후 회차는 명목금액 그대로(복리 없이) 수령한다고 가정한 참고용 추정치입니다. 실제 정산은 약관 기준을 따릅니다.</div>
-  </div>
-</div>
-
-<!-- 은퇴설계 -->
+<!-- 은퇴설계 (하단에 노터치 자산 섹션 포함) -->
 <div class="panel" id="panel-retirement" style="background:#f2f3fc">
   <div style="font-size:17px;font-weight:900;color:var(--text);margin-bottom:4px">🧭 은퇴설계</div>
   <div style="font-size:14px;color:var(--muted);margin-bottom:14px;line-height:1.6">공무원연금 납부 종료 → 국민연금 임의가입 → 연금 개시로 이어지는 은퇴 소득 타임라인입니다.</div>
@@ -1350,6 +1304,48 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
 
   <div class="card" style="border-left:4px solid #f57f17;background:linear-gradient(180deg,#fffef8 0%,#fff5c0 100%)">
     <div style="font-size:12px;color:var(--muted);line-height:1.6">※ 국민연금은 매년 기준소득월액·보험료율이 조정되므로, 실제 신청 전 국민연금공단(1355)에서 최신 예상액을 재확인하세요. 표의 수치는 계획 시점 기준 추정치입니다.</div>
+  </div>
+
+  <!-- ── 하단: 노터치 자산 섹션 ── -->
+  <div style="margin:26px 0 16px;border-top:2px dashed #c5cae9;padding-top:18px" id="notouchSection">
+    <div style="font-size:17px;font-weight:900;color:var(--text);margin-bottom:4px">🔒 노터치 자산</div>
+    <div style="font-size:14px;color:var(--muted);margin-bottom:14px;line-height:1.6">55~80세 연금보험 미수령분, 연 8.5% 복리·비과세.<br>80세까지 절대 손대지 않고 일시 수령이 원칙. (종신형이라 81세 이후도 생존 시 매년 750만원 별도 수령, 단 증액 없음)</div>
+
+    <div class="card" style="border-left:4px solid #c62828;background:linear-gradient(180deg,#fff8f7 0%,#ffe9e5 100%)">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:6px">80세 최종 수령 예상액</div>
+      <div style="font-size:26px;font-weight:900;color:#b71c1c">35,499.5만원</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:8px">원금 13,950만원(69세 칠순축하금 450, 79세 팔순축하금 675 포함) + 순이자 21,549.5만원 (비과세)</div>
+    </div>
+
+    <div class="card">
+      <div style="font-size:14px;font-weight:800;color:var(--text);margin-bottom:10px">📈 나이별 누적잔액 곡선 (56세~80세)</div>
+      <svg id="notouchChart" width="100%" viewBox="0 0 340 198" style="display:block"></svg>
+    </div>
+
+    <div class="card">
+      <div style="font-size:14px;font-weight:800;color:var(--text);margin-bottom:10px">📋 연도별 누적표 (56세~80세)</div>
+      <div style="overflow-x:auto;max-height:320px;overflow-y:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:11.5px">
+        <thead>
+        <tr style="background:#f5f5f5;font-weight:800;color:var(--muted)">
+          <td style="position:sticky;top:0;background:#f5f5f5;padding:6px 4px;border-bottom:1.5px solid var(--border);white-space:nowrap;z-index:1">나이</td>
+          <td style="position:sticky;top:0;background:#f5f5f5;padding:6px 4px;border-bottom:1.5px solid var(--border);text-align:right;white-space:nowrap;z-index:1">당해 미수령액</td>
+          <td style="position:sticky;top:0;background:#f5f5f5;padding:6px 4px;border-bottom:1.5px solid var(--border);text-align:right;white-space:nowrap;z-index:1">당해 이자</td>
+          <td style="position:sticky;top:0;background:#f5f5f5;padding:6px 4px;border-bottom:1.5px solid var(--border);text-align:right;white-space:nowrap;z-index:1">누적잔액</td>
+        </tr>
+        </thead>
+        <tbody id="notouchTableBody"></tbody>
+      </table>
+      </div>
+    </div>
+
+    <div class="card" style="border-left:4px solid #f57f17;background:linear-gradient(180deg,#fffef8 0%,#fff5c0 100%)">
+      <div style="font-size:14px;font-weight:800;color:var(--text);margin-bottom:10px">⚠️ 지금 유혹이 온다면?</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:8px">몇 세부터 매년 수령으로 전환할지 선택해보세요</div>
+      <select id="notouchAgeSel" onchange="renderNotouchForgone()" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:'Pretendard',sans-serif;background:#fff;color:var(--text);margin-bottom:10px"></select>
+      <div id="notouchForgoneResult"></div>
+      <div style="font-size:11px;color:var(--muted);margin-top:8px;line-height:1.5">※ 전환 시점까지 쌓인 금액은 그대로 두고, 이후 회차는 명목금액 그대로(복리 없이) 수령한다고 가정한 참고용 추정치입니다. 실제 정산은 약관 기준을 따릅니다.</div>
+    </div>
   </div>
 </div>
 
@@ -5959,8 +5955,7 @@ function changePw() {
 var TAB_GROUPS={
   invest:  ["dashboard","domestic","overseas","pension","dividend"],
   risk:    ["principledash","advisor","risk","commandments","news"],
-  record:  ["ledger","memo"],
-  asset:   ["networth","debt","retirement","notouch"],
+  asset:   ["ledger","networth","debt","retirement","memo"],
   settings:["settings"]
 };
 var TAB_TO_GROUP={};
@@ -6017,8 +6012,7 @@ function switchTab(tab) {
 
   document.querySelectorAll(".panel").forEach(function(p){p.classList.toggle("active",p.id==="panel-"+tab);});
   if(tab==="memo") renderMemo();
-  if(tab==="notouch") renderNotouch();
-  if(tab==="retirement") renderRetirement();
+  if(tab==="retirement"){ renderRetirement(); renderNotouch(); }
   if(tab==="debt") renderDebt();
   if(tab==="networth") renderNetWorth();
   if(tab==="principledash") renderPrincipleDash();
