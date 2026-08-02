@@ -587,7 +587,7 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
   <button class="tab" onclick="switchTab('retirement')">🧭 은퇴설계</button>
   <button class="tab" onclick="switchTab('debt')">💳 부채관리</button>
   <button class="tab" onclick="switchTab('networth')">💎 순자산</button>
-  <button class="tab" onclick="switchTab('principledash')">📋 투자원칙</button>
+  <button class="tab" onclick="switchTab('principledash')">📋 종목분석</button>
   <button class="tab" onclick="switchTab('settings')">⚙️ 설정</button>
 </div>
 </div>
@@ -1448,9 +1448,9 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
   </div>
 </div>
 
-<!-- 투자원칙 대시보드 -->
+<!-- 종목분석 대시보드 -->
 <div class="panel" id="panel-principledash" style="background:#f5f2fc">
-  <div style="font-size:17px;font-weight:900;color:var(--text);margin-bottom:4px">📋 투자원칙 대시보드</div>
+  <div style="font-size:17px;font-weight:900;color:var(--text);margin-bottom:4px">📋 종목 분석</div>
   <div style="font-size:14px;color:var(--muted);margin-bottom:10px;line-height:1.6">보유 종목의 원칙 준수 현황을 한눈에 확인합니다. 행을 누르면 원칙 상세로 이동합니다.</div>
 
   <div style="background:linear-gradient(135deg,#5e35b1,#7e57c2);border-radius:12px;padding:14px 16px;margin-bottom:14px;text-align:center">
@@ -1508,7 +1508,7 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
   </div>
   <div class="card" style="border-left:4px solid #1565c0">
     <div style="font-weight:800;margin-bottom:4px;color:#1565c0">📊 Alpha Vantage API 키 (해외주식 재무데이터)</div>
-    <div style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.6">alphavantage.co에서 무료 발급 (하루 25회 제한). 투자원칙의 "재무데이터 조회"에서 사용됩니다.<br>이 기기의 localStorage에 평문으로 저장됩니다 — 위 보안 안내 참고. 절대 대화창에 붙여넣지 마세요!</div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.6">alphavantage.co에서 무료 발급 (하루 25회 제한). 종목분석의 "재무데이터 조회"에서 사용됩니다.<br>이 기기의 localStorage에 평문으로 저장됩니다 — 위 보안 안내 참고. 절대 대화창에 붙여넣지 마세요!</div>
     <input class="f-inp" id="alphaVantageKeyInput" type="password" placeholder="API 키 입력" style="margin-bottom:8px;letter-spacing:1px">
     <button class="btn-ok" style="width:auto;padding:8px 16px;font-size:12px;background:#1565c0" onclick="saveAlphaVantageKey()">저장</button>
     <div style="font-size:10px;margin-top:8px" id="alphaVantageKeyStatus"></div>
@@ -4161,7 +4161,7 @@ function delStock(id, type) {
 }
 
 // =============================================
-// 투자원칙 관리 (투자 비서)
+// 종목분석 관리 (투자 비서)
 // =============================================
 var PRINCIPLE_STATUS_COLORS={green:"#2e7d32", yellow:"#f9a825", red:"#c62828"};
 var PRINCIPLE_STATUS_LABELS={green:"양호", yellow:"주의", red:"위험"};
@@ -5103,7 +5103,7 @@ function openQuarterlyModal(type, id){
   box.addEventListener("click", function(e){ if(e.target===box) box.remove(); });
 }
 
-// ---- 투자원칙 대시보드 ----
+// ---- 종목분석 대시보드 ----
 function computeBuyApproval(type,id,p){
   var w=computeCurrentWeight(type,id);
   var logicOk = p.logicState==="maintained";
