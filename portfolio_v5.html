@@ -138,14 +138,17 @@ body{background:var(--sky-bg);color:var(--text);font-family:'Pretendard',sans-se
 .balance-ok{background:#e8f5e9;border:1.5px solid #4caf50;border-radius:10px;padding:10px 12px;margin-top:10px;font-size:12px;color:#2e7d32;font-weight:700;display:none}
 
 
-/* 탭 */
+/* 탭 - 대분류 */
 .tabs{display:flex;background:#fff;border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;box-shadow:0 1px 6px #00000010}
 .tabs::-webkit-scrollbar{display:none}
-.tab{flex:0 0 auto;padding:8px 12px;border:2px solid transparent;background:none;color:var(--muted);font-size:13px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;white-space:nowrap;border-radius:6px;margin:4px 2px}
+.group-tabs{background:#f3f1fb}
+.gtab{flex:1;padding:10px 6px;border:2px solid transparent;background:none;color:var(--muted);font-size:14px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif;white-space:nowrap;border-radius:8px;margin:4px 2px;text-align:center}
+.gtab.active{font-weight:900;background:#fff;box-shadow:0 1px 5px #00000018;transition:all 0.2s}
+
+/* 탭 - 하위 카테고리 */
+.sub-tabs{border-top:1px solid var(--border)}
+.tab{flex:0 0 auto;padding:8px 12px;border:2px solid transparent;background:none;color:var(--muted);font-size:14px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;white-space:nowrap;border-radius:6px;margin:4px 2px}
 .tab.active{font-weight:800;transition:all 0.2s}
-.tab-more{flex:0 0 auto;padding:8px 12px;border:2px solid transparent;background:#f0f0f0;color:#555;font-size:12px;font-weight:800;cursor:pointer;font-family:'Noto Sans KR',sans-serif;white-space:nowrap;border-radius:6px;margin:4px 2px}
-.tab-more.has-active{background:#ede7f6;color:#5e35b1}
-#secondaryTabs{border-top:1px solid var(--border)}
 
 /* 패널 */
 .panel{display:none;padding:14px}
@@ -563,28 +566,39 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
   </div>
 </div>
 
-<!-- 탭 -->
-<div class="tabs" id="primaryTabs">
+<!-- 대분류 탭 -->
+<div class="tabs group-tabs" id="groupTabs">
+  <button class="gtab active" id="gtab-invest" onclick="switchGroup('invest')">💰 투자</button>
+  <button class="gtab" id="gtab-risk" onclick="switchGroup('risk')">🛡️ 위험관리</button>
+  <button class="gtab" id="gtab-record" onclick="switchGroup('record')">📝 기록</button>
+  <button class="gtab" id="gtab-asset" onclick="switchGroup('asset')">💎 자산관리</button>
+  <button class="gtab" id="gtab-settings" onclick="switchGroup('settings')">⚙️ 설정</button>
+</div>
+
+<!-- 하위 카테고리 탭 -->
+<div class="tabs sub-tabs" id="subtabs-invest">
   <button class="tab active" onclick="switchTab('dashboard')">📊 현황</button>
   <button class="tab" onclick="switchTab('domestic')">🇰🇷 국내</button>
   <button class="tab" onclick="switchTab('overseas')">🇺🇸 해외</button>
   <button class="tab" onclick="switchTab('pension')">🏦 연금</button>
   <button class="tab" onclick="switchTab('dividend')">💰 배당</button>
-  <button class="tab-more" id="moreToggleBtn" onclick="toggleMoreTabs()">☰ 더보기 <span id="moreToggleArrow">▾</span></button>
 </div>
-<div class="tabs" id="secondaryTabs" style="display:none">
-  <button class="tab" onclick="switchTab('risk')">🌡️ 위험계</button>
-  <button class="tab" onclick="switchTab('advisor')">🤖 AI자문</button>
-  <button class="tab" onclick="switchTab('ledger')">📒 가계부</button>
-  <button class="tab" onclick="switchTab('news')">📰 뉴스</button>
-  <button class="tab" onclick="switchTab('commandments')">📜 12계명</button>
-  <button class="tab" onclick="switchTab('memo')">📝 메모</button>
-  <button class="tab" onclick="switchTab('notouch')">🔒 노터치자산</button>
-  <button class="tab" onclick="switchTab('retirement')">🧭 은퇴설계</button>
-  <button class="tab" onclick="switchTab('debt')">💳 부채관리</button>
-  <button class="tab" onclick="switchTab('networth')">💎 순자산</button>
+<div class="tabs sub-tabs" id="subtabs-risk" style="display:none">
   <button class="tab" onclick="switchTab('principledash')">📋 종목분석</button>
-  <button class="tab" onclick="switchTab('settings')">⚙️ 설정</button>
+  <button class="tab" onclick="switchTab('advisor')">🤖 AI자문</button>
+  <button class="tab" onclick="switchTab('risk')">🌡️ 위험계</button>
+  <button class="tab" onclick="switchTab('commandments')">📜 12계명</button>
+  <button class="tab" onclick="switchTab('news')">📰 뉴스</button>
+</div>
+<div class="tabs sub-tabs" id="subtabs-record" style="display:none">
+  <button class="tab" onclick="switchTab('ledger')">📒 가계부</button>
+  <button class="tab" onclick="switchTab('memo')">📝 메모</button>
+</div>
+<div class="tabs sub-tabs" id="subtabs-asset" style="display:none">
+  <button class="tab" onclick="switchTab('networth')">💎 순자산</button>
+  <button class="tab" onclick="switchTab('debt')">💳 부채관리</button>
+  <button class="tab" onclick="switchTab('retirement')">🧭 은퇴설계</button>
+  <button class="tab" onclick="switchTab('notouch')">🔒 노터치자산</button>
 </div>
 </div>
 
@@ -5940,11 +5954,67 @@ function changePw() {
 }
 
 // =============================================
-// 탭 전환
+// 탭 전환 (대분류 → 하위 카테고리 2단 구조)
 // =============================================
+var TAB_GROUPS={
+  invest:  ["dashboard","domestic","overseas","pension","dividend"],
+  risk:    ["principledash","advisor","risk","commandments","news"],
+  record:  ["ledger","memo"],
+  asset:   ["networth","debt","retirement","notouch"],
+  settings:["settings"]
+};
+var TAB_TO_GROUP={};
+Object.keys(TAB_GROUPS).forEach(function(g){ TAB_GROUPS[g].forEach(function(t){ TAB_TO_GROUP[t]=g; }); });
+var LAST_TAB_IN_GROUP={}; // 그룹별 마지막으로 본 하위탭 기억
+
+var tabColors={
+  dashboard:"#1976d2", domestic:"#f57f17", overseas:"#00838f",
+  pension:"#7b1fa2", dividend:"#2e7d32", commandments:"#f57f17",
+  risk:"#1e40af", advisor:"#6a1b9a", ledger:"#00897b",
+  news:"#e65100", notouch:"#b71c1c", memo:"#795548", settings:"#546e7a",
+  retirement:"#3949ab", debt:"#ad1457", networth:"#00695c", principledash:"#5e35b1"
+};
+
+function switchGroup(group){
+  var target=LAST_TAB_IN_GROUP[group]||TAB_GROUPS[group][0];
+  switchTab(target);
+}
+
 function switchTab(tab) {
-  var tabs=["dashboard","domestic","overseas","pension","dividend","risk","advisor","ledger","news","commandments","memo","notouch","retirement","debt","networth","principledash","settings"];
-  document.querySelectorAll(".tab").forEach(function(t,i){t.classList.toggle("active",tabs[i]===tab);});
+  var group=TAB_TO_GROUP[tab];
+  if(!group) return;
+  LAST_TAB_IN_GROUP[group]=tab;
+
+  // 대분류 탭 활성화 표시
+  document.querySelectorAll(".gtab").forEach(function(g){
+    g.classList.toggle("active", g.id==="gtab-"+group);
+  });
+
+  // 하위 카테고리 탭 묶음: 현재 그룹만 보이기
+  Object.keys(TAB_GROUPS).forEach(function(g){
+    var el=document.getElementById("subtabs-"+g);
+    if(el) el.style.display=(g===group)?"flex":"none";
+  });
+
+  // 하위 카테고리 탭 내 active 표시
+  var subEl=document.getElementById("subtabs-"+group);
+  if(subEl){
+    subEl.querySelectorAll(".tab").forEach(function(t){
+      t.style.color=""; t.style.borderColor=""; t.style.background="";
+      t.classList.remove("active");
+    });
+  }
+  var tabs=TAB_GROUPS[group];
+  var idx=tabs.indexOf(tab);
+  if(subEl && idx!==-1){
+    var btn=subEl.querySelectorAll(".tab")[idx];
+    if(btn){
+      btn.classList.add("active");
+      var c=tabColors[tab]||"#1565c0";
+      btn.style.color=c; btn.style.borderColor=c; btn.style.background="#fff";
+    }
+  }
+
   document.querySelectorAll(".panel").forEach(function(p){p.classList.toggle("active",p.id==="panel-"+tab);});
   if(tab==="memo") renderMemo();
   if(tab==="notouch") renderNotouch();
@@ -5952,40 +6022,6 @@ function switchTab(tab) {
   if(tab==="debt") renderDebt();
   if(tab==="networth") renderNetWorth();
   if(tab==="principledash") renderPrincipleDash();
-  var tabColors={
-    dashboard:"#1976d2", domestic:"#f57f17", overseas:"#00838f",
-    pension:"#7b1fa2", dividend:"#2e7d32", commandments:"#f57f17",
-    risk:"#1e40af", advisor:"#6a1b9a", ledger:"#00897b",
-    news:"#e65100", notouch:"#b71c1c", memo:"#795548", settings:"#546e7a",
-    retirement:"#3949ab", debt:"#ad1457", networth:"#00695c", principledash:"#5e35b1"
-  };
-  document.querySelectorAll(".tab").forEach(function(t){
-    t.style.color=""; t.style.borderColor=""; t.style.background="";
-  });
-  document.querySelectorAll(".tab.active").forEach(function(t){
-    var c=tabColors[tab]||"#1565c0";
-    t.style.color=c; t.style.borderColor=c; t.style.background="#fff";
-  });
-
-  var secondaryTabIds=["risk","advisor","ledger","news","commandments","memo","notouch","retirement","debt","networth","principledash","settings"];
-  var moreBtn=document.getElementById("moreToggleBtn");
-  if(moreBtn){
-    if(secondaryTabIds.indexOf(tab)!==-1){
-      moreBtn.classList.add("has-active");
-      document.getElementById("secondaryTabs").style.display="flex";
-      document.getElementById("moreToggleArrow").textContent="▴";
-    } else {
-      moreBtn.classList.remove("has-active");
-    }
-  }
-}
-
-function toggleMoreTabs(){
-  var sec=document.getElementById("secondaryTabs");
-  var arrow=document.getElementById("moreToggleArrow");
-  var isOpen=sec.style.display==="flex";
-  sec.style.display=isOpen?"none":"flex";
-  arrow.textContent=isOpen?"▾":"▴";
 }
 
 // =============================================
