@@ -4965,7 +4965,7 @@ function renderPrincipleDash(){
         lastCheck=p.quarterly.slice().sort(function(a,b){return (b.date||"").localeCompare(a.date||"");})[0].date;
       }
       rows.push({
-        type:type,id:s.id,name:s.name,pct:pct,
+        type:type,id:s.id,name:s.name,pct:pct,v:v,
         role:p.role||"", survivalScore:p.survivalScore!=null&&p.survivalScore!==""?Number(p.survivalScore):null,
         confidence:p.confidence||0, logicState:p.logicState||"",
         earningsDate:p.earningsDate||"", nextCheckDate:p.nextCheckDate||"", lastCheck:lastCheck,
@@ -4977,13 +4977,12 @@ function renderPrincipleDash(){
 
   if(!rows.length){ el.innerHTML='<div style="text-align:center;padding:24px 0;color:var(--muted);font-size:13px">보유 중인 종목이 없어요</div>'; return; }
 
-  // 정렬: 투자논리 붕괴 > 약화 > 미설정 > 유지, 동일하면 생존점수 낮은 순
-  var logicOrder={broken:0, weakened:1, "":2, maintained:3};
+  // 정렬: 해외 → 국내 → 연금 순, 그룹 내에서는 평가금액 높은 순
+  var typeOrder={ov:0, dom:1, pen:2};
   rows.sort(function(a,b){
-    var lo=(logicOrder[a.logicState]!=null?logicOrder[a.logicState]:2) - (logicOrder[b.logicState]!=null?logicOrder[b.logicState]:2);
-    if(lo!==0) return lo;
-    var sa=a.survivalScore==null?50:a.survivalScore, sb=b.survivalScore==null?50:b.survivalScore;
-    return sa-sb;
+    var to=(typeOrder[a.type]!=null?typeOrder[a.type]:9) - (typeOrder[b.type]!=null?typeOrder[b.type]:9);
+    if(to!==0) return to;
+    return b.v - a.v;
   });
 
   el.innerHTML = rows.map(function(r){
