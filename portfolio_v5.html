@@ -1458,6 +1458,10 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
     <div style="font-size:12px;font-weight:700;color:#e1d8f5;margin-top:2px">"주가가 아니라 사업을 보고 투자한다"</div>
   </div>
 
+  <button id="batchAiBtn" onclick="runBatchAiAnalysis()" style="width:100%;padding:12px;background:linear-gradient(135deg,#1565c0,#1976d2);color:#fff;border:none;border-radius:12px;font-size:13px;font-weight:800;cursor:pointer;margin-bottom:6px">🔍 보유종목 전체 실시간 분석 (웹 검색 기반)</button>
+  <div style="font-size:10px;color:#999;margin-bottom:14px;line-height:1.4">종목마다 Gemini가 최신 실적·뉴스를 검색해서 논리상태·확신도·생존점수를 자동 갱신합니다. 종목 수만큼 시간이 걸립니다.</div>
+  <div id="batchAiProgress" style="display:none;background:#e3f2fd;border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:#1565c0;font-weight:700"></div>
+
   <div class="card">
     <div id="principleDashList"></div>
   </div>
@@ -4256,74 +4260,168 @@ var PRINCIPLE_KNOWLEDGE_TICKER={
   "NVDA":{thesis:"AI 인프라 투자 사이클의 최대 수혜주. GPU·데이터센터向 수요가 압도적.",
     logic:"하이퍼스케일러(MS·구글·아마존·메타)의 AI 데이터센터 capex 증가가 지속되고, CUDA 생태계 경쟁우위가 유지되는 한 유효.",
     logicBreak:"빅테크 4사의 AI capex 가이던스가 전분기 대비 감소로 전환되거나, 자체 AI칩(구글 TPU·아마존 Trainium 등)으로의 전환이 매출 성장 둔화로 이어질 때.",
-    role:"core", survivalScore:88, confidence:5, logicState:"maintained"},
+    role:"core", survivalScore:88, confidence:5, logicState:"maintained",
+    sellCondition:"데이터센터 매출 성장률이 2분기 연속 뚜렷하게 둔화되거나, 주요 고객사 이탈이 확인될 때 전량 매도 검토.",
+    reduceCondition:"밸류에이션이 역사적 고점 대비 과도하게 확장되거나 목표비중을 크게 초과할 때 일부 정리.",
+    buyMoreCondition:"조정(-15~20%) 시 투자논리가 유지된 상태라면 분할 추매.",
+    checkpoints:["데이터센터 매출 QoQ 성장률 확인","차세대 GPU 양산·공급 일정 준수 여부","빅테크 4사 AI capex 가이던스 변화","자체설계 AI칩 점유율 잠식 여부"],
+    maxWeight:20, buyChecklist:{business:true, earnings:true, funding:true}},
   "MSFT":{thesis:"Azure 클라우드 + Copilot(생성형AI) 결합한 엔터프라이즈 AI 수익화 선두주자.",
     logic:"Azure 매출 성장률이 시장 기대치를 상회하고, AI 관련 매출이 클라우드 성장에 실질적으로 기여하는 한 유효.",
     logicBreak:"Azure 성장률이 2분기 연속 뚜렷하게 둔화되거나, Copilot 유료 전환율이 정체될 때.",
-    role:"core", survivalScore:85, confidence:5, logicState:"maintained"},
+    role:"core", survivalScore:85, confidence:5, logicState:"maintained",
+    sellCondition:"Azure 성장률이 뚜렷하게 꺾이고 경쟁 클라우드 대비 점유율을 지속적으로 잃을 때.",
+    reduceCondition:"목표비중(20%) 초과 시 초과분만큼 일부 정리.",
+    buyMoreCondition:"실적 발표 후 논리 유지 확인되고 조정(-10% 이상) 시 분할 추매.",
+    checkpoints:["Azure 매출 성장률(YoY) 확인","Copilot 유료 시트 수 증가 추이","AI 관련 매출 기여도 공개 여부","클라우드 마진율 추이"],
+    maxWeight:20, buyChecklist:{business:true, earnings:true, funding:true}},
   "GOOGL":{thesis:"검색광고 본업 캐시카우 + Gemini AI 통합 + 클라우드(GCP) 성장 트라이앵글.",
     logic:"AI가 검색 광고매출을 잠식하지 않고 보완하며, GCP가 점유율을 지속 확대하는 한 유효.",
     logicBreak:"AI 검색으로의 전환이 광고매출 성장을 훼손하는 신호가 나타나거나, GCP 성장률이 Azure·AWS 대비 뚜렷이 뒤처질 때.",
-    role:"core", survivalScore:82, confidence:4, logicState:"maintained"},
+    role:"core", survivalScore:82, confidence:4, logicState:"maintained",
+    sellCondition:"AI 검색 전환으로 광고매출이 구조적으로 감소하기 시작할 때.",
+    reduceCondition:"목표비중 초과 시 일부 정리.",
+    buyMoreCondition:"GCP 성장 가속 확인 시 추가 매수 고려.",
+    checkpoints:["검색광고 매출 성장률 확인","GCP 매출 성장률 및 점유율","AI 검색 트래픽 영향 여부","반독점 소송·규제 진행상황"],
+    maxWeight:20, buyChecklist:{business:true, earnings:true, funding:true}},
   "GOOG":{thesis:"검색광고 본업 캐시카우 + Gemini AI 통합 + 클라우드(GCP) 성장 트라이앵글.",
     logic:"AI가 검색 광고매출을 잠식하지 않고 보완하며, GCP가 점유율을 지속 확대하는 한 유효.",
     logicBreak:"AI 검색으로의 전환이 광고매출 성장을 훼손하는 신호가 나타나거나, GCP 성장률이 Azure·AWS 대비 뚜렷이 뒤처질 때.",
-    role:"core", survivalScore:82, confidence:4, logicState:"maintained"},
+    role:"core", survivalScore:82, confidence:4, logicState:"maintained",
+    sellCondition:"AI 검색 전환으로 광고매출이 구조적으로 감소하기 시작할 때.",
+    reduceCondition:"목표비중 초과 시 일부 정리.",
+    buyMoreCondition:"GCP 성장 가속 확인 시 추가 매수 고려.",
+    checkpoints:["검색광고 매출 성장률 확인","GCP 매출 성장률 및 점유율","AI 검색 트래픽 영향 여부","반독점 소송·규제 진행상황"],
+    maxWeight:20, buyChecklist:{business:true, earnings:true, funding:true}},
   "AAPL":{thesis:"하드웨어 생태계 락인 + 서비스 매출 고마진 성장.",
     logic:"iPhone 교체수요와 서비스(앱스토어·아이클라우드 등) 매출이 안정적으로 성장하는 한 유효.",
     logicBreak:"중국向 iPhone 판매가 구조적으로 감소하거나, 서비스 매출 성장률이 한 자릿수 초반까지 둔화될 때.",
-    role:"core", survivalScore:75, confidence:4, logicState:"maintained"},
+    role:"core", survivalScore:75, confidence:4, logicState:"maintained",
+    sellCondition:"서비스 매출 성장이 정체되고 하드웨어 매출도 동반 감소할 때.",
+    reduceCondition:"목표비중 초과 시 일부 정리.",
+    buyMoreCondition:"신제품 사이클(교체수요) 확인 시 분할 매수.",
+    checkpoints:["아이폰 판매량(특히 중국) 추이","서비스 부문 매출 성장률","Apple Intelligence 교체수요 반영 여부","마진율 추이"],
+    maxWeight:20, buyChecklist:{business:true, earnings:true, funding:true}},
   "AVGO":{thesis:"커스텀 AI반도체(ASIC)+네트워킹 칩+VMware 결합한 AI 인프라 핵심 공급자.",
     logic:"구글·메타 등 하이퍼스케일러의 자체 AI칩 설계 파트너십이 지속되고, AI 데이터센터向 네트워킹 수요가 증가하는 한 유효.",
     logicBreak:"주요 하이퍼스케일러 고객이 ASIC 파트너를 이원화·축소하거나, VMware 인수 시너지가 기대에 못 미칠 때.",
-    role:"core", survivalScore:80, confidence:4, logicState:"maintained"},
+    role:"core", survivalScore:80, confidence:4, logicState:"maintained",
+    sellCondition:"핵심 하이퍼스케일러 고객사와의 ASIC 계약이 종료·축소될 때.",
+    reduceCondition:"목표비중 초과 시 일부 정리.",
+    buyMoreCondition:"신규 ASIC 고객사 확보 발표 시 추가 매수 고려.",
+    checkpoints:["ASIC 부문 매출 성장률 확인","VMware 통합 시너지 확인","하이퍼스케일러 고객사 다변화 여부","네트워킹 부문 수주 잔고"],
+    maxWeight:20, buyChecklist:{business:true, earnings:true, funding:true}},
   "MU":{thesis:"AI 서버向 HBM(고대역폭메모리) 수요 폭발의 최대 수혜 메모리 기업.",
     logic:"HBM 공급부족 국면이 지속되고 메모리 가격이 우상향하는 한 유효.",
     logicBreak:"메모리 다운사이클 전환 신호(가격 하락·재고 증가)가 나타나거나, 경쟁사 HBM 점유율 확대로 마진이 훼손될 때.",
-    role:"growth", survivalScore:70, confidence:3, logicState:"maintained"},
+    role:"growth", survivalScore:70, confidence:3, logicState:"maintained",
+    sellCondition:"메모리 다운사이클 진입이 확인되고 HBM 수요도 둔화될 때.",
+    reduceCondition:"100% 수익률 도달 시 보유수량 절반 매도(기존 원칙).",
+    buyMoreCondition:"메모리 업사이클 초입 확인 시 분할 매수.",
+    checkpoints:["HBM 매출 비중 및 성장률","메모리 가격(D램·낸드) 추이","경쟁사 HBM 점유율 변화","설비투자(capex) 계획 변화"],
+    maxWeight:12, buyChecklist:{business:true, earnings:true, funding:true}},
   "JOBY":{thesis:"도심항공모빌리티(eVTOL) 상용화 초기 선두주자 베팅.",
     logic:"FAA 인증 절차가 계획대로 진행되고 상업 서비스 출시가 지연되지 않는 한 유효. 아직 매출이 없는 고위험 종목.",
     logicBreak:"FAA 인증 일정이 크게 지연되거나, 추가 유상증자가 어려워지거나, 경쟁사에 상용화 순서가 밀릴 때.",
-    role:"option", survivalScore:35, confidence:2, logicState:"weakened"},
+    role:"option", survivalScore:35, confidence:2, logicState:"weakened",
+    sellCondition:"FAA 인증이 무기한 지연되거나 자금조달이 사실상 불가능해질 때 전량 매도.",
+    reduceCondition:"주가 급등(+50% 이상) 시 일부 차익실현.",
+    buyMoreCondition:"인증 마일스톤 통과 등 명확한 호재 확인 전까지 추가매수 지양.",
+    checkpoints:["FAA 인증 진행 상황(단계별)","상업 서비스 출시 일정 준수 여부","현금 소진율 및 잔여 현금","추가 자금조달(유상증자) 여부"],
+    maxWeight:5, buyChecklist:{business:true, earnings:false, funding:false}},
   "IONQ":{thesis:"양자컴퓨팅 상용화 초기 선두기업(트랩드 이온 방식) 베팅.",
     logic:"큐비트 품질 개선이 로드맵대로 진행되고 정부·기업 파트너십이 확대되는 한 유효. 매출 대비 시총이 극히 높은 고위험 종목.",
     logicBreak:"기술 로드맵 지연이 공식화되거나, 경쟁사 대비 기술격차가 벌어지거나, 추가 자금조달 없이 운영이 어려운 재무상태가 될 때.",
-    role:"option", survivalScore:30, confidence:2, logicState:"weakened"},
+    role:"option", survivalScore:30, confidence:2, logicState:"weakened",
+    sellCondition:"기술 로드맵이 공식적으로 실패하거나 자금난이 확인될 때 전량 매도.",
+    reduceCondition:"주가 급등 시 일부 차익실현.",
+    buyMoreCondition:"실질적 매출 계약 확대 등 펀더멘털 개선 전까지 추가매수 지양.",
+    checkpoints:["큐비트 성능·오류율 개선 지표","정부·기업 파트너십 신규 계약","현금 잔고 및 소진율","경쟁사 대비 기술 로드맵 격차"],
+    maxWeight:5, buyChecklist:{business:true, earnings:false, funding:false}},
   "SATL":{thesis:"위성 이미징·우주 인프라 테마 베팅.",
     logic:"위성 데이터 수요(정부·상업) 확대와 계약 수주가 이어지는 한 유효.",
     logicBreak:"주요 고객 계약이 갱신되지 않거나 매출 성장이 뚜렷하게 정체될 때. (이미 원금회수 완료, 일부 익절 검토 대상으로 메모된 종목)",
-    role:"option", survivalScore:45, confidence:3, logicState:"maintained"},
+    role:"option", survivalScore:45, confidence:3, logicState:"maintained",
+    sellCondition:"주요 고객 계약이 갱신되지 않고 매출이 뚜렷하게 감소할 때.",
+    reduceCondition:"이미 원금 회수 완료 상태이므로 추가 상승 시 단계적 익절.",
+    buyMoreCondition:"신규 대형 계약 확보 등 펀더멘털 개선 확인 전까지 지양.",
+    checkpoints:["위성 계약 신규 수주 현황","기존 고객 계약 갱신 여부","매출 성장률","현금흐름 상태"],
+    maxWeight:5, buyChecklist:{business:true, earnings:false, funding:true}},
   "PLTR":{thesis:"정부·기업向 AI 데이터분석 플랫폼(AIP) 확장 베팅.",
     logic:"AIP 상업부문 고객수·계약규모가 계속 확대되는 한 유효. 다만 밸류에이션이 펀더멘털 대비 과도하다는 지적이 지속됨.",
     logicBreak:"상업부문 매출 성장률이 둔화되거나 정부계약 의존도가 다시 높아질 때. (전량 매도 검토 대상으로 메모된 종목)",
-    role:"option", survivalScore:40, confidence:2, logicState:"weakened"},
+    role:"option", survivalScore:40, confidence:2, logicState:"weakened",
+    sellCondition:"상업부문 성장 둔화 및 밸류에이션 정당화 실패가 뚜렷해질 때 전량 매도 (기존 메모 방침).",
+    reduceCondition:"현재도 비중 축소 검토 대상. 반등 시 매도 기회로 활용.",
+    buyMoreCondition:"밸류에이션 부담이 해소되기 전까지 추가매수 지양.",
+    checkpoints:["상업부문 고객수·계약규모 성장률","정부계약 비중 추이","밸류에이션(PER·PSR) 적정성","신규 대형 계약 발표 여부"],
+    maxWeight:5, buyChecklist:{business:true, earnings:true, funding:true}},
   "MSFU":{thesis:"MSFT 상승에 베팅한 2배 레버리지 상품(단기 트레이딩용).",
     logic:"레버리지 ETF는 변동성 감가(decay) 때문에 장기보유에 부적합. MSFT가 뚜렷하게 우상향할 때만 단기적으로 유효.",
     logicBreak:"이미 손실 구간에서 추가매수(물타기) 중단을 결정한 종목. 원칙상 추가 매수 없이 비중 축소·정리 대상.",
-    role:"option", survivalScore:25, confidence:1, logicState:"weakened"}
+    role:"option", survivalScore:25, confidence:1, logicState:"weakened",
+    sellCondition:"MSFT 기초자산이 추세적으로 하락 전환될 때 전량 정리.",
+    reduceCondition:"이미 물타기 중단 방침. 반등 시 비중 축소 우선.",
+    buyMoreCondition:"레버리지 상품 특성상 원칙적으로 추가매수 지양.",
+    checkpoints:["MSFT 기초자산 추세 확인","레버리지 상품 보유기간 점검","변동성 감가 누적 영향 확인","MSFT 실적 발표 후 재평가"],
+    maxWeight:3, buyChecklist:{business:true, earnings:true, funding:true}}
 };
 var PRINCIPLE_KNOWLEDGE_KEYWORD=[
   {kw:["반도체"], thesis:"글로벌 반도체 밸류체인 상위 종목에 분산투자.",
     logic:"AI 인프라 투자 사이클이 반도체 수요를 견인하는 구조가 유지되는 한 유효.",
     logicBreak:"반도체 업종 전반에 걸쳐 하이퍼스케일러向 capex 둔화 신호가 확인될 때.",
-    role:"core", survivalScore:75, confidence:4, logicState:"maintained"},
+    role:"core", survivalScore:75, confidence:4, logicState:"maintained",
+    sellCondition:"반도체 업황 다운사이클이 뚜렷하게 확인될 때 비중 축소.",
+    reduceCondition:"목표비중 초과 시 일부 정리.",
+    buyMoreCondition:"업황 조정 시 분할 매수.",
+    checkpoints:["구성종목 실적 발표 요약 확인","반도체 업황 사이클 점검","AI capex 트렌드 확인"],
+    maxWeight:20, buyChecklist:{business:true, earnings:true, funding:true}},
   {kw:["나스닥"], thesis:"미국 대형 기술주 100개 종목에 분산 투자.",
     logic:"빅테크 실적 성장이 지수 전체를 견인하는 구조가 유지되는 한 유효.",
     logicBreak:"빅테크 대형주 다수의 이익 성장률이 동시에 둔화될 때.",
-    role:"core", survivalScore:75, confidence:4, logicState:"maintained"},
+    role:"core", survivalScore:75, confidence:4, logicState:"maintained",
+    sellCondition:"빅테크 다수의 이익 성장이 구조적으로 둔화될 때 비중 축소.",
+    reduceCondition:"목표비중 초과 시 일부 정리.",
+    buyMoreCondition:"지수 조정(-10~15%) 시 분할 매수.",
+    checkpoints:["지수 내 상위 비중 종목 실적 점검","금리·밸류에이션 부담 확인","섹터 쏠림도 점검"],
+    maxWeight:20, buyChecklist:{business:true, earnings:true, funding:true}},
   {kw:["빅테크"], thesis:"매그니피센트7 등 미국 최상위 빅테크 집중투자.",
     logic:"소수 빅테크 기업의 이익 집중도가 유지되고 AI 투자 사이클 수혜가 지속되는 한 유효.",
     logicBreak:"빅테크 다수의 성장률이 동시에 둔화되거나 반독점 규제 리스크가 현실화될 때.",
-    role:"core", survivalScore:78, confidence:4, logicState:"maintained"},
+    role:"core", survivalScore:78, confidence:4, logicState:"maintained",
+    sellCondition:"빅테크 다수의 실적이 동시에 둔화되거나 규제 리스크가 현실화될 때.",
+    reduceCondition:"목표비중 초과 시 일부 정리.",
+    buyMoreCondition:"조정 시 분할 매수.",
+    checkpoints:["빅테크 실적 시즌 종합 점검","반독점 규제 진행상황","AI capex 트렌드 확인"],
+    maxWeight:20, buyChecklist:{business:true, earnings:true, funding:true}},
   {kw:["AI"], thesis:"AI 밸류체인 전반(반도체+소프트웨어+인프라)에 분산투자.",
     logic:"AI 산업 전반의 투자 사이클이 지속되는 한 유효.",
     logicBreak:"AI 관련 기업들의 실적이 시장 기대치를 하회하는 구간이 반복될 때.",
-    role:"growth", survivalScore:72, confidence:3, logicState:"maintained"},
+    role:"growth", survivalScore:72, confidence:3, logicState:"maintained",
+    sellCondition:"AI 관련 실적이 시장 기대치를 반복적으로 하회할 때 비중 축소.",
+    reduceCondition:"목표비중 초과 시 일부 정리.",
+    buyMoreCondition:"조정 시 분할 매수.",
+    checkpoints:["구성종목 실적 발표 요약","AI 투자 사이클 트렌드 확인","밸류에이션 부담 점검"],
+    maxWeight:12, buyChecklist:{business:true, earnings:true, funding:true}},
   {kw:["금현물","금 ETF","KRX금"], thesis:"포트폴리오 헤지용 금 실물 연동 자산.",
     logic:"달러 약세·지정학적 리스크·인플레이션 헤지 수요가 유효한 한 보유 근거 유지.",
     logicBreak:"실질금리가 큰 폭으로 상승해 금 보유의 기회비용이 커질 때.",
-    role:"option", survivalScore:60, confidence:3, logicState:"maintained"}
+    role:"option", survivalScore:60, confidence:3, logicState:"maintained",
+    sellCondition:"실질금리 급등으로 금 보유 매력이 구조적으로 훼손될 때.",
+    reduceCondition:"목표비중 초과 시 일부 정리.",
+    buyMoreCondition:"신규 자금 유입 시 헤지 목적으로 매수 예정(기존 계획).",
+    checkpoints:["실질금리·달러 인덱스 추이","지정학적 리스크 점검","포트폴리오 내 헤지 비중 점검"],
+    maxWeight:10, buyChecklist:{business:true, earnings:true, funding:true}}
 ];
+function renderCheckpointRowsHtml(checkpoints){
+  return (checkpoints||[]).map(function(cp,i){
+    return '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">'
+      +'<input type="checkbox" '+(cp.done?"checked":"")+' onchange="togglePrincipleCheckpoint('+i+')" style="width:18px;height:18px;flex-shrink:0">'
+      +'<input type="text" value="'+(cp.text||"").replace(/"/g,'&quot;')+'" data-cp-idx="'+i+'" placeholder="체크포인트 내용" style="flex:1;border:1px solid #ddd;border-radius:8px;padding:7px 9px;font-size:13px">'
+      +'<button onclick="removePrincipleCheckpoint('+i+')" style="background:none;border:none;color:#bbb;font-size:18px;cursor:pointer;padding:0 4px">×</button>'
+    +'</div>';
+  }).join("");
+}
 function getPrincipleSuggestion(type, name, ticker){
   if(type==="ov" && ticker && PRINCIPLE_KNOWLEDGE_TICKER[ticker.toUpperCase()]){
     return PRINCIPLE_KNOWLEDGE_TICKER[ticker.toUpperCase()];
@@ -4375,13 +4473,7 @@ function openPrincipleModal(id, type){
     starBtns+='<button data-star="'+i+'" onclick="selectPrincipleStar(this,'+i+')" style="background:none;border:none;font-size:24px;cursor:pointer;padding:2px;color:'+(filled?"#f9a825":"#ddd")+'">★</button>';
   }
 
-  var cpHtml=(p.checkpoints||[]).map(function(cp,i){
-    return '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">'
-      +'<input type="checkbox" '+(cp.done?"checked":"")+' onchange="togglePrincipleCheckpoint('+i+')" style="width:18px;height:18px;flex-shrink:0">'
-      +'<input type="text" value="'+(cp.text||"").replace(/"/g,'&quot;')+'" data-cp-idx="'+i+'" placeholder="체크포인트 내용" style="flex:1;border:1px solid #ddd;border-radius:8px;padding:7px 9px;font-size:13px">'
-      +'<button onclick="removePrincipleCheckpoint('+i+')" style="background:none;border:none;color:#bbb;font-size:18px;cursor:pointer;padding:0 4px">×</button>'
-    +'</div>';
-  }).join("");
+  var cpHtml=renderCheckpointRowsHtml(p.checkpoints||[]);
 
   var upRowsHtml=p.scenarioUp.map(function(s,i){return scenarioRowHtml("up",s,i);}).join("");
   var downRowsHtml=p.scenarioDown.map(function(s,i){return scenarioRowHtml("down",s,i);}).join("");
@@ -4515,14 +4607,35 @@ function openPrincipleModal(id, type){
       var thesisEl=document.getElementById("principleThesis");
       var logicEl=document.getElementById("principleLogic");
       var breakEl=document.getElementById("principleLogicBreak");
+      var sellEl=document.getElementById("principleSell");
+      var reduceEl=document.getElementById("principleReduce");
+      var buyCondEl=document.getElementById("principleBuyCondition");
+      var maxWEl=document.getElementById("principleMaxWeight");
       var hasExisting = thesisEl.value.trim() || logicEl.value.trim() || breakEl.value.trim()
-        || box._data.role || box._data.logicState || (box._data.confidence && box._data.confidence!==3);
+        || sellEl.value.trim() || reduceEl.value.trim() || buyCondEl.value.trim() || maxWEl.value.trim()
+        || box._data.role || box._data.logicState || (box._data.confidence && box._data.confidence!==3)
+        || (box._data.checkpoints && box._data.checkpoints.some(function(c){return c.text;}));
       if(hasExisting){
-        if(!confirm("이미 입력/설정된 내용이 있어요. 클로 판단으로 전부 덮어쓸까요? (매수이유·핵심논리·훼손조건·역할·생존점수·확신점수·논리상태)")) return;
+        if(!confirm("이미 입력/설정된 내용이 있어요. 클로 판단으로 이 종목의 모든 항목을 덮어쓸까요?\n(매수이유·핵심논리·훼손조건·매도조건·비중축소조건·추매조건·체크포인트·역할·생존점수·확신점수·논리상태·최대비중·추매체크리스트)")) return;
       }
       thesisEl.value=sug.thesis;
       logicEl.value=sug.logic;
       breakEl.value=sug.logicBreak;
+      if(sug.sellCondition!=null) sellEl.value=sug.sellCondition;
+      if(sug.reduceCondition!=null) reduceEl.value=sug.reduceCondition;
+      if(sug.buyMoreCondition!=null) buyCondEl.value=sug.buyMoreCondition;
+      if(sug.maxWeight!=null){ maxWEl.value=sug.maxWeight; }
+      if(sug.checkpoints && sug.checkpoints.length){
+        var newCps=sug.checkpoints.map(function(t){return {text:t, done:false};});
+        box._data.checkpoints=newCps;
+        document.getElementById("principleCpList").innerHTML=renderCheckpointRowsHtml(newCps);
+      }
+      if(sug.buyChecklist){
+        ["business","earnings","funding"].forEach(function(k){
+          var el=box.querySelector('[data-buy-chk="'+k+'"]');
+          if(el) el.checked=!!sug.buyChecklist[k];
+        });
+      }
       if(sug.role){
         var roleBtn=document.querySelector('[data-role="'+sug.role+'"]');
         if(roleBtn) selectPrincipleRole(roleBtn, sug.role);
@@ -4607,23 +4720,35 @@ function openPrincipleModal(id, type){
 
     var parsed=parseAiCoachBlock(resultText);
     box._aiParsed=parsed;
-    document.getElementById("principleAiApplyBtn").style.display = parsed ? "block" : "none";
-    document.getElementById("principleAiSaveBtn").style.display="block";
 
-    document.getElementById("principleAiApplyBtn").onclick=function(){
+    function applyAiParsed(){
       if(!box._aiParsed) return;
       if(box._aiParsed.logicState){
-        selectPrincipleLogic(document.querySelector('[data-logic="'+box._aiParsed.logicState+'"]'), box._aiParsed.logicState);
+        var lb=document.querySelector('[data-logic="'+box._aiParsed.logicState+'"]');
+        if(lb) selectPrincipleLogic(lb, box._aiParsed.logicState);
       }
       if(box._aiParsed.confidence){
-        selectPrincipleStar(document.querySelector('[data-star="'+box._aiParsed.confidence+'"]'), box._aiParsed.confidence);
+        var sb=document.querySelector('[data-star="'+box._aiParsed.confidence+'"]');
+        if(sb) selectPrincipleStar(sb, box._aiParsed.confidence);
       }
       if(box._aiParsed.survivalScore!=null){
         document.getElementById("principleScore").value=box._aiParsed.survivalScore;
         updatePrincipleScoreBadge(box._aiParsed.survivalScore);
       }
       updateBuyApproval();
-      showToast("✅ AI 제안값을 적용했어요. 확인 후 저장해주세요.");
+    }
+
+    if(parsed){
+      applyAiParsed();
+      showToast("✅ 실시간 분석 결과(논리상태·확신도·생존점수)를 자동 반영했어요. 저장해주세요.");
+    }
+    document.getElementById("principleAiApplyBtn").style.display = parsed ? "block" : "none";
+    document.getElementById("principleAiApplyBtn").textContent = "🔁 다시 적용 (수동으로 값을 바꾼 경우)";
+    document.getElementById("principleAiSaveBtn").style.display="block";
+
+    document.getElementById("principleAiApplyBtn").onclick=function(){
+      applyAiParsed();
+      showToast("✅ AI 제안값을 다시 적용했어요. 확인 후 저장해주세요.");
     };
 
     document.getElementById("principleAiSaveBtn").onclick=function(){
@@ -4975,6 +5100,70 @@ function computeBuyApproval(type,id,p){
   var maxW=p.maxWeight;
   var weightOk = (maxW!=null && maxW!=="") ? w<=Number(maxW) : false;
   return !!(logicOk && bc.business && bc.earnings && bc.funding && weightOk);
+}
+
+function buildRolePhilosophy(role){
+  if(role==="core") return "이 종목은 코어(장기 핵심) 종목입니다. 장기 보유를 기본으로 하고, 투자논리가 붕괴됐을 때만 매도를 검토하는 관점으로 판단하세요.";
+  if(role==="option") return "이 종목은 옵션(고위험) 종목입니다. 투자논리가 흔들리면 빠르게 대응하고, 목표 수익 달성 시 일부 익절을 적극 검토하는 관점으로 판단하세요.";
+  if(role==="growth") return "이 종목은 성장 종목입니다. 성장성 훼손 여부를 중점적으로 판단하세요.";
+  return "역할이 아직 지정되지 않았습니다.";
+}
+
+async function runBatchAiAnalysis(){
+  if(!getGeminiKey()){ showToast("⚠️ 설정 탭에서 Gemini API 키를 먼저 입력해주세요", true); return; }
+  var all=loadPrinciples();
+  var targets=[];
+  [["dom",domStocks,false],["ov",ovStocks,true],["pen",penStocks,false]].forEach(function(g){
+    var type=g[0], stocks=g[1];
+    stocks.filter(function(s){return s.quantity>0;}).forEach(function(s){
+      targets.push({type:type, id:s.id, name:s.name});
+    });
+  });
+  if(!targets.length){ showToast("⚠️ 보유 종목이 없어요", true); return; }
+
+  var btn=document.getElementById("batchAiBtn");
+  var progEl=document.getElementById("batchAiProgress");
+  btn.disabled=true; btn.textContent="분석 중...";
+  progEl.style.display="block";
+
+  var okCount=0, failCount=0;
+  for(var i=0;i<targets.length;i++){
+    var t=targets[i];
+    progEl.textContent="("+(i+1)+"/"+targets.length+") "+t.name+" 분석 중...";
+    var key=principleKey(t.type,t.id);
+    var p=all[key]||{};
+    var roleLabel=p.role&&ROLE_INFO[p.role]?ROLE_INFO[p.role].label:"미지정";
+    var prompt="당신은 '수익보다 생존을, 주가가 아니라 사업을 본다'는 원칙으로 개인 투자자를 돕는 분석가입니다. 웹 검색으로 아래 종목의 최근 사업 진행상황, 재무 상태, 최근 매출/실적 성장, 핵심 파트너십 유지 여부, 관련 최신 뉴스를 직접 찾아서 확인한 뒤, 감정이 아니라 사업 본질을 기준으로 냉정하게 판단하세요.\n\n"
+      +"종목: '"+t.name+"' | 역할: "+roleLabel+"\n"+buildRolePhilosophy(p.role)+"\n\n"
+      +"[투자자가 기록해둔 투자 이유]\n"+(p.thesis||"(미입력)")+"\n\n[핵심 논리]\n"+(p.logic||"(미입력)")+"\n\n"
+      +"간단히 최근 현황을 요약하고, 반드시 마지막에 아래 형식 그대로 한 줄씩 추가하세요(값만 정확히 보기 중에서 선택):\n"
+      +"논리상태: 유지 또는 약화 또는 붕괴\n확신도: 1~5 중 숫자 하나\n생존점수: 0~100 중 숫자 하나\n추매가능: 가능 또는 보류";
+    try{
+      var res=await callGeminiGrounded(prompt);
+      var parsed=parseAiCoachBlock(res.text);
+      if(parsed){
+        var cur=all[key]||{checkpoints:[],diary:[],quarterly:[]};
+        if(parsed.logicState) cur.logicState=parsed.logicState;
+        if(parsed.confidence) cur.confidence=parsed.confidence;
+        if(parsed.survivalScore!=null) cur.survivalScore=parsed.survivalScore;
+        cur.diary=cur.diary||[];
+        var today=new Date();
+        var dateStr=today.getFullYear()+"-"+String(today.getMonth()+1).padStart(2,"0")+"-"+String(today.getDate()).padStart(2,"0");
+        cur.diary.push({date:dateStr, text:"[일괄 실시간 분석]\n"+res.text});
+        all[key]=cur;
+        okCount++;
+      } else {
+        failCount++;
+      }
+    }catch(e){ failCount++; }
+    savePrinciples(all);
+    renderPrincipleDash();
+    await new Promise(function(r){setTimeout(r,1200);});
+  }
+
+  btn.disabled=false; btn.textContent="🔍 보유종목 전체 실시간 분석 (웹 검색 기반)";
+  progEl.textContent="✅ 완료: "+okCount+"개 갱신"+(failCount?", "+failCount+"개 실패":"");
+  showToast("✅ 전체 실시간 분석이 끝났어요");
 }
 
 function renderPrincipleDash(){
