@@ -36,6 +36,12 @@
   --cream-bg:#fffbf0; --cream-card:#fff8e1; --cream-border:#ffe082; --cream-accent:#f57f17;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+button,select,textarea,input:not([type="range"]){font-family:inherit;-webkit-appearance:none;appearance:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+input[type="range"]{touch-action:manipulation}
+button{cursor:pointer;user-select:none;-webkit-user-select:none}
+button:active{opacity:0.7}
+button:disabled{opacity:0.5;cursor:default}
+input[type="checkbox"],input[type="radio"]{appearance:auto}
 body{background:var(--sky-bg);color:var(--text);font-family:'Pretendard',sans-serif;max-width:480px;margin:0 auto;min-height:100vh;padding-bottom:20px}
 .mono{font-family:'Pretendard',sans-serif}
 
@@ -137,6 +143,9 @@ body{background:var(--sky-bg);color:var(--text);font-family:'Pretendard',sans-se
 .tabs::-webkit-scrollbar{display:none}
 .tab{flex:0 0 auto;padding:8px 12px;border:2px solid transparent;background:none;color:var(--muted);font-size:13px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;white-space:nowrap;border-radius:6px;margin:4px 2px}
 .tab.active{font-weight:800;transition:all 0.2s}
+.tab-more{flex:0 0 auto;padding:8px 12px;border:2px solid transparent;background:#f0f0f0;color:#555;font-size:12px;font-weight:800;cursor:pointer;font-family:'Noto Sans KR',sans-serif;white-space:nowrap;border-radius:6px;margin:4px 2px}
+.tab-more.has-active{background:#ede7f6;color:#5e35b1}
+#secondaryTabs{border-top:1px solid var(--border)}
 
 /* 패널 */
 .panel{display:none;padding:14px}
@@ -559,24 +568,27 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
 </div>
 
 <!-- 탭 -->
-<div class="tabs">
+<div class="tabs" id="primaryTabs">
   <button class="tab active" onclick="switchTab('dashboard')">📊 현황</button>
   <button class="tab" onclick="switchTab('domestic')">🇰🇷 국내</button>
   <button class="tab" onclick="switchTab('overseas')">🇺🇸 해외</button>
   <button class="tab" onclick="switchTab('pension')">🏦 연금</button>
   <button class="tab" onclick="switchTab('dividend')">💰 배당</button>
+  <button class="tab-more" id="moreToggleBtn" onclick="toggleMoreTabs()">☰ 더보기 <span id="moreToggleArrow">▾</span></button>
+</div>
+<div class="tabs" id="secondaryTabs" style="display:none">
   <button class="tab" onclick="switchTab('risk')">🌡️ 위험계</button>
   <button class="tab" onclick="switchTab('advisor')">🤖 AI자문</button>
   <button class="tab" onclick="switchTab('ledger')">📒 가계부</button>
   <button class="tab" onclick="switchTab('news')">📰 뉴스</button>
   <button class="tab" onclick="switchTab('commandments')">📜 12계명</button>
   <button class="tab" onclick="switchTab('memo')">📝 메모</button>
-  <button class="tab" onclick="switchTab('settings')">⚙️ 설정</button>
   <button class="tab" onclick="switchTab('notouch')">🔒 노터치자산</button>
   <button class="tab" onclick="switchTab('retirement')">🧭 은퇴설계</button>
   <button class="tab" onclick="switchTab('debt')">💳 부채관리</button>
   <button class="tab" onclick="switchTab('networth')">💎 순자산</button>
   <button class="tab" onclick="switchTab('principledash')">📋 투자원칙</button>
+  <button class="tab" onclick="switchTab('settings')">⚙️ 설정</button>
 </div>
 </div>
 
@@ -1471,18 +1483,30 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
 <!-- 설정 -->
 <div class="panel" id="panel-settings">
   <div class="setting-title">⚙️ 설정</div>
+
+  <div class="card" style="border-left:4px solid #c62828;background:linear-gradient(180deg,#fff5f5 0%,#ffebee 100%)">
+    <div style="font-weight:800;margin-bottom:6px;color:#c62828">🔓 보안 안내 (꼭 읽어주세요)</div>
+    <div style="font-size:11px;color:#555;line-height:1.7">
+      이 앱은 서버 없이 이 브라우저(기기)의 <b>localStorage에 암호화 없이 그대로</b> 저장되는 구조입니다. 앱 잠금 비밀번호, Gemini·Alpha Vantage API 키 모두 마찬가지입니다.<br><br>
+      · 이 기기의 브라우저에 접근할 수 있는 사람은 개발자도구로 누구나 열람 가능<br>
+      · 공용 PC·공유 기기에서는 사용 후 반드시 브라우저 데이터 삭제<br>
+      · 다른 곳에서 쓰는 비밀번호를 앱 잠금에 재사용하지 마세요<br>
+      · API 키가 유출되면 해당 서비스(Google AI Studio 등)에서 즉시 재발급하세요
+    </div>
+  </div>
+
   <div class="card" style="border-left:4px solid #7b1fa2">
     <div style="font-weight:800;margin-bottom:4px;color:#7b1fa2">🤖 Gemini API 키 (AI자문 탭)</div>
-    <div style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.6">Google AI Studio에서 발급한 키를 여기에 입력하세요.<br>절대 대화창에 붙여넣지 마세요!</div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.6">Google AI Studio에서 발급한 키를 여기에 입력하세요.<br>이 기기의 localStorage에 평문으로 저장됩니다 — 위 보안 안내 참고. 절대 대화창에 붙여넣지 마세요!</div>
     <input class="f-inp" id="geminiKeyInput" type="password" placeholder="AIzaSy..." style="margin-bottom:8px;letter-spacing:1px">
-    <button class="btn-ok" style="width:auto;padding:8px 16px;font-size:12px;background:#7b1fa2" onclick="saveGeminiKey()">안전하게 저장</button>
+    <button class="btn-ok" style="width:auto;padding:8px 16px;font-size:12px;background:#7b1fa2" onclick="saveGeminiKey()">저장</button>
     <div style="font-size:10px;margin-top:8px" id="geminiKeyStatus"></div>
   </div>
   <div class="card" style="border-left:4px solid #1565c0">
     <div style="font-weight:800;margin-bottom:4px;color:#1565c0">📊 Alpha Vantage API 키 (해외주식 재무데이터)</div>
-    <div style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.6">alphavantage.co에서 무료 발급 (하루 25회 제한). 투자원칙의 "재무데이터 조회"에서 사용됩니다.<br>절대 대화창에 붙여넣지 마세요!</div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.6">alphavantage.co에서 무료 발급 (하루 25회 제한). 투자원칙의 "재무데이터 조회"에서 사용됩니다.<br>이 기기의 localStorage에 평문으로 저장됩니다 — 위 보안 안내 참고. 절대 대화창에 붙여넣지 마세요!</div>
     <input class="f-inp" id="alphaVantageKeyInput" type="password" placeholder="API 키 입력" style="margin-bottom:8px;letter-spacing:1px">
-    <button class="btn-ok" style="width:auto;padding:8px 16px;font-size:12px;background:#1565c0" onclick="saveAlphaVantageKey()">안전하게 저장</button>
+    <button class="btn-ok" style="width:auto;padding:8px 16px;font-size:12px;background:#1565c0" onclick="saveAlphaVantageKey()">저장</button>
     <div style="font-size:10px;margin-top:8px" id="alphaVantageKeyStatus"></div>
     <div style="font-size:10px;color:var(--muted);margin-top:6px" id="alphaVantageQuotaStatus"></div>
   </div>
@@ -1509,6 +1533,7 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
   </div>
   <div class="card">
     <div style="font-weight:800;margin-bottom:10px">🔐 비밀번호 변경</div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.6">이 비밀번호는 화면 잠금 용도로만, 이 기기의 localStorage에 평문으로 저장됩니다. 은행·이메일 등 실제 보안이 필요한 곳에서 쓰는 비밀번호는 재사용하지 마세요.</div>
     <div class="f-lbl">현재 비밀번호</div><input class="f-inp" type="password" id="curPw" style="margin-bottom:6px">
     <div class="f-lbl">새 비밀번호</div><input class="f-inp" type="password" id="newPw" style="margin-bottom:6px">
     <div class="f-lbl">새 비밀번호 확인</div><input class="f-inp" type="password" id="newPw2" style="margin-bottom:8px">
@@ -4307,17 +4332,22 @@ function openPrincipleModal(id, type){
       +'<div style="font-size:13px;font-weight:800;color:#333;margin-bottom:8px">확신 점수</div>'
       +'<div style="margin-bottom:16px" id="principleStarRow">'+starBtns+'</div>'
 
-      +'<div style="font-size:13px;font-weight:800;color:#333;margin-bottom:6px">투자 이유</div>'
+      +'<div style="font-size:13px;font-weight:800;color:#333;margin-bottom:6px">매수 이유</div>'
       +'<textarea id="principleThesis" placeholder="이 종목을 왜 샀는가" style="width:100%;box-sizing:border-box;border:1.5px solid #ddd;border-radius:10px;padding:10px;font-size:13px;min-height:56px;margin-bottom:14px;font-family:inherit">'+(p.thesis||"")+'</textarea>'
 
-      +'<div style="font-size:13px;font-weight:800;color:#333;margin-bottom:6px">핵심 논리</div>'
+      +'<div style="font-size:13px;font-weight:800;color:#333;margin-bottom:6px">핵심 투자 논리</div>'
       +'<textarea id="principleLogic" placeholder="이 투자가 성립하는 핵심 전제" style="width:100%;box-sizing:border-box;border:1.5px solid #ddd;border-radius:10px;padding:10px;font-size:13px;min-height:56px;margin-bottom:14px;font-family:inherit">'+(p.logic||"")+'</textarea>'
+
+      +'<div style="font-size:13px;font-weight:800;color:#333;margin-bottom:6px">논리 훼손 조건</div>'
+      +'<textarea id="principleLogicBreak" placeholder="이 조건이 확인되면 핵심 논리가 깨진 것으로 본다" style="width:100%;box-sizing:border-box;border:1.5px solid #ddd;border-radius:10px;padding:10px;font-size:13px;min-height:56px;margin-bottom:14px;font-family:inherit">'+(p.logicBreakCondition||"")+'</textarea>'
 
       +'<div style="background:#fff8e1;border:1px solid #ffe082;border-radius:12px;padding:14px;margin-bottom:16px">'
         +'<div style="font-size:13px;font-weight:800;color:#f57f17;margin-bottom:8px">🛒 추매 승인 체크</div>'
         +'<div style="font-size:11px;color:#888;margin-bottom:8px">현재 비중 '+currentWeight.toFixed(1)+'%</div>'
         +'<div style="font-size:12px;margin-bottom:6px">최대 비중 목표(%)</div>'
         +'<input id="principleMaxWeight" type="number" value="'+(p.maxWeight===""?"":p.maxWeight)+'" placeholder="예: 15" oninput="updateBuyApproval()" style="width:100%;box-sizing:border-box;border:1.5px solid #ffe082;border-radius:8px;padding:8px;font-size:13px;margin-bottom:10px">'
+        +'<div style="font-size:12px;margin-bottom:6px">추매 조건 (서술)</div>'
+        +'<textarea id="principleBuyCondition" placeholder="어떤 상황에서 추매할지 구체적으로" style="width:100%;box-sizing:border-box;border:1.5px solid #ffe082;border-radius:8px;padding:8px;font-size:12px;min-height:44px;margin-bottom:10px;font-family:inherit">'+(p.buyMoreCondition||"")+'</textarea>'
         +['business','earnings','funding'].map(function(k){
           var labels={business:"사업 진행 정상",earnings:"최근 실적 이상 없음",funding:"자금 조달 문제 없음"};
           return '<label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:13px;color:#333">'
@@ -4335,7 +4365,10 @@ function openPrincipleModal(id, type){
       +'<div id="principleCpList" style="margin-bottom:14px">'+cpHtml+'</div>'
 
       +'<div style="font-size:13px;font-weight:800;color:#333;margin-bottom:6px">매도 조건</div>'
-      +'<textarea id="principleSell" placeholder="이 조건이 되면 판다" style="width:100%;box-sizing:border-box;border:1.5px solid #ddd;border-radius:10px;padding:10px;font-size:13px;min-height:56px;margin-bottom:16px;font-family:inherit">'+(p.sellCondition||"")+'</textarea>'
+      +'<textarea id="principleSell" placeholder="이 조건이 되면 판다" style="width:100%;box-sizing:border-box;border:1.5px solid #ddd;border-radius:10px;padding:10px;font-size:13px;min-height:56px;margin-bottom:14px;font-family:inherit">'+(p.sellCondition||"")+'</textarea>'
+
+      +'<div style="font-size:13px;font-weight:800;color:#333;margin-bottom:6px">비중 축소 조건</div>'
+      +'<textarea id="principleReduce" placeholder="전량매도까지는 아니지만 일부를 정리할 조건" style="width:100%;box-sizing:border-box;border:1.5px solid #ddd;border-radius:10px;padding:10px;font-size:13px;min-height:56px;margin-bottom:16px;font-family:inherit">'+(p.reduceCondition||"")+'</textarea>'
 
       +'<div style="background:#eef4ff;border:1px solid #bbdefb;border-radius:12px;padding:14px;margin-bottom:16px">'
         +'<div style="font-size:13px;font-weight:800;color:#1565c0;margin-bottom:2px">📈 상승 시나리오</div>'
@@ -4345,7 +4378,10 @@ function openPrincipleModal(id, type){
       +'</div>'
 
       +'<div style="font-size:13px;font-weight:800;color:#333;margin-bottom:6px">최근 실적 발표일</div>'
-      +'<input id="principleEarningsDate" type="date" value="'+(p.earningsDate||"")+'" style="width:100%;box-sizing:border-box;border:1.5px solid #ddd;border-radius:10px;padding:10px;font-size:13px;margin-bottom:16px">'
+      +'<input id="principleEarningsDate" type="date" value="'+(p.earningsDate||"")+'" style="width:100%;box-sizing:border-box;border:1.5px solid #ddd;border-radius:10px;padding:10px;font-size:13px;margin-bottom:14px">'
+
+      +'<div style="font-size:13px;font-weight:800;color:#333;margin-bottom:6px">다음 점검일</div>'
+      +'<input id="principleNextCheck" type="date" value="'+(p.nextCheckDate||"")+'" style="width:100%;box-sizing:border-box;border:1.5px solid #ddd;border-radius:10px;padding:10px;font-size:13px;margin-bottom:16px">'
 
       +'<div style="background:#f3f0ff;border:1px solid #d1c4e9;border-radius:12px;padding:14px;margin-bottom:16px">'
         +'<div style="font-size:13px;font-weight:800;color:#5e35b1;margin-bottom:8px">🤖 Gemini AI 투자 코치</div>'
@@ -4542,8 +4578,12 @@ function openPrincipleModal(id, type){
     cur.confidence=box._data.confidence||0;
     cur.thesis=document.getElementById("principleThesis").value;
     cur.logic=document.getElementById("principleLogic").value;
+    cur.logicBreakCondition=document.getElementById("principleLogicBreak").value;
     cur.sellCondition=document.getElementById("principleSell").value;
+    cur.reduceCondition=document.getElementById("principleReduce").value;
+    cur.buyMoreCondition=document.getElementById("principleBuyCondition").value;
     cur.earningsDate=document.getElementById("principleEarningsDate").value;
+    cur.nextCheckDate=document.getElementById("principleNextCheck").value;
     cur.maxWeight=document.getElementById("principleMaxWeight").value===""?"":Number(document.getElementById("principleMaxWeight").value);
     cur.buyChecklist={
       business: box.querySelector('[data-buy-chk="business"]').checked,
@@ -4837,7 +4877,7 @@ function renderPrincipleDash(){
         type:type,id:s.id,name:s.name,pct:pct,
         role:p.role||"", survivalScore:p.survivalScore!=null&&p.survivalScore!==""?Number(p.survivalScore):null,
         confidence:p.confidence||0, logicState:p.logicState||"",
-        earningsDate:p.earningsDate||"", lastCheck:lastCheck,
+        earningsDate:p.earningsDate||"", nextCheckDate:p.nextCheckDate||"", lastCheck:lastCheck,
         buyApproved: computeBuyApproval(type,s.id,p),
         hasData: !!all[key]
       });
@@ -4876,7 +4916,7 @@ function renderPrincipleDash(){
         +'<span style="color:'+(logicInfo?logicInfo.color:"#bbb")+';font-weight:700">'+(logicInfo?logicInfo.icon+' '+logicInfo.label:"논리 미설정")+'</span>'
       +'</div>'
       +'<div style="display:flex;justify-content:space-between;align-items:center;font-size:10px;color:var(--muted)">'
-        +'<span>다음 실적 '+(r.earningsDate||"-")+'</span>'
+        +'<span>다음 실적 '+(r.earningsDate||"-")+' · 점검 '+(r.nextCheckDate||"-")+'</span>'
         +'<span style="font-weight:800;color:'+(r.buyApproved?"#2e7d32":"#c62828")+'">'+(r.buyApproved?"✅ 추매가능":"⛔ 추매보류")+'</span>'
       +'</div>'
     +'</div>';
@@ -5535,7 +5575,7 @@ function changePw() {
 // 탭 전환
 // =============================================
 function switchTab(tab) {
-  var tabs=["dashboard","domestic","overseas","pension","dividend","risk","advisor","ledger","news","commandments","memo","settings","notouch","retirement","debt","networth","principledash"];
+  var tabs=["dashboard","domestic","overseas","pension","dividend","risk","advisor","ledger","news","commandments","memo","notouch","retirement","debt","networth","principledash","settings"];
   document.querySelectorAll(".tab").forEach(function(t,i){t.classList.toggle("active",tabs[i]===tab);});
   document.querySelectorAll(".panel").forEach(function(p){p.classList.toggle("active",p.id==="panel-"+tab);});
   if(tab==="memo") renderMemo();
@@ -5558,6 +5598,26 @@ function switchTab(tab) {
     var c=tabColors[tab]||"#1565c0";
     t.style.color=c; t.style.borderColor=c; t.style.background="#fff";
   });
+
+  var secondaryTabIds=["risk","advisor","ledger","news","commandments","memo","notouch","retirement","debt","networth","principledash","settings"];
+  var moreBtn=document.getElementById("moreToggleBtn");
+  if(moreBtn){
+    if(secondaryTabIds.indexOf(tab)!==-1){
+      moreBtn.classList.add("has-active");
+      document.getElementById("secondaryTabs").style.display="flex";
+      document.getElementById("moreToggleArrow").textContent="▴";
+    } else {
+      moreBtn.classList.remove("has-active");
+    }
+  }
+}
+
+function toggleMoreTabs(){
+  var sec=document.getElementById("secondaryTabs");
+  var arrow=document.getElementById("moreToggleArrow");
+  var isOpen=sec.style.display==="flex";
+  sec.style.display=isOpen?"none":"flex";
+  arrow.textContent=isOpen?"▾":"▴";
 }
 
 // =============================================
