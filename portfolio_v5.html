@@ -547,7 +547,7 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
 <div style="position:sticky;top:0;z-index:100">
 <div class="header" id="mainHeader">
   <div class="header-title" style="text-align:center">순태씨의 5년 안에 10억! 💰</div>
-  <div class="header-helper" style="text-align:center">클로 & 재미가 도와드릴게요 😊 <span style="opacity:0.7">Since 2026. 5.</span></div>
+  <div class="header-helper" style="text-align:center">클로 & 재미 & 지피가 도와드릴게요 😊 <span style="opacity:0.7">Since 2026. 5.</span></div>
   <div style="text-align:center;font-size:12px;color:#e3f2fd;opacity:0.85;margin-top:2px;margin-bottom:6px;font-weight:900;letter-spacing:0.5px">🧭 시장 타이밍을 예측하지 말고, 원칙을 지키며 생존하라</div>
   <div class="goal-bar-wrap" id="goalWrap" style="display:none">
     <div class="goal-label">
@@ -1439,14 +1439,19 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
 <!-- 투자원칙 대시보드 -->
 <div class="panel" id="panel-principledash" style="background:#f5f2fc">
   <div style="font-size:17px;font-weight:900;color:var(--text);margin-bottom:4px">📋 투자원칙 대시보드</div>
-  <div style="font-size:14px;color:var(--muted);margin-bottom:14px;line-height:1.6">보유 종목의 원칙 준수 현황을 한눈에 확인합니다. 행을 누르면 원칙 상세로 이동합니다.</div>
+  <div style="font-size:14px;color:var(--muted);margin-bottom:10px;line-height:1.6">보유 종목의 원칙 준수 현황을 한눈에 확인합니다. 행을 누르면 원칙 상세로 이동합니다.</div>
+
+  <div style="background:linear-gradient(135deg,#5e35b1,#7e57c2);border-radius:12px;padding:14px 16px;margin-bottom:14px;text-align:center">
+    <div style="font-size:13px;font-weight:900;color:#fff">"수익보다 생존을 우선한다"</div>
+    <div style="font-size:12px;font-weight:700;color:#e1d8f5;margin-top:2px">"주가가 아니라 사업을 보고 투자한다"</div>
+  </div>
 
   <div class="card">
     <div id="principleDashList"></div>
   </div>
 
   <div class="card" style="border-left:4px solid #5e35b1;background:linear-gradient(180deg,#fbf9ff 0%,#ede7f6 100%)">
-    <div style="font-size:12px;color:var(--muted);line-height:1.6">💡 각 종목 카드의 "📋 원칙" 버튼에서 투자 이유·확신점수·상태·체크포인트를 기록하면 여기에 자동으로 모입니다. 실적 발표일은 원칙 모달에서 직접 입력해서 관리하는 방식입니다.</div>
+    <div style="font-size:12px;color:var(--muted);line-height:1.6">💡 각 종목 카드의 "📋 원칙" 버튼에서 역할·생존점수·투자논리·체크포인트를 기록하면 여기에 자동으로 모입니다. 추매 가능 여부는 투자논리·체크리스트·비중 조건을 모두 충족해야 "가능"으로 표시됩니다.</div>
   </div>
 </div>
 
@@ -3970,6 +3975,23 @@ function delStock(id, type) {
 // =============================================
 var PRINCIPLE_STATUS_COLORS={green:"#2e7d32", yellow:"#f9a825", red:"#c62828"};
 var PRINCIPLE_STATUS_LABELS={green:"양호", yellow:"주의", red:"위험"};
+var LOGIC_STATE_INFO={
+  maintained:{label:"투자논리 유지", icon:"✅", color:"#2e7d32"},
+  weakened:{label:"일부 약화", icon:"⚠️", color:"#f9a825"},
+  broken:{label:"투자논리 붕괴", icon:"❌", color:"#c62828"}
+};
+var ROLE_INFO={
+  core:{label:"코어", icon:"🧱", color:"#3949ab"},
+  growth:{label:"성장", icon:"🚀", color:"#e65100"},
+  option:{label:"옵션", icon:"🎯", color:"#8e24aa"}
+};
+function survivalBand(score){
+  if(score==null||score==="") return {color:"#bbb", label:"미평가"};
+  var n=Number(score);
+  if(n>=80) return {color:"#2e7d32", label:"양호"};
+  if(n>=50) return {color:"#f9a825", label:"주의"};
+  return {color:"#c62828", label:"위험"};
+}
 
 function loadPrinciples(){ try{var v=localStorage.getItem("v5_investPrinciples"); return v?JSON.parse(v):{};}catch(e){return {};} }
 function savePrinciples(obj){ localStorage.setItem("v5_investPrinciples",JSON.stringify(obj)); }
@@ -3978,9 +4000,45 @@ function principleKey(type,id){ return type+"-"+id; }
 function getPrincipleStatusDot(type,id){
   var all=loadPrinciples();
   var p=all[principleKey(type,id)];
-  if(!p||!p.status) return "";
-  var color=PRINCIPLE_STATUS_COLORS[p.status]||"#bbb";
-  return '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:'+color+';margin-left:5px;vertical-align:middle" title="'+(PRINCIPLE_STATUS_LABELS[p.status]||"")+'"></span>';
+  if(!p) return "";
+  var out="";
+  if(p.role && ROLE_INFO[p.role]){
+    out+='<span style="font-size:10px;margin-left:5px" title="'+ROLE_INFO[p.role].label+'">'+ROLE_INFO[p.role].icon+'</span>';
+  }
+  if(p.survivalScore!=null && p.survivalScore!==""){
+    var band=survivalBand(p.survivalScore);
+    out+='<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:'+band.color+';margin-left:4px;vertical-align:middle" title="생존점수 '+p.survivalScore+'점 ('+band.label+')"></span>';
+  }
+  if(p.logicState && LOGIC_STATE_INFO[p.logicState]){
+    out+='<span style="font-size:10px;margin-left:4px" title="'+LOGIC_STATE_INFO[p.logicState].label+'">'+LOGIC_STATE_INFO[p.logicState].icon+'</span>';
+  }
+  return out;
+}
+
+function computeCurrentWeight(type,id){
+  var stocks=type==="dom"?domStocks:type==="ov"?ovStocks:penStocks;
+  var isUS=type==="ov";
+  var active=stocks.filter(function(s){return s.quantity>0&&s.currentPrice>0;});
+  var totalV=active.reduce(function(sum,s){return sum+vKRW(s,isUS);},0);
+  var s=stocks.filter(function(x){return x.id===id;})[0];
+  if(!s||totalV<=0) return 0;
+  return vKRW(s,isUS)/totalV*100;
+}
+
+var SCENARIO_ACTIONS=["관망","추매","일부 정리","전량 매도"];
+function defaultScenarios(){
+  return {
+    up:[{pct:100,action:"관망",note:""},{pct:200,action:"관망",note:""},{pct:300,action:"관망",note:""}],
+    down:[{pct:-20,action:"관망",note:""},{pct:-40,action:"관망",note:""},{pct:-60,action:"관망",note:""},{pct:-80,action:"관망",note:""}]
+  };
+}
+function scenarioRowHtml(kind, s, i){
+  var opts=SCENARIO_ACTIONS.map(function(a){return '<option value="'+a+'"'+(s.action===a?" selected":"")+'>'+a+'</option>';}).join("");
+  return '<div style="display:flex;gap:6px;align-items:center;margin-bottom:6px">'
+    +'<span style="width:44px;flex-shrink:0;font-size:12px;font-weight:800;color:'+(kind==="up"?"#c62828":"#1565c0")+'">'+(s.pct>0?"+":"")+s.pct+'%</span>'
+    +'<select data-scn="'+kind+'-'+i+'-action" style="border:1px solid #ddd;border-radius:7px;padding:5px;font-size:12px;flex-shrink:0">'+opts+'</select>'
+    +'<input type="text" data-scn="'+kind+'-'+i+'-note" value="'+(s.note||"").replace(/"/g,"&quot;")+'" placeholder="메모(선택)" style="flex:1;border:1px solid #ddd;border-radius:7px;padding:5px 8px;font-size:12px">'
+  +'</div>';
 }
 
 function getStockName(type,id){
@@ -3998,15 +4056,29 @@ function openPrincipleModal(id, type){
   var all=loadPrinciples();
   var p=all[key] || {status:"", confidence:3, thesis:"", logic:"", sellCondition:"", checkpoints:[], diary:[], quarterly:[]};
   if(!p.checkpoints) p.checkpoints=[];
+  if(!p.scenarioUp || !p.scenarioDown){ var ds=defaultScenarios(); p.scenarioUp=p.scenarioUp||ds.up; p.scenarioDown=p.scenarioDown||ds.down; }
+  if(p.survivalScore==null) p.survivalScore="";
+  if(!p.logicState) p.logicState="";
+  if(!p.role) p.role="";
+  if(p.maxWeight==null) p.maxWeight="";
+  if(!p.buyChecklist) p.buyChecklist={business:false, earnings:false, funding:false};
+
+  var currentWeight=computeCurrentWeight(type,id);
 
   var box=document.createElement("div");
   box.id="principleBox";
   box.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9998;display:flex;align-items:flex-end;justify-content:center";
 
-  var statusBtns=["green","yellow","red"].map(function(st){
-    var active=p.status===st;
-    var color=PRINCIPLE_STATUS_COLORS[st];
-    return '<button data-status="'+st+'" onclick="selectPrincipleStatus(this,\''+st+'\')" style="flex:1;padding:10px;border-radius:10px;border:2px solid '+(active?color:"#eee")+';background:'+(active?color+"22":"#fafafa")+';font-size:13px;font-weight:800;color:'+color+';cursor:pointer">'+ (st==="green"?"🟢":st==="yellow"?"🟡":"🔴") +' '+PRINCIPLE_STATUS_LABELS[st]+'</button>';
+  var logicBtns=Object.keys(LOGIC_STATE_INFO).map(function(st){
+    var info=LOGIC_STATE_INFO[st];
+    var active=p.logicState===st;
+    return '<button data-logic="'+st+'" onclick="selectPrincipleLogic(this,\''+st+'\')" style="flex:1;padding:10px 4px;border-radius:10px;border:2px solid '+(active?info.color:"#eee")+';background:'+(active?info.color+"22":"#fafafa")+';font-size:12px;font-weight:800;color:'+info.color+';cursor:pointer">'+info.icon+' '+info.label+'</button>';
+  }).join("");
+
+  var roleBtns=Object.keys(ROLE_INFO).map(function(r){
+    var info=ROLE_INFO[r];
+    var active=p.role===r;
+    return '<button data-role="'+r+'" onclick="selectPrincipleRole(this,\''+r+'\')" style="flex:1;padding:9px 4px;border-radius:10px;border:2px solid '+(active?info.color:"#eee")+';background:'+(active?info.color+"22":"#fafafa")+';font-size:12px;font-weight:800;color:'+info.color+';cursor:pointer">'+info.icon+' '+info.label+'</button>';
   }).join("");
 
   var starBtns="";
@@ -4023,16 +4095,28 @@ function openPrincipleModal(id, type){
     +'</div>';
   }).join("");
 
+  var upRowsHtml=p.scenarioUp.map(function(s,i){return scenarioRowHtml("up",s,i);}).join("");
+  var downRowsHtml=p.scenarioDown.map(function(s,i){return scenarioRowHtml("down",s,i);}).join("");
+
   box.innerHTML =
     '<div style="background:#fff;border-radius:20px 20px 0 0;padding:20px;width:100%;max-width:480px;max-height:88vh;overflow-y:auto;box-shadow:0 -4px 32px rgba(0,0,0,0.25)">'
       +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'
         +'<div style="font-size:17px;font-weight:900;color:#1a2236">📋 '+name+'</div>'
         +'<button onclick="document.getElementById(\'principleBox\').remove()" style="background:none;border:none;font-size:22px;color:#999;cursor:pointer">×</button>'
       +'</div>'
-      +'<div style="font-size:12px;color:#888;margin-bottom:16px">투자 원칙과 근거를 기록해두면 감정적 매매를 줄이는 데 도움이 됩니다.</div>'
+      +'<div style="font-size:12px;color:#888;margin-bottom:16px">수익보다 생존, 주가가 아니라 사업을 본다.</div>'
 
-      +'<div style="font-size:13px;font-weight:800;color:#333;margin-bottom:8px">현재 상태</div>'
-      +'<div style="display:flex;gap:8px;margin-bottom:16px" id="principleStatusRow">'+statusBtns+'</div>'
+      +'<div style="font-size:13px;font-weight:800;color:#333;margin-bottom:8px">🧭 투자논리 상태</div>'
+      +'<div style="display:flex;gap:6px;margin-bottom:16px" id="principleLogicRow">'+logicBtns+'</div>'
+
+      +'<div style="font-size:13px;font-weight:800;color:#333;margin-bottom:8px">종목 역할</div>'
+      +'<div style="display:flex;gap:6px;margin-bottom:16px" id="principleRoleRow">'+roleBtns+'</div>'
+
+      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">'
+        +'<div style="font-size:13px;font-weight:800;color:#333">생존 점수</div>'
+        +'<span id="principleScoreBadge" style="font-size:12px;font-weight:800"></span>'
+      +'</div>'
+      +'<input id="principleScore" type="range" min="0" max="100" value="'+(p.survivalScore===""?50:p.survivalScore)+'" oninput="updatePrincipleScoreBadge(this.value)" style="width:100%;margin-bottom:16px">'
 
       +'<div style="font-size:13px;font-weight:800;color:#333;margin-bottom:8px">확신 점수</div>'
       +'<div style="margin-bottom:16px" id="principleStarRow">'+starBtns+'</div>'
@@ -4043,6 +4127,21 @@ function openPrincipleModal(id, type){
       +'<div style="font-size:13px;font-weight:800;color:#333;margin-bottom:6px">핵심 논리</div>'
       +'<textarea id="principleLogic" placeholder="이 투자가 성립하는 핵심 전제" style="width:100%;box-sizing:border-box;border:1.5px solid #ddd;border-radius:10px;padding:10px;font-size:13px;min-height:56px;margin-bottom:14px;font-family:inherit">'+(p.logic||"")+'</textarea>'
 
+      +'<div style="background:#fff8e1;border:1px solid #ffe082;border-radius:12px;padding:14px;margin-bottom:16px">'
+        +'<div style="font-size:13px;font-weight:800;color:#f57f17;margin-bottom:8px">🛒 추매 승인 체크</div>'
+        +'<div style="font-size:11px;color:#888;margin-bottom:8px">현재 비중 '+currentWeight.toFixed(1)+'%</div>'
+        +'<div style="font-size:12px;margin-bottom:6px">최대 비중 목표(%)</div>'
+        +'<input id="principleMaxWeight" type="number" value="'+(p.maxWeight===""?"":p.maxWeight)+'" placeholder="예: 15" oninput="updateBuyApproval()" style="width:100%;box-sizing:border-box;border:1.5px solid #ffe082;border-radius:8px;padding:8px;font-size:13px;margin-bottom:10px">'
+        +['business','earnings','funding'].map(function(k){
+          var labels={business:"사업 진행 정상",earnings:"최근 실적 이상 없음",funding:"자금 조달 문제 없음"};
+          return '<label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:13px;color:#333">'
+            +'<input type="checkbox" data-buy-chk="'+k+'" '+(p.buyChecklist[k]?"checked":"")+' onchange="updateBuyApproval()" style="width:18px;height:18px">'+labels[k]
+          +'</label>';
+        }).join("")
+        +'<div style="font-size:12px;color:#666;margin:6px 0">＋ 투자논리 유지 상태(위에서 선택)와 비중 조건이 자동 반영됩니다</div>'
+        +'<div id="buyApprovalBanner" style="margin-top:8px;text-align:center;padding:10px;border-radius:10px;font-size:14px;font-weight:900"></div>'
+      +'</div>'
+
       +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">'
         +'<div style="font-size:13px;font-weight:800;color:#333">분기 체크포인트 (3~5개)</div>'
         +'<button onclick="addPrincipleCheckpoint()" style="font-size:11px;font-weight:700;color:#5e35b1;background:#ede7f6;border:none;border-radius:7px;padding:5px 9px;cursor:pointer">+ 추가</button>'
@@ -4050,18 +4149,28 @@ function openPrincipleModal(id, type){
       +'<div id="principleCpList" style="margin-bottom:14px">'+cpHtml+'</div>'
 
       +'<div style="font-size:13px;font-weight:800;color:#333;margin-bottom:6px">매도 조건</div>'
-      +'<textarea id="principleSell" placeholder="이 조건이 되면 판다" style="width:100%;box-sizing:border-box;border:1.5px solid #ddd;border-radius:10px;padding:10px;font-size:13px;min-height:56px;margin-bottom:14px;font-family:inherit">'+(p.sellCondition||"")+'</textarea>'
+      +'<textarea id="principleSell" placeholder="이 조건이 되면 판다" style="width:100%;box-sizing:border-box;border:1.5px solid #ddd;border-radius:10px;padding:10px;font-size:13px;min-height:56px;margin-bottom:16px;font-family:inherit">'+(p.sellCondition||"")+'</textarea>'
+
+      +'<div style="background:#eef4ff;border:1px solid #bbdefb;border-radius:12px;padding:14px;margin-bottom:16px">'
+        +'<div style="font-size:13px;font-weight:800;color:#1565c0;margin-bottom:2px">📈 상승 시나리오</div>'
+        +'<div id="principleUpList" style="margin-top:8px">'+upRowsHtml+'</div>'
+        +'<div style="font-size:13px;font-weight:800;color:#c62828;margin:12px 0 2px">📉 하락 시나리오</div>'
+        +'<div id="principleDownList" style="margin-top:8px">'+downRowsHtml+'</div>'
+      +'</div>'
 
       +'<div style="font-size:13px;font-weight:800;color:#333;margin-bottom:6px">최근 실적 발표일</div>'
       +'<input id="principleEarningsDate" type="date" value="'+(p.earningsDate||"")+'" style="width:100%;box-sizing:border-box;border:1.5px solid #ddd;border-radius:10px;padding:10px;font-size:13px;margin-bottom:16px">'
 
       +'<div style="background:#f3f0ff;border:1px solid #d1c4e9;border-radius:12px;padding:14px;margin-bottom:16px">'
-        +'<div style="font-size:13px;font-weight:800;color:#5e35b1;margin-bottom:8px">🤖 Gemini AI 분석</div>'
-        +'<div style="font-size:11px;color:#888;margin-bottom:8px;line-height:1.5">실적 발표 내용이나 뉴스 기사 원문을 붙여넣으면, 저장된 투자 이유·핵심 논리와 비교해 3줄 요약 / 투자논리 유지 여부 / 긍정·부정 요인 / 다음 분기 확인할 것을 정리해줍니다.</div>'
+        +'<div style="font-size:13px;font-weight:800;color:#5e35b1;margin-bottom:8px">🤖 Gemini AI 투자 코치</div>'
+        +'<div style="font-size:11px;color:#888;margin-bottom:8px;line-height:1.5">실적 발표 내용이나 뉴스 기사 원문을 붙여넣으면, 저장된 투자논리·역할을 반영해 판단을 정리해줍니다.</div>'
         +'<textarea id="principleAiInput" placeholder="실적발표 내용, 기사, 공시 원문 등을 붙여넣으세요" style="width:100%;box-sizing:border-box;border:1.5px solid #b39ddb;border-radius:10px;padding:9px;font-size:12px;min-height:70px;margin-bottom:8px;font-family:inherit"></textarea>'
         +'<button id="principleAiBtn" style="width:100%;padding:10px;background:linear-gradient(135deg,#5e35b1,#7e57c2);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer">🤖 분석 요청</button>'
         +'<div id="principleAiResult" style="display:none;margin-top:10px;background:#fff;border-radius:10px;padding:12px;font-size:12px;color:#333;white-space:pre-wrap;line-height:1.6"></div>'
-        +'<button id="principleAiSaveBtn" style="display:none;width:100%;margin-top:8px;padding:9px;background:#fff3e0;color:#e65100;border:1px solid #ffcc80;border-radius:10px;font-size:12px;font-weight:800;cursor:pointer">📓 이 분석을 투자일기에 저장</button>'
+        +'<div style="display:flex;gap:8px;margin-top:8px">'
+          +'<button id="principleAiApplyBtn" style="display:none;flex:1;padding:9px;background:#ede7f6;color:#5e35b1;border:1px solid #b39ddb;border-radius:10px;font-size:12px;font-weight:800;cursor:pointer">✔️ AI 제안값 적용</button>'
+          +'<button id="principleAiSaveBtn" style="display:none;flex:1;padding:9px;background:#fff3e0;color:#e65100;border:1px solid #ffcc80;border-radius:10px;font-size:12px;font-weight:800;cursor:pointer">📓 일기에 저장</button>'
+        +'</div>'
       +'</div>'
 
       +'<div style="display:flex;gap:8px;margin-bottom:12px">'
@@ -4075,6 +4184,11 @@ function openPrincipleModal(id, type){
 
   box._data=p;
   box._key=key;
+  box._currentWeight=currentWeight;
+  box._aiParsed=null;
+
+  updatePrincipleScoreBadge(document.getElementById("principleScore").value);
+  updateBuyApproval();
 
   document.getElementById("principleAiBtn").onclick=async function(){
     var input=document.getElementById("principleAiInput").value.trim();
@@ -4086,25 +4200,60 @@ function openPrincipleModal(id, type){
     var thesis=document.getElementById("principleThesis").value||"(미입력)";
     var logic=document.getElementById("principleLogic").value||"(미입력)";
     var sell=document.getElementById("principleSell").value||"(미입력)";
-    var prompt="당신은 개인 투자자의 원칙 중심 투자를 돕는 분석가입니다. 아래는 '"+name+"' 종목에 대해 투자자가 기록해둔 원래 투자 논리와, 새로 나온 실적/뉴스 원문입니다.\n\n"
+    var roleLabel=box._data.role&&ROLE_INFO[box._data.role]?ROLE_INFO[box._data.role].label:"미지정";
+    var rolePhilosophy = box._data.role==="core"
+      ? "이 종목은 코어(장기 핵심) 종목입니다. 장기 보유를 기본으로 하고, 투자논리가 붕괴됐을 때만 매도를 검토하는 관점으로 판단하세요."
+      : box._data.role==="option"
+      ? "이 종목은 옵션(고위험) 종목입니다. 투자논리가 흔들리면 빠르게 대응하고, 목표 수익 달성 시 일부 익절을 적극 검토하는 관점으로 판단하세요."
+      : box._data.role==="growth"
+      ? "이 종목은 성장 종목입니다. 성장성 훼손 여부를 중점적으로 판단하세요."
+      : "역할이 아직 지정되지 않았습니다.";
+    var prompt="당신은 '수익보다 생존을, 주가가 아니라 사업을 본다'는 원칙으로 개인 투자자를 돕는 분석가입니다. 감정적 판단이 아니라 사업 본질(진행 상황, 재무 안정성, 매출 성장, 핵심 파트너십, 투자논리 유지 여부)을 기준으로 냉정하게 판단하세요.\n\n"
+      +"종목: '"+name+"' | 역할: "+roleLabel+"\n"+rolePhilosophy+"\n\n"
       +"[투자 이유]\n"+thesis+"\n\n[핵심 논리]\n"+logic+"\n\n[매도 조건]\n"+sell+"\n\n"
       +"[새 실적/뉴스 원문]\n"+input+"\n\n"
       +"다음 형식으로 정리해주세요. 마크다운 기호(#, ** 등) 없이 일반 텍스트로만 답하세요.\n"
-      +"1. 3줄 요약\n2. 투자논리 유지 여부(유지/약화/재검토 필요 중 하나와 이유)\n3. 긍정 요인\n4. 부정 요인\n5. 다음 분기에 확인할 것";
+      +"1. 3줄 요약\n2. 긍정 요인\n3. 부정 요인\n4. 다음 분기에 확인할 것\n\n"
+      +"그리고 반드시 마지막에 아래 형식 그대로, 다른 텍스트 없이 한 줄씩 추가하세요(값만 정확히 아래 보기 중에서 선택):\n"
+      +"논리상태: 유지 또는 약화 또는 붕괴\n"
+      +"지금행동: 보유 또는 추가매수 또는 일부익절 또는 관찰 또는 매도검토\n"
+      +"확신도: 1~5 중 숫자 하나\n"
+      +"생존점수: 0~100 중 숫자 하나\n"
+      +"추매가능: 가능 또는 보류";
     var result=await callGemini(prompt);
     btn.textContent="🤖 분석 요청";
     btn.disabled=false;
     var resEl=document.getElementById("principleAiResult");
     resEl.style.display="block";
     resEl.textContent=result;
+    var parsed=parseAiCoachBlock(result);
+    box._aiParsed=parsed;
+    document.getElementById("principleAiApplyBtn").style.display = parsed ? "block" : "none";
     document.getElementById("principleAiSaveBtn").style.display="block";
+
+    document.getElementById("principleAiApplyBtn").onclick=function(){
+      if(!box._aiParsed) return;
+      if(box._aiParsed.logicState){
+        selectPrincipleLogic(document.querySelector('[data-logic="'+box._aiParsed.logicState+'"]'), box._aiParsed.logicState);
+      }
+      if(box._aiParsed.confidence){
+        selectPrincipleStar(document.querySelector('[data-star="'+box._aiParsed.confidence+'"]'), box._aiParsed.confidence);
+      }
+      if(box._aiParsed.survivalScore!=null){
+        document.getElementById("principleScore").value=box._aiParsed.survivalScore;
+        updatePrincipleScoreBadge(box._aiParsed.survivalScore);
+      }
+      updateBuyApproval();
+      showToast("✅ AI 제안값을 적용했어요. 확인 후 저장해주세요.");
+    };
+
     document.getElementById("principleAiSaveBtn").onclick=function(){
       var all3=loadPrinciples();
       var cur3=all3[key]||{checkpoints:[],diary:[],quarterly:[]};
       cur3.diary=cur3.diary||[];
       var today=new Date();
       var dateStr=today.getFullYear()+"-"+String(today.getMonth()+1).padStart(2,"0")+"-"+String(today.getDate()).padStart(2,"0");
-      cur3.diary.push({date:dateStr, text:"[Gemini AI 분석]\n"+result});
+      cur3.diary.push({date:dateStr, text:"[Gemini AI 투자 코치]\n"+result});
       all3[key]=cur3;
       savePrinciples(all3);
       showToast("✅ 투자일기에 저장했어요");
@@ -4114,12 +4263,20 @@ function openPrincipleModal(id, type){
   document.getElementById("principleSaveBtn").onclick=function(){
     var all2=loadPrinciples();
     var cur=all2[key]||{};
-    cur.status=box._data.status||"";
+    cur.logicState=box._data.logicState||"";
+    cur.role=box._data.role||"";
+    cur.survivalScore=Number(document.getElementById("principleScore").value);
     cur.confidence=box._data.confidence||0;
     cur.thesis=document.getElementById("principleThesis").value;
     cur.logic=document.getElementById("principleLogic").value;
     cur.sellCondition=document.getElementById("principleSell").value;
     cur.earningsDate=document.getElementById("principleEarningsDate").value;
+    cur.maxWeight=document.getElementById("principleMaxWeight").value===""?"":Number(document.getElementById("principleMaxWeight").value);
+    cur.buyChecklist={
+      business: box.querySelector('[data-buy-chk="business"]').checked,
+      earnings: box.querySelector('[data-buy-chk="earnings"]').checked,
+      funding: box.querySelector('[data-buy-chk="funding"]').checked
+    };
     var cpInputs=box.querySelectorAll('[data-cp-idx]');
     var checkboxes=box.querySelectorAll('#principleCpList input[type="checkbox"]');
     var newCps=[];
@@ -4127,6 +4284,16 @@ function openPrincipleModal(id, type){
       newCps.push({text:inp.value, done: checkboxes[i]?checkboxes[i].checked:false});
     });
     cur.checkpoints=newCps;
+    cur.scenarioUp=(cur.scenarioUp&&cur.scenarioUp.length?cur.scenarioUp:box._data.scenarioUp).map(function(s,i){
+      var actionEl=box.querySelector('[data-scn="up-'+i+'-action"]');
+      var noteEl=box.querySelector('[data-scn="up-'+i+'-note"]');
+      return {pct:s.pct, action:actionEl?actionEl.value:s.action, note:noteEl?noteEl.value:s.note};
+    });
+    cur.scenarioDown=(cur.scenarioDown&&cur.scenarioDown.length?cur.scenarioDown:box._data.scenarioDown).map(function(s,i){
+      var actionEl=box.querySelector('[data-scn="down-'+i+'-action"]');
+      var noteEl=box.querySelector('[data-scn="down-'+i+'-note"]');
+      return {pct:s.pct, action:actionEl?actionEl.value:s.action, note:noteEl?noteEl.value:s.note};
+    });
     cur.diary=cur.diary||[];
     cur.quarterly=cur.quarterly||[];
     all2[key]=cur;
@@ -4139,16 +4306,101 @@ function openPrincipleModal(id, type){
   box.addEventListener("click", function(e){ if(e.target===box) box.remove(); });
 }
 
+function updatePrincipleScoreBadge(val){
+  var badge=document.getElementById("principleScoreBadge");
+  if(!badge) return;
+  var band=survivalBand(val);
+  badge.textContent=val+"점 ("+band.label+")";
+  badge.style.color=band.color;
+}
+
+function updateBuyApproval(){
+  var box=document.getElementById("principleBox");
+  if(!box) return;
+  var banner=document.getElementById("buyApprovalBanner");
+  if(!banner) return;
+  var logicOk = box._data.logicState==="maintained";
+  var business=box.querySelector('[data-buy-chk="business"]').checked;
+  var earnings=box.querySelector('[data-buy-chk="earnings"]').checked;
+  var funding=box.querySelector('[data-buy-chk="funding"]').checked;
+  var maxW=document.getElementById("principleMaxWeight").value;
+  var weightOk = maxW!=="" ? box._currentWeight<=Number(maxW) : null;
+
+  var allChecks=[logicOk, business, earnings, funding, weightOk===null?true:weightOk];
+  var approved = allChecks.every(function(v){return v===true;}) && maxW!=="";
+
+  var missing=[];
+  if(!logicOk) missing.push("투자논리 유지 안됨");
+  if(!business) missing.push("사업 진행 미확인");
+  if(!earnings) missing.push("최근 실적 미확인");
+  if(!funding) missing.push("자금 조달 미확인");
+  if(maxW==="") missing.push("최대 비중 미입력");
+  else if(weightOk===false) missing.push("현재 비중이 최대 비중 초과");
+
+  if(approved){
+    banner.style.background="#e8f5e9"; banner.style.color="#2e7d32";
+    banner.textContent="✅ 추매 적합";
+  } else {
+    banner.style.background="#ffebee"; banner.style.color="#c62828";
+    banner.textContent="⛔ 추매 보류 ("+missing.join(", ")+")";
+  }
+}
+
+function parseAiCoachBlock(text){
+  if(!text) return null;
+  var logicMap={"유지":"maintained","약화":"weakened","붕괴":"broken"};
+  var lm=text.match(/논리상태\s*[:：]\s*(유지|약화|붕괴)/);
+  var cm=text.match(/확신도\s*[:：]\s*([1-5])/);
+  var sm=text.match(/생존점수\s*[:：]\s*(\d{1,3})/);
+  var am=text.match(/지금행동\s*[:：]\s*([^\n]+)/);
+  var bm=text.match(/추매가능\s*[:：]\s*(가능|보류)/);
+  if(!lm && !cm && !sm) return null;
+  var score=sm?Math.max(0,Math.min(100,parseInt(sm[1],10))):null;
+  return {
+    logicState: lm?logicMap[lm[1]]:null,
+    confidence: cm?parseInt(cm[1],10):null,
+    survivalScore: score,
+    action: am?am[1].trim():null,
+    buyable: bm?bm[1]:null
+  };
+}
+
 function selectPrincipleStatus(btn, st){
   var box=document.getElementById("principleBox");
   box._data.status=st;
   var row=document.getElementById("principleStatusRow");
+  if(!row) return;
   row.querySelectorAll("button").forEach(function(b){
     var s=b.getAttribute("data-status");
     var color=PRINCIPLE_STATUS_COLORS[s];
     var active=s===st;
     b.style.border="2px solid "+(active?color:"#eee");
     b.style.background=active?color+"22":"#fafafa";
+  });
+}
+function selectPrincipleLogic(btn, st){
+  var box=document.getElementById("principleBox");
+  box._data.logicState=st;
+  var row=document.getElementById("principleLogicRow");
+  row.querySelectorAll("button").forEach(function(b){
+    var s=b.getAttribute("data-logic");
+    var info=LOGIC_STATE_INFO[s];
+    var active=s===st;
+    b.style.border="2px solid "+(active?info.color:"#eee");
+    b.style.background=active?info.color+"22":"#fafafa";
+  });
+  updateBuyApproval();
+}
+function selectPrincipleRole(btn, r){
+  var box=document.getElementById("principleBox");
+  box._data.role=r;
+  var row=document.getElementById("principleRoleRow");
+  row.querySelectorAll("button").forEach(function(b){
+    var s=b.getAttribute("data-role");
+    var info=ROLE_INFO[s];
+    var active=s===r;
+    b.style.border="2px solid "+(active?info.color:"#eee");
+    b.style.background=active?info.color+"22":"#fafafa";
   });
 }
 function selectPrincipleStar(btn, n){
@@ -4284,6 +4536,15 @@ function openQuarterlyModal(type, id){
 }
 
 // ---- 투자원칙 대시보드 ----
+function computeBuyApproval(type,id,p){
+  var w=computeCurrentWeight(type,id);
+  var logicOk = p.logicState==="maintained";
+  var bc=p.buyChecklist||{};
+  var maxW=p.maxWeight;
+  var weightOk = (maxW!=null && maxW!=="") ? w<=Number(maxW) : false;
+  return !!(logicOk && bc.business && bc.earnings && bc.funding && weightOk);
+}
+
 function renderPrincipleDash(){
   var el=document.getElementById("principleDashList");
   if(!el) return;
@@ -4299,36 +4560,51 @@ function renderPrincipleDash(){
       if(p.quarterly&&p.quarterly.length){
         lastCheck=p.quarterly.slice().sort(function(a,b){return (b.date||"").localeCompare(a.date||"");})[0].date;
       }
-      rows.push({type:type,id:s.id,name:s.name,pct:pct,status:p.status||"",confidence:p.confidence||0,earningsDate:p.earningsDate||"",lastCheck:lastCheck,hasData: !!all[key]});
+      rows.push({
+        type:type,id:s.id,name:s.name,pct:pct,
+        role:p.role||"", survivalScore:p.survivalScore!=null&&p.survivalScore!==""?Number(p.survivalScore):null,
+        confidence:p.confidence||0, logicState:p.logicState||"",
+        earningsDate:p.earningsDate||"", lastCheck:lastCheck,
+        buyApproved: computeBuyApproval(type,s.id,p),
+        hasData: !!all[key]
+      });
     });
   });
 
   if(!rows.length){ el.innerHTML='<div style="text-align:center;padding:24px 0;color:var(--muted);font-size:13px">보유 중인 종목이 없어요</div>'; return; }
 
-  // 상태 우선순위: 빨강 > 노랑 > 미설정 > 초록
-  var order={red:0, yellow:1, "":2, green:3};
-  rows.sort(function(a,b){ return (order[a.status]!=null?order[a.status]:2) - (order[b.status]!=null?order[b.status]:2); });
+  // 정렬: 투자논리 붕괴 > 약화 > 미설정 > 유지, 동일하면 생존점수 낮은 순
+  var logicOrder={broken:0, weakened:1, "":2, maintained:3};
+  rows.sort(function(a,b){
+    var lo=(logicOrder[a.logicState]!=null?logicOrder[a.logicState]:2) - (logicOrder[b.logicState]!=null?logicOrder[b.logicState]:2);
+    if(lo!==0) return lo;
+    var sa=a.survivalScore==null?50:a.survivalScore, sb=b.survivalScore==null?50:b.survivalScore;
+    return sa-sb;
+  });
 
   el.innerHTML = rows.map(function(r){
-    var statusColor=PRINCIPLE_STATUS_COLORS[r.status]||"#bbb";
-    var statusLabel=r.status?PRINCIPLE_STATUS_LABELS[r.status]:"미설정";
+    var band=survivalBand(r.survivalScore);
+    var logicInfo=r.logicState?LOGIC_STATE_INFO[r.logicState]:null;
+    var roleInfo=r.role?ROLE_INFO[r.role]:null;
     var stars = r.confidence ? "★".repeat(r.confidence)+"☆".repeat(5-r.confidence) : "-";
     var pctPos = r.pct>=0;
     return '<div onclick="openPrincipleModal('+r.id+',\''+r.type+'\')" style="background:#fff;border-radius:12px;padding:12px 14px;margin-bottom:8px;box-shadow:0 1px 6px rgba(0,0,0,0.06);cursor:pointer">'
       +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">'
         +'<div style="display:flex;align-items:center;gap:6px">'
-          +'<span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:'+statusColor+'"></span>'
+          +(roleInfo?'<span style="font-size:12px" title="'+roleInfo.label+'">'+roleInfo.icon+'</span>':'')
+          +'<span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:'+band.color+'" title="생존점수 '+(r.survivalScore==null?"미평가":r.survivalScore)+'"></span>'
           +'<span style="font-size:14px;font-weight:800;color:var(--text)">'+r.name+'</span>'
         +'</div>'
         +'<span style="font-size:13px;font-weight:800;color:'+(pctPos?"var(--red-mid)":"var(--blue)")+'">'+(pctPos?"+":"")+r.pct.toFixed(1)+'%</span>'
       +'</div>'
-      +'<div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--muted)">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--muted);margin-bottom:3px">'
+        +'<span>생존점수 <b style="color:'+band.color+'">'+(r.survivalScore==null?"-":r.survivalScore)+'</b></span>'
         +'<span>확신 <span style="color:#f9a825;letter-spacing:1px">'+stars+'</span></span>'
-        +'<span>'+statusLabel+'</span>'
+        +'<span style="color:'+(logicInfo?logicInfo.color:"#bbb")+';font-weight:700">'+(logicInfo?logicInfo.icon+' '+logicInfo.label:"논리 미설정")+'</span>'
       +'</div>'
-      +'<div style="display:flex;justify-content:space-between;align-items:center;font-size:10px;color:var(--muted);margin-top:4px">'
-        +'<span>실적발표 '+(r.earningsDate||"-")+'</span>'
-        +'<span>마지막 점검 '+(r.lastCheck||"-")+'</span>'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;font-size:10px;color:var(--muted)">'
+        +'<span>다음 실적 '+(r.earningsDate||"-")+'</span>'
+        +'<span style="font-weight:800;color:'+(r.buyApproved?"#2e7d32":"#c62828")+'">'+(r.buyApproved?"✅ 추매가능":"⛔ 추매보류")+'</span>'
       +'</div>'
     +'</div>';
   }).join("");
