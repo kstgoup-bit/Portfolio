@@ -4683,7 +4683,7 @@ function openPrincipleModal(id, type){
         || box._data.role || box._data.logicState || (box._data.confidence && box._data.confidence!==3)
         || (box._data.checkpoints && box._data.checkpoints.some(function(c){return c.text;}));
       if(hasExisting){
-        if(!confirm("이미 입력/설정된 내용이 있어요. 클로 판단으로 이 종목의 모든 항목을 덮어쓸까요?\n(매수이유·핵심논리·훼손조건·매도조건·비중축소조건·추매조건·체크포인트·역할·정량점수·확신점수·논리상태·최대비중·추매체크리스트)")) return;
+        if(!confirm("이미 입력/설정된 내용이 있어요. 클로 판단으로 이 종목의 모든 항목을 덮어쓸까요?\n(매수이유·핵심논리·훼손조건·매도조건·비중축소조건·추매조건·체크포인트·역할·확신점수·논리상태·최대비중·추매체크리스트)")) return;
       }
       thesisEl.value=sug.thesis;
       logicEl.value=sug.logic;
@@ -4718,10 +4718,6 @@ function openPrincipleModal(id, type){
       if(sug.confidence){
         var starBtn=document.querySelector('[data-star="'+sug.confidence+'"]');
         if(starBtn) selectPrincipleStar(starBtn, sug.confidence);
-      }
-      if(sug.survivalScore!=null){
-        document.getElementById("principleScore").value=sug.survivalScore;
-        updatePrincipleScoreBadge(sug.survivalScore);
       }
       updateBuyApproval();
       showToast("✅ 클로 판단을 전부 적용했어요. 확인 후 저장해주세요.");
