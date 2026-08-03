@@ -1275,6 +1275,33 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
     </div>
   </div>
 
+  <div class="card" style="border-left:4px solid #2e7d32;background:linear-gradient(180deg,#f6fbf6 0%,#e6f4e8 100%)">
+    <div style="font-size:14px;font-weight:800;color:var(--text);margin-bottom:4px">🏥 임의계속가입 (건강보험·국민연금 공통)</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.6">퇴직으로 직장가입자→지역가입자 전환 시, 갑자기 오르는 지역가입자 보험료 대신 예전 수준의 보험료를 최대 3년간 유지할 수 있는 제도입니다. 국민건강보험공단 확인 결과, 건강보험·국민연금 모두 동일한 방식으로 적용됩니다.</div>
+
+    <div style="background:#fff;border-radius:10px;padding:12px;margin-bottom:10px">
+      <div style="font-size:12px;font-weight:800;color:#2e7d32;margin-bottom:4px">① 신청기한</div>
+      <div style="font-size:12.5px;color:var(--text);line-height:1.6">지역가입자로 전환된 후 <b>첫 번째 고지서 납부마감일로부터 2개월 이내</b> 신청. 건강보험·국민연금 동일.</div>
+    </div>
+
+    <div style="background:#fff;border-radius:10px;padding:12px;margin-bottom:10px">
+      <div style="font-size:12px;font-weight:800;color:#2e7d32;margin-bottom:4px">② 보험료 산정 방식</div>
+      <div style="font-size:12.5px;color:var(--text);line-height:1.6">지역가입자가 되기 <b>전 18개월 중 12개월 동안 낸 보험료의 평균 금액</b>을 3년간 그대로 납부. 즉 평소 직장 다니며 내던 금액 수준(전액이 아니라 <b>약 50% 감면 효과</b>) — 100% 감면이 아니라는 점 주의.</div>
+    </div>
+
+    <div style="background:#fff;border-radius:10px;padding:12px;margin-bottom:10px">
+      <div style="font-size:12px;font-weight:800;color:#2e7d32;margin-bottom:4px">③ "18개월 중 12개월"의 의미</div>
+      <div style="font-size:12.5px;color:var(--text);line-height:1.6">연속 근무가 아니어도 됩니다. 예: A사 3개월 근무 + 1개월 공백 + B사 6개월 근무 + 1개월 공백 + C사 3개월 근무 → 합산 12개월이면 인정.</div>
+    </div>
+
+    <div style="background:#fff;border-radius:10px;padding:12px">
+      <div style="font-size:12px;font-weight:800;color:#2e7d32;margin-bottom:4px">④ 유지 기간</div>
+      <div style="font-size:12.5px;color:var(--text);line-height:1.6">최대 <b>3년(36개월)</b>. 이후에는 일반 지역가입자 보험료로 전환됩니다.</div>
+    </div>
+
+    <div style="font-size:10.5px;color:#888;margin-top:10px;line-height:1.5">※ 2026.8.3 국민건강보험공단 문의 확인 내용. 실제 신청 시점의 첫 고지서 발급일에 따라 정확한 마감일이 달라지므로, 명예퇴직 후 첫 지역가입자 고지서를 받으면 그 날짜 기준으로 마감일을 다시 확인하세요.</div>
+  </div>
+
   <div class="card">
     <div style="font-size:14px;font-weight:800;color:var(--text);margin-bottom:10px">🧮 국민연금 납입 시나리오</div>
     <div style="overflow-x:auto">
@@ -6010,9 +6037,9 @@ function fmtWon(n){
 var RETIREMENT_MILESTONES=[
   {date:"2029-02-28", label:"공무원연금 납부 종료", sub:"'29.2", color:"#3949ab", subBig:true},
   {date:"2029-12-01", label:"명예퇴직", sub:"'29.12.", color:"#f57f17"},
-  {date:"2030-02-28", label:"건보료 임의계속가입 검토 (재취업이 가성비 최고)", sub:"'30.2말 기한", color:"#2e7d32"},
+  {date:"2030-02-28", label:"임의계속가입 신청기한 (건보·국민연금 공통, 재취업이 가성비 최고)", sub:"지역가입자 전환 후 첫 고지서 납부마감일로부터 2개월 이내 신청 (약 '30.2말)", color:"#2e7d32"},
   {date:"2030-06-07", label:"60세 도달 전 (국민연금 임의가입)", sub:"'30.6.7", color:"#8e24aa"},
-  {date:"2030-06-09", label:"임의계속가입 전환", sub:"'30.6.9", color:"#00838f"},
+  {date:"2030-06-09", label:"임의계속가입 전환 (3년간 유지)", sub:"'30.6.9 — 퇴직 전 18개월 중 12개월 평균 보험료로 납부", color:"#00838f"},
   {date:"2033-06-01", label:"공무원연금 개시 (63세)", sub:"'33.6", color:"#c62828"},
   {date:"2040-06-01", label:"국민연금 개시", sub:"'40.6", color:"#ad1457"}
 ];
