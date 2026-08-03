@@ -1286,7 +1286,7 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
 
     <div style="background:#fff;border-radius:10px;padding:12px;margin-bottom:10px">
       <div style="font-size:12px;font-weight:800;color:#2e7d32;margin-bottom:4px">② 보험료 산정 방식</div>
-      <div style="font-size:12.5px;color:var(--text);line-height:1.6">지역가입자가 되기 <b>전 18개월 중 12개월 동안 낸 보험료의 평균 금액</b>을 3년간 그대로 납부. 즉 평소 직장 다니며 내던 금액 수준(전액이 아니라 <b>약 50% 감면 효과</b>) — 100% 감면이 아니라는 점 주의.</div>
+      <div style="font-size:12.5px;color:var(--text);line-height:1.6">지역가입자가 되기 <b>전 18개월 중 12개월 동안 낸 보험료의 평균 금액</b>을 3년간 그대로 납부. 지역가입자 전환 시 <b>2배로 내는 게 아니라</b>, 예전 직장 다닐 때 내던 그 금액 수준 그대로입니다.</div>
     </div>
 
     <div style="background:#fff;border-radius:10px;padding:12px;margin-bottom:10px">
@@ -6036,10 +6036,10 @@ function fmtWon(n){
 }
 var RETIREMENT_MILESTONES=[
   {date:"2029-02-28", label:"공무원연금 납부 종료", sub:"'29.2", color:"#3949ab", subBig:true},
-  {date:"2029-12-01", label:"명예퇴직", sub:"'29.12.", color:"#f57f17"},
-  {date:"2030-02-28", label:"임의계속가입 신청기한 (건보·국민연금 공통, 재취업이 가성비 최고)", sub:"지역가입자 전환 후 첫 고지서 납부마감일로부터 2개월 이내 신청 (약 '30.2말)", color:"#2e7d32"},
-  {date:"2030-06-07", label:"60세 도달 전 (국민연금 임의가입)", sub:"'30.6.7", color:"#8e24aa"},
-  {date:"2030-06-09", label:"임의계속가입 전환 (3년간 유지)", sub:"'30.6.9 — 퇴직 전 18개월 중 12개월 평균 보험료로 납부", color:"#00838f"},
+  {date:"2029-12-31", label:"명예퇴직", sub:"'29.12.31", color:"#f57f17"},
+  {date:"2030-02-28", label:"건강보험 임의계속가입 (재취업이 가성비 최고)", sub:"지역가입자로 전환된 뒤 첫 고지서 납부마감일로부터 2개월 이내 신청 — 18개월 안에 12개월간 납부한 건보료 평균금액 납부(2배 아님, 12개월은 연속 아니어도 되고 회사가 달라도 인정). 3년간 유지.", color:"#2e7d32"},
+  {date:"2030-06-07", label:"국민연금 임의가입 (60세 도달 전)", sub:"'30.6.7 이내", color:"#8e24aa"},
+  {date:"2030-06-09", label:"국민연금 임의계속가입 전환", sub:"'30.6.9", color:"#00838f"},
   {date:"2033-06-01", label:"공무원연금 개시 (63세)", sub:"'33.6", color:"#c62828"},
   {date:"2040-06-01", label:"국민연금 개시", sub:"'40.6", color:"#ad1457"}
 ];
