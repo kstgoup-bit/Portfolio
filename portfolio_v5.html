@@ -4264,7 +4264,7 @@ function renderFundamentalsHtml(f){
     +'<div style="display:flex;justify-content:space-between"><span>영업이익률</span><b>'+pct(f.operatingMargin)+'</b></div>'
     +'<div style="display:flex;justify-content:space-between"><span>ROE</span><b>'+pct(f.roe)+'</b></div>'
     +(qs&&qs.score!=null?'<div style="display:flex;justify-content:space-between;margin-top:6px;padding-top:6px;border-top:1px dashed #90caf9"><span style="font-weight:800">정량 점수</span><b style="color:'+band.color+'">'+qs.score+'점</b></div>':'')
-    +(when?'<div style="font-size:10px;color:#999;margin-top:4px">조회: '+when+'</div>':"");
+    +(when?'<div style="font-size:12px;color:#333;margin-top:4px">조회: '+when+'</div>':"");
 }
 
 // =============================================
@@ -4576,7 +4576,7 @@ function openPrincipleModal(id, type){
             +'<div style="font-size:12px;font-weight:800;color:#1565c0">📊 재무데이터 정량점수 (Alpha Vantage)</div>'
             +'<button id="principleFundBtn" style="font-size:11px;font-weight:700;color:#1565c0;background:#fff;border:1px solid #90caf9;border-radius:7px;padding:5px 9px;cursor:pointer">조회</button>'
           +'</div>'
-          +'<div id="principleFundResult" style="font-size:11px;color:#555;line-height:1.6">'+(p.fundamentals ? renderFundamentalsHtml(p.fundamentals) : '아직 조회 안 함. 티커: '+(tickerForFund||"미확인"))+'</div>'
+          +'<div id="principleFundResult" style="font-size:13px;color:#222;line-height:1.6">'+(p.fundamentals ? renderFundamentalsHtml(p.fundamentals) : '아직 조회 안 함. 티커: '+(tickerForFund||"미확인"))+'</div>'
         +'</div>'
       ) : "")
 
@@ -4585,16 +4585,16 @@ function openPrincipleModal(id, type){
         +'<span id="principleQualScoreBadge" style="font-size:12px;font-weight:800"></span>'
       +'</div>'
       +'<input id="principleQualScore" type="range" min="0" max="100" value="'+(p.qualScore==null||p.qualScore===""?50:p.qualScore)+'" oninput="updatePrincipleQualScoreBadge(this.value)" style="width:100%;margin-bottom:10px">'
-      +'<div style="font-size:10px;color:#999;margin-bottom:16px;line-height:1.4">Gemini의 웹검색 기반 종합 판단(사업현황·재무안정성·매출성장·파트너십 등) 점수입니다. 아래 "Gemini AI 투자 코치"에서 자동 반영됩니다.</div>'
+      +'<div style="font-size:12px;color:#333;margin-bottom:16px;line-height:1.4">Gemini의 웹검색 기반 종합 판단(사업현황·재무안정성·매출성장·파트너십 등) 점수입니다. 아래 "Gemini AI 투자 코치"에서 자동 반영됩니다.</div>'
 
       +'<div style="background:#f3f0ff;border:1px solid #d1c4e9;border-radius:12px;padding:14px;margin-bottom:16px">'
         +'<div style="font-size:13px;font-weight:800;color:#5e35b1;margin-bottom:8px">🤖 Gemini AI 투자 코치</div>'
 
         +'<button id="principleAiAutoBtn" style="width:100%;padding:11px;background:linear-gradient(135deg,#1565c0,#1976d2);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;margin-bottom:6px">🔍 실시간 자동분석 (웹 검색 기반 정성점수)</button>'
-        +'<div style="font-size:10px;color:#999;margin-bottom:12px;line-height:1.4">Gemini가 최근 사업현황·실적·재무 관련 정보를 직접 검색해서 정성점수·논리상태를 산정합니다. LLM 판단이라 완전한 정량 지표는 아니며, 참고용으로 활용하세요.</div>'
+        +'<div style="font-size:12px;color:#333;margin-bottom:12px;line-height:1.4">Gemini가 최근 사업현황·실적·재무 관련 정보를 직접 검색해서 정성점수·논리상태를 산정합니다. LLM 판단이라 완전한 정량 지표는 아니며, 참고용으로 활용하세요.</div>'
 
         +'<div style="border-top:1px dashed #d1c4e9;margin:4px 0 12px"></div>'
-        +'<div style="font-size:11px;color:#888;margin-bottom:8px;line-height:1.5">또는 실적 발표문·기사 원문을 직접 붙여넣어 분석할 수도 있습니다.</div>'
+        +'<div style="font-size:13px;color:#333;margin-bottom:8px;line-height:1.5">또는 실적 발표문·기사 원문을 직접 붙여넣어 분석할 수도 있습니다.</div>'
         +'<textarea id="principleAiInput" placeholder="실적발표 내용, 기사, 공시 원문 등을 붙여넣으세요" style="width:100%;box-sizing:border-box;border:1.5px solid #b39ddb;border-radius:10px;padding:9px;font-size:12px;min-height:70px;margin-bottom:8px;font-family:inherit"></textarea>'
         +'<button id="principleAiBtn" style="width:100%;padding:10px;background:linear-gradient(135deg,#5e35b1,#7e57c2);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer">🤖 원문 기반 분석 요청</button>'
         +'<div id="principleAiResult" style="display:none;margin-top:10px;background:#fff;border-radius:10px;padding:12px;font-size:12px;color:#333;white-space:pre-wrap;line-height:1.6"></div>'
