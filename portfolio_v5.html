@@ -876,7 +876,8 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
     </div>
     <div class="f-lbl">종목명</div>
     <div style="display:grid;grid-template-columns:7fr 3fr;gap:6px;margin-bottom:8px">
-      <input class="f-inp" id="divName" placeholder="예: SPGI" style="margin-bottom:0">
+      <input class="f-inp" id="divName" list="divNameList" placeholder="예: SPGI (직접 입력 또는 목록에서 선택)" style="margin-bottom:0">
+      <datalist id="divNameList"></datalist>
       <select id="divBroker" style="border:1.5px solid var(--border);border-radius:8px;padding:0 6px;font-size:12px;font-weight:700;background:#fff;color:var(--text);font-family:'Noto Sans KR',sans-serif">
         <option value="">증권사</option>
         <option value="연금">연금</option>
@@ -5454,6 +5455,16 @@ function renderNews(headlines, translated, btn, status, list){
 function renderDividend() {
   var now=new Date();
   var yr=now.getFullYear();
+
+  // 종목명 자동완성 목록 채우기 (보유 종목 국내+해외+연금, 중복 제거)
+  var dnl=document.getElementById("divNameList");
+  if(dnl){
+    var namesSet={};
+    [domStocks,ovStocks,penStocks].forEach(function(arr){
+      arr.forEach(function(s){ if(s.name) namesSet[s.name]=true; if(s.ticker) namesSet[s.ticker]=true; });
+    });
+    dnl.innerHTML=Object.keys(namesSet).sort().map(function(n){return '<option value="'+n+'">';}).join("");
+  }
   // 올해 수령 (기본값, 드롭다운 채운 뒤 updateDivSumYear가 실제 표시값을 다시 계산함)
   var yearDiv=divList.filter(function(d){return new Date(d.date).getFullYear()===yr;}).reduce(function(s,d){return s+d.amount;},0);
   // 누적
