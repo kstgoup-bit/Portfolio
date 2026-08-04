@@ -1008,6 +1008,32 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
   <div class="rk-gauge">
     <div class="rk-g-top">
       <div>
+        <div class="rk-g-lbl">공포탐욕지수 (Fear &amp; Greed)
+          <a href="https://money.cnn.com/data/fear-and-greed/" target="_blank"
+             style="font-size:10px;color:#1565c0;margin-left:6px;text-decoration:none">🔗 CNN 확인</a>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:6px">
+          <input type="number" id="rkFgInput" min="0" max="100" placeholder="0~100 입력"
+            style="width:110px;padding:6px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:15px;font-weight:700;background:var(--sky-bg);color:var(--text);text-align:center"
+            oninput="applyFgManual()">
+          <span class="rk-g-val" id="rkFgVal" style="font-size:22px">—</span>
+        </div>
+      </div>
+      <div class="rk-g-badge" id="rkFgBadge">—</div>
+    </div>
+    <div class="rk-bar-bg"><div class="rk-bar-fill" id="rkFgBar" style="width:0%"></div></div>
+    <div class="rk-g-detail" id="rkFgDetail">CNN Money에서 확인 후 값을 입력해주세요</div>
+    <div class="rk-g-range">극공포0~25 · 공포25~45 · 중립45~55 · 탐욕55~75 · 극탐욕75~100</div>
+  </div>
+
+  <div id="vixFgNote" style="display:none;margin:-4px 0 14px;padding:12px 14px;border-radius:12px;border-left:4px solid #1565c0;background:#eef4ff">
+    <div id="vixFgNoteTitle" style="font-size:13px;font-weight:900;color:#1a1a2e;margin-bottom:4px">🔍 VIX × 공포탐욕지수 해석</div>
+    <div id="vixFgNoteText" style="font-size:13px;color:#333;line-height:1.6"></div>
+  </div>
+
+  <div class="rk-gauge">
+    <div class="rk-g-top">
+      <div>
         <div class="rk-g-lbl">USD/KRW 환율 (52주 이평 대비)</div>
         <div><span class="rk-g-val" id="rkFxVal">—</span><span class="rk-g-unit"> 원</span></div>
       </div>
@@ -1042,27 +1068,6 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
     <div class="rk-bar-bg"><div class="rk-bar-fill" id="rkSpreadBar" style="width:0%"></div></div>
     <div class="rk-g-detail" id="rkSpreadDetail">—</div>
     <div class="rk-g-range">정상&gt;0% · 주의0~-0.5% · 경고&lt;-0.5% · 역전해소직후=위험</div>
-  </div>
-
-  <div class="rk-gauge">
-    <div class="rk-g-top">
-      <div>
-        <div class="rk-g-lbl">공포탐욕지수 (Fear &amp; Greed)
-          <a href="https://money.cnn.com/data/fear-and-greed/" target="_blank"
-             style="font-size:10px;color:#1565c0;margin-left:6px;text-decoration:none">🔗 CNN 확인</a>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px;margin-top:6px">
-          <input type="number" id="rkFgInput" min="0" max="100" placeholder="0~100 입력"
-            style="width:110px;padding:6px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:15px;font-weight:700;background:var(--sky-bg);color:var(--text);text-align:center"
-            oninput="applyFgManual()">
-          <span class="rk-g-val" id="rkFgVal" style="font-size:22px">—</span>
-        </div>
-      </div>
-      <div class="rk-g-badge" id="rkFgBadge">—</div>
-    </div>
-    <div class="rk-bar-bg"><div class="rk-bar-fill" id="rkFgBar" style="width:0%"></div></div>
-    <div class="rk-g-detail" id="rkFgDetail">CNN Money에서 확인 후 값을 입력해주세요</div>
-    <div class="rk-g-range">극공포0~25 · 공포25~45 · 중립45~55 · 탐욕55~75 · 극탐욕75~100</div>
   </div>
 
   <div id="rkDiagnosis" style="margin-bottom:14px;display:none"></div>
@@ -3247,6 +3252,51 @@ function rkBarGrad(score) {
   return "linear-gradient(90deg,#4ade80,#22c55e)";
 }
 
+function updateVixFgNote(vix, fg) {
+  var box=document.getElementById("vixFgNote");
+  var titleEl=document.getElementById("vixFgNoteTitle");
+  var textEl=document.getElementById("vixFgNoteText");
+  if(!box||!textEl) return;
+  if(!vix||!fg){ box.style.display="none"; return; }
+
+  var icon="🔍", border="#1565c0", bg="#eef4ff", title="VIX × 공포탐욕지수 해석", text="";
+
+  if(fg<25 && vix>=30){
+    icon="🟢"; border="#2e7d32"; bg="#f0fdf4"; title="동반 패닉 — 분할매수 적기 신호";
+    text="공포탐욕지수가 '극도의 공포("+Math.round(fg)+")'에 진입하고 동시에 VIX가 "+vix.toFixed(1)+"으로 30 이상 폭등했습니다. 두 지표가 함께 패닉을 가리킬 때는 시장의 비이성적 투매가 발생하는 구간이 많아, 역사적으로 이런 구간에서 적립식 분할 매수를 한 투자자들이 좋은 성과를 냈습니다.";
+  } else if(fg<25 && vix<20){
+    icon="🟡"; border="#f9a825"; bg="#fffde7"; title="지수만 공포, 변동성은 조용함";
+    text="공포탐욕지수는 '극도의 공포("+Math.round(fg)+")'인데 VIX는 "+vix.toFixed(1)+"으로 낮은 편입니다. 아직 실제 변동성 패닉으로 번지지 않은 단계라, 서둘러 대량 매수하기보다는 VIX가 함께 튀어오르는지 며칠 더 지켜보는 게 안전합니다.";
+  } else if(fg>=25 && fg<45 && vix>=20 && vix<30){
+    icon="🟡"; border="#f57c00"; bg="#fff3e0"; title="공포 확산 초기 국면";
+    text="공포탐욕지수 "+Math.round(fg)+"(공포), VIX "+vix.toFixed(1)+"(경계)로 둘 다 불안감이 커지는 초기 단계입니다. 아직 극단적 패닉은 아니지만, 신규 매수 규모를 절반 정도로 줄이고 상황을 지켜보는 신중한 접근이 좋습니다.";
+  } else if(fg>=45 && fg<=55){
+    icon="⚪"; border="#9e9e9e"; bg="#f5f5f5"; title="뚜렷한 신호 없음";
+    text="공포탐욕지수 "+Math.round(fg)+"(중립), VIX "+vix.toFixed(1)+"로 두 지표 모두 방향성이 뚜렷하지 않습니다. 특별히 공격적으로 사거나 팔 이유가 없는 구간이니 평소 정기 적립 전략을 그대로 유지하시면 됩니다.";
+  } else if(fg>75 && vix<15){
+    icon="🔴"; border="#c62828"; bg="#ffebee"; title="극도탐욕+VIX 극저 — 고점 경고";
+    text="공포탐욕지수가 '극도의 탐욕("+Math.round(fg)+")'인데 VIX는 "+vix.toFixed(1)+"으로 극히 낮습니다. 다들 방심한 채 낙관하는 이 조합은 2021년 11월 나스닥 고점 직전과 같은 패턴이라, 많이 오른 종목 일부 익절을 검토할 시점입니다.";
+  } else if(fg>75 && vix>=25){
+    icon="🟠"; border="#ef6c00"; bg="#fff3e0"; title="탐욕인데 변동성도 확대 — 조정 임박 가능";
+    text="공포탐욕지수는 '탐욕("+Math.round(fg)+")'인데 VIX도 "+vix.toFixed(1)+"으로 함께 오르고 있습니다. 낙관 심리와 불안 심리가 동시에 커지는 건 방향 전환 직전에 자주 나타나는 조합이라, 신규 매수보다는 관망이 안전합니다.";
+  } else if(fg>=55 && fg<=75 && vix>=28){
+    icon="📈"; border="#2e7d32"; bg="#f0fdf4"; title="공포 속 매수세 — 단기 반등 가능";
+    text="VIX는 "+vix.toFixed(1)+"으로 높은데 공포탐욕지수는 "+Math.round(fg)+"(탐욕)으로 오히려 매수세가 강합니다. 이 조합은 단기 반등으로 이어지는 경우가 많지만, 방향이 뒤집힐 수도 있으니 한 번에 크게 베팅하지 말고 소액으로 접근하세요.";
+  } else if(vix<20 && fg<30){
+    icon="⚠️"; border="#ef6c00"; bg="#fff3e0"; title="숨겨진 이탈 신호 — 기관 조용히 매도 중일 수 있음";
+    text="VIX는 "+vix.toFixed(1)+"으로 조용한데 공포탐욕지수는 "+Math.round(fg)+"으로 낮습니다. 겉으로는 평온해 보여도 기관투자자가 조용히 비중을 줄이고 있을 때 나오는 패턴이라, 포트폴리오를 한번 점검해보시는 게 좋습니다.";
+  } else {
+    icon="🔍"; border="#1565c0"; bg="#eef4ff"; title="VIX × 공포탐욕지수 해석";
+    text="공포탐욕지수 "+Math.round(fg)+", VIX "+vix.toFixed(1)+"입니다. 두 지표가 극단적으로 어긋나거나 겹치는 구간은 아니라서, 평소 전략을 유지하며 다른 지표(HY스프레드·금리·환율)와 함께 종합 판단하시면 됩니다.";
+  }
+
+  box.style.display="block";
+  box.style.borderLeftColor=border;
+  box.style.background=bg;
+  if(titleEl) titleEl.textContent=icon+" "+title;
+  textEl.textContent=text;
+}
+
 function rkDrawThermo(score) {
   var el = document.getElementById("rkThermo");
   if(!el) return;
@@ -3321,15 +3371,8 @@ function rkUpdateUI(hy, rate, vix, fxScore, dxy, spread, fg, oil) {
     fgbg.style.color=(fg>=45&&fg<55)?"#1a2e5a":"#fff";
   }
   if(fgd&&fg) fgd.textContent=(fg<25?"극도공포 — 역사적 매수 적기 (2020년 3월, 2022년 10월 패턴)":fg<45?"공포 — 분할매수 고려 구간":fg<55?"중립 — 관망 유지":fg<75?"탐욕 — 추가매수 신중, 고점 주의":fg<85?"강한 탐욕 — 과열 경고":"극도탐욕 — 2021년 11월 나스닥 고점 패턴, 매도 검토");
-  // VIX vs 공포탐욕 교차 신호
-  if(vix&&fg){
-    var crossMsg="";
-    if(vix<20&&fg<30) crossMsg="⚠️ VIX안정+공포탐욕공포 — 기관 조용히 이탈 중. 하락 경고!";
-    else if(vix>28&&fg>65) crossMsg="📈 VIX급등+탐욕 — 공포 속 매수세 강함. 단기 반등 가능!";
-    else if(vix<13&&fg>80) crossMsg="🔴 VIX극저+극탐욕 — 거품 경고! 2021년11월 나스닥 고점 패턴";
-    else if(vix>35&&fg<20) crossMsg="🟢 VIX극공포+극공포 — 역사적 바닥 근처. 분할매수 최적기!";
-    if(crossMsg&&fgd) fgd.textContent+=" | "+crossMsg;
-  }
+  // VIX vs 공포탐욕 상관관계 해설 카드
+  updateVixFgNote(vix, fg);
   // WTI 유가 (종합점수 반영을 위해 먼저 계산)
   var oilScore = !oil?10:oil<60?70:oil<80?10:oil<95?40:oil<110?70:95;
   var oilLv = rkLevel(oilScore);
