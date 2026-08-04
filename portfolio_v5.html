@@ -5461,7 +5461,7 @@ function renderDividend() {
   if(dnl){
     var namesSet={};
     [domStocks,ovStocks,penStocks].forEach(function(arr){
-      arr.forEach(function(s){ if(s.name) namesSet[s.name]=true; if(s.ticker) namesSet[s.ticker]=true; });
+      arr.forEach(function(s){ if(s.name) namesSet[s.name]=true; });
     });
     dnl.innerHTML=Object.keys(namesSet).sort().map(function(n){return '<option value="'+n+'">';}).join("");
   }
