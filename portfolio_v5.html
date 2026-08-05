@@ -1434,37 +1434,6 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
     <div id="nwAssetList"></div>
   </div>
 
-  <div class="card" style="border-left:4px solid #6a1b9a;background:linear-gradient(180deg,#fbf7ff 0%,#f0e4fc 100%)">
-    <div style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:4px">🏚️ 매각 후 시나리오 (추정치)</div>
-    <div style="font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.5">부동산 정리 후 예상 순자산을 가늠해보는 참고용 계산입니다. 양도소득세는 직접 추정치를 입력하셔야 하며, 실제 세액은 세무사·홈택스 모의계산으로 별도 확인이 필요합니다.</div>
-
-    <div style="margin-bottom:10px">
-      <div style="font-size:12px;color:var(--muted);margin-bottom:4px">매각 예상 총액 (원)</div>
-      <input id="scSaleAmt" type="text" inputmode="numeric" oninput="fmtAmtInp(this);renderSellScenario()" style="width:100%;box-sizing:border-box;border:1.5px solid #ce93d8;border-radius:10px;padding:9px;font-size:13px;font-weight:700;text-align:right">
-    </div>
-    <div style="margin-bottom:10px">
-      <div style="font-size:12px;color:var(--muted);margin-bottom:4px">남길 부동산 시가 (작은 집 등, 원)</div>
-      <input id="scKeepAmt" type="text" inputmode="numeric" oninput="fmtAmtInp(this);renderSellScenario()" style="width:100%;box-sizing:border-box;border:1.5px solid #ce93d8;border-radius:10px;padding:9px;font-size:13px;font-weight:700;text-align:right">
-    </div>
-    <div style="margin-bottom:10px">
-      <div style="font-size:12px;color:var(--muted);margin-bottom:4px">상환할 부채 (원)</div>
-      <input id="scPayoffAmt" type="text" inputmode="numeric" oninput="fmtAmtInp(this);renderSellScenario()" style="width:100%;box-sizing:border-box;border:1.5px solid #ce93d8;border-radius:10px;padding:9px;font-size:13px;font-weight:700;text-align:right">
-    </div>
-    <div style="margin-bottom:14px">
-      <div style="font-size:12px;color:var(--muted);margin-bottom:4px">예상 양도소득세 (직접 추정, 원)</div>
-      <input id="scTaxAmt" type="text" inputmode="numeric" oninput="fmtAmtInp(this);renderSellScenario()" value="0" style="width:100%;box-sizing:border-box;border:1.5px solid #ce93d8;border-radius:10px;padding:9px;font-size:13px;font-weight:700;text-align:right">
-    </div>
-
-    <div style="background:#fff;border-radius:12px;padding:12px 14px">
-      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:4px"><span>매각대금 − 부채상환 − 양도세</span><span id="scCashOut" style="font-weight:800;color:var(--text)">0원</span></div>
-      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:8px"><span>+ 남길 부동산 + 주식자산(연동)</span><span id="scAddAmt" style="font-weight:800;color:var(--text)">0원</span></div>
-      <div style="border-top:1px solid var(--border);padding-top:8px;display:flex;justify-content:space-between;align-items:center">
-        <span style="font-size:13px;font-weight:800;color:var(--text)">매각 후 예상 순자산</span>
-        <span id="scNetWorth" style="font-size:18px;font-weight:900;color:#6a1b9a">0원</span>
-      </div>
-    </div>
-  </div>
-
   <div class="card" style="border-left:4px solid #ad1457;background:linear-gradient(180deg,#fff8fa 0%,#fbe4ec 100%)">
     <div style="font-size:13px;color:var(--muted);margin-bottom:4px">총부채 (연동)</div>
     <div style="font-size:16px;font-weight:900;color:#ad1457" id="nwDebtAmt2">0원</div>
@@ -6344,59 +6313,6 @@ function renderNetWorth(){
       }).join("");
     }
   }
-
-  initSellScenarioInputs(realTotal, debtTotal, stockTotal);
-}
-
-// =============================================
-// 매각 후 시나리오 (추정치)
-// =============================================
-function loadSellScenario(){ try{var v=localStorage.getItem("v5_sellScenario"); return v?JSON.parse(v):null;}catch(e){return null;} }
-function saveSellScenario(obj){ localStorage.setItem("v5_sellScenario",JSON.stringify(obj)); }
-
-function initSellScenarioInputs(realTotal, debtTotal, stockTotal){
-  var saved = loadSellScenario();
-  var saleEl=document.getElementById("scSaleAmt");
-  var keepEl=document.getElementById("scKeepAmt");
-  var payoffEl=document.getElementById("scPayoffAmt");
-  var taxEl=document.getElementById("scTaxAmt");
-  if(!saleEl||!keepEl||!payoffEl||!taxEl) return;
-
-  if(saved){
-    saleEl.value=Number(saved.saleAmt||0).toLocaleString("ko-KR");
-    keepEl.value=Number(saved.keepAmt||0).toLocaleString("ko-KR");
-    payoffEl.value=Number(saved.payoffAmt||0).toLocaleString("ko-KR");
-    taxEl.value=Number(saved.taxAmt||0).toLocaleString("ko-KR");
-  } else {
-    saleEl.value=Number(realTotal||0).toLocaleString("ko-KR");
-    keepEl.value="0";
-    payoffEl.value=Number(debtTotal||0).toLocaleString("ko-KR");
-    taxEl.value="0";
-  }
-  window._scStockTotal = stockTotal||0;
-  renderSellScenario();
-}
-
-function renderSellScenario(){
-  var saleEl=document.getElementById("scSaleAmt");
-  var keepEl=document.getElementById("scKeepAmt");
-  var payoffEl=document.getElementById("scPayoffAmt");
-  var taxEl=document.getElementById("scTaxAmt");
-  if(!saleEl||!keepEl||!payoffEl||!taxEl) return;
-
-  function num(el){ return parseFloat((el.value||"").replace(/[^0-9.\-]/g,""))||0; }
-  var sale=num(saleEl), keep=num(keepEl), payoff=num(payoffEl), tax=num(taxEl);
-  var stockTotal = window._scStockTotal||0;
-
-  var cashOut = sale - payoff - tax;
-  var addAmt = keep + stockTotal;
-  var netWorth = cashOut + addAmt;
-
-  var cashOutEl=document.getElementById("scCashOut"); if(cashOutEl) cashOutEl.textContent=fmt(cashOut)+"원";
-  var addAmtEl=document.getElementById("scAddAmt"); if(addAmtEl) addAmtEl.textContent=fmt(addAmt)+"원";
-  var netEl=document.getElementById("scNetWorth"); if(netEl) netEl.textContent=fmt(netWorth)+"원";
-
-  saveSellScenario({saleAmt:sale, keepAmt:keep, payoffAmt:payoff, taxAmt:tax});
 }
 
 function deleteAssetItem(idx){
