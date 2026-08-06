@@ -4505,10 +4505,13 @@ var PRINCIPLE_KNOWLEDGE_KEYWORD=[
 ];
 function renderCheckpointRowsHtml(checkpoints){
   return (checkpoints||[]).map(function(cp,i){
-    return '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">'
-      +'<input type="checkbox" '+(cp.done?"checked":"")+' onchange="togglePrincipleCheckpoint('+i+')" style="width:18px;height:18px;flex-shrink:0">'
-      +'<input type="text" value="'+(cp.text||"").replace(/"/g,'&quot;')+'" data-cp-idx="'+i+'" placeholder="체크포인트 내용" style="flex:1;border:1px solid #ddd;border-radius:8px;padding:7px 9px;font-size:13px">'
-      +'<button onclick="removePrincipleCheckpoint('+i+')" style="background:none;border:none;color:#bbb;font-size:18px;cursor:pointer;padding:0 4px">×</button>'
+    return '<div style="margin-bottom:6px">'
+      +'<div style="display:flex;align-items:center;gap:6px">'
+        +'<input type="checkbox" '+(cp.done?"checked":"")+' data-cp-chk="'+i+'" onchange="togglePrincipleCheckpoint('+i+')" style="width:18px;height:18px;flex-shrink:0">'
+        +'<input type="text" value="'+(cp.text||"").replace(/"/g,'&quot;')+'" data-cp-idx="'+i+'" placeholder="체크포인트 내용" style="flex:1;border:1px solid #ddd;border-radius:8px;padding:7px 9px;font-size:13px">'
+        +'<button onclick="removePrincipleCheckpoint('+i+')" style="background:none;border:none;color:#bbb;font-size:18px;cursor:pointer;padding:0 4px">×</button>'
+      +'</div>'
+      +(cp.finding ? '<div style="font-size:11px;color:'+(cp.done?"#2e7d32":"#c62828")+';margin:3px 0 0 26px;line-height:1.4">'+(cp.done?"✅ ":"⚠️ ")+cp.finding.replace(/</g,"&lt;")+'</div>' : '<div class="cpFindingSlot" data-cp-finding="'+i+'" style="display:none;font-size:11px;color:#666;margin:3px 0 0 26px;line-height:1.4"></div>')
     +'</div>';
   }).join("");
 }
@@ -4658,6 +4661,8 @@ function openPrincipleModal(id, type){
         +'<div style="font-size:13px;font-weight:800;color:#333">분기 체크포인트 (3~5개)</div>'
         +'<button onclick="addPrincipleCheckpoint()" style="font-size:11px;font-weight:700;color:#5e35b1;background:#ede7f6;border:none;border-radius:7px;padding:5px 9px;cursor:pointer">+ 추가</button>'
       +'</div>'
+      +'<button id="cpAutoCheckBtn" style="width:100%;padding:10px;background:linear-gradient(135deg,#1565c0,#1976d2);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;margin-bottom:8px">🔍 재미로 체크포인트 자동확인 (웹검색)</button>'
+      +'<div id="cpAutoCheckNote" style="font-size:11px;color:#666;margin-bottom:10px;line-height:1.4">체크포인트별로 최신 뉴스·실적을 검색해서 충족 여부를 자동으로 체크합니다. 근거는 각 항목 아래 표시되니 확인 후 저장해주세요.</div>'
       +'<div id="principleCpList" style="margin-bottom:14px">'+cpHtml+'</div>'
 
       +'<div style="font-size:13px;font-weight:800;color:#333;margin-bottom:6px">매도 조건</div>'
@@ -4784,6 +4789,59 @@ function openPrincipleModal(id, type){
         updateBuyApproval();
         showToast("✅ 정량 점수 "+qs.score+"점을 정량점수에 자동 반영했어요. 저장을 눌러주세요.");
       }
+    };
+  }
+
+  var cpAutoBtn=document.getElementById("cpAutoCheckBtn");
+  if(cpAutoBtn){
+    cpAutoBtn.onclick=async function(){
+      if(!getGeminiKey()){ showToast("⚠️ 설정 탭에서 Gemini API 키를 먼저 입력해주세요", true); return; }
+      var cpInputs=Array.prototype.slice.call(document.querySelectorAll('[data-cp-idx]'));
+      var texts=cpInputs.map(function(el){return el.value.trim();}).filter(function(t){return t;});
+      if(!texts.length){ showToast("⚠️ 체크포인트를 먼저 입력해주세요", true); return; }
+
+      cpAutoBtn.disabled=true; cpAutoBtn.textContent="🔍 웹검색 및 확인 중...";
+      var prompt="당신은 '수익보다 생존을, 주가가 아니라 사업을 본다'는 원칙으로 개인 투자자를 돕는 분석가입니다. 웹 검색으로 아래 종목의 최신 뉴스·실적·공시를 직접 확인해서, 각 체크포인트가 지금 시점에 '충족'되고 있는지 '미충족'인지 판단하세요.\n\n"
+        +"종목: '"+name+"'\n\n체크포인트 목록:\n"
+        +texts.map(function(t,i){return (i+1)+". "+t;}).join("\n")
+        +"\n\n각 번호마다 정확히 아래 형식 한 줄로만 답하세요(항목 수만큼, 다른 설명 없이):\n"
+        +"번호. 충족 또는 미충족 - 근거를 20자 내외로 한 줄 요약";
+      var res;
+      try{
+        res = await callGeminiGrounded(prompt);
+      }catch(e){
+        cpAutoBtn.disabled=false; cpAutoBtn.textContent="🔍 재미로 체크포인트 자동확인 (웹검색)";
+        showToast("⚠️ 자동확인 중 오류가 발생했어요", true);
+        return;
+      }
+      cpAutoBtn.disabled=false; cpAutoBtn.textContent="🔍 재미로 체크포인트 자동확인 (웹검색)";
+
+      var lines=(res.text||"").split("\n");
+      var results={};
+      lines.forEach(function(line){
+        var m=line.match(/^\s*(\d+)\s*[.\)]\s*(충족|미충족)\s*-\s*(.+)$/);
+        if(m) results[Number(m[1])-1]={done:m[2]==="충족", finding:m[3].trim()};
+      });
+
+      var okCount=0;
+      cpInputs.forEach(function(el,i){
+        if(!el.value.trim()) return;
+        var r=results[i];
+        if(!r) return;
+        var chkEl=document.querySelector('[data-cp-chk="'+i+'"]');
+        if(chkEl) chkEl.checked=r.done;
+        var slot=document.querySelector('[data-cp-finding="'+i+'"]');
+        if(slot){
+          slot.style.display="block";
+          slot.style.color=r.done?"#2e7d32":"#c62828";
+          slot.textContent=(r.done?"✅ ":"⚠️ ")+r.finding;
+        }
+        box._data.checkpoints=box._data.checkpoints||[];
+        if(box._data.checkpoints[i]) box._data.checkpoints[i].finding=r.finding;
+        okCount++;
+      });
+      if(okCount) showToast("✅ 체크포인트 "+okCount+"개 자동확인 완료. 근거 확인 후 저장해주세요.");
+      else showToast("⚠️ 응답을 해석하지 못했어요. 다시 시도해주세요.", true);
     };
   }
 
@@ -4937,7 +4995,8 @@ function openPrincipleModal(id, type){
     var checkboxes=box.querySelectorAll('#principleCpList input[type="checkbox"]');
     var newCps=[];
     cpInputs.forEach(function(inp,i){
-      newCps.push({text:inp.value, done: checkboxes[i]?checkboxes[i].checked:false});
+      var prevFinding = box._data.checkpoints && box._data.checkpoints[i] ? box._data.checkpoints[i].finding : null;
+      newCps.push({text:inp.value, done: checkboxes[i]?checkboxes[i].checked:false, finding: prevFinding||undefined});
     });
     cur.checkpoints=newCps;
     cur.scenarioUp=(cur.scenarioUp&&cur.scenarioUp.length?cur.scenarioUp:box._data.scenarioUp).map(function(s,i){
