@@ -2900,51 +2900,74 @@ function renderDashboard() {
     var ctx=cv.getContext('2d');
     ctx.scale(2,2);
     var maxP=maxPct;
+    var halfH=barH/2;
+    var zeroY=topPad+halfH;
+
+    // 0선 (기준선)
+    ctx.save();
+    ctx.strokeStyle='rgba(0,0,0,0.15)';
+    ctx.lineWidth=1;
+    ctx.beginPath();
+    ctx.moveTo(4,zeroY);
+    ctx.lineTo(canvasW-4,zeroY);
+    ctx.stroke();
+    ctx.restore();
+
     itemsData.forEach(function(m,i){
-      var h=Math.max(Math.abs(m.pct)/maxP*barH,6);
+      var h=Math.max(Math.abs(m.pct)/maxP*halfH,6);
       var x=i*(barW+gap)+10;
-      var y=topPad+barH-h;
-      var r=5; // 상단 둥근 모서리
+      var neg=m.pct<0;
+      var y = neg ? zeroY : zeroY-h;
+      var r=5;
       // 그림자
       ctx.save();
       ctx.shadowColor='rgba(0,0,0,0.3)';
       ctx.shadowBlur=8;
       ctx.shadowOffsetX=3;
       ctx.shadowOffsetY=4;
-      // 막대 몸체 (둥근 상단)
       ctx.beginPath();
-      ctx.moveTo(x+r,y);
-      ctx.lineTo(x+barW-r,y);
-      ctx.quadraticCurveTo(x+barW,y,x+barW,y+r);
-      ctx.lineTo(x+barW,y+h);
-      ctx.lineTo(x,y+h);
-      ctx.lineTo(x,y+r);
-      ctx.quadraticCurveTo(x,y,x+r,y);
+      if(!neg){
+        // 양수: 윗쪽 모서리만 둥글게, 0선에서 위로
+        ctx.moveTo(x+r,y);
+        ctx.lineTo(x+barW-r,y);
+        ctx.quadraticCurveTo(x+barW,y,x+barW,y+r);
+        ctx.lineTo(x+barW,y+h);
+        ctx.lineTo(x,y+h);
+        ctx.lineTo(x,y+r);
+        ctx.quadraticCurveTo(x,y,x+r,y);
+      } else {
+        // 음수: 아래쪽 모서리만 둥글게, 0선에서 아래로
+        ctx.moveTo(x,y);
+        ctx.lineTo(x+barW,y);
+        ctx.lineTo(x+barW,y+h-r);
+        ctx.quadraticCurveTo(x+barW,y+h,x+barW-r,y+h);
+        ctx.lineTo(x+r,y+h);
+        ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+      }
       ctx.closePath();
       // 단순 깔끔 막대
       var grd;
       if(m.isAll&&m.gradColors){
-        // 전체: 세로 3색 그라데이션 (아래=낮은→위=높은 수익률)
         grd=ctx.createLinearGradient(x,y+h,x,y);
         grd.addColorStop(0,m.gradColors[2]);
         grd.addColorStop(0.5,m.gradColors[1]);
         grd.addColorStop(1,m.gradColors[0]);
       } else {
-        // 개별: 단순 단색
         grd=m.mid;
       }
       ctx.fillStyle=grd;
       ctx.fill();
       ctx.restore();
 
-      // 수익률 텍스트
+      // 수익률 텍스트 (양수: 막대 위, 음수: 막대 아래)
       ctx.save();
       ctx.font='bold 9px Pretendard,sans-serif';
       ctx.fillStyle=m.isAll?colorRanks[0].color:m.dark;
       ctx.textAlign='center';
-      ctx.fillText((m.pct>=0?'+':'')+m.pct.toFixed(2)+'%',x+barW/2,y-5);
+      var labelY = neg ? (y+h+11) : (y-5);
+      ctx.fillText((m.pct>=0?'+':'')+m.pct.toFixed(2)+'%',x+barW/2,labelY);
       ctx.restore();
-      // 이름 텍스트
+      // 이름 텍스트 (항상 맨 아래 고정)
       ctx.save();
       ctx.font='bold 9.5px Pretendard,sans-serif';
       ctx.fillStyle='#444';
