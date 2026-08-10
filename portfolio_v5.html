@@ -2967,12 +2967,13 @@ function renderDashboard() {
       var labelY = neg ? (y+h+11) : (y-5);
       ctx.fillText((m.pct>=0?'+':'')+m.pct.toFixed(2)+'%',x+barW/2,labelY);
       ctx.restore();
-      // 이름 텍스트 (항상 맨 아래 고정)
+      // 이름 텍스트 (막대 반대쪽, 기준선 근처)
       ctx.save();
       ctx.font='bold 9.5px Pretendard,sans-serif';
       ctx.fillStyle='#444';
       ctx.textAlign='center';
-      ctx.fillText(m.label,x+barW/2,topPad+barH+16);
+      var nameY = neg ? (zeroY-8) : (zeroY+13);
+      ctx.fillText(m.label,x+barW/2,nameY);
       ctx.restore();
     });
   },100);
