@@ -562,8 +562,8 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
       <span class="goal-text">🎯 10억 목표 달성률</span>
       <span class="goal-pct" id="goalPct">0%</span>
     </div>
-    <div style="position:relative;padding-top:8px;padding-bottom:8px">
-      <div style="position:relative;height:14px">
+    <div style="position:relative;padding-top:6px;padding-bottom:6px">
+      <div style="position:relative;height:14px;margin-bottom:2px">
         <span style="position:absolute;left:28%;transform:translateX(-50%);font-size:12px;color:#bbdefb;font-weight:700;white-space:nowrap">2.8억</span>
         <span style="position:absolute;left:38%;transform:translateX(-50%);font-size:12px;color:#bbdefb;font-weight:700;white-space:nowrap">3.8억</span>
         <span style="position:absolute;left:52%;transform:translateX(-50%);font-size:12px;color:#bbdefb;font-weight:700;white-space:nowrap">5.2억</span>
@@ -577,7 +577,7 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
         <div style="position:absolute;top:0;left:52%;width:2px;height:100%;background:#1a237e"></div>
         <div style="position:absolute;top:0;left:70%;width:2px;height:100%;background:#1a237e"></div>
       </div>
-      <div style="position:relative;height:14px;margin-top:3px">
+      <div style="position:relative;height:14px;margin-top:2px">
         <span style="position:absolute;left:28%;transform:translateX(-50%);font-size:12px;color:#e3f2fd;opacity:0.85;font-weight:700">26</span>
         <span style="position:absolute;left:38%;transform:translateX(-50%);font-size:12px;color:#e3f2fd;opacity:0.85;font-weight:700">27</span>
         <span style="position:absolute;left:52%;transform:translateX(-50%);font-size:12px;color:#e3f2fd;opacity:0.85;font-weight:700">28</span>
@@ -3091,7 +3091,7 @@ function renderDashboard() {
     var pct=Math.round(sl.tv/totalAllTV*1000)/10;
     var desc=themeDesc[sl.theme]||'';
     return '<div style="display:flex;align-items:flex-start;gap:5px">'+
-      '<div style="width:10px;height:10px;border-radius:2px;background:'+sl.color+';flex-shrink:0;margin-top:3px"></div>'+
+      '<div style="width:10px;height:10px;border-radius:2px;background:'+sl.color+';flex-shrink:0;margin-top:2px"></div>'+
       '<div>'+
         '<div style="font-size:11.5px;font-weight:700;color:var(--text)">'+sl.theme+' <span style="color:#111;font-weight:600">'+pct+'%</span></div>'+
         '<div style="font-size:11px;color:var(--muted)">'+desc+'</div>'+
