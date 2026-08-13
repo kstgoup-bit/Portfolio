@@ -2362,7 +2362,7 @@ function fetchBenchmarkHistory(force) {
 
   function fetchOne(s, proxyIdx, cb) {
     if (proxyIdx>=PROXIES.length) { cb(); return; }
-    var url="https://query1.finance.yahoo.com/v8/finance/chart/"+encodeURIComponent(s.sym)+"?interval=1d&range=5y";
+    var url="https://query1.finance.yahoo.com/v8/finance/chart/"+encodeURIComponent(s.sym)+"?interval=1d&range=5y&_cb="+Date.now();
     fetch(PROXIES[proxyIdx](url))
       .then(function(r){return r.json();})
       .then(function(data){
@@ -2403,6 +2403,22 @@ function getBenchFetchTimeLabel() {
     var mi=String(d.getMinutes()).padStart(2,"0");
     var ageHours=(Date.now()-d.getTime())/3600000;
     return {text:mm+"/"+dd+" "+hh+":"+mi, stale:ageHours>24};
+  } catch(e) { return {text:"미확인", stale:true}; }
+}
+
+function getBenchDataLatestLabel() {
+  try {
+    var cached=JSON.parse(localStorage.getItem("v5_benchHist")||"null");
+    if (!cached || !cached.QQQ || !cached.QQQ.length) return {text:"미확인", stale:true};
+    var maxTs=0;
+    for (var i=0;i<cached.QQQ.length;i++){ if (cached.QQQ[i].ts>maxTs) maxTs=cached.QQQ[i].ts; }
+    if (!maxTs) return {text:"미확인", stale:true};
+    var d=new Date(maxTs);
+    var mm=(d.getMonth()+1);
+    var dd=d.getDate();
+    var ageDays=(Date.now()-maxTs)/86400000;
+    // 주말·휴장을 감안해 3일 이상 뒤처지면 stale로 표시
+    return {text:mm+"/"+dd, stale:ageDays>3};
   } catch(e) { return {text:"미확인", stale:true}; }
 }
 
@@ -2682,9 +2698,16 @@ function renderReturnsTable(key, tableId) {
     returnsSectionHtml(key, current, now, "alpha") +
     '<div style="font-size:11px;color:var(--muted);margin-top:8px;text-align:center">기준 지수: '+benchLabel+'</div>' +
     '<div style="font-size:11px;color:var(--muted);text-align:center">알파: 순수 수익률 − 기준지수 수익률</div>' +
-    '<div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:8px">'+
-      (function(){var bt=getBenchFetchTimeLabel(); return '<span style="font-size:11px;color:'+(bt.stale?"#e65100":"var(--muted)")+';font-weight:'+(bt.stale?"700":"400")+'">'+(bt.stale?"⚠️ ":"")+'지수 데이터 갱신: '+bt.text+'</span>';})()+
-      '<button onclick="fetchBenchmarkHistory(true)" style="font-size:11px;font-weight:700;color:#00695c;background:#e0f2f1;border:1px solid #80cbc4;border-radius:8px;padding:3px 10px;cursor:pointer">↻ 지수 새로고침</button>'+
+    '<div style="display:flex;flex-direction:column;align-items:center;gap:4px;margin-top:8px">'+
+      (function(){
+        var bt=getBenchFetchTimeLabel();
+        var dt=getBenchDataLatestLabel();
+        var mismatch = dt.stale;
+        var line1='<span style="font-size:11px;color:var(--muted)">새로고침 시각: '+bt.text+' · QQQ 데이터 최신일: '+dt.text+'</span>';
+        var line2 = mismatch ? '<span style="font-size:11px;color:#e65100;font-weight:700">⚠️ 데이터가 오래됐습니다 — 수동 새로고침을 눌러주세요</span>' : '<span style="font-size:11px;color:#2e7d32;font-weight:700">✓ 데이터 최신 확인됨</span>';
+        return line1+line2;
+      })()+
+      '<button onclick="fetchBenchmarkHistory(true)" style="font-size:11px;font-weight:700;color:#00695c;background:#e0f2f1;border:1px solid #80cbc4;border-radius:8px;padding:3px 10px;cursor:pointer;margin-top:2px">↻ 지수 새로고침</button>'+
     '</div>';
 }
 
