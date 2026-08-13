@@ -6691,7 +6691,7 @@ window.addEventListener("load", function() {
   // 데이터 로드
   load();
   renderAll();
-  fetchBenchmarkHistory();
+  fetchBenchmarkHistory(true);
   // 환율/국내/미국 자동갱신 + 완료 후 자산 자동기록
   setTimeout(fetchFX, 1500);
   setTimeout(fetchKR, 2500);
