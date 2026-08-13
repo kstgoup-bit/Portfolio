@@ -2351,7 +2351,8 @@ function fetchBenchmarkHistory(force) {
     return;
   }
   var syms=[{sym:"069500.KS",id:"KS200"},{sym:"QQQ",id:"QQQ"}];
-  var results={fetchedAt:today, KS200:(cached&&cached.KS200)||[], QQQ:(cached&&cached.QQQ)||[]};
+  var results={fetchedAt:today, fetchedAtISO:(cached&&cached.fetchedAtISO)||null, KS200:(cached&&cached.KS200)||[], QQQ:(cached&&cached.QQQ)||[]};
+  var freshCount=0;
 
   var PROXIES=[
     function(u){ return "https://api.allorigins.win/raw?url="+encodeURIComponent(u); },
@@ -2374,7 +2375,7 @@ function fetchBenchmarkHistory(force) {
             if(closes[i]!=null) hist.push({ts:ts[i]*1000, close:closes[i]});
           }
         }
-        if(hist.length) { results[s.id]=hist; cb(); }
+        if(hist.length) { results[s.id]=hist; freshCount++; cb(); }
         else fetchOne(s, proxyIdx+1, cb);
       })
       .catch(function(){ fetchOne(s, proxyIdx+1, cb); });
@@ -2383,11 +2384,26 @@ function fetchBenchmarkHistory(force) {
   // 순차 실행 (동시 요청으로 인한 프록시 과부하 방지), 프록시별로 순회 시도
   fetchOne(syms[0], 0, function(){
     fetchOne(syms[1], 0, function(){
+      if (freshCount===2) results.fetchedAtISO=new Date().toISOString();
       benchmarkHistory={KS200:results.KS200, NDX:results.QQQ};
       try{ localStorage.setItem("v5_benchHist", JSON.stringify(results)); }catch(e){}
       renderAllReturnsTables();
     });
   });
+}
+
+function getBenchFetchTimeLabel() {
+  try {
+    var cached=JSON.parse(localStorage.getItem("v5_benchHist")||"null");
+    if (!cached || !cached.fetchedAtISO) return {text:"미확인", stale:true};
+    var d=new Date(cached.fetchedAtISO);
+    var mm=(d.getMonth()+1);
+    var dd=d.getDate();
+    var hh=String(d.getHours()).padStart(2,"0");
+    var mi=String(d.getMinutes()).padStart(2,"0");
+    var ageHours=(Date.now()-d.getTime())/3600000;
+    return {text:mm+"/"+dd+" "+hh+":"+mi, stale:ageHours>24};
+  } catch(e) { return {text:"미확인", stale:true}; }
 }
 
 function findBenchAtOrBefore(hist, targetTs) {
@@ -2665,7 +2681,11 @@ function renderReturnsTable(key, tableId) {
     '<div style="font-size:14px;font-weight:800;color:#00695c;margin-bottom:4px">📊 '+label+' 시장 대비 알파</div>' +
     returnsSectionHtml(key, current, now, "alpha") +
     '<div style="font-size:11px;color:var(--muted);margin-top:8px;text-align:center">기준 지수: '+benchLabel+'</div>' +
-    '<div style="font-size:11px;color:var(--muted);text-align:center">알파: 순수 수익률 − 기준지수 수익률</div>';
+    '<div style="font-size:11px;color:var(--muted);text-align:center">알파: 순수 수익률 − 기준지수 수익률</div>' +
+    '<div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:8px">'+
+      (function(){var bt=getBenchFetchTimeLabel(); return '<span style="font-size:11px;color:'+(bt.stale?"#e65100":"var(--muted)")+';font-weight:'+(bt.stale?"700":"400")+'">'+(bt.stale?"⚠️ ":"")+'지수 데이터 갱신: '+bt.text+'</span>';})()+
+      '<button onclick="fetchBenchmarkHistory(true)" style="font-size:11px;font-weight:700;color:#00695c;background:#e0f2f1;border:1px solid #80cbc4;border-radius:8px;padding:3px 10px;cursor:pointer">↻ 지수 새로고침</button>'+
+    '</div>';
 }
 
 function renderAllReturnsTables() {
