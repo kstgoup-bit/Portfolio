@@ -2406,20 +2406,33 @@ function getBenchFetchTimeLabel() {
   } catch(e) { return {text:"미확인", stale:true}; }
 }
 
-function getBenchDataLatestLabel() {
+function getBenchDataLatestLabel(key) {
   try {
     var cached=JSON.parse(localStorage.getItem("v5_benchHist")||"null");
-    if (!cached || !cached.QQQ || !cached.QQQ.length) return {text:"미확인", stale:true};
-    var maxTs=0;
-    for (var i=0;i<cached.QQQ.length;i++){ if (cached.QQQ[i].ts>maxTs) maxTs=cached.QQQ[i].ts; }
-    if (!maxTs) return {text:"미확인", stale:true};
+    if (!cached) return {text:"미확인", stale:true, name:"지수"};
+
+    function latestOf(arr){
+      if (!arr || !arr.length) return 0;
+      var maxTs=0;
+      for (var i=0;i<arr.length;i++){ if (arr[i].ts>maxTs) maxTs=arr[i].ts; }
+      return maxTs;
+    }
+
+    var maxTs, name;
+    if (key==="dom") { maxTs=latestOf(cached.KS200); name="KODEX200"; }
+    else if (key==="ov" || key==="pen") { maxTs=latestOf(cached.QQQ); name="QQQ"; }
+    else { // all: 두 지수 중 더 오래된(느린) 쪽 기준으로 표시
+      var ksTs=latestOf(cached.KS200), qqqTs=latestOf(cached.QQQ);
+      maxTs = Math.min(ksTs||0, qqqTs||0) || Math.max(ksTs, qqqTs);
+      name="KODEX200·QQQ";
+    }
+    if (!maxTs) return {text:"미확인", stale:true, name:name};
     var d=new Date(maxTs);
     var mm=(d.getMonth()+1);
     var dd=d.getDate();
     var ageDays=(Date.now()-maxTs)/86400000;
-    // 주말·휴장을 감안해 3일 이상 뒤처지면 stale로 표시
-    return {text:mm+"/"+dd, stale:ageDays>3};
-  } catch(e) { return {text:"미확인", stale:true}; }
+    return {text:mm+"/"+dd, stale:ageDays>3, name:name};
+  } catch(e) { return {text:"미확인", stale:true, name:"지수"}; }
 }
 
 function findBenchAtOrBefore(hist, targetTs) {
@@ -2701,9 +2714,9 @@ function renderReturnsTable(key, tableId) {
     '<div style="display:flex;flex-direction:column;align-items:center;gap:4px;margin-top:8px">'+
       (function(){
         var bt=getBenchFetchTimeLabel();
-        var dt=getBenchDataLatestLabel();
+        var dt=getBenchDataLatestLabel(key);
         var mismatch = dt.stale;
-        var line1='<span style="font-size:11px;color:var(--muted)">새로고침 시각: '+bt.text+' · QQQ 데이터 최신일: '+dt.text+'</span>';
+        var line1='<span style="font-size:11px;color:var(--muted)">새로고침 시각: '+bt.text+' · '+dt.name+' 데이터 최신일: '+dt.text+'</span>';
         var line2 = mismatch ? '<span style="font-size:11px;color:#e65100;font-weight:700">⚠️ 데이터가 오래됐습니다 — 수동 새로고침을 눌러주세요</span>' : '<span style="font-size:11px;color:#2e7d32;font-weight:700">✓ 데이터 최신 확인됨</span>';
         return line1+line2;
       })()+
