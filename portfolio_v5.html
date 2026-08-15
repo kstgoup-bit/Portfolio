@@ -3243,7 +3243,7 @@ function renderDashboard() {
 
   // 추세선
   renderPeriodBtns("allPeriodBtns","allLineChart","all","#1565c0");
-  renderLineChart("3M","allPeriodBtns","allLineChart","all","#1565c0");
+  renderLineChart("1W","allPeriodBtns","allLineChart","all","#1565c0");
   renderRoadmap(allTV);
 }
 
@@ -3338,7 +3338,7 @@ function renderDomestic() {
   var g=calcGroup(domStocks,false);
   setCard("dom",g);
   renderPeriodBtns("domPeriodBtns","domLineChart","dom","#f57f17");
-  renderLineChart("3M","domPeriodBtns","domLineChart","dom","#f57f17");
+  renderLineChart("1W","domPeriodBtns","domLineChart","dom","#f57f17");
   renderPie("domPie","domLegend",domStocks,false);
   renderContribution("dom");
   renderStockList("domList","domCount","dom");
@@ -3364,7 +3364,7 @@ function renderOverseas() {
     up.className="vc-val"; up.style.color=usdPnl>=0?"#c62828":"#1565c0"; up.style.fontWeight="800";
   } else usdCard.style.display="none";
   renderPeriodBtns("ovPeriodBtns","ovLineChart","ov","#1565c0");
-  renderLineChart("3M","ovPeriodBtns","ovLineChart","ov","#1565c0");
+  renderLineChart("1W","ovPeriodBtns","ovLineChart","ov","#1565c0");
   renderPie("ovPie","ovLegend",ovStocks,true);
   renderContribution("ov");
   renderStockList("ovList","ovCount","ov");
@@ -3374,7 +3374,7 @@ function renderPension() {
   var g=calcGroup(penStocks,false);
   setCard("pen",g);
   renderPeriodBtns("penPeriodBtns","penLineChart","pen","#6a1b9a");
-  renderLineChart("3M","penPeriodBtns","penLineChart","pen","#6a1b9a");
+  renderLineChart("1W","penPeriodBtns","penLineChart","pen","#6a1b9a");
   renderPie("penPie","penLegend",penStocks,false);
   renderContribution("pen");
   renderStockList("penList","penCount","pen");
@@ -3893,7 +3893,7 @@ function renderPie(svgId, legendId, stocks, isUS) {
 // 추세선 차트
 // =============================================
 var PERIODS = [{k:"1W",l:"1주",d:7},{k:"1M",l:"1달",d:30},{k:"3M",l:"3달",d:90},{k:"6M",l:"6달",d:180},{k:"9M",l:"9달",d:270},{k:"1Y",l:"1년",d:365},{k:"2Y",l:"2년",d:730},{k:"3Y",l:"3년",d:1095},{k:"4Y",l:"4년",d:1460},{k:"5Y",l:"🎯5년",d:1825}];
-var currentPeriods = {allPeriodBtns:"3M",domPeriodBtns:"3M",ovPeriodBtns:"3M",penPeriodBtns:"3M"};
+var currentPeriods = {allPeriodBtns:"1W",domPeriodBtns:"1W",ovPeriodBtns:"1W",penPeriodBtns:"1W"};
 
 function renderPeriodBtns(btnId, chartId, snapKey, color, selectedDate) {
   var el=document.getElementById(btnId);
