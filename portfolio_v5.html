@@ -658,6 +658,11 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
     <div class="period-btns" id="allPeriodBtns"></div>
 
     <svg id="allLineChart" viewBox="0 0 340 170" style="width:100%"></svg>
+    <div style="display:flex;justify-content:center;gap:14px;margin-top:4px;flex-wrap:wrap">
+      <span style="font-size:10px;color:#546e7a"><span style="display:inline-block;width:14px;height:2px;background:#1565c0;vertical-align:middle;margin-right:3px"></span>평가금액</span>
+      <span style="font-size:10px;color:#78909c"><span style="display:inline-block;width:14px;height:2px;background:#90a4ae;vertical-align:middle;margin-right:3px;border-top:2px dashed #90a4ae"></span>매수금</span>
+      <span style="font-size:10px;color:#2e7d32"><span style="display:inline-block;width:14px;height:2px;background:#2e7d32;vertical-align:middle;margin-right:3px;border-top:2px dashed #2e7d32"></span>코스피200 20%+QQQ 80%</span>
+    </div>
     <button class="record-btn" onclick="recordSnap('all')">📸 오늘 전체 자산 기록</button>
   </div>
   <div class="card" id="allReturnsCard" style="margin-top:14px">
@@ -715,6 +720,11 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
     <div class="period-btns" id="domPeriodBtns"></div>
 
     <svg id="domLineChart" viewBox="0 0 340 170" style="width:100%"></svg>
+    <div style="display:flex;justify-content:center;gap:14px;margin-top:4px;flex-wrap:wrap">
+      <span style="font-size:10px;color:#546e7a"><span style="display:inline-block;width:14px;height:2px;background:#f57f17;vertical-align:middle;margin-right:3px"></span>평가금액</span>
+      <span style="font-size:10px;color:#78909c"><span style="display:inline-block;width:14px;height:2px;background:#90a4ae;vertical-align:middle;margin-right:3px;border-top:2px dashed #90a4ae"></span>매수금</span>
+      <span style="font-size:10px;color:#2e7d32"><span style="display:inline-block;width:14px;height:2px;background:#2e7d32;vertical-align:middle;margin-right:3px;border-top:2px dashed #2e7d32"></span>코스피200</span>
+    </div>
     <div style="display:flex;gap:8px">
       <button class="record-btn" style="background:#fff;border:1px solid var(--yellow-border);color:var(--yellow-accent);flex:1" onclick="addDeposit('dom')">💰 국내 입금 기록</button>
       <button class="record-btn" style="background:var(--yellow-card);border-color:var(--yellow-border);color:var(--yellow-accent);flex:1" onclick="recordSnap('dom')">📸 국내 자산 기록</button>
@@ -785,6 +795,11 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
     <div class="period-btns" id="ovPeriodBtns"></div>
 
     <svg id="ovLineChart" viewBox="0 0 340 170" style="width:100%"></svg>
+    <div style="display:flex;justify-content:center;gap:14px;margin-top:4px;flex-wrap:wrap">
+      <span style="font-size:10px;color:#546e7a"><span style="display:inline-block;width:14px;height:2px;background:#1565c0;vertical-align:middle;margin-right:3px"></span>평가금액</span>
+      <span style="font-size:10px;color:#78909c"><span style="display:inline-block;width:14px;height:2px;background:#90a4ae;vertical-align:middle;margin-right:3px;border-top:2px dashed #90a4ae"></span>매수금</span>
+      <span style="font-size:10px;color:#2e7d32"><span style="display:inline-block;width:14px;height:2px;background:#2e7d32;vertical-align:middle;margin-right:3px;border-top:2px dashed #2e7d32"></span>QQQ</span>
+    </div>
     <div style="display:flex;gap:8px">
       <button class="record-btn" style="background:#fff;border:1px solid var(--border);color:var(--blue);flex:1" onclick="addDeposit('ov')">💰 해외 입금 기록</button>
       <button class="record-btn" style="flex:1" onclick="recordSnap('ov')">📸 해외 자산 기록</button>
@@ -839,6 +854,11 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
     <div class="period-btns" id="penPeriodBtns"></div>
 
     <svg id="penLineChart" viewBox="0 0 340 170" style="width:100%"></svg>
+    <div style="display:flex;justify-content:center;gap:14px;margin-top:4px;flex-wrap:wrap">
+      <span style="font-size:10px;color:#546e7a"><span style="display:inline-block;width:14px;height:2px;background:#6a1b9a;vertical-align:middle;margin-right:3px"></span>평가금액</span>
+      <span style="font-size:10px;color:#78909c"><span style="display:inline-block;width:14px;height:2px;background:#90a4ae;vertical-align:middle;margin-right:3px;border-top:2px dashed #90a4ae"></span>매수금</span>
+      <span style="font-size:10px;color:#2e7d32"><span style="display:inline-block;width:14px;height:2px;background:#2e7d32;vertical-align:middle;margin-right:3px;border-top:2px dashed #2e7d32"></span>QQQ</span>
+    </div>
     <div style="display:flex;gap:8px">
       <button class="record-btn" style="background:#fff;border:1px solid #ce93d8;color:var(--purple);flex:1" onclick="addDeposit('pen')">💰 연금 입금 기록</button>
       <button class="record-btn" style="background:var(--purple-light);border-color:#ce93d8;color:var(--purple);flex:1" onclick="recordSnap('pen')">📸 연금 자산 기록</button>
@@ -3898,6 +3918,39 @@ function renderLineChartFromDate(pickerId, chartId, snapKey, color) {
   renderLineChart('CUSTOM','allPeriodBtns',chartId,snapKey,color);
 }
 
+function getBenchmarkSeriesForChart(snapKey, pts) {
+  if (!pts || pts.length<2) return null;
+  var t0 = pts[0].ts;
+  function priceAt(hist, ts) {
+    var p = findBenchAtOrBefore(hist, ts);
+    return p ? p.close : null;
+  }
+  if (snapKey==="dom") {
+    var ks0=priceAt(benchmarkHistory.KS200, t0);
+    if (!ks0) return null;
+    return pts.map(function(d){
+      var ks=priceAt(benchmarkHistory.KS200, d.ts);
+      return ks!=null ? pts[0].val*(ks/ks0) : null;
+    });
+  } else if (snapKey==="ov" || snapKey==="pen") {
+    var nd0=priceAt(benchmarkHistory.NDX, t0);
+    if (!nd0) return null;
+    return pts.map(function(d){
+      var nd=priceAt(benchmarkHistory.NDX, d.ts);
+      return nd!=null ? pts[0].val*(nd/nd0) : null;
+    });
+  } else {
+    var ks0=priceAt(benchmarkHistory.KS200, t0), nd0=priceAt(benchmarkHistory.NDX, t0);
+    if (!ks0 || !nd0) return null;
+    return pts.map(function(d){
+      var ks=priceAt(benchmarkHistory.KS200, d.ts), nd=priceAt(benchmarkHistory.NDX, d.ts);
+      if (ks==null || nd==null) return null;
+      var blendR = (ks-ks0)/ks0*0.2 + (nd-nd0)/nd0*0.8;
+      return pts[0].val*(1+blendR);
+    });
+  }
+}
+
 function renderLineChart(period, btnId, chartId, snapKey, color) {
   if(period!=='CUSTOM'){
     ['allDatePicker','domDatePicker','ovDatePicker','penDatePicker'].forEach(function(id){var p=document.getElementById(id);if(p)p.value='';});
@@ -3953,7 +4006,11 @@ function renderLineChart(period, btnId, chartId, snapKey, color) {
   }
   var costs=pts.map(function(d){return d.cost||curCost;});
   var hasCost=curCost>0;
+  var benchSeries=getBenchmarkSeriesForChart(snapKey, pts);
+  var BENCH_NAMES={all:"코스피200 20%+QQQ 80%",dom:"코스피200",ov:"QQQ",pen:"QQQ"};
+  var benchName=BENCH_NAMES[snapKey]||"기준지수";
   var allVals=hasCost?vals.concat(costs):vals;
+  if (benchSeries) allVals=allVals.concat(benchSeries.filter(function(v){return v!=null;}));
   var minV=Math.min.apply(null,allVals), maxV=Math.max.apply(null,allVals);
   var range=maxV-minV||maxV*0.05||1;
   var L=40,R=10,T=20,B=35,W=340,H=170,cW=W-L-R,cH=H-T-B;
@@ -4029,6 +4086,19 @@ function renderLineChart(period, btnId, chartId, snapKey, color) {
       return '<path d="'+costD+'" fill="none" stroke="#90a4ae" stroke-width="1.8" stroke-dasharray="5,3" stroke-linejoin="round"/>'+
         costDots+
         '<text x="'+(costCoords[costCoords.length-1][0]-4)+'" y="'+(costCoords[costCoords.length-1][1]-6)+'" font-size="8" fill="#78909c" font-weight="700" text-anchor="end">매수금</text>';
+    })():"")+
+    (benchSeries?(function(){
+      var benchCoords=[];
+      for(var i=0;i<pts.length;i++){
+        if(benchSeries[i]==null) continue;
+        benchCoords.push([L+i/(pts.length-1)*cW, T+cH-(cH*((benchSeries[i]-minV)/range))]);
+      }
+      if(benchCoords.length<2) return '';
+      var benchD=benchCoords.map(function(c,i){return (i===0?"M":"L")+c[0].toFixed(1)+","+c[1].toFixed(1);}).join(" ");
+      var lastBC=benchCoords[benchCoords.length-1];
+      return '<path d="'+benchD+'" fill="none" stroke="#2e7d32" stroke-width="1.8" stroke-dasharray="2,3" stroke-linejoin="round"/>'+
+        '<circle cx="'+lastBC[0].toFixed(1)+'" cy="'+lastBC[1].toFixed(1)+'" r="2.5" fill="#2e7d32" stroke="white" stroke-width="1"/>'+
+        '<text x="'+(lastBC[0]-4)+'" y="'+(lastBC[1]-6)+'" font-size="8" fill="#2e7d32" font-weight="700" text-anchor="end">'+benchName+'</text>';
     })():"")+(pts.length<=10?coords.map(function(c){return '<circle cx="'+c[0].toFixed(1)+'" cy="'+c[1].toFixed(1)+'" r="2.5" fill="'+color+'" stroke="white" stroke-width="1"/>';}).join(""):"") +
     '<circle cx="'+lx.toFixed(1)+'" cy="'+ly.toFixed(1)+'" r="4" fill="'+color+'" stroke="white" stroke-width="2"/>'+
     xLabels+
