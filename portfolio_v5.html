@@ -2368,6 +2368,7 @@ function fetchBenchmarkHistory(force) {
   if (hasValidCache && cached.fetchedAt===today && !force) {
     benchmarkHistory={KS200:cached.KS200||[], NDX:cached.QQQ||[]};
     renderAllReturnsTables();
+    refreshAllLineCharts();
     return;
   }
   var syms=[{sym:"069500.KS",id:"KS200"},{sym:"QQQ",id:"QQQ"}];
@@ -2408,6 +2409,7 @@ function fetchBenchmarkHistory(force) {
       benchmarkHistory={KS200:results.KS200, NDX:results.QQQ};
       try{ localStorage.setItem("v5_benchHist", JSON.stringify(results)); }catch(e){}
       renderAllReturnsTables();
+      refreshAllLineCharts();
     });
   });
 }
@@ -3918,6 +3920,19 @@ function renderLineChartFromDate(pickerId, chartId, snapKey, color) {
   renderLineChart('CUSTOM','allPeriodBtns',chartId,snapKey,color);
 }
 
+function refreshAllLineCharts() {
+  var map=[
+    {btnId:"allPeriodBtns", chartId:"allLineChart", snapKey:"all", color:"#1565c0"},
+    {btnId:"domPeriodBtns", chartId:"domLineChart", snapKey:"dom", color:"#f57f17"},
+    {btnId:"ovPeriodBtns", chartId:"ovLineChart", snapKey:"ov", color:"#1565c0"},
+    {btnId:"penPeriodBtns", chartId:"penLineChart", snapKey:"pen", color:"#6a1b9a"}
+  ];
+  map.forEach(function(m){
+    var period=currentPeriods[m.btnId]||"1W";
+    try { renderLineChart(period, m.btnId, m.chartId, m.snapKey, m.color); } catch(e){}
+  });
+}
+
 function getBenchmarkSeriesForChart(snapKey, pts) {
   if (!pts || pts.length<2) return null;
   var t0 = pts[0].ts;
@@ -4084,8 +4099,7 @@ function renderLineChart(period, btnId, chartId, snapKey, color) {
       var costD=costCoords.map(function(c,i){return (i===0?"M":"L")+c[0].toFixed(1)+","+c[1].toFixed(1);}).join(" ");
       var costDots=costCoords.map(function(c){return '<circle cx="'+c[0].toFixed(1)+'" cy="'+c[1].toFixed(1)+'" r="2.5" fill="#90a4ae" stroke="white" stroke-width="1"/>';}).join("");
       return '<path d="'+costD+'" fill="none" stroke="#90a4ae" stroke-width="1.8" stroke-dasharray="5,3" stroke-linejoin="round"/>'+
-        costDots+
-        '<text x="'+(costCoords[costCoords.length-1][0]-4)+'" y="'+(costCoords[costCoords.length-1][1]-6)+'" font-size="8" fill="#78909c" font-weight="700" text-anchor="end">매수금</text>';
+        costDots;
     })():"")+
     (benchSeries?(function(){
       var benchCoords=[];
@@ -4097,8 +4111,7 @@ function renderLineChart(period, btnId, chartId, snapKey, color) {
       var benchD=benchCoords.map(function(c,i){return (i===0?"M":"L")+c[0].toFixed(1)+","+c[1].toFixed(1);}).join(" ");
       var lastBC=benchCoords[benchCoords.length-1];
       return '<path d="'+benchD+'" fill="none" stroke="#2e7d32" stroke-width="1.8" stroke-dasharray="2,3" stroke-linejoin="round"/>'+
-        '<circle cx="'+lastBC[0].toFixed(1)+'" cy="'+lastBC[1].toFixed(1)+'" r="2.5" fill="#2e7d32" stroke="white" stroke-width="1"/>'+
-        '<text x="'+(lastBC[0]-4)+'" y="'+(lastBC[1]-6)+'" font-size="8" fill="#2e7d32" font-weight="700" text-anchor="end">'+benchName+'</text>';
+        '<circle cx="'+lastBC[0].toFixed(1)+'" cy="'+lastBC[1].toFixed(1)+'" r="2.5" fill="#2e7d32" stroke="white" stroke-width="1"/>';
     })():"")+(pts.length<=10?coords.map(function(c){return '<circle cx="'+c[0].toFixed(1)+'" cy="'+c[1].toFixed(1)+'" r="2.5" fill="'+color+'" stroke="white" stroke-width="1"/>';}).join(""):"") +
     '<circle cx="'+lx.toFixed(1)+'" cy="'+ly.toFixed(1)+'" r="4" fill="'+color+'" stroke="white" stroke-width="2"/>'+
     xLabels+
