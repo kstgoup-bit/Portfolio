@@ -737,6 +737,7 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
   </div>
   <div class="pie-wrap"><svg id="domPie" viewBox="0 0 160 160" style="width:100%;max-width:200px"></svg></div>
   <div id="domLegend"></div>
+  <div class="card" id="domContribCard" style="margin-top:14px"></div>
   <div class="manage-hdr" style="margin-top:14px">
     <div style="font-size:13px;color:var(--muted)" id="domCount">0개</div>
     <button class="btn-add" style="background:var(--yellow-card);border-color:var(--yellow-border);color:var(--yellow-accent)" onclick="toggleAdd('dom')">+ 종목추가</button>
@@ -812,6 +813,7 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
   </div>
   <div class="pie-wrap"><svg id="ovPie" viewBox="0 0 160 160" style="width:100%;max-width:200px"></svg></div>
   <div id="ovLegend"></div>
+  <div class="card" id="ovContribCard" style="margin-top:14px"></div>
   <div class="manage-hdr" style="margin-top:14px">
     <div style="font-size:13px;color:var(--muted)" id="ovCount">0개</div>
     <button class="btn-add" onclick="toggleAdd('ov')">+ 종목추가</button>
@@ -871,6 +873,7 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
   </div>
   <div class="pie-wrap"><svg id="penPie" viewBox="0 0 160 160" style="width:100%;max-width:200px"></svg></div>
   <div id="penLegend"></div>
+  <div class="card" id="penContribCard" style="margin-top:14px"></div>
   <div class="manage-hdr" style="margin-top:14px">
     <div style="font-size:13px;color:var(--muted)" id="penCount">0개</div>
     <button class="btn-add" style="background:var(--purple-light);border-color:#ce93d8;color:var(--purple)" onclick="toggleAdd('pen')">+ 종목추가</button>
@@ -3276,12 +3279,68 @@ function renderRoadmap(allTV){
   el.innerHTML=html;
 }
 
+function renderContribution(type) {
+  var el=document.getElementById(type+"ContribCard");
+  if(!el) return;
+  var stocks = type==="dom"?domStocks:type==="ov"?ovStocks:type==="pen"?penStocks:[];
+  var isUS = type==="ov";
+  var fx = isUS ? (parseFloat(document.getElementById("usdKrw").value)||1370) : 1;
+  var active = stocks.filter(function(s){ return s.quantity>0 && s.avgPrice>0; });
+  if (!active.length) { el.innerHTML=''; return; }
+
+  var totalCost=0, totalPL=0;
+  var rows = active.map(function(s){
+    var cost = s.quantity*s.avgPrice*fx;
+    var value = s.quantity*(s.currentPrice>0?s.currentPrice:s.avgPrice)*fx;
+    var pl = value-cost;
+    totalCost += cost; totalPL += pl;
+    return {name:s.name, ticker:s.ticker, cost:cost, pl:pl};
+  });
+  if (totalCost<=0) { el.innerHTML=''; return; }
+  rows.forEach(function(r){ r.contribPct = r.pl/totalCost*100; });
+  rows.sort(function(a,b){ return a.contribPct-b.contribPct; });
+
+  var overallPct = totalPL/totalCost*100;
+  var watchTickers=["IONQ","JOBY"];
+  var watchRows = rows.filter(function(r){ return watchTickers.indexOf(r.ticker)>=0; });
+  var watchContrib = watchRows.reduce(function(s,r){return s+r.contribPct;},0);
+  var watchCost = watchRows.reduce(function(s,r){return s+r.cost;},0);
+  var watchPL = watchRows.reduce(function(s,r){return s+r.pl;},0);
+  var restReturnPct = (totalCost-watchCost>0) ? (totalPL-watchPL)/(totalCost-watchCost)*100 : null;
+
+  var rowsHtml = rows.map(function(r){
+    var isWatch = watchTickers.indexOf(r.ticker)>=0;
+    var color = r.contribPct>=0?"#c62828":"#1565c0";
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 8px;border-bottom:1px solid #f0f0f0'+(isWatch?';background:#fff8e1;border-radius:6px':'')+'">'+
+      '<span style="font-size:12px;font-weight:'+(isWatch?'800':'600')+';color:#333">'+(isWatch?'⭐ ':'')+r.name+' ('+r.ticker+')</span>'+
+      '<span style="font-size:12px;font-weight:800;color:'+color+'">'+(r.contribPct>=0?'+':'')+r.contribPct.toFixed(2)+'%p</span>'+
+    '</div>';
+  }).join('');
+
+  var summaryHtml='';
+  if (watchRows.length) {
+    summaryHtml = '<div style="background:#fff3e0;border-radius:10px;padding:12px;margin-top:10px;font-size:12px;line-height:1.8">'+
+      '<div style="font-weight:800;color:#e65100;margin-bottom:4px">⭐ IONQ+JOBY 기여도 분해</div>'+
+      '<div>합산 기여도: <b style="color:'+(watchContrib>=0?"#c62828":"#1565c0")+'">'+(watchContrib>=0?"+":"")+watchContrib.toFixed(2)+'%p</b></div>'+
+      '<div>전체 누적 수익률: <b>'+(overallPct>=0?"+":"")+overallPct.toFixed(2)+'%</b></div>'+
+      (restReturnPct!=null?'<div>IONQ+JOBY 제외 시 나머지 종목 수익률: <b style="color:'+(restReturnPct>=0?"#c62828":"#1565c0")+'">'+(restReturnPct>=0?"+":"")+restReturnPct.toFixed(2)+'%</b> ← 이 숫자를 QQQ 수익률과 비교해보세요</div>':'')+
+    '</div>';
+  }
+
+  el.innerHTML =
+    '<div class="chart-title">🔍 기여도 분석</div>'+
+    '<div style="font-size:10px;color:var(--muted);margin-bottom:8px">각 종목이 전체 누적 수익률에 몇 %p를 보탰는지 (매수 시점부터 현재까지 누적 기준 — 위 차트 기간과는 다를 수 있음)</div>'+
+    rowsHtml+
+    summaryHtml;
+}
+
 function renderDomestic() {
   var g=calcGroup(domStocks,false);
   setCard("dom",g);
   renderPeriodBtns("domPeriodBtns","domLineChart","dom","#f57f17");
   renderLineChart("3M","domPeriodBtns","domLineChart","dom","#f57f17");
   renderPie("domPie","domLegend",domStocks,false);
+  renderContribution("dom");
   renderStockList("domList","domCount","dom");
 }
 
@@ -3307,6 +3366,7 @@ function renderOverseas() {
   renderPeriodBtns("ovPeriodBtns","ovLineChart","ov","#1565c0");
   renderLineChart("3M","ovPeriodBtns","ovLineChart","ov","#1565c0");
   renderPie("ovPie","ovLegend",ovStocks,true);
+  renderContribution("ov");
   renderStockList("ovList","ovCount","ov");
 }
 
@@ -3316,6 +3376,7 @@ function renderPension() {
   renderPeriodBtns("penPeriodBtns","penLineChart","pen","#6a1b9a");
   renderLineChart("3M","penPeriodBtns","penLineChart","pen","#6a1b9a");
   renderPie("penPie","penLegend",penStocks,false);
+  renderContribution("pen");
   renderStockList("penList","penCount","pen");
 }
 
@@ -4614,24 +4675,28 @@ var PRINCIPLE_KNOWLEDGE_TICKER={
     checkpoints:["첫 공개 분기 실적('26.8.4) 세부 내용","스타링크 가입자·매출 성장률","스타십 개발·안전 이슈 여부","AI(그록/X) 사업 매출 기여도"],
     maxWeight:5, buyChecklist:{business:true, earnings:false, funding:true},
     earningsDate:"", nextCheckDate:"2026-08-04"},
-  "JOBY":{thesis:"도심항공모빌리티(eVTOL) 상용화 초기 선두주자 베팅.",
-    logic:"FAA 인증 절차가 계획대로 진행되고 상업 서비스 출시가 지연되지 않는 한 유효. 아직 매출이 없는 고위험 종목.",
-    logicBreak:"FAA 인증 일정이 크게 지연되거나, 추가 유상증자가 어려워지거나, 경쟁사에 상용화 순서가 밀릴 때.",
+  "JOBY":{thesis:"도심항공모빌리티(eVTOL) 상용화 초기 선두주자 베팅. 1년 이상 보유 관점(장기 촉매 대기)으로 진입.",
+    logic:"FAA 인증 절차가 계획대로 진행되고 상업 서비스 출시가 지연되지 않는 한 유효. 2026.5 기준 FAA Stage 4(최종 단계 직전) 진행 중이나 Joby측 15%·FAA측 6%만 완료된 초기 단계. 아직 매출은 BLADE 인수 사업이 대부분이고 자체 eVTOL 매출은 미미.",
+    logicBreak:"Type Certificate가 2027년 안에도 안 나오거나, 추가 유상증자로 지분희석이 심해지거나, 경쟁사(Archer 등)에 상용화 순서가 밀릴 때.",
     role:"option", survivalScore:35, confidence:2, logicState:"weakened",
-    sellCondition:"FAA 인증이 무기한 지연되거나 자금조달이 사실상 불가능해질 때 전량 매도.",
+    sellCondition:"FAA Type Certificate가 2027년 말까지도 안 나오거나 자금조달이 사실상 불가능해질 때 전량 매도.",
     reduceCondition:"주가 급등(+50% 이상) 시 일부 차익실현.",
-    buyMoreCondition:"인증 마일스톤 통과 등 명확한 호재 확인 전까지 추가매수 지양.",
-    checkpoints:["FAA 인증 진행 상황(단계별)","상업 서비스 출시 일정 준수 여부","현금 소진율 및 잔여 현금","추가 자금조달(유상증자) 여부"],
-    maxWeight:5, buyChecklist:{business:true, earnings:false, funding:false}},
-  "IONQ":{thesis:"양자컴퓨팅 상용화 초기 선두기업(트랩드 이온 방식) 베팅.",
-    logic:"큐비트 품질 개선이 로드맵대로 진행되고 정부·기업 파트너십이 확대되는 한 유효. 매출 대비 시총이 극히 높은 고위험 종목.",
-    logicBreak:"기술 로드맵 지연이 공식화되거나, 경쟁사 대비 기술격차가 벌어지거나, 추가 자금조달 없이 운영이 어려운 재무상태가 될 때.",
-    role:"option", survivalScore:30, confidence:2, logicState:"weakened",
-    sellCondition:"기술 로드맵이 공식적으로 실패하거나 자금난이 확인될 때 전량 매도.",
-    reduceCondition:"주가 급등 시 일부 차익실현.",
-    buyMoreCondition:"실질적 매출 계약 확대 등 펀더멘털 개선 전까지 추가매수 지양.",
-    checkpoints:["큐비트 성능·오류율 개선 지표","정부·기업 파트너십 신규 계약","현금 잔고 및 소진율","경쟁사 대비 기술 로드맵 격차"],
-    maxWeight:5, buyChecklist:{business:true, earnings:false, funding:false}},
+    buyMoreCondition:"FAA Stage 5(최종 인증) 통과 등 명확한 규제 마일스톤 통과 전까지 추가매수 지양.",
+    checkpoints:["FAA Type Certificate 발급 여부(목표 2026년말~2027년초, 지연 시 후순위 매도 검토 강화)","상업 서비스(두바이 또는 미국) 실제 출시 여부","2027년 자체 eVTOL 매출 발생 여부(2026년은 BLADE 매출이 대부분)","현금 소진율 및 잔여 현금"],
+    maxWeight:5, buyChecklist:{business:true, earnings:false, funding:false},
+    nextCheckDate:"2027-08-15",
+    holdRationale:"1년 이상 보고 보유 중인 장기 촉매 베팅. 벤치마크(QQQ) 대비 언더퍼폼이 이 종목 때문이라는 설명이 유효하려면, 2027-08-15 재점검 시점에 FAA 인증 마일스톤이 실제로 진전됐는지가 핵심 증거가 되어야 함. 진전 없이 언더퍼폼만 지속되면 보유 논리 재검토."},
+  "IONQ":{thesis:"양자컴퓨팅 상용화 선두기업(트랩드 이온 방식) 베팅. 1년 이상 보유 관점으로 진입했으나, 최근 펀더멘털이 빠르게 개선 중.",
+    logic:"2026.8 발표 2Q26 실적에서 매출 8,010만달러(+287% YoY), 5분기 연속 매출 신기록, 2026년 매출가이던스 2.8~2.9억달러로 상향. RPO(수주잔고)는 4.85억달러(+297% YoY)로 성장 가시성 높음. SkyWater 인수로 반도체 파운드리까지 수직계열화. 다만 조정EBITDA 손실은 1.203억달러로 확대 중 — 아직 적자.",
+    logicBreak:"분기 매출 성장률이 뚜렷하게 꺾이거나(예: 100% 밑으로), 256큐비트 시스템 상용화(2027년 상반기 목표)가 무기한 지연되거나, 추가 대규모 증자로 지분희석이 심해질 때.",
+    role:"option", survivalScore:45, confidence:3, logicState:"maintained",
+    sellCondition:"매출 성장률이 구조적으로 꺾이는 신호(2분기 연속 가이던스 미달)가 확인될 때 전량 매도 검토.",
+    reduceCondition:"주가 급등(+80% 이상) 시 일부 차익실현.",
+    buyMoreCondition:"256큐비트 시스템 상용화 등 실질 매출 확대가 재확인되면 분할 추가매수 검토.",
+    checkpoints:["분기 매출 성장률(현재 287% YoY, 100%대 유지되는지)","RPO(수주잔고) 증가 추세","256큐비트 시스템 2027년 상반기 상용화 진행 상황","조정EBITDA 손실 축소 추세(현재 확대 중)","SkyWater 통합 시너지 확인"],
+    maxWeight:5, buyChecklist:{business:true, earnings:true, funding:false},
+    nextCheckDate:"2027-08-15",
+    holdRationale:"1년 이상 보고 보유 중인 장기 베팅이나, JOBY와 달리 이미 매출이 3자릿수 성장 중인 단계로 진입 — '아직 때가 안 됐다'는 설명의 설득력이 JOBY보다 높음. 다만 여전히 적자 상태라 밸류에이션 리스크는 존재. 2027-08-15 재점검 시 매출 성장률 유지 여부가 핵심 증거."},
   "SATL":{thesis:"위성 이미징·우주 인프라 테마 베팅.",
     logic:"위성 데이터 수요(정부·상업) 확대와 계약 수주가 이어지는 한 유효.",
     logicBreak:"주요 고객 계약이 갱신되지 않거나 매출 성장이 뚜렷하게 정체될 때. (이미 원금회수 완료, 일부 익절 검토 대상으로 메모된 종목)",
