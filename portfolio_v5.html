@@ -3940,29 +3940,49 @@ function getBenchmarkSeriesForChart(snapKey, pts) {
     var p = findBenchAtOrBefore(hist, ts);
     return p ? p.close : null;
   }
-  if (snapKey==="dom") {
-    var ks0=priceAt(benchmarkHistory.KS200, t0);
-    if (!ks0) return null;
-    return pts.map(function(d){
-      var ks=priceAt(benchmarkHistory.KS200, d.ts);
-      return ks!=null ? pts[0].val*(ks/ks0) : null;
+
+  // 현금흐름: 시작시점의 기초 평가금액 + 그 이후 발생한 실제 입금(들)
+  // → "같은 돈을, 같은 타이밍에 벤치마크에 넣었다면"을 재현 (Modified Dietz와 동일 원리)
+  var flows=[{ts:t0, amount:pts[0].val}];
+  var depKeys = snapKey==="all" ? ["dom","ov","pen"] : [snapKey];
+  depKeys.forEach(function(k){
+    (getDepositsForKey(k)||[]).forEach(function(d){
+      if (d.ts>t0 && d.ts<=pts[pts.length-1].ts) flows.push({ts:d.ts, amount:d.amount});
     });
-  } else if (snapKey==="ov" || snapKey==="pen") {
-    var nd0=priceAt(benchmarkHistory.NDX, t0);
-    if (!nd0) return null;
-    return pts.map(function(d){
-      var nd=priceAt(benchmarkHistory.NDX, d.ts);
-      return nd!=null ? pts[0].val*(nd/nd0) : null;
+  });
+  flows.sort(function(a,b){return a.ts-b.ts;});
+
+  if (snapKey==="dom" || snapKey==="ov" || snapKey==="pen") {
+    var hist = snapKey==="dom" ? benchmarkHistory.KS200 : benchmarkHistory.NDX;
+    var anyMissing=false;
+    var series = pts.map(function(d){
+      var val=0;
+      for (var i=0;i<flows.length;i++){
+        var f=flows[i];
+        if (f.ts>d.ts) continue;
+        var p0=priceAt(hist, f.ts), pT=priceAt(hist, d.ts);
+        if (p0==null || pT==null) { anyMissing=true; continue; }
+        val += f.amount*(pT/p0);
+      }
+      return val;
     });
+    return anyMissing && series.every(function(v){return v===0;}) ? null : series;
   } else {
-    var ks0=priceAt(benchmarkHistory.KS200, t0), nd0=priceAt(benchmarkHistory.NDX, t0);
-    if (!ks0 || !nd0) return null;
-    return pts.map(function(d){
-      var ks=priceAt(benchmarkHistory.KS200, d.ts), nd=priceAt(benchmarkHistory.NDX, d.ts);
-      if (ks==null || nd==null) return null;
-      var blendR = (ks-ks0)/ks0*0.2 + (nd-nd0)/nd0*0.8;
-      return pts[0].val*(1+blendR);
+    // all: 코스피200 20% + QQQ 80% 블렌드, 유입액도 같은 비율로 나눠 각 지수에 투입
+    var anyMissing2=false;
+    var series2 = pts.map(function(d){
+      var val=0;
+      for (var i=0;i<flows.length;i++){
+        var f=flows[i];
+        if (f.ts>d.ts) continue;
+        var ks0=priceAt(benchmarkHistory.KS200, f.ts), ksT=priceAt(benchmarkHistory.KS200, d.ts);
+        var nd0=priceAt(benchmarkHistory.NDX, f.ts), ndT=priceAt(benchmarkHistory.NDX, d.ts);
+        if (ks0==null||ksT==null||nd0==null||ndT==null) { anyMissing2=true; continue; }
+        val += f.amount*0.2*(ksT/ks0) + f.amount*0.8*(ndT/nd0);
+      }
+      return val;
     });
+    return anyMissing2 && series2.every(function(v){return v===0;}) ? null : series2;
   }
 }
 
