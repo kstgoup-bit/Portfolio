@@ -2116,6 +2116,14 @@ const COMMANDMENTS = [
 var domStocks=[], ovStocks=[], penStocks=[], divList=[], gasUrl="", snapshots={all:[],dom:[],ov:[],pen:[]};
 var deposits={dom:[],ov:[],pen:[]};
 var benchmarkHistory={KS200:[],NDX:[]};
+function loadBenchmarkCacheSync() {
+  try {
+    var cached=JSON.parse(localStorage.getItem("v5_benchHist")||"null");
+    if (cached && cached.KS200 && cached.QQQ) {
+      benchmarkHistory={KS200:cached.KS200||[], NDX:cached.QQQ||[]};
+    }
+  } catch(e){}
+}
 var balGoals={all:80, dom:80, ov:80, pen:80};
 var editingId=null, editingType=null, failCount=0, lockUntil=0;
 // 종목별 별칭 (재미 해석 기반) - 전역
@@ -6829,6 +6837,7 @@ window.addEventListener("load", function() {
   }
   // 데이터 로드
   load();
+  loadBenchmarkCacheSync();
   renderAll();
   fetchBenchmarkHistory(true);
   // 환율/국내/미국 자동갱신 + 완료 후 자산 자동기록
