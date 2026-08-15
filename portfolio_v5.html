@@ -802,6 +802,7 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
       <span style="font-size:10px;color:#2e7d32"><span style="display:inline-block;width:14px;height:2px;background:#2e7d32;vertical-align:middle;margin-right:3px;border-top:2px dashed #2e7d32"></span>QQQ</span>
       <span style="font-size:10px;color:#ef6c00"><span style="display:inline-block;width:14px;height:2px;background:#ef6c00;vertical-align:middle;margin-right:3px;border-top:2px dashed #ef6c00"></span>S&P500</span>
     </div>
+    <div id="ovSpyStatus" style="text-align:center;margin-top:4px"></div>
     <div style="display:flex;gap:8px">
       <button class="record-btn" style="background:#fff;border:1px solid var(--border);color:var(--blue);flex:1" onclick="addDeposit('ov')">💰 해외 입금 기록</button>
       <button class="record-btn" style="flex:1" onclick="recordSnap('ov')">📸 해외 자산 기록</button>
@@ -4130,6 +4131,16 @@ function renderLineChart(period, btnId, chartId, snapKey, color) {
   var BENCH_NAMES={all:"코스피200 20%+QQQ 80%",dom:"코스피200",ov:"QQQ",pen:"QQQ"};
   var benchName=BENCH_NAMES[snapKey]||"기준지수";
   var spySeries = snapKey==="ov" ? getSP500SeriesForChart(pts) : null;
+  if (snapKey==="ov") {
+    var spyStatusEl=document.getElementById("ovSpyStatus");
+    if (spyStatusEl) {
+      if (spySeries) {
+        spyStatusEl.innerHTML='';
+      } else {
+        spyStatusEl.innerHTML='<span style="font-size:10px;color:#e65100">⚠️ S&P500 데이터를 못 가져왔습니다 — <a href="#" onclick="fetchBenchmarkHistory(true);return false;" style="color:#ef6c00;text-decoration:underline">다시 시도</a></span>';
+      }
+    }
+  }
   var allVals=hasCost?vals.concat(costs):vals;
   if (benchSeries) allVals=allVals.concat(benchSeries.filter(function(v){return v!=null;}));
   if (spySeries) allVals=allVals.concat(spySeries.filter(function(v){return v!=null;}));
