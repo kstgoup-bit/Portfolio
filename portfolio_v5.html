@@ -608,7 +608,7 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
   <button class="tab" onclick="switchTab('principledash')">📋 종목분석</button>
   <button class="tab" onclick="switchTab('advisor')">🤖 AI자문</button>
   <button class="tab" onclick="switchTab('risk')">🌡️ 위험계</button>
-  <button class="tab" onclick="switchTab('commandments')">📜 13계명</button>
+  <button class="tab" onclick="switchTab('commandments')">📜 14계명</button>
   <button class="tab" onclick="switchTab('news')">📰 뉴스</button>
 </div>
 <div class="tabs sub-tabs" id="subtabs-asset" style="display:none">
@@ -981,7 +981,7 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
   <div class="cmd-header">
     <div style="font-size:32px;margin-bottom:8px">🎯</div>
     <div style="font-size:16px;font-weight:900;color:#fff">순태씨의 5년 10억 달성</div>
-    <div style="font-size:12px;color:#bbdefb;margin-top:4px">클로가 함께하는 13계명</div>
+    <div style="font-size:12px;color:#bbdefb;margin-top:4px">클로가 함께하는 14계명</div>
   </div>
   <div id="cmdList"></div>
 </div>
@@ -2111,7 +2111,8 @@ const COMMANDMENTS = [
   {num:10,icon:"💡",title:"세금을 전략으로 활용하라",desc:"연금계좌(IRP·연금저축)는 세액공제+과세이연이라는 강력한 무기다. 연간 납입 한도를 채우는 것이 수익률을 높이는 가장 확실한 방법이다."},
   {num:11,icon:"💪",title:"우량주가 비상금이다",desc:"갑작스러운 지출 대비 500~1,000만원은 파킹통장에 보관하라. 나머지 여유자금은 시장지수 ETF(QTOP·TIME) 또는 우량주(MSFT·GOOGL·AAPL)로 모아라. 우량주가 최고의 저장소다."},
   {num:12,icon:"✂️",title:"장기투자하되 종목에 따라 적절히 익절하라",desc:"레버리지·테마주·단기 급등주는 목표 수익률 도달 시 익절을 검토하라. 그러나 SPGI·MSCI·엔비디아 같은 우량주는 장기 투자하라. 익절은 종목 성격에 따라 달라야 한다."},
-  {num:13,icon:"🧠",title:"가격이 아닌 논리를 믿어라",desc:"주가가 아니라 기업과 산업의 논리를 본다. 논리가 살아 있으면 흔들리지 말고 모아라. 논리가 깨졌을 때만 과감히 조정한다."}
+  {num:13,icon:"🧠",title:"가격이 아닌 논리를 믿어라",desc:"주가가 아니라 기업과 산업의 논리를 본다. 논리가 살아 있으면 흔들리지 말고 모아라. 논리가 깨졌을 때만 과감히 조정한다."},
+  {num:14,icon:"🛡️",title:"방패는 덜 빠지는 것이다",desc:"방패는 우량주가 아니라, 폭락장에서 시장과 같이 안 빠지거나 덜 빠지는 자산이다. 현금성자산·금(ETF)만이 진짜 방패다. MSFT·GOOGL·QTOP 같은 빅테크·지수ETF는 아무리 우량해도 폭락장엔 함께 빠지는 창이다. 투자금의 10% 내외를 방패로 확보해 폭락장 저가매수 실탄으로 써라."}
 ];
 
 // =============================================
@@ -4411,7 +4412,8 @@ function renderEditForm(s, type) {
   var themeSelect='<select id="eth_'+type+'_'+s.id+'" onchange="saveThemeEdit(\''+s.ticker+'\',this.value)" style="flex:1;border:2px solid #ddd;border-radius:8px;padding:6px 4px;font-size:11px;font-weight:700;background:#fff;color:#333;cursor:pointer;height:36px">'+
     themeOptions.map(function(t){return '<option value="'+t+'"'+(t===curTheme?' selected':'')+'>'+t+'</option>';}).join('')+
   '</select>';
-  return '<div style="display:flex;gap:6px;margin-top:12px;margin-bottom:8px;align-items:center">'+
+  return '<div style="font-size:11px;color:#555;margin-top:10px;margin-bottom:4px;line-height:1.5">🛡 방패는 우량주가 아니라 <b>폭락장에서 덜 빠지는 자산</b>(현금성자산·금)만. 빅테크·지수ETF는 우량해도 ⚔️ 창입니다. (14계명)</div>'+
+    '<div style="display:flex;gap:6px;margin-bottom:8px;align-items:center">'+
     '<button id="rb_spear_'+type+'_'+s.id+'" class="role-btn'+(curRole==='spear'?' active-spear':'')+'" onclick="setRole(\'spear\','+s.id+',\''+type+'\')">⚔️ 창</button>'+
     '<button id="rb_shield_'+type+'_'+s.id+'" class="role-btn'+(curRole==='shield'?' active-shield':'')+'" onclick="setRole(\'shield\','+s.id+',\''+type+'\')">🛡 방패</button>'+
     themeSelect+
@@ -6141,7 +6143,7 @@ function renderCommandments() {
   COMMANDMENTS.forEach(function(c){
     html+='<div class="cmd-item"><div class="cmd-top"><div class="cmd-num">'+c.num+'</div><div class="cmd-title">'+c.icon+" "+c.title+'</div></div><div class="cmd-desc">'+c.desc+'</div></div>';
   });
-  html+='<div class="cmd-footer"><div style="font-size:24px;margin-bottom:8px">💪🎯</div><div style="font-size:14px;font-weight:800;color:#fff;margin-bottom:6px">클로가 응원합니다!</div><div style="font-size:11px;color:#bbdefb;line-height:1.7">이 13계명을 지키면서 매달 꾸준히 실천하면<br>5년 후 반드시 10억에 가까워져 있을 거예요.<br>순태 씨의 5년 여정을 클로가 함께할게요! 😊</div></div>';
+  html+='<div class="cmd-footer"><div style="font-size:24px;margin-bottom:8px">💪🎯</div><div style="font-size:14px;font-weight:800;color:#fff;margin-bottom:6px">클로가 응원합니다!</div><div style="font-size:11px;color:#bbdefb;line-height:1.7">이 14계명을 지키면서 매달 꾸준히 실천하면<br>5년 후 반드시 10억에 가까워져 있을 거예요.<br>순태 씨의 5년 여정을 클로가 함께할게요! 😊</div></div>';
   el.innerHTML=html;
 }
 
