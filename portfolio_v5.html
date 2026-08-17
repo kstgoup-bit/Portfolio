@@ -4416,7 +4416,7 @@ function renderEditForm(s, type) {
   var themeSelect='<select id="eth_'+type+'_'+s.id+'" onchange="saveThemeEdit(\''+s.ticker+'\',this.value)" style="flex:1;border:2px solid #ddd;border-radius:8px;padding:6px 4px;font-size:11px;font-weight:700;background:#fff;color:#333;cursor:pointer;height:36px">'+
     themeOptions.map(function(t){return '<option value="'+t+'"'+(t===curTheme?' selected':'')+'>'+t+'</option>';}).join('')+
   '</select>';
-  return '<div style="font-size:11px;color:#555;margin-top:10px;margin-bottom:4px;line-height:1.5">🛡 방패는 우량주가 아니라 <b>폭락장에서 덜 빠지는 자산</b>(현금성자산·금)만. 빅테크·지수ETF는 우량해도 ⚔️ 창입니다. (14계명)</div>'+
+  return '<div style="font-size:11px;color:#555;margin-top:10px;margin-bottom:4px;line-height:1.5">🛡 방패는 우량주가 아니라 <b>폭락장에서 안 빠지거나 덜 빠지는 자산</b>(현금성자산·금)만. 빅테크·지수ETF는 우량해도 ⚔️ 창입니다. (14계명)</div>'+
     '<div style="display:flex;gap:6px;margin-bottom:8px;align-items:center">'+
     '<button id="rb_spear_'+type+'_'+s.id+'" class="role-btn'+(curRole==='spear'?' active-spear':'')+'" onclick="setRole(\'spear\','+s.id+',\''+type+'\')">⚔️ 창</button>'+
     '<button id="rb_shield_'+type+'_'+s.id+'" class="role-btn'+(curRole==='shield'?' active-shield':'')+'" onclick="setRole(\'shield\','+s.id+',\''+type+'\')">🛡 방패</button>'+
@@ -5726,7 +5726,7 @@ function toggleCashAdd(type) {
   f.style.display="block";
   f.innerHTML='<div class="add-form">'+
     '<div style="font-size:12px;font-weight:800;color:#1565c0;margin-bottom:8px">🛡 현금성자산 추가 (파킹통장·CMA 등)</div>'+
-    '<div style="font-size:11px;color:#555;margin-bottom:8px;line-height:1.5">폭락장에서 덜 빠지는 진짜 방패로 창/방패 비율에 반영됩니다. (14계명)</div>'+
+    '<div style="font-size:11px;color:#555;margin-bottom:8px;line-height:1.5">폭락장에서 안 빠지거나 덜 빠지는 진짜 방패로 창/방패 비율에 반영됩니다. (14계명)</div>'+
     '<div class="f-lbl">자산명</div><input class="f-inp" id="acn_'+type+'" placeholder="예: 파킹통장, CMA">'+
     '<div class="f-lbl">보유금액(원)</div><input class="f-inp" type="number" id="acamt_'+type+'" placeholder="0">'+
     '<div class="f-btns">'+
