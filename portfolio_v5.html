@@ -740,9 +740,13 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
   <div class="card" id="domContribCard" style="margin-top:14px"></div>
   <div class="manage-hdr" style="margin-top:14px">
     <div style="font-size:13px;color:var(--muted)" id="domCount">0개</div>
+    <div style="display:flex;gap:8px">
     <button class="btn-add" style="background:var(--yellow-card);border-color:var(--yellow-border);color:var(--yellow-accent)" onclick="toggleAdd('dom')">+ 종목추가</button>
+    <button class="btn-add" style="background:#e3f2fd;border-color:#90caf9;color:#1565c0" onclick="toggleCashAdd('dom')">🛡 현금성자산 추가</button>
+    </div>
   </div>
   <div id="domAddForm" style="display:none"></div>
+  <div id="domCashAddForm" style="display:none"></div>
   <div id="domList"></div>
 </div>
 
@@ -5709,6 +5713,40 @@ function addStock(type) {
   utm[ticker]=theme;
   localStorage.setItem('v5_userThemeMap', JSON.stringify(utm));
   document.getElementById(type+"AddForm").style.display="none";
+  save(); renderAll();
+}
+
+// =============================================
+// 현금성자산 추가 (방패 전용, 14계명)
+// =============================================
+function toggleCashAdd(type) {
+  var fId=type+"CashAddForm";
+  var f=document.getElementById(fId);
+  if(f.style.display!=="none"&&f.innerHTML) { f.style.display="none"; return; }
+  f.style.display="block";
+  f.innerHTML='<div class="add-form">'+
+    '<div style="font-size:12px;font-weight:800;color:#1565c0;margin-bottom:8px">🛡 현금성자산 추가 (파킹통장·CMA 등)</div>'+
+    '<div style="font-size:11px;color:#555;margin-bottom:8px;line-height:1.5">폭락장에서 덜 빠지는 진짜 방패로 창/방패 비율에 반영됩니다. (14계명)</div>'+
+    '<div class="f-lbl">자산명</div><input class="f-inp" id="acn_'+type+'" placeholder="예: 파킹통장, CMA">'+
+    '<div class="f-lbl">보유금액(원)</div><input class="f-inp" type="number" id="acamt_'+type+'" placeholder="0">'+
+    '<div class="f-btns">'+
+    '<button class="btn-ok" onclick="addCashAsset(\''+type+'\')">추가</button>'+
+    '<button class="btn-cancel" onclick="toggleCashAdd(\''+type+'\')">취소</button>'+
+    '</div></div>';
+}
+
+function addCashAsset(type) {
+  var name=document.getElementById("acn_"+type).value.trim()||"현금성자산";
+  var amt=parseFloat(document.getElementById("acamt_"+type).value)||0;
+  if(amt<=0){alert("보유금액을 입력해주세요");return;}
+  var stocks=type==="dom"?domStocks:type==="ov"?ovStocks:penStocks;
+  var id=Math.max.apply(null,[0].concat(stocks.map(function(s){return s.id;}))) + 1;
+  var ticker="CASH"+id;
+  stocks.push({id:id,name:name,ticker:ticker,quantity:1,avgPrice:amt,currentPrice:amt,role:"shield"});
+  var utm=JSON.parse(localStorage.getItem('v5_userThemeMap')||'{}');
+  utm[ticker]="방어·금";
+  localStorage.setItem('v5_userThemeMap', JSON.stringify(utm));
+  document.getElementById(type+"CashAddForm").style.display="none";
   save(); renderAll();
 }
 
