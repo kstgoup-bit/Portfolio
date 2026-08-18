@@ -2972,19 +2972,31 @@ function renderDashboard() {
   });
 
   // 파이차트 (왼쪽) - 크기 키움, 비중 큰 순서대로 12시 방향부터 시계방향
-  var pieItems=items.slice().sort(function(a,b){return b.g.tv-a.g.tv;});
+  // 현금성자산(예수금+CMA)을 국내/해외/연금 값에서 분리해 별도 슬라이스로 표시 (파이차트 전용, 카드/막대는 원래 총액 유지)
+  var domCash=getDepositAmount("dom");
+  var ovCashUsd=getDepositAmount("ov"), ovCashKrw=ovCashUsd*rate;
+  var penCash=getDepositAmount("pen");
+  var cmaAmt=parseFloat(localStorage.getItem("v5_cma_amount")||"0")||0;
+  var totalCash=domCash+ovCashKrw+penCash+cmaAmt;
+  var pieItems=items.map(function(m){
+    var cashPart = m.label.indexOf("국내")>=0?domCash : m.label.indexOf("해외")>=0?ovCashKrw : penCash;
+    return {label:m.label, g:{tv:Math.max(m.g.tv-cashPart,0)}, color:m.color};
+  });
+  if (totalCash>0) pieItems.push({label:"💰 현금성자산", g:{tv:totalCash}, color:"#00897b"});
+  pieItems=pieItems.filter(function(m){return m.g.tv>0;}).sort(function(a,b){return b.g.tv-a.g.tv;});
+  var totalAllTVforPie=pieItems.reduce(function(s,m){return s+m.g.tv;},0);
   var cx=75,cy=75,r=60,ri=14;
   var pieSvg='<svg viewBox="0 0 150 150" style="width:150px;height:150px;filter:drop-shadow(0 3px 8px rgba(0,0,0,0.18))">'+
     '<defs><radialGradient id="dashHole" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#ffffff"/><stop offset="100%" stop-color="#f0f6ff"/></radialGradient></defs>';
   var cumAngle=-Math.PI/2;
   var slices=[];
   pieItems.forEach(function(m){
-    var angle=(m.g.tv/totalAllTV)*2*Math.PI;
+    var angle=(m.g.tv/totalAllTVforPie)*2*Math.PI;
     slices.push({m:m,startAngle:cumAngle,angle:angle,midAngle:cumAngle+angle/2});
     cumAngle+=angle;
   });
   // 비중 합계 100% 보정 - 가장 큰 조각이 보정값 흡수 (오차 최소화)
-  var rawPcts=slices.map(function(s){return Math.round((s.m.g.tv/totalAllTV)*100);});
+  var rawPcts=slices.map(function(s){return Math.round((s.m.g.tv/totalAllTVforPie)*100);});
   var pctSum=rawPcts.reduce(function(a,b){return a+b;},0);
   if(pctSum!==100){
     var maxIdx=rawPcts.reduce(function(mi,v,i){return v>rawPcts[mi]?i:mi;},0);
@@ -3001,7 +3013,7 @@ function renderDashboard() {
     if(s.angle>0.25){
       var tr=r*0.67;
       var tx=cx+tr*Math.cos(s.midAngle), ty=cy+tr*Math.sin(s.midAngle);
-      var shortName=s.m.label.replace(/🇰🇷 |🇺🇸 |🏦 /g,"");
+      var shortName=s.m.label.replace(/🇰🇷 |🇺🇸 |🏦 |💰 /g,"");
       pieSvg+='<text x="'+tx+'" y="'+(ty-4)+'" text-anchor="middle" font-size="10" fill="white" font-weight="800">'+shortName+'</text>';
       pieSvg+='<text x="'+tx+'" y="'+(ty+7)+'" text-anchor="middle" font-size="9" fill="white" font-weight="700">'+rawPcts[si]+'%</text>';
     }
@@ -3268,6 +3280,7 @@ function renderDashboard() {
       '<div style="text-align:center">'+
         '<div style="font-size:11px;color:var(--text);font-weight:900;margin-bottom:4px">자산 비중</div>'+
         pieSvg+
+        (totalCash>0?'<div style="font-size:9px;color:var(--muted);margin-top:2px">현금성자산 포함</div>':'')+
       '</div>'+
       '<div style="flex:1;text-align:center">'+
         '<div style="font-size:11px;color:var(--text);font-weight:900;margin-bottom:4px">수익률 비교</div>'+
