@@ -2977,7 +2977,7 @@ function renderDashboard() {
         '<div style="font-size:11px" class="'+(m.g.pnl>=0?"pos":"neg")+'">'+(m.g.pnl>=0?"+":"")+fmt(m.g.pnl)+'원</div>'+
       '</div></div>';
   });
-  cardsHtml+= totalCash>0 ? '<div style="font-size:15px;color:var(--muted);text-align:center;margin-top:4px">국내·해외·연금은 각 계좌 현금(예수금) 포함 금액입니다</div>' : '';
+  cardsHtml+= totalCash>0 ? '<div style="font-size:13px;color:var(--muted);text-align:center;margin-top:4px">국내·해외·연금은 각 계좌 현금(예수금) 포함 금액입니다</div>' : '';
 
   // 파이차트 (왼쪽) - 크기 키움, 비중 큰 순서대로 12시 방향부터 시계방향
   // 현금성자산(예수금+CMA)을 국내/해외/연금 값에서 분리해 별도 슬라이스로 표시 (파이차트 전용, 카드/막대는 원래 총액 유지)
