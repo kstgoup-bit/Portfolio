@@ -3372,8 +3372,10 @@ function renderAllCashSummary() {
   var el=document.getElementById("allCashCard");
   if(!el) return;
   var cma = parseFloat(localStorage.getItem("v5_cma_amount")||"0")||0;
-  var domDep=getDepositAmount("dom"), ovDep=getDepositAmount("ov"), penDep=getDepositAmount("pen");
-  var totalDep = domDep+ovDep+penDep;
+  var rate = getRate();
+  var domDep=getDepositAmount("dom"), ovDepUsd=getDepositAmount("ov"), penDep=getDepositAmount("pen");
+  var ovDepKrw = ovDepUsd*rate;
+  var totalDep = domDep+ovDepKrw+penDep;
   var total = cma+totalDep;
   el.innerHTML =
     '<div class="chart-title">💰 현금성 자산</div>'+
@@ -3389,7 +3391,7 @@ function renderAllCashSummary() {
       '<span style="font-size:13px;font-weight:700;color:#333">전체 예수금 (국내+해외+연금)</span>'+
       '<span style="font-size:13px;font-weight:800;color:#1565c0">'+fmt(totalDep)+'원</span>'+
     '</div>'+
-    '<div style="font-size:10px;color:var(--muted);margin-top:4px">예수금은 국내·해외·연금 각 탭에서 "💰 예수금" 버튼으로 입력하면 여기 자동 합산됩니다</div>'+
+    '<div style="font-size:10px;color:var(--muted);margin-top:4px">해외 예수금($'+ovDepUsd.toLocaleString()+' × '+rate+'원 = '+fmt(ovDepKrw)+'원)을 포함해 자동 합산됩니다</div>'+
     '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;margin-top:6px;border-top:2px solid #e0e0e0">'+
       '<span style="font-size:14px;font-weight:900;color:#333">합계</span>'+
       '<span style="font-size:15px;font-weight:900;color:#1565c0">'+fmt(total)+'원</span>'+
@@ -5809,15 +5811,20 @@ function toggleDepositAdd(type) {
   f.style.display="block";
   var noteHtml='<div style="font-size:11px;color:#555;margin-bottom:8px;line-height:1.5">종목을 매도하면 그 대금은 사라지는 게 아니라 계좌에 현금(예수금)으로 남습니다. 여기 반영해두면 매도 시점에 자산 변화율 차트가 뚝 끊기지 않고 매끄럽게 이어집니다. (14계명 — 방패)</div>';
   if (subs) {
+    var isUS = type==="ov";
+    var rate = getRate();
     var rows=subs.map(function(sub, idx){
       var ticker=getDepositTicker(type, sub);
       var cur=0;
       for (var i=0;i<stocks.length;i++){ if (stocks[i].ticker===ticker){ cur=stocks[i].currentPrice||0; break; } }
-      return '<div class="f-lbl">'+sub+' 예수금(원)</div><input class="f-inp" type="number" id="depamt_'+type+'_'+idx+'" placeholder="0" value="'+(cur||"")+'">';
+      var unit = isUS ? "($)" : "(원)";
+      var krwHint = isUS ? '<div style="font-size:10px;color:var(--muted);margin-top:2px" id="depkrw_'+type+'_'+idx+'">≈ '+fmt(cur*rate)+'원</div>' : '';
+      var oninput = isUS ? ' oninput="document.getElementById(\'depkrw_'+type+'_'+idx+'\').textContent=\'≈ \'+fmt((parseFloat(this.value)||0)*'+rate+')+\'원\'"' : '';
+      return '<div class="f-lbl">'+sub+' 예수금'+unit+'</div><input class="f-inp" type="number" id="depamt_'+type+'_'+idx+'" placeholder="0" value="'+(cur||"")+'"'+oninput+'>'+krwHint;
     }).join("");
     f.innerHTML='<div class="add-form">'+
       '<div style="font-size:12px;font-weight:800;color:#1565c0;margin-bottom:8px">💰 예수금 (증권사·계좌별)</div>'+
-      noteHtml+ rows+
+      noteHtml+ (isUS?'<div style="font-size:11px;color:#1565c0;margin-bottom:8px">💵 달러($)로 입력하면 원화로 자동 환산되어 반영됩니다 (현재 환율 1달러='+rate+'원)</div>':'') + rows+
       '<div class="f-btns">'+
       '<button class="btn-ok" onclick="setDeposit(\''+type+'\')">저장</button>'+
       '<button class="btn-cancel" onclick="toggleDepositAdd(\''+type+'\')">취소</button>'+
