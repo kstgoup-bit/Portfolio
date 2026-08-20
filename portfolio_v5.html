@@ -4147,19 +4147,19 @@ function buildCashFlows(snapKey, pts) {
 }
 
 function computeCashFlowSeries(pts, flows, hist) {
-  var anyMissing=false;
   var series = pts.map(function(d){
-    var val=0;
+    var val=0, anyFlowApplied=false;
     for (var i=0;i<flows.length;i++){
       var f=flows[i];
       if (f.ts>d.ts) continue;
       var p0=priceAtTs(hist, f.ts), pT=priceAtTs(hist, d.ts);
-      if (p0==null || pT==null) { anyMissing=true; continue; }
+      if (p0==null || pT==null) continue;
       val += f.amount*(pT/p0);
+      anyFlowApplied=true;
     }
-    return val;
+    return anyFlowApplied ? val : null;
   });
-  return anyMissing && series.every(function(v){return v===0;}) ? null : series;
+  return series.every(function(v){return v==null;}) ? null : series;
 }
 
 function getBenchmarkSeriesForChart(snapKey, pts) {
@@ -4171,20 +4171,20 @@ function getBenchmarkSeriesForChart(snapKey, pts) {
     return computeCashFlowSeries(pts, flows, hist);
   } else {
     // all: 코스피200 20% + QQQ 80% 블렌드, 유입액도 같은 비율로 나눠 각 지수에 투입
-    var anyMissing2=false;
     var series2 = pts.map(function(d){
-      var val=0;
+      var val=0, anyFlowApplied=false;
       for (var i=0;i<flows.length;i++){
         var f=flows[i];
         if (f.ts>d.ts) continue;
         var ks0=priceAtTs(benchmarkHistory.KS200, f.ts), ksT=priceAtTs(benchmarkHistory.KS200, d.ts);
         var nd0=priceAtTs(benchmarkHistory.NDX, f.ts), ndT=priceAtTs(benchmarkHistory.NDX, d.ts);
-        if (ks0==null||ksT==null||nd0==null||ndT==null) { anyMissing2=true; continue; }
+        if (ks0==null||ksT==null||nd0==null||ndT==null) continue;
         val += f.amount*0.2*(ksT/ks0) + f.amount*0.8*(ndT/nd0);
+        anyFlowApplied=true;
       }
-      return val;
+      return anyFlowApplied ? val : null;
     });
-    return anyMissing2 && series2.every(function(v){return v===0;}) ? null : series2;
+    return series2.every(function(v){return v==null;}) ? null : series2;
   }
 }
 
