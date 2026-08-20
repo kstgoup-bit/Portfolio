@@ -2166,6 +2166,23 @@ function load() {
   try { domStocks = JSON.parse(localStorage.getItem("v5_dom")) || DOM_INIT; } catch { domStocks=DOM_INIT; }
   try { ovStocks = JSON.parse(localStorage.getItem("v5_ov")) || OV_INIT; } catch { ovStocks=OV_INIT; }
   try { penStocks = JSON.parse(localStorage.getItem("v5_pen")) || PEN_INIT; } catch { penStocks=PEN_INIT; }
+  // 마이그레이션: 연금 예수금 라벨 변경(계좌1→세공, 계좌2→안세공)에 따른 기존 데이터 이전
+  (function migrateDepositLabels(){
+    var renameMap={"DEP_PEN_계좌1":"DEP_PEN_세공","DEP_PEN_계좌2":"DEP_PEN_안세공"};
+    var nameMap={"DEP_PEN_계좌1":"예수금(세공)","DEP_PEN_계좌2":"예수금(안세공)"};
+    var changed=false;
+    penStocks.forEach(function(s){
+      if (renameMap[s.ticker]) {
+        var oldTicker=s.ticker, newTicker=renameMap[oldTicker];
+        var utm=JSON.parse(localStorage.getItem('v5_userThemeMap')||'{}');
+        if (utm[oldTicker]) { utm[newTicker]=utm[oldTicker]; delete utm[oldTicker]; localStorage.setItem('v5_userThemeMap', JSON.stringify(utm)); }
+        s.name=nameMap[oldTicker]||s.name;
+        s.ticker=newTicker;
+        changed=true;
+      }
+    });
+    if (changed) { try { localStorage.setItem("v5_pen", JSON.stringify(penStocks)); } catch(e){} }
+  })();
   try { divList = JSON.parse(localStorage.getItem("v5_div")) || []; } catch { divList=[]; }
   try { snapshots = JSON.parse(localStorage.getItem("v5_snap")) || {all:[],dom:[],ov:[],pen:[]}; } catch { snapshots={all:[],dom:[],ov:[],pen:[]}; }
   try { deposits = JSON.parse(localStorage.getItem("v5_deposits")) || {dom:[],ov:[],pen:[]}; } catch { deposits={dom:[],ov:[],pen:[]}; }
@@ -4486,7 +4503,7 @@ function renderValGrid(s, isUS) {
 }
 
 function renderEditForm(s, type) {
-  var accts = type==="pen"?["계좌1","계좌2","IRP"]:["신한","KB","메리츠"];
+  var accts = type==="pen"?["세공","안세공","IRP"]:["신한","KB","메리츠"];
   var calcRows="";
   accts.forEach(function(name,n){
     var sv_q=localStorage.getItem("calc_q"+(n+1)+"_"+type+"_"+s.id)||"";
