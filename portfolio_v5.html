@@ -3117,7 +3117,7 @@ function renderDashboard() {
     if(s.angle>0.25){
       var tr=r*0.67;
       var tx=cx+tr*Math.cos(s.midAngle), ty=cy+tr*Math.sin(s.midAngle);
-      var shortName=s.m.label.replace(/🇰🇷 |🇺🇸 |🏦 |💰 /g,"");
+      var shortName=s.m.label.replace(/🇰🇷 |🇺🇸 |🏦 |💰 |💼 /g,"");
       pieSvg+='<text x="'+tx+'" y="'+(ty-4)+'" text-anchor="middle" font-size="10" fill="white" font-weight="800">'+shortName+'</text>';
       pieSvg+='<text x="'+tx+'" y="'+(ty+7)+'" text-anchor="middle" font-size="9" fill="white" font-weight="700">'+rawPcts[si]+'%</text>';
     }
@@ -3153,7 +3153,7 @@ function renderDashboard() {
       [colorRanks[0].color,colorRanks[1].color,colorRanks[2].color]:null;
     return {
       pct:m.g.pct||0,
-      label:m.label.replace(/🇰🇷 |🇺🇸 |🏦 /g,''),
+      label:m.label.replace(/🇰🇷 |🇺🇸 |🏦 |💼 /g,''),
       base:bc, light:cv.light, dark:cv.dark, mid:cv.mid||bc,
       isAll:m.color==='url(#allGrad)', gradColors:gradColors
     };
@@ -5933,7 +5933,7 @@ function addStock(type) {
 // 예수금 (계좌별 현금잔고, 15계명 중 14번 방패)
 // 국내: 단일 항목 / 해외: 신한·국민·매리츠 / 연금: 세공·안세공·IRP
 // =============================================
-var DEPOSIT_SUB_LABELS = { ov:["신한","국민","매리츠"], pen:["세공","안세공","IRP"] };
+var DEPOSIT_SUB_LABELS = { ov:["신한","국민","매리츠"], pen:["세공","안세공","IRP"], gen:["신한","국민","매리츠"] };
 
 function getDepositTicker(type, sub) {
   return sub ? "DEP_"+type.toUpperCase()+"_"+sub : "DEP_"+type.toUpperCase();
