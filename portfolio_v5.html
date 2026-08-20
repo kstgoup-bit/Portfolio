@@ -3426,7 +3426,7 @@ function toggleCmaEdit() {
   var cur=parseFloat(localStorage.getItem("v5_cma_amount")||"0")||0;
   f.style.display="block";
   f.innerHTML='<div class="add-form">'+
-    '<div class="f-lbl">CMA·파킹통장 등 보유금액(원)</div><input class="f-inp" type="number" id="cmaAmt" placeholder="0" value="'+(cur||"")+'">'+
+    '<div class="f-lbl">CMA·파킹통장 등 보유금액(원)</div><input class="f-inp" type="text" inputmode="numeric" id="cmaAmt" placeholder="0" value="'+(cur?Number(cur).toLocaleString("ko-KR"):"")+'" oninput="fmtAmtInp(this)">'+
     '<div class="f-btns">'+
     '<button class="btn-ok" onclick="saveCma()">저장</button>'+
     '<button class="btn-cancel" onclick="toggleCmaEdit()">취소</button>'+
@@ -3434,7 +3434,7 @@ function toggleCmaEdit() {
 }
 
 function saveCma() {
-  var amt=parseFloat(document.getElementById("cmaAmt").value)||0;
+  var amt=numVal(document.getElementById("cmaAmt").value);
   localStorage.setItem("v5_cma_amount", String(amt));
   document.getElementById("cmaEditForm").style.display="none";
   renderAllCashSummary();
@@ -4494,7 +4494,7 @@ function renderEditForm(s, type) {
     var amt=sv_q&&sv_p?Math.round(parseFloat(sv_q)*parseFloat(sv_p)).toLocaleString():"−";
     calcRows+='<div class="calc-row">'+
       '<input class="calc-inp" type="number" placeholder="'+name+' 수량" id="cq'+(n+1)+'_'+type+'_'+s.id+'" value="'+sv_q+'" oninput="calcAvg(\''+type+'\',\''+s.id+'\')">'+
-      '<input class="calc-inp" type="number" placeholder="단가" id="cp'+(n+1)+'_'+type+'_'+s.id+'" value="'+sv_p+'" oninput="calcAvg(\''+type+'\',\''+s.id+'\')">'+
+      '<input class="calc-inp" type="text" inputmode="decimal" placeholder="단가" id="cp'+(n+1)+'_'+type+'_'+s.id+'" value="'+sv_p+'" oninput="fmtDecInp(this);calcAvg(\''+type+'\',\''+s.id+'\')">'+
       '<div class="calc-amt" id="ca'+(n+1)+'_'+type+'_'+s.id+'">'+amt+'</div>'+
       '</div>';
   });
@@ -4517,8 +4517,8 @@ function renderEditForm(s, type) {
     '</div>'+
     '<div class="edit-grid3" style="margin-top:8px">'+
     '<div><label style="font-size:9px;color:var(--muted);display:block;margin-bottom:2px">수량</label><input type="number" style="width:100%;background:#fff;border:1px solid #90caf9;border-radius:6px;color:var(--text);padding:6px 8px;font-size:12px;font-family:monospace" id="eq_'+type+'_'+s.id+'" value="'+s.quantity+'"></div>'+
-    '<div><label style="font-size:9px;color:var(--muted);display:block;margin-bottom:2px">평균단가</label><input type="number" style="width:100%;background:#fff;border:1px solid #90caf9;border-radius:6px;color:var(--text);padding:6px 8px;font-size:12px;font-family:monospace" id="ea_'+type+'_'+s.id+'" value="'+s.avgPrice+'"></div>'+
-    '<div><label style="font-size:9px;color:var(--muted);display:block;margin-bottom:2px">현재가</label><input type="number" style="width:100%;background:#fff;border:1px solid #90caf9;border-radius:6px;color:var(--text);padding:6px 8px;font-size:12px;font-family:monospace" id="ec_'+type+'_'+s.id+'" value="'+s.currentPrice+'"></div>'+
+    '<div><label style="font-size:9px;color:var(--muted);display:block;margin-bottom:2px">평균단가</label><input type="text" inputmode="decimal" style="width:100%;background:#fff;border:1px solid #90caf9;border-radius:6px;color:var(--text);padding:6px 8px;font-size:12px;font-family:monospace" id="ea_'+type+'_'+s.id+'" value="'+Number(s.avgPrice).toLocaleString("en-US")+'" oninput="fmtDecInp(this)"></div>'+
+    '<div><label style="font-size:9px;color:var(--muted);display:block;margin-bottom:2px">현재가</label><input type="text" inputmode="decimal" style="width:100%;background:#fff;border:1px solid #90caf9;border-radius:6px;color:var(--text);padding:6px 8px;font-size:12px;font-family:monospace" id="ec_'+type+'_'+s.id+'" value="'+Number(s.currentPrice).toLocaleString("en-US")+'" oninput="fmtDecInp(this)"></div>'+
     '</div>'+
     '<div class="calc-box">'+
     '<div class="calc-title">🧮 평균단가 계산기 ('+accts.join("·")+')</div>'+
@@ -4540,7 +4540,7 @@ function calcAvg(type, id) {
   var total_q=0, total_a=0;
   [1,2,3].forEach(function(n){
     var q=parseFloat(document.getElementById("cq"+n+"_"+type+"_"+id)?.value)||0;
-    var p=parseFloat(document.getElementById("cp"+n+"_"+type+"_"+id)?.value)||0;
+    var p=numVal(document.getElementById("cp"+n+"_"+type+"_"+id)?.value);
     localStorage.setItem("calc_q"+n+"_"+type+"_"+id, document.getElementById("cq"+n+"_"+type+"_"+id)?.value||"");
     localStorage.setItem("calc_p"+n+"_"+type+"_"+id, document.getElementById("cp"+n+"_"+type+"_"+id)?.value||"");
     var amt=q*p;
@@ -4557,7 +4557,7 @@ function applyAvg(type, id) {
   var total_q=0, total_a=0;
   [1,2,3].forEach(function(n){
     var q=parseFloat(document.getElementById("cq"+n+"_"+type+"_"+id)?.value)||0;
-    var p=parseFloat(document.getElementById("cp"+n+"_"+type+"_"+id)?.value)||0;
+    var p=numVal(document.getElementById("cp"+n+"_"+type+"_"+id)?.value);
     localStorage.setItem("calc_q"+n+"_"+type+"_"+id, document.getElementById("cq"+n+"_"+type+"_"+id)?.value||"");
     localStorage.setItem("calc_p"+n+"_"+type+"_"+id, document.getElementById("cp"+n+"_"+type+"_"+id)?.value||"");
     total_q+=q; total_a+=q*p;
@@ -4581,8 +4581,8 @@ function toggleEdit(id, type) {
       s.name=document.getElementById("en_"+type+"_"+id).value||s.name;
       s.ticker=document.getElementById("et_"+type+"_"+id).value||s.ticker;
       s.quantity=parseFloat(document.getElementById("eq_"+type+"_"+id).value)||0;
-      s.avgPrice=parseFloat(document.getElementById("ea_"+type+"_"+id).value)||0;
-      s.currentPrice=parseFloat(document.getElementById("ec_"+type+"_"+id).value)||0;
+      s.avgPrice=numVal(document.getElementById("ea_"+type+"_"+id).value);
+      s.currentPrice=numVal(document.getElementById("ec_"+type+"_"+id).value);
     }
     editingId=null; editingType=null;
     // 삼성 브라우저 키보드 닫힘 딜레이 대응
@@ -5781,8 +5781,8 @@ function toggleAdd(type) {
     '<div class="f-lbl">티커/코드</div><input class="f-inp" id="at_'+type+'" placeholder="예: NVDA 또는 005930">'+
     '<div class="f-lbl">테마</div>'+themeSelect+
     '<div class="f-lbl">보유수량</div><input class="f-inp" type="number" id="aq_'+type+'" placeholder="0">'+
-    '<div class="f-lbl">평균단가</div><input class="f-inp" type="number" id="aa_'+type+'" placeholder="0">'+
-    '<div class="f-lbl">현재가</div><input class="f-inp" type="number" id="ac_'+type+'" placeholder="0">'+
+    '<div class="f-lbl">평균단가</div><input class="f-inp" type="text" inputmode="decimal" id="aa_'+type+'" placeholder="0" oninput="fmtDecInp(this)">'+
+    '<div class="f-lbl">현재가</div><input class="f-inp" type="text" inputmode="decimal" id="ac_'+type+'" placeholder="0" oninput="fmtDecInp(this)">'+
     '<div class="f-btns">'+
     '<button class="btn-ok" onclick="addStock(\''+type+'\')">추가</button>'+
     '<button class="btn-cancel" onclick="toggleAdd(\''+type+'\')">취소</button>'+
@@ -5796,7 +5796,7 @@ function addStock(type) {
   if(!name||!ticker){alert("종목명과 티커를 입력해주세요");return;}
   var stocks=type==="dom"?domStocks:type==="ov"?ovStocks:penStocks;
   var id=Math.max.apply(null,stocks.map(function(s){return s.id;})) + 1;
-  stocks.push({id:id,name:name,ticker:ticker,quantity:parseFloat(document.getElementById("aq_"+type).value)||0,avgPrice:parseFloat(document.getElementById("aa_"+type).value)||0,currentPrice:parseFloat(document.getElementById("ac_"+type).value)||0});
+  stocks.push({id:id,name:name,ticker:ticker,quantity:parseFloat(document.getElementById("aq_"+type).value)||0,avgPrice:numVal(document.getElementById("aa_"+type).value),currentPrice:numVal(document.getElementById("ac_"+type).value)});
   // 사용자 지정 테마 저장
   var utm=JSON.parse(localStorage.getItem('v5_userThemeMap')||'{}');
   utm[ticker]=theme;
@@ -5807,9 +5807,9 @@ function addStock(type) {
 
 // =============================================
 // 예수금 (계좌별 현금잔고, 15계명 중 14번 방패)
-// 국내: 단일 항목 / 해외: 신한·국민·매리츠 / 연금: 계좌1·계좌2·IRP
+// 국내: 단일 항목 / 해외: 신한·국민·매리츠 / 연금: 세공·안세공·IRP
 // =============================================
-var DEPOSIT_SUB_LABELS = { ov:["신한","국민","매리츠"], pen:["계좌1","계좌2","IRP"] };
+var DEPOSIT_SUB_LABELS = { ov:["신한","국민","매리츠"], pen:["세공","안세공","IRP"] };
 
 function getDepositTicker(type, sub) {
   return sub ? "DEP_"+type.toUpperCase()+"_"+sub : "DEP_"+type.toUpperCase();
@@ -5896,8 +5896,11 @@ function toggleDepositAdd(type) {
       for (var i=0;i<stocks.length;i++){ if (stocks[i].ticker===ticker){ cur=stocks[i].currentPrice||0; break; } }
       var unit = isUS ? "($)" : "(원)";
       var krwHint = isUS ? '<div style="font-size:10px;color:var(--muted);margin-top:2px" id="depkrw_'+type+'_'+idx+'">≈ '+fmt(cur*rate)+'원</div>' : '';
-      var oninput = isUS ? ' oninput="document.getElementById(\'depkrw_'+type+'_'+idx+'\').textContent=\'≈ \'+fmt((parseFloat(this.value)||0)*'+rate+')+\'원\'"' : '';
-      return '<div class="f-lbl">'+sub+' 예수금'+unit+'</div><input class="f-inp" type="number" id="depamt_'+type+'_'+idx+'" placeholder="0" value="'+(cur||"")+'"'+oninput+'>'+krwHint;
+      var curDisplay = isUS ? (cur?Number(cur).toLocaleString("en-US"):"") : (cur?Number(cur).toLocaleString("ko-KR"):"");
+      var oninput = isUS
+        ? ' oninput="fmtDecInp(this);document.getElementById(\'depkrw_'+type+'_'+idx+'\').textContent=\'≈ \'+fmt(numVal(this.value)*'+rate+')+\'원\'"'
+        : ' oninput="fmtAmtInp(this)"';
+      return '<div class="f-lbl">'+sub+' 예수금'+unit+'</div><input class="f-inp" type="text" inputmode="decimal" id="depamt_'+type+'_'+idx+'" placeholder="0" value="'+curDisplay+'"'+oninput+'>'+krwHint;
     }).join("");
     f.innerHTML='<div class="add-form">'+
       '<div style="font-size:12px;font-weight:800;color:#1565c0;margin-bottom:8px">💰 예수금 (증권사·계좌별)</div>'+
@@ -5911,7 +5914,7 @@ function toggleDepositAdd(type) {
     f.innerHTML='<div class="add-form">'+
       '<div style="font-size:12px;font-weight:800;color:#1565c0;margin-bottom:8px">💰 예수금 (매도 후 남은 현금)</div>'+
       noteHtml+
-      '<div class="f-lbl">예수금(원)</div><input class="f-inp" type="number" id="depamt_'+type+'" placeholder="0" value="'+(curAmt||"")+'">'+
+      '<div class="f-lbl">예수금(원)</div><input class="f-inp" type="text" inputmode="numeric" id="depamt_'+type+'" placeholder="0" value="'+(curAmt?Number(curAmt).toLocaleString("ko-KR"):"")+'" oninput="fmtAmtInp(this)">'+
       '<div class="f-btns">'+
       '<button class="btn-ok" onclick="setDeposit(\''+type+'\')">저장</button>'+
       '<button class="btn-cancel" onclick="toggleDepositAdd(\''+type+'\')">취소</button>'+
@@ -5924,7 +5927,7 @@ function setDeposit(type) {
   var subs=DEPOSIT_SUB_LABELS[type];
   if (subs) {
     subs.forEach(function(sub, idx){
-      var amt=parseFloat(document.getElementById("depamt_"+type+"_"+idx).value)||0;
+      var amt=numVal(document.getElementById("depamt_"+type+"_"+idx).value);
       var ticker=getDepositTicker(type, sub);
       var sidx=-1;
       for (var i=0;i<stocks.length;i++){ if (stocks[i].ticker===ticker){ sidx=i; break; } }
@@ -5941,7 +5944,7 @@ function setDeposit(type) {
       }
     });
   } else {
-    var amt=parseFloat(document.getElementById("depamt_"+type).value)||0;
+    var amt=numVal(document.getElementById("depamt_"+type).value);
     var ticker=getDepositTicker(type);
     var idx=-1;
     for (var i=0;i<stocks.length;i++){ if (stocks[i].ticker===ticker) { idx=i; break; } }
@@ -7646,6 +7649,15 @@ function fmtAmtInp(el){
   var raw=el.value.replace(/[^0-9]/g,"");
   el.value=raw?Number(raw).toLocaleString("ko-KR"):"";
 }
+function fmtDecInp(el){
+  var raw=el.value.replace(/[^0-9.]/g,"");
+  var dotIdx=raw.indexOf(".");
+  var intPart = dotIdx>=0 ? raw.slice(0,dotIdx) : raw;
+  var decPart = dotIdx>=0 ? "."+raw.slice(dotIdx+1).replace(/\./g,"").slice(0,4) : "";
+  intPart = intPart.replace(/^0+(?=\d)/,"");
+  el.value = (intPart?Number(intPart).toLocaleString("en-US"):"") + decPart;
+}
+function numVal(v){ return parseFloat((v||"").toString().replace(/,/g,""))||0; }
 
 function getLedgerKey(){
   var m=document.getElementById("ldgMonth");
