@@ -1309,6 +1309,38 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
     <div id="ldgCatChart"></div>
   </div>
 
+  <!-- 카테고리별 조회 -->
+  <div class="card" style="margin-top:12px;border-left:4px solid #00897b">
+    <div style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:10px">🔍 카테고리별 조회</div>
+    <div style="display:flex;gap:8px;margin-bottom:8px">
+      <select id="catSearchCat" style="flex:1;height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-weight:700;background:#fff;color:var(--text);box-sizing:border-box;font-family:'Noto Sans KR',sans-serif">
+        <option value="">전체 카테고리</option>
+        <option value="☕ 음료·카페">☕ 음료·카페</option>
+        <option value="🍽️ 외식">🍽️ 외식</option>
+        <option value="🚌 교통">🚌 교통</option>
+        <option value="🏠 생활비">🏠 생활비</option>
+        <option value="🏥 의료">🏥 의료</option>
+        <option value="📱 통신">📱 통신</option>
+        <option value="🛒 생활용품">🛒 생활용품</option>
+        <option value="🛡️ 보험">🛡️ 보험</option>
+        <option value="🏦 대출이자">🏦 대출이자</option>
+        <option value="⛪ 성당">⛪ 성당</option>
+        <option value="🤝 회비">🤝 회비</option>
+        <option value="💳 기타">💳 기타</option>
+      </select>
+      <select id="catSearchMode" onchange="toggleCatSearchMode()" style="width:88px;height:38px;padding:0 6px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-weight:700;background:#fff;color:var(--text);box-sizing:border-box;font-family:'Noto Sans KR',sans-serif">
+        <option value="month">월별</option>
+        <option value="year">연도별</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:10px">
+      <input type="month" id="catSearchMonth" style="flex:1;height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;box-sizing:border-box;font-family:'Noto Sans KR',sans-serif">
+      <select id="catSearchYear" style="display:none;flex:1;height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-weight:700;background:#fff;color:var(--text);box-sizing:border-box;font-family:'Noto Sans KR',sans-serif"></select>
+      <button onclick="runCatSearch()" style="background:#00897b;color:#fff;border:none;border-radius:8px;padding:0 18px;font-size:13px;font-weight:800;cursor:pointer">조회</button>
+    </div>
+    <div id="catSearchResult"></div>
+  </div>
+
   <!-- 투자 -->
   <div class="ldg-card">
     <div class="ldg-title" id="ldgInvTitle" style="color:#7b1fa2">📈 투자</div>
@@ -1369,36 +1401,6 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
       </div>
     </div>
     <svg id="ldgIncExpChart" viewBox="0 0 340 155" style="width:100%"></svg>
-  <!-- 카테고리별 조회 -->
-  <div class="card" style="margin-top:12px;border-left:4px solid #00897b">
-    <div style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:10px">🔍 카테고리별 조회</div>
-    <div style="display:flex;gap:8px;margin-bottom:8px">
-      <select id="catSearchCat" style="flex:1;height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-weight:700;background:#fff;color:var(--text);box-sizing:border-box;font-family:'Noto Sans KR',sans-serif">
-        <option value="">전체 카테고리</option>
-        <option value="☕ 음료·카페">☕ 음료·카페</option>
-        <option value="🍽️ 외식">🍽️ 외식</option>
-        <option value="🚌 교통">🚌 교통</option>
-        <option value="🏠 생활비">🏠 생활비</option>
-        <option value="🏥 의료">🏥 의료</option>
-        <option value="📱 통신">📱 통신</option>
-        <option value="🛒 생활용품">🛒 생활용품</option>
-        <option value="🛡️ 보험">🛡️ 보험</option>
-        <option value="🏦 대출이자">🏦 대출이자</option>
-        <option value="⛪ 성당">⛪ 성당</option>
-        <option value="🤝 회비">🤝 회비</option>
-        <option value="💳 기타">💳 기타</option>
-      </select>
-      <select id="catSearchMode" onchange="toggleCatSearchMode()" style="width:88px;height:38px;padding:0 6px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-weight:700;background:#fff;color:var(--text);box-sizing:border-box;font-family:'Noto Sans KR',sans-serif">
-        <option value="month">월별</option>
-        <option value="year">연도별</option>
-      </select>
-    </div>
-    <div style="display:flex;gap:8px;margin-bottom:10px">
-      <input type="month" id="catSearchMonth" style="flex:1;height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;box-sizing:border-box;font-family:'Noto Sans KR',sans-serif">
-      <input type="number" id="catSearchYear" placeholder="예: 2026" style="display:none;flex:1;height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;box-sizing:border-box;font-family:'Noto Sans KR',sans-serif">
-      <button onclick="runCatSearch()" style="background:#00897b;color:#fff;border:none;border-radius:8px;padding:0 18px;font-size:13px;font-weight:800;cursor:pointer">조회</button>
-    </div>
-    <div id="catSearchResult"></div>
   </div>
 </div>
 
@@ -7982,7 +7984,23 @@ function renderCatChart(expList){
 function toggleCatSearchMode(){
   var mode=document.getElementById("catSearchMode").value;
   document.getElementById("catSearchMonth").style.display = mode==="month"?"block":"none";
-  document.getElementById("catSearchYear").style.display = mode==="year"?"block":"none";
+  var yrSel=document.getElementById("catSearchYear");
+  yrSel.style.display = mode==="year"?"block":"none";
+  if(mode==="year" && !yrSel.options.length){
+    var curYr=new Date().getFullYear();
+    // 실제 저장된 가계부 데이터를 스캔해서, 기록이 있는 가장 오래된 연도까지 전부 포함
+    var data=loadLedgerData();
+    var minYr=curYr-5;
+    Object.keys(data).forEach(function(key){
+      var y=parseInt(key.slice(0,4),10);
+      if(!isNaN(y) && y<minYr) minYr=y;
+    });
+    for(var y=curYr;y>=minYr;y--){
+      var opt=document.createElement("option");
+      opt.value=y; opt.textContent=y+"년";
+      yrSel.appendChild(opt);
+    }
+  }
 }
 
 function runCatSearch(){
