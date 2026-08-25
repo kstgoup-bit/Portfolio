@@ -728,10 +728,10 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
       <span style="font-size:10px;color:#ef6c00"><span style="display:inline-block;width:14px;height:2px;background:#ef6c00;vertical-align:middle;margin-right:3px;border-top:2px dashed #ef6c00"></span>코스피200</span>
     </div>
     <div style="display:flex;gap:8px">
-      <button class="record-btn" style="background:#fff;border:1px solid var(--yellow-border);color:var(--yellow-accent);flex:1" onclick="addDeposit('dom')">💰 ISA 입금 기록</button>
-      <button class="record-btn" style="background:var(--yellow-card);border-color:var(--yellow-border);color:var(--yellow-accent);flex:1" onclick="recordSnap('dom')">📸 ISA 자산 기록</button>
+      <button class="record-btn" style="background:#fff;border:1px solid var(--yellow-border);color:var(--yellow-accent);flex:1" onclick="addDeposit('dom')">💰 입금 기록</button>
+      <button class="record-btn" style="background:var(--yellow-card);border-color:var(--yellow-border);color:var(--yellow-accent);flex:1" onclick="manageDeposits('dom')">📝 입금내역</button>
+      <button class="record-btn" style="background:var(--yellow-card);border-color:var(--yellow-border);color:var(--yellow-accent);flex:1" onclick="recordSnap('dom')">📸 자산 기록</button>
     </div>
-    <div style="text-align:center;margin-top:6px"><span style="font-size:12px;color:var(--yellow-accent);text-decoration:underline" onclick="manageDeposits('dom')">📝 입금내역 보기/삭제</span></div>
   </div>
   <div class="card" id="domReturnsCard" style="margin-top:14px">
     <div class="chart-title" style="color:var(--yellow-accent)">📅 ISA 자산 변화율(2년부터 연)</div>
@@ -793,10 +793,10 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
       <span style="font-size:10px;color:#ef6c00"><span style="display:inline-block;width:14px;height:2px;background:#ef6c00;vertical-align:middle;margin-right:3px;border-top:2px dashed #ef6c00"></span>코스피200</span>
     </div>
     <div style="display:flex;gap:8px">
-      <button class="record-btn" style="background:#fff;border:1px solid #00897b;color:#00897b;flex:1" onclick="addDeposit('gen')">💰 일반 입금 기록</button>
-      <button class="record-btn" style="background:#b2dfdb;border-color:#00897b;color:#00695c;flex:1" onclick="recordSnap('gen')">📸 일반 자산 기록</button>
+      <button class="record-btn" style="background:#fff;border:1px solid #00897b;color:#00897b;flex:1" onclick="addDeposit('gen')">💰 입금 기록</button>
+      <button class="record-btn" style="background:#b2dfdb;border-color:#00897b;color:#00695c;flex:1" onclick="manageDeposits('gen')">📝 입금내역</button>
+      <button class="record-btn" style="background:#b2dfdb;border-color:#00897b;color:#00695c;flex:1" onclick="recordSnap('gen')">📸 자산 기록</button>
     </div>
-    <div style="text-align:center;margin-top:6px"><span style="font-size:12px;color:#00897b;text-decoration:underline" onclick="manageDeposits('gen')">📝 입금내역 보기/삭제</span></div>
   </div>
   <div class="card" id="genReturnsCard" style="margin-top:14px">
     <div class="chart-title" style="color:#00897b">📅 일반 자산 변화율(2년부터 연)</div>
@@ -875,10 +875,10 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
       <span style="font-size:10px;color:#2e7d32"><span style="display:inline-block;width:14px;height:2px;background:#2e7d32;vertical-align:middle;margin-right:3px;border-top:2px dashed #2e7d32"></span>S&P500</span>
     </div>
     <div style="display:flex;gap:8px">
-      <button class="record-btn" style="background:#fff;border:1px solid #90caf9;color:var(--blue);flex:1" onclick="addDeposit('ov')">💰 해외 입금 기록</button>
-      <button class="record-btn" style="flex:1" onclick="recordSnap('ov')">📸 해외 자산 기록</button>
+      <button class="record-btn" style="background:#fff;border:1px solid #90caf9;color:var(--blue);flex:1" onclick="addDeposit('ov')">💰 입금 기록</button>
+      <button class="record-btn" style="background:var(--blue-light);border:1px solid #90caf9;color:var(--blue);flex:1" onclick="manageDeposits('ov')">📝 입금내역</button>
+      <button class="record-btn" style="flex:1" onclick="recordSnap('ov')">📸 자산 기록</button>
     </div>
-    <div style="text-align:center;margin-top:6px"><span style="font-size:12px;color:var(--blue);text-decoration:underline" onclick="manageDeposits('ov')">📝 입금내역 보기/삭제</span></div>
   </div>
   <div class="card" id="ovReturnsCard" style="margin-top:14px">
     <div class="chart-title">📅 해외 자산 변화율(2년부터 연)</div>
@@ -940,10 +940,10 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
       <span style="font-size:10px;color:#ef6c00"><span style="display:inline-block;width:14px;height:2px;background:#ef6c00;vertical-align:middle;margin-right:3px;border-top:2px dashed #ef6c00"></span>QQQ</span>
     </div>
     <div style="display:flex;gap:8px">
-      <button class="record-btn" style="background:#fff;border:1px solid #ce93d8;color:var(--purple);flex:1" onclick="addDeposit('pen')">💰 연금 입금 기록</button>
-      <button class="record-btn" style="background:var(--purple-light);border-color:#ce93d8;color:var(--purple);flex:1" onclick="recordSnap('pen')">📸 연금 자산 기록</button>
+      <button class="record-btn" style="background:#fff;border:1px solid #ce93d8;color:var(--purple);flex:1" onclick="addDeposit('pen')">💰 입금 기록</button>
+      <button class="record-btn" style="background:var(--purple-light);border-color:#ce93d8;color:var(--purple);flex:1" onclick="manageDeposits('pen')">📝 입금내역</button>
+      <button class="record-btn" style="background:var(--purple-light);border-color:#ce93d8;color:var(--purple);flex:1" onclick="recordSnap('pen')">📸 자산 기록</button>
     </div>
-    <div style="text-align:center;margin-top:6px"><span style="font-size:12px;color:var(--purple);text-decoration:underline" onclick="manageDeposits('pen')">📝 입금내역 보기/삭제</span></div>
   </div>
   <div class="card" id="penReturnsCard" style="margin-top:14px">
     <div class="chart-title" style="color:var(--purple)">📅 연금 자산 변화율(2년부터 연)</div>
