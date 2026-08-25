@@ -2728,9 +2728,12 @@ function addDeposit(key) {
   var box = document.createElement("div");
   box.id = "depositInputBox";
   box.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9998;display:flex;align-items:center;justify-content:center;padding:24px";
+  var todayStr = new Date().toISOString().slice(0,10);
   box.innerHTML =
     '<div style="background:#fff;border-radius:20px;padding:24px;width:100%;max-width:360px;box-shadow:0 8px 32px rgba(0,0,0,0.25)">' +
-      '<div style="font-size:16px;font-weight:900;color:#1a2236;margin-bottom:14px">💰 '+label+' 오늘 입금(매수)한 금액을 입력하세요</div>' +
+      '<div style="font-size:16px;font-weight:900;color:#1a2236;margin-bottom:14px">💰 '+label+' 입금(매수)한 금액을 입력하세요</div>' +
+      '<div style="font-size:12px;color:#666;font-weight:700;margin-bottom:4px">입금 날짜</div>' +
+      '<input id="depositDateInput" type="date" value="'+todayStr+'" max="'+todayStr+'" style="width:100%;box-sizing:border-box;border:1.5px solid #90caf9;border-radius:10px;padding:10px;font-size:14px;font-weight:700;margin-bottom:12px">' +
       '<input id="depositAmtInput" type="text" inputmode="numeric" placeholder="예: 870,000" oninput="fmtAmtInp(this)" style="width:100%;box-sizing:border-box;border:1.5px solid #90caf9;border-radius:10px;padding:12px;font-size:16px;font-weight:700;margin-bottom:6px;text-align:right">' +
       '<div style="font-size:12px;color:#999;text-align:right;margin-bottom:18px">원 단위</div>' +
       '<div style="display:flex;gap:8px">' +
@@ -2741,13 +2744,23 @@ function addDeposit(key) {
   document.body.appendChild(box);
 
   var inputEl = document.getElementById("depositAmtInput");
+  var dateEl = document.getElementById("depositDateInput");
   inputEl.focus();
 
   function confirm(){
     var amt = parseFloat(inputEl.value.replace(/[^0-9.\-]/g,""));
     if(!amt || amt<=0) { showToast("⚠️ 올바른 금액을 입력해주세요", true); return; }
+    var dv = dateEl.value; // "YYYY-MM-DD"
+    var ts;
+    if (dv === todayStr) {
+      ts = Date.now(); // 오늘이면 정확한 현재 시각으로 (기존 동작 유지)
+    } else {
+      var parts = dv.split("-").map(Number);
+      var d = new Date(parts[0], parts[1]-1, parts[2], 12, 0, 0); // 정오로 고정해 타임존 경계 오류 방지
+      ts = d.getTime();
+    }
     if(!deposits[key]) deposits[key]=[];
-    deposits[key].push({ts:Date.now(), amount:amt});
+    deposits[key].push({ts:ts, amount:amt});
     deposits[key].sort(function(a,b){ return a.ts-b.ts; });
     save();
     renderAllReturnsTables();
