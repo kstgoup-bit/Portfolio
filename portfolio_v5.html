@@ -1284,6 +1284,7 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
         <option value="☕ 음료·카페">☕ 음료·카페</option>
         <option value="🍽️ 외식">🍽️ 외식</option>
         <option value="🚌 교통">🚌 교통</option>
+        <option value="🏠 생활비">🏠 생활비</option>
         <option value="🏥 의료">🏥 의료</option>
         <option value="📱 통신">📱 통신</option>
         <option value="🛒 생활용품">🛒 생활용품</option>
@@ -1368,6 +1369,36 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
       </div>
     </div>
     <svg id="ldgIncExpChart" viewBox="0 0 340 155" style="width:100%"></svg>
+  <!-- 카테고리별 조회 -->
+  <div class="card" style="margin-top:12px;border-left:4px solid #00897b">
+    <div style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:10px">🔍 카테고리별 조회</div>
+    <div style="display:flex;gap:8px;margin-bottom:8px">
+      <select id="catSearchCat" style="flex:1;height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-weight:700;background:#fff;color:var(--text);box-sizing:border-box;font-family:'Noto Sans KR',sans-serif">
+        <option value="">전체 카테고리</option>
+        <option value="☕ 음료·카페">☕ 음료·카페</option>
+        <option value="🍽️ 외식">🍽️ 외식</option>
+        <option value="🚌 교통">🚌 교통</option>
+        <option value="🏠 생활비">🏠 생활비</option>
+        <option value="🏥 의료">🏥 의료</option>
+        <option value="📱 통신">📱 통신</option>
+        <option value="🛒 생활용품">🛒 생활용품</option>
+        <option value="🛡️ 보험">🛡️ 보험</option>
+        <option value="🏦 대출이자">🏦 대출이자</option>
+        <option value="⛪ 성당">⛪ 성당</option>
+        <option value="🤝 회비">🤝 회비</option>
+        <option value="💳 기타">💳 기타</option>
+      </select>
+      <select id="catSearchMode" onchange="toggleCatSearchMode()" style="width:88px;height:38px;padding:0 6px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-weight:700;background:#fff;color:var(--text);box-sizing:border-box;font-family:'Noto Sans KR',sans-serif">
+        <option value="month">월별</option>
+        <option value="year">연도별</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:10px">
+      <input type="month" id="catSearchMonth" style="flex:1;height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;box-sizing:border-box;font-family:'Noto Sans KR',sans-serif">
+      <input type="number" id="catSearchYear" placeholder="예: 2026" style="display:none;flex:1;height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;box-sizing:border-box;font-family:'Noto Sans KR',sans-serif">
+      <button onclick="runCatSearch()" style="background:#00897b;color:#fff;border:none;border-radius:8px;padding:0 18px;font-size:13px;font-weight:800;cursor:pointer">조회</button>
+    </div>
+    <div id="catSearchResult"></div>
   </div>
 </div>
 
@@ -7920,7 +7951,7 @@ function renderCatChart(expList){
   var el=document.getElementById("ldgCatChart");
   if(!el) return;
   var cats={};
-  var CAT_COLORS={"☕ 음료·카페":"#ff8f00","🍽️ 외식":"#e53935","🚌 교통":"#1e88e5","🏥 의료":"#43a047","📱 통신":"#8e24aa","🛒 생활용품":"#00897b","🛡️ 보험":"#546e7a","🏦 대출이자":"#c62828","⛪ 성당":"#6d4c41","🤝 회비":"#fbc02d","💳 기타":"#757575"};
+  var CAT_COLORS={"☕ 음료·카페":"#ff8f00","🍽️ 외식":"#e53935","🚌 교통":"#1e88e5","🏠 생활비":"#3949ab","🏥 의료":"#43a047","📱 통신":"#8e24aa","🛒 생활용품":"#00897b","🛡️ 보험":"#546e7a","🏦 대출이자":"#c62828","⛪ 성당":"#6d4c41","🤝 회비":"#fbc02d","💳 기타":"#757575"};
   expList.forEach(function(d){
     var c=d.cat||"💳 기타";
     cats[c]=(cats[c]||0)+d.amount;
@@ -7944,6 +7975,80 @@ function renderCatChart(expList){
   }).join("");
 }
 
+
+// =============================================
+// 카테고리별 조회 (월별/연도별 지출 검색)
+// =============================================
+function toggleCatSearchMode(){
+  var mode=document.getElementById("catSearchMode").value;
+  document.getElementById("catSearchMonth").style.display = mode==="month"?"block":"none";
+  document.getElementById("catSearchYear").style.display = mode==="year"?"block":"none";
+}
+
+function runCatSearch(){
+  var cat=document.getElementById("catSearchCat").value;
+  var mode=document.getElementById("catSearchMode").value;
+  var data=loadLedgerData();
+  var el=document.getElementById("catSearchResult");
+  var catLabel = cat || "전체 카테고리";
+
+  function itemsOfMonth(key){
+    var m=data[key];
+    if(!m || !m.expense) return [];
+    return m.expense.filter(function(it){ return !cat || it.cat===cat; });
+  }
+
+  if(mode==="month"){
+    var mv=document.getElementById("catSearchMonth").value; // "YYYY-MM"
+    if(!mv){ el.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:8px">월을 선택해주세요</div>'; return; }
+    var items=itemsOfMonth(mv).slice().sort(function(a,b){
+      var da=a.date||"0000-00-00", db=b.date||"0000-00-00";
+      return da===db?0:(da>db?-1:1);
+    });
+    if(!items.length){
+      el.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:12px">'+mv+' - '+catLabel+' 내역이 없습니다</div>';
+      return;
+    }
+    var total=items.reduce(function(s,it){return s+it.amount;},0);
+    var rows=items.map(function(it){
+      var dateStr=it.date?it.date.slice(5).replace('-','/'):'';
+      var catBadge=!cat?'<span style="font-size:10px;background:#fff3e0;color:#e65100;border-radius:4px;padding:1px 5px;margin-right:4px;font-weight:600">'+(it.cat||'')+'</span>':'';
+      return '<div class="ldg-item"><span class="ldg-item-name"><span style="font-size:11px;font-weight:700;color:#fff;background:#00897b;border-radius:5px;padding:1px 6px;margin-right:6px">'+dateStr+'</span>'+catBadge+it.name+'</span><span class="ldg-item-amt" style="color:#c62828">'+it.amount.toLocaleString()+'원</span></div>';
+    }).join("");
+    el.innerHTML='<div style="font-size:13px;font-weight:800;color:#00897b;margin-bottom:6px">'+mv+' · '+catLabel+'</div>'+
+      rows+
+      '<div style="display:flex;justify-content:space-between;padding:10px 4px 2px;margin-top:6px;border-top:2px solid #e0e0e0"><span style="font-size:13px;font-weight:800;color:var(--text)">합계</span><span style="font-size:15px;font-weight:900;color:#c62828">'+total.toLocaleString()+'원</span></div>';
+  } else {
+    var yr=document.getElementById("catSearchYear").value;
+    if(!yr){ el.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:8px">연도를 입력해주세요</div>'; return; }
+    var monthRows="";
+    var grandTotal=0;
+    var anyData=false;
+    for(var mo=1;mo<=12;mo++){
+      var key=yr+"-"+String(mo).padStart(2,"0");
+      var items=itemsOfMonth(key);
+      if(!items.length) continue;
+      anyData=true;
+      var mTotal=items.reduce(function(s,it){return s+it.amount;},0);
+      grandTotal+=mTotal;
+      var itemLines=items.map(function(it){
+        var catBadge=!cat?'<span style="font-size:10px;background:#fff3e0;color:#e65100;border-radius:4px;padding:1px 5px;margin-right:4px;font-weight:600">'+(it.cat||'')+'</span>':'';
+        return '<div style="display:flex;justify-content:space-between;padding:3px 0 3px 12px;font-size:12px"><span>'+catBadge+it.name+'</span><span style="color:#c62828;font-weight:700">'+it.amount.toLocaleString()+'원</span></div>';
+      }).join("");
+      monthRows+='<div style="margin-bottom:8px">'+
+        '<div style="display:flex;justify-content:space-between;background:#e0f2f1;border-radius:6px;padding:6px 10px;font-size:13px;font-weight:800;color:#00695c"><span>'+mo+'월</span><span>'+mTotal.toLocaleString()+'원</span></div>'+
+        itemLines+
+        '</div>';
+    }
+    if(!anyData){
+      el.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:12px">'+yr+'년 - '+catLabel+' 내역이 없습니다</div>';
+      return;
+    }
+    el.innerHTML='<div style="font-size:13px;font-weight:800;color:#00897b;margin-bottom:6px">'+yr+'년 · '+catLabel+'</div>'+
+      monthRows+
+      '<div style="display:flex;justify-content:space-between;padding:10px 4px 2px;margin-top:6px;border-top:2px solid #e0e0e0"><span style="font-size:14px;font-weight:900;color:var(--text)">연간 합계</span><span style="font-size:16px;font-weight:900;color:#c62828">'+grandTotal.toLocaleString()+'원</span></div>';
+  }
+}
 
 function renderLedger(){
   initLedgerMonth();
