@@ -1271,6 +1271,18 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
     <div id="ldgIncList"></div>
   </div>
 
+  <!-- 월별 수입/지출 비교 차트 -->
+  <div class="card" style="margin-top:12px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <div class="ldg-title" style="color:#333;margin:0">📊 월별 수입/지출 비교</div>
+      <div style="display:flex;gap:10px;font-size:11px;font-weight:700">
+        <span style="color:#1565c0">■ 수입</span>
+        <span style="color:#c62828">■ 지출</span>
+      </div>
+    </div>
+    <svg id="ldgIncExpChart" viewBox="0 0 340 155" style="width:100%"></svg>
+  </div>
+
   <!-- 지출 -->
   <div class="ldg-card">
     <div class="ldg-title" id="ldgExpTitle" style="color:#c62828">💸 지출</div>
@@ -1391,17 +1403,7 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
     <svg id="ldgInvChart" viewBox="0 0 340 145" style="width:100%"></svg>
   </div>
 
-  <!-- 월별 수입/지출 비교 차트 -->
-  <div class="card" style="margin-top:12px">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-      <div class="ldg-title" style="color:#333;margin:0">📊 월별 수입/지출 비교</div>
-      <div style="display:flex;gap:10px;font-size:11px;font-weight:700">
-        <span style="color:#1565c0">■ 수입</span>
-        <span style="color:#c62828">■ 지출</span>
-      </div>
-    </div>
-    <svg id="ldgIncExpChart" viewBox="0 0 340 155" style="width:100%"></svg>
-  </div>
+
 </div>
 
 <!-- 뉴스 -->
