@@ -4042,7 +4042,7 @@ async function fetchRiskData() {
   // WTI 유가
   if(oilTxt){
     var v=parseFred(oilTxt)||parseYahoo(oilTxt);
-    if(v){oil=parseFloat(v.toFixed(2)); ok.push("WTI $"+oil);}
+    if(v&&v>=15&&v<=200){oil=parseFloat(v.toFixed(2)); ok.push("WTI $"+oil);}
     else fail.push("WTI유가");
   } else fail.push("WTI유가");
 
