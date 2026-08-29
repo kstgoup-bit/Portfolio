@@ -3779,9 +3779,15 @@ function rkUpdateUI(hy, rate, vix, fxScore, dxy, spread, fg, oil) {
   var dxv=document.getElementById("rkDxyVal"), dxb=document.getElementById("rkDxyBar"),
       dxbg=document.getElementById("rkDxyBadge"), dxd=document.getElementById("rkDxyDetail");
   if(dxv) dxv.textContent=dxy?dxy.toFixed(2):"—";
-  if(dxb){dxb.style.width=dxy?Math.min((dxy-90)/30*100,100)+"%":"0%"; dxb.style.background=rkBarGrad(dxyScore);}
-  if(dxbg&&dxy){dxbg.textContent=dxy<100?"안전":dxy<104?"주의":dxy<108?"경계":"위험"; dxbg.style.cssText=rkBadge(dxyLv);}
-  if(dxd&&dxy) dxd.textContent="DXY "+dxy.toFixed(2)+" · "+(dxy<100?"달러 약세 — 위험자산 우호적":dxy<104?"중립 구간":dxy<108?"달러 강세 — 신흥국 자금 이탈 주의":"달러 급강세 — 글로벌 위험 신호");
+  if(dxb){
+    if(dxy){dxb.style.width=Math.min((dxy-90)/30*100,100)+"%"; dxb.style.background=rkBarGrad(dxyScore);}
+    else{dxb.style.width="0%"; dxb.style.background="#94a3b8";}
+  }
+  if(dxbg){
+    if(dxy){dxbg.textContent=dxy<100?"안전":dxy<104?"주의":dxy<108?"경계":"위험"; dxbg.style.cssText=rkBadge(dxyLv);}
+    else{dxbg.textContent="—"; dxbg.style.cssText=rkBadge({color:"#94a3b8",bg:"#f1f5f9",border:"#e2e8f0"});}
+  }
+  if(dxd) dxd.textContent=dxy?("DXY "+dxy.toFixed(2)+" · "+(dxy<100?"달러 약세 — 위험자산 우호적":dxy<104?"중립 구간":dxy<108?"달러 강세 — 신흥국 자금 이탈 주의":"달러 급강세 — 글로벌 위험 신호")):"데이터 조회 실패 — 저장된 이전 값 없음";
   // 장단기 금리차
   var spScore = !spread&&spread!==0?10:spread>1?5:spread>0.5?10:spread>0?28:spread>-0.5?40:spread>-1?65:85;
   // 역전해소 직후(0~0.5) 추가 경고
@@ -3818,9 +3824,15 @@ function rkUpdateUI(hy, rate, vix, fxScore, dxy, spread, fg, oil) {
   var ov=document.getElementById("rkOilVal"), ob=document.getElementById("rkOilBar"),
       obg=document.getElementById("rkOilBadge"), od=document.getElementById("rkOilDetail");
   if(ov) ov.textContent=oil?"$"+oil.toFixed(1):"—";
-  if(ob&&oil){ob.style.width=Math.min(oil/120*100,100)+"%"; ob.style.background=rkBarGrad(oilScore);}
-  if(obg&&oil){obg.textContent=oil<60?"경기침체":oil<80?"안정":oil<95?"주의":"위험"; obg.style.cssText=rkBadge(oilLv);}
-  if(od&&oil) od.textContent=oil<60?"$"+oil.toFixed(1)+" — 수요 급감, 경기침체 신호":oil<80?"$"+oil.toFixed(1)+" — 안정 구간, 증시 우호적":oil<95?"$"+oil.toFixed(1)+" — 인플레이션 주의":"$"+oil.toFixed(1)+" — 위험 구간, 인플레이션·경기 압박";
+  if(ob){
+    if(oil){ob.style.width=Math.min(oil/120*100,100)+"%"; ob.style.background=rkBarGrad(oilScore);}
+    else{ob.style.width="0%"; ob.style.background="#94a3b8";}
+  }
+  if(obg){
+    if(oil){obg.textContent=oil<60?"경기침체":oil<80?"안정":oil<95?"주의":"위험"; obg.style.cssText=rkBadge(oilLv);}
+    else{obg.textContent="—"; obg.style.cssText=rkBadge({color:"#94a3b8",bg:"#f1f5f9",border:"#e2e8f0"});}
+  }
+  if(od) od.textContent=oil?(oil<60?"$"+oil.toFixed(1)+" — 수요 급감, 경기침체 신호":oil<80?"$"+oil.toFixed(1)+" — 안정 구간, 증시 우호적":oil<95?"$"+oil.toFixed(1)+" — 인플레이션 주의":"$"+oil.toFixed(1)+" — 위험 구간, 인플레이션·경기 압박"):"데이터 조회 실패 — 저장된 이전 값 없음";
 
   var score = rkCalcScore(hy, rate, vix, fxScore, dxyScore, spScore, fgScore, oilScore);
   var lv = rkLevel(score);
@@ -3990,6 +4002,7 @@ async function fetchRiskData() {
   // ── 3개 동시 조회 ──────────────────────
   var cached={};
   try{cached=JSON.parse(localStorage.getItem("v5_riskData")||"{}");} catch(e){}
+  if(cached.oil!==undefined&&cached.oil!==null&&(cached.oil<15||cached.oil>200)) cached.oil=null; // 손상된 과거 캐시값(예: $3 버그) 정리
 
   var results=await Promise.all([
     raceUrls(fredUrls("VIXCLS").concat(yahooUrls("%5EVIX"))),   // VIX
@@ -4065,7 +4078,7 @@ async function fetchRiskData() {
     fg!==null?fg:(cached.fg||null),
     oil!==null?oil:(cached.oil||null)
   );
-  localStorage.setItem("v5_riskData", JSON.stringify({hy:hy||(cached.hy||280),rate:rate||(cached.rate||4.5),vix:vix||(cached.vix||18),dxy:dxy||(cached.dxy||100),spread:spread,fg:fg,oil:oil,ts:Date.now()}));
+  localStorage.setItem("v5_riskData", JSON.stringify({hy:hy||(cached.hy||280),rate:rate||(cached.rate||4.5),vix:vix||(cached.vix||18),dxy:dxy||(cached.dxy||100),spread:spread!==null?spread:(cached.spread||null),fg:fg!==null?fg:(cached.fg||null),oil:oil!==null?oil:(cached.oil||null),ts:Date.now()}));
 
   // ── 상태 메시지 (사라지지 않음) ────────
   var now=new Date().toLocaleTimeString("ko-KR");
@@ -4085,6 +4098,7 @@ function loadRiskData() {
   if(saved) {
     try {
       var s=JSON.parse(saved);
+      if(s.oil!==undefined&&s.oil!==null&&(s.oil<15||s.oil>200)) s.oil=null; // 손상된 과거 캐시값(예: $3 버그) 정리
       var fxH3=[]; try{fxH3=JSON.parse(localStorage.getItem('v5_fxHistory')||'[]');}catch(e){}
       var fx52a3=fxH3.length?Math.round(fxH3.reduce(function(a,x){return a+x.v;},0)/fxH3.length):1370;
       var fxD3=Math.abs(((parseFloat((document.getElementById('usdKrw')||{}).value||1370)-fx52a3)/fx52a3)*100);
