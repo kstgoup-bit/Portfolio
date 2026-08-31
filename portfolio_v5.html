@@ -1264,8 +1264,17 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
       <input type="date" id="ldgIncDate" style="height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--sky-bg);color:var(--text);box-sizing:border-box;width:100%">
       <button id="ldgIncomeBtn" onclick="addLedger('income')" style="height:38px;background:#42a5f5;border:none;border-radius:8px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;width:100%">추가</button>
     </div>
-    <div style="display:grid;grid-template-columns:6.5fr 3.5fr;gap:6px;margin-bottom:6px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px">
+      <select id="ldgIncCat" style="height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-weight:700;background:#fff;color:var(--text);box-sizing:border-box;width:100%;font-family:'Noto Sans KR',sans-serif">
+        <option value="">카테고리</option>
+        <option value="💼 월급">💼 월급</option>
+        <option value="🏠 월세">🏠 월세</option>
+        <option value="💳 기타">💳 기타</option>
+      </select>
       <input id="ldgIncName" placeholder="항목명" style="height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--sky-bg);color:var(--text);box-sizing:border-box;width:100%">
+    </div>
+    <div style="display:grid;grid-template-columns:6.5fr 3.5fr;gap:6px;margin-bottom:6px">
+      <div></div>
       <input id="ldgIncAmt" type="text" inputmode="numeric" placeholder="금액(원)" oninput="fmtAmtInp(this)" style="height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-weight:700;text-align:right;background:var(--sky-bg);color:var(--text);box-sizing:border-box;width:100%">
     </div>
     <div id="ldgIncList"></div>
@@ -1325,6 +1334,10 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
   <div class="card" style="margin-top:12px;border-left:4px solid #00897b">
     <div style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:10px">🔍 카테고리별 조회</div>
     <div style="display:flex;gap:8px;margin-bottom:8px">
+      <select id="catSearchType" onchange="toggleCatSearchType()" style="width:88px;height:38px;padding:0 6px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-weight:700;background:#fff;color:var(--text);box-sizing:border-box;font-family:'Noto Sans KR',sans-serif">
+        <option value="expense">지출</option>
+        <option value="income">수입</option>
+      </select>
       <select id="catSearchCat" style="flex:1;height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-weight:700;background:#fff;color:var(--text);box-sizing:border-box;font-family:'Noto Sans KR',sans-serif">
         <option value="">전체 카테고리</option>
         <option value="☕ 음료·카페">☕ 음료·카페</option>
@@ -1340,10 +1353,13 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
         <option value="🤝 회비">🤝 회비</option>
         <option value="💳 기타">💳 기타</option>
       </select>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:8px">
       <select id="catSearchMode" onchange="toggleCatSearchMode()" style="width:88px;height:38px;padding:0 6px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-weight:700;background:#fff;color:var(--text);box-sizing:border-box;font-family:'Noto Sans KR',sans-serif">
         <option value="month">월별</option>
         <option value="year">연도별</option>
       </select>
+      <div style="flex:1"></div>
     </div>
     <div style="display:flex;gap:8px;margin-bottom:10px">
       <input type="month" id="catSearchMonth" style="flex:1;height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;box-sizing:border-box;font-family:'Noto Sans KR',sans-serif">
@@ -7911,6 +7927,7 @@ function addLedger(type){
   if(type==="invest"){var bEl=document.getElementById("ldgInvBroker"); if(bEl) broker=bEl.value;}
   var cat="";
   if(type==="expense"){var cEl=document.getElementById("ldgExpCat"); if(cEl) cat=cEl.value;}
+  if(type==="income"){var cEl2=document.getElementById("ldgIncCat"); if(cEl2) cat=cEl2.value;}
   var entry={name:name,amount:amt,date:date,broker:broker,cat:cat};
   var data=loadLedgerData();
   var key=getLedgerKey();
@@ -7928,6 +7945,8 @@ function addLedger(type){
   }
   saveLedgerData(data);
   nameEl.value=""; amtEl.value="";
+  if(type==="expense"){var ce=document.getElementById("ldgExpCat"); if(ce) ce.value="";}
+  if(type==="income"){var ci=document.getElementById("ldgIncCat"); if(ci) ci.value="";}
   renderLedger();
 }
 function editLedger(type,idx){
@@ -7939,6 +7958,7 @@ function editLedger(type,idx){
 
   if(type==="income"){
     var d=document.getElementById("ldgIncDate"); if(d) d.value=item.date||"";
+    var c0=document.getElementById("ldgIncCat"); if(c0) c0.value=item.cat||"";
     var n=document.getElementById("ldgIncName"); if(n) n.value=item.name||"";
     var a=document.getElementById("ldgIncAmt"); if(a) a.value=item.amount?(Number(item.amount).toLocaleString("ko-KR")):"";
     setEditMode("income",idx);
@@ -8021,6 +8041,14 @@ function renderCatChart(expList){
 // =============================================
 // 카테고리별 조회 (월별/연도별 지출 검색)
 // =============================================
+var EXP_CAT_OPTS=['☕ 음료·카페','🍽️ 외식','🚌 교통','🏠 생활비','🏥 의료','📱 통신','🛒 생활용품','🛡️ 보험','🏦 대출이자','⛪ 성당','🤝 회비','💳 기타'];
+var INC_CAT_OPTS=['💼 월급','🏠 월세','💳 기타'];
+function toggleCatSearchType(){
+  var type=document.getElementById("catSearchType").value;
+  var catSel=document.getElementById("catSearchCat");
+  var opts=type==="income"?INC_CAT_OPTS:EXP_CAT_OPTS;
+  catSel.innerHTML='<option value="">전체 카테고리</option>'+opts.map(function(c){return '<option value="'+c+'">'+c+'</option>';}).join("");
+}
 function toggleCatSearchMode(){
   var mode=document.getElementById("catSearchMode").value;
   document.getElementById("catSearchMonth").style.display = mode==="month"?"block":"none";
@@ -8046,14 +8074,16 @@ function toggleCatSearchMode(){
 function runCatSearch(){
   var cat=document.getElementById("catSearchCat").value;
   var mode=document.getElementById("catSearchMode").value;
+  var searchType=(document.getElementById("catSearchType")||{}).value||"expense";
   var data=loadLedgerData();
   var el=document.getElementById("catSearchResult");
   var catLabel = cat || "전체 카테고리";
+  var amtColor = searchType==="income"?"#1565c0":"#c62828";
 
   function itemsOfMonth(key){
     var m=data[key];
-    if(!m || !m.expense) return [];
-    return m.expense.filter(function(it){ return !cat || it.cat===cat; });
+    if(!m || !m[searchType]) return [];
+    return m[searchType].filter(function(it){ return !cat || it.cat===cat; });
   }
 
   if(mode==="month"){
@@ -8071,10 +8101,10 @@ function runCatSearch(){
     var rows=items.map(function(it){
       var dateStr=it.date?it.date.slice(5).replace('-','/'):'';
       var catBadge=!cat?'<span style="font-size:10px;background:#fff3e0;color:#e65100;border-radius:4px;padding:1px 5px;margin-right:4px;font-weight:600">'+(it.cat||'')+'</span>':'';
-      return '<div class="ldg-item"><span class="ldg-item-name"><span style="font-size:11px;font-weight:700;color:#fff;background:#00897b;border-radius:5px;padding:1px 6px;margin-right:6px">'+dateStr+'</span>'+catBadge+it.name+'</span><span class="ldg-item-amt" style="color:#c62828">'+it.amount.toLocaleString()+'원</span></div>';
+      return '<div class="ldg-item"><span class="ldg-item-name"><span style="font-size:11px;font-weight:700;color:#fff;background:#00897b;border-radius:5px;padding:1px 6px;margin-right:6px">'+dateStr+'</span>'+catBadge+it.name+'</span><span class="ldg-item-amt" style="color:'+amtColor+'">'+it.amount.toLocaleString()+'원</span></div>';
     }).join("");
     el.innerHTML='<div style="font-size:13px;font-weight:800;color:#00897b;margin-bottom:6px">'+mv+' · '+catLabel+'</div>'+
-      '<div style="display:flex;justify-content:space-between;padding:2px 4px 10px;margin-bottom:6px;border-bottom:2px solid #e0e0e0"><span style="font-size:13px;font-weight:800;color:var(--text)">합계</span><span style="font-size:15px;font-weight:900;color:#c62828">'+total.toLocaleString()+'원</span></div>'+
+      '<div style="display:flex;justify-content:space-between;padding:2px 4px 10px;margin-bottom:6px;border-bottom:2px solid #e0e0e0"><span style="font-size:13px;font-weight:800;color:var(--text)">합계</span><span style="font-size:15px;font-weight:900;color:'+amtColor+'">'+total.toLocaleString()+'원</span></div>'+
       rows;
   } else {
     var yr=document.getElementById("catSearchYear").value;
@@ -8091,7 +8121,7 @@ function runCatSearch(){
       grandTotal+=mTotal;
       var itemLines=items.map(function(it){
         var catBadge=!cat?'<span style="font-size:10px;background:#fff3e0;color:#e65100;border-radius:4px;padding:1px 5px;margin-right:4px;font-weight:600">'+(it.cat||'')+'</span>':'';
-        return '<div style="display:flex;justify-content:space-between;padding:3px 0 3px 12px;font-size:12px"><span>'+catBadge+it.name+'</span><span style="color:#c62828;font-weight:700">'+it.amount.toLocaleString()+'원</span></div>';
+        return '<div style="display:flex;justify-content:space-between;padding:3px 0 3px 12px;font-size:12px"><span>'+catBadge+it.name+'</span><span style="color:'+amtColor+';font-weight:700">'+it.amount.toLocaleString()+'원</span></div>';
       }).join("");
       monthRows+='<div style="margin-bottom:8px">'+
         '<div style="display:flex;justify-content:space-between;background:#e0f2f1;border-radius:6px;padding:6px 10px;font-size:13px;font-weight:800;color:#00695c"><span>'+mo+'월</span><span>'+mTotal.toLocaleString()+'원</span></div>'+
@@ -8104,7 +8134,7 @@ function runCatSearch(){
     }
     el.innerHTML='<div style="font-size:13px;font-weight:800;color:#00897b;margin-bottom:6px">'+yr+'년 · '+catLabel+'</div>'+
       monthRows+
-      '<div style="display:flex;justify-content:space-between;padding:10px 4px 2px;margin-top:6px;border-top:2px solid #e0e0e0"><span style="font-size:14px;font-weight:900;color:var(--text)">연간 합계</span><span style="font-size:16px;font-weight:900;color:#c62828">'+grandTotal.toLocaleString()+'원</span></div>';
+      '<div style="display:flex;justify-content:space-between;padding:10px 4px 2px;margin-top:6px;border-top:2px solid #e0e0e0"><span style="font-size:14px;font-weight:900;color:var(--text)">연간 합계</span><span style="font-size:16px;font-weight:900;color:'+amtColor+'">'+grandTotal.toLocaleString()+'원</span></div>';
   }
 }
 
@@ -8133,7 +8163,7 @@ function renderLedger(){
       var dateStr=item.date?'<span style="font-size:11px;font-weight:700;color:#fff;background:'+color+';border-radius:5px;padding:1px 6px;margin-right:6px">'+item.date.slice(5).replace('-','/')+'</span>':'';
       var nameDisplay=item.broker
         ?item.name+' <span style="font-size:11px;color:#616161">'+item.broker+'</span>'
-        :type==="expense"&&item.cat
+        :(type==="expense"||type==="income")&&item.cat
         ?'<span style="font-size:10px;background:#fff3e0;color:#e65100;border-radius:4px;padding:1px 5px;margin-right:4px;font-weight:600">'+item.cat+'</span>'+item.name
         :item.name;
       html+='<div class="ldg-item">'+
