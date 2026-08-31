@@ -8133,8 +8133,8 @@ function runCatSearch(){
       return;
     }
     el.innerHTML='<div style="font-size:13px;font-weight:800;color:#00897b;margin-bottom:6px">'+yr+'년 · '+catLabel+'</div>'+
-      monthRows+
-      '<div style="display:flex;justify-content:space-between;padding:10px 4px 2px;margin-top:6px;border-top:2px solid #e0e0e0"><span style="font-size:14px;font-weight:900;color:var(--text)">연간 합계</span><span style="font-size:16px;font-weight:900;color:'+amtColor+'">'+grandTotal.toLocaleString()+'원</span></div>';
+      '<div style="display:flex;justify-content:space-between;padding:2px 4px 10px;margin-bottom:6px;border-bottom:2px solid #e0e0e0"><span style="font-size:14px;font-weight:900;color:var(--text)">연간 합계</span><span style="font-size:16px;font-weight:900;color:'+amtColor+'">'+grandTotal.toLocaleString()+'원</span></div>'+
+      monthRows;
   }
 }
 
