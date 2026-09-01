@@ -8013,9 +8013,9 @@ function editLedger(type,idx){
     var a=document.getElementById("ldgInvAmt"); if(a) a.value=item.amount?(Number(item.amount).toLocaleString("ko-KR")):"";
     setEditMode("invest",idx);
   }
-  // 해당 섹션으로 스크롤
-  var card=document.querySelector(".ldg-card");
-  if(card) card.scrollIntoView({behavior:"smooth",block:"start"});
+  // 해당 섹션으로 스크롤 (수정 중인 타입의 입력 폼으로 정확히 이동)
+  var scrollTarget=document.getElementById(type==="income"?"ldgIncDate":type==="expense"?"ldgExpDate":"ldgInvDate");
+  if(scrollTarget) scrollTarget.scrollIntoView({behavior:"smooth",block:"center"});
 }
 
 function setEditMode(type,idx){
