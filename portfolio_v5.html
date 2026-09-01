@@ -1008,10 +1008,19 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
       <datalist id="divNameList"></datalist>
       <select id="divBroker" style="border:1.5px solid var(--border);border-radius:8px;padding:0 6px;font-size:12px;font-weight:700;background:#fff;color:var(--text);font-family:'Noto Sans KR',sans-serif">
         <option value="">증권사</option>
-        <option value="연금">연금</option>
         <option value="신한">신한</option>
         <option value="KB">KB</option>
         <option value="메리츠">메리츠</option>
+      </select>
+    </div>
+    <div class="f-lbl">카테고리</div>
+    <div style="margin-bottom:8px">
+      <select id="divCat" style="border:1.5px solid var(--border);border-radius:8px;padding:0 6px;height:36px;font-size:12px;font-weight:700;background:#fff;color:var(--text);font-family:'Noto Sans KR',sans-serif;width:100%">
+        <option value="">카테고리</option>
+        <option value="일반">일반</option>
+        <option value="ISA">ISA</option>
+        <option value="해외">해외</option>
+        <option value="연금">연금</option>
       </select>
     </div>
     <div class="f-lbl">배당금액</div>
@@ -1378,15 +1387,24 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
       <input type="date" id="ldgInvDate" style="height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--sky-bg);color:var(--text);box-sizing:border-box;width:100%">
       <select id="ldgInvBroker" style="height:38px;padding:0 4px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-weight:700;background:var(--sky-bg);color:var(--text);box-sizing:border-box;width:100%;font-family:'Noto Sans KR',sans-serif">
         <option value="">증권사</option>
-        <option value="연금">연금</option>
         <option value="신한">신한</option>
         <option value="KB">KB</option>
         <option value="메리츠">메리츠</option>
       </select>
       <button id="ldgInvestBtn" onclick="addLedger('invest')" style="height:38px;background:#ab47bc;border:none;border-radius:8px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;width:100%">추가</button>
     </div>
-    <div style="display:grid;grid-template-columns:6.5fr 3.5fr;gap:6px;margin-bottom:6px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px">
+      <select id="ldgInvCat" style="height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-weight:700;background:#fff;color:var(--text);box-sizing:border-box;width:100%;font-family:'Noto Sans KR',sans-serif">
+        <option value="">카테고리</option>
+        <option value="일반">일반</option>
+        <option value="ISA">ISA</option>
+        <option value="해외">해외</option>
+        <option value="연금">연금</option>
+      </select>
       <input id="ldgInvName" placeholder="항목명 (예: QTOP, NVDA)" style="height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--sky-bg);color:var(--text);box-sizing:border-box;width:100%">
+    </div>
+    <div style="display:grid;grid-template-columns:6.5fr 3.5fr;gap:6px;margin-bottom:6px">
+      <div></div>
       <input id="ldgInvAmt" type="text" inputmode="numeric" placeholder="금액(원)" oninput="fmtAmtInp(this)" style="height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-weight:700;text-align:right;background:var(--sky-bg);color:var(--text);box-sizing:border-box;width:100%">
     </div>
     <div id="ldgInvList"></div>
@@ -6433,7 +6451,7 @@ function renderDividend() {
   el.innerHTML=filtered.map(function(obj){
     var d=obj.d, i=obj.i;
     return '<div class="div-list-item" id="divitem-'+i+'">'+
-      '<div class="div-item-left"><div class="name">'+d.name+(d.broker?' <span style="font-size:11px;color:#616161;font-weight:400">'+d.broker+'</span>':'')+'</div><div class="date">'+d.date+'</div></div>'+
+      '<div class="div-item-left"><div class="name">'+(d.cat?'<span style="font-size:10px;background:#f3e5f5;color:#7b1fa2;border-radius:4px;padding:1px 5px;margin-right:4px;font-weight:600">'+d.cat+'</span>':'')+d.name+(d.broker?' <span style="font-size:11px;color:#616161;font-weight:400">'+d.broker+'</span>':'')+'</div><div class="date">'+d.date+'</div></div>'+
       '<div style="display:flex;align-items:center;gap:8px">'+
       '<div class="div-item-right"><div class="amount">+'+Math.round(d.amount).toLocaleString()+'원</div></div>'+
       '<button class="btn-del-div" onclick="delDiv('+i+')">×</button>'+
@@ -6443,6 +6461,13 @@ function renderDividend() {
         '<div style="display:flex;flex-direction:column;gap:6px">'+
           '<input id="de-name-'+i+'" type="text" value="'+d.name+'" placeholder="종목명" style="border:1.5px solid #90caf9;border-radius:6px;padding:6px 8px;font-size:13px;width:100%;box-sizing:border-box">'+
           '<input id="de-broker-'+i+'" type="text" value="'+(d.broker||'')+'" placeholder="증권사" style="border:1.5px solid #90caf9;border-radius:6px;padding:6px 8px;font-size:13px;width:100%;box-sizing:border-box">'+
+          '<select id="de-cat-'+i+'" style="border:1.5px solid #90caf9;border-radius:6px;padding:6px 8px;font-size:13px;width:100%;box-sizing:border-box;background:#fff;font-family:\'Noto Sans KR\',sans-serif">'+
+            '<option value=""'+(!d.cat?' selected':'')+'>카테고리</option>'+
+            '<option value="일반"'+(d.cat==="일반"?' selected':'')+'>일반</option>'+
+            '<option value="ISA"'+(d.cat==="ISA"?' selected':'')+'>ISA</option>'+
+            '<option value="해외"'+(d.cat==="해외"?' selected':'')+'>해외</option>'+
+            '<option value="연금"'+(d.cat==="연금"?' selected':'')+'>연금</option>'+
+          '</select>'+
           '<input id="de-date-'+i+'" type="date" value="'+d.date+'" style="border:1.5px solid #90caf9;border-radius:6px;padding:6px 8px;font-size:13px;width:100%;box-sizing:border-box">'+
           '<input id="de-amt-'+i+'" type="number" value="'+Math.round(d.amount)+'" placeholder="금액(원)" style="border:1.5px solid #90caf9;border-radius:6px;padding:6px 8px;font-size:13px;width:100%;box-sizing:border-box">'+
           '<div style="display:flex;gap:6px">'+
@@ -6463,11 +6488,14 @@ function toggleDivEdit(i){
 function saveDivEdit(i){
   var name=document.getElementById('de-name-'+i).value.trim();
   var broker=document.getElementById('de-broker-'+i).value.trim();
+  var catEl=document.getElementById('de-cat-'+i);
+  var cat=catEl?catEl.value:"";
   var date=document.getElementById('de-date-'+i).value;
   var amt=parseFloat(document.getElementById('de-amt-'+i).value);
   if(!name||!date||isNaN(amt)) return;
   divList[i].name=name;
   divList[i].broker=broker;
+  divList[i].cat=cat;
   divList[i].date=date;
   divList[i].amount=amt;
   localStorage.setItem('v5_div', JSON.stringify(divList));
@@ -6547,11 +6575,13 @@ function addDiv() {
   var cur=document.getElementById("divCur").value;
   var date=document.getElementById("divDate").value;
   var broker=(document.getElementById("divBroker")||{}).value||"";
+  var cat=(document.getElementById("divCat")||{}).value||"";
   if(!name||!amt||!date){alert("모두 입력해주세요");return;}
   var amtKrw=cur==="USD"?Math.round(amt*getRate()):Math.round(amt);
-  divList.push({name:name,amount:amtKrw,date:date,broker:broker,usd:cur==="USD"?amt:null});
+  divList.push({name:name,amount:amtKrw,date:date,broker:broker,cat:cat,usd:cur==="USD"?amt:null});
   document.getElementById("divName").value="";
   document.getElementById("divAmt").value="";
+  var divCatEl=document.getElementById("divCat"); if(divCatEl) divCatEl.value="";
   document.getElementById("divUsdPreview").style.display="none";
   save(); renderDividend();
 }
@@ -7930,6 +7960,7 @@ function addLedger(type){
   var cat="";
   if(type==="expense"){var cEl=document.getElementById("ldgExpCat"); if(cEl) cat=cEl.value;}
   if(type==="income"){var cEl2=document.getElementById("ldgIncCat"); if(cEl2) cat=cEl2.value;}
+  if(type==="invest"){var cEl3=document.getElementById("ldgInvCat"); if(cEl3) cat=cEl3.value;}
   var entry={name:name,amount:amt,date:date,broker:broker,cat:cat};
   var data=loadLedgerData();
   var key=getLedgerKey();
@@ -7949,6 +7980,7 @@ function addLedger(type){
   nameEl.value=""; amtEl.value="";
   if(type==="expense"){var ce=document.getElementById("ldgExpCat"); if(ce) ce.value="";}
   if(type==="income"){var ci=document.getElementById("ldgIncCat"); if(ci) ci.value="";}
+  if(type==="invest"){var civ=document.getElementById("ldgInvCat"); if(civ) civ.value="";}
   renderLedger();
 }
 function editLedger(type,idx){
@@ -7973,6 +8005,7 @@ function editLedger(type,idx){
   } else if(type==="invest"){
     var d=document.getElementById("ldgInvDate"); if(d) d.value=item.date||"";
     var b=document.getElementById("ldgInvBroker"); if(b) b.value=item.broker||"";
+    var civ2=document.getElementById("ldgInvCat"); if(civ2) civ2.value=item.cat||"";
     var n=document.getElementById("ldgInvName"); if(n) n.value=item.name||"";
     var a=document.getElementById("ldgInvAmt"); if(a) a.value=item.amount?(Number(item.amount).toLocaleString("ko-KR")):"";
     setEditMode("invest",idx);
@@ -8163,8 +8196,9 @@ function renderLedger(){
       var item=obj.item, i=obj.idx;
       total+=item.amount;
       var dateStr=item.date?'<span style="font-size:11px;font-weight:700;color:#fff;background:'+color+';border-radius:5px;padding:1px 6px;margin-right:6px">'+item.date.slice(5).replace('-','/')+'</span>':'';
-      var nameDisplay=item.broker
-        ?item.name+' <span style="font-size:11px;color:#616161">'+item.broker+'</span>'
+      var catBadgeInline=item.cat?'<span style="font-size:10px;background:#f3e5f5;color:#7b1fa2;border-radius:4px;padding:1px 5px;margin-right:4px;font-weight:600">'+item.cat+'</span>':'';
+      var nameDisplay=type==="invest"
+        ?catBadgeInline+item.name+(item.broker?' <span style="font-size:11px;color:#616161">'+item.broker+'</span>':'')
         :(type==="expense"||type==="income")&&item.cat
         ?'<span style="font-size:10px;background:#fff3e0;color:#e65100;border-radius:4px;padding:1px 5px;margin-right:4px;font-weight:600">'+item.cat+'</span>'+item.name
         :item.name;
