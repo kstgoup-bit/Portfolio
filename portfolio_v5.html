@@ -8272,14 +8272,14 @@ function renderLedger(){
         var bH=Math.max(Math.round((H2-padT2-padB2)*inc/maxV2),3);
         var y=H2-padB2-bH;
         html2+='<rect x="'+(cx-bW-1)+'" y="'+y+'" width="'+bW+'" height="'+bH+'" rx="2" fill="'+(isCurrent?"#1565c0":"#90caf9")+'"/>';
-        if(bH>16){var lb=inc>=10000000?(inc/10000000).toFixed(0)+'천만':inc>=1000000?(inc/1000000).toFixed(0)+'백만':inc>=10000?(inc/10000).toFixed(0)+'만':''; if(lb) html2+='<text x="'+(cx-bW/2-1)+'" y="'+(y-4)+'" text-anchor="middle" font-size="9" fill="#1565c0" font-weight="700">'+lb+'</text>';}
+        if(bH>16){var lb=inc>=10000000?(inc/10000000).toFixed(1)+'천만':inc>=1000000?(inc/1000000).toFixed(1)+'백만':inc>=10000?(inc/10000).toFixed(0)+'만':''; if(lb) html2+='<text x="'+(cx-bW/2-1)+'" y="'+(y-4)+'" text-anchor="middle" font-size="9" fill="#1565c0" font-weight="700">'+lb+'</text>';}
       }
       // 지출 막대 (오른쪽)
       if(exp>0){
         var bH2=Math.max(Math.round((H2-padT2-padB2)*exp/maxV2),3);
         var y2=H2-padB2-bH2;
         html2+='<rect x="'+(cx+1)+'" y="'+y2+'" width="'+bW+'" height="'+bH2+'" rx="2" fill="'+(isCurrent?"#c62828":"#ef9a9a")+'"/>';
-        if(bH2>16){var lb2=exp>=10000000?(exp/10000000).toFixed(0)+'천만':exp>=1000000?(exp/1000000).toFixed(0)+'백만':exp>=10000?(exp/10000).toFixed(0)+'만':''; if(lb2) html2+='<text x="'+(cx+bW/2+1)+'" y="'+(y2-4)+'" text-anchor="middle" font-size="9" fill="#c62828" font-weight="700">'+lb2+'</text>';}
+        if(bH2>16){var lb2=exp>=10000000?(exp/10000000).toFixed(1)+'천만':exp>=1000000?(exp/1000000).toFixed(1)+'백만':exp>=10000?(exp/10000).toFixed(0)+'만':''; if(lb2) html2+='<text x="'+(cx+bW/2+1)+'" y="'+(y2-4)+'" text-anchor="middle" font-size="9" fill="#c62828" font-weight="700">'+lb2+'</text>';}
       }
       html2+='<text x="'+cx+'" y="'+(H2-padB2+16)+'" text-anchor="middle" font-size="13" fill="'+(isCurrent?"#333":"#94a3b8")+'" font-weight="'+(isCurrent?"800":"400")+'">'+mk.slice(5)+'</text>';
     });
