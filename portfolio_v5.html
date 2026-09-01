@@ -1013,15 +1013,19 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
         <option value="메리츠">메리츠</option>
       </select>
     </div>
-    <div class="f-lbl">카테고리</div>
-    <div style="margin-bottom:8px">
-      <select id="divCat" style="border:1.5px solid var(--border);border-radius:8px;padding:0 6px;height:36px;font-size:12px;font-weight:700;background:#fff;color:var(--text);font-family:'Noto Sans KR',sans-serif;width:100%">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:2px">
+      <div class="f-lbl" style="margin-bottom:2px">카테고리</div>
+      <div class="f-lbl" style="margin-bottom:2px">수령일</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
+      <select id="divCat" style="border:1.5px solid var(--border);border-radius:8px;padding:0 6px;height:38px;font-size:12px;font-weight:700;background:#fff;color:var(--text);font-family:'Noto Sans KR',sans-serif;width:100%;box-sizing:border-box">
         <option value="">카테고리</option>
         <option value="일반">일반</option>
         <option value="ISA">ISA</option>
         <option value="해외">해외</option>
         <option value="연금">연금</option>
       </select>
+      <input class="f-inp" type="date" id="divDate" style="margin-bottom:0;height:38px;box-sizing:border-box">
     </div>
     <div class="f-lbl">배당금액</div>
     <div style="display:grid;grid-template-columns:7fr 3fr;gap:6px;margin-bottom:4px">
@@ -1032,7 +1036,6 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
       </select>
     </div>
     <div id="divUsdPreview" style="font-size:11px;color:var(--muted);margin-top:4px;margin-bottom:8px;display:none"></div>
-    <div class="f-lbl">수령일</div><input class="f-inp" type="date" id="divDate">
     <div class="f-btns">
       
     </div>
