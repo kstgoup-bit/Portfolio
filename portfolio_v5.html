@@ -4436,13 +4436,16 @@ function renderLineChart(period, btnId, chartId, snapKey, color) {
   if(snapKey==="all"){
     curCost=domStocks.filter(function(s){return s.quantity>0;}).reduce(function(s,x){return s+x.quantity*x.avgPrice;},0)
       +ovStocks.filter(function(s){return s.quantity>0;}).reduce(function(s,x){return s+x.quantity*x.avgPrice*fx;},0)
-      +penStocks.filter(function(s){return s.quantity>0;}).reduce(function(s,x){return s+x.quantity*x.avgPrice;},0);
+      +penStocks.filter(function(s){return s.quantity>0;}).reduce(function(s,x){return s+x.quantity*x.avgPrice;},0)
+      +genStocks.filter(function(s){return s.quantity>0;}).reduce(function(s,x){return s+x.quantity*x.avgPrice;},0);
   } else if(snapKey==="dom"){
     curCost=domStocks.filter(function(s){return s.quantity>0;}).reduce(function(s,x){return s+x.quantity*x.avgPrice;},0);
   } else if(snapKey==="ov"){
     curCost=ovStocks.filter(function(s){return s.quantity>0;}).reduce(function(s,x){return s+x.quantity*x.avgPrice*fx;},0);
   } else if(snapKey==="pen"){
     curCost=penStocks.filter(function(s){return s.quantity>0;}).reduce(function(s,x){return s+x.quantity*x.avgPrice;},0);
+  } else if(snapKey==="gen"){
+    curCost=genStocks.filter(function(s){return s.quantity>0;}).reduce(function(s,x){return s+x.quantity*x.avgPrice;},0);
   }
   var costs=pts.map(function(d){return d.cost||curCost;});
   var hasCost=curCost>0;
