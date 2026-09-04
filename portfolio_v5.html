@@ -486,6 +486,7 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
   -webkit-tap-highlight-color: transparent;
 }
 .tab:active { transform: none; filter: none; }
+select { -webkit-user-select: none; user-select: none; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
 </style>
 
 <body style="background:#1a3a8f">
@@ -1386,15 +1387,15 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
   <!-- 투자 -->
   <div class="ldg-card">
     <div class="ldg-title" id="ldgInvTitle" style="color:#7b1fa2">📈 투자</div>
-    <div style="display:grid;grid-template-columns:4fr 2.5fr 3.5fr;gap:6px;margin-bottom:6px">
-      <input type="date" id="ldgInvDate" style="height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--sky-bg);color:var(--text);box-sizing:border-box;width:100%">
-      <select id="ldgInvBroker" style="height:38px;padding:0 4px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-weight:700;background:var(--sky-bg);color:var(--text);box-sizing:border-box;width:100%;font-family:'Noto Sans KR',sans-serif">
+    <div style="display:grid;grid-template-columns:3.5fr 3fr 3fr;gap:6px;margin-bottom:6px">
+      <input type="date" id="ldgInvDate" style="height:40px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--sky-bg);color:var(--text);box-sizing:border-box;width:100%">
+      <select id="ldgInvBroker" style="height:40px;padding:0 4px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-weight:700;background:var(--sky-bg);color:var(--text);box-sizing:border-box;width:100%;font-family:'Noto Sans KR',sans-serif;-webkit-user-select:none;user-select:none;touch-action:manipulation">
         <option value="">증권사</option>
         <option value="신한">신한</option>
         <option value="KB">KB</option>
         <option value="메리츠">메리츠</option>
       </select>
-      <button id="ldgInvestBtn" onclick="addLedger('invest')" style="height:38px;background:#ab47bc;border:none;border-radius:8px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;width:100%">추가</button>
+      <button id="ldgInvestBtn" onclick="addLedger('invest')" style="height:40px;background:#ab47bc;border:none;border-radius:8px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;width:100%">추가</button>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px">
       <select id="ldgInvCat" style="height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-weight:700;background:#fff;color:var(--text);box-sizing:border-box;width:100%;font-family:'Noto Sans KR',sans-serif">
