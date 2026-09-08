@@ -4721,7 +4721,7 @@ function renderEditForm(s, type) {
       '<div class="calc-amt" id="ca'+(n+1)+'_'+type+'_'+s.id+'">'+amt+'</div>'+
       '</div>';
   });
-  var initAvg = total_q>0 ? (total_a/total_q).toFixed(2) : "−";
+  var initAvg = total_q>0 ? (total_a/total_q).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2}) : "−";
   var curRole=s.role||"spear";
   var themeOptions=['나스닥ETF','AI·반도체ETF','빅테크','우주·항공','로봇·양자','방어·금','SMR·에너지','금융·인프라','기타'];
   var utm=JSON.parse(localStorage.getItem('v5_userThemeMap')||'{}');
@@ -4774,7 +4774,7 @@ function calcAvg(type, id) {
   });
   var avg=total_q>0?total_a/total_q:0;
   var re=document.getElementById("calcResult_"+type+"_"+id);
-  if(re) re.textContent=avg>0?avg.toFixed(2):"−";
+  if(re) re.textContent=avg>0?avg.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2}):"−";
 }
 
 function applyAvg(type, id) {
@@ -4788,11 +4788,12 @@ function applyAvg(type, id) {
   });
   if(!total_q){showToast("⚠️ 수량을 입력해주세요");return;}
   var avg=total_a/total_q;
+  var avgFmt=avg.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
   var qe=document.getElementById("eq_"+type+"_"+id);
   var ae=document.getElementById("ea_"+type+"_"+id);
   if(qe) qe.value=total_q;
-  if(ae) ae.value=avg.toFixed(2);
-  showToast("✅ "+total_q+"주, 평균단가 "+avg.toFixed(2)+" 입력완료!");
+  if(ae) ae.value=avgFmt;
+  showToast("✅ "+total_q+"주, 평균단가 "+avgFmt+" 입력완료!");
 }
 
 function toggleEdit(id, type) {
