@@ -4061,31 +4061,31 @@ async function fetchRiskData() {
 
   if(vixTxt){
     var v=parseFred(vixTxt)||parseYahoo(vixTxt);
-    if(v){vix=parseFloat(v.toFixed(1)); ok.push("VIX "+vix);}
+    if(v&&v>=5&&v<=100){vix=parseFloat(v.toFixed(1)); ok.push("VIX "+vix);}
     else fail.push("VIX");
   } else fail.push("VIX");
 
   if(rateTxt){
     var v=parseFred(rateTxt)||parseYahoo(rateTxt);
-    if(v){rate=parseFloat(v.toFixed(2)); ok.push("10Y "+rate+"%");}
+    if(v&&v>=0.1&&v<=15){rate=parseFloat(v.toFixed(2)); ok.push("10Y "+rate+"%");}
     else fail.push("10Y금리");
   } else fail.push("10Y금리");
 
   if(hyTxt){
     var v=parseFred(hyTxt);
-    if(v){hy=Math.round(v*100); ok.push("HY "+hy+"bps");}
+    if(v&&v>=0.5&&v<=30){hy=Math.round(v*100); ok.push("HY "+hy+"bps");}
     else fail.push("HY스프레드");
   } else fail.push("HY스프레드");
 
   if(dxyTxt){
     var v=parseYahoo(dxyTxt)||parseFred(dxyTxt);
-    if(v){dxy=parseFloat(v.toFixed(2)); ok.push("DXY "+dxy);}
+    if(v&&v>=50&&v<=150){dxy=parseFloat(v.toFixed(2)); ok.push("DXY "+dxy);}
     else fail.push("DXY");
   } else fail.push("DXY");
 
   if(rate2Txt){
     var v=parseFred(rate2Txt)||parseYahoo(rate2Txt);
-    if(v){rate2=parseFloat(v.toFixed(2)); ok.push("2Y "+rate2+"%");}
+    if(v&&v>=0.1&&v<=15){rate2=parseFloat(v.toFixed(2)); ok.push("2Y "+rate2+"%");}
     else fail.push("2Y금리");
   } else fail.push("2Y금리");
 
