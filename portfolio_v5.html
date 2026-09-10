@@ -488,14 +488,18 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
 .tab:active { transform: none; filter: none; }
 select { -webkit-user-select: none; user-select: none; touch-action: manipulation; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; }
 .cdd{position:relative;width:100%}
-.cdd-btn{width:100%;height:100%;text-align:left;border:1.5px solid var(--border,#ccc);border-radius:8px;background:#fff;color:var(--text,#222);font-size:13px;font-weight:700;font-family:'Noto Sans KR',sans-serif;cursor:pointer;box-sizing:border-box;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation;display:flex;align-items:center;justify-content:space-between}
-.cdd-btn::after{content:'▾';font-size:11px;color:#90a4ae;margin-left:4px}
+.cdd-btn{width:100%;height:100%;text-align:center;border:1.5px solid var(--border,#ccc);border-radius:8px;background:#fff;color:var(--text,#222);font-size:13px;font-weight:700;font-family:'Noto Sans KR',sans-serif;cursor:pointer;box-sizing:border-box;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation;display:flex;align-items:center;justify-content:center;padding:0 22px 0 10px;position:relative;transition:border-color .15s,box-shadow .15s}
+.cdd-btn::after{content:'▾';font-size:11px;color:#78909c;position:absolute;right:10px;top:50%;transform:translateY(-50%);transition:transform .18s ease}
+.cdd.open .cdd-btn{border-color:#42a5f5;box-shadow:0 0 0 3px rgba(66,165,245,0.12)}
+.cdd.open .cdd-btn::after{transform:translateY(-50%) rotate(180deg);color:#1e88e5}
 .cdd-btn.cdd-placeholder{color:#9aa5b1;font-weight:600}
-.cdd-list{display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:#fff;border:1.5px solid var(--border,#ccc);border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,0.12);max-height:260px;overflow-y:auto;z-index:60}
-.cdd.open .cdd-list{display:block}
-.cdd-opt{padding:10px 12px;font-size:13px;font-weight:600;color:var(--text,#222);cursor:pointer;-webkit-user-select:none;user-select:none}
-.cdd-opt:active{background:#f0f4f8}
-.cdd-opt.cdd-selected{color:#1565c0;font-weight:800;background:#f3f8ff}
+.cdd-list{display:block;position:absolute;top:calc(100% + 6px);left:0;right:0;background:#fff;border:1.5px solid #e3e8ee;border-radius:10px;box-shadow:0 10px 28px rgba(20,40,70,0.16);max-height:260px;overflow-y:auto;z-index:60;opacity:0;transform:translateY(-6px) scale(0.98);pointer-events:none;transition:opacity .14s ease,transform .14s ease;padding:4px}
+.cdd.open .cdd-list{opacity:1;transform:translateY(0) scale(1);pointer-events:auto}
+.cdd-opt{padding:10px 12px;font-size:13px;font-weight:600;color:var(--text,#222);cursor:pointer;-webkit-user-select:none;user-select:none;border-radius:7px;display:flex;align-items:center;justify-content:space-between}
+.cdd-opt:active{background:#eef4fb}
+.cdd-opt+.cdd-opt{margin-top:1px}
+.cdd-opt.cdd-selected{color:#1565c0;font-weight:800;background:linear-gradient(90deg,#eef6ff,#f7fbff)}
+.cdd-opt.cdd-selected::after{content:'✓';font-size:12px;color:#1e88e5;font-weight:900}
 </style>
 
 <body style="background:#1a3a8f">
@@ -1408,6 +1412,7 @@ select { -webkit-user-select: none; user-select: none; touch-action: manipulatio
       </div>
       <div style="flex:1"></div>
     </div>
+    <div class="f-lbl" style="margin-bottom:2px">조회할 기간</div>
     <div style="display:flex;gap:8px;margin-bottom:10px">
       <input type="month" id="catSearchMonth" style="flex:1;height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;box-sizing:border-box;font-family:'Noto Sans KR',sans-serif">
       <select id="catSearchYear" style="display:none;flex:1;height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-weight:700;background:#fff;color:var(--text);box-sizing:border-box;font-family:'Noto Sans KR',sans-serif"></select>
@@ -6652,6 +6657,11 @@ document.addEventListener("DOMContentLoaded",function(){
   }
   if(amtEl) amtEl.addEventListener("input",updatePreview);
   if(curEl) curEl.addEventListener("change",updatePreview);
+  var csm=document.getElementById("catSearchMonth");
+  if(csm && !csm.value){
+    var now=new Date();
+    csm.value=now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0");
+  }
 });
 
 function delDiv(i) {
