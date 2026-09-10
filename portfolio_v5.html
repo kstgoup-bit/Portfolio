@@ -486,7 +486,16 @@ button, .btn-edit, .btn-del, .btn-del-div, .ldg-add-btn, .tab, .period-btn, .rec
   -webkit-tap-highlight-color: transparent;
 }
 .tab:active { transform: none; filter: none; }
-select { -webkit-user-select: none; user-select: none; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+select { -webkit-user-select: none; user-select: none; touch-action: manipulation; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; }
+.cdd{position:relative;width:100%}
+.cdd-btn{width:100%;height:100%;text-align:left;border:1.5px solid var(--border,#ccc);border-radius:8px;background:#fff;color:var(--text,#222);font-size:13px;font-weight:700;font-family:'Noto Sans KR',sans-serif;cursor:pointer;box-sizing:border-box;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation;display:flex;align-items:center;justify-content:space-between}
+.cdd-btn::after{content:'▾';font-size:11px;color:#90a4ae;margin-left:4px}
+.cdd-btn.cdd-placeholder{color:#9aa5b1;font-weight:600}
+.cdd-list{display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:#fff;border:1.5px solid var(--border,#ccc);border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,0.12);max-height:260px;overflow-y:auto;z-index:60}
+.cdd.open .cdd-list{display:block}
+.cdd-opt{padding:10px 12px;font-size:13px;font-weight:600;color:var(--text,#222);cursor:pointer;-webkit-user-select:none;user-select:none}
+.cdd-opt:active{background:#f0f4f8}
+.cdd-opt.cdd-selected{color:#1565c0;font-weight:800;background:#f3f8ff}
 </style>
 
 <body style="background:#1a3a8f">
@@ -1007,25 +1016,31 @@ select { -webkit-user-select: none; user-select: none; touch-action: manipulatio
     <div style="display:grid;grid-template-columns:7fr 3fr;gap:6px;margin-bottom:8px">
       <input class="f-inp" id="divName" list="divNameList" placeholder="예: SPGI (직접 입력 또는 목록에서 선택)" style="margin-bottom:0">
       <datalist id="divNameList"></datalist>
-      <select id="divBroker" style="border:1.5px solid var(--border);border-radius:8px;padding:0 6px;font-size:12px;font-weight:700;background:#fff;color:var(--text);font-family:'Noto Sans KR',sans-serif">
-        <option value="">증권사</option>
-        <option value="신한">신한</option>
-        <option value="KB">KB</option>
-        <option value="메리츠">메리츠</option>
-      </select>
+      <div class="cdd" data-id="divBroker" style="height:38px">
+        <input type="hidden" id="divBroker" value="">
+        <button type="button" class="cdd-btn cdd-placeholder" data-placeholder="증권사" style="font-size:12px">증권사</button>
+        <div class="cdd-list">
+          <div class="cdd-opt" data-value="신한">신한</div>
+          <div class="cdd-opt" data-value="KB">KB</div>
+          <div class="cdd-opt" data-value="메리츠">메리츠</div>
+        </div>
+      </div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:2px">
       <div class="f-lbl" style="margin-bottom:2px">카테고리</div>
       <div class="f-lbl" style="margin-bottom:2px">수령일</div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
-      <select id="divCat" style="border:1.5px solid var(--border);border-radius:8px;padding:0 6px;height:38px;font-size:12px;font-weight:700;background:#fff;color:var(--text);font-family:'Noto Sans KR',sans-serif;width:100%;box-sizing:border-box">
-        <option value="">카테고리</option>
-        <option value="일반">일반</option>
-        <option value="ISA">ISA</option>
-        <option value="해외">해외</option>
-        <option value="연금">연금</option>
-      </select>
+      <div class="cdd" data-id="divCat" style="height:38px">
+        <input type="hidden" id="divCat" value="">
+        <button type="button" class="cdd-btn cdd-placeholder" data-placeholder="카테고리" style="font-size:12px">카테고리</button>
+        <div class="cdd-list">
+          <div class="cdd-opt" data-value="일반">일반</div>
+          <div class="cdd-opt" data-value="ISA">ISA</div>
+          <div class="cdd-opt" data-value="해외">해외</div>
+          <div class="cdd-opt" data-value="연금">연금</div>
+        </div>
+      </div>
       <input class="f-inp" type="date" id="divDate" style="margin-bottom:0;height:38px;box-sizing:border-box">
     </div>
     <div class="f-lbl">배당금액</div>
@@ -1278,12 +1293,15 @@ select { -webkit-user-select: none; user-select: none; touch-action: manipulatio
       <button id="ldgIncomeBtn" onclick="addLedger('income')" style="height:38px;background:#42a5f5;border:none;border-radius:8px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;width:100%">추가</button>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px">
-      <select id="ldgIncCat" style="height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-weight:700;background:#fff;color:var(--text);box-sizing:border-box;width:100%;font-family:'Noto Sans KR',sans-serif">
-        <option value="">카테고리</option>
-        <option value="💼 월급">💼 월급</option>
-        <option value="🏠 월세">🏠 월세</option>
-        <option value="💳 기타">💳 기타</option>
-      </select>
+      <div class="cdd" data-id="ldgIncCat" style="height:38px">
+        <input type="hidden" id="ldgIncCat" value="">
+        <button type="button" class="cdd-btn cdd-placeholder" data-placeholder="카테고리">카테고리</button>
+        <div class="cdd-list">
+          <div class="cdd-opt" data-value="💼 월급">💼 월급</div>
+          <div class="cdd-opt" data-value="🏠 월세">🏠 월세</div>
+          <div class="cdd-opt" data-value="💳 기타">💳 기타</div>
+        </div>
+      </div>
       <input id="ldgIncName" placeholder="항목명" style="height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--sky-bg);color:var(--text);box-sizing:border-box;width:100%">
     </div>
     <div style="display:grid;grid-template-columns:6.5fr 3.5fr;gap:6px;margin-bottom:6px">
@@ -1313,22 +1331,25 @@ select { -webkit-user-select: none; user-select: none; touch-action: manipulatio
       <button id="ldgExpenseBtn" onclick="addLedger('expense')" style="height:38px;background:#ef5350;border:none;border-radius:8px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;width:100%">추가</button>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px">
-      <select id="ldgExpCat" style="height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-weight:700;background:#fff;color:var(--text);box-sizing:border-box;width:100%;font-family:'Noto Sans KR',sans-serif">
-        <option value="">카테고리</option>
-        <option value="☕ 음료·카페">☕ 음료·카페</option>
-        <option value="🍽️ 외식">🍽️ 외식</option>
-        <option value="🚌 교통">🚌 교통</option>
-        <option value="🏠 생활비">🏠 생활비</option>
-        <option value="🏥 의료">🏥 의료</option>
-        <option value="📱 통신">📱 통신</option>
-        <option value="🛒 생활용품">🛒 생활용품</option>
-        <option value="🛡️ 보험">🛡️ 보험</option>
-        <option value="🏦 대출이자">🏦 대출이자</option>
-        <option value="⛪ 성당">⛪ 성당</option>
-        <option value="🤝 회비">🤝 회비</option>
-        <option value="🎁 경조사비">🎁 경조사비</option>
-        <option value="💳 기타">💳 기타</option>
-      </select>
+      <div class="cdd" data-id="ldgExpCat" style="height:38px">
+        <input type="hidden" id="ldgExpCat" value="">
+        <button type="button" class="cdd-btn cdd-placeholder" data-placeholder="카테고리">카테고리</button>
+        <div class="cdd-list">
+          <div class="cdd-opt" data-value="☕ 음료·카페">☕ 음료·카페</div>
+          <div class="cdd-opt" data-value="🍽️ 외식">🍽️ 외식</div>
+          <div class="cdd-opt" data-value="🚌 교통">🚌 교통</div>
+          <div class="cdd-opt" data-value="🏠 생활비">🏠 생활비</div>
+          <div class="cdd-opt" data-value="🏥 의료">🏥 의료</div>
+          <div class="cdd-opt" data-value="📱 통신">📱 통신</div>
+          <div class="cdd-opt" data-value="🛒 생활용품">🛒 생활용품</div>
+          <div class="cdd-opt" data-value="🛡️ 보험">🛡️ 보험</div>
+          <div class="cdd-opt" data-value="🏦 대출이자">🏦 대출이자</div>
+          <div class="cdd-opt" data-value="⛪ 성당">⛪ 성당</div>
+          <div class="cdd-opt" data-value="🤝 회비">🤝 회비</div>
+          <div class="cdd-opt" data-value="🎁 경조사비">🎁 경조사비</div>
+          <div class="cdd-opt" data-value="💳 기타">💳 기타</div>
+        </div>
+      </div>
       <input id="ldgExpName" placeholder="항목명" style="height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--sky-bg);color:var(--text);box-sizing:border-box;width:100%">
     </div>
     <div style="display:grid;grid-template-columns:6.5fr 3.5fr;gap:6px;margin-bottom:6px">
@@ -1348,32 +1369,43 @@ select { -webkit-user-select: none; user-select: none; touch-action: manipulatio
   <div class="card" style="margin-top:12px;border-left:4px solid #00897b">
     <div style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:10px">🔍 카테고리별 조회</div>
     <div style="display:flex;gap:8px;margin-bottom:8px">
-      <select id="catSearchType" onchange="toggleCatSearchType()" style="width:88px;height:38px;padding:0 6px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-weight:700;background:#fff;color:var(--text);box-sizing:border-box;font-family:'Noto Sans KR',sans-serif">
-        <option value="expense">지출</option>
-        <option value="income">수입</option>
-      </select>
-      <select id="catSearchCat" style="flex:1;height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-weight:700;background:#fff;color:var(--text);box-sizing:border-box;font-family:'Noto Sans KR',sans-serif">
-        <option value="">전체 카테고리</option>
-        <option value="☕ 음료·카페">☕ 음료·카페</option>
-        <option value="🍽️ 외식">🍽️ 외식</option>
-        <option value="🚌 교통">🚌 교통</option>
-        <option value="🏠 생활비">🏠 생활비</option>
-        <option value="🏥 의료">🏥 의료</option>
-        <option value="📱 통신">📱 통신</option>
-        <option value="🛒 생활용품">🛒 생활용품</option>
-        <option value="🛡️ 보험">🛡️ 보험</option>
-        <option value="🏦 대출이자">🏦 대출이자</option>
-        <option value="⛪ 성당">⛪ 성당</option>
-        <option value="🤝 회비">🤝 회비</option>
-        <option value="🎁 경조사비">🎁 경조사비</option>
-        <option value="💳 기타">💳 기타</option>
-      </select>
+      <div class="cdd" data-id="catSearchType" style="width:88px;height:38px">
+        <input type="hidden" id="catSearchType" value="expense">
+        <button type="button" class="cdd-btn" data-placeholder="지출" style="font-size:13px">지출</button>
+        <div class="cdd-list">
+          <div class="cdd-opt cdd-selected" data-value="expense">지출</div>
+          <div class="cdd-opt" data-value="income">수입</div>
+        </div>
+      </div>
+      <div class="cdd" data-id="catSearchCat" style="flex:1;height:38px">
+        <input type="hidden" id="catSearchCat" value="">
+        <button type="button" class="cdd-btn cdd-placeholder" data-placeholder="전체 카테고리">전체 카테고리</button>
+        <div class="cdd-list">
+          <div class="cdd-opt" data-value="☕ 음료·카페">☕ 음료·카페</div>
+          <div class="cdd-opt" data-value="🍽️ 외식">🍽️ 외식</div>
+          <div class="cdd-opt" data-value="🚌 교통">🚌 교통</div>
+          <div class="cdd-opt" data-value="🏠 생활비">🏠 생활비</div>
+          <div class="cdd-opt" data-value="🏥 의료">🏥 의료</div>
+          <div class="cdd-opt" data-value="📱 통신">📱 통신</div>
+          <div class="cdd-opt" data-value="🛒 생활용품">🛒 생활용품</div>
+          <div class="cdd-opt" data-value="🛡️ 보험">🛡️ 보험</div>
+          <div class="cdd-opt" data-value="🏦 대출이자">🏦 대출이자</div>
+          <div class="cdd-opt" data-value="⛪ 성당">⛪ 성당</div>
+          <div class="cdd-opt" data-value="🤝 회비">🤝 회비</div>
+          <div class="cdd-opt" data-value="🎁 경조사비">🎁 경조사비</div>
+          <div class="cdd-opt" data-value="💳 기타">💳 기타</div>
+        </div>
+      </div>
     </div>
     <div style="display:flex;gap:8px;margin-bottom:8px">
-      <select id="catSearchMode" onchange="toggleCatSearchMode()" style="width:88px;height:38px;padding:0 6px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-weight:700;background:#fff;color:var(--text);box-sizing:border-box;font-family:'Noto Sans KR',sans-serif">
-        <option value="month">월별</option>
-        <option value="year">연도별</option>
-      </select>
+      <div class="cdd" data-id="catSearchMode" style="width:88px;height:38px">
+        <input type="hidden" id="catSearchMode" value="month">
+        <button type="button" class="cdd-btn" data-placeholder="월별" style="font-size:13px">월별</button>
+        <div class="cdd-list">
+          <div class="cdd-opt cdd-selected" data-value="month">월별</div>
+          <div class="cdd-opt" data-value="year">연도별</div>
+        </div>
+      </div>
       <div style="flex:1"></div>
     </div>
     <div style="display:flex;gap:8px;margin-bottom:10px">
@@ -1389,22 +1421,28 @@ select { -webkit-user-select: none; user-select: none; touch-action: manipulatio
     <div class="ldg-title" id="ldgInvTitle" style="color:#7b1fa2">📈 투자</div>
     <div style="display:grid;grid-template-columns:3.5fr 3fr 3fr;gap:6px;margin-bottom:6px">
       <input type="date" id="ldgInvDate" style="height:40px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--sky-bg);color:var(--text);box-sizing:border-box;width:100%">
-      <select id="ldgInvBroker" style="height:40px;padding:0 4px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-weight:700;background:var(--sky-bg);color:var(--text);box-sizing:border-box;width:100%;font-family:'Noto Sans KR',sans-serif;-webkit-user-select:none;user-select:none;touch-action:manipulation">
-        <option value="">증권사</option>
-        <option value="신한">신한</option>
-        <option value="KB">KB</option>
-        <option value="메리츠">메리츠</option>
-      </select>
+      <div class="cdd" data-id="ldgInvBroker" style="height:40px">
+        <input type="hidden" id="ldgInvBroker" value="">
+        <button type="button" class="cdd-btn cdd-placeholder" data-placeholder="증권사" style="font-size:13px;height:40px">증권사</button>
+        <div class="cdd-list">
+          <div class="cdd-opt" data-value="신한">신한</div>
+          <div class="cdd-opt" data-value="KB">KB</div>
+          <div class="cdd-opt" data-value="메리츠">메리츠</div>
+        </div>
+      </div>
       <button id="ldgInvestBtn" onclick="addLedger('invest')" style="height:40px;background:#ab47bc;border:none;border-radius:8px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;width:100%">추가</button>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px">
-      <select id="ldgInvCat" style="height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-weight:700;background:#fff;color:var(--text);box-sizing:border-box;width:100%;font-family:'Noto Sans KR',sans-serif">
-        <option value="">카테고리</option>
-        <option value="일반">일반</option>
-        <option value="ISA">ISA</option>
-        <option value="해외">해외</option>
-        <option value="연금">연금</option>
-      </select>
+      <div class="cdd" data-id="ldgInvCat" style="height:38px">
+        <input type="hidden" id="ldgInvCat" value="">
+        <button type="button" class="cdd-btn cdd-placeholder" data-placeholder="카테고리">카테고리</button>
+        <div class="cdd-list">
+          <div class="cdd-opt" data-value="일반">일반</div>
+          <div class="cdd-opt" data-value="ISA">ISA</div>
+          <div class="cdd-opt" data-value="해외">해외</div>
+          <div class="cdd-opt" data-value="연금">연금</div>
+        </div>
+      </div>
       <input id="ldgInvName" placeholder="항목명 (예: QTOP, NVDA)" style="height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--sky-bg);color:var(--text);box-sizing:border-box;width:100%">
     </div>
     <div style="display:grid;grid-template-columns:6.5fr 3.5fr;gap:6px;margin-bottom:6px">
@@ -6469,13 +6507,16 @@ function renderDividend() {
         '<div style="display:flex;flex-direction:column;gap:6px">'+
           '<input id="de-name-'+i+'" type="text" value="'+d.name+'" placeholder="종목명" style="border:1.5px solid #90caf9;border-radius:6px;padding:6px 8px;font-size:13px;width:100%;box-sizing:border-box">'+
           '<input id="de-broker-'+i+'" type="text" value="'+(d.broker||'')+'" placeholder="증권사" style="border:1.5px solid #90caf9;border-radius:6px;padding:6px 8px;font-size:13px;width:100%;box-sizing:border-box">'+
-          '<select id="de-cat-'+i+'" style="border:1.5px solid #90caf9;border-radius:6px;padding:6px 8px;font-size:13px;width:100%;box-sizing:border-box;background:#fff;font-family:\'Noto Sans KR\',sans-serif">'+
-            '<option value=""'+(!d.cat?' selected':'')+'>카테고리</option>'+
-            '<option value="일반"'+(d.cat==="일반"?' selected':'')+'>일반</option>'+
-            '<option value="ISA"'+(d.cat==="ISA"?' selected':'')+'>ISA</option>'+
-            '<option value="해외"'+(d.cat==="해외"?' selected':'')+'>해외</option>'+
-            '<option value="연금"'+(d.cat==="연금"?' selected':'')+'>연금</option>'+
-          '</select>'+
+          '<div class="cdd" data-id="de-cat-'+i+'">'+
+            '<input type="hidden" id="de-cat-'+i+'" value="'+(d.cat||'')+'">'+
+            '<button type="button" class="cdd-btn'+(!d.cat?' cdd-placeholder':'')+'" data-placeholder="카테고리" style="font-size:13px;height:32px">'+(d.cat||'카테고리')+'</button>'+
+            '<div class="cdd-list">'+
+              '<div class="cdd-opt'+(d.cat==="일반"?' cdd-selected':'')+'" data-value="일반">일반</div>'+
+              '<div class="cdd-opt'+(d.cat==="ISA"?' cdd-selected':'')+'" data-value="ISA">ISA</div>'+
+              '<div class="cdd-opt'+(d.cat==="해외"?' cdd-selected':'')+'" data-value="해외">해외</div>'+
+              '<div class="cdd-opt'+(d.cat==="연금"?' cdd-selected':'')+'" data-value="연금">연금</div>'+
+            '</div>'+
+          '</div>'+
           '<input id="de-date-'+i+'" type="date" value="'+d.date+'" style="border:1.5px solid #90caf9;border-radius:6px;padding:6px 8px;font-size:13px;width:100%;box-sizing:border-box">'+
           '<input id="de-amt-'+i+'" type="number" value="'+Math.round(d.amount)+'" placeholder="금액(원)" style="border:1.5px solid #90caf9;border-radius:6px;padding:6px 8px;font-size:13px;width:100%;box-sizing:border-box">'+
           '<div style="display:flex;gap:6px">'+
@@ -6590,6 +6631,8 @@ function addDiv() {
   document.getElementById("divName").value="";
   document.getElementById("divAmt").value="";
   var divCatEl=document.getElementById("divCat"); if(divCatEl) divCatEl.value="";
+  var brokerEl=document.getElementById("divBroker"); if(brokerEl) brokerEl.value="";
+  cddSync('divCat'); cddSync('divBroker');
   document.getElementById("divUsdPreview").style.display="none";
   save(); renderDividend();
 }
@@ -7929,7 +7972,84 @@ function fmtDecInp(el){
   intPart = intPart.replace(/^0+(?=\d)/,"");
   el.value = (intPart?Number(intPart).toLocaleString("en-US"):"") + decPart;
 }
+// ── 커스텀 드롭다운 (네이티브 select의 OS 사전팝업 오작동 회피) ──
+function cddBuild(id, placeholder, options, wrapStyle){
+  // options: array of [value,label]
+  var optsHtml=options.map(function(o){
+    return '<div class="cdd-opt" data-value="'+o[0]+'">'+o[1]+'</div>';
+  }).join("");
+  return '<div class="cdd" data-id="'+id+'"'+(wrapStyle?' style="'+wrapStyle+'"':'')+'>'+
+    '<input type="hidden" id="'+id+'" value="">'+
+    '<button type="button" class="cdd-btn cdd-placeholder" data-placeholder="'+placeholder+'">'+placeholder+'</button>'+
+    '<div class="cdd-list">'+optsHtml+'</div>'+
+  '</div>';
+}
+function cddSetOptions(id, options, placeholder){
+  var cdd=document.querySelector('.cdd[data-id="'+id+'"]');
+  if(!cdd) return;
+  var list=cdd.querySelector('.cdd-list');
+  list.innerHTML=options.map(function(o){return '<div class="cdd-opt" data-value="'+o[0]+'">'+o[1]+'</div>';}).join("");
+  var hidden=document.getElementById(id);
+  if(hidden) hidden.value="";
+  var btn=cdd.querySelector('.cdd-btn');
+  if(placeholder!==undefined) btn.setAttribute('data-placeholder', placeholder);
+  btn.textContent=btn.getAttribute('data-placeholder');
+  btn.classList.add('cdd-placeholder');
+}
+function cddSync(id){
+  // hidden input의 현재 값을 버튼 라벨에 반영 (프로그램적으로 .value를 세팅했을 때 호출)
+  var cdd=document.querySelector('.cdd[data-id="'+id+'"]');
+  if(!cdd) return;
+  var hidden=document.getElementById(id);
+  var val=hidden?hidden.value:"";
+  var btn=cdd.querySelector('.cdd-btn');
+  var opt=cdd.querySelector('.cdd-opt[data-value="'+val.replace(/"/g,'\\"')+'"]');
+  cdd.querySelectorAll('.cdd-opt').forEach(function(o){o.classList.remove('cdd-selected');});
+  if(val && opt){
+    btn.textContent=opt.textContent;
+    btn.classList.remove('cdd-placeholder');
+    opt.classList.add('cdd-selected');
+  } else {
+    btn.textContent=btn.getAttribute('data-placeholder')||"";
+    btn.classList.add('cdd-placeholder');
+  }
+}
+document.addEventListener('click', function(e){
+  var btn=e.target.closest('.cdd-btn');
+  if(btn){
+    var cdd=btn.closest('.cdd');
+    document.querySelectorAll('.cdd.open').forEach(function(o){ if(o!==cdd) o.classList.remove('open'); });
+    cdd.classList.toggle('open');
+    return;
+  }
+  var opt=e.target.closest('.cdd-opt');
+  if(opt){
+    var cdd=opt.closest('.cdd');
+    var id=cdd.getAttribute('data-id');
+    var hidden=document.getElementById(id);
+    var val=opt.getAttribute('data-value')||"";
+    if(hidden) hidden.value=val;
+    var btnEl=cdd.querySelector('.cdd-btn');
+    cdd.querySelectorAll('.cdd-opt').forEach(function(o){o.classList.remove('cdd-selected');});
+    if(val){
+      btnEl.textContent=opt.textContent;
+      btnEl.classList.remove('cdd-placeholder');
+      opt.classList.add('cdd-selected');
+    } else {
+      btnEl.textContent=btnEl.getAttribute('data-placeholder')||opt.textContent;
+      btnEl.classList.add('cdd-placeholder');
+    }
+    cdd.classList.remove('open');
+    if(id==='catSearchType' && typeof toggleCatSearchType==='function') toggleCatSearchType();
+    if(id==='catSearchMode' && typeof toggleCatSearchMode==='function') toggleCatSearchMode();
+    return;
+  }
+  if(!e.target.closest('.cdd')){
+    document.querySelectorAll('.cdd.open').forEach(function(o){o.classList.remove('open');});
+  }
+});
 function numVal(v){ return parseFloat((v||"").toString().replace(/,/g,""))||0; }
+
 
 function getLedgerKey(){
   var m=document.getElementById("ldgMonth");
@@ -7986,9 +8106,9 @@ function addLedger(type){
   }
   saveLedgerData(data);
   nameEl.value=""; amtEl.value="";
-  if(type==="expense"){var ce=document.getElementById("ldgExpCat"); if(ce) ce.value="";}
-  if(type==="income"){var ci=document.getElementById("ldgIncCat"); if(ci) ci.value="";}
-  if(type==="invest"){var civ=document.getElementById("ldgInvCat"); if(civ) civ.value="";}
+  if(type==="expense"){var ce=document.getElementById("ldgExpCat"); if(ce) ce.value=""; cddSync("ldgExpCat");}
+  if(type==="income"){var ci=document.getElementById("ldgIncCat"); if(ci) ci.value=""; cddSync("ldgIncCat");}
+  if(type==="invest"){var civ=document.getElementById("ldgInvCat"); if(civ) civ.value=""; cddSync("ldgInvCat");}
   renderLedger();
 }
 function editLedger(type,idx){
@@ -8000,20 +8120,20 @@ function editLedger(type,idx){
 
   if(type==="income"){
     var d=document.getElementById("ldgIncDate"); if(d) d.value=item.date||"";
-    var c0=document.getElementById("ldgIncCat"); if(c0) c0.value=item.cat||"";
+    var c0=document.getElementById("ldgIncCat"); if(c0) c0.value=item.cat||""; cddSync("ldgIncCat");
     var n=document.getElementById("ldgIncName"); if(n) n.value=item.name||"";
     var a=document.getElementById("ldgIncAmt"); if(a) a.value=item.amount?(Number(item.amount).toLocaleString("ko-KR")):"";
     setEditMode("income",idx);
   } else if(type==="expense"){
     var d=document.getElementById("ldgExpDate"); if(d) d.value=item.date||"";
-    var c=document.getElementById("ldgExpCat"); if(c) c.value=item.cat||"";
+    var c=document.getElementById("ldgExpCat"); if(c) c.value=item.cat||""; cddSync("ldgExpCat");
     var n=document.getElementById("ldgExpName"); if(n) n.value=item.name||"";
     var a=document.getElementById("ldgExpAmt"); if(a) a.value=item.amount?(Number(item.amount).toLocaleString("ko-KR")):"";
     setEditMode("expense",idx);
   } else if(type==="invest"){
     var d=document.getElementById("ldgInvDate"); if(d) d.value=item.date||"";
-    var b=document.getElementById("ldgInvBroker"); if(b) b.value=item.broker||"";
-    var civ2=document.getElementById("ldgInvCat"); if(civ2) civ2.value=item.cat||"";
+    var b=document.getElementById("ldgInvBroker"); if(b) b.value=item.broker||""; cddSync("ldgInvBroker");
+    var civ2=document.getElementById("ldgInvCat"); if(civ2) civ2.value=item.cat||""; cddSync("ldgInvCat");
     var n=document.getElementById("ldgInvName"); if(n) n.value=item.name||"";
     var a=document.getElementById("ldgInvAmt"); if(a) a.value=item.amount?(Number(item.amount).toLocaleString("ko-KR")):"";
     setEditMode("invest",idx);
@@ -8088,9 +8208,8 @@ var EXP_CAT_OPTS=['☕ 음료·카페','🍽️ 외식','🚌 교통','🏠 생�
 var INC_CAT_OPTS=['💼 월급','🏠 월세','💳 기타'];
 function toggleCatSearchType(){
   var type=document.getElementById("catSearchType").value;
-  var catSel=document.getElementById("catSearchCat");
   var opts=type==="income"?INC_CAT_OPTS:EXP_CAT_OPTS;
-  catSel.innerHTML='<option value="">전체 카테고리</option>'+opts.map(function(c){return '<option value="'+c+'">'+c+'</option>';}).join("");
+  cddSetOptions("catSearchCat", opts.map(function(c){return [c,c];}), "전체 카테고리");
 }
 function toggleCatSearchMode(){
   var mode=document.getElementById("catSearchMode").value;
