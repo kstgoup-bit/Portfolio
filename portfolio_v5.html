@@ -6523,7 +6523,15 @@ function renderDividend() {
             '</div>'+
           '</div>'+
           '<input id="de-date-'+i+'" type="date" value="'+d.date+'" style="border:1.5px solid #90caf9;border-radius:6px;padding:6px 8px;font-size:13px;width:100%;box-sizing:border-box">'+
-          '<input id="de-amt-'+i+'" type="number" value="'+Math.round(d.amount)+'" placeholder="금액(원)" style="border:1.5px solid #90caf9;border-radius:6px;padding:6px 8px;font-size:13px;width:100%;box-sizing:border-box">'+
+          '<div style="display:flex;gap:6px">'+
+            '<input id="de-amt-'+i+'" type="number" value="'+(d.usd?d.usd:Math.round(d.amount))+'" placeholder="금액" oninput="updateDeUsdPreview('+i+')" style="flex:1;border:1.5px solid #90caf9;border-radius:6px;padding:6px 8px;font-size:13px;box-sizing:border-box">'+
+            '<input type="hidden" id="de-cur-'+i+'" value="'+(d.usd?'USD':'KRW')+'">'+
+            '<div style="display:flex;border:1.5px solid #90caf9;border-radius:6px;overflow:hidden;flex-shrink:0">'+
+              '<button type="button" id="de-cur-krw-'+i+'" onclick="setDeCur('+i+',\'KRW\')" style="padding:0 12px;font-size:12px;font-weight:800;border:none;cursor:pointer;background:'+(!d.usd?'#1565c0':'#fff')+';color:'+(!d.usd?'#fff':'#1565c0')+'">₩</button>'+
+              '<button type="button" id="de-cur-usd-'+i+'" onclick="setDeCur('+i+',\'USD\')" style="padding:0 12px;font-size:12px;font-weight:800;border:none;cursor:pointer;background:'+(d.usd?'#1565c0':'#fff')+';color:'+(d.usd?'#fff':'#1565c0')+'">$</button>'+
+            '</div>'+
+          '</div>'+
+          '<div id="de-usdpreview-'+i+'" style="font-size:11px;color:var(--muted);display:'+(d.usd?'block':'none')+'">≈ '+Math.round(d.amount).toLocaleString()+'원 (환율 '+getRate()+'원 기준)</div>'+
           '<div style="display:flex;gap:6px">'+
             '<button onclick="saveDivEdit('+i+')" style="flex:1;background:#1565c0;color:#fff;border:none;border-radius:6px;padding:7px;font-size:13px;font-weight:700;cursor:pointer;">저장</button>'+
             '<button onclick="toggleDivEdit('+i+')" style="flex:1;background:#eee;color:#333;border:none;border-radius:6px;padding:7px;font-size:13px;cursor:pointer;">취소</button>'+
@@ -6539,6 +6547,29 @@ function toggleDivEdit(i){
   if(el) el.style.display=el.style.display==='none'?'block':'none';
 }
 
+function setDeCur(i, cur){
+  var curEl=document.getElementById('de-cur-'+i);
+  if(curEl) curEl.value=cur;
+  var krwBtn=document.getElementById('de-cur-krw-'+i);
+  var usdBtn=document.getElementById('de-cur-usd-'+i);
+  if(krwBtn) krwBtn.style.background=cur==="KRW"?"#1565c0":"#fff";
+  if(krwBtn) krwBtn.style.color=cur==="KRW"?"#fff":"#1565c0";
+  if(usdBtn) usdBtn.style.background=cur==="USD"?"#1565c0":"#fff";
+  if(usdBtn) usdBtn.style.color=cur==="USD"?"#fff":"#1565c0";
+  updateDeUsdPreview(i);
+}
+function updateDeUsdPreview(i){
+  var curEl=document.getElementById('de-cur-'+i);
+  var amtEl=document.getElementById('de-amt-'+i);
+  var preview=document.getElementById('de-usdpreview-'+i);
+  if(!curEl||!amtEl||!preview) return;
+  if(curEl.value==="USD"&&parseFloat(amtEl.value)>0){
+    var krw=Math.round(parseFloat(amtEl.value)*getRate());
+    preview.textContent="≈ "+krw.toLocaleString()+"원 (환율 "+getRate()+"원 기준)";
+    preview.style.display="block";
+  } else { preview.style.display="none"; }
+}
+
 function saveDivEdit(i){
   var name=document.getElementById('de-name-'+i).value.trim();
   var broker=document.getElementById('de-broker-'+i).value.trim();
@@ -6546,12 +6577,20 @@ function saveDivEdit(i){
   var cat=catEl?catEl.value:"";
   var date=document.getElementById('de-date-'+i).value;
   var amt=parseFloat(document.getElementById('de-amt-'+i).value);
+  var curEl=document.getElementById('de-cur-'+i);
+  var cur=curEl?curEl.value:"KRW";
   if(!name||!date||isNaN(amt)) return;
   divList[i].name=name;
   divList[i].broker=broker;
   divList[i].cat=cat;
   divList[i].date=date;
-  divList[i].amount=amt;
+  if(cur==="USD"){
+    divList[i].amount=Math.round(amt*getRate());
+    divList[i].usd=amt;
+  } else {
+    divList[i].amount=Math.round(amt);
+    divList[i].usd=null;
+  }
   localStorage.setItem('v5_div', JSON.stringify(divList));
   renderDividend();
 }
