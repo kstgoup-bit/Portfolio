@@ -4506,11 +4506,13 @@ function renderLineChart(period, btnId, chartId, snapKey, color) {
   var unitDiv=maxV>=100000000?100000000:maxV>=10000000?10000000:maxV>=1000000?1000000:10000;
   var unitLbl=maxV>=100000000?"억원":maxV>=10000000?"천만원":maxV>=1000000?"백만원":"만원";
   var yLines="",yLabels="";
+  var axisRatio=range/unitDiv;
+  var axisDecimals=axisRatio<0.05?3:axisRatio<0.5?2:1;
   for(var i=0;i<=4;i++){
     var yVal=minV+range*(i/4);
     var yPos=T+cH-(cH*(i/4));
     yLines+='<line x1="'+L+'" y1="'+yPos+'" x2="'+(W-R)+'" y2="'+yPos+'" stroke="#e3f2fd" stroke-width="0.5" stroke-dasharray="3,3"/>';
-    yLabels+='<text x="'+(L-4)+'" y="'+(yPos+3)+'" text-anchor="end" font-size="9" fill="#546e7a" font-family="monospace">'+(yVal/unitDiv).toFixed(1)+'</text>';
+    yLabels+='<text x="'+(L-4)+'" y="'+(yPos+3)+'" text-anchor="end" font-size="9" fill="#546e7a" font-family="monospace">'+(yVal/unitDiv).toFixed(axisDecimals)+'</text>';
   }
   var coords=pts.map(function(d,i){
     return [L+i/(pts.length-1)*cW, T+cH-(cH*((d.val-minV)/range)), d];
