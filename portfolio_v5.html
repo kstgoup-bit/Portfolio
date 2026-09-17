@@ -2606,12 +2606,15 @@ function fetchBenchmarkHistory(force) {
   try { cached=JSON.parse(localStorage.getItem("v5_benchHist")||"null"); } catch(e){}
   var today=new Date().toDateString();
   var hasValidCache = cached && cached.KS200 && cached.KS200.length>0 && cached.QQQ && cached.QQQ.length>0;
+  var hasValidSPY = cached && cached.SPY && cached.SPY.length>0;
   // 캐시된 데이터의 실제 최신 시점이 너무 오래되지 않았는지 확인 (프록시가 계속 실패해도
   // fetchedAt만 오늘로 찍히고 실제 데이터는 며칠 전 값에 멈춰있을 수 있어, 그 경우 강제 재시도)
-  var latestDataTs = hasValidCache
-    ? Math.max(cached.KS200[cached.KS200.length-1].ts, cached.QQQ[cached.QQQ.length-1].ts)
+  // 세 지수 중 "가장 최근에 갱신된 것"이 아니라 "가장 오래 정체된 것" 기준으로 판단해야
+  // SPY 하나만 계속 실패해도 놓치지 않고 잡아낼 수 있다 (Math.max가 아니라 Math.min)
+  var latestDataTs = (hasValidCache && hasValidSPY)
+    ? Math.min(cached.KS200[cached.KS200.length-1].ts, cached.QQQ[cached.QQQ.length-1].ts, cached.SPY[cached.SPY.length-1].ts)
     : 0;
-  var isStale = !latestDataTs || (Date.now()-latestDataTs) > 4*86400000; // 주말/공휴일 감안 4일
+  var isStale = !latestDataTs || !hasValidSPY || (Date.now()-latestDataTs) > 4*86400000; // 주말/공휴일 감안 4일
   if (hasValidCache && cached.fetchedAt===today && !force && !isStale) {
     benchmarkHistory={KS200:cached.KS200||[], NDX:cached.QQQ||[], SPY:cached.SPY||[]};
     renderAllReturnsTables();
