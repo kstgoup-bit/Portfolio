@@ -2652,12 +2652,13 @@ function fetchBenchmarkHistory(force) {
             if(closes[i]!=null) hist.push({ts:ts[i]*1000, close:closes[i]});
           }
         }
-        if(hist.length) { results[s.id]=hist; freshCount++; cb(); }
+        if(hist.length) { results[s.id]=hist; freshCount++; freshIds[s.id]=true; cb(); }
         else fetchOne(s, proxyIdx+1, cb, round);
       })
       .catch(function(){ fetchOne(s, proxyIdx+1, cb, round); });
   }
 
+  var freshIds={};
   // 순차 실행 (동시 요청으로 인한 프록시 과부하 방지), 프록시별로 순회 시도
   fetchOne(syms[0], 0, function(){
     fetchOne(syms[1], 0, function(){
@@ -2667,17 +2668,24 @@ function fetchBenchmarkHistory(force) {
         try{ localStorage.setItem("v5_benchHist", JSON.stringify(results)); }catch(e){}
         renderAllReturnsTables();
         refreshAllLineCharts();
-        // SPY만 끝내 실패했다면, 잠시 후 조용히 한 번 더 백그라운드에서 재시도 (UI 표시 없음)
-        if (!results.SPY.length) {
-          setTimeout(function(){
+        // SPY는 순서상 세 번째라 프록시 rate limit에 가장 자주 걸림.
+        // 배열 길이가 아니라 "이번 실행에서 실제로 새로 받아왔는지"를 기준으로 재시도 판단
+        // (오래된 캐시가 남아있으면 배열은 항상 비어있지 않아 예전 로직은 재시도가 영영 안 걸렸음)
+        if (!freshIds.SPY) {
+          var spyRetries=0;
+          var retrySpy=function(){
+            spyRetries++;
             fetchOne({sym:"SPY",id:"SPY"}, 0, function(){
-              if (results.SPY.length) {
+              if (freshIds.SPY) {
                 benchmarkHistory.SPY=results.SPY;
                 try{ localStorage.setItem("v5_benchHist", JSON.stringify(results)); }catch(e){}
                 refreshAllLineCharts();
+              } else if (spyRetries<3) {
+                setTimeout(retrySpy, 3000*(spyRetries+1));
               }
             });
-          }, 4000);
+          };
+          setTimeout(retrySpy, 3000);
         }
       });
     });
@@ -2712,7 +2720,11 @@ function getBenchDataLatestLabel(key) {
 
     var maxTs, name;
     if (key==="dom") { maxTs=latestOf(cached.KS200); name="KODEX200"; }
-    else if (key==="ov" || key==="pen") { maxTs=latestOf(cached.QQQ); name="QQQ"; }
+    else if (key==="ov" || key==="pen") {
+      var qqqTs2=latestOf(cached.QQQ), spyTs2=latestOf(cached.SPY);
+      maxTs = Math.min(qqqTs2||0, spyTs2||0) || Math.max(qqqTs2, spyTs2);
+      name="QQQ·S&P500";
+    }
     else { // all: 두 지수 중 더 오래된(느린) 쪽 기준으로 표시
       var ksTs=latestOf(cached.KS200), qqqTs=latestOf(cached.QQQ);
       maxTs = Math.min(ksTs||0, qqqTs||0) || Math.max(ksTs, qqqTs);
