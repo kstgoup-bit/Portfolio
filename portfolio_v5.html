@@ -2601,7 +2601,9 @@ function updateBrief() {
 // ═══════════════════════════════
 // 📊 실시간 시장 지수
 // ═══════════════════════════════
+var _benchFetchInFlight=false;
 function fetchBenchmarkHistory(force) {
+  if (_benchFetchInFlight) return; // 이미 진행 중이면 중복 실행 방지 (동시 실행 시 저장 경합 원인)
   var cached=null;
   try { cached=JSON.parse(localStorage.getItem("v5_benchHist")||"null"); } catch(e){}
   var today=new Date().toDateString();
@@ -2621,6 +2623,7 @@ function fetchBenchmarkHistory(force) {
     refreshAllLineCharts();
     return;
   }
+  _benchFetchInFlight=true;
   var syms=[{sym:"069500.KS",id:"KS200"},{sym:"QQQ",id:"QQQ"},{sym:"SPY",id:"SPY"}];
   var results={fetchedAt:today, fetchedAtISO:(cached&&cached.fetchedAtISO)||null, KS200:(cached&&cached.KS200)||[], QQQ:(cached&&cached.QQQ)||[], SPY:(cached&&cached.SPY)||[]};
   var freshCount=0;
@@ -2658,14 +2661,43 @@ function fetchBenchmarkHistory(force) {
       .catch(function(){ fetchOne(s, proxyIdx+1, cb, round); });
   }
 
+  function latestTsOf(arr){
+    if (!arr || !arr.length) return 0;
+    var m=0; for (var i=0;i<arr.length;i++){ if (arr[i].ts>m) m=arr[i].ts; }
+    return m;
+  }
+  // 이 실행의 결과를 저장하기 직전, 현재 localStorage에 이미 저장돼있는 값과 심볼별로 비교해서
+  // 더 최신인 쪽을 최종적으로 채택 후 저장 (동시에 여러 fetchBenchmarkHistory 실행이 겹칠 때,
+  // 느리게 끝난 쪽이 더 오래된 자기 스냅샷으로 방금 저장된 최신 데이터를 덮어쓰는 것을 방지)
+  function mergeAndSaveBench(r){
+    var live=null;
+    try { live=JSON.parse(localStorage.getItem("v5_benchHist")||"null"); } catch(e){}
+    var merged={
+      fetchedAt: r.fetchedAt, fetchedAtISO: r.fetchedAtISO,
+      KS200: r.KS200, QQQ: r.QQQ, SPY: r.SPY
+    };
+    ["KS200","QQQ","SPY"].forEach(function(sym){
+      if (live && live[sym] && latestTsOf(live[sym]) > latestTsOf(merged[sym])) {
+        merged[sym]=live[sym];
+      }
+    });
+    if (live && live.fetchedAtISO && (!merged.fetchedAtISO || new Date(live.fetchedAtISO)>new Date(merged.fetchedAtISO))) {
+      // 병합 결과 세 지수 모두 그 스냅샷 것 그대로라면 그 시각도 함께 채택
+      var allFromLive = ["KS200","QQQ","SPY"].every(function(sym){ return merged[sym]===live[sym]; });
+      if (allFromLive) merged.fetchedAtISO=live.fetchedAtISO;
+    }
+    try{ localStorage.setItem("v5_benchHist", JSON.stringify(merged)); }catch(e){}
+    benchmarkHistory={KS200:merged.KS200, NDX:merged.QQQ, SPY:merged.SPY};
+    return merged;
+  }
+
   var freshIds={};
   // 순차 실행 (동시 요청으로 인한 프록시 과부하 방지), 프록시별로 순회 시도
   fetchOne(syms[0], 0, function(){
     fetchOne(syms[1], 0, function(){
       fetchOne(syms[2], 0, function(){
         if (freshCount===3) results.fetchedAtISO=new Date().toISOString();
-        benchmarkHistory={KS200:results.KS200, NDX:results.QQQ, SPY:results.SPY};
-        try{ localStorage.setItem("v5_benchHist", JSON.stringify(results)); }catch(e){}
+        mergeAndSaveBench(results);
         renderAllReturnsTables();
         refreshAllLineCharts();
         // SPY는 순서상 세 번째라 프록시 rate limit에 가장 자주 걸림.
@@ -2677,15 +2709,19 @@ function fetchBenchmarkHistory(force) {
             spyRetries++;
             fetchOne({sym:"SPY",id:"SPY"}, 0, function(){
               if (freshIds.SPY) {
-                benchmarkHistory.SPY=results.SPY;
-                try{ localStorage.setItem("v5_benchHist", JSON.stringify(results)); }catch(e){}
+                mergeAndSaveBench(results);
                 refreshAllLineCharts();
+                _benchFetchInFlight=false;
               } else if (spyRetries<3) {
                 setTimeout(retrySpy, 3000*(spyRetries+1));
+              } else {
+                _benchFetchInFlight=false;
               }
             });
           };
           setTimeout(retrySpy, 3000);
+        } else {
+          _benchFetchInFlight=false;
         }
       });
     });
