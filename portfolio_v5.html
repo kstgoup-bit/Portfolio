@@ -1284,9 +1284,34 @@ select { -webkit-user-select: none; user-select: none; touch-action: manipulatio
 
 <!-- 가계부 탭 -->
 <div class="panel" id="panel-ledger">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+  <div style="margin-bottom:14px">
     <div style="font-size:16px;font-weight:900;color:#00897b">📒 월별 가계부</div>
-    <input type="month" class="ldg-month-inp" id="ldgMonth" onchange="renderLedger()">
+  </div>
+
+  <!-- 이번 달 요약 (월 선택 포함) -->
+  <div class="ldg-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div class="ldg-title" style="color:#00897b;margin:0">📊 이번 달 요약</div>
+      <input type="month" class="ldg-month-inp" id="ldgMonth" onchange="renderLedger()">
+    </div>
+    <div class="ldg-summary">
+      <div class="ldg-sum-box">
+        <div class="ldg-sum-lbl">총 수입</div>
+        <div class="ldg-sum-val" id="ldgTotalInc" style="color:#1565c0">0원</div>
+      </div>
+      <div class="ldg-sum-box">
+        <div class="ldg-sum-lbl">총 지출</div>
+        <div class="ldg-sum-val" id="ldgTotalExp" style="color:#c62828">0원</div>
+      </div>
+      <div class="ldg-sum-box">
+        <div class="ldg-sum-lbl">총 투자</div>
+        <div class="ldg-sum-val" id="ldgTotalInv" style="color:#7b1fa2">0원</div>
+      </div>
+      <div class="ldg-sum-box">
+        <div class="ldg-sum-lbl">잔액</div>
+        <div class="ldg-sum-val" id="ldgBalance">0원</div>
+      </div>
+    </div>
   </div>
 
   <!-- 수입 -->
@@ -1455,29 +1480,6 @@ select { -webkit-user-select: none; user-select: none; touch-action: manipulatio
       <input id="ldgInvAmt" type="text" inputmode="numeric" placeholder="금액(원)" oninput="fmtAmtInp(this)" style="height:38px;padding:0 8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-weight:700;text-align:right;background:var(--sky-bg);color:var(--text);box-sizing:border-box;width:100%">
     </div>
     <div id="ldgInvList"></div>
-  </div>
-
-  <!-- 요약 -->
-  <div class="ldg-card">
-    <div class="ldg-title" style="color:#00897b">📊 이번 달 요약</div>
-    <div class="ldg-summary">
-      <div class="ldg-sum-box">
-        <div class="ldg-sum-lbl">총 수입</div>
-        <div class="ldg-sum-val" id="ldgTotalInc" style="color:#1565c0">0원</div>
-      </div>
-      <div class="ldg-sum-box">
-        <div class="ldg-sum-lbl">총 지출</div>
-        <div class="ldg-sum-val" id="ldgTotalExp" style="color:#c62828">0원</div>
-      </div>
-      <div class="ldg-sum-box">
-        <div class="ldg-sum-lbl">총 투자</div>
-        <div class="ldg-sum-val" id="ldgTotalInv" style="color:#7b1fa2">0원</div>
-      </div>
-      <div class="ldg-sum-box">
-        <div class="ldg-sum-lbl">잔액</div>
-        <div class="ldg-sum-val" id="ldgBalance">0원</div>
-      </div>
-    </div>
   </div>
 
   <!-- 월별 투자 막대그래프 -->
@@ -2635,6 +2637,12 @@ function fetchBenchmarkHistory(force) {
     function(u){ return "https://thingproxy.freeboard.io/fetch/"+u; },
     function(u){ return "https://corsproxy.org/?"+encodeURIComponent(u); }
   ];
+  // 매 실행마다 순서를 섞어서, 특정 프록시(예: 자체 캐싱하는 프록시) 하나에
+  // 계속 걸려 오래된 응답만 받는 상황을 줄인다
+  for (var _i=PROXIES.length-1; _i>0; _i--) {
+    var _j=Math.floor(Math.random()*(_i+1));
+    var _tmp=PROXIES[_i]; PROXIES[_i]=PROXIES[_j]; PROXIES[_j]=_tmp;
+  }
 
   function fetchOne(s, proxyIdx, cb, round) {
     round = round || 0;
@@ -4129,7 +4137,7 @@ async function fetchRiskData() {
 
   // ── URL 목록 생성 (FRED + Yahoo 동시) ──
   function fredUrls(id){
-    var base="https://fred.stlouisfed.org/graph/fredgraph.csv?id="+id;
+    var base="https://fred.stlouisfed.org/graph/fredgraph.csv?id="+id+"&_cb="+Date.now();
     return [base,
       "https://api.allorigins.win/raw?url="+encodeURIComponent(base),
       "https://corsproxy.io/?url="+encodeURIComponent(base),
@@ -4137,7 +4145,7 @@ async function fetchRiskData() {
       "https://thingproxy.freeboard.io/fetch/"+base];
   }
   function yahooUrls(sym){
-    var base="https://query1.finance.yahoo.com/v8/finance/chart/"+sym+"?interval=1d&range=5d";
+    var base="https://query1.finance.yahoo.com/v8/finance/chart/"+sym+"?interval=1d&range=5d&_cb="+Date.now();
     return [
       "https://api.allorigins.win/raw?url="+encodeURIComponent(base),
       "https://corsproxy.io/?url="+encodeURIComponent(base),
