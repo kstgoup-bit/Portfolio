@@ -4775,7 +4775,7 @@ function renderStockList(listId, countId, type) {
               '<div class="item-ticker">'+s.ticker+' · '+(isUS?"🇺🇸":"🇰🇷")+' · '+s.quantity+'주'+(isUS?' · '+fmtUSD(s.quantity*s.currentPrice):'')+'</div>'+
               '<div style="font-size:11px;font-weight:800;color:'+color+'">'+w.toFixed(1)+'%</div>'+
             '</div>'+
-            '<div style="font-size:12px;color:var(--text);font-weight:700;margin-top:2px">평단가 '+(isUS?fmtUSD(s.avgPrice):fmt(s.avgPrice)+'원')+' · 현재가 '+(isUS?fmtUSD(s.currentPrice):fmt(s.currentPrice)+'원')+'</div>'+
+            '<div style="font-size:12px;color:var(--text);font-weight:700;margin-top:2px">평단가 '+(isUS?fmtUSD(s.avgPrice):Math.round(s.avgPrice).toLocaleString()+'원')+' · 현재가 '+(isUS?fmtUSD(s.currentPrice):Math.round(s.currentPrice).toLocaleString()+'원')+'</div>'+
             '<div style="display:flex;align-items:center;gap:6px;margin-top:4px">'+
               '<span style="font-size:11px;font-weight:800;color:'+(pnlPos?"var(--red-mid)":"var(--blue)")+'">'+(pnlPos?"+":"")+fmt(pnl)+'원</span>'+
               '<span class="st-pct-badge" style="background:'+(pnlPos?"var(--red-light)":"var(--blue-light)")+';color:'+(pnlPos?"var(--red-mid)":"var(--blue)")+'">'+fmtPct(pct)+'</span>'+
