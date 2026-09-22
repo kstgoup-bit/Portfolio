@@ -4774,7 +4774,7 @@ function renderStockList(listId, countId, type) {
             '</div>'+
             '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:1px">'+
               '<div class="item-ticker">'+s.ticker+' · '+(isUS?"🇺🇸":"🇰🇷")+' · '+s.quantity+'주'+(isUS?' · '+fmtUSD(s.quantity*s.currentPrice):'')+'</div>'+
-              '<div style="font-size:11px;font-weight:800;color:'+color+'">'+w.toFixed(1)+'%</div>'+
+              '<div style="font-size:11px;font-weight:800;color:var(--text)">'+w.toFixed(1)+'%</div>'+
             '</div>'+
             '<div style="font-size:12px;color:var(--text);font-weight:700;margin-top:2px">평단가 '+(isUS?fmtUSD(s.avgPrice):Math.round(s.avgPrice).toLocaleString()+'원')+' · 현재가 '+(isUS?fmtUSD(s.currentPrice):Math.round(s.currentPrice).toLocaleString()+'원')+'</div>'+
             '<div style="display:flex;align-items:center;gap:6px;margin-top:4px">'+
