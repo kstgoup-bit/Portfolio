@@ -3251,7 +3251,7 @@ function renderDashboard() {
   var totalAllTV=(dom.tv||0)+(ov.tv||0)+(pen.tv||0)+(gen.tv||0);
   if(!totalAllTV) return;
   var items=[
-    {key:"gen",label:"💼 일반",g:gen,color:"#00897b"},
+    {key:"gen",label:"💼 일반",g:gen,color:"#8bc34a"},
     {key:"dom",label:"🇰🇷 ISA",g:dom,color:"#f57f17"},
     {key:"ov",label:"🇺🇸 해외",g:ov,color:"#1565c0"},
     {key:"pen",label:"🏦 연금",g:pen,color:"#7b1fa2"}
@@ -3337,7 +3337,8 @@ function renderDashboard() {
     '#f57f17':{light:'#ffa726',dark:'#bf360c',mid:'#f57f17'},
     '#1565c0':{light:'#82b1ff',dark:'#0a2a6e',mid:'#1976d2'},
     '#6a1b9a':{light:'#ea80fc',dark:'#2d0045',mid:'#8e24aa'},
-    '#7b1fa2':{light:'#ea80fc',dark:'#4a0072',mid:'#9c27b0'}
+    '#7b1fa2':{light:'#ea80fc',dark:'#4a0072',mid:'#9c27b0'},
+    '#8bc34a':{light:'#c5e1a5',dark:'#33691e',mid:'#8bc34a'}
   };
   var canvasId='barCanvas_'+Date.now();
   var barW=24, barH=103, gap=10, topPad=24;
