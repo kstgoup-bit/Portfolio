@@ -7092,6 +7092,8 @@ function switchTab(tab) {
   if(tab==="debt") renderDebt();
   if(tab==="networth") renderNetWorth();
   if(tab==="principledash") renderPrincipleDash();
+
+  window.scrollTo({top:0, behavior:"smooth"});
 }
 
 // =============================================
