@@ -3268,9 +3268,10 @@ function renderDashboard() {
 
   // 일반/ISA/해외/연금 원래 카드
   var cardsHtml="";
+  var TAB_BY_KEY={gen:"general", dom:"domestic", ov:"overseas", pen:"pension"};
   items.forEach(function(m){
     var pos=m.g.pct>=0;
-    cardsHtml+='<div class="mkt-card" style="border-left:3px solid '+m.color+'">'+
+    cardsHtml+='<div class="mkt-card" style="border-left:3px solid '+m.color+';cursor:pointer" onclick="switchTab(\''+TAB_BY_KEY[m.key]+'\')">'+
       '<div><div class="mkt-lbl">'+m.label+'</div><div class="mkt-val">'+fmt(m.g.tv)+'원</div></div>'+
       '<div style="text-align:right">'+
         '<div class="'+(pos?"pos":"neg")+'">'+fmtPct(m.g.pct)+'</div>'+
