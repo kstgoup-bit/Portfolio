@@ -8201,7 +8201,7 @@ function initLedgerMonth(){
     m.value=now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0");
   }
 }
-var _editMode={type:null,idx:null};
+var _editMode={type:null,idx:null,key:null};
 function addLedger(type){
   var nameEl=document.getElementById(type==="income"?"ldgIncName":type==="expense"?"ldgExpName":"ldgInvName");
   var amtEl=document.getElementById(type==="income"?"ldgIncAmt":type==="expense"?"ldgExpAmt":"ldgInvAmt");
@@ -8218,7 +8218,9 @@ function addLedger(type){
   if(type==="invest"){var cEl3=document.getElementById("ldgInvCat"); if(cEl3) cat=cEl3.value;}
   var entry={name:name,amount:amt,date:date,broker:broker,cat:cat};
   var data=loadLedgerData();
-  var key=getLedgerKey();
+  // 저장 위치는 "지금 보고 있는 달"이 아니라 "실제로 입력한 날짜"의 연-월 기준으로 결정
+  // (예: 10월 화면에서 9/30 날짜를 입력해도 9월 가계부에 들어가야 함)
+  var key=(date&&date.length>=7)?date.slice(0,7):getLedgerKey();
   if(!data[key]) data[key]={income:[],expense:[],invest:[]};
   if(!data[key].income) data[key].income=[];
   if(!data[key].expense) data[key].expense=[];
@@ -8226,7 +8228,11 @@ function addLedger(type){
 
   // 수정 모드
   if(_editMode.type===type&&_editMode.idx!==null){
-    data[key][type][_editMode.idx]=entry;
+    var origKey=_editMode.key||key;
+    if(data[origKey]&&data[origKey][type]&&data[origKey][type][_editMode.idx]!==undefined){
+      data[origKey][type].splice(_editMode.idx,1); // 원래 위치에서 제거
+    }
+    data[key][type].push(entry); // 실제 날짜 기준 위치에 삽입 (같은 달이면 결과적으로 동일)
     cancelEdit();
   } else {
     data[key][type].push(entry);
@@ -8244,6 +8250,7 @@ function editLedger(type,idx){
   if(!data[key]||!data[key][type]) return;
   var item=data[key][type][idx];
   if(!item) return;
+  _editMode.key=key;
 
   if(type==="income"){
     var d=document.getElementById("ldgIncDate"); if(d) d.value=item.date||"";
@@ -8271,7 +8278,7 @@ function editLedger(type,idx){
 }
 
 function setEditMode(type,idx){
-  _editMode={type:type,idx:idx};
+  _editMode.type=type; _editMode.idx=idx;
   var btnMap={income:"ldgIncBtn",expense:"ldgExpBtn",invest:"ldgInvBtn"};
   ["income","expense","invest"].forEach(function(t){
     var b=document.getElementById("ldg"+t.charAt(0).toUpperCase()+t.slice(1)+"Btn");
@@ -8283,7 +8290,7 @@ function setEditMode(type,idx){
 }
 
 function cancelEdit(){
-  _editMode={type:null,idx:null};
+  _editMode={type:null,idx:null,key:null};
   ["income","expense","invest"].forEach(function(t){
     var b=document.getElementById("ldg"+t.charAt(0).toUpperCase()+t.slice(1)+"Btn");
     if(b){b.textContent="추가";b.style.background=(t==="income"?"#42a5f5":t==="expense"?"#ef5350":"#ab47bc");}
