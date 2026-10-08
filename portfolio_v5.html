@@ -1574,14 +1574,14 @@ select { -webkit-user-select: none; user-select: none; touch-action: manipulatio
 
     <div class="card" style="border-left:4px solid #c62828;background:linear-gradient(180deg,#fff8f7 0%,#ffe9e5 100%)">
       <div style="font-size:14px;color:var(--muted);margin-bottom:6px">80세 수령 예상액</div>
-      <div style="font-size:26px;font-weight:900;color:#b71c1c">35,499.5만원</div>
-      <div style="font-size:12px;color:var(--muted);margin-top:8px">원금 13,950만원(69세 칠순축하금 450, 79세 팔순축하금 675 포함) + 순이자 21,549.5만원 (비과세)</div>
+      <div style="font-size:26px;font-weight:900;color:#b71c1c">35,607.0만원</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:8px">원금 13,967.1만원(56~59세 연 304.2712만원 확정 반영, 69세 칠순축하금 450, 79세 팔순축하금 675 포함) + 순이자 21,639.9만원 (비과세)</div>
     </div>
 
     <div class="card" style="border-left:4px solid #6a1b9a;background:linear-gradient(180deg,#f9f5ff 0%,#f0e4fc 100%)">
       <div style="font-size:14px;color:var(--muted);margin-bottom:6px">💡 수령을 100세까지 미루면 (복리 계속 유지 시)</div>
-      <div style="font-size:26px;font-weight:900;color:#6a1b9a">217,758.0만원</div>
-      <div style="font-size:12px;color:var(--muted);margin-top:8px">80세는 순태씨가 정한 목표 시점일 뿐, 실제로는 수령하지 않고 계속 두면 81세부터도 매년 750만원씩 추가 납입되며 연 8.5% 복리가 그대로 이어집니다. 80세 35,499.5만원에서 100세까지 20년 더 미루면 이 금액까지 불어납니다 — 이게 복리의 힘입니다.</div>
+      <div style="font-size:26px;font-weight:900;color:#6a1b9a">218,307.5만원</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:8px">80세는 순태씨가 정한 목표 시점일 뿐, 실제로는 수령하지 않고 계속 두면 81세부터도 매년 750만원씩 추가 납입되며 연 8.5% 복리가 그대로 이어집니다. 80세 35,607.0만원에서 100세까지 20년 더 미루면 이 금액까지 불어납니다 — 이게 복리의 힘입니다.</div>
     </div>
 
     <div class="card">
@@ -7095,66 +7095,70 @@ function switchTab(tab) {
 // 노터치 자산 (연금보험 미수령 누적표)
 // =============================================
 var NOTOUCH_DATA=[
-  {age:56,pay:300.0,int:0.0,bal:300.0},
-  {age:57,pay:300.0,int:25.5,bal:625.5},
-  {age:58,pay:300.0,int:53.2,bal:978.7},
-  {age:59,pay:300.0,int:83.2,bal:1361.8},
-  {age:60,pay:375.0,int:115.8,bal:1852.6},
-  {age:61,pay:375.0,int:157.5,bal:2385.1},
-  {age:62,pay:375.0,int:202.7,bal:2962.8},
-  {age:63,pay:375.0,int:251.8,bal:3589.7},
-  {age:64,pay:375.0,int:305.1,bal:4269.8},
-  {age:65,pay:450.0,int:362.9,bal:5082.7},
-  {age:66,pay:450.0,int:432.0,bal:5964.7},
-  {age:67,pay:450.0,int:507.0,bal:6921.7},
-  {age:68,pay:450.0,int:588.4,bal:7960.1},
-  {age:69,pay:900.0,int:676.6,bal:9536.7},
-  {age:70,pay:600.0,int:810.6,bal:10947.3},
-  {age:71,pay:600.0,int:930.5,bal:12477.8},
-  {age:72,pay:600.0,int:1060.6,bal:14138.5},
-  {age:73,pay:600.0,int:1201.8,bal:15940.2},
-  {age:74,pay:600.0,int:1354.9,bal:17895.1},
-  {age:75,pay:750.0,int:1521.1,bal:20166.2},
-  {age:76,pay:750.0,int:1714.1,bal:22630.4},
-  {age:77,pay:750.0,int:1923.6,bal:25303.9},
-  {age:78,pay:750.0,int:2150.8,bal:28204.8},
-  {age:79,pay:1425.0,int:2397.4,bal:32027.2},
-  {age:80,pay:750.0,int:2722.3,bal:35499.5},
-  {age:81,pay:750.0,int:3017.5,bal:39267.0},
-  {age:82,pay:750.0,int:3337.7,bal:43354.7},
-  {age:83,pay:750.0,int:3685.1,bal:47789.8},
-  {age:84,pay:750.0,int:4062.1,bal:52601.9},
-  {age:85,pay:750.0,int:4471.2,bal:57823.1},
-  {age:86,pay:750.0,int:4915.0,bal:63488.1},
-  {age:87,pay:750.0,int:5396.5,bal:69634.6},
-  {age:88,pay:750.0,int:5918.9,bal:76303.5},
-  {age:89,pay:750.0,int:6485.8,bal:83539.3},
-  {age:90,pay:750.0,int:7100.8,bal:91390.1},
-  {age:91,pay:750.0,int:7768.2,bal:99908.3},
-  {age:92,pay:750.0,int:8492.2,bal:109150.5},
-  {age:93,pay:750.0,int:9277.8,bal:119178.3},
-  {age:94,pay:750.0,int:10130.2,bal:130058.5},
-  {age:95,pay:750.0,int:11055.0,bal:141863.5},
-  {age:96,pay:750.0,int:12058.4,bal:154671.9},
-  {age:97,pay:750.0,int:13147.1,bal:168569.0},
-  {age:98,pay:750.0,int:14328.4,bal:183647.4},
-  {age:99,pay:750.0,int:15610.0,bal:200007.4},
-  {age:100,pay:750.0,int:17000.6,bal:217758.0}
+  {age:56,pay:304.2712,int:0.0,bal:304.3},
+  {age:57,pay:304.2712,int:25.9,bal:634.4},
+  {age:58,pay:304.2712,int:53.9,bal:992.6},
+  {age:59,pay:304.2712,int:84.4,bal:1381.2},
+  {age:60,pay:375.0,int:117.4,bal:1873.6},
+  {age:61,pay:375.0,int:159.3,bal:2407.9},
+  {age:62,pay:375.0,int:204.7,bal:2987.6},
+  {age:63,pay:375.0,int:253.9,bal:3616.5},
+  {age:64,pay:375.0,int:307.4,bal:4298.9},
+  {age:65,pay:450.0,int:365.4,bal:5114.3},
+  {age:66,pay:450.0,int:434.7,bal:5999.1},
+  {age:67,pay:450.0,int:509.9,bal:6959.0},
+  {age:68,pay:450.0,int:591.5,bal:8000.5},
+  {age:69,pay:900.0,int:680.0,bal:9580.5},
+  {age:70,pay:600.0,int:814.3,bal:10994.9},
+  {age:71,pay:600.0,int:934.6,bal:12529.4},
+  {age:72,pay:600.0,int:1065.0,bal:14194.4},
+  {age:73,pay:600.0,int:1206.5,bal:16001.0},
+  {age:74,pay:600.0,int:1360.1,bal:17961.1},
+  {age:75,pay:750.0,int:1526.7,bal:20237.7},
+  {age:76,pay:750.0,int:1720.2,bal:22708.0},
+  {age:77,pay:750.0,int:1930.2,bal:25388.1},
+  {age:78,pay:750.0,int:2158.0,bal:28296.1},
+  {age:79,pay:1425.0,int:2405.2,bal:32126.3},
+  {age:80,pay:750.0,int:2730.7,bal:35607.0},
+  {age:81,pay:750.0,int:3026.6,bal:39383.6},
+  {age:82,pay:750.0,int:3347.6,bal:43481.2},
+  {age:83,pay:750.0,int:3695.9,bal:47927.1},
+  {age:84,pay:750.0,int:4073.8,bal:52750.9},
+  {age:85,pay:750.0,int:4483.8,bal:57984.8},
+  {age:86,pay:750.0,int:4928.7,bal:63663.5},
+  {age:87,pay:750.0,int:5411.4,bal:69824.9},
+  {age:88,pay:750.0,int:5935.1,bal:76510.0},
+  {age:89,pay:750.0,int:6503.3,bal:83763.3},
+  {age:90,pay:750.0,int:7119.9,bal:91633.2},
+  {age:91,pay:750.0,int:7788.8,bal:100172.1},
+  {age:92,pay:750.0,int:8514.6,bal:109436.7},
+  {age:93,pay:750.0,int:9302.1,bal:119488.8},
+  {age:94,pay:750.0,int:10156.5,bal:130395.3},
+  {age:95,pay:750.0,int:11083.6,bal:142228.9},
+  {age:96,pay:750.0,int:12089.5,bal:155068.4},
+  {age:97,pay:750.0,int:13180.8,bal:168999.2},
+  {age:98,pay:750.0,int:14364.9,bal:184114.2},
+  {age:99,pay:750.0,int:15649.7,bal:200513.9},
+  {age:100,pay:750.0,int:17043.7,bal:218307.5}
 ];
-var NOTOUCH_TOTAL=35499.5, NOTOUCH_TOTAL_INT=21549.5;
+var NOTOUCH_TOTAL=35607.0, NOTOUCH_TOTAL_INT=21639.9;
 function fmtWon(n){
   var s=n.toFixed(1);
   var parts=s.split(".");
   parts[0]=parts[0].replace(/\B(?=(\d{3})+(?!\d))/g,",");
   return parts.join(".");
 }
+// 나이 ↔ 연도 환산 (출생연도 1970년 기준, 예: 61세(31년))
+var BIRTH_YEAR=1970;
+function ageYearShort(age){ var y=(BIRTH_YEAR+age)%100; return (y<10?"0":"")+y; }
+function ageYearLabel(age){ return age+"세("+ageYearShort(age)+"년)"; }
 var RETIREMENT_MILESTONES=[
   {date:"2029-02-28", label:"공무원연금 납부 종료", sub:"'29.2", color:"#3949ab", subBig:true},
   {date:"2029-12-31", label:"명예퇴직", sub:"'29.12.31", color:"#f57f17"},
   {date:"2030-02-28", label:"건강보험 임의계속가입 (재취업이 가성비 최고)", sub:"약 '30.2말", color:"#2e7d32"},
   {date:"2030-06-07", label:"국민연금 임의가입 (60세 도달 전)", sub:"'30.6.7 이내", color:"#8e24aa"},
   {date:"2030-06-09", label:"국민연금 임의계속가입 전환", sub:"'30.6.9", color:"#00838f"},
-  {date:"2033-06-01", label:"공무원연금 개시 (63세)", sub:"'33.6", color:"#c62828"},
+  {date:"2033-06-01", label:"공무원연금 개시 ("+ageYearLabel(63)+")", sub:"'33.6", color:"#c62828"},
   {date:"2040-06-01", label:"국민연금 개시", sub:"'40.6", color:"#ad1457"}
 ];
 function renderRetirement(){
@@ -7478,7 +7482,7 @@ function renderNotouch(){
     var isCross=d.age===67;
     var rowStyle=isLast?'background:#fff3e0;font-weight:900':(isCross?'background:#e3f2fd;font-weight:900':'');
     rows+='<tr style="'+rowStyle+'">'+
-      '<td style="padding:6px 4px;border-bottom:1px solid var(--border);white-space:nowrap">'+d.age+'세'+(isLast?' (수령)':'')+(isCross?' 🔵역전':'')+'</td>'+
+      '<td style="padding:6px 4px;border-bottom:1px solid var(--border);white-space:nowrap">'+ageYearLabel(d.age)+(isLast?' (수령)':'')+(isCross?' 🔵역전':'')+'</td>'+
       '<td style="padding:6px 4px;border-bottom:1px solid var(--border);text-align:right;white-space:nowrap">'+fmtWon(d.pay)+'만원</td>'+
       '<td style="padding:6px 4px;border-bottom:1px solid var(--border);text-align:right;white-space:nowrap">'+fmtWon(d.int)+'만원</td>'+
       '<td style="padding:6px 4px;border-bottom:1px solid var(--border);text-align:right;font-weight:800;white-space:nowrap">'+fmtWon(d.bal)+'만원</td>'+
@@ -7490,7 +7494,7 @@ function renderNotouch(){
   if(sel && sel.options.length===0){
     for(var a=56;a<=79;a++){
       var opt=document.createElement("option");
-      opt.value=a; opt.textContent=a+"세부터 매년 수령 전환";
+      opt.value=a; opt.textContent=ageYearLabel(a)+"부터 매년 수령 전환";
       sel.appendChild(opt);
     }
   }
@@ -7510,7 +7514,7 @@ function renderNotouchForgone(){
   }
   var forgone=NOTOUCH_TOTAL_INT-cumIntBeforeX;
   out.innerHTML='<div style="text-align:center;padding:10px;background:#fff;border-radius:10px;border:1.5px solid #f57f17">'+
-    '<div style="font-size:12px;color:var(--muted)">'+X+'세부터 전환 시 포기하는 이자</div>'+
+    '<div style="font-size:12px;color:var(--muted)">'+ageYearLabel(X)+'부터 전환 시 포기하는 이자</div>'+
     '<div style="font-size:22px;font-weight:900;color:#e65100;margin-top:4px">'+fmtWon(forgone)+'만원</div>'+
     '</div>';
 }
@@ -7519,7 +7523,7 @@ function getFace(ageUpTo){
   var sum=0;
   for(var a=56;a<=ageUpTo;a++){
     var p;
-    if(a<=59) p=300; else if(a<=64) p=375; else if(a<=69) p=450; else if(a<=74) p=600; else p=750;
+    if(a<=59) p=304.2712; else if(a<=64) p=375; else if(a<=69) p=450; else if(a<=74) p=600; else p=750;
     if(a===69) p+=450;
     if(a===79) p+=675;
     sum+=p;
