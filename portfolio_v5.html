@@ -2639,7 +2639,7 @@ function fetchBenchmarkHistory(force) {
   setTimeout(function(){
     if (_benchRunId===myRun && _benchFetchInFlight) { _benchFetchInFlight=false; setBenchStatus("⚠️ 시간 초과 — 지수 서버 응답이 없습니다. 잠시 후 다시 눌러주세요."); }
   }, 240000);
-  var syms=[{sym:"069500.KS",id:"KS200"},{sym:"QQQ",id:"QQQ"},{sym:"SPY",id:"SPY"}];
+  var syms=[{sym:"QQQ",id:"QQQ"},{sym:"SPY",id:"SPY"},{sym:"069500.KS",id:"KS200"}];
   var results={fetchedAt:today, fetchedAtISO:(cached&&cached.fetchedAtISO)||null, KS200:(cached&&cached.KS200)||[], QQQ:(cached&&cached.QQQ)||[], SPY:(cached&&cached.SPY)||[]};
   var freshCount=0;
 
@@ -2656,6 +2656,49 @@ function fetchBenchmarkHistory(force) {
     var _j=Math.floor(Math.random()*(_i+1));
     var _tmp=PROXIES[_i]; PROXIES[_i]=PROXIES[_j]; PROXIES[_j]=_tmp;
   }
+  PROXIES.unshift(function(u){ return u; }); // 프록시 없이 직접 호출 (브라우저가 허용하면 가장 빠름, 막히면 즉시 다음으로)
+
+  // 무료 프록시가 전부 막혔을 때를 대비한 경로: 설정에 저장된 Alpha Vantage 키로 최근 100거래일 종가를 받아
+  // 기존 5년 기록에 날짜 기준으로 이어 붙인다 (미국 지수 QQQ/SPY 전용, 호출 2회/일 사용)
+  var avNote="";
+  function fetchAV(s, cb) {
+    var key=""; try { key=getAlphaVantageKey(); } catch(e){}
+    if (!key) { avNote="Alpha Vantage 키가 설정에 없습니다"; cb(false); return; }
+    setBenchStatus("지수 새로고침 중… "+s.id+" (Alpha Vantage)");
+    var settled=false, timer=null, ctrl=null;
+    var done=function(ok){ if (settled) return; settled=true; clearTimeout(timer); cb(ok); };
+    try { if (window.AbortController) ctrl=new AbortController(); } catch(e){ ctrl=null; }
+    timer=setTimeout(function(){ try{ if(ctrl) ctrl.abort(); }catch(e){} avNote="응답 시간 초과"; done(false); }, 12000);
+    var opts={cache:"no-store"}; if (ctrl) opts.signal=ctrl.signal;
+    fetch("https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol="+encodeURIComponent(s.sym)+"&outputsize=compact&apikey="+encodeURIComponent(key), opts)
+      .then(function(r){ if(!r.ok) throw new Error("http "+r.status); return r.json(); })
+      .then(function(data){
+        if (settled) return;
+        var ser=data&&data["Time Series (Daily)"];
+        if (!ser) { avNote=String((data&&(data.Note||data.Information||data["Error Message"]))||"응답 형식 오류").slice(0,60); done(false); return; }
+        var byDay={};
+        (results[s.id]||[]).forEach(function(pt){ byDay[new Date(pt.ts).toISOString().slice(0,10)]=pt; });
+        var added=0;
+        for (var d in ser) {
+          var c=parseFloat(ser[d]&&ser[d]["4. close"]);
+          var pp=d.split("-");
+          if (c>0 && pp.length===3) { byDay[d]={ts:Date.UTC(+pp[0],+pp[1]-1,+pp[2],14,30), close:c}; added++; }
+        }
+        if (!added) { avNote="데이터 없음"; done(false); return; }
+        results[s.id]=Object.keys(byDay).sort().map(function(k){ return byDay[k]; });
+        freshCount++; freshIds[s.id]=true;
+        done(true);
+      })
+      .catch(function(){ avNote="네트워크 오류"; done(false); });
+  }
+  // 심볼 하나 가져오기: 미국 지수는 Alpha Vantage 먼저, 실패하면 기존 프록시 경로로
+  function fetchSym(s, cb) {
+    if (s.id==="QQQ" || s.id==="SPY") {
+      fetchAV(s, function(ok){ if (ok) cb(); else fetchOne(s, 0, cb, 0); });
+    } else {
+      fetchOne(s, 0, cb, 1); // 코스피200은 프록시 1회전만 (실패해도 미국 지수 갱신에는 영향 없음)
+    }
+  }
 
   function fetchOne(s, proxyIdx, cb, round) {
     round = round || 0;
@@ -2669,7 +2712,7 @@ function fetchBenchmarkHistory(force) {
     var next=function(){ if (settled) return; settled=true; clearTimeout(timer); fetchOne(s, proxyIdx+1, cb, round); };
     try { if (window.AbortController) ctrl=new AbortController(); } catch(e){ ctrl=null; }
     // 응답이 없는 프록시에 무한정 걸리지 않도록 7초 후 다음 프록시로 넘어감
-    timer=setTimeout(function(){ try{ if(ctrl) ctrl.abort(); }catch(e){} next(); }, 7000);
+    timer=setTimeout(function(){ try{ if(ctrl) ctrl.abort(); }catch(e){} next(); }, 5000);
     setBenchStatus("지수 새로고침 중… "+s.id+" ("+(round*PROXIES.length+proxyIdx+1)+"/"+(PROXIES.length*2)+")");
     var opts={cache:"no-store"}; if (ctrl) opts.signal=ctrl.signal;
     fetch(PROXIES[proxyIdx](url), opts)
@@ -2725,13 +2768,16 @@ function fetchBenchmarkHistory(force) {
   var freshIds={};
   var benchResultMsg=function(){
     var failed=[]; ["KS200","QQQ","SPY"].forEach(function(id){ if(!freshIds[id]) failed.push(id); });
-    return failed.length ? "⚠️ 일부 갱신 실패: "+failed.join(", ")+" (기존 데이터 유지)" : "✓ 지수 새로고침 완료";
+    if (!failed.length) return "✓ 지수 새로고침 완료";
+    var usFail=failed.filter(function(x){ return x!=="KS200"; });
+    if (!usFail.length) return "✓ QQQ·S&P500 갱신 완료 (코스피200만 실패 — 기존 데이터 유지)";
+    return "⚠️ 갱신 실패: "+failed.join(", ")+(avNote?" · "+avNote:"")+" (기존 데이터 유지)";
   };
   // 순차 실행 (동시 요청으로 인한 프록시 과부하 방지), 프록시별로 순회 시도
-  fetchOne(syms[0], 0, function(){
-    fetchOne(syms[1], 0, function(){
-      fetchOne(syms[2], 0, function(){
-        if (freshCount===3) results.fetchedAtISO=new Date().toISOString();
+  fetchSym(syms[0], function(){
+    fetchSym(syms[1], function(){
+      fetchSym(syms[2], function(){
+        if (freshIds.QQQ && freshIds.SPY) results.fetchedAtISO=new Date().toISOString();
         try {
         mergeAndSaveBench(results);
         setBenchStatus(benchResultMsg());
@@ -2745,7 +2791,7 @@ function fetchBenchmarkHistory(force) {
           var spyRetries=0;
           var retrySpy=function(){
             spyRetries++;
-            fetchOne({sym:"SPY",id:"SPY"}, 0, function(){
+            fetchSym({sym:"SPY",id:"SPY"}, function(){
               if (freshIds.SPY) {
                 try { mergeAndSaveBench(results); setBenchStatus(benchResultMsg()); renderAllReturnsTables(); refreshAllLineCharts(); } catch(e){}
                 releaseLock();
