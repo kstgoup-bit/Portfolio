@@ -2598,8 +2598,23 @@ function updateBrief() {
 // 📊 실시간 시장 지수
 // ═══════════════════════════════
 var _benchFetchInFlight=false;
+var _benchRunId=0, _benchFetchStartedAt=0, _benchStatusMsg="";
+function setBenchStatus(msg){
+  _benchStatusMsg=msg||"";
+  try {
+    var els=document.querySelectorAll(".benchStatusMsg");
+    for (var i=0;i<els.length;i++) els[i].textContent=_benchStatusMsg;
+  } catch(e){}
+}
 function fetchBenchmarkHistory(force) {
-  if (_benchFetchInFlight) return; // 이미 진행 중이면 중복 실행 방지 (동시 실행 시 저장 경합 원인)
+  // 이미 진행 중이면 중복 실행 방지. 단, 수동 새로고침(force)은 20초 넘게 걸리는 실행이 있으면
+  // 멈춘 것으로 보고 새로 시작한다 (예전엔 응답 없는 프록시 하나 때문에 잠금이 영원히 안 풀렸음)
+  if (_benchFetchInFlight) {
+    if (!force || (Date.now()-_benchFetchStartedAt) < 20000) { if (force) setBenchStatus("이미 새로고침 중입니다. 잠시만 기다려 주세요."); return; }
+  }
+  var myRun=++_benchRunId;
+  _benchFetchStartedAt=Date.now();
+  var releaseLock=function(){ if (_benchRunId===myRun) _benchFetchInFlight=false; };
   var cached=null;
   try { cached=JSON.parse(localStorage.getItem("v5_benchHist")||"null"); } catch(e){}
   var today=new Date().toDateString();
@@ -2620,6 +2635,10 @@ function fetchBenchmarkHistory(force) {
     return;
   }
   _benchFetchInFlight=true;
+  setBenchStatus("지수 새로고침 중… (최대 2~3분 걸릴 수 있습니다)");
+  setTimeout(function(){
+    if (_benchRunId===myRun && _benchFetchInFlight) { _benchFetchInFlight=false; setBenchStatus("⚠️ 시간 초과 — 지수 서버 응답이 없습니다. 잠시 후 다시 눌러주세요."); }
+  }, 240000);
   var syms=[{sym:"069500.KS",id:"KS200"},{sym:"QQQ",id:"QQQ"},{sym:"SPY",id:"SPY"}];
   var results={fetchedAt:today, fetchedAtISO:(cached&&cached.fetchedAtISO)||null, KS200:(cached&&cached.KS200)||[], QQQ:(cached&&cached.QQQ)||[], SPY:(cached&&cached.SPY)||[]};
   var freshCount=0;
@@ -2628,7 +2647,7 @@ function fetchBenchmarkHistory(force) {
     function(u){ return "https://api.allorigins.win/raw?url="+encodeURIComponent(u); },
     function(u){ return "https://corsproxy.io/?url="+encodeURIComponent(u); },
     function(u){ return "https://api.codetabs.com/v1/proxy?quest="+encodeURIComponent(u); },
-    function(u){ return "https://thingproxy.freeboard.io/fetch/"+u; },
+    function(u){ return "https://api.allorigins.win/get?url="+encodeURIComponent(u); },
     function(u){ return "https://corsproxy.org/?"+encodeURIComponent(u); }
   ];
   // 매 실행마다 순서를 섞어서, 특정 프록시(예: 자체 캐싱하는 프록시) 하나에
@@ -2641,14 +2660,24 @@ function fetchBenchmarkHistory(force) {
   function fetchOne(s, proxyIdx, cb, round) {
     round = round || 0;
     if (proxyIdx>=PROXIES.length) {
-      if (round<1) { fetchOne(s, 0, cb, round+1); return; } // 프록시 목록 한 바퀴 더 자동 재시도
+      if (round<1) { fetchOne(s, 0, cb, round+1); return; } // 프록시 목록 한 바퀴 더 자동 재시도 (2차는 야후 보조 서버)
       cb(); return;
     }
-    var url="https://query1.finance.yahoo.com/v8/finance/chart/"+encodeURIComponent(s.sym)+"?interval=1d&range=5y&_cb="+Date.now();
-    fetch(PROXIES[proxyIdx](url))
-      .then(function(r){return r.json();})
+    var host = (round===0) ? "query1" : "query2";
+    var url="https://"+host+".finance.yahoo.com/v8/finance/chart/"+encodeURIComponent(s.sym)+"?interval=1d&range=5y&_cb="+Date.now();
+    var settled=false, timer=null, ctrl=null;
+    var next=function(){ if (settled) return; settled=true; clearTimeout(timer); fetchOne(s, proxyIdx+1, cb, round); };
+    try { if (window.AbortController) ctrl=new AbortController(); } catch(e){ ctrl=null; }
+    // 응답이 없는 프록시에 무한정 걸리지 않도록 7초 후 다음 프록시로 넘어감
+    timer=setTimeout(function(){ try{ if(ctrl) ctrl.abort(); }catch(e){} next(); }, 7000);
+    setBenchStatus("지수 새로고침 중… "+s.id+" ("+(round*PROXIES.length+proxyIdx+1)+"/"+(PROXIES.length*2)+")");
+    var opts={cache:"no-store"}; if (ctrl) opts.signal=ctrl.signal;
+    fetch(PROXIES[proxyIdx](url), opts)
+      .then(function(r){ if(!r.ok) throw new Error("http "+r.status); return r.json(); })
       .then(function(data){
-        var res=data.chart&&data.chart.result&&data.chart.result[0];
+        if (settled) return;
+        if (data && typeof data.contents==="string") { try{ data=JSON.parse(data.contents); }catch(e){} } // allorigins /get 래핑 해제
+        var res=data&&data.chart&&data.chart.result&&data.chart.result[0];
         var hist=[];
         if(res){
           var ts=res.timestamp||[];
@@ -2657,10 +2686,10 @@ function fetchBenchmarkHistory(force) {
             if(closes[i]!=null) hist.push({ts:ts[i]*1000, close:closes[i]});
           }
         }
-        if(hist.length) { results[s.id]=hist; freshCount++; freshIds[s.id]=true; cb(); }
-        else fetchOne(s, proxyIdx+1, cb, round);
+        if(hist.length) { settled=true; clearTimeout(timer); results[s.id]=hist; freshCount++; freshIds[s.id]=true; cb(); }
+        else next();
       })
-      .catch(function(){ fetchOne(s, proxyIdx+1, cb, round); });
+      .catch(function(){ next(); });
   }
 
   function latestTsOf(arr){
@@ -2694,14 +2723,21 @@ function fetchBenchmarkHistory(force) {
   }
 
   var freshIds={};
+  var benchResultMsg=function(){
+    var failed=[]; ["KS200","QQQ","SPY"].forEach(function(id){ if(!freshIds[id]) failed.push(id); });
+    return failed.length ? "⚠️ 일부 갱신 실패: "+failed.join(", ")+" (기존 데이터 유지)" : "✓ 지수 새로고침 완료";
+  };
   // 순차 실행 (동시 요청으로 인한 프록시 과부하 방지), 프록시별로 순회 시도
   fetchOne(syms[0], 0, function(){
     fetchOne(syms[1], 0, function(){
       fetchOne(syms[2], 0, function(){
         if (freshCount===3) results.fetchedAtISO=new Date().toISOString();
+        try {
         mergeAndSaveBench(results);
+        setBenchStatus(benchResultMsg());
         renderAllReturnsTables();
         refreshAllLineCharts();
+        } catch(e){ releaseLock(); setBenchStatus("⚠️ 화면 갱신 중 오류: "+(e&&e.message||e)); return; }
         // SPY는 순서상 세 번째라 프록시 rate limit에 가장 자주 걸림.
         // 배열 길이가 아니라 "이번 실행에서 실제로 새로 받아왔는지"를 기준으로 재시도 판단
         // (오래된 캐시가 남아있으면 배열은 항상 비어있지 않아 예전 로직은 재시도가 영영 안 걸렸음)
@@ -2711,19 +2747,20 @@ function fetchBenchmarkHistory(force) {
             spyRetries++;
             fetchOne({sym:"SPY",id:"SPY"}, 0, function(){
               if (freshIds.SPY) {
-                mergeAndSaveBench(results);
-                refreshAllLineCharts();
-                _benchFetchInFlight=false;
+                try { mergeAndSaveBench(results); setBenchStatus(benchResultMsg()); renderAllReturnsTables(); refreshAllLineCharts(); } catch(e){}
+                releaseLock();
               } else if (spyRetries<3) {
                 setTimeout(retrySpy, 3000*(spyRetries+1));
               } else {
-                _benchFetchInFlight=false;
+                setBenchStatus(benchResultMsg());
+                try { renderAllReturnsTables(); } catch(e){}
+                releaseLock();
               }
             });
           };
           setTimeout(retrySpy, 3000);
         } else {
-          _benchFetchInFlight=false;
+          releaseLock();
         }
       });
     });
@@ -3059,26 +3096,27 @@ function renderReturnsTable(key, tableId) {
   var now=Date.now();
   el.innerHTML =
     returnsSectionHtml(key, current, now, "raw") +
-    '<div style="font-size:11px;color:var(--muted);margin-top:8px;text-align:center">추적 시작: 2026-05-22 · 데이터가 쌓이는 대로 자동 표시됩니다</div>' +
+    '<div style="font-size:12px;color:#333;margin-top:8px;text-align:center">추적 시작: 2026-05-22 · 데이터가 쌓이는 대로 자동 표시됩니다</div>' +
     '<div style="border-top:1px dashed var(--border);margin:16px 0 12px 0"></div>' +
     '<div style="font-size:14px;font-weight:800;color:#8e24aa;margin-bottom:4px">🎯 '+label+' 순수 수익률(2년부터 연)</div>' +
     returnsSectionHtml(key, current, now, "dietz") +
-    '<div style="font-size:11px;color:var(--muted);margin-top:8px;text-align:center">입금·매수금을 제외한 시장 운용 성과만 계산 (Modified Dietz)</div>' +
+    '<div style="font-size:12px;color:#333;margin-top:8px;text-align:center">입금·매수금을 제외한 시장 운용 성과만 계산 (Modified Dietz)</div>' +
     '<div style="border-top:1px dashed var(--border);margin:16px 0 12px 0"></div>' +
     '<div style="font-size:14px;font-weight:800;color:#00695c;margin-bottom:4px">📊 '+label+' 시장 대비 알파</div>' +
     returnsSectionHtml(key, current, now, "alpha") +
-    '<div style="font-size:11px;color:var(--muted);margin-top:8px;text-align:center">기준 지수: '+benchLabel+'</div>' +
-    '<div style="font-size:11px;color:var(--muted);text-align:center">알파: 순수 수익률 − 기준지수 수익률</div>' +
+    '<div style="font-size:12px;color:#333;margin-top:8px;text-align:center">기준 지수: '+benchLabel+'</div>' +
+    '<div style="font-size:12px;color:#333;text-align:center">알파: 순수 수익률 − 기준지수 수익률</div>' +
     '<div style="display:flex;flex-direction:column;align-items:center;gap:4px;margin-top:8px">'+
       (function(){
         var bt=getBenchFetchTimeLabel();
         var dt=getBenchDataLatestLabel(key);
         var mismatch = dt.stale;
-        var line1='<span style="font-size:11px;color:var(--muted)">새로고침 시각: '+bt.text+' · '+dt.name+' 데이터 최신일: '+dt.text+'</span>';
+        var line1='<span style="font-size:12px;color:#333">새로고침 시각: '+bt.text+' · '+dt.name+' 데이터 최신일: '+dt.text+'</span>';
         var line2 = mismatch ? '<span style="font-size:11px;color:#e65100;font-weight:700">⚠️ 데이터가 오래됐습니다 — 수동 새로고침을 눌러주세요</span>' : '<span style="font-size:11px;color:#2e7d32;font-weight:700">✓ 데이터 최신 확인됨</span>';
-        return line1+line2;
+        var line3='<span class="benchStatusMsg" style="font-size:12px;color:#333;font-weight:700">'+(typeof _benchStatusMsg==='string'?_benchStatusMsg:'')+'</span>';
+        return line1+line2+line3;
       })()+
-      '<button onclick="fetchBenchmarkHistory(true)" style="font-size:11px;font-weight:700;color:#00695c;background:#e0f2f1;border:1px solid #80cbc4;border-radius:8px;padding:3px 10px;cursor:pointer;margin-top:2px">↻ 지수 새로고침</button>'+
+      '<button onclick="fetchBenchmarkHistory(true)" style="font-size:12px;font-weight:700;color:#00695c;background:#e0f2f1;border:1px solid #80cbc4;border-radius:8px;padding:8px 16px;cursor:pointer;margin-top:2px">↻ 지수 새로고침</button>'+
     '</div>';
 }
 
