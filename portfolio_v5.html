@@ -2660,7 +2660,7 @@ function fetchBenchmarkHistory(force) {
 
   // 무료 프록시가 전부 막혔을 때를 대비한 경로: 설정에 저장된 Alpha Vantage 키로 최근 100거래일 종가를 받아
   // 기존 5년 기록에 날짜 기준으로 이어 붙인다 (미국 지수 QQQ/SPY 전용, 호출 2회/일 사용)
-  var avNote="";
+  var avNote="", avLastCall=0;
   function fetchAV(s, cb) {
     var key=""; try { key=getAlphaVantageKey(); } catch(e){}
     if (!key) { avNote="Alpha Vantage 키가 설정에 없습니다"; cb(false); return; }
@@ -2694,7 +2694,11 @@ function fetchBenchmarkHistory(force) {
   // 심볼 하나 가져오기: 미국 지수는 Alpha Vantage 먼저, 실패하면 기존 프록시 경로로
   function fetchSym(s, cb) {
     if (s.id==="QQQ" || s.id==="SPY") {
-      fetchAV(s, function(ok){ if (ok) cb(); else fetchOne(s, 0, cb, 0); });
+      var wait=Math.max(0, 1500-(Date.now()-avLastCall)); // Alpha Vantage 무료 키는 초당 1회 제한
+      setTimeout(function(){
+        avLastCall=Date.now();
+        fetchAV(s, function(ok){ if (ok) cb(); else fetchOne(s, 0, cb, 0); });
+      }, wait);
     } else {
       fetchOne(s, 0, cb, 1); // 코스피200은 프록시 1회전만 (실패해도 미국 지수 갱신에는 영향 없음)
     }
@@ -2793,6 +2797,7 @@ function fetchBenchmarkHistory(force) {
             spyRetries++;
             fetchSym({sym:"SPY",id:"SPY"}, function(){
               if (freshIds.SPY) {
+                if (freshIds.QQQ) results.fetchedAtISO=new Date().toISOString();
                 try { mergeAndSaveBench(results); setBenchStatus(benchResultMsg()); renderAllReturnsTables(); refreshAllLineCharts(); } catch(e){}
                 releaseLock();
               } else if (spyRetries<3) {
