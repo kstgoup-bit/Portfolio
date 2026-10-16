@@ -6930,6 +6930,37 @@ function renderCommandments() {
 // =============================================
 // 시세 갱신
 // =============================================
+// 이번 세션에서 시세가 실제로 갱신된 종목 (localStorage에 남은 전 세션 시세와 구분)
+var freshPrice={};
+
+// 자동 자산기록: 보유 종목 전부가 '이번 세션에 갱신된 시세'일 때만 기록한다.
+// (평단가·전 세션 시세로 대신 계산하지 않음 → 과거 점이 실제보다 높게 남는 문제 방지)
+function autoSnapshot() {
+  var rate=getRate(), today=new Date().toDateString();
+  function held(arr){ return arr.filter(function(s){return s.quantity>0;}); }
+  function ready(arr, prefix){
+    return held(arr).every(function(s){ return freshPrice[prefix+s.ticker] && s.currentPrice>0; });
+  }
+  function tvOf(arr,us){ return held(arr).reduce(function(sum,x){return sum+x.quantity*x.currentPrice*(us?rate:1);},0); }
+  function tcOf(arr,us){ return held(arr).filter(function(s){return s.avgPrice>0;}).reduce(function(sum,x){return sum+x.quantity*x.avgPrice*(us?rate:1);},0); }
+  var okDom=ready(domStocks,"KR:"), okPen=ready(penStocks,"KR:"), okGen=ready(genStocks,"KR:"), okOv=ready(ovStocks,"US:");
+  var jobs=[
+    {key:"all", ok:okDom&&okPen&&okGen&&okOv,
+      tv:tvOf(domStocks,false)+tvOf(ovStocks,true)+tvOf(penStocks,false)+tvOf(genStocks,false),
+      tc:tcOf(domStocks,false)+tcOf(ovStocks,true)+tcOf(penStocks,false)+tcOf(genStocks,false)},
+    {key:"dom", ok:okDom, tv:tvOf(domStocks,false), tc:tcOf(domStocks,false)},
+    {key:"ov",  ok:okOv,  tv:tvOf(ovStocks,true),   tc:tcOf(ovStocks,true)},
+    {key:"pen", ok:okPen, tv:tvOf(penStocks,false), tc:tcOf(penStocks,false)},
+    {key:"gen", ok:okGen, tv:tvOf(genStocks,false), tc:tcOf(genStocks,false)}
+  ];
+  jobs.forEach(function(j){
+    if(!j.ok || !(j.tv>0)) return;
+    snapshots[j.key]=(snapshots[j.key]||[]).filter(function(d){return new Date(d.ts).toDateString()!==today;});
+    snapshots[j.key].push({ts:Date.now(),val:j.tv,cost:j.tc});
+    snapshots[j.key].sort(function(a,b){return a.ts-b.ts;});
+  });
+}
+
 function fetchUS() {
   if(!gasUrl){alert("설정 탭에서 GAS URL을 먼저 입력해주세요");return;}
   // 자동갱신
@@ -6938,9 +6969,10 @@ function fetchUS() {
   var script=document.createElement("script");
   script.src=gasUrl+"?tickers="+tickers+"&market=US&callback="+cb;
   window[cb]=function(data){
-    ovStocks.forEach(function(s){if(data[s.ticker])s.currentPrice=data[s.ticker];});
+    ovStocks.forEach(function(s){if(data[s.ticker]){s.currentPrice=data[s.ticker]; freshPrice["US:"+s.ticker]=true;}});
+    autoSnapshot();
     save(); renderAll();
-    
+
     delete window[cb]; if(document.body.contains(script))document.body.removeChild(script);
   };
   script.onerror=function(){delete window[cb];if(document.body.contains(script))document.body.removeChild(script);};
@@ -6957,9 +6989,10 @@ function fetchKR() {
   var script=document.createElement("script");
   script.src=gasUrl+"?tickers="+tickers+"&market=KR&callback="+cb;
   window[cb]=function(data){
-    domStocks.forEach(function(s){if(data[s.ticker])s.currentPrice=data[s.ticker];});
-    penStocks.forEach(function(s){if(data[s.ticker])s.currentPrice=data[s.ticker];});
-    genStocks.forEach(function(s){if(data[s.ticker])s.currentPrice=data[s.ticker];});
+    [domStocks,penStocks,genStocks].forEach(function(arr){
+      arr.forEach(function(s){if(data[s.ticker]){s.currentPrice=data[s.ticker]; freshPrice["KR:"+s.ticker]=true;}});
+    });
+    autoSnapshot();
     save(); renderAll();
     
     delete window[cb]; if(document.body.contains(script))document.body.removeChild(script);
@@ -7696,23 +7729,7 @@ function checkPw() {
     failCount=0;
     sessionStorage.setItem("v5_auth","1");
     renderAll();
-    // 로그인 시 매번 자동 스냅샷 (토스트 없이)
-    setTimeout(function(){
-      var today=new Date().toDateString();
-      var calcWithAvg=function(stocks,us){
-        return stocks.filter(function(s){return s.quantity>0&&(s.currentPrice>0||s.avgPrice>0);})
-          .reduce(function(s,x){var price=x.currentPrice>0?x.currentPrice:x.avgPrice;return s+x.quantity*price*(us?getRate():1);},0);
-      };
-      var tv=calcWithAvg(domStocks,false)+calcWithAvg(ovStocks,true)+calcWithAvg(penStocks,false);
-      if(!tv) return;
-      var tc=domStocks.filter(function(s){return s.quantity>0;}).reduce(function(s,x){return s+x.quantity*x.avgPrice;},0)
-        +ovStocks.filter(function(s){return s.quantity>0;}).reduce(function(s,x){return s+x.quantity*x.avgPrice*getRate();},0)
-        +penStocks.filter(function(s){return s.quantity>0;}).reduce(function(s,x){return s+x.quantity*x.avgPrice;},0);
-      snapshots["all"]=snapshots["all"].filter(function(d){return new Date(d.ts).toDateString()!==today;});
-      snapshots["all"].push({ts:Date.now(),val:tv,cost:tc});
-      snapshots["all"].sort(function(a,b){return a.ts-b.ts;});
-      save();
-    }, 500);
+    // (자동 스냅샷은 시세 갱신 성공 시 fetchKR/fetchUS 안의 autoSnapshot()에서 처리)
   } else {
     failCount++;
     document.getElementById("lockInput").value="";
@@ -7746,34 +7763,7 @@ window.addEventListener("load", function() {
   setTimeout(fetchKR, 2500);
   setTimeout(fetchUS, 3500);
   setTimeout(fetchRiskData, 7000);
-  setTimeout(function(){
-    // ★ 자동 자산기록 (로그인/새로고침 시 1회)
-    var rate=getRate(), today=new Date().toDateString(), recorded=false;
-    function tvFB(arr,us){ // currentPrice 없으면 avgPrice 폴백
-      return arr.filter(function(s){return s.quantity>0&&(s.currentPrice>0||s.avgPrice>0);})
-        .reduce(function(sum,x){var p=x.currentPrice>0?x.currentPrice:x.avgPrice;return sum+x.quantity*p*(us?rate:1);},0);
-    }
-    function tcFB(arr,us){
-      return arr.filter(function(s){return s.quantity>0&&s.avgPrice>0;})
-        .reduce(function(sum,x){return sum+x.quantity*x.avgPrice*(us?rate:1);},0);
-    }
-    ['all','gen','dom','ov','pen'].forEach(function(key){
-      var arr=key==='dom'?domStocks:key==='ov'?ovStocks:key==='pen'?penStocks:key==='gen'?genStocks:null;
-      var us=key==='ov', tv=0, tc=0;
-      if(key==='all'){
-        tv=tvFB(domStocks,false)+tvFB(ovStocks,true)+tvFB(penStocks,false)+tvFB(genStocks,false);
-        tc=tcFB(domStocks,false)+tcFB(ovStocks,true)+tcFB(penStocks,false)+tcFB(genStocks,false);
-      } else {
-        tv=tvFB(arr,us); tc=tcFB(arr,us);
-      }
-      if(!tv) return;
-      snapshots[key]=(snapshots[key]||[]).filter(function(d){return new Date(d.ts).toDateString()!==today;});
-      snapshots[key].push({ts:Date.now(),val:tv,cost:tc});
-      snapshots[key].sort(function(a,b){return a.ts-b.ts;});
-      recorded=true;
-    });
-    if(recorded){save();renderAll();}
-  }, 5000);
+  // 자동 자산기록은 시세 갱신 성공 시(fetchKR/fetchUS → autoSnapshot)에만 수행
 });
 
 
