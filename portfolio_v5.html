@@ -3426,9 +3426,9 @@ function renderDashboard() {
     '#8bc34a':{light:'#c5e1a5',dark:'#33691e',mid:'#8bc34a'}
   };
   var canvasId='barCanvas_'+Date.now();
-  var barW=24, barH=103, gap=10, topPad=24;
-  var canvasW=barItems.length*(barW+gap)-gap+20;
-  var canvasH=barH+topPad+28;
+  var barW=30, gap=6, boxH=20, maxLen=64, topPad=34, botPad=34, sidePad=10;
+  var canvasW=barItems.length*(barW+gap)-gap+sidePad*2;
+  var canvasH=topPad+maxLen+boxH+maxLen+botPad;
   var barSvg='<canvas id="'+canvasId+'" width="'+(canvasW*2)+'" height="'+(canvasH*2)+'" '+
     'style="width:'+canvasW+'px;height:'+canvasH+'px"></canvas>';
   var itemsData=barItems.map(function(m,i){
@@ -3448,35 +3448,27 @@ function renderDashboard() {
     if(!cv) return;
     var ctx=cv.getContext('2d');
     ctx.scale(2,2);
-    var maxP=maxPct;
-    var halfH=barH/2;
-    var zeroY=topPad+halfH;
-
-    // 0선 (기준선)
-    ctx.save();
-    ctx.strokeStyle='rgba(0,0,0,0.15)';
-    ctx.lineWidth=1;
-    ctx.beginPath();
-    ctx.moveTo(4,zeroY);
-    ctx.lineTo(canvasW-4,zeroY);
-    ctx.stroke();
-    ctx.restore();
+    // 제목(전체·일반·ISA·해외·연금)은 가운데 고정 박스 = 기준선.
+    // 수익률이 +이면 박스 위로, -이면 박스 아래로 막대가 뻗는다.
+    var boxTop=topPad+maxLen, boxBot=boxTop+boxH;
+    var placed=[]; // 수치 라벨끼리 겹치지 않게 위치 기록
 
     itemsData.forEach(function(m,i){
-      var h=Math.max(Math.abs(m.pct)/maxP*halfH,6);
-      var x=i*(barW+gap)+10;
+      var h=Math.max(Math.abs(m.pct)/maxPct*maxLen,6);
+      var x=sidePad+i*(barW+gap);
       var neg=m.pct<0;
-      var y = neg ? zeroY : zeroY-h;
+      var y = neg ? boxBot : boxTop-h;
       var r=5;
-      // 그림자
+      var boxColor=m.isAll?colorRanks[0].color:m.mid;
+
+      // 막대 (그림자 + 박스에 붙은 쪽은 평평, 바깥쪽 모서리만 둥글게)
       ctx.save();
-      ctx.shadowColor='rgba(0,0,0,0.3)';
-      ctx.shadowBlur=8;
-      ctx.shadowOffsetX=3;
-      ctx.shadowOffsetY=4;
+      ctx.shadowColor='rgba(0,0,0,0.25)';
+      ctx.shadowBlur=6;
+      ctx.shadowOffsetX=2;
+      ctx.shadowOffsetY=3;
       ctx.beginPath();
       if(!neg){
-        // 양수: 윗쪽 모서리만 둥글게, 0선에서 위로
         ctx.moveTo(x+r,y);
         ctx.lineTo(x+barW-r,y);
         ctx.quadraticCurveTo(x+barW,y,x+barW,y+r);
@@ -3485,7 +3477,6 @@ function renderDashboard() {
         ctx.lineTo(x,y+r);
         ctx.quadraticCurveTo(x,y,x+r,y);
       } else {
-        // 음수: 아래쪽 모서리만 둥글게, 0선에서 아래로
         ctx.moveTo(x,y);
         ctx.lineTo(x+barW,y);
         ctx.lineTo(x+barW,y+h-r);
@@ -3494,7 +3485,6 @@ function renderDashboard() {
         ctx.quadraticCurveTo(x,y+h,x,y+h-r);
       }
       ctx.closePath();
-      // 단순 깔끔 막대
       var grd;
       if(m.isAll&&m.gradColors){
         grd=ctx.createLinearGradient(x,y+h,x,y);
@@ -3508,21 +3498,51 @@ function renderDashboard() {
       ctx.fill();
       ctx.restore();
 
-      // 수익률 텍스트 (양수: 막대 위, 음수: 막대 아래)
+      // 제목 박스 (고정 위치)
       ctx.save();
-      ctx.font='bold 9px Pretendard,sans-serif';
-      ctx.fillStyle=m.isAll?colorRanks[0].color:m.dark;
+      ctx.beginPath();
+      ctx.moveTo(x+r,boxTop);
+      ctx.lineTo(x+barW-r,boxTop);
+      ctx.quadraticCurveTo(x+barW,boxTop,x+barW,boxTop+r);
+      ctx.lineTo(x+barW,boxBot-r);
+      ctx.quadraticCurveTo(x+barW,boxBot,x+barW-r,boxBot);
+      ctx.lineTo(x+r,boxBot);
+      ctx.quadraticCurveTo(x,boxBot,x,boxBot-r);
+      ctx.lineTo(x,boxTop+r);
+      ctx.quadraticCurveTo(x,boxTop,x+r,boxTop);
+      ctx.closePath();
+      ctx.fillStyle='#ffffff';
+      ctx.fill();
+      ctx.lineWidth=2;
+      ctx.strokeStyle=boxColor;
+      ctx.stroke();
+      ctx.fillStyle='#222';
+      ctx.font='bold 12px Pretendard,sans-serif';
       ctx.textAlign='center';
-      var labelY = neg ? (y+h+11) : (y-5);
-      ctx.fillText((m.pct>=0?'+':'')+m.pct.toFixed(2)+'%',x+barW/2,labelY);
+      ctx.fillText(m.label,x+barW/2,boxTop+boxH/2+4.5);
       ctx.restore();
-      // 이름 텍스트 (막대 반대쪽, 기준선 근처)
+
+      // 수익률 수치 (+: 막대 끝 위, -: 막대 끝 아래). 이웃 라벨과 겹치면 바깥쪽으로 한 단 밀어낸다.
       ctx.save();
-      ctx.font='bold 9.5px Pretendard,sans-serif';
-      ctx.fillStyle='#444';
-      ctx.textAlign='center';
-      var nameY = neg ? (zeroY-8) : (zeroY+13);
-      ctx.fillText(m.label,x+barW/2,nameY);
+      ctx.font='bold 12px Pretendard,sans-serif';
+      var txt=(m.pct>=0?'+':'')+m.pct.toFixed(2)+'%';
+      var w=ctx.measureText(txt).width;
+      var left=Math.max(2,Math.min(x+barW/2-w/2,canvasW-2-w));
+      var yText = neg ? (y+h+13) : (y-5);
+      var guard=0, moved=true;
+      while(moved && guard++<3){
+        moved=false;
+        placed.forEach(function(pl){
+          if(left<pl.right+2 && left+w>pl.left-2 && Math.abs(yText-pl.y)<14){
+            yText += neg ? 14 : -14;
+            moved=true;
+          }
+        });
+      }
+      placed.push({left:left,right:left+w,y:yText});
+      ctx.fillStyle=m.isAll?colorRanks[0].color:m.dark;
+      ctx.textAlign='left';
+      ctx.fillText(txt,left,yText);
       ctx.restore();
     });
   },100);
