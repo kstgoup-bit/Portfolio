@@ -3426,9 +3426,16 @@ function renderDashboard() {
     '#8bc34a':{light:'#c5e1a5',dark:'#33691e',mid:'#8bc34a'}
   };
   var canvasId='barCanvas_'+Date.now();
-  var barW=30, gap=6, boxH=20, maxLen=64, topPad=34, botPad=34, sidePad=10;
+  var barW=30, gap=6, boxH=20, maxLen=64, sidePad=10;
   var canvasW=barItems.length*(barW+gap)-gap+sidePad*2;
-  var canvasH=topPad+maxLen+boxH+maxLen+botPad;
+  // 위(+)·아래(-) 공간을 실제 막대 길이에 맞춰 잡아 빈 공간을 줄인다
+  var posMaxH=0, negMaxH=0;
+  barItems.forEach(function(m){
+    var pv=m.g.pct||0, hh=Math.max(Math.abs(pv)/maxPct*maxLen,6);
+    if(pv<0) negMaxH=Math.max(negMaxH,hh); else posMaxH=Math.max(posMaxH,hh);
+  });
+  var topPad=posMaxH+30, botPad=negMaxH+34;
+  var canvasH=topPad+boxH+botPad;
   var barSvg='<canvas id="'+canvasId+'" width="'+(canvasW*2)+'" height="'+(canvasH*2)+'" '+
     'style="width:'+canvasW+'px;height:'+canvasH+'px"></canvas>';
   var itemsData=barItems.map(function(m,i){
@@ -3446,11 +3453,21 @@ function renderDashboard() {
   setTimeout(function(){
     var cv=document.getElementById(canvasId);
     if(!cv) return;
+    // 컨테이너 폭에 맞춰 캔버스·막대 폭을 정하고 가운데 정렬 (오른쪽으로 삐져나가지 않게)
+    var avail=(cv.parentNode&&cv.parentNode.clientWidth)||canvasW;
+    var nItems=itemsData.length, sp=4, g=5;
+    var barW=Math.max(24,Math.min(34,Math.floor((avail-2*sp-(nItems-1)*g)/nItems)));
+    var gap=g;
+    var groupW=nItems*barW+(nItems-1)*g;
+    var canvasW=Math.max(avail,groupW+2*sp);
+    var sidePad=(canvasW-groupW)/2;
+    cv.width=canvasW*2; cv.height=canvasH*2;
+    cv.style.width=canvasW+'px'; cv.style.height=canvasH+'px';
     var ctx=cv.getContext('2d');
     ctx.scale(2,2);
-    // 제목(전체·일반·ISA·해외·연금)은 가운데 고정 박스 = 기준선.
+    // 제목(전체·일반·ISA·해외·연금)은 고정 박스 = 기준선.
     // 수익률이 +이면 박스 위로, -이면 박스 아래로 막대가 뻗는다.
-    var boxTop=topPad+maxLen, boxBot=boxTop+boxH;
+    var boxTop=topPad, boxBot=boxTop+boxH;
     var placed=[]; // 수치 라벨끼리 겹치지 않게 위치 기록
 
     itemsData.forEach(function(m,i){
@@ -3687,11 +3704,11 @@ function renderDashboard() {
   ms.innerHTML=
     '<div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;padding:2px">'+
       '<div style="text-align:center">'+
-        '<div style="font-size:11px;color:var(--text);font-weight:900;margin-bottom:4px">자산 비중</div>'+
+        '<div style="font-size:12px;color:var(--text);font-weight:900;margin-bottom:4px">자산 비중</div>'+
         pieSvg+
       '</div>'+
-      '<div style="flex:1;text-align:center">'+
-        '<div style="font-size:11px;color:var(--text);font-weight:900;margin-bottom:4px">수익률 비교</div>'+
+      '<div style="flex:1;min-width:0;text-align:center">'+
+        '<div style="font-size:12px;color:var(--text);font-weight:900;margin-bottom:4px">수익률 비교</div>'+
         barSvg+
       '</div>'+
     '</div>'+
