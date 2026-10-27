@@ -2486,7 +2486,7 @@ function updateBrief() {
 
     var snaps=JSON.parse(localStorage.getItem("v5_snap")||"{}");
     var today=new Date(), thisMonth=today.getFullYear()+"-"+(today.getMonth()+1);
-    var hasSnap=(snaps.all||[]).some(function(d){var dd=new Date(d.ts);return(dd.getFullYear()+"-"+(dd.getMonth()+1))===thisMonth;});
+    var hasSnap=(snaps.all||[]).some(function(d){return new Date(d.ts).toDateString()===today.toDateString();});
     var divs=JSON.parse(localStorage.getItem("v5_div")||"[]");
     var thisMonthDiv=divs.some(function(d){return d.date&&d.date.substring(0,7)===today.toISOString().substring(0,7);});
 
@@ -2561,7 +2561,7 @@ function updateBrief() {
     }
 
     // 할일 알림
-    if(!hasSnap) msgs.push({cls:"warn",icon:"📸",badge:"할일",txt:"이번 달 자산 스냅샷 미기록! '📸 오늘 전체 자산 기록' 버튼을 눌러주세요."});
+    if(!hasSnap) msgs.push({cls:"warn",icon:"📸",badge:"할일",txt:"오늘 자산 기록이 아직 없습니다. 시세 갱신이 끝나면 자동 기록되며, 급하면 '📸 오늘 전체 자산 기록' 버튼을 눌러주세요."});
     if(!thisMonthDiv&&divs.length>0) msgs.push({cls:"",icon:"💰",badge:"확인",txt:"이번 달 배당금 입력했나요? 배당 탭에서 수령 내역을 기록해두세요."});
     if(!msgs.length) msgs.push({cls:"",icon:"💁‍♀️",badge:"클로",txt:"위험계 탭에서 실시간 지수를 조회하면 정확한 진단을 받을 수 있어요."});
 
@@ -6980,7 +6980,8 @@ function autoSnapshot() {
   var rate=getRate(), today=new Date().toDateString();
   function held(arr){ return arr.filter(function(s){return s.quantity>0;}); }
   function ready(arr, prefix){
-    return held(arr).every(function(s){ return freshPrice[prefix+s.ticker] && s.currentPrice>0; });
+    // 예수금(DEP_*)은 직접 입력한 잔고라 시세 서버가 값을 주지 않음 → 갱신 확인 대상에서 제외
+    return held(arr).every(function(s){ return s.ticker.indexOf("DEP_")===0 ? s.currentPrice>0 : (freshPrice[prefix+s.ticker] && s.currentPrice>0); });
   }
   function tvOf(arr,us){ return held(arr).reduce(function(sum,x){return sum+x.quantity*x.currentPrice*(us?rate:1);},0); }
   function tcOf(arr,us){ return held(arr).filter(function(s){return s.avgPrice>0;}).reduce(function(sum,x){return sum+x.quantity*x.avgPrice*(us?rate:1);},0); }
@@ -6999,47 +7000,70 @@ function autoSnapshot() {
     snapshots[j.key]=(snapshots[j.key]||[]).filter(function(d){return new Date(d.ts).toDateString()!==today;});
     snapshots[j.key].push({ts:Date.now(),val:j.tv,cost:j.tc});
     snapshots[j.key].sort(function(a,b){return a.ts-b.ts;});
+    if(j.key==="all"){ try{ localStorage.setItem("v5_lastAutoSnap", String(Date.now())); }catch(e){} }
   });
+  // 기록이 안 된 계좌가 있으면 원인(시세 미갱신 종목)을 콘솔에 남김
+  try {
+    var miss=[];
+    [[domStocks,"KR:"],[penStocks,"KR:"],[genStocks,"KR:"],[ovStocks,"US:"]].forEach(function(p){
+      held(p[0]).forEach(function(s){ if(s.ticker.indexOf("DEP_")!==0 && !freshPrice[p[1]+s.ticker]) miss.push(s.ticker); });
+    });
+    if(miss.length) console.log("[자산기록] 시세 미갱신 종목:", miss.join(", "));
+  } catch(e){}
 }
 
-function fetchUS() {
-  if(!gasUrl){alert("설정 탭에서 GAS URL을 먼저 입력해주세요");return;}
+// 시세 요청 실패 시 자동 재시도 (3초 → 10초 → 30초 후, 최대 3회)
+function retryFetch(fn, attempt) {
+  var delays=[3000,10000,30000];
+  if (attempt>=delays.length) return;
+  setTimeout(function(){ fn(attempt+1); }, delays[attempt]);
+}
+
+function fetchUS(attempt) {
+  attempt=(typeof attempt==="number")?attempt:0;
+  if(!gasUrl){ if(attempt===0) alert("설정 탭에서 GAS URL을 먼저 입력해주세요"); return;}
   // 자동갱신
-  var tickers=ovStocks.map(function(s){return s.ticker;}).join(",");
+  var tickers=ovStocks.map(function(s){return s.ticker;}).filter(function(t){return t.indexOf("DEP_")!==0;}).join(",");
+  if(!tickers) { autoSnapshot(); save(); return; }
   var cb="gas_us_"+Date.now();
   var script=document.createElement("script");
   script.src=gasUrl+"?tickers="+tickers+"&market=US&callback="+cb;
+  var finished=false;
+  function cleanup(){ delete window[cb]; if(document.body.contains(script))document.body.removeChild(script); }
   window[cb]=function(data){
+    finished=true;
     ovStocks.forEach(function(s){if(data[s.ticker]){s.currentPrice=data[s.ticker]; freshPrice["US:"+s.ticker]=true;}});
     autoSnapshot();
     save(); renderAll();
-
-    delete window[cb]; if(document.body.contains(script))document.body.removeChild(script);
+    cleanup();
   };
-  script.onerror=function(){delete window[cb];if(document.body.contains(script))document.body.removeChild(script);};
-  setTimeout(function(){if(window[cb]){delete window[cb];}},15000);
+  script.onerror=function(){ if(finished) return; finished=true; cleanup(); retryFetch(fetchUS, attempt); };
+  setTimeout(function(){ if(finished) return; finished=true; cleanup(); retryFetch(fetchUS, attempt); },15000);
   document.body.appendChild(script);
 }
 
-function fetchKR() {
-  if(!gasUrl){alert("설정 탭에서 GAS URL을 먼저 입력해주세요");return;}
+function fetchKR(attempt) {
+  attempt=(typeof attempt==="number")?attempt:0;
+  if(!gasUrl){ if(attempt===0) alert("설정 탭에서 GAS URL을 먼저 입력해주세요"); return;}
   // 자동갱신
   var allKR=[].concat(domStocks,penStocks,genStocks);
-  var tickers=[...new Set(allKR.map(function(s){return s.ticker;}))].join(",");
+  var tickers=[...new Set(allKR.map(function(s){return s.ticker;}))].filter(function(t){return t.indexOf("DEP_")!==0;}).join(",");
   var cb="gas_kr_"+Date.now();
   var script=document.createElement("script");
   script.src=gasUrl+"?tickers="+tickers+"&market=KR&callback="+cb;
+  var finished=false;
+  function cleanup(){ delete window[cb]; if(document.body.contains(script))document.body.removeChild(script); }
   window[cb]=function(data){
+    finished=true;
     [domStocks,penStocks,genStocks].forEach(function(arr){
       arr.forEach(function(s){if(data[s.ticker]){s.currentPrice=data[s.ticker]; freshPrice["KR:"+s.ticker]=true;}});
     });
     autoSnapshot();
     save(); renderAll();
-    
-    delete window[cb]; if(document.body.contains(script))document.body.removeChild(script);
+    cleanup();
   };
-  script.onerror=function(){delete window[cb];if(document.body.contains(script))document.body.removeChild(script);};
-  setTimeout(function(){if(window[cb]){delete window[cb];}},15000);
+  script.onerror=function(){ if(finished) return; finished=true; cleanup(); retryFetch(fetchKR, attempt); };
+  setTimeout(function(){ if(finished) return; finished=true; cleanup(); retryFetch(fetchKR, attempt); },15000);
   document.body.appendChild(script);
 }
 
@@ -7801,8 +7825,23 @@ window.addEventListener("load", function() {
   fetchBenchmarkHistory(true);
   // 환율/국내/미국 자동갱신 + 완료 후 자산 자동기록
   setTimeout(fetchFX, 1500);
-  setTimeout(fetchKR, 2500);
-  setTimeout(fetchUS, 3500);
+  setTimeout(function(){ fetchKR(0); }, 2500);
+  setTimeout(function(){ fetchUS(0); }, 3500);
+  // 앱을 켜 둔 채 날이 바뀌거나 백그라운드에서 돌아왔을 때, 오늘 기록이 없으면 다시 갱신·기록
+  var _lastResume=0;
+  function resumeCheck(){
+    if(document.visibilityState && document.visibilityState!=="visible") return;
+    if(Date.now()-_lastResume < 10*60*1000) return;
+    var todayStr=new Date().toDateString();
+    var hasToday=(snapshots.all||[]).some(function(d){return new Date(d.ts).toDateString()===todayStr;});
+    if(hasToday) return;
+    _lastResume=Date.now();
+    freshPrice={};
+    fetchFX(); setTimeout(function(){fetchKR(0);},1000); setTimeout(function(){fetchUS(0);},2000);
+  }
+  document.addEventListener("visibilitychange", resumeCheck);
+  window.addEventListener("focus", resumeCheck);
+  setInterval(resumeCheck, 30*60*1000);
   setTimeout(fetchRiskData, 7000);
   // 자동 자산기록은 시세 갱신 성공 시(fetchKR/fetchUS → autoSnapshot)에만 수행
 });
