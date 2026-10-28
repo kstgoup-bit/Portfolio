@@ -1,0 +1,1326 @@
+{
+ "schemaVersion": 2,
+ "version": "2026-10-29-providers.3",
+ "checkedAt": "2026-10-29",
+ "intendedUse": "사용자 1인, 본인 기기 표시, 로컬 계산·저장, 비상업, 제3자 공유 없음",
+ "note": "stage10: 약관 원문을 추가 열람해 항목 근거를 보강함. 새 증거로도 후보 적격 요건(전 항목 확인·충돌 없음)은 어느 공급자도 충족하지 못함. unconfirmed는 '모름'이며 허용이 아님.",
+ "requiredPrice": [
+  "coverage",
+  "dailyRegularClose",
+  "updateTimingDelay",
+  "adjustmentBasis52w",
+  "holidayCalendarTimezone",
+  "sessionSplit",
+  "corrections",
+  "benchmarks",
+  "personalDisplay",
+  "internalProcessing",
+  "localCacheRights",
+  "derivedRetention",
+  "redistribution",
+  "cost",
+  "rateLimit",
+  "keyHandling"
+ ],
+ "requiredListing": [
+  "coverage",
+  "updateTimingDelay",
+  "statusFields",
+  "internalProcessing",
+  "localCacheRights",
+  "redistribution",
+  "cost",
+  "rateLimit",
+  "keyHandling"
+ ],
+ "providers": [
+  {
+   "id": "fsc-krx-listing",
+   "name": "금융위원회_KRX상장종목정보 (공공데이터포털)",
+   "role": "listing",
+   "markets": [
+    "KR"
+   ],
+   "pagesRead": [
+    "https://www.data.go.kr/data/15094775/openapi.do"
+   ],
+   "fields": {
+    "coverage": {
+     "value": "응답 항목: 기준일자·단축코드·ISIN코드·시장구분·종목명·법인등록번호·법인명. 단일 오퍼레이션, 수정일 2026-10-28, 라이선스 공공누리 제4유형(출처표시·상업적 이용금지·변경금지)",
+     "status": "confirmed",
+     "source": "https://www.data.go.kr/data/15094775/openapi.do",
+     "checkedAt": "2026-10-29"
+    },
+    "updateTimingDelay": {
+     "value": "일 1회, 기준일 +1영업일 13시 이후 갱신(금요일 자료는 월요일). 실시간 아님. 같은 페이지 메타의 '실시간' 표기와 본문이 불일치",
+     "status": "confirmed",
+     "source": "https://www.data.go.kr/data/15094775/openapi.do",
+     "checkedAt": "2026-10-29"
+    },
+    "statusFields": {
+     "value": "응답 항목에 거래정지·관리종목·상장폐지·우선주 구분 필드가 없음 → 이 데이터만으로 적격성(제외/보류 사유) 판정 불가",
+     "status": "confirmed",
+     "source": "https://www.data.go.kr/data/15094775/openapi.do",
+     "checkedAt": "2026-10-29"
+    },
+    "internalProcessing": {
+     "value": "'변경금지' 조건과 정규화·가공(패키징)의 관계는 원문에 없음. 사용자가 받은 파일을 로컬에서 대조만 하는 용도의 허용 범위는 미확정",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "localCacheRights": {
+     "value": "로컬 저장 허용 기간·범위 원문에 없음",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "redistribution": {
+     "value": "제3자 무단 제공·재배포는 상업적 목적 여부와 무관하게 엄격히 금지. 공개 저장소·공유 문서·타인 열람 화면에 데이터를 두면 안 됨",
+     "status": "confirmed",
+     "source": "https://www.data.go.kr/data/15094775/openapi.do",
+     "checkedAt": "2026-10-29"
+    },
+    "cost": {
+     "value": "무료. 상업적 이용은 KRX Data Marketplace 유료 구매",
+     "status": "confirmed",
+     "source": "https://www.data.go.kr/data/15094775/openapi.do",
+     "checkedAt": "2026-10-29"
+    },
+    "rateLimit": {
+     "value": "개발계정 10,000건/일, 운영계정은 활용사례 등록 후 증량 신청. 초과 시 에러코드 22. 초당 한도 수치는 원문에 없음",
+     "status": "confirmed",
+     "source": "https://www.data.go.kr/data/15094775/openapi.do",
+     "checkedAt": "2026-10-29"
+    },
+    "keyHandling": {
+     "value": "공공데이터포털 서비스키 필요(개발·운영 자동승인, 프로젝트 키/개인 키 선택). 키를 요청 파라미터에 포함하므로 브라우저 직접 호출은 키 노출 위험",
+     "status": "confirmed",
+     "source": "https://www.data.go.kr/data/15094775/openapi.do",
+     "checkedAt": "2026-10-29"
+    }
+   },
+   "note": "상장 여부 대조용. 개인 비상업 이용이라도 변경금지·저장 범위는 사람이 약관을 읽고 확정해야 함."
+  },
+  {
+   "id": "fsc-stock-price",
+   "name": "금융위원회_주식시세정보 (공공데이터포털)",
+   "role": "price",
+   "markets": [
+    "KR"
+   ],
+   "pagesRead": [
+    "https://www.data.go.kr/data/15094808/openapi.do"
+   ],
+   "fields": {
+    "coverage": {
+     "value": "시가·종가·고가·저가·거래량 등 상세 시세. 응답 필드 목록·시장구분·상장주식수·시가총액은 원문에 없음. 수정일 2026-09-07",
+     "status": "confirmed",
+     "source": "https://www.data.go.kr/data/15094808/openapi.do",
+     "checkedAt": "2026-10-29"
+    },
+    "dailyRegularClose": {
+     "value": "일 단위 종가 포함(기준일자 기준)",
+     "status": "confirmed",
+     "source": "https://www.data.go.kr/data/15094808/openapi.do",
+     "checkedAt": "2026-10-29"
+    },
+    "updateTimingDelay": {
+     "value": "일 1회, 기준일 +1영업일 13시 이후 갱신(금요일 자료는 월요일). 실시간 아님. 같은 페이지 메타의 '실시간' 표기와 본문이 불일치",
+     "status": "confirmed",
+     "source": "https://www.data.go.kr/data/15094808/openapi.do",
+     "checkedAt": "2026-10-29"
+    },
+    "adjustmentBasis52w": {
+     "value": "수정주가·조정계수 항목이 원문에 없음 → 52주 고가와 종가의 동일 조정 기준 확인 불가",
+     "status": "unconfirmed",
+     "source": "https://www.data.go.kr/data/15094808/openapi.do",
+     "checkedAt": "2026-10-29"
+    },
+    "holidayCalendarTimezone": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "sessionSplit": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "corrections": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "benchmarks": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "personalDisplay": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "internalProcessing": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "localCacheRights": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "derivedRetention": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "redistribution": {
+     "value": "제3자 무단 제공·재배포는 상업적 목적 여부와 무관하게 엄격히 금지. 공개 저장소·공유 문서·타인 열람 화면에 데이터를 두면 안 됨",
+     "status": "confirmed",
+     "source": "https://www.data.go.kr/data/15094808/openapi.do",
+     "checkedAt": "2026-10-29"
+    },
+    "cost": {
+     "value": "무료. 상업적 이용은 KRX Data Marketplace 유료 구매",
+     "status": "confirmed",
+     "source": "https://www.data.go.kr/data/15094808/openapi.do",
+     "checkedAt": "2026-10-29"
+    },
+    "rateLimit": {
+     "value": "개발계정 10,000건/일, 운영계정은 활용사례 등록 후 증량 신청. 초과 시 에러코드 22. 초당 한도 수치는 원문에 없음",
+     "status": "confirmed",
+     "source": "https://www.data.go.kr/data/15094808/openapi.do",
+     "checkedAt": "2026-10-29"
+    },
+    "keyHandling": {
+     "value": "공공데이터포털 서비스키 필요(개발·운영 자동승인, 프로젝트 키/개인 키 선택). 키를 요청 파라미터에 포함하므로 브라우저 직접 호출은 키 노출 위험",
+     "status": "confirmed",
+     "source": "https://www.data.go.kr/data/15094808/openapi.do",
+     "checkedAt": "2026-10-29"
+    }
+   },
+   "note": "T+1이라 일봉 감시용으로는 가능성이 있으나 조정 기준이 미확인."
+  },
+  {
+   "id": "fsc-etf-price",
+   "name": "금융위원회_증권상품시세정보 (공공데이터포털)",
+   "role": "price",
+   "markets": [
+    "KR"
+   ],
+   "pagesRead": [
+    "https://www.data.go.kr/data/15094806/openapi.do"
+   ],
+   "fields": {
+    "coverage": {
+     "value": "ETF·ETN·ELW 시세 3개 오퍼레이션. 시가·종가·고가·저가·거래량·변동률. NAV·기초지수는 원문에 없음. 수정일 2026-09-07",
+     "status": "confirmed",
+     "source": "https://www.data.go.kr/data/15094806/openapi.do",
+     "checkedAt": "2026-10-29"
+    },
+    "dailyRegularClose": {
+     "value": "일 단위 종가 포함",
+     "status": "confirmed",
+     "source": "https://www.data.go.kr/data/15094806/openapi.do",
+     "checkedAt": "2026-10-29"
+    },
+    "updateTimingDelay": {
+     "value": "일 1회, 기준일 +1영업일 13시 이후 갱신(금요일 자료는 월요일). 실시간 아님. 같은 페이지 메타의 '실시간' 표기와 본문이 불일치",
+     "status": "confirmed",
+     "source": "https://www.data.go.kr/data/15094806/openapi.do",
+     "checkedAt": "2026-10-29"
+    },
+    "adjustmentBasis52w": {
+     "value": "분배금·분할 조정 항목이 원문에 없음",
+     "status": "unconfirmed",
+     "source": "https://www.data.go.kr/data/15094806/openapi.do",
+     "checkedAt": "2026-10-29"
+    },
+    "holidayCalendarTimezone": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "sessionSplit": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "corrections": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "benchmarks": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "personalDisplay": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "internalProcessing": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "localCacheRights": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "derivedRetention": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "redistribution": {
+     "value": "제3자 무단 제공·재배포는 상업적 목적 여부와 무관하게 엄격히 금지. 공개 저장소·공유 문서·타인 열람 화면에 데이터를 두면 안 됨",
+     "status": "confirmed",
+     "source": "https://www.data.go.kr/data/15094806/openapi.do",
+     "checkedAt": "2026-10-29"
+    },
+    "cost": {
+     "value": "무료. 상업적 이용은 KRX Data Marketplace 유료 구매",
+     "status": "confirmed",
+     "source": "https://www.data.go.kr/data/15094806/openapi.do",
+     "checkedAt": "2026-10-29"
+    },
+    "rateLimit": {
+     "value": "개발계정 10,000건/일, 운영계정은 활용사례 등록 후 증량 신청. 초과 시 에러코드 22. 초당 한도 수치는 원문에 없음",
+     "status": "confirmed",
+     "source": "https://www.data.go.kr/data/15094806/openapi.do",
+     "checkedAt": "2026-10-29"
+    },
+    "keyHandling": {
+     "value": "공공데이터포털 서비스키 필요(개발·운영 자동승인, 프로젝트 키/개인 키 선택). 키를 요청 파라미터에 포함하므로 브라우저 직접 호출은 키 노출 위험",
+     "status": "confirmed",
+     "source": "https://www.data.go.kr/data/15094806/openapi.do",
+     "checkedAt": "2026-10-29"
+    }
+   },
+   "note": "ETF 점수는 아직 미구현이며 NAV 괴리 등 ETF 전용 항목은 이 데이터에 없음."
+  },
+  {
+   "id": "krx-marketplace",
+   "name": "KRX Data Marketplace / 정보데이터시스템",
+   "role": "price",
+   "markets": [
+    "KR"
+   ],
+   "pagesRead": [
+    "https://data.krx.co.kr/contents/MDC/INFO/informationController/MDCINFO002.cmd",
+    "https://www.data.go.kr/data/15094775/openapi.do"
+   ],
+   "fields": {
+    "coverage": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "dailyRegularClose": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "updateTimingDelay": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "adjustmentBasis52w": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "holidayCalendarTimezone": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "sessionSplit": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "corrections": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "benchmarks": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "personalDisplay": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "internalProcessing": {
+     "value": "코스콤 정보 이용 정책서(시행 2024-01-01): 개인가입자는 비즈니스 목적이 아니고 자기 자산 관리·투자 목적일 때만 해당(제7조). 가공 등 비조회형 이용은 신고 대상(제8조)이라 개인의 로컬 계산이 여기에 해당하는지 미확정",
+     "status": "unconfirmed",
+     "source": "https://data.krx.co.kr/inc/datasale/Market Data Usage Polices_ko.pdf",
+     "checkedAt": "2026-10-29"
+    },
+    "localCacheRights": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "derivedRetention": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "redistribution": {
+     "value": "사이트 정보는 거래소 사전 허락 없이 복사·복제·배포·전송·공중송신 금지(홈페이지 이용약관 제12조②). 자동화 수단으로 정보를 무단 수집·복제·배포하는 행위 금지(제10조②)",
+     "status": "confirmed",
+     "source": "https://data.krx.co.kr/contents/MDC/INFO/informationController/MDCINFO003.cmd",
+     "checkedAt": "2026-10-29"
+    },
+    "cost": {
+     "value": "상업적 이용은 이곳에서 유료 구매(공공데이터포털 안내문). 가격표는 확인하지 못함",
+     "status": "confirmed",
+     "source": "https://www.data.go.kr/data/15094775/openapi.do",
+     "checkedAt": "2026-10-29"
+    },
+    "rateLimit": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "keyHandling": {
+     "value": "계정 양도·대여 금지(제12조①). 마켓데이터 상품은 별도의 '마켓데이터 상품 구매 및 이용약관'이 적용되며 이 문서에는 본문이 없음",
+     "status": "confirmed",
+     "source": "https://data.krx.co.kr/contents/MDC/INFO/informationController/MDCINFO003.cmd",
+     "checkedAt": "2026-10-29"
+    }
+   },
+   "note": "마켓데이터 상품 약관·가격표는 열람하지 못함. 사이트 자동 수집은 약관상 금지이므로 사용자가 브라우저에서 직접 내려받는 방식만 검토 대상."
+  },
+  {
+   "id": "kis-open-api",
+   "name": "한국투자증권 KIS Developers",
+   "role": "price",
+   "markets": [
+    "KR"
+   ],
+   "pagesRead": [
+    "https://apiportal.koreainvestment.com/provider",
+    "https://apiportal.koreainvestment.com/provider-process",
+    "https://apiportal.koreainvestment.com/provider-apply"
+   ],
+   "fields": {
+    "coverage": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "dailyRegularClose": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "updateTimingDelay": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "adjustmentBasis52w": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "holidayCalendarTimezone": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "sessionSplit": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "corrections": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "benchmarks": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "personalDisplay": {
+     "value": "개인 본인 자산 매매 고객은 한국투자 홈페이지에서 서비스를 신청. 제3자 서비스 제공은 법인 제휴 대상. 시세는 계좌 보유 고객에 한해 제공 가능하다고 언급. 표시 권리 조항 본문은 열람 못함",
+     "status": "unconfirmed",
+     "source": "https://apiportal.koreainvestment.com/provider",
+     "checkedAt": "2026-10-29"
+    },
+    "internalProcessing": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "localCacheRights": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "derivedRetention": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "redistribution": {
+     "value": "시세 이용에는 거래소와의 정보이용계약이 필요하고 계약이 없으면 제휴사 앱에 시세를 표출할 수 없음(제휴사 대상). 개인 투자자는 제휴 대상이 아니라 홈페이지에서 직접 신청",
+     "status": "confirmed",
+     "source": "https://apiportal.koreainvestment.com/provider-apply",
+     "checkedAt": "2026-10-29"
+    },
+    "cost": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "rateLimit": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "keyHandling": {
+     "value": "APP Key·APP Secret 방식. 제휴 절차에서 발급되는 키는 법인계좌 거래에만 사용 가능(제휴 안내 문구). 개인 투자자용 키 절차는 원문에 없음",
+     "status": "confirmed",
+     "source": "https://apiportal.koreainvestment.com/provider-process",
+     "checkedAt": "2026-10-29"
+    }
+   },
+   "note": "이용약관 본문·비용·호출 제한은 열람하지 못함. 개인 단독 사용의 시세 표시 권리는 미확정. 가입·키 발급은 하지 않음."
+  },
+  {
+   "id": "twelve-data-basic",
+   "name": "Twelve Data Basic(무료)",
+   "role": "price",
+   "markets": [
+    "US",
+    "GLOBAL"
+   ],
+   "pagesRead": [
+    "https://twelvedata.com/pricing.md",
+    "https://support.twelvedata.com/en/articles/5194820-api-call-limits",
+    "https://twelvedata.com/terms"
+   ],
+   "fields": {
+    "coverage": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "dailyRegularClose": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "updateTimingDelay": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "adjustmentBasis52w": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "holidayCalendarTimezone": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "sessionSplit": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "corrections": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "benchmarks": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "personalDisplay": {
+     "value": "Basic은 'internal non-display usage only' — 화면 표시 용도로 쓸 수 없음. 앱이 가격을 표시하려면 부적합",
+     "status": "conflict",
+     "source": "https://twelvedata.com/pricing.md",
+     "checkedAt": "2026-10-29"
+    },
+    "internalProcessing": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "localCacheRights": {
+     "value": "문서에 명시된 기간을 넘는 저장·캐시는 금지(§2.3(g)). 해당 기간 수치는 확인 못함",
+     "status": "unconfirmed",
+     "source": "https://twelvedata.com/terms",
+     "checkedAt": "2026-10-29"
+    },
+    "derivedRetention": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "redistribution": {
+     "value": "제3자에게 보이거나 제공하려면 등급·재배포 애드온·별도 계약 필요(약관 §2.2(b),(e)). 무료 등급 데이터는 상업 목적 사용 금지(§2.3(l))",
+     "status": "confirmed",
+     "source": "https://twelvedata.com/terms",
+     "checkedAt": "2026-10-29"
+    },
+    "cost": {
+     "value": "무료",
+     "status": "confirmed",
+     "source": "https://twelvedata.com/pricing.md",
+     "checkedAt": "2026-10-29"
+    },
+    "rateLimit": {
+     "value": "분당 8 크레딧, 일 800 크레딧",
+     "status": "confirmed",
+     "source": "https://support.twelvedata.com/en/articles/5194820-api-call-limits",
+     "checkedAt": "2026-10-29"
+    },
+    "keyHandling": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    }
+   },
+   "note": "약관 최종 갱신 2026-01-01."
+  },
+  {
+   "id": "twelve-data-personal",
+   "name": "Twelve Data 개인 유료(Grow/Pro/Ultra)",
+   "role": "price",
+   "markets": [
+    "US",
+    "GLOBAL"
+   ],
+   "pagesRead": [
+    "https://twelvedata.com/pricing.md",
+    "https://support.twelvedata.com/en/articles/5194820-api-call-limits",
+    "https://twelvedata.com/terms",
+    "https://twelvedata.com/docs"
+   ],
+   "fields": {
+    "coverage": {
+     "value": "Grow 이상에서 EOD 글로벌 주식·ETF 명시. 한국거래소(KRX) 지원은 해당 페이지에 없음",
+     "status": "confirmed",
+     "source": "https://twelvedata.com/pricing.md",
+     "checkedAt": "2026-10-29"
+    },
+    "dailyRegularClose": {
+     "value": "time_series 1day 지원, 응답 datetime·open·high·low·close·volume, outputsize 1~5000(날짜 지정 시 최대)",
+     "status": "confirmed",
+     "source": "https://twelvedata.com/docs",
+     "checkedAt": "2026-10-29"
+    },
+    "updateTimingDelay": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "adjustmentBasis52w": {
+     "value": "adjust 파라미터 all·splits·dividends·none 지원, 기본값은 splits(배당 미반영). 같은 adjust로 받은 한 시계열에서 52주 고가·종가를 계산하면 기준이 일치. 요청마다 adjust를 명시해야 함",
+     "status": "confirmed",
+     "source": "https://twelvedata.com/docs",
+     "checkedAt": "2026-10-29"
+    },
+    "holidayCalendarTimezone": {
+     "value": "1day는 timezone 파라미터가 무시되고 거래소 현지 시간. exchange_schedule은 Ultra 이상·요청당 100 크레딧, market_state는 1 크레딧",
+     "status": "confirmed",
+     "source": "https://twelvedata.com/docs",
+     "checkedAt": "2026-10-29"
+    },
+    "sessionSplit": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "corrections": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "benchmarks": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "personalDisplay": {
+     "value": "요금 페이지는 개인 플랜을 '개인·내부·비상업 용도'로 안내하나, 약관의 핵심 라이선스는 '내부 업무 목적(Internal Use)'이며 개인 비업무 사용 권리 조항은 원문에 없음 → 문구 불일치",
+     "status": "unconfirmed",
+     "source": "https://twelvedata.com/terms",
+     "checkedAt": "2026-10-29"
+    },
+    "internalProcessing": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "localCacheRights": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "derivedRetention": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "redistribution": {
+     "value": "재배포는 애드온/별도 계약 필요",
+     "status": "confirmed",
+     "source": "https://twelvedata.com/terms",
+     "checkedAt": "2026-10-29"
+    },
+    "cost": {
+     "value": "개인 Grow $29/$49/$79, Pro $99/$149/$229, Ultra $329/$499/$999 (월, 세금 별도, 연간 17% 할인)",
+     "status": "confirmed",
+     "source": "https://twelvedata.com/pricing.md",
+     "checkedAt": "2026-10-29"
+    },
+    "rateLimit": {
+     "value": "크레딧은 요청당이 아니라 심볼당 1(문서). 유료는 일/월 한도 없고 분당 한도만 플랜별(대시보드 확인). 초과 시 HTTP 429",
+     "status": "confirmed",
+     "source": "https://twelvedata.com/docs",
+     "checkedAt": "2026-10-29"
+    },
+    "keyHandling": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    }
+   },
+   "note": "가입·결제하지 않음. 약관 최종 갱신 2026-01-01. 요금 페이지('개인·비상업')와 약관('내부 업무 목적')의 문구 불일치가 핵심 장애물."
+  },
+  {
+   "id": "alpha-vantage-free",
+   "name": "Alpha Vantage (무료 키 기준)",
+   "role": "price",
+   "markets": [
+    "US",
+    "GLOBAL"
+   ],
+   "pagesRead": [
+    "https://www.alphavantage.co/documentation/"
+   ],
+   "fields": {
+    "coverage": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "dailyRegularClose": {
+     "value": "TIME_SERIES_DAILY는 원시(as-traded) 일봉. compact는 무료·프리미엄 키 모두 가능",
+     "status": "confirmed",
+     "source": "https://www.alphavantage.co/documentation/",
+     "checkedAt": "2026-10-29"
+    },
+    "updateTimingDelay": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "adjustmentBasis52w": {
+     "value": "TIME_SERIES_DAILY_ADJUSTED는 프리미엄 API. 무료 키로는 조정 종가를 받을 수 없어 분할 시점 포함 52주 고가·종가의 조정 기준 일치를 보장할 수 없음. outputsize=full(25년 이상)도 프리미엄 키 전용",
+     "status": "conflict",
+     "source": "https://www.alphavantage.co/documentation/",
+     "checkedAt": "2026-10-29"
+    },
+    "holidayCalendarTimezone": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "sessionSplit": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "corrections": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "benchmarks": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "personalDisplay": {
+     "value": "약관 2(a): 개인·비상업 목적 라이선스(서면 합의 시 예외). 상업 이용 판정 기준에 '다른 사람이 정보에 접근 가능한 상업 활동' 등이 있으나 개인 투자 모니터링이 개인 범위인지 문구가 모호함. 화면 표시·저장·캐시·호출 제한 조항은 원문에 없음",
+     "status": "unconfirmed",
+     "source": "https://alphavantage.co/terms_of_service",
+     "checkedAt": "2026-10-29"
+    },
+    "internalProcessing": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "localCacheRights": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "derivedRetention": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "redistribution": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "cost": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "rateLimit": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "keyHandling": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    }
+   },
+   "note": "공식 요금·약관 페이지는 열리지 않음. 제3자 해설의 무료 한도(일 25회·분당 5회)는 사실로 채택하지 않음."
+  },
+  {
+   "id": "massive-individual",
+   "name": "Massive 개인 플랜 (구 Polygon.io)",
+   "role": "price",
+   "markets": [
+    "US"
+   ],
+   "pagesRead": [
+    "https://massive.com/knowledge-base/article/which-plan-do-i-need-to-show-massive-data-in-my-app",
+    "https://massive.com/pricing"
+   ],
+   "fields": {
+    "coverage": {
+     "value": "미국 주식, 20년 이상 이력(Advanced). 한국 지원은 원문에 없음",
+     "status": "confirmed",
+     "source": "https://massive.com/pricing",
+     "checkedAt": "2026-10-29"
+    },
+    "dailyRegularClose": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "updateTimingDelay": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "adjustmentBasis52w": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "holidayCalendarTimezone": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "sessionSplit": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "corrections": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "benchmarks": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "personalDisplay": {
+     "value": "개인 플랜은 '본인만 쓰는 앱·대시보드' 허용(개인·비업무·비상업). 본인 외 누구든 데이터를 보는 순간 Business 필요(테스터·스테이징 포함). 직장·회사(LLC 포함)를 통한 사용은 개인 플랜 범위 밖",
+     "status": "confirmed",
+     "source": "https://massive.com/knowledge-base/article/which-plan-do-i-need-to-show-massive-data-in-my-app",
+     "checkedAt": "2026-10-29"
+    },
+    "internalProcessing": {
+     "value": "시장 데이터가 '표시 용도 전용'이라고 명시돼 낙폭·상대수익률 같은 로컬 계산의 허용 범위가 불분명(파생 데이터 정의 §5(c)는 있으나 허용 조건 미확인)",
+     "status": "unconfirmed",
+     "source": "https://massive.com/legal/market-data-terms-of-service",
+     "checkedAt": "2026-10-29"
+    },
+    "localCacheRights": {
+     "value": "캐시 조항은 원문에 없음. 해지 시 보유한 시장 데이터 삭제 의무(§8)만 확인",
+     "status": "unconfirmed",
+     "source": "https://massive.com/legal/market-data-terms-of-service",
+     "checkedAt": "2026-10-29"
+    },
+    "derivedRetention": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "redistribution": {
+     "value": "시장 데이터 약관: 복사·복제·재게시·업로드·게시·공개 표시 금지, '표시 용도 전용(strictly for display use only)'. 비전문가=본인의 개인·비업무 목적 자연인(최종 수정 2025-08-28)",
+     "status": "confirmed",
+     "source": "https://massive.com/legal/market-data-terms-of-service",
+     "checkedAt": "2026-10-29"
+    },
+    "cost": {
+     "value": "Stocks Advanced $199/월(개인용 표기, 연간 결제 20% 할인 문구). 다른 개인 플랜 가격은 해당 페이지에 없음",
+     "status": "confirmed",
+     "source": "https://massive.com/pricing",
+     "checkedAt": "2026-10-29"
+    },
+    "rateLimit": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "keyHandling": {
+     "value": "개인 약관 §3.3: 계정·API 키를 타인과 공유 금지, 키로 이루어진 모든 활동 책임은 이용자(최종 수정 2025-07-18)",
+     "status": "confirmed",
+     "source": "https://massive.com/individuals-terms-of-service",
+     "checkedAt": "2026-10-29"
+    }
+   },
+   "note": "공유 문서·공개 저장소·PWA 배포본에 가격을 담으면 개인 범위를 벗어날 수 있음. 지연·조정·한도·캐시 규정은 미확인."
+  },
+  {
+   "id": "tiingo",
+   "name": "Tiingo",
+   "role": "price",
+   "markets": [
+    "US"
+   ],
+   "pagesRead": [
+    "https://www.tiingo.com/documentation/appendix/developers"
+   ],
+   "fields": {
+    "coverage": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "dailyRegularClose": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "updateTimingDelay": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "adjustmentBasis52w": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "holidayCalendarTimezone": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "sessionSplit": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "corrections": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "benchmarks": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "personalDisplay": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "internalProcessing": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "localCacheRights": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "derivedRetention": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "redistribution": {
+     "value": "데이터를 재배포하려면 별도 재배포 라이선스 필요, Tiingo 출처 표기 필요",
+     "status": "confirmed",
+     "source": "https://www.tiingo.com/documentation/appendix/developers",
+     "checkedAt": "2026-10-29"
+    },
+    "cost": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "rateLimit": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "keyHandling": {
+     "value": "사용자는 각자 자신의 API 토큰을 사용, 토큰이 유일한 인증 수단, 개발자가 로그인 비밀번호를 요구하면 안 됨",
+     "status": "confirmed",
+     "source": "https://www.tiingo.com/documentation/appendix/developers",
+     "checkedAt": "2026-10-29"
+    }
+   },
+   "note": "개발자 부록만 열람. 요금·한도·개인 이용 조건·조정가격 문서는 열람 실패(www.tiingo.com/documentation, 가격 페이지)."
+  },
+  {
+   "id": "finnhub",
+   "name": "Finnhub",
+   "role": "price",
+   "markets": [
+    "US"
+   ],
+   "pagesRead": [],
+   "fields": {
+    "coverage": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "dailyRegularClose": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "updateTimingDelay": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "adjustmentBasis52w": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "holidayCalendarTimezone": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "sessionSplit": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "corrections": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "benchmarks": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "personalDisplay": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "internalProcessing": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "localCacheRights": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "derivedRetention": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "redistribution": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "cost": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "rateLimit": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "keyHandling": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    }
+   },
+   "note": "공식 페이지 열람 실패(검색 결과가 제3자 글뿐). 전부 미확정."
+  },
+  {
+   "id": "krx-open-api",
+   "name": "KRX Open API (openapi.krx.co.kr) 이용약관",
+   "role": "price",
+   "markets": [
+    "KR"
+   ],
+   "pagesRead": [
+    "https://openapi.krx.co.kr/contents/OPP/INFO/OPPINFO005.jsp"
+   ],
+   "fields": {
+    "coverage": {
+     "value": "제공 데이터 항목(상장종목·시세 등)은 약관 원문에 없음. KRX Data Marketplace에서 받은 데이터를 활용해 앱을 개발하는 API 서비스로 정의(제2조)",
+     "status": "unconfirmed",
+     "source": "https://openapi.krx.co.kr/contents/OPP/INFO/OPPINFO005.jsp",
+     "checkedAt": "2026-10-29"
+    },
+    "dailyRegularClose": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "updateTimingDelay": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "adjustmentBasis52w": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "holidayCalendarTimezone": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "sessionSplit": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "corrections": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "benchmarks": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "personalDisplay": {
+     "value": "비상업 목적 허용은 확인(개인·법인 모두 이용자). 화면 표시 허용 범위 조항은 원문에 없음",
+     "status": "unconfirmed",
+     "source": "https://openapi.krx.co.kr/contents/OPP/INFO/OPPINFO005.jsp",
+     "checkedAt": "2026-10-29"
+    },
+    "internalProcessing": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "localCacheRights": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "derivedRetention": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "redistribution": {
+     "value": "비상업 목적만 허용·결과물로 제3자에게 대가 수취 금지(제6조②), 제3자에게 KRX 제공 데이터 제공 금지(제11조②)",
+     "status": "confirmed",
+     "source": "https://openapi.krx.co.kr/contents/OPP/INFO/OPPINFO005.jsp",
+     "checkedAt": "2026-10-29"
+    },
+    "cost": {
+     "value": "미조사 또는 원문에 없음 — 모름",
+     "status": "unconfirmed",
+     "source": null,
+     "checkedAt": "2026-10-29"
+    },
+    "rateLimit": {
+     "value": "인증키 1개당 하루 최대 10,000건(00:00~24:00), 초과 시 서비스 중단 가능(제8조④)",
+     "status": "confirmed",
+     "source": "https://openapi.krx.co.kr/contents/OPP/INFO/OPPINFO005.jsp",
+     "checkedAt": "2026-10-29"
+    },
+    "keyHandling": {
+     "value": "인증키 신청·약관 동의 후 발급(제5조), 유효 1년·연장 가능(제5조③), 12개월 미사용 시 삭제 가능(제8조⑤), 양도·증여·담보 금지(제7조⑤)",
+     "status": "confirmed",
+     "source": "https://openapi.krx.co.kr/contents/OPP/INFO/OPPINFO005.jsp",
+     "checkedAt": "2026-10-29"
+    }
+   },
+   "note": "약관만 열람. 요금·데이터 항목·지연은 원문에 없음. 인증키 발급은 하지 않음."
+  }
+ ]
+}
