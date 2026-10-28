@@ -1,0 +1,296 @@
+{
+  "schemaVersion": 1,
+  "mode": "demo",
+  "fixtureVersion": "kst-demo-1",
+  "quotes": [
+    {
+      "ticker": "DEMO-A",
+      "company": "가상 기업 알파",
+      "sector": "가상 기술",
+      "close": 65,
+      "high52w": 100,
+      "high52wStart": "2025-10-28",
+      "high52wEnd": "2026-10-27",
+      "asOf": "2026-10-27",
+      "currency": "USD",
+      "timezone": "America/New_York",
+      "adjustment": "split-adjusted",
+      "source": {
+        "name": "KST 테스트 고정값 (실제 시세 아님)",
+        "url": "https://example.invalid/kst-demo"
+      },
+      "performance": {
+        "start": "2026-07-27",
+        "end": "2026-10-27",
+        "stockPct": -20,
+        "marketPct": 0,
+        "sectorPct": -5,
+        "benchmark": "SPY",
+        "sectorETF": "XLK",
+        "adjustment": "split-adjusted",
+        "currency": "USD"
+      }
+    },
+    {
+      "ticker": "DEMO-B",
+      "company": "가상 기업 베타",
+      "sector": "가상 소비재",
+      "close": 55,
+      "high52w": 100,
+      "high52wStart": "2025-10-28",
+      "high52wEnd": "2026-10-27",
+      "asOf": "2026-10-27",
+      "currency": "USD",
+      "timezone": "America/New_York",
+      "adjustment": "split-adjusted",
+      "source": {
+        "name": "KST 테스트 고정값 (실제 시세 아님)",
+        "url": "https://example.invalid/kst-demo"
+      },
+      "performance": {
+        "start": "2026-07-27",
+        "end": "2026-10-27",
+        "stockPct": -30,
+        "marketPct": 0,
+        "sectorPct": -5,
+        "benchmark": "SPY",
+        "sectorETF": "XLY",
+        "adjustment": "split-adjusted",
+        "currency": "USD"
+      }
+    },
+    {
+      "ticker": "DEMO-C",
+      "company": "가상 기업 감마",
+      "sector": "가상 산업재",
+      "close": null,
+      "high52w": 100,
+      "high52wStart": "2025-10-28",
+      "high52wEnd": "2026-10-27",
+      "asOf": "2026-10-27",
+      "currency": "USD",
+      "timezone": "America/New_York",
+      "adjustment": "split-adjusted",
+      "source": {
+        "name": "KST 테스트 고정값 (실제 시세 아님)",
+        "url": "https://example.invalid/kst-demo"
+      },
+      "performance": {
+        "start": "2026-07-27",
+        "end": "2026-10-27",
+        "stockPct": null,
+        "marketPct": 0,
+        "sectorPct": -5,
+        "benchmark": "SPY",
+        "sectorETF": "XLI",
+        "adjustment": "split-adjusted",
+        "currency": "USD"
+      }
+    }
+  ],
+  "assessments": [
+    {
+      "ticker": "DEMO-A",
+      "synthetic": true,
+      "asOf": "2026-10-27",
+      "financialDataAvailable": true,
+      "verification": "demo",
+      "rule": "standard",
+      "riskFlags": [],
+      "components": {
+        "moat": 23,
+        "financial": 18,
+        "overreaction": 13,
+        "valuation": 18,
+        "temporary": 8,
+        "catalyst": 8
+      },
+      "claims": [
+        {
+          "component": "moat",
+          "claim": "가상 시나리오용 근거. 실제 기업에 대한 주장이 아닙니다.",
+          "url": "https://example.invalid/kst-demo/moat",
+          "asOf": "2026-10-27",
+          "verification": "demo",
+          "counterScenario": "가정한 경쟁력과 현금흐름이 실제와 다르면 분석은 무효입니다."
+        },
+        {
+          "component": "financial",
+          "claim": "가상 시나리오용 근거. 실제 기업에 대한 주장이 아닙니다.",
+          "url": "https://example.invalid/kst-demo/financial",
+          "asOf": "2026-10-27",
+          "verification": "demo",
+          "counterScenario": "가정한 경쟁력과 현금흐름이 실제와 다르면 분석은 무효입니다."
+        },
+        {
+          "component": "overreaction",
+          "claim": "가상 시나리오용 근거. 실제 기업에 대한 주장이 아닙니다.",
+          "url": "https://example.invalid/kst-demo/overreaction",
+          "asOf": "2026-10-27",
+          "verification": "demo",
+          "counterScenario": "가정한 경쟁력과 현금흐름이 실제와 다르면 분석은 무효입니다."
+        },
+        {
+          "component": "valuation",
+          "claim": "가상 시나리오용 근거. 실제 기업에 대한 주장이 아닙니다.",
+          "url": "https://example.invalid/kst-demo/valuation",
+          "asOf": "2026-10-27",
+          "verification": "demo",
+          "counterScenario": "가정한 경쟁력과 현금흐름이 실제와 다르면 분석은 무효입니다."
+        },
+        {
+          "component": "temporary",
+          "claim": "가상 시나리오용 근거. 실제 기업에 대한 주장이 아닙니다.",
+          "url": "https://example.invalid/kst-demo/temporary",
+          "asOf": "2026-10-27",
+          "verification": "demo",
+          "counterScenario": "가정한 경쟁력과 현금흐름이 실제와 다르면 분석은 무효입니다."
+        },
+        {
+          "component": "catalyst",
+          "claim": "가상 시나리오용 근거. 실제 기업에 대한 주장이 아닙니다.",
+          "url": "https://example.invalid/kst-demo/catalyst",
+          "asOf": "2026-10-27",
+          "verification": "demo",
+          "counterScenario": "가정한 경쟁력과 현금흐름이 실제와 다르면 분석은 무효입니다."
+        }
+      ]
+    },
+    {
+      "ticker": "DEMO-B",
+      "synthetic": true,
+      "asOf": "2026-10-27",
+      "financialDataAvailable": true,
+      "verification": "demo",
+      "rule": "standard",
+      "riskFlags": [
+        "가상 시나리오: 유동성 위기"
+      ],
+      "components": {
+        "moat": 23,
+        "financial": 18,
+        "overreaction": 13,
+        "valuation": 18,
+        "temporary": 8,
+        "catalyst": 8
+      },
+      "claims": [
+        {
+          "component": "moat",
+          "claim": "가상 시나리오용 근거. 실제 기업에 대한 주장이 아닙니다.",
+          "url": "https://example.invalid/kst-demo/moat",
+          "asOf": "2026-10-27",
+          "verification": "demo",
+          "counterScenario": "가정한 경쟁력과 현금흐름이 실제와 다르면 분석은 무효입니다."
+        },
+        {
+          "component": "financial",
+          "claim": "가상 시나리오용 근거. 실제 기업에 대한 주장이 아닙니다.",
+          "url": "https://example.invalid/kst-demo/financial",
+          "asOf": "2026-10-27",
+          "verification": "demo",
+          "counterScenario": "가정한 경쟁력과 현금흐름이 실제와 다르면 분석은 무효입니다."
+        },
+        {
+          "component": "overreaction",
+          "claim": "가상 시나리오용 근거. 실제 기업에 대한 주장이 아닙니다.",
+          "url": "https://example.invalid/kst-demo/overreaction",
+          "asOf": "2026-10-27",
+          "verification": "demo",
+          "counterScenario": "가정한 경쟁력과 현금흐름이 실제와 다르면 분석은 무효입니다."
+        },
+        {
+          "component": "valuation",
+          "claim": "가상 시나리오용 근거. 실제 기업에 대한 주장이 아닙니다.",
+          "url": "https://example.invalid/kst-demo/valuation",
+          "asOf": "2026-10-27",
+          "verification": "demo",
+          "counterScenario": "가정한 경쟁력과 현금흐름이 실제와 다르면 분석은 무효입니다."
+        },
+        {
+          "component": "temporary",
+          "claim": "가상 시나리오용 근거. 실제 기업에 대한 주장이 아닙니다.",
+          "url": "https://example.invalid/kst-demo/temporary",
+          "asOf": "2026-10-27",
+          "verification": "demo",
+          "counterScenario": "가정한 경쟁력과 현금흐름이 실제와 다르면 분석은 무효입니다."
+        },
+        {
+          "component": "catalyst",
+          "claim": "가상 시나리오용 근거. 실제 기업에 대한 주장이 아닙니다.",
+          "url": "https://example.invalid/kst-demo/catalyst",
+          "asOf": "2026-10-27",
+          "verification": "demo",
+          "counterScenario": "가정한 경쟁력과 현금흐름이 실제와 다르면 분석은 무효입니다."
+        }
+      ]
+    },
+    {
+      "ticker": "DEMO-C",
+      "synthetic": true,
+      "asOf": "2026-10-27",
+      "financialDataAvailable": false,
+      "verification": "demo",
+      "rule": "standard",
+      "riskFlags": [],
+      "components": {
+        "moat": 23,
+        "financial": 18,
+        "overreaction": 13,
+        "valuation": 18,
+        "temporary": 8,
+        "catalyst": 8
+      },
+      "claims": [
+        {
+          "component": "moat",
+          "claim": "가상 시나리오용 근거. 실제 기업에 대한 주장이 아닙니다.",
+          "url": "https://example.invalid/kst-demo/moat",
+          "asOf": "2026-10-27",
+          "verification": "demo",
+          "counterScenario": "가정한 경쟁력과 현금흐름이 실제와 다르면 분석은 무효입니다."
+        },
+        {
+          "component": "financial",
+          "claim": "가상 시나리오용 근거. 실제 기업에 대한 주장이 아닙니다.",
+          "url": "https://example.invalid/kst-demo/financial",
+          "asOf": "2026-10-27",
+          "verification": "demo",
+          "counterScenario": "가정한 경쟁력과 현금흐름이 실제와 다르면 분석은 무효입니다."
+        },
+        {
+          "component": "overreaction",
+          "claim": "가상 시나리오용 근거. 실제 기업에 대한 주장이 아닙니다.",
+          "url": "https://example.invalid/kst-demo/overreaction",
+          "asOf": "2026-10-27",
+          "verification": "demo",
+          "counterScenario": "가정한 경쟁력과 현금흐름이 실제와 다르면 분석은 무효입니다."
+        },
+        {
+          "component": "valuation",
+          "claim": "가상 시나리오용 근거. 실제 기업에 대한 주장이 아닙니다.",
+          "url": "https://example.invalid/kst-demo/valuation",
+          "asOf": "2026-10-27",
+          "verification": "demo",
+          "counterScenario": "가정한 경쟁력과 현금흐름이 실제와 다르면 분석은 무효입니다."
+        },
+        {
+          "component": "temporary",
+          "claim": "가상 시나리오용 근거. 실제 기업에 대한 주장이 아닙니다.",
+          "url": "https://example.invalid/kst-demo/temporary",
+          "asOf": "2026-10-27",
+          "verification": "demo",
+          "counterScenario": "가정한 경쟁력과 현금흐름이 실제와 다르면 분석은 무효입니다."
+        },
+        {
+          "component": "catalyst",
+          "claim": "가상 시나리오용 근거. 실제 기업에 대한 주장이 아닙니다.",
+          "url": "https://example.invalid/kst-demo/catalyst",
+          "asOf": "2026-10-27",
+          "verification": "demo",
+          "counterScenario": "가정한 경쟁력과 현금흐름이 실제와 다르면 분석은 무효입니다."
+        }
+      ]
+    }
+  ]
+}
