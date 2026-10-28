@@ -1,0 +1,14 @@
+{
+  "name": "kst-portfolio-radar-stage2",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Local-only test tooling. No deployment commands or runtime dependencies.",
+  "scripts": {
+    "test": "node --test tests/*.test.cjs",
+    "test:mobile": "node tests/mobile.cjs"
+  },
+  "devDependencies": {
+    "@fontsource/noto-sans-kr": "5.2.6",
+    "playwright": "1.62.1"
+  }
+}

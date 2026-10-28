@@ -6,6 +6,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="radar/radar.css">
+<script defer src="radar/providers.js"></script>
+<script defer src="radar/verification.js"></script>
+<script defer src="radar/core.js"></script>
+<script defer src="radar/ui.js"></script>
+<script defer src="backup/core.js"></script>
+<script defer src="backup/ui.js"></script>
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="10억 포폴">
@@ -627,6 +634,7 @@ select { -webkit-user-select: none; user-select: none; touch-action: manipulatio
   <button class="tab" onclick="switchTab('risk')">🌡️ 위험계</button>
   <button class="tab" onclick="switchTab('commandments')">📜 15계명</button>
   <button class="tab" onclick="switchTab('news')">📰 뉴스</button>
+  <button class="tab" onclick="switchTab('radar')">📡 곡소리 레이더</button>
 </div>
 <div class="tabs sub-tabs" id="subtabs-asset" style="display:none">
   <button class="tab" onclick="switchTab('ledger')">📒 가계부</button>
@@ -636,6 +644,9 @@ select { -webkit-user-select: none; user-select: none; touch-action: manipulatio
   <button class="tab" onclick="switchTab('memo')">📝 메모</button>
 </div>
 </div>
+
+<!-- Radar is isolated from portfolio state; no API keys or holdings are passed. -->
+<div class="panel" id="panel-radar" aria-label="곡소리 레이더"><p>레이더를 준비하고 있습니다. 불러오지 못하면 기존 포트폴리오 메뉴를 이용하세요.</p></div>
 
 <!-- 현황 -->
 <div class="panel active" id="panel-dashboard">
@@ -1764,7 +1775,8 @@ select { -webkit-user-select: none; user-select: none; touch-action: manipulatio
     <button class="btn-ok" style="width:auto;padding:8px 16px;font-size:12px" onclick="saveGas()">저장</button>
     <div style="font-size:10px;color:var(--green-mid);margin-top:8px" id="gasStatus"></div>
   </div>
-  <div class="card">
+  <div class="card" id="portfolioBackupCard">
+    <style>#portfolioBackupCard button{min-height:44px}#portfolioBackupTools button{margin:4px;max-width:100%}#portfolioRestorePreview p{font-size:12px;line-height:1.7}</style>
     <div style="font-weight:800;margin-bottom:10px">💾 백업 · 복원</div>
     <div style="font-size:11px;color:var(--muted);margin-bottom:12px;line-height:1.6">폰 교체·초기화 시 데이터를 잃지 않도록 정기적으로 백업하세요!</div>
     <div style="background:var(--blue-light);border-radius:10px;padding:12px;margin-bottom:10px;border:1px solid #90caf9">
@@ -1776,7 +1788,8 @@ select { -webkit-user-select: none; user-select: none; touch-action: manipulatio
       <input type="file" id="restoreFile" accept=".json" onchange="importData(event)" style="display:none">
       <button onclick="document.getElementById('restoreFile').click()" style="width:100%;background:var(--green-mid);color:#fff;border:none;border-radius:8px;padding:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif">📂 백업 파일로 복원</button>
     </div>
-    <div style="font-size:10px;color:var(--muted);margin-top:8px;text-align:center" id="backupMsg"></div>
+    <div id="portfolioBackupTools" style="font-size:12px;line-height:1.7;overflow-wrap:anywhere"></div>
+    <div style="font-size:12px;color:var(--muted);margin-top:8px;text-align:center" id="backupMsg" aria-live="polite"></div>
   </div>
   <div class="card">
     <div style="font-weight:800;margin-bottom:10px">🔐 비밀번호 변경</div>
@@ -3458,7 +3471,8 @@ function renderDashboard() {
     var cv=document.getElementById(canvasId);
     if(!cv) return;
     // 컨테이너 폭에 맞춰 캔버스·막대 폭을 정하고 가운데 정렬 (오른쪽으로 삐져나가지 않게)
-    var avail=(cv.parentNode&&cv.parentNode.clientWidth)||canvasW;
+    // Hidden panels have zero clientWidth. Use the canvas width rather than the hoisted local canvasW.
+    var avail=(cv.parentNode&&cv.parentNode.clientWidth)||(cv.width/2)||200;
     var nItems=itemsData.length, sp=4, g=5;
     var barW=Math.max(24,Math.min(34,Math.floor((avail-2*sp-(nItems-1)*g)/nItems)));
     var gap=g;
@@ -7097,100 +7111,10 @@ function saveGas() {
   setTimeout(function(){document.getElementById("gasStatus").textContent="✓ GAS URL 설정됨";},2000);
 }
 
-function exportData() {
-  var calcData={};
-  for(var i=0;i<localStorage.length;i++){
-    var k=localStorage.key(i);
-    if(k&&(k.startsWith("calc_q")||k.startsWith("calc_p"))) calcData[k]=localStorage.getItem(k);
-  }
-  var ledgerData={};
-  try{ledgerData=JSON.parse(localStorage.getItem("v5_ledger")||"{}");}catch(e){}
-  var fxHistory=[];
-  try{fxHistory=JSON.parse(localStorage.getItem("v5_fxHistory")||"[]");}catch(e){}
-  var fgVal=localStorage.getItem("v5_fg")||null;
-  var memoData=[];
-  try{memoData=JSON.parse(localStorage.getItem("v5_memos")||"[]");}catch(e){}
-  var userThemeMap={};
-  try{userThemeMap=JSON.parse(localStorage.getItem("v5_userThemeMap")||"{}");}catch(e){}
-  var backup={version:"v5",date:new Date().toLocaleString("ko-KR"),domStocks:domStocks,ovStocks:ovStocks,penStocks:penStocks,divList:divList,snapshots:snapshots,deposits:deposits,gasUrl:gasUrl,usdKrw:parseFloat(document.getElementById("usdKrw").value)||1370,calcData:calcData,ledger:ledgerData,fxHistory:fxHistory,fg:fgVal,memos:memoData,userThemeMap:userThemeMap};
-  var blob=new Blob([JSON.stringify(backup,null,2)],{type:"application/json"});
-  var url=URL.createObjectURL(blob);
-  var a=document.createElement("a");
-  a.href=url; a.download="포트폴리오_백업_"+new Date().toISOString().slice(0,10)+".json";
-  a.click(); URL.revokeObjectURL(url);
-  document.getElementById("backupMsg").textContent="✅ 백업 완료! 카카오톡 나에게 보내기로 보관하세요.";
-  document.getElementById("backupMsg").style.color="var(--green-mid)";
-}
-
-function importData(event) {
-  var file=event.target.files[0];
-  if(!file) return;
-  var reader=new FileReader();
-  reader.onload=function(e){
-    try {
-      var data=JSON.parse(e.target.result);
-      if(!confirm("📅 "+(data.date||"날짜 미상")+" 백업 파일이에요.\n현재 데이터를 덮어쓸까요?")) return;
-
-      // v5 형식
-      if(data.domStocks) domStocks=data.domStocks;
-      if(data.ovStocks) ovStocks=data.ovStocks;
-      if(data.penStocks) penStocks=data.penStocks;
-      if(data.divList) divList=data.divList;
-      if(data.snapshots) snapshots=data.snapshots;
-      if(data.deposits) deposits=data.deposits;
-
-      // v4 형식 호환 (stocks → domStocks + ovStocks 분리)
-      if(data.stocks && !data.domStocks) {
-        var krStocks = data.stocks.filter(function(s){return s.market==="KR";});
-        var usStocks = data.stocks.filter(function(s){return s.market==="US";});
-        // 국내 종목
-        if(krStocks.length) {
-          domStocks = krStocks.map(function(s){
-            return {id:s.id,name:s.name,ticker:s.ticker,quantity:s.quantity||0,avgPrice:s.avgPrice||0,currentPrice:s.currentPrice||0};
-          });
-        }
-        // 해외 종목
-        if(usStocks.length) {
-          ovStocks = usStocks.map(function(s){
-            return {id:s.id,name:s.name,ticker:s.ticker,quantity:s.quantity||0,avgPrice:s.avgPrice||0,currentPrice:s.currentPrice||0};
-          });
-        }
-        alert("✅ v4 백업에서 복원했어요!\n국내 "+krStocks.length+"개, 해외 "+usStocks.length+"개 종목을 불러왔어요.");
-      }
-
-      // v4 연금 형식 호환
-      if(data.pension && !data.penStocks) {
-        penStocks = data.pension.map(function(s){
-          return {id:s.id,name:s.name,ticker:s.ticker,quantity:s.quantity||0,avgPrice:s.avgPrice||0,currentPrice:s.currentPrice||0};
-        });
-      }
-
-      // v4 스냅샷 호환
-      if(data.snapshots && !snapshots.dom) {
-        snapshots = {
-          all: data.snapshots.normal || [],
-          dom: [],
-          ov: [],
-          pen: data.snapshots.pension || []
-        };
-      }
-
-      if(data.gasUrl){gasUrl=data.gasUrl;document.getElementById("gasInput").value=gasUrl;localStorage.setItem("v5_gas",gasUrl);}
-      if(data.usdKrw) document.getElementById("usdKrw").value=data.usdKrw;
-      if(data.calcData){Object.keys(data.calcData).forEach(function(k){localStorage.setItem(k,data.calcData[k]);});}
-      if(data.ledger) localStorage.setItem("v5_ledger",JSON.stringify(data.ledger));
-      if(data.fxHistory) localStorage.setItem("v5_fxHistory",JSON.stringify(data.fxHistory));
-      if(data.fg) localStorage.setItem("v5_fg",data.fg);
-      if(data.memos) localStorage.setItem("v5_memos",JSON.stringify(data.memos));
-      if(data.userThemeMap) localStorage.setItem("v5_userThemeMap",JSON.stringify(data.userThemeMap));
-      save(); renderAll();
-      document.getElementById("backupMsg").textContent="✅ 복원 완료!";
-      document.getElementById("backupMsg").style.color="var(--blue)";
-    } catch(err){alert("❌ 파일을 읽는 중 오류가 발생했어요. 오류: "+err.message);}
-  };
-  reader.readAsText(file);
-  event.target.value="";
-}
+// Backup v6 is installed by backup/ui.js after parsing the app.
+// Fail closed if those files are unavailable; never invoke the former partial restore.
+function exportData() { showToast("백업 모듈을 불러오지 못했습니다. 연결 상태를 확인하세요.", true); }
+function importData(event) { event.target.value=""; showToast("복원 모듈을 불러오지 못했습니다. 자료는 변경하지 않았습니다.", true); }
 
 function changePw() {
   var cur=document.getElementById("curPw").value;
@@ -7212,7 +7136,7 @@ function changePw() {
 // =============================================
 var TAB_GROUPS={
   invest:  ["dashboard","general","domestic","overseas","pension","dividend"],
-  risk:    ["principledash","advisor","risk","commandments","news"],
+  risk:    ["principledash","advisor","risk","commandments","news","radar"],
   asset:   ["ledger","networth","debt","retirement","memo"],
   settings:["settings"]
 };
@@ -7269,6 +7193,7 @@ function switchTab(tab) {
   }
 
   document.querySelectorAll(".panel").forEach(function(p){p.classList.toggle("active",p.id==="panel-"+tab);});
+  if(window.KSTRadar) window.KSTRadar.onTabChange(tab);
   if(tab==="memo") renderMemo();
   if(tab==="retirement"){ renderRetirement(); renderNotouch(); }
   if(tab==="debt") renderDebt();
