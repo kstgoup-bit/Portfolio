@@ -51,4 +51,4 @@ label[style*="font-size:9px"],label[style*="font-size:10px"],label[style*="font-
   .tabs::-webkit-scrollbar-thumb{background:#78909c;border-radius:4px}
 }
 /* 20단계: 탭 줄이 옆으로 더 있으면 가장자리에 그림자(스크롤 단서)가 보이고, 끝까지 가면 사라짐. 순수 CSS, 모든 화면 공통. */
-.tabs{background:linear-gradient(to right,#fff 30%,rgba(255,255,255,0)) left center/40px 100% no-repeat local,linear-gradient(to left,#fff 30%,rgba(255,255,255,0)) right center/40px 100% no-repeat local,radial-gradient(farthest-side at 0 50%,rgba(38,50,56,.35),rgba(38,50,56,0)) left center/14px 100% no-repeat scroll,radial-gradient(farthest-side at 100% 50%,rgba(38,50,56,.35),rgba(38,50,56,0)) right center/14px 100% no-repeat scroll,#fff}
+.tabs{background:linear-gradient(to right,#fff 30%,rgba(255,255,255,0)) left center/40px 100% no-repeat local,linear-gradient(to left,#fff 30%,rgba(255,255,255,0)) right center/40px 100% no-repeat local,radial-gradient(farthest-side at 0 50%,rgba(38,50,56,.35),rgba(38,50,56,0)) left center/14px 100% no-repeat scroll,radial-gradient(farthest-side at 100% 50%,rgba(38,50,56,.35),rgba(38,50,56,0)) right center/14px 100% no-repeat scroll,#fff !important}
