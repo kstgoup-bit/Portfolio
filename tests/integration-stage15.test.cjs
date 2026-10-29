@@ -10,7 +10,7 @@ class Store { constructor(o) { this.m = new Map(Object.entries(o)); this.writes 
 const stock = (id, ticker, name, q, avg, cur) => ({ id, ticker, name, quantity: q, avgPrice: avg, currentPrice: cur });
 const mkStore = () => new Store({ v5_gen: JSON.stringify([stock(1, 'AAA', '합성전자', 10, 100, 150)]), v5_dom: JSON.stringify([stock(2, 'BBB', '합성화학', 5, 200, 180)]), v5_ov: JSON.stringify([stock(3, 'USX', '합성미국', 2, 90, 100)]), v5_pen: '[]', v5_userThemeMap: JSON.stringify({ AAA: '반도체' }) });
 
-test('운영 파일·백업 코드는 14단계 기준과 바이트 단위로 동일', () => { for (const [f, h] of Object.entries(PROTECTED)) a.equal(sha(f), h, f); });
+test('운영 파일·백업 코드는 14단계 기준과 바이트 단위로 동일', () => { for (const [f, h] of Object.entries(PROTECTED)) a.equal(require('./lib/has-rename.cjs').legacySha(f), h, f); });
 test('백업 형식 v6 상수 유지, 새 투자기록 키는 백업 허용 목록에 없음(백업 스키마 무변경)', () => {
   a.equal(P.FORMAT, 'kst-portfolio-backup'); a.equal(P.VERSION, 6); for (const k of ['kst-trade-log', 'kst-thesis-log', 'kst.trades', 'kst.theses', 'v5_trades', 'v5_theses']) a.equal(P.allowed(k), false, k);
 });

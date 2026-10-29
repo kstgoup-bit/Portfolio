@@ -27,3 +27,16 @@ test('입력은 변경되지 않음, 정적 검사: 네트워크·저장소·시
   const it = JSON.parse(JSON.stringify(us())); const before = JSON.stringify(it); W.describe(it, TODAY); a.equal(JSON.stringify(it), before);
   const s = fs.readFileSync(path.join(__dirname, '../kr-radar/watch-display.js'), 'utf8'); for (const w of ['fetch(', 'localStorage', 'setTimeout', 'Date.now', 'new Date()', 'process.']) a.ok(!s.includes(w), w);
 });
+
+// ---- 17단계: 수동입력·오래된·실패 가격의 표시 상태 ----
+const W17 = require('../kr-radar/watch-display.js');
+test('17단계: 수동입력 가격은 실제 감시로 세지 않고 "수동입력"으로 표시', () => {
+  const r = W17.describe({ id: 'M', market: 'US', kind: 'stock', price: { source: '직접입력', origin: 'manual', baseDate: '2026-10-28', currency: 'USD', priceType: 'close' } }, '2026-10-29');
+  a.equal(r.verification, 'manual'); a.equal(r.activeMonitoring, false); a.equal(r.stateLabel, '수동입력'); a.ok(r.reasons.some(x => /직접 입력/.test(x)));
+  a.equal(W17.summarize([{ id: 'M', market: 'US', kind: 'stock', price: { source: 'x', origin: 'manual', baseDate: '2026-10-28' } }], '2026-10-29').counts.manual, 1);
+});
+test('17단계: 가격이 없거나 오래되거나 갱신 실패면 최신 시세처럼 보이지 않는다', () => {
+  const none = W17.describe({ id: 'N', market: 'US', kind: 'stock' }, '2026-10-29'); a.equal(none.stateLabel, '미확인'); a.equal(none.activeMonitoring, false);
+  const old = W17.describe({ id: 'O', market: 'US', kind: 'stock', price: { source: 's', origin: 'real-provider', baseDate: '2026-10-01', currency: 'USD', priceType: 'close' } }, '2026-10-29'); a.match(old.stateLabel, /오래된/); a.equal(old.activeMonitoring, false);
+  const bad = W17.describe({ id: 'F', market: 'US', kind: 'stock', price: { source: 's', origin: 'real-provider', baseDate: '2026-10-29', failureReason: 'HTTP 429' } }, '2026-10-29'); a.match(bad.stateLabel, /갱신 실패/); a.equal(bad.activeMonitoring, false);
+});
