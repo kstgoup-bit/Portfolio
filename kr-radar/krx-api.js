@@ -24,9 +24,18 @@ const ERROR_TABLE = Object.freeze([
   { re: /^unexpected error$/i, category: 'unexpected', retryable: true, action: '반복되면 활용지원센터 문의' },
 ]);
 const HTTP_CATEGORY = Object.freeze({ 401: 'unauthorized', 403: 'forbidden', 404: 'api-not-found', 429: 'rate-limited' });
+/* 공공데이터포털 공통 게이트웨이는 키 오류를 HTTP 200 + <OpenAPI_ServiceResponse>(returnReasonCode) 로 돌려주는 경우가 있다고 알려져 있으나
+   이 숫자 코드는 활용가이드(24쪽)에 없는 **가정(미확인)** 이다. 알 수 없는 코드는 안전하게 gateway-error(재시도 없음)로 처리한다. */
+const GATEWAY_CODES = Object.freeze({ '10': 'bad-request', '20': 'forbidden', '22': 'quota-exceeded', '30': 'unauthorized', '31': 'unauthorized', '32': 'forbidden', '33': 'unauthorized' });
+function gatewayCode(text) {
+  const t = String(text || ''), m = /<returnReasonCode>\s*(\d{1,3})\s*<\/returnReasonCode>/.exec(t) || /"(?:returnReasonCode|resultCode)"\s*:\s*"?(\d{1,3})"?/.exec(t);
+  return m ? m[1] : null;
+}
 
 function classifyFailure({ httpStatus, text } = {}) {
   const t = typeof text === 'string' ? text.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim() : '';
+  const gc = gatewayCode(text);
+  if (gc && /OpenAPI_ServiceResponse|returnReasonCode|errMsg/.test(String(text || ''))) { const cat = GATEWAY_CODES[gc] || 'gateway-error'; return { category: cat, retryable: false, action: '게이트웨이 코드 ' + gc + (GATEWAY_CODES[gc] ? '(가이드 외 가정 매핑)' : '(미확인 코드)') + ' — 자동 재시도 금지', assumedMapping: true }; }
   for (const e of ERROR_TABLE) if (e.re.test(t)) return { category: e.category, retryable: e.retryable, action: e.action };
   if (HTTP_CATEGORY[httpStatus]) { const e = ERROR_TABLE.find(x => x.category === HTTP_CATEGORY[httpStatus]); return { category: e.category, retryable: e.retryable, action: e.action }; }
   if (Number.isInteger(httpStatus) && httpStatus >= 500) return { category: 'server-error', retryable: true, action: '잠시 후 재시도(자동 재시도 금지)' };
@@ -224,4 +233,4 @@ function compareCandidates(data, listing, { today, exclusions = [], rightsConfir
   res.notes = ['이 API는 식별정보 확인용이며 가격·거래량·신호를 제공하지 않는다 → 모든 항목 HOLD / DATA_UNAVAILABLE', '종목명 변경·기업행위·시장 이전·상장폐지·거래정지는 이 API만으로 검증할 수 없다', '원본 응답 전체는 저장·재배포하지 않고 해시만 기록한다', rightsConfirmed ? '권리 확인됨(호출자 입력)' : '저장·가공·커밋·배포 권리 미확정 — 내부 점검 결과로만 취급'];
   return res;
 }
-module.exports = { SERVICE, MARKETS, MAX_TEXT_BYTES, ERROR_TABLE, classifyFailure, normalizeCode, isinChecksumOk, basDtToIso, parseResponse, assemblePages, buildRequestSpec, createKrxListingAdapter, compareCandidates, copy };
+module.exports = { GATEWAY_CODES, gatewayCode, SERVICE, MARKETS, MAX_TEXT_BYTES, ERROR_TABLE, classifyFailure, normalizeCode, isinChecksumOk, basDtToIso, parseResponse, assemblePages, buildRequestSpec, createKrxListingAdapter, compareCandidates, copy };

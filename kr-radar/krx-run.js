@@ -7,7 +7,7 @@ const K = require('./krx-api.js');
 const VERIFIER_VERSION = 'krx-verify-2026.10.29-s12';
 const HARD_MAX_CALLS = 20, MAX_RETRIES = 2, BACKOFF_MS = Object.freeze([1000, 2000, 4000]), PAGE_SIZE = K.SERVICE.maxRows;
 const TRANSIENT = new Set(['rate-limited', 'backend-unreachable', 'backend-no-response', 'unexpected', 'server-error', 'timeout', 'network']);
-const HALT = new Set(['unauthorized', 'forbidden', 'quota-exceeded', 'api-not-found']);
+const HALT = new Set(['unauthorized', 'forbidden', 'quota-exceeded', 'api-not-found', 'gateway-error', 'bad-request', 'result-code']);
 
 function maskSecrets(text, key) {
   let t = String(text == null ? '' : text);
@@ -30,22 +30,28 @@ function validateApproval(a, today) {
   return e;
 }
 /* 계획만 만든다(호출하지 않음). 1단계 탐색(1건) → 2단계 쪽별 조회. 예상 총 호출수를 먼저 계산해 상한 초과 계획을 거절한다. */
-function planCalls({ basDt, totalCount = null, maxCalls = HARD_MAX_CALLS }) {
-  const errs = [];
+const weekdayOf = basDt => new Date(Date.UTC(+basDt.slice(0, 4), +basDt.slice(4, 6) - 1, +basDt.slice(6, 8))).getUTCDay();
+function planCalls({ basDt, totalCount = null, maxCalls = HARD_MAX_CALLS, resultType = 'xml', queriedAt = null }) {
+  const errs = [], warnings = [];
+  if (!['xml', 'json'].includes(resultType)) errs.push('resultType(xml|json)');
   if (!/^\d{8}$/.test(String(basDt || ''))) errs.push('basDt');
   if (!Number.isInteger(maxCalls) || maxCalls < 1 || maxCalls > HARD_MAX_CALLS) errs.push('maxCalls');
   const pages = Number.isInteger(totalCount) ? Math.max(1, Math.ceil(totalCount / PAGE_SIZE)) : null;
+  if (/^\d{8}$/.test(String(basDt || '')) && day(String(basDt).replace(/^(\d{4})(\d{2})(\d{2})$/, '$1-$2-$3'))) {
+    const wd = weekdayOf(String(basDt)); if (wd === 0 || wd === 6) warnings.push('기준일이 주말 — 거래일이 아니라 빈 응답일 가능성이 높음(공휴일 캘린더는 미구현)');
+    if (day(queriedAt)) { const iso = String(basDt).replace(/^(\d{4})(\d{2})(\d{2})$/, '$1-$2-$3'), lag = daysBetween(iso, queriedAt); if (lag < 0) errs.push('기준일이 조회일보다 미래'); else if (lag < 2) warnings.push('기준일이 조회일 기준 ' + lag + '일 전 — 가이드상 영업일 하루 뒤 13시 이후 개방이라 아직 없을 수 있음'); }
+  } else if (/^\d{8}$/.test(String(basDt || ''))) errs.push('basDt 달력상 존재하지 않는 날짜');
   const minimum = 1 + (pages === null ? 1 : pages);
   if (!errs.length && minimum > maxCalls) errs.push('최소 필요 호출수 ' + minimum + ' > 상한 ' + maxCalls);
-  return { ok: errs.length === 0, errors: errs, minimumCalls: minimum, pages, steps: [{ phase: 'probe', params: { numOfRows: 1, pageNo: 1, resultType: 'xml', basDt: String(basDt) } }, { phase: 'pages', params: { numOfRows: PAGE_SIZE, resultType: 'xml', basDt: String(basDt) }, pageCount: pages }], note: '명세만 있음 — 실제 호출은 tools/krx-live-runner.cjs --live 와 사용자 승인 기록이 모두 있을 때만' };
+  return { ok: errs.length === 0, errors: errs, warnings, resultType, minimumCalls: minimum, pages, steps: [{ phase: 'probe', params: { numOfRows: 1, pageNo: 1, resultType, basDt: String(basDt) } }, { phase: 'pages', params: { numOfRows: PAGE_SIZE, resultType, basDt: String(basDt) }, pageCount: pages }], note: '명세만 있음 — 실제 호출은 tools/krx-live-runner.cjs --live 와 사용자 승인 기록이 모두 있을 때만' };
 }
 function resultOk(r) { return { ok: true, record: r }; }
-async function runPlan({ basDt, maxCalls = HARD_MAX_CALLS, key, transport, wait, sha256, queriedAt, origin = 'fixture', resume = null }) {
+async function runPlan({ basDt, maxCalls = HARD_MAX_CALLS, key, transport, wait, sha256, queriedAt, origin = 'fixture', resume = null, resultType = 'xml' }) {
   const out = { status: 'failed', reason: null, transportCalls: 0, attempts: [], pages: [], raw: [], listing: null, missingPages: [], resume: null, queriedAt: queriedAt || null, verifierVersion: VERIFIER_VERSION, acquisition: origin === 'fixture' ? 'fixture' : 'local-runner', warnings: [] };
   const fail = (status, reason) => { out.status = status; out.reason = maskSecrets(reason, key); return out; };
   if (typeof transport !== 'function' || typeof wait !== 'function' || typeof sha256 !== 'function') return fail('blocked', '주입 의존성(transport/wait/sha256) 누락');
   if (!day(queriedAt)) return fail('blocked', 'queriedAt(YYYY-MM-DD) 필요');
-  const plan = planCalls({ basDt, maxCalls, totalCount: resume && resume.totalCount }); if (!plan.ok) return fail('blocked', plan.errors.join('; '));
+  const plan = planCalls({ basDt, maxCalls, totalCount: resume && resume.totalCount, resultType, queriedAt }); if (!plan.ok) return fail('blocked', plan.errors.join('; '));
   if (origin !== 'fixture' && (typeof key !== 'string' || key.length < 8)) return fail('blocked', '인증키 없음(환경변수에서만 주입)');
   const spec = params => { const s = K.buildRequestSpec(params); return { template: s.urlTemplate }; };
   const urlFor = params => { const t = spec(params).template; const k = key ? (/%[0-9A-Fa-f]{2}/.test(key) ? key : encodeURIComponent(key)) : ''; return t.replace('<서버측-비밀저장소에서-주입>', k); };
@@ -59,7 +65,7 @@ async function runPlan({ basDt, maxCalls = HARD_MAX_CALLS, key, transport, wait,
       if (res && !cat) {
         const f = K.classifyFailure({ httpStatus: res.status, text });
         if (res.status >= 400 || (f.category !== 'unknown' && !/<response>|"response"/.test(text))) cat = f.category;
-        else { const sha = sha256(text); parsed = K.parseResponse(text, { httpStatus: res.status, responseSha256: sha, origin }); if (!parsed.ok && !(phase === 'probe' && parsed.page && parsed.errors.length === 0)) cat = parsed.failure ? parsed.failure.category : 'parse-error'; out.lastSha = sha; }
+        else { const sha = sha256(text); parsed = K.parseResponse(text, { httpStatus: res.status, responseSha256: sha, origin, format: resultType }); if (!parsed.ok && !(phase === 'probe' && parsed.page && parsed.errors.length === 0)) cat = parsed.failure ? parsed.failure.category : 'parse-error'; out.lastSha = sha; }
       }
       out.attempts.push({ phase, pageNo, try: attempt + 1, httpStatus: res ? res.status : null, category: cat || 'ok' });
       if (!cat) return { ok: true, parsed, text, sha: out.lastSha };
@@ -72,7 +78,7 @@ async function runPlan({ basDt, maxCalls = HARD_MAX_CALLS, key, transport, wait,
   let total = resume && Number.isInteger(resume.totalCount) ? resume.totalCount : null;
   const done = new Map(); for (const d of (resume && resume.done) || []) done.set(d.pageNo, d);
   if (total === null) {
-    const r = await callOnce('probe', 0, { numOfRows: 1, pageNo: 1, resultType: 'xml', basDt: String(basDt) });
+    const r = await callOnce('probe', 0, { numOfRows: 1, pageNo: 1, resultType, basDt: String(basDt) });
     if (!r.ok) return fail(r.halt ? 'blocked' : 'failed', '탐색 호출 실패: ' + (r.halt || r.permanent));
     total = r.parsed.page.totalCount;
     if (total === 0) return fail('failed', '빈 데이터(휴일·미개방일 가능)');
@@ -81,7 +87,7 @@ async function runPlan({ basDt, maxCalls = HARD_MAX_CALLS, key, transport, wait,
   if (out.transportCalls + (pages - done.size) > maxCalls) return fail('blocked', '필요 호출수가 상한 초과');
   for (let p = 1; p <= pages; p++) {
     if (done.has(p)) { const d = done.get(p), parsed = K.parseResponse(d.text, { responseSha256: sha256(d.text), origin }); if (parsed.ok) { out.pages.push(parsed); out.raw.push({ pageNo: p, text: d.text, sha256: sha256(d.text) }); continue; } }
-    const r = await callOnce('pages', p, { numOfRows: PAGE_SIZE, pageNo: p, resultType: 'xml', basDt: String(basDt) });
+    const r = await callOnce('pages', p, { numOfRows: PAGE_SIZE, pageNo: p, resultType, basDt: String(basDt) });
     if (r.ok) { out.pages.push(r.parsed); out.raw.push({ pageNo: p, text: r.text, sha256: r.sha }); }
     else { out.missingPages.push(p); if (r.halt) { for (let q = p + 1; q <= pages; q++) out.missingPages.push(q); out.reason = '중단: ' + r.halt; break; } }
   }
