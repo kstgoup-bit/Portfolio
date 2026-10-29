@@ -66,4 +66,23 @@ function createProvider({ enabled = false, transport = null, maxCalls = 3 } = {}
 /* 신호 점수 표기: 항상 가설 라벨. 데이터가 불완전하면 점수를 만들지 않는다. */
 const SIGNAL_LABEL = '백테스트 미검증 가설';
 function labelSignal(decision) { return decision && decision.score !== undefined && decision.score !== null ? { ...decision, label: SIGNAL_LABEL } : { ...(decision || {}), score: null, label: SIGNAL_LABEL }; }
-module.exports = { TD_TYPES, SIGNAL_LABEL, classifyTdError, mapTwelveDataTimeSeries, createProvider, labelSignal };
+
+/* 14단계: 공급자 장애·값 누락·지연·거래정지·통화/거래소/시간대 오류·이중 공급자 불일치를 한 곳에서 "신호 중단"으로 모은다.
+   입력은 합성 응답뿐이며, 어떤 경우에도 signalAllowed 는 false(실제 감시는 별도 승인 단계) — 통과해도 'SYNTHETIC_OK' 일 뿐이다. */
+function evaluateFeed({ primary, secondary = null, symbol, market, expectedType, today, holidays = null, maxDelayMinutes = 1440 }) {
+  const stop = (state, reasons, extra = {}) => ({ ok: false, state, decision: state === 'DATA_UNAVAILABLE' ? 'DATA_UNAVAILABLE' : 'HOLD', signalAllowed: false, reasons, ...extra });
+  if (!primary || primary.ok !== true) return stop('DATA_UNAVAILABLE', ['공급자 응답 실패: ' + ((primary && primary.category) || (primary && primary.state) || '없음')]);
+  const bars = primary.bars || []; if (!bars.length) return stop('DATA_UNAVAILABLE', ['봉 없음']);
+  const last = bars[bars.length - 1], v = PF.validateBar(last, { today, holidays, expectedType });
+  if (!v.ok) return stop('DATA_UNAVAILABLE', v.errors);
+  if (last.delayMinutes > maxDelayMinutes) return stop('HOLD', ['지연 ' + last.delayMinutes + '분 > 허용 ' + maxDelayMinutes + '분']);
+  const missing = PF.findMissingBars(bars, bars[0].date, last.date, { holidays: holidays || [] });
+  const j = PF.detectJumps(bars); if (!j.ok) return stop('HOLD', ['설명되지 않는 급변: ' + j.flagged.map(f => f.date).join(',')]);
+  if (secondary) {
+    if (secondary.ok !== true) return stop('HOLD', ['보조 공급자 실패: ' + (secondary.category || secondary.state)]);
+    const sl = secondary.bars[secondary.bars.length - 1], r = PF.reconcile(last, sl, { today }); if (!r.ok) return stop('HOLD', r.reasons || [r.state], { reconcile: r.state });
+  }
+  return { ok: true, state: 'SYNTHETIC_OK', decision: 'HOLD', signalAllowed: false, reasons: ['합성 시험 통과 — 실제 감시 활성 아님'], symbol, market, missingCandidates: missing.missing, calendarKnown: missing.calendarKnown, label: SIGNAL_LABEL };
+}
+
+module.exports = { evaluateFeed, TD_TYPES, SIGNAL_LABEL, classifyTdError, mapTwelveDataTimeSeries, createProvider, labelSignal };

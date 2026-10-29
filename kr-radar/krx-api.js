@@ -98,7 +98,7 @@ function parseResponse(text, { format, httpStatus, responseSha256, origin = 'fix
   if (!out.responseSha256) out.errors.push('responseSha256(64 hex) 누락 — 호출자가 원본 바이트의 해시를 계산해 전달해야 함');
   if (!['fixture', 'user-supplied-official'].includes(origin)) { out.errors.push('origin'); return out; }
   if (typeof text !== 'string' || !text.trim()) { out.failure = classifyFailure({ httpStatus, text }); out.errors.push('빈 응답'); return out; }
-  if (Buffer.byteLength(text, 'utf8') > MAX_TEXT_BYTES) { out.errors.push('응답 크기 상한 초과'); return out; }
+  if (new TextEncoder().encode(text).length > MAX_TEXT_BYTES) { out.errors.push('응답 크기 상한 초과'); return out; }
   const t = text.trim(), f = format || (t.startsWith('{') ? 'json' : t.startsWith('<') ? 'xml' : 'text');
   out.format = f;
   const fail = classifyFailure({ httpStatus, text: t.startsWith('{') || /<response>/.test(t) ? '' : t });
