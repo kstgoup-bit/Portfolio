@@ -13,6 +13,13 @@
 <script defer src="radar/ui.js"></script>
 <script defer src="backup/core.js"></script>
 <script defer src="backup/ui.js"></script>
+<link rel="stylesheet" href="has/ledger-demo.css">
+<link rel="stylesheet" href="has/readability.css">
+<script defer src="invest/ledger.js"></script>
+<script defer src="has/ledger-demo-model.js"></script>
+<script defer src="has/ledger-demo.js"></script>
+<script defer src="has/price-trust.js"></script>
+<script defer src="has/price-trust-ui.js"></script>
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="HAS">
@@ -635,6 +642,7 @@ select { -webkit-user-select: none; user-select: none; touch-action: manipulatio
   <button class="tab" onclick="switchTab('commandments')">📜 15계명</button>
   <button class="tab" onclick="switchTab('news')">📰 뉴스</button>
   <button class="tab" onclick="switchTab('radar')">📡 곡소리 레이더</button>
+  <button class="tab" onclick="switchTab('ledgerdemo')">🧪 원장 시범</button>
 </div>
 <div class="tabs sub-tabs" id="subtabs-asset" style="display:none">
   <button class="tab" onclick="switchTab('ledger')">📒 가계부</button>
@@ -645,7 +653,9 @@ select { -webkit-user-select: none; user-select: none; touch-action: manipulatio
 </div>
 </div>
 
+<div id="hasPriceTrust" class="hpt hpt-warn" role="note">가격 신뢰도 표시를 준비하고 있습니다.</div>
 <!-- Radar is isolated from portfolio state; no API keys or holdings are passed. -->
+<div class="panel" id="panel-ledgerdemo" aria-label="원장 시범(합성 데이터)"></div>
 <div class="panel" id="panel-radar" aria-label="곡소리 레이더"><p>레이더를 준비하고 있습니다. 불러오지 못하면 기존 포트폴리오 메뉴를 이용하세요.</p></div>
 
 <!-- 현황 -->
@@ -1257,7 +1267,7 @@ select { -webkit-user-select: none; user-select: none; touch-action: manipulatio
     <div id="rkOilDetail" style="font-size:11px;color:#64748b;margin-top:5px">—</div>
     <div style="font-size:11px;color:#94a3b8;margin-top:4px">경기침체&lt;$60 · 안정$60~80 · 주의$80~95 · 위험&gt;$95</div>
   </div>
-  <button class="rk-btn" onclick="fetchRiskData()" id="rkFetchBtn">🔄 실시간 위험 지수 조회</button>
+  <button class="rk-btn" onclick="fetchRiskData()" id="rkFetchBtn">🔄 위험 지수 조회 (미검증 출처)</button>
   <div id="rkStatus" class="rk-status"></div>
   <div id="rkLastUpdate" class="rk-update"></div>
 </div>
@@ -2576,7 +2586,7 @@ function updateBrief() {
     // 할일 알림
     if(!hasSnap) msgs.push({cls:"warn",icon:"📸",badge:"할일",txt:"오늘 자산 기록이 아직 없습니다. 시세 갱신이 끝나면 자동 기록되며, 급하면 '📸 오늘 전체 자산 기록' 버튼을 눌러주세요."});
     if(!thisMonthDiv&&divs.length>0) msgs.push({cls:"",icon:"💰",badge:"확인",txt:"이번 달 배당금 입력했나요? 배당 탭에서 수령 내역을 기록해두세요."});
-    if(!msgs.length) msgs.push({cls:"",icon:"💁‍♀️",badge:"클로",txt:"위험계 탭에서 실시간 지수를 조회하면 정확한 진단을 받을 수 있어요."});
+    if(!msgs.length) msgs.push({cls:"",icon:"💁‍♀️",badge:"클로",txt:"위험계 탭에서 시장 지수(미검증 출처)를 조회하면 정확한 진단을 받을 수 있어요."});
 
     // 종합점수 기반 행동요령 카드
     var rk2={}; try{rk2=JSON.parse(localStorage.getItem("v5_riskData")||"{}");}catch(e){}
@@ -2949,6 +2959,7 @@ function renderAll() {
   renderCommandments();
   renderLedger();
   renderAllReturnsTables();
+  if(window.HASPriceTrustUI) window.HASPriceTrustUI.refresh();
 }
 
 // =============================================
@@ -4384,7 +4395,7 @@ async function fetchRiskData() {
   } else {
     if(status){status.textContent="❌ 전체 실패 — 이전 저장값 표시 중 ("+now+")"; status.style.color="#dc2626";}
   }
-  if(btn){btn.disabled=false; btn.textContent="🔄 실시간 위험 지수 조회";}
+  if(btn){btn.disabled=false; btn.textContent="🔄 위험 지수 조회 (미검증 출처)";}
   // ★ 메시지 자동 삭제 없음 — 다음 조회 전까지 유지
 }
 
@@ -7136,7 +7147,7 @@ function changePw() {
 // =============================================
 var TAB_GROUPS={
   invest:  ["dashboard","general","domestic","overseas","pension","dividend"],
-  risk:    ["principledash","advisor","risk","commandments","news","radar"],
+  risk:    ["principledash","advisor","risk","commandments","news","radar","ledgerdemo"],
   asset:   ["ledger","networth","debt","retirement","memo"],
   settings:["settings"]
 };
@@ -7149,7 +7160,7 @@ var tabColors={
   pension:"#7b1fa2", dividend:"#2e7d32", commandments:"#f57f17",
   risk:"#1e40af", advisor:"#6a1b9a", ledger:"#00897b",
   news:"#e65100", notouch:"#b71c1c", memo:"#795548", settings:"#546e7a",
-  retirement:"#3949ab", debt:"#ad1457", networth:"#00695c", principledash:"#5e35b1"
+  retirement:"#3949ab", debt:"#ad1457", networth:"#00695c", principledash:"#5e35b1", ledgerdemo:"#8a5a00"
 };
 
 function switchGroup(group){
@@ -7194,6 +7205,8 @@ function switchTab(tab) {
 
   document.querySelectorAll(".panel").forEach(function(p){p.classList.toggle("active",p.id==="panel-"+tab);});
   if(window.KSTRadar) window.KSTRadar.onTabChange(tab);
+  if(window.HASLedgerDemo) window.HASLedgerDemo.onTabChange(tab);
+  if(window.HASPriceTrustUI) window.HASPriceTrustUI.refresh();
   if(tab==="memo") renderMemo();
   if(tab==="retirement"){ renderRetirement(); renderNotouch(); }
   if(tab==="debt") renderDebt();

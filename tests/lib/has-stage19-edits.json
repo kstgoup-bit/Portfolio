@@ -1,0 +1,54 @@
+[
+ [
+  "<script defer src=\"backup/ui.js\"></script>\n<link rel=\"stylesheet\" href=\"has/ledger-demo.css\">\n<link rel=\"stylesheet\" href=\"has/readability.css\">\n<script defer src=\"invest/ledger.js\"></script>\n<script defer src=\"has/ledger-demo-model.js\"></script>\n<script defer src=\"has/ledger-demo.js\"></script>",
+  "<script defer src=\"backup/ui.js\"></script>"
+ ],
+ [
+  "  <button class=\"tab\" onclick=\"switchTab('radar')\">📡 곡소리 레이더</button>\n  <button class=\"tab\" onclick=\"switchTab('ledgerdemo')\">🧪 원장 시범</button>\n</div>",
+  "  <button class=\"tab\" onclick=\"switchTab('radar')\">📡 곡소리 레이더</button>\n</div>"
+ ],
+ [
+  "<div class=\"panel\" id=\"panel-ledgerdemo\" aria-label=\"원장 시범(합성 데이터)\"></div>\n<div class=\"panel\" id=\"panel-radar\"",
+  "<div class=\"panel\" id=\"panel-radar\""
+ ],
+ [
+  "risk:    [\"principledash\",\"advisor\",\"risk\",\"commandments\",\"news\",\"radar\",\"ledgerdemo\"],",
+  "risk:    [\"principledash\",\"advisor\",\"risk\",\"commandments\",\"news\",\"radar\"],"
+ ],
+ [
+  "retirement:\"#3949ab\", debt:\"#ad1457\", networth:\"#00695c\", principledash:\"#5e35b1\", ledgerdemo:\"#8a5a00\"",
+  "retirement:\"#3949ab\", debt:\"#ad1457\", networth:\"#00695c\", principledash:\"#5e35b1\""
+ ],
+ [
+  "  if(window.KSTRadar) window.KSTRadar.onTabChange(tab);\n  if(window.HASLedgerDemo) window.HASLedgerDemo.onTabChange(tab);",
+  "  if(window.KSTRadar) window.KSTRadar.onTabChange(tab);"
+ ],
+ [
+  "<script defer src=\"has/ledger-demo.js\"></script>\n<script defer src=\"has/price-trust.js\"></script>\n<script defer src=\"has/price-trust-ui.js\"></script>",
+  "<script defer src=\"has/ledger-demo.js\"></script>"
+ ],
+ [
+  "<div id=\"hasPriceTrust\" class=\"hpt hpt-warn\" role=\"note\">가격 신뢰도 표시를 준비하고 있습니다.</div>\n<!-- Radar is isolated from portfolio state;",
+  "<!-- Radar is isolated from portfolio state;"
+ ],
+ [
+  "  if(window.HASLedgerDemo) window.HASLedgerDemo.onTabChange(tab);\n  if(window.HASPriceTrustUI) window.HASPriceTrustUI.refresh();",
+  "  if(window.HASLedgerDemo) window.HASLedgerDemo.onTabChange(tab);"
+ ],
+ [
+  "  renderLedger();\n  renderAllReturnsTables();\n  if(window.HASPriceTrustUI) window.HASPriceTrustUI.refresh();\n}",
+  "  renderLedger();\n  renderAllReturnsTables();\n}"
+ ],
+ [
+  "<button class=\"rk-btn\" onclick=\"fetchRiskData()\" id=\"rkFetchBtn\">🔄 위험 지수 조회 (미검증 출처)</button>",
+  "<button class=\"rk-btn\" onclick=\"fetchRiskData()\" id=\"rkFetchBtn\">🔄 실시간 위험 지수 조회</button>"
+ ],
+ [
+  "btn.textContent=\"🔄 위험 지수 조회 (미검증 출처)\";",
+  "btn.textContent=\"🔄 실시간 위험 지수 조회\";"
+ ],
+ [
+  "위험계 탭에서 시장 지수(미검증 출처)를 조회하면",
+  "위험계 탭에서 실시간 지수를 조회하면"
+ ]
+]

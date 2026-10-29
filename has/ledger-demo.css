@@ -1,0 +1,32 @@
+/* HAS 원장 시범 화면 — 글씨 12px 이상, 진한 색(#333 이하), 버튼 높이 44px 이상 */
+#panel-ledgerdemo{background:#f5f7fa;border-radius:12px;padding:12px 12px 28px;color:#1f2933;font-size:14px;line-height:1.6}
+#panel-ledgerdemo *{box-sizing:border-box}
+#panel-ledgerdemo h2{font-size:18px;margin:4px 0 8px;color:#1f2933}
+#panel-ledgerdemo h3{font-size:15px;margin:0 0 6px;color:#1f2933}
+.hld-banner{background:#fff3cd;border:2px solid #8a5a00;color:#4a2f00;font-weight:800;font-size:14px;padding:10px 12px;border-radius:10px;margin-bottom:10px}
+.hld-note{font-size:13px;color:#333;margin:0 0 10px}
+.hld-card{background:#fff;border:1px solid #6b7785;border-radius:12px;padding:12px;margin-bottom:12px}
+.hld-badge{display:inline-block;background:#fff3cd;border:1px solid #8a5a00;color:#4a2f00;font-weight:700;font-size:12px;padding:2px 8px;border-radius:999px;margin-left:6px;vertical-align:middle}
+.hld-kv{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:4px 10px;margin:6px 0}
+.hld-kv dt{font-size:13px;color:#333}
+.hld-kv dd{margin:0;font-size:14px;font-weight:700;color:#1f2933;text-align:right;overflow-wrap:anywhere}
+.hld-neg{color:#9b1c1c}.hld-pos{color:#0b5d1e}
+.hld-sum{border-top:2px solid #6b7785;margin-top:8px;padding-top:6px}
+#panel-ledgerdemo details{margin-top:6px}
+#panel-ledgerdemo summary{min-height:44px;display:flex;align-items:center;font-size:14px;font-weight:700;color:#1f2933;cursor:pointer}
+.hld-basis{margin:4px 0 8px 18px;padding:0;font-size:13px;color:#333;overflow-wrap:anywhere}
+.hld-support{width:100%;border-collapse:collapse;font-size:13px}
+.hld-support td,.hld-support th{border:1px solid #6b7785;padding:6px 6px;vertical-align:top;text-align:left;color:#1f2933;overflow-wrap:anywhere}
+.hld-support th{background:#e8edf3}
+.hld-btn{min-height:44px;min-width:44px;padding:8px 14px;font-size:14px;font-weight:700;border:2px solid #1f4e8c;background:#fff;color:#1f4e8c;border-radius:10px;cursor:pointer}
+.hld-btn.primary{background:#1f4e8c;color:#fff}
+.hld-form{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px}
+.hld-form label{display:block;font-size:13px;color:#333;font-weight:700}
+.hld-form input,.hld-form select{width:100%;min-height:44px;font-size:16px;color:#1f2933;border:1px solid #6b7785;border-radius:8px;padding:6px 8px;background:#fff}
+.hld-err{background:#fde8e8;border:1px solid #9b1c1c;color:#6b0f0f;font-size:13px;padding:8px;border-radius:8px;margin-top:8px}
+.hld-rules{font-size:13px;color:#333;margin:0;padding-left:18px}
+/* 가격 신뢰도 띠 */
+.hpt{margin:6px 10px;padding:8px 10px;border-radius:10px;border:2px solid #8a5a00;background:#fff3cd;color:#3a2600;font-size:13px;line-height:1.5}
+.hpt-error{border-color:#9b1c1c;background:#fde8e8;color:#5c0d0d}.hpt-ok{border-color:#0b5d1e;background:#e3f4e8;color:#06330f}.hpt-info{border-color:#1f4e8c;background:#e6eefa;color:#102a4c}
+.hpt summary{min-height:44px;display:flex;align-items:center;font-weight:700;font-size:13px;cursor:pointer}
+.hpt-line{margin:2px 0 4px;font-size:13px;overflow-wrap:anywhere}
