@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; base-uri 'none'; form-action 'none'">
+<title>KST 투자관리 실험실 (15단계, 합성 시험)</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="invest.css">
+</head>
+<body>
+<header class="top">
+  <h1>KST 투자관리 실험실</h1>
+  <p class="banner" role="status">시험 전용 · 파일은 이 화면 안에서만 읽고 저장·전송하지 않습니다 · 외부 요청 0회 · 자동 주문 없음</p>
+  <nav class="tabs" role="tablist" aria-label="화면 선택">
+    <button type="button" role="tab" id="tab-risk" aria-selected="true" aria-controls="p-risk">위험</button>
+    <button type="button" role="tab" id="tab-pnl" aria-selected="false" aria-controls="p-pnl">손익</button>
+    <button type="button" role="tab" id="tab-bt" aria-selected="false" aria-controls="p-bt">백테스트</button>
+    <button type="button" role="tab" id="tab-pilot" aria-selected="false" aria-controls="p-pilot">시세 파일럿</button>
+  </nav>
+</header>
+<main>
+  <section class="card" id="sec-load" aria-labelledby="h-load">
+    <h2 id="h-load">보유 현황 불러오기</h2>
+    <p class="note">KST 백업 파일(.json)을 고르면 이 화면에서만 읽습니다. 원본 파일과 앱의 투자기록은 바뀌지 않습니다.</p>
+    <label for="f-backup">백업 파일 선택</label>
+    <input id="f-backup" type="file" accept=".json,application/json">
+    <label for="in-fx">USD/KRW 환율 (해외 보유 평가용, 비워 두면 해외는 "자료 부족")</label>
+    <input id="in-fx" inputmode="decimal" autocomplete="off" placeholder="예: 1400">
+    <button type="button" class="btn secondary" id="btn-sample">합성 예시 보유 불러오기</button>
+    <p class="note" id="load-status" role="status">아직 불러온 보유 현황이 없습니다.</p>
+  </section>
+
+  <div id="p-risk" role="tabpanel" aria-labelledby="tab-risk">
+    <section class="card" aria-labelledby="h-sum"><h2 id="h-sum">비중 요약</h2><div id="risk-summary"></div></section>
+    <section class="card" aria-labelledby="h-th"><h2 id="h-th">비중 점검 기준 (내가 정함)</h2>
+      <p class="note">비워 두면 "미설정"입니다. 기준을 넘으면 점검 알림만 표시하며, 매도 지시가 아닙니다.</p>
+      <label for="th-ticker">한 종목 최대 비중 (%)</label><input id="th-ticker" inputmode="decimal" autocomplete="off">
+      <label for="th-theme">한 테마 최대 비중 (%)</label><input id="th-theme" inputmode="decimal" autocomplete="off">
+      <label for="th-account">한 계좌 최대 비중 (%)</label><input id="th-account" inputmode="decimal" autocomplete="off">
+      <label for="th-top3">상위 3종목 합계 최대 (%)</label><input id="th-top3" inputmode="decimal" autocomplete="off">
+      <label for="in-themes">테마 지정 (한 줄에 하나: 티커=테마)</label>
+      <textarea id="in-themes" rows="4" autocomplete="off" placeholder="MSFT=빅테크&#10;GOOGL=빅테크"></textarea>
+      <p class="warn" id="th-error" role="alert" hidden></p>
+      <button type="button" class="btn" id="btn-th">기준 적용</button>
+    </section>
+    <section class="card" aria-labelledby="h-alerts"><h2 id="h-alerts">점검 알림</h2><div id="risk-alerts"></div></section>
+    <section class="card" aria-labelledby="h-bt"><h2 id="h-bt">종목별 비중</h2><div id="risk-tickers"></div></section>
+    <section class="card" aria-labelledby="h-bth"><h2 id="h-bth">테마·계좌별 비중</h2><div id="risk-themes"></div></section>
+    <section class="card" aria-labelledby="h-st"><h2 id="h-st">하락 시 예상 손실 (가정 계산)</h2>
+      <p class="note">미래 예측이 아니라 "만약 이만큼 떨어지면"을 계산하는 도구입니다.</p>
+      <label for="st-kind">대상 종류</label>
+      <select id="st-kind"><option value="ticker">종목</option><option value="theme">테마</option><option value="account">계좌</option><option value="all">전체 자산</option></select>
+      <label for="st-key">대상</label><select id="st-key"></select>
+      <label for="st-drop">하락률 (%)</label><input id="st-drop" inputmode="decimal" autocomplete="off" placeholder="예: 30">
+      <label class="check"><input type="checkbox" id="st-ind"> ETF 간접 노출도 포함 (자료가 있을 때만)</label>
+      <p class="warn" id="st-error" role="alert" hidden></p>
+      <button type="button" class="btn" id="btn-st-add">시나리오 추가</button>
+      <div id="st-list"></div><div id="st-result"></div>
+    </section>
+    <section class="card" aria-labelledby="h-thesis"><h2 id="h-thesis">투자 판단 기록</h2>
+      <p class="note">매수 근거·반증 조건·점검일을 내가 직접 적습니다. 이 화면은 저장하지 않으므로 아래 "내보내기"로 파일을 보관하세요.</p>
+      <div id="th-missing"></div>
+      <label for="tk-ticker">종목 티커</label><input id="tk-ticker" autocomplete="off" maxlength="20">
+      <label for="tk-reason">매수 근거</label><textarea id="tk-reason" rows="3" autocomplete="off"></textarea>
+      <label for="tk-dis">이 조건이면 판단을 바꾼다 (반증 조건)</label><textarea id="tk-dis" rows="3" autocomplete="off"></textarea>
+      <label for="tk-date">다음 점검일</label><input id="tk-date" type="date">
+      <p class="warn" id="tk-error" role="alert" hidden></p>
+      <button type="button" class="btn" id="btn-tk-add">기록 추가</button>
+      <div id="tk-list"></div>
+      <button type="button" class="btn secondary" id="btn-tk-export">판단 기록 내보내기 (파일)</button>
+      <label for="f-thesis">판단 기록 가져오기</label><input id="f-thesis" type="file" accept=".json,application/json">
+    </section>
+  </div>
+
+  <div id="p-pnl" role="tabpanel" aria-labelledby="tab-pnl" hidden>
+    <section class="card" aria-labelledby="h-trades"><h2 id="h-trades">거래기록 불러오기</h2>
+      <p class="note">앱은 종목별 합계만 보관하므로, 실현손익은 별도 거래기록(CSV/JSON)이 있어야 계산됩니다. 없으면 "계산 불가"로 표시합니다.</p>
+      <label for="f-trades">거래기록 파일 (CSV 또는 JSON)</label><input id="f-trades" type="file" accept=".csv,.json,text/csv,application/json">
+      <button type="button" class="btn secondary" id="btn-trade-sample">합성 예시 거래기록</button>
+      <p class="warn" id="trade-error" role="alert" hidden></p>
+      <p class="note" id="trade-status" role="status">거래기록이 없습니다.</p>
+    </section>
+    <section class="card" aria-labelledby="h-px"><h2 id="h-px">현재가 입력 (직접)</h2><div id="px-inputs"></div>
+      <label for="pnl-asof">평가 기준일</label><input id="pnl-asof" type="date">
+      <button type="button" class="btn" id="btn-pnl">계산</button></section>
+    <section class="card" aria-labelledby="h-pnl"><h2 id="h-pnl">손익 결과</h2><div id="pnl-result"></div></section>
+    <section class="card" aria-labelledby="h-tax"><h2 id="h-tax">해외주식 세금 추정</h2>
+      <p class="warn">추정치입니다. 확정 세액이 아니며 세율·공제는 직접 확인해 입력하세요.</p>
+      <label for="tax-rate">세율 (%) — 확인되지 않은 가정</label><input id="tax-rate" inputmode="decimal" value="22">
+      <label for="tax-ded">연 공제 (원) — 확인되지 않은 가정</label><input id="tax-ded" inputmode="numeric" value="2500000">
+      <div id="tax-result"></div></section>
+    <section class="card" aria-labelledby="h-rec"><h2 id="h-rec">앱 보유와 대조</h2><div id="rec-result"></div></section>
+    <section class="card" aria-labelledby="h-exp"><h2 id="h-exp">거래기록 내보내기</h2>
+      <button type="button" class="btn secondary" id="btn-exp-csv">CSV 파일로 내보내기</button>
+      <button type="button" class="btn secondary" id="btn-exp-json">JSON 파일로 내보내기</button></section>
+  </div>
+
+  <div id="p-bt" role="tabpanel" aria-labelledby="tab-bt" hidden>
+    <section class="card" aria-labelledby="h-btc"><h2 id="h-btc">곡소리·환호성 백테스트 (합성 자료)</h2>
+      <p class="warn" id="bt-banner">이 화면은 계산기 시험용입니다. 실제 과거 가격을 합법적으로 확보하기 전에는 성과를 주장할 수 없습니다. 실데이터 백테스트 <b id="bt-real">0</b>건.</p>
+      <label for="bt-rule">규칙</label>
+      <select id="bt-rule"><option value="gokso">곡소리: 52주 고점 대비 20/30/35% 하락</option><option value="cheer">환호성 (가격 기반 대용 규칙)</option></select>
+      <label for="bt-seed">합성 자료 시드 (같은 값 → 같은 결과)</label><input id="bt-seed" inputmode="numeric" value="7">
+      <label for="bt-fee">수수료 (bp, 편도)</label><input id="bt-fee" inputmode="decimal" value="5">
+      <label for="bt-slip">슬리피지 (bp)</label><input id="bt-slip" inputmode="decimal" value="5">
+      <label class="check"><input type="checkbox" id="bt-grid"> 매개변수 후보 탐색 시험 (과최적화 경고 확인)</label>
+      <p class="warn" id="bt-error" role="alert" hidden></p>
+      <button type="button" class="btn" id="btn-bt">합성 자료로 계산</button>
+    </section>
+    <section class="card" aria-labelledby="h-btr"><h2 id="h-btr">결과</h2><div id="bt-result"><p class="note">아직 계산하지 않았습니다.</p></div></section>
+  </div>
+
+  <div id="p-pilot" role="tabpanel" aria-labelledby="tab-pilot" hidden>
+    <section class="card" aria-labelledby="h-pilot"><h2 id="h-pilot">시세 공급자 소규모 파일럿 (계획·설정만)</h2>
+      <p class="warn">실제 호출·유료 가입·외부 전송은 별도 명시적 승인 전까지 불가합니다. 이 화면은 계획과 점검표만 보여 줍니다.</p>
+      <dl class="counts" id="pilot-counts"></dl>
+      <label class="check"><input type="checkbox" id="pilot-on" disabled> 시세 공급자 사용 (승인 전 잠김)</label>
+      <p class="note">상태: <b id="pilot-state">꺼짐</b> — 꺼져 있어도 앱의 투자기록·계산은 그대로 동작합니다.</p>
+      <h3>후보 종목 (검증용 예시, 보유 여부와 무관)</h3><ul class="plan" id="pilot-tickers"></ul>
+      <h3>1개월 점검 항목</h3><ul class="plan" id="pilot-checks"></ul>
+      <p class="note">KRX 종목 식별 조회는 "어떤 종목인지"를 확인하는 기능이며 가격 제공이 아닙니다.</p>
+    </section>
+  </div>
+  <p class="foot">합성/시험 화면 · 운영 앱·백업·서비스워커와 분리됨 · 배포 금지</p>
+</main>
+<script src="invest-bundle.js"></script>
+<script src="invest.js"></script>
+</body>
+</html>
