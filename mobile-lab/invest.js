@@ -1,7 +1,7 @@
 /* KST 투자관리 실험실 화면 (15단계). 저장소·네트워크·타이머 사용 없음. 파일은 메모리에서만 읽는다. */
 (function () {
   'use strict';
-  var L = window.KSTLedger, R = window.KSTRisk, B = window.KSTBacktest, F = window.KSTFormat, P = window.KSTPortfolioBackup;
+  var L = window.KSTLedger, R = window.KSTRisk, B = window.KSTBacktest, F = window.KSTFormat, P = window.KSTPortfolioBackup, DS = window.KSTDraftStore, W = window.KSTMobileLab && window.KSTMobileLab.watch;
   var $ = function (id) { return document.getElementById(id); };
   var state = { holdings: [], appRows: [], themeMap: {}, thresholds: {}, scenarios: [], theses: [], trades: [], tradeLoaded: false, lastBt: null, backupTheme: {} };
   function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined) e.textContent = text; return e; }
@@ -13,14 +13,12 @@
   function download(name, text, type) { var a = el('a'); a.href = URL.createObjectURL(new Blob([text], { type: type })); a.download = name; document.body.appendChild(a); a.click(); a.remove(); }
   function readFile(file) { return file.text(); }
 
-  /* ---- 탭 ---- */
+  /* ---- 탭 (뒤로가기: 탭 이동마다 기록을 남기고, 뒤로가기는 이전 탭으로 돌아간다) ---- */
   var TABS = ['risk', 'pnl', 'bt', 'pilot'];
-  TABS.forEach(function (t) {
-    $('tab-' + t).addEventListener('click', function () {
-      TABS.forEach(function (x) { $('tab-' + x).setAttribute('aria-selected', String(x === t)); $('p-' + x).hidden = x !== t; });
-      $('sec-load').hidden = t === 'bt' || t === 'pilot';
-    });
-  });
+  function showTab(t) { TABS.forEach(function (x) { $('tab-' + x).setAttribute('aria-selected', String(x === t)); $('p-' + x).hidden = x !== t; }); $('sec-load').hidden = t === 'bt' || t === 'pilot'; }
+  TABS.forEach(function (t) { $('tab-' + t).addEventListener('click', function () { if (!$('p-' + t).hidden) return; showTab(t); try { history.pushState({ tab: t }, '', '#' + t); } catch (e) {} }); });
+  window.addEventListener('popstate', function (ev) { var t = ev.state && ev.state.tab; showTab(TABS.indexOf(t) >= 0 ? t : 'risk'); });
+  try { var h0 = (location.hash || '').slice(1); history.replaceState({ tab: TABS.indexOf(h0) >= 0 ? h0 : 'risk' }, '', location.hash || '#risk'); if (TABS.indexOf(h0) >= 0) showTab(h0); } catch (e) {}
 
   /* ---- 보유 불러오기 ---- */
   var SAMPLE = [
@@ -220,6 +218,37 @@
   var pc = $('pilot-counts'); [['실제 활성 감시 종목', '0'], ['실제 시세 검증', '0건'], ['실제 시세 호출', '0회'], ['실데이터 백테스트', '0건'], ['합성·캐시·실조회 종목', '합성 0 / 캐시 0 / 실조회 0']].forEach(function (a) { var dt = el('dt', '', a[0]), dd = el('dd', '', a[1]); pc.appendChild(dt); pc.appendChild(dd); });
   var pt = $('pilot-tickers'); ['MSFT', 'GOOGL', 'AVGO', 'VRT', 'JPM'].forEach(function (t) { pt.appendChild(el('li', '', t + ' — 읽기 전용 검증 후보')); });
   var pk = $('pilot-checks'); ['공급자 가격과 독립 기준값의 일치율 (종목별·일자별)', '결측·지연 일수 기록', '수정주가·배당·분할 처리 방식 확인', '호출량과 예상 월 비용 (유료 가입은 별도 승인 후)', '사용권·저장권·재배포 제한 문서 확인', '네트워크 실패 시 기존 투자기록이 변하지 않는지 확인'].forEach(function (t) { pk.appendChild(el('li', '', t + ' — 미실시')); });
+
+
+  /* ---- 임시 저장 (이 화면 전용 키 1개, 사용자가 누를 때만) ---- */
+  function store() { try { return window.localStorage; } catch (e) { return null; } }
+  function draftNote(t) { $('draft-status').textContent = t; }
+  function refreshDraftStatus() { var p = DS.peek(store()); draftNote(p.ok ? '임시 저장 있음 (저장일 ' + p.savedAt + ')' : p.message); }
+  $('btn-draft-save').addEventListener('click', function () {
+    var payload = { tradesJson: state.tradeLoaded ? L.exportTradeJson(state.trades) : null, thesesJson: state.theses.length ? R.exportTheses(state.theses) : null, themeText: $('in-themes').value, thresholds: state.thresholds };
+    var r = DS.save(store(), payload, today()); draftNote(r.ok ? '임시 저장했습니다 (' + r.savedAt + ', ' + r.bytes + '바이트)' : '저장 실패: ' + r.message);
+  });
+  $('btn-draft-load').addEventListener('click', function () {
+    var p = DS.peek(store()); if (!p.ok) { draftNote(p.message); return; }
+    var s = p.state, notes = [];
+    if (s.tradesJson) { var t = L.parseTradeJson(s.tradesJson); if (t.ok) { state.trades = t.trades; state.tradeLoaded = true; $('trade-status').textContent = '임시 저장에서 거래기록 ' + t.trades.length + '건 복원'; } else notes.push('거래기록 복원 실패'); }
+    if (s.thesesJson) { var h = R.parseTheses(s.thesesJson); if (h.ok) state.theses = h.theses; else notes.push('판단 기록 복원 실패'); }
+    $('in-themes').value = s.themeText; state.themeMap = parseThemes(); state.thresholds = s.thresholds || {};
+    [['th-ticker', 'tickerMaxPct'], ['th-theme', 'themeMaxPct'], ['th-account', 'accountMaxPct'], ['th-top3', 'top3MaxPct']].forEach(function (x) { $(x[0]).value = state.thresholds[x[1]] == null ? '' : state.thresholds[x[1]]; });
+    renderPxInputs(); renderRisk(); renderLedger(); draftNote('임시 저장을 복원했습니다 (저장일 ' + p.savedAt + ')' + (notes.length ? ' · ' + notes.join(', ') : ''));
+  });
+  $('btn-draft-del').addEventListener('click', function () { var r = DS.discard(store()); draftNote(r.ok ? '임시 저장을 삭제했습니다 (앱 투자기록은 그대로입니다)' : '삭제 실패'); });
+  refreshDraftStatus();
+
+  /* ---- 감시 상태 표시 (합성 샘플) ---- */
+  function renderWatch() {
+    if (!W) return; var t = today(), ev = function (o) { return Object.assign({ origin: 'real-provider', source: '합성 시험 공급자', baseDate: t, queriedAt: t, priceType: 'close', currency: 'USD', delayMinutes: 0, isSynthetic: true }, o || {}); };
+    var items = [{ id: 'DEMO-US1', market: 'US', kind: 'stock', price: ev(), monitoring: { active: true, approvedBy: 'user', source: '합성', baseDate: t, queriedAt: t, isSynthetic: true } }, { id: 'DEMO-CACHE', market: 'US', kind: 'etf', price: ev({ origin: 'cache', isSynthetic: false }) }, { id: 'DEMO-ERR', market: 'US', kind: 'stock', price: ev({ failureReason: '429 요청 제한', isSynthetic: false }) }, { id: 'DEMO-NONE', market: 'KR', kind: 'stock' }];
+    var s = W.summarize(items, t), c = clear($('watch-counts')); [['활성 감시 (실제)', s.counts.activeMonitoring + '개'], ['실제 시세 검증', s.counts.realVerifiedPrice + '건'], ['합성', s.counts.synthetic + '개'], ['캐시', s.counts.cache + '개'], ['미검증', s.counts.unverified + '개']].forEach(function (a) { c.appendChild(el('dt', '', a[0])); c.appendChild(el('dd', '', a[1])); });
+    $('watch-rule').textContent = s.rule; var rows = clear($('watch-rows')); s.rows.forEach(function (r) { var d = el('div', 'row'); d.appendChild(el('div', 't', r.id + ' · ' + r.label)); kv(d, '공급자', r.provider); kv(d, '기준일', r.asOf || '없음'); kv(d, '가격 유형', r.priceTypeLabel); kv(d, '통화', r.currency); kv(d, '유효기간', r.validUntil || '없음'); kv(d, '검증 상태', r.verification); if (r.lastError) kv(d, '갱신 오류', r.lastError); r.reasons.slice(0, 3).forEach(function (x) { d.appendChild(el('div', 'formula', x)); }); rows.appendChild(d); });
+    var cv = clear($('watch-caveats')); s.caveats.forEach(function (x) { cv.appendChild(el('li', '', x)); });
+  }
+  renderWatch();
 
   renderRisk(); renderPxInputs(); renderLedger(); renderStress();
 })();

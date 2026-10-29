@@ -4,7 +4,7 @@
 'use strict';
 const fs = require('node:fs'), path = require('node:path');
 const ROOT = path.join(__dirname, '..'), OUT = path.join(ROOT, 'mobile-lab', 'invest-bundle.js');
-const FILES = ['invest/format.js', 'invest/ledger.js', 'invest/risk.js', 'invest/backtest.js', 'backup/core.js'];
+const FILES = ['invest/format.js', 'invest/ledger.js', 'invest/risk.js', 'invest/backtest.js', 'invest/draft-store.js', 'backup/core.js'];
 function build() {
   const parts = ['/* 생성 파일 — 직접 고치지 말 것. node tools/build-invest-lab.cjs 로 재생성. 원본: ' + FILES.join(', ') + ' */'];
   for (const f of FILES) parts.push('/* ---- ' + f + ' ---- */', fs.readFileSync(path.join(ROOT, f), 'utf8').trimEnd());
