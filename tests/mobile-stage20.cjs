@@ -29,6 +29,12 @@ ok('그라데이션 배경 글씨는 별도 집계(측정 불가)로 분리되�
       const card = page.locator('[data-testid=hld-migration]'); assert.equal(await card.count(), 1, w + ' 카드');
       const t = await card.innerText(); for (const x of ['합성', '저장 안 함', '이력 미확인', '쓰기 0건', '제외']) assert.ok(t.includes(x), w + ' ' + x);
       assert.ok(!/has_ledger_v1/.test(t)); assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
+      const cardTxt = () => page.locator('[data-testid=hld-account-gen]').innerText();
+      assert.match(await cardTxt(), /15주/); await page.locator('[data-testid=hld-add]').scrollIntoViewIfNeeded(); await page.locator('[data-testid=hld-add]').click(); await page.waitForTimeout(200);
+      const nt = await page.locator('[data-testid=hld-notice]').innerText(); assert.ok(nt.includes('추가했습니다') && nt.includes('맨 위'), w + ' 추가 안내 문구'); assert.match(await cardTxt(), /16주/, w + ' 숫자 변화');
+      await page.locator('[data-testid=hld-jump]').click(); await page.waitForTimeout(300); assert.ok(await page.locator('[data-testid=hld-account-gen]').evaluate(e => { const r = e.getBoundingClientRect(); return r.top >= -2 && r.top < innerHeight; }), w + ' 바뀐 카드로 이동');
+      await page.locator('[data-testid=hld-back]').scrollIntoViewIfNeeded(); await page.locator('[data-testid=hld-back]').click(); await page.waitForTimeout(300);
+      assert.equal(await page.locator('#panel-ledgerdemo').isVisible(), false, w + ' 돌아가기 후 시범 화면 닫힘'); assert.equal(await page.evaluate(() => location.hash), '');
       await page.reload(); await page.waitForTimeout(400); assert.equal(await snap(), before, w + ' 저장소 불변');
       await ctx.close();
     }
