@@ -30,6 +30,12 @@
     <input id="in-fx" inputmode="decimal" autocomplete="off" placeholder="예: 1400">
     <button type="button" class="btn secondary" id="btn-sample">합성 예시 보유 불러오기</button>
     <p class="note" id="load-status" role="status">아직 불러온 보유 현황이 없습니다.</p>
+    <h3>임시 저장 (이 화면 전용)</h3>
+    <p class="note">거래기록·판단 기록·기준 설정을 이 기기의 이 화면에만 임시 보관합니다. 앱의 투자기록·백업과 별개이며, 자동 저장하지 않습니다. 중요한 내용은 "내보내기" 파일로도 보관하세요.</p>
+    <button type="button" class="btn secondary" id="btn-draft-save">임시 저장</button>
+    <button type="button" class="btn secondary" id="btn-draft-load">임시 저장 복원</button>
+    <button type="button" class="btn secondary" id="btn-draft-del">임시 저장 삭제</button>
+    <p class="note" id="draft-status" role="status">임시 저장 상태를 확인하지 않았습니다.</p>
   </section>
 
   <div id="p-risk" role="tabpanel" aria-labelledby="tab-risk">
@@ -121,10 +127,15 @@
       <h3>후보 종목 (검증용 예시, 보유 여부와 무관)</h3><ul class="plan" id="pilot-tickers"></ul>
       <h3>1개월 점검 항목</h3><ul class="plan" id="pilot-checks"></ul>
       <p class="note">KRX 종목 식별 조회는 "어떤 종목인지"를 확인하는 기능이며 가격 제공이 아닙니다.</p>
+      <h3>감시 상태 표시 (합성 샘플 — 실제 감시 아님)</h3>
+      <dl class="counts" id="watch-counts"></dl><p class="note" id="watch-rule"></p>
+      <div id="watch-rows"></div>
+      <h3>신호를 볼 때 주의</h3><ul class="plan" id="watch-caveats"></ul>
     </section>
   </div>
   <p class="foot">합성/시험 화면 · 운영 앱·백업·서비스워커와 분리됨 · 배포 금지</p>
 </main>
+<script src="bundle.js"></script>
 <script src="invest-bundle.js"></script>
 <script src="invest.js"></script>
 </body>

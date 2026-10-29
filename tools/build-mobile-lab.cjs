@@ -4,7 +4,7 @@
 'use strict';
 const fs = require('node:fs'), path = require('node:path');
 const ROOT = path.join(__dirname, '..'), OUT = path.join(ROOT, 'mobile-lab', 'bundle.js');
-const ENTRY = ['mobile-flow.js', 'mobile-status.js', 'rehearsal.js'];
+const ENTRY = ['mobile-flow.js', 'mobile-status.js', 'rehearsal.js', 'watch-display.js'];
 function build() {
   const mods = new Map();
   const visit = f => { if (mods.has(f)) return; const src = fs.readFileSync(path.join(ROOT, 'kr-radar', f), 'utf8'); mods.set(f, src); for (const m of src.matchAll(/require\('\.\/([\w.-]+)'\)/g)) { if (m[1].endsWith('.json')) continue; visit(m[1]); } };
@@ -14,7 +14,7 @@ function build() {
   for (const [f, src] of [...mods].sort((a, b) => a[0] < b[0] ? -1 : 1)) parts.push('__defs[' + JSON.stringify('./' + f) + ']=function(module,exports,require){\n' + src + '\n};');
   parts.push('__defs["./data/universe.json"]=function(module){module.exports=' + uni.trim() + ';};');
   parts.push('function req(n){if(!__defs[n])throw new Error("module missing: "+n);if(__cache[n])return __cache[n].exports;var m={exports:{}};__cache[n]=m;__defs[n](m,m.exports,req);return m.exports;}');
-  parts.push('window.KSTMobileLab={flow:req("./mobile-flow.js"),status:req("./mobile-status.js"),rehearsal:req("./rehearsal.js"),universe:req("./data/universe.json")};', '})();');
+  parts.push('window.KSTMobileLab={flow:req("./mobile-flow.js"),status:req("./mobile-status.js"),rehearsal:req("./rehearsal.js"),watch:req("./watch-display.js"),universe:req("./data/universe.json")};', '})();');
   return parts.join('\n') + '\n';
 }
 if (require.main === module) {
