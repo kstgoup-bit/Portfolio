@@ -6,7 +6,8 @@
   "scripts": {
     "test": "node --test tests/*.test.cjs",
     "test:mobile": "node tests/mobile.cjs",
-    "test:mobile14": "node tests/mobile-stage14.cjs"
+    "test:mobile14": "node tests/mobile-stage14.cjs",
+    "test:mobile15": "node tests/mobile-stage15.cjs"
   },
   "devDependencies": {
     "@fontsource/noto-sans-kr": "5.2.6",
