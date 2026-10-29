@@ -209,6 +209,7 @@ function compareCandidates(data, listing, { today, exclusions = [], rightsConfir
     else if (!(l = byCode.get(s.code))) rule = isEtf ? 'etf-not-found(API 포함 범위 미확인)' : 'not-found-in-response';
     else if (l.name !== nfc(s.name)) rule = 'name-mismatch';
     else if (l.market !== s.market) rule = 'market-mismatch';
+    else if (s.isin && l.isin !== s.isin) rule = 'isin-mismatch';
     else if (!isEtf && l.hint !== 'common-presumed') rule = 'security-type-suspected:' + l.hint;
     else { rule = 'exact code+name+market'; status = listing.origin === 'user-supplied-official' ? 'verified' : 'fixture-matched'; }
     const e = { code: s.code, name: s.name, market: s.market, group: s.group || 'stock', status, rule, isin: l ? l.isin : null, rawCode: l ? l.raw.srtnCd : null, baseDate: l ? l.baseDate : baseDate, decision: 'HOLD', priceStatus: 'DATA_UNAVAILABLE', rightsConfirmed: !!rightsConfirmed };

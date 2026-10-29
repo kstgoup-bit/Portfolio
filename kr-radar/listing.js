@@ -10,7 +10,7 @@ const nfc = s => String(s).normalize('NFC').trim();
 function classifyByName(name) {
   const n = nfc(name || '');
   if (/스팩|제\d+호$/.test(n)) return 'spac-suspected';
-  if (/리츠|REIT/i.test(n)) return 'reit-suspected';
+  if (/(?<!메)리츠|REIT/i.test(n)) return 'reit-suspected'; // '메리츠' 같은 일반 사명의 오탐 방지(12단계)
   if (/ETN$|\bETN\b/i.test(n)) return 'etn-suspected';
   if (/(우|우B|우C|\d우|우\(전환\))$/.test(n)) return 'preferred-suspected';
   if (/^(KODEX|TIGER|KBSTAR|ACE|SOL|HANARO|ARIRANG|KOSEF|PLUS|RISE)\b/i.test(n)) return 'etf-suspected';

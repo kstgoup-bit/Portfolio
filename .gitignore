@@ -1,2 +1,7 @@
 node_modules/
 test-results/
+# KST: 실조회 산출물·승인 파일·키는 저장소에 올리지 않는다
+krx-private/
+*.approval.json
+.env
+.env.*
