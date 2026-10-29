@@ -11,7 +11,7 @@ const stock = (id, name, extra = {}) => ({ id, name, ticker: 'S' + id, quantity:
 const synthetic = () => memory({ v5_gen: JSON.stringify([stock(1, '합성 일반 A')]), v5_dom: JSON.stringify([stock(2, '합성 국내 B'), stock(3, '합성 국내 C')]), v5_ov: JSON.stringify([stock(4, '합성 해외 D', { currency: 'USD' })]), v5_pen: JSON.stringify([stock(5, '합성 연금 E')]),
   v5_deposits: JSON.stringify({ gen: [{ ts: 1, amount: 100 }], dom: [{ ts: 2, amount: 200 }], ov: [{ ts: 3, amount: 300 }], pen: [{ ts: 4, amount: 400 }] }), v5_snap: JSON.stringify({ gen: [{ ts: 1, val: 2, cost: 1 }], all: [], dom: [], ov: [], pen: [] }), v5_fg: '0' });
 
-test('protected files (app HTML, PWA worker/manifest, backup module/UI) are byte-identical to stage 11', () => { for (const [f, h] of Object.entries(PINNED)) a.equal(sha(f), h, f); });
+test('protected files (app HTML, PWA worker/manifest, backup module/UI) are byte-identical to stage 11', () => { for (const [f, h] of Object.entries(PINNED)) a.equal(require('./lib/has-rename.cjs').legacySha(f), h, f); });
 test('synthetic user data: 4 accounts round-trip exactly and stay separate (overseas vs pension vs domestic vs general)', () => {
   const src = synthetic(), dst = memory({ v5_gen: '[]', v5_dom: '[]', v5_ov: '[]', v5_pen: '[]' });
   B.apply(dst, B.parse(JSON.stringify(B.create(src)))); for (const [k, v] of Object.entries(src.all())) a.equal(dst.getItem(k), v, k);

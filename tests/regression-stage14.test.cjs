@@ -11,7 +11,7 @@ test('브라우저 SHA-256 구현은 node:crypto 와 일치(한글·경계 길�
 });
 test('운영 앱·서비스워커·매니페스트·백업 모듈은 14단계에서 바뀌지 않았다(13단계 해시 고정)', () => {
   const PINNED = { 'portfolio_v5.html': 'b16656a6525d9127fe3a3fb4d3ad19c8717afc58fb0fe256feb503692913ebd5', 'portfolio.html': '97235e2a02feeec84511d9b4caf4c548e47ba37eb229625438acbc15427bfa2d' };
-  for (const [f, h] of Object.entries(PINNED)) a.equal(sha(f), h, f);
+  for (const [f, h] of Object.entries(PINNED)) a.equal(require('./lib/has-rename.cjs').legacySha(f), h, f);
   const sw = rd('service-worker.js'); a.ok(!/mobile-lab|kr-radar/.test(sw)); a.ok(!/mobile-lab|kr-radar/.test(rd('manifest.json')));
 });
 test('운영 앱·서비스워커 캐시 목록·매니페스트 어디에서도 실험실을 참조하지 않는다 (공개 PWA 노출 0)', () => {

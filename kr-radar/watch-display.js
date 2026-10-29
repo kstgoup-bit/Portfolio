@@ -26,18 +26,21 @@ function describe(item, today) {
   const row = { id: item.id, market: item.market, kind: item.kind, level: cls.level, label: cls.label, reasons: cls.reasons.slice(),
     provider: p && nonEmpty(p.source) ? p.source : '출처 없음', asOf: baseDate, queriedAt: p && day(p.queriedAt) ? p.queriedAt : null, priceType: priceTypeOf(p), priceTypeLabel: PRICE_TYPE_LABEL[priceTypeOf(p)],
     currency: p && nonEmpty(p.currency) ? p.currency : (item.market === 'KR' ? 'KRW(추정)' : item.market === 'US' ? 'USD(추정)' : '미확인'), validUntil, expired,
-    lastError: p && p.failureReason ? String(p.failureReason) : null, verification: cache ? 'cache' : cls.level === 'SYNTHETIC' ? 'synthetic' : (cls.level === 'PRICE' || cls.level === 'MONITORING') ? 'real-verified' : 'unverified' };
+    lastError: p && p.failureReason ? String(p.failureReason) : null, verification: cache ? 'cache' : (p && p.origin === 'manual') ? 'manual' : cls.level === 'SYNTHETIC' ? 'synthetic' : (cls.level === 'PRICE' || cls.level === 'MONITORING') ? 'real-verified' : 'unverified' };
+  if (row.verification === 'manual') row.reasons.push('직접 입력한 값 — 공급자가 확인한 가격이 아니므로 실제 감시로 세지 않습니다');
   if (cache) row.reasons.push(CACHE_AGE_NOTE, '캐시는 실제 감시로 세지 않습니다');
   if (row.expired) row.reasons.push('유효기간(' + validUntil + ') 지남 — 갱신 필요');
   if (row.lastError) row.reasons.push('갱신 오류: ' + row.lastError);
-  row.activeMonitoring = cls.level === 'MONITORING' && !cache && !row.expired && !row.lastError;
+  row.activeMonitoring = cls.level === 'MONITORING' && !cache && row.verification !== 'manual' && !row.expired && !row.lastError;
+  // 사용자에게 보이는 한 줄 상태(오래된·실패한 가격은 최신 시세처럼 보이지 않게 먼저 걸러낸다)
+  row.stateLabel = row.lastError ? '갱신 실패 — 마지막 값은 최신이 아님' : row.expired ? '오래된 가격 — 최신 아님' : ({ 'real-verified': '실제 조회·검증됨', synthetic: '합성(시험용)', cache: '캐시(실제 감시 아님)', manual: '수동입력', unverified: '미확인' })[row.verification];
   row.signalNote = cls.signal && cls.signal.shown ? cls.signal.label : '신호 표시 없음(자료 부족 또는 감시 미활성)';
   return row;
 }
 function summarize(items, today) {
   const rows = items.map(i => describe(i, today)), c = f => rows.filter(f).length;
   return { rows, counts: { activeMonitoring: c(r => r.activeMonitoring), activeMonitoringKR: c(r => r.activeMonitoring && r.market === 'KR'), activeMonitoringUS: c(r => r.activeMonitoring && r.market === 'US'),
-    realVerifiedPrice: c(r => r.verification === 'real-verified' && !r.expired && !r.lastError), synthetic: c(r => r.verification === 'synthetic'), cache: c(r => r.verification === 'cache'), unverified: c(r => r.verification === 'unverified'), total: rows.length },
+    realVerifiedPrice: c(r => r.verification === 'real-verified' && !r.expired && !r.lastError), synthetic: c(r => r.verification === 'synthetic'), cache: c(r => r.verification === 'cache'), manual: c(r => r.verification === 'manual'), unverified: c(r => r.verification === 'unverified'), total: rows.length },
     caveats: SIGNAL_CAVEATS.slice(), rule: '활성 감시 = 실제 조회 + 가격 검증 + 현재 유효한 감시 조건. 합성·캐시·미검증은 포함하지 않음.' };
 }
 module.exports = { PRICE_TYPE_LABEL, SIGNAL_CAVEATS, CACHE_AGE_NOTE, describe, summarize };
