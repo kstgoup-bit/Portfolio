@@ -1,6 +1,6 @@
 [
  [
-  "<script defer src=\"backup/ui.js\"></script>\n<link rel=\"stylesheet\" href=\"has/ledger-demo.css\">\n<link rel=\"stylesheet\" href=\"has/readability.css\">\n<script defer src=\"invest/ledger.js\"></script>\n<script defer src=\"has/ledger-demo-model.js\"></script>\n<script defer src=\"has/ledger-demo.js\"></script>",
+  "<script defer src=\"backup/ui.js\"></script>\n<link rel=\"stylesheet\" href=\"has/ledger-demo.css\">\n<link rel=\"stylesheet\" href=\"has/readability.css\">\n<script defer src=\"invest/ledger.js\"></script>\n<script defer src=\"has/ledger-demo-model.js\"></script>\n<script defer src=\"has/migration-sim.js\"></script>\n<script defer src=\"has/ledger-demo.js\"></script>",
   "<script defer src=\"backup/ui.js\"></script>"
  ],
  [
