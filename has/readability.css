@@ -14,3 +14,41 @@
 [style*="color:#78909c"]{color:#455a64 !important}
 [style*="color:#ef6c00"]{color:#bf360c !important}
 div:not(svg *)[style*="font-size:9px"],span:not(svg *)[style*="font-size:9px"],div:not(svg *)[style*="font-size:10px"],span:not(svg *)[style*="font-size:10px"],div:not(svg *)[style*="font-size:11px"],span:not(svg *)[style*="font-size:11px"],b[style*="font-size:10px"],b[style*="font-size:11px"]{font-size:12px !important}
+/* 20단계: 측정에서 44px 미만으로 확인된 조작 요소(기간 버튼, 목표 ± 버튼, 새로고침·수정·추가, 선택 상자, 입력칸, 위험 화면 링크) */
+.period-btn{min-width:44px !important;min-height:44px !important}
+[onclick^="stepBalGoal"]{min-width:44px !important;min-height:44px !important}
+.panel button,.panel select,.panel input.f-inp,.panel input[type=text],.panel input[type=number],.panel input[type=date]{min-height:44px}
+.panel button{min-width:44px}
+#panel-risk a[href]{display:inline-flex;align-items:center;min-height:44px}
+.panel select{min-width:44px}
+/* 20단계: 차트(SVG) 라벨 중 실제 화면 크기가 12px 미만으로 측정된 것만 키움. 겹침이 생기지 않는지 캡처로 확인함. */
+svg[viewBox="0 0 150 150"] text{font-size:12px !important}
+[id^="balancePie"] text{font-size:13.5px !important}
+#allLineChart text,#genLineChart text,#domLineChart text,#ovLineChart text,#penLineChart text,#divBarChart text{font-size:14px !important}
+#genPie text,#domPie text,#ovPie text,#penPie text{font-size:10px !important}
+button[style*="font-size:9px"],button[style*="font-size:10px"],button[style*="font-size:11px"],a[style*="font-size:10px"],a[style*="font-size:11px"],div[style*="font-size:11.5px"],span[style*="font-size:11.5px"],div[style*="font-size:10.5px"],span[style*="font-size:10.5px"]{font-size:12px !important}
+.rk-hdr-sub{font-size:12px !important}
+/* 20단계: 대비 4.5:1 미만으로 측정된 문구만 더 진한 색으로 (색 의미는 유지) */
+[onclick^="stepBalGoal"]{color:#c62828 !important;border-color:#c62828 !important}
+.balance-warn,[style*="color:#e65100"]{color:#bf360c !important}
+[style*="color:#0097a7"]{color:#00606b !important}
+[style*="color:#e53935"]{color:#b71c1c !important}
+[style*="color:#f57f17"]{color:#8a4b00 !important}
+[style*="color:#aaa"]{color:#555 !important}
+.cdd-btn.cdd-placeholder{color:#555 !important}
+.rk-hdr-sub{color:#3d5a80 !important}
+[style*="color:#94a3b8"]{color:#475569 !important}
+[style*="color:#00897b"],[style*="color: rgb(0, 137, 123)"]{color:#00695c !important}
+.tab.active[style*="rgb(0, 137, 123)"]{color:#00695c !important}
+/* 20단계: 스타일시트에 12px 미만으로 선언된 클래스(소스 점검 목록 33개 중 화면 측정 대상 외) — 하나씩 지정, 일괄 치환 아님 */
+.lock-footer-text,.lock-badge-item,.header-sub,.ha-label,.mkt-name,.btn-rf,.update-time,.role-badge,.fx-time,.sec-lbl,.st-sub,.mkt-lbl2,.btn-del,.ef lbl,.vc-lbl,.calc-title,.calc-inp,.calc-amt,.calc-apply,.div-item-left .date,.div-item-right .account,.v5-brief-badge,.adv-quick-btn,.adv-card-tag,.adv-notice,.adv-round-label{font-size:12px !important}
+label[style*="font-size:9px"],label[style*="font-size:10px"],label[style*="font-size:11px"],select[style*="font-size:10px"],select[style*="font-size:11px"],table[style*="font-size:10px"],table[style*="font-size:11px"]{font-size:12px !important}
+/* 20단계: PC(마우스)에서만 탭 줄에 가는 스크롤바를 보여 옆에 더 많은 탭이 있음을 알림. 휴대폰(터치)은 변화 없음. */
+@media (hover:hover) and (pointer:fine){
+  .tabs{scrollbar-width:thin !important;scrollbar-color:#78909c #e3e9ee}
+  .tabs::-webkit-scrollbar{display:block !important;height:8px}
+  .tabs::-webkit-scrollbar-track{background:#e3e9ee}
+  .tabs::-webkit-scrollbar-thumb{background:#78909c;border-radius:4px}
+}
+/* 20단계: 탭 줄이 옆으로 더 있으면 가장자리에 그림자(스크롤 단서)가 보이고, 끝까지 가면 사라짐. 순수 CSS, 모든 화면 공통. */
+.tabs{background:linear-gradient(to right,#fff 30%,rgba(255,255,255,0)) left center/40px 100% no-repeat local,linear-gradient(to left,#fff 30%,rgba(255,255,255,0)) right center/40px 100% no-repeat local,radial-gradient(farthest-side at 0 50%,rgba(38,50,56,.35),rgba(38,50,56,0)) left center/14px 100% no-repeat scroll,radial-gradient(farthest-side at 100% 50%,rgba(38,50,56,.35),rgba(38,50,56,0)) right center/14px 100% no-repeat scroll,#fff}

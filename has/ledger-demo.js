@@ -34,6 +34,16 @@
       card.appendChild(el('div', 'hld-note', '※ 합성 데이터입니다. 실제 보유·수익이 아닙니다.'));
       root.appendChild(card);
     });
+    // 기존 보유 → 원장 이전 미리보기 (합성 보유만 사용, 저장 없음)
+    if (window.HASMigrationSim) {
+      var SYN = { gen: [{ id: 1, name: '합성 일반주', ticker: 'AAA', quantity: 10, avgPrice: 1000 }], ov: [{ id: 3, name: '합성 해외주', ticker: 'CCC', quantity: 2, avgPrice: 50 }], pen: [{ id: 4, name: '합성 연금주', ticker: 'DDD', quantity: 0, avgPrice: 10 }] };
+      var mp = window.HASMigrationSim.preview(SYN, { fxUsd: 1300 }), mc = el('section', 'hld-card'); mc.setAttribute('data-testid', 'hld-migration');
+      mc.appendChild(el('h3', '', '기존 보유 → 원장 이전 미리보기 (합성 보유 · 저장 안 함)'));
+      mc.appendChild(el('p', 'hld-note', '실제 보유는 읽지 않습니다. 보유 잔고만으로 과거 매매를 만들어 채우지 않으며, 거래 이력·실현손익은 "이력 미확인"으로 둡니다. 쓰기 ' + mp.writes + '건.'));
+      var mt = el('table', 'hld-support'), mh = el('tr'); ['계좌·종목', '수량', '평균단가', '원화 원가(근사)', '이력'].forEach(function (x) { mh.appendChild(el('th', '', x)); }); mt.appendChild(mh);
+      mp.rows.forEach(function (r) { var tr = el('tr'); [r.accountLabel + ' ' + r.ticker, String(r.qty), r.avgLocal === null ? '없음' : r.avgLocal + ' ' + r.currency, r.costKRWApprox === null ? '계산 불가' : r.costKRWApprox.toLocaleString('ko-KR') + '원', r.historyStatus].forEach(function (x) { tr.appendChild(el('td', '', x)); }); mt.appendChild(tr); });
+      mc.appendChild(mt); mp.excluded.forEach(function (x) { mc.appendChild(el('p', 'hld-note', '제외: ' + x.where + ' — ' + x.reason)); }); root.appendChild(mc);
+    }
     // 지원 현황
     var sc = el('section', 'hld-card'); sc.appendChild(el('h3', '', '지원 현황 (미지원은 계산하지 않습니다)')); var tb = el('table', 'hld-support'); tb.setAttribute('data-testid', 'hld-support');
     var hr = el('tr'); ['항목', '상태', '설명'].forEach(function (x) { hr.appendChild(el('th', '', x)); }); tb.appendChild(hr);
