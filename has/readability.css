@@ -43,3 +43,12 @@ button[style*="font-size:9px"],button[style*="font-size:10px"],button[style*="fo
 /* 20단계: 스타일시트에 12px 미만으로 선언된 클래스(소스 점검 목록 33개 중 화면 측정 대상 외) — 하나씩 지정, 일괄 치환 아님 */
 .lock-footer-text,.lock-badge-item,.header-sub,.ha-label,.mkt-name,.btn-rf,.update-time,.role-badge,.fx-time,.sec-lbl,.st-sub,.mkt-lbl2,.btn-del,.ef lbl,.vc-lbl,.calc-title,.calc-inp,.calc-amt,.calc-apply,.div-item-left .date,.div-item-right .account,.v5-brief-badge,.adv-quick-btn,.adv-card-tag,.adv-notice,.adv-round-label{font-size:12px !important}
 label[style*="font-size:9px"],label[style*="font-size:10px"],label[style*="font-size:11px"],select[style*="font-size:10px"],select[style*="font-size:11px"],table[style*="font-size:10px"],table[style*="font-size:11px"]{font-size:12px !important}
+/* 20단계: PC(마우스)에서만 탭 줄에 가는 스크롤바를 보여 옆에 더 많은 탭이 있음을 알림. 휴대폰(터치)은 변화 없음. */
+@media (hover:hover) and (pointer:fine){
+  .tabs{scrollbar-width:thin !important;scrollbar-color:#78909c #e3e9ee}
+  .tabs::-webkit-scrollbar{display:block !important;height:8px}
+  .tabs::-webkit-scrollbar-track{background:#e3e9ee}
+  .tabs::-webkit-scrollbar-thumb{background:#78909c;border-radius:4px}
+}
+/* 20단계: 탭 줄이 옆으로 더 있으면 가장자리에 그림자(스크롤 단서)가 보이고, 끝까지 가면 사라짐. 순수 CSS, 모든 화면 공통. */
+.tabs{background:linear-gradient(to right,#fff 30%,rgba(255,255,255,0)) left center/40px 100% no-repeat local,linear-gradient(to left,#fff 30%,rgba(255,255,255,0)) right center/40px 100% no-repeat local,radial-gradient(farthest-side at 0 50%,rgba(38,50,56,.35),rgba(38,50,56,0)) left center/14px 100% no-repeat scroll,radial-gradient(farthest-side at 100% 50%,rgba(38,50,56,.35),rgba(38,50,56,0)) right center/14px 100% no-repeat scroll,#fff}
