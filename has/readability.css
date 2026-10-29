@@ -1,0 +1,16 @@
+/* HAS 19단계: 글씨 크기·터치 영역 보강 (추가 전용, 기존 스타일을 지우지 않음)
+   범위: 측정에서 12px 미만 또는 44px 미만으로 확인된 요소만 지정. SVG 차트 눈금 글씨는 제외(예외). */
+.period-btn{font-size:12px !important;min-height:44px;min-width:44px;padding:6px 6px !important}
+.period-btns{gap:6px}
+.tab,.gtab{min-height:44px}
+.btn-edit,.btn-del,.btn-add,.btn-ok,.btn-cancel,.record-btn{font-size:12px !important;min-height:44px;min-width:44px}
+.item-ticker{font-size:12px !important}
+.st-pct-badge{font-size:12px !important}
+.f-lbl{font-size:12px !important}
+.f-inp{font-size:14px;min-height:44px}
+.lock-badges button,#lockScreen button{min-height:44px}
+/* 인라인 스타일로 지정된 연한 글씨·작은 글씨 보정 (HTML 문자열은 바꾸지 않고 속성 선택자로만 덮어씀) */
+[style*="color:#b0bec5"],.empty{color:#4a5a63 !important}
+[style*="color:#78909c"]{color:#455a64 !important}
+[style*="color:#ef6c00"]{color:#bf360c !important}
+div:not(svg *)[style*="font-size:9px"],span:not(svg *)[style*="font-size:9px"],div:not(svg *)[style*="font-size:10px"],span:not(svg *)[style*="font-size:10px"],div:not(svg *)[style*="font-size:11px"],span:not(svg *)[style*="font-size:11px"],b[style*="font-size:10px"],b[style*="font-size:11px"]{font-size:12px !important}

@@ -17,6 +17,9 @@ if (Number(process.versions.node.split('.')[0]) < 18) refuse(2, 'Node.js 18 이�
 if (args.some(a => /^--(key|token|apikey|api-key)\b/i.test(a))) refuse(2, '인증키는 명령행 인자로 받지 않습니다(환경변수 HAS_PRICE_KEY만).');
 /* 시험 전용: 로컬(127.0.0.1) 가짜 서버로만 바꿀 수 있다. 그 외 주소는 무시한다. */
 const BASE = /^http:\/\/127\.0\.0\.1:\d+$/.test(process.env.HAS_PILOT_TEST_BASE || '') ? process.env.HAS_PILOT_TEST_BASE : 'https://api.tiingo.com';
+/* 19단계: 시험 환경(HAS_TEST_NO_NETWORK=1)에서는 실제 공급자 주소로 가는 live를 구조적으로 거부한다(기본값이 실제 주소여도 우발 실행 불가). */
+const TEST_MODE = process.env.HAS_TEST_NO_NETWORK === '1';
+if (TEST_MODE && flag('live') && BASE !== process.env.HAS_PILOT_TEST_BASE) refuse(4, '시험 모드에서는 실제 공급자 주소로 live를 실행할 수 없음(로컬 가짜 서버 주소만 허용)');
 const today = opt('today') || new Date().toISOString().slice(0, 10);
 
 async function main() {

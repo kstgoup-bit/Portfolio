@@ -1,15 +1,15 @@
 'use strict';
 const test = require('node:test'), a = require('node:assert/strict'), fs = require('fs'), path = require('path'), crypto = require('crypto');
-const { legacySha, legacyText, RENAMES } = require('./lib/has-rename.cjs');
+const { legacySha, legacyText, stage18Text, RENAMES } = require('./lib/has-rename.cjs');
 const ROOT = path.join(__dirname, '..'), rd = f => fs.readFileSync(path.join(ROOT, f), 'utf8'), sha = f => crypto.createHash('sha256').update(fs.readFileSync(path.join(ROOT, f))).digest('hex');
 const STAGE16 = { 'portfolio_v5.html': 'b16656a6525d9127fe3a3fb4d3ad19c8717afc58fb0fe256feb503692913ebd5', 'manifest.json': '79f5292b2c95dba718b453194b255f02d16a1585677b559735b9fad52f16d878' };
 const UNTOUCHED = { 'portfolio.html': '97235e2a02feeec84511d9b4caf4c548e47ba37eb229625438acbc15427bfa2d', 'service-worker.js': '77d553efcfc3eb93f65a1f2901de1cf3b6b61b36febd9605053e66db6724dcd8', 'backup/core.js': '8a455cdc0606cce844fbb8d40551c9435d42c49b5d1bceafc8455c11a6e0eb3f', 'backup/ui.js': '88eda5884de2aa42416f4d1eaee4ba32301d6128d9ec9d6f252be408b9b8da24' };
 
 test('이름 변경은 정해진 치환뿐: 되돌리면 16단계 원본과 바이트 동일', () => { for (const [f, h] of Object.entries(STAGE16)) a.equal(legacySha(f), h, f); });
 test('서비스워커·백업 모듈·구 화면은 한 바이트도 바뀌지 않음', () => { for (const [f, h] of Object.entries(UNTOUCHED)) a.equal(sha(f), h, f); });
-test('치환이 실제로 적용됨(현재 파일은 16단계 원본과 다르다 = 시험이 공허하지 않음)', () => { for (const f of Object.keys(STAGE16)) a.notEqual(sha(f), STAGE16[f], f); });
+test('치환이 실제로 적용됨(18단계 상태 파일은 16단계 원본과 다르다 = 시험이 공허하지 않음)', () => { for (const f of Object.keys(STAGE16)) a.notEqual(require('./lib/has-rename.cjs').stage18Sha(f), STAGE16[f], f); });
 test('치환 대상 외 줄은 전부 동일(줄 단위 비교: 변경 줄 수 = 치환 수)', () => {
-  for (const f of Object.keys(RENAMES)) { const now = rd(f).split('\n'), old = legacyText(f).split('\n'); a.equal(now.length, old.length, f + ' 줄 수'); const diff = now.filter((l, i) => l !== old[i]).length; a.equal(diff, RENAMES[f].length, f + ' 바뀐 줄 수'); }
+  for (const f of Object.keys(RENAMES)) { const now = stage18Text(f).split('\n'), old = legacyText(f).split('\n'); a.equal(now.length, old.length, f + ' 줄 수'); const diff = now.filter((l, i) => l !== old[i]).length; a.equal(diff, RENAMES[f].length, f + ' 바뀐 줄 수'); }
 });
 test('보이는 이름: 제목·잠금화면·머리글·홈화면 이름이 HAS로 일관', () => {
   const h = rd('portfolio_v5.html');

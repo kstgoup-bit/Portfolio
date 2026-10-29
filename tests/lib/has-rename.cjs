@@ -13,10 +13,18 @@ const RENAMES = {
     ['"name": "HAS (Hidden Alpha System)"', '"name": "순태씨의 5년 안에 10억"'],
     ['"short_name": "HAS"', '"short_name": "10억 포폴"'],
     ['"description": "HAS(Hidden Alpha System) — 개인 투자 연구·판단·기록 앱"', '"description": "클로 & 재미가 함께하는 투자 포트폴리오 앱"']] };
-function legacyText(file) {
+/* 19단계: portfolio_v5.html에 가한 연결 수정 목록([지금 문구, 이전 문구], 적용 순서). 되돌릴 때는 마지막부터 거꾸로. */
+const STAGE19 = JSON.parse(fs.readFileSync(path.join(__dirname, 'has-stage19-edits.json'), 'utf8'));
+function stage18Text(file) {
   let s = fs.readFileSync(path.join(ROOT, file), 'utf8');
+  if (file === 'portfolio_v5.html') for (let i = STAGE19.length - 1; i >= 0; i--) { const [now, old] = STAGE19[i]; if (s.split(now).length !== 2) throw new Error('19단계 수정 되돌리기 실패: ' + now.slice(0, 60)); s = s.replace(now, () => old); }
+  return s;
+}
+function legacyText(file) {
+  let s = stage18Text(file);
   for (const [now, old] of RENAMES[file] || []) { if (s.split(now).length !== 2) throw new Error(file + ': 치환 대상이 정확히 1개가 아님: ' + now); s = s.replace(now, () => old); }
   return s;
 }
 const legacySha = file => crypto.createHash('sha256').update(RENAMES[file] ? legacyText(file) : fs.readFileSync(path.join(ROOT, file))).digest('hex');
-module.exports = { RENAMES, legacyText, legacySha };
+const stage18Sha = file => crypto.createHash('sha256').update(stage18Text(file)).digest('hex');
+module.exports = { RENAMES, STAGE19, stage18Text, legacyText, legacySha, stage18Sha };

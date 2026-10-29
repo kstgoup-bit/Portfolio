@@ -51,7 +51,7 @@ test('정적 보호: us-pilot.js는 네트워크·저장소·환경변수·타�
   for (const bad of [/\bfetch\s*\(/, /XMLHttpRequest/, /localStorage/, /process\.env/, /setTimeout|setInterval/, /require\(['"]node:(fs|http|https|net)/, /require\(['"](fs|http|https|net)['"]/]) a.ok(!bad.test(src), String(bad));
 });
 // ---- 실행기(서브프로세스) ----
-const run = (args, env = {}) => cp.spawnSync(process.execPath, [RUNNER, ...args], { env: { PATH: process.env.PATH, ...env }, encoding: 'utf8' });
+const run = (args, env = {}) => cp.spawnSync(process.execPath, [RUNNER, ...args], { env: { PATH: process.env.PATH, HAS_TEST_NO_NETWORK: '1', ...env }, encoding: 'utf8' });
 test('실행기: 기본·리허설은 네트워크 0회이고 리허설을 실제 조회 성공으로 세지 않는다', () => {
   const p = run([]); a.equal(p.status, 0); a.match(p.stdout, /네트워크 0회/);
   const r = run(['--rehearsal']); a.equal(r.status, 0); const j = JSON.parse(r.stdout); a.equal(j.summary.apiCalls, 0); a.equal(j.summary.fetchSuccess, 0); a.equal(j.summary.independentVerified, 0); a.equal(j.syntheticParsed, 5);
@@ -61,7 +61,7 @@ test('실행기: 키를 인자로 받지 않고, preflight는 키 값을 출력�
   const pf = run(['--preflight'], { HAS_PRICE_KEY: 'SECRETVALUE12345' }); a.equal(pf.status, 0); a.ok(!pf.stdout.includes('SECRETVALUE12345')); a.match(pf.stdout, /있음/);
 });
 test('실행기: live는 게이트(경로·키·승인 파일)가 하나라도 없으면 거부, 저장소 안 경로 거부', () => {
-  a.equal(run(['--live']).status, 3); const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'has-')), ap = path.join(tmp, 'a.json'); fs.writeFileSync(ap, JSON.stringify(OK));
+  a.equal(run(['--live'], { HAS_PILOT_TEST_BASE: 'http://127.0.0.1:9' }).status, 3); const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'has-')), ap = path.join(tmp, 'a.json'); fs.writeFileSync(ap, JSON.stringify(OK));
   const base = ['--live', '--approval=' + ap, '--state=' + path.join(tmp, 's.json'), '--out-dir=' + path.join(tmp, 'o')];
   const DEAD = { HAS_PILOT_TEST_BASE: 'http://127.0.0.1:9' };                // 시험은 어떤 경우에도 실제 주소로 나가지 않는다
   a.equal(run(base, DEAD).status, 3);                                        // 키 없음
@@ -75,13 +75,13 @@ test('실행기(로컬 가짜 서버): 호출 전에 장부 기록, 키는 헤�
   fs.writeFileSync(ap, JSON.stringify({ ...OK, approvedAt: today, termsCheckedAt: today, tickers: ['MSFT', 'JPM', 'VRT'], maxPerDay: 3 })); fs.writeFileSync(rf, JSON.stringify({ MSFT: { source: '증권사 앱 직접 확인', date: '2026-10-28', close: 104, priceType: 'close' } }));
   const args = ['--live', '--approval=' + ap, '--state=' + st, '--out-dir=' + od, '--reference=' + rf, '--today=' + today];
   const env = { HAS_PRICE_KEY: KEY, HAS_PILOT_TEST_BASE: 'http://127.0.0.1:' + srv.address().port };
-  const r1 = await new Promise(res => cp.execFile(process.execPath, [RUNNER, ...args], { env: { PATH: process.env.PATH, ...env } }, (e, so, se) => res({ code: e ? e.code : 0, so, se })));
+  const r1 = await new Promise(res => cp.execFile(process.execPath, [RUNNER, ...args], { env: { PATH: process.env.PATH, HAS_TEST_NO_NETWORK: '1', ...env } }, (e, so, se) => res({ code: e ? e.code : 0, so, se })));
   srv.close(); a.equal(r1.code, 0, r1.se); a.ok(!r1.so.includes(KEY) && !r1.se.includes(KEY)); const j = JSON.parse(r1.so);
   a.equal(seen.length, 2, 'MSFT, JPM(429) 후 중단 — VRT 호출 안 함'); a.ok(seen.every(s => s.auth === 'Token ' + KEY)); a.ok(seen.every(s => !s.url.includes(KEY)), '키가 URL에 없음');
   a.equal(j.summary.apiCalls, 2); a.equal(j.summary.fetchSuccess, 1); a.equal(j.summary.independentVerified, 1, 'MSFT만 사용자 기준값(다른 출처)과 일치'); a.equal(j.summary.activeMonitoring, 0); 
   a.equal(JSON.parse(fs.readFileSync(st, 'utf8')).total, 2); for (const f of fs.readdirSync(od)) a.ok(!fs.readFileSync(path.join(od, f), 'utf8').includes(KEY));
   // 장부가 한도(3)에 도달한 날: 호출 0
   fs.writeFileSync(st, JSON.stringify({ total: 3, days: { [today]: 3 } })); const seen2 = []; const srv2 = http.createServer((q, s) => { seen2.push(q.url); s.end('[]'); }); await new Promise(r => srv2.listen(0, '127.0.0.1', r));
-  const r2 = await new Promise(res => cp.execFile(process.execPath, [RUNNER, ...args], { env: { PATH: process.env.PATH, HAS_PRICE_KEY: KEY, HAS_PILOT_TEST_BASE: 'http://127.0.0.1:' + srv2.address().port } }, (e, so) => res({ so }))); srv2.close();
+  const r2 = await new Promise(res => cp.execFile(process.execPath, [RUNNER, ...args], { env: { PATH: process.env.PATH, HAS_TEST_NO_NETWORK: '1', HAS_PRICE_KEY: KEY, HAS_PILOT_TEST_BASE: 'http://127.0.0.1:' + srv2.address().port } }, (e, so) => res({ so }))); srv2.close();
   a.equal(seen2.length, 0); a.equal(JSON.parse(r2.so).summary.apiCalls, 0);
 });
