@@ -3,7 +3,7 @@
 const { test } = require('node:test'), a = require('node:assert/strict');
 const P = require('../kr-radar/pricefeed.js'), SG = require('../kr-radar/signals.js');
 const T = '2026-10-29';
-const bar = (o = {}) => ({ symbol: 'MSFT', market: 'US', date: '2026-10-28', session: 'regular', currency: 'USD', timezone: 'America/New_York', open: 100, high: 105, low: 99, close: 103, volume: 1000, adjustment: 'adjusted', adjustedFor: ['split', 'dividend'], provider: 'syn-A', fetchedAt: '2026-10-29', delayMinutes: 0, isSynthetic: true, ...o });
+const bar = (o = {}) => ({ symbol: 'MSFT', market: 'US', instrumentType: 'stock', tradingStatus: 'normal', date: '2026-10-28', session: 'regular', currency: 'USD', timezone: 'America/New_York', open: 100, high: 105, low: 99, close: 103, volume: 1000, adjustment: 'adjusted', adjustedFor: ['split', 'dividend'], provider: 'syn-A', fetchedAt: '2026-10-29', delayMinutes: 0, isSynthetic: true, ...o });
 const krBar = (o = {}) => bar({ symbol: 'Z00001', market: 'KR', currency: 'KRW', timezone: 'Asia/Seoul', open: 70000, high: 71000, low: 69500, close: 70500, ...o });
 const series = (n, o = {}) => Array.from({ length: n }, (_, i) => { const d = new Date(Date.parse('2025-10-29') + i * 3 * 86400000).toISOString().slice(0, 10); return bar({ date: d, high: 100 + (i % 17), close: 99 + (i % 17), low: 90, open: 95, ...o }); }).filter(b => b.date <= '2026-10-29');
 

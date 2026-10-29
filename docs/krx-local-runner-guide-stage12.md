@@ -68,3 +68,5 @@ node tools/krx-live-runner.cjs --basDt=20261028 --live --approval=$HOME/krx-priv
 
 ## 8. 승인 전 하지 않는 것
 실조회, 키 입력/전달, 시세 API 호출, 응답 원본 커밋·공유, 공개 배포, 결과를 앱 화면에 노출하는 연동(앱은 이 모듈을 불러오지 않으며 시험으로 확인).
+
+> **13단계 개정**: 옵션은 `--옵션=값` 형식이며 점검(`--preflight`)·리허설(`--rehearsal`)이 추가되었습니다. 실행 절차는 `docs/krx-one-page-guide-stage13.md`를 따르세요.
