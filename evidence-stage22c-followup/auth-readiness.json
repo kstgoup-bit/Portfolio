@@ -1,0 +1,26 @@
+{
+  "provider": "KIS",
+  "verifiedSecureCredentialConnectionAvailable": false,
+  "kisToolAvailable": false,
+  "observedNamedEnvironmentBindingsPresent": {
+    "KIS_APP_KEY": false,
+    "KIS_APP_SECRET": false,
+    "KIS_ACCESS_TOKEN": false,
+    "KIS_APPKEY": false,
+    "KIS_APPSECRET": false,
+    "KIS_TOKEN": false
+  },
+  "managedEnvironmentReadinessToolAvailable": false,
+  "managedNetworkPolicySnapshotAvailable": false,
+  "actualProviderApiRequests": 0,
+  "authenticationRequests": 0,
+  "priceRequests": 0,
+  "actualVerifiedPrices": 0,
+  "newActiveMonitoring": {
+    "US": 0,
+    "KR": 0
+  },
+  "investmentRecordChanges": 0,
+  "costKRW": 0,
+  "note": "Presence only. No secret values read or printed. No credential discovery or provider endpoint probes. This does not establish whether the user has credentials elsewhere. No customer inquiry required for basic query development."
+}

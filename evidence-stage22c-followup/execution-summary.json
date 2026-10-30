@@ -1,0 +1,28 @@
+{
+  "actualProviderRequests": 0,
+  "actualAuthenticationRequests": 0,
+  "actualPriceRequests": 0,
+  "independentlyVerifiedPrices": 0,
+  "newActiveMonitoring": {
+    "US": 0,
+    "KR": 0
+  },
+  "actualInvestmentRecordChanges": 0,
+  "costKRW": 0,
+  "baselineUnitPassed": 760,
+  "finalUnitPassed": 785,
+  "unitFailed": 0,
+  "newUnitTests": 25,
+  "mobileBundlesPassed": 7,
+  "journey": {
+    "total": 129,
+    "passed": 129,
+    "failed": 0
+  },
+  "expandedCases": 20,
+  "expandedStorageUnchanged": true,
+  "expandedMeasuredIssues": 0,
+  "expandedUnknownBackgrounds": 472,
+  "existingFilesUnchanged": 399,
+  "note": "No real provider transport/credentials were invoked. Basic development does not require customer inquiry. Rights for persistence/comparison are separate deferred scopes."
+}
