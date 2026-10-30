@@ -1,0 +1,24 @@
+{
+  "secureKisConnectionVerified": false,
+  "observedNamedBindings": {
+    "KIS_APP_KEY": false,
+    "KIS_APP_SECRET": false,
+    "KIS_ACCESS_TOKEN": false,
+    "KIS_APPKEY": false,
+    "KIS_APPSECRET": false,
+    "KIS_TOKEN": false
+  },
+  "kisToolAvailable": false,
+  "actualProviderApiRequests": 0,
+  "authenticationRequests": 0,
+  "priceRequests": 0,
+  "actualObservedPrices": 0,
+  "independentlyVerifiedPrices": 0,
+  "reportedCumulativeUsed": 0,
+  "approvalMaximum": 40,
+  "remainingBasedOnReportedHistory": 40,
+  "actualApprovalJournalOpened": false,
+  "investmentRecordChanges": 0,
+  "costKRW": 0,
+  "note": "No secret values read. No real authentication, API probe, price call, key issuance, or account signup. Readiness for a secure server secret binding and account-specific free basic access is not established. Synthetic counters are separate."
+}
