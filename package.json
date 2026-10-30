@@ -12,7 +12,8 @@
     "test:mobile17": "node tests/mobile-stage17.cjs",
     "test:mobile19": "node tests/mobile-stage19.cjs",
     "test:mobile20": "node tests/mobile-stage20.cjs",
-    "test:e2e20": "node tests/e2e-journey-stage20.cjs"
+    "test:e2e20": "node tests/e2e-journey-stage20.cjs",
+    "test:years": "node tests/ledger-years-browser.cjs"
   },
   "devDependencies": {
     "@fontsource/noto-sans-kr": "5.2.6",
