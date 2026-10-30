@@ -1,0 +1,196 @@
+{
+  "baseRef": "fd2599398d2f2ef1816ca9b64ea134ea8811309d",
+  "checks": [
+    {
+      "name": "baseline 360px",
+      "status": "pass",
+      "detail": {
+        "width": 360,
+        "scrollWidth": 360,
+        "smallControls": [],
+        "overflowElements": []
+      }
+    },
+    {
+      "name": "mobile views, history, filters and preservation 360px",
+      "status": "pass",
+      "detail": {
+        "width": 360,
+        "legacyStorageUnchanged": true,
+        "jsErrors": []
+      }
+    },
+    {
+      "name": "baseline 390px",
+      "status": "pass",
+      "detail": {
+        "width": 390,
+        "scrollWidth": 390,
+        "smallControls": [],
+        "overflowElements": []
+      }
+    },
+    {
+      "name": "mobile views, history, filters and preservation 390px",
+      "status": "pass",
+      "detail": {
+        "width": 390,
+        "legacyStorageUnchanged": true,
+        "jsErrors": []
+      }
+    },
+    {
+      "name": "baseline 430px",
+      "status": "pass",
+      "detail": {
+        "width": 430,
+        "scrollWidth": 430,
+        "smallControls": [],
+        "overflowElements": []
+      }
+    },
+    {
+      "name": "mobile views, history, filters and preservation 430px",
+      "status": "pass",
+      "detail": {
+        "width": 430,
+        "legacyStorageUnchanged": true,
+        "jsErrors": []
+      }
+    },
+    {
+      "name": "full portfolio backup restore preview, cancel, apply, undo and legacy 360px",
+      "status": "pass",
+      "detail": {
+        "width": 360,
+        "accounts": 4,
+        "previewReadOnly": true,
+        "legacyGeneralPreserved": true,
+        "errors": []
+      }
+    },
+    {
+      "name": "full portfolio backup restore preview, cancel, apply, undo and legacy 390px",
+      "status": "pass",
+      "detail": {
+        "width": 390,
+        "accounts": 4,
+        "previewReadOnly": true,
+        "legacyGeneralPreserved": true,
+        "errors": []
+      }
+    },
+    {
+      "name": "full portfolio backup restore preview, cancel, apply, undo and legacy 430px",
+      "status": "pass",
+      "detail": {
+        "width": 430,
+        "accounts": 4,
+        "previewReadOnly": true,
+        "legacyGeneralPreserved": true,
+        "errors": []
+      }
+    },
+    {
+      "name": "portfolio restore journal quota failure leaves all account keys unchanged",
+      "status": "pass"
+    },
+    {
+      "name": "hidden dashboard chart crash reproduced on baseline and fixed in development",
+      "status": "pass",
+      "detail": {
+        "baselineErrors": [
+          "Failed to execute 'createLinearGradient' on 'CanvasRenderingContext2D': The provided double value is non-finite."
+        ],
+        "developmentErrors": []
+      }
+    },
+    {
+      "name": "legacy holding CRUD, calculations and export (four accounts)",
+      "status": "pass",
+      "detail": {
+        "accounts": 4,
+        "exportSchema": 6,
+        "generalAccountIncluded": true
+      }
+    },
+    {
+      "name": "loading, provider failure, missing data and retry UI",
+      "status": "pass"
+    },
+    {
+      "name": "malicious text is rendered without HTML execution",
+      "status": "pass"
+    },
+    {
+      "name": "duplicate provider ticker is shown as error",
+      "status": "pass"
+    },
+    {
+      "name": "stage4 pilot blocked status and dated synthetic demo 360px",
+      "status": "pass",
+      "detail": {
+        "width": 360,
+        "pilot": "blocked",
+        "actualPriceRequests": 0,
+        "staleDemoExplicit": true
+      }
+    },
+    {
+      "name": "stage4 pilot blocked status and dated synthetic demo 390px",
+      "status": "pass",
+      "detail": {
+        "width": 390,
+        "pilot": "blocked",
+        "actualPriceRequests": 0,
+        "staleDemoExplicit": true
+      }
+    },
+    {
+      "name": "stage4 pilot blocked status and dated synthetic demo 430px",
+      "status": "pass",
+      "detail": {
+        "width": 430,
+        "pilot": "blocked",
+        "actualPriceRequests": 0,
+        "staleDemoExplicit": true
+      }
+    },
+    {
+      "name": "stage4 eligibility version mismatch fails closed and retries",
+      "status": "pass"
+    },
+    {
+      "name": "stage4 interrupted portfolio restore is recovered before app load",
+      "status": "pass"
+    },
+    {
+      "name": "stage5 isolated sell synthetic views, history, reload, offline and preservation 360px",
+      "status": "pass"
+    },
+    {
+      "name": "stage5 isolated sell synthetic views, history, reload, offline and preservation 390px",
+      "status": "pass"
+    },
+    {
+      "name": "stage5 isolated sell synthetic views, history, reload, offline and preservation 430px",
+      "status": "pass"
+    },
+    {
+      "name": "stage5 sell module load failure and retry, XSS and CSP",
+      "status": "pass"
+    },
+    {
+      "name": "PWA worker local network-first and offline cached HTML",
+      "status": "pass",
+      "detail": {
+        "cacheKey": "portfolio-v5-2026-10-30",
+        "cachedHTML": true,
+        "offlineNavigation": true,
+        "note": "fresh local worker only; installed Android cache not modified"
+      }
+    }
+  ],
+  "passed": 25,
+  "failed": 0
+}

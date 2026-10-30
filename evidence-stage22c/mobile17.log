@@ -1,0 +1,16 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> kst-portfolio-radar-stage2@0.1.0 test:mobile17
+> node tests/mobile-stage17.cjs
+
+PASS 잠금화면·머리글·탭 제목이 HAS이고 가로 넘침 없음 360px
+PASS 저장 데이터: 16단계 앱과 HAS 앱이 같은 시작 데이터에서 저장소 결과 동일(변경·삭제·추가 0) 360px
+PASS 잠금화면·머리글·탭 제목이 HAS이고 가로 넘침 없음 390px
+PASS 저장 데이터: 16단계 앱과 HAS 앱이 같은 시작 데이터에서 저장소 결과 동일(변경·삭제·추가 0) 390px
+PASS 잠금화면·머리글·탭 제목이 HAS이고 가로 넘침 없음 430px
+PASS 저장 데이터: 16단계 앱과 HAS 앱이 같은 시작 데이터에서 저장소 결과 동일(변경·삭제·추가 0) 430px
+PASS 새로고침·뒤로가기·탭 전환 후에도 데이터 유지
+PASS 설치 앱 갱신: 옛 이름으로 설치·캐시된 뒤 새 버전을 받아도 데이터 유지, 캐시 이름 1개, 이름만 HAS로 갱신
+PASS 오프라인: 한 번 열어 둔 뒤 오프라인에서 다시 열어도 HAS 화면과 데이터 유지
+PASS 매니페스트 링크·아이콘 파일 존재, 이름 중복 설치 방지(id/scope 미추가)
+10 groups passed

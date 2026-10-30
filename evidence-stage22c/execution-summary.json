@@ -1,0 +1,17 @@
+{
+  "actualProviderApiRequests": 0,
+  "actualAuthenticationRequests": 0,
+  "actualPriceQueries": 0,
+  "actualValidatedPrices": 0,
+  "actualInvestmentRecordChanges": 0,
+  "newActiveMonitoring": {
+    "US": 0,
+    "KR": 0
+  },
+  "costKRW": 0,
+  "expandedCases": 20,
+  "expandedStorageUnchanged": true,
+  "expandedMeasuredIssues": 0,
+  "expandedUnknownBackgrounds": 472,
+  "note": "Synthetic budget reservations are not real API requests. Existing application prices/legacy watch lists are not independently verified active monitoring."
+}
