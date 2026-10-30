@@ -7,6 +7,20 @@ const LOCAL = new Set(['127.0.0.1', 'localhost', '::1', '0.0.0.0', '']);
 const attempts = []; process.env.HAS_TEST_NO_NETWORK = '1';
 const hostOf = a => { const o = a[0]; if (o && typeof o === 'object') return String(o.host || o.hostname || o.path ? (o.host || o.hostname || '') : ''); return typeof a[1] === 'string' ? a[1] : ''; };
 const deny = (what, host) => { attempts.push(what + ':' + host); const e = new Error('NO_EXTERNAL_NETWORK: 시험 중 외부 접속 시도 차단 (' + what + ' ' + host + ')'); e.code = 'NO_EXTERNAL_NETWORK'; throw e; };
+// 22단계: Node의 내부 connect 인자 정규화에 의존하지 않고 요청 생성 전에 차단한다.
+for (const protocol of ['http', 'https']) {
+  const mod = require(protocol);
+  for (const method of ['request', 'get']) {
+    const original = mod[method];
+    mod[method] = function (...args) {
+      const input = args[0]; let host = '';
+      if (typeof input === 'string' || input instanceof URL) { try { host = new URL(input).hostname; } catch { deny(protocol, 'invalid-url'); } }
+      else if (input && typeof input === 'object') host = input.hostname || input.host || 'localhost';
+      if (!LOCAL.has(host)) deny(protocol, host);
+      return original.apply(this, args);
+    };
+  }
+}
 const origConnect = net.Socket.prototype.connect;
 net.Socket.prototype.connect = function (...a) { const o = a[0]; if (o && typeof o === 'object' && o.path) return origConnect.apply(this, a); const host = o && typeof o === 'object' ? (o.host || '') : (typeof a[1] === 'string' ? a[1] : ''); if (!LOCAL.has(host)) deny('connect', host); return origConnect.apply(this, a); };
 const origTls = tls.connect; tls.connect = function (...a) { const o = a[0] || {}; deny('tls', String(o.host || o.servername || '')); return origTls.apply(this, a); };

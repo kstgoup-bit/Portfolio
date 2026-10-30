@@ -1,0 +1,22 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> kst-portfolio-radar-stage2@0.1.0 test:mobile14
+> node tests/mobile-stage14.cjs
+
+PASS locked default OFF, status separation, no overflow, text>=12px & contrast, touch>=44px 360px
+PASS happy path with double-tap protection, synthetic labels, zero external requests 360px
+PASS locked default OFF, status separation, no overflow, text>=12px & contrast, touch>=44px 390px
+PASS happy path with double-tap protection, synthetic labels, zero external requests 390px
+PASS locked default OFF, status separation, no overflow, text>=12px & contrast, touch>=44px 430px
+PASS happy path with double-tap protection, synthetic labels, zero external requests 430px
+PASS rotation keeps step and layout
+PASS 200% text zoom: no overflow, buttons reachable
+PASS system back returns to previous step; reload re-locks
+PASS works offline after load (no network needed)
+PASS error scenarios 429/401/garbage/gateway30/timeout/network/empty: no result, no auto-retry, 0 verified
+PASS partial → resume completes within approved call budget (3/3)
+PASS invalid base dates rejected on phone UI
+PASS CSP blocks fetch (connect-src none); no service worker; no localStorage use
+PASS lab server exposes only mobile-lab files
+
+15 mobile stage-14 groups passed

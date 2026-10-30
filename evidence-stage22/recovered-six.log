@@ -1,0 +1,14 @@
+✔ 차단 장치: 예약 .invalid 합성 주소의 http·fetch·dns·tls는 예외(NO_EXTERNAL_NETWORK), 기록됨 (1.304471ms)
+✔ 차단 장치: 127.0.0.1 로컬 서버와는 정상 통신 (28.254321ms)
+✔ 실행 모드 분리: 시험 모드에서는 모든 관문을 통과해도 실제 공급자 주소로 live 실행 불가(종료코드 4, 접속 0) (37.49602ms)
+✔ 실제 공급자 주소는 실행기(tools/us-pilot-runner.cjs) 한 곳에만 있다(시험·모듈·앱 코드에 하드코딩 금지) (10.348492ms)
+✔ 모든 브라우저 시험 파일은 외부 요청을 차단(route abort)하고 서버는 127.0.0.1에만 바인딩 (1.276208ms)
+✔ npm test 스크립트가 차단 장치를 항상 불러온다 (0.304007ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 167.660897

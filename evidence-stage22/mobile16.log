@@ -1,0 +1,18 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> kst-portfolio-radar-stage2@0.1.0 test:mobile16
+> node tests/mobile-stage16.cjs
+
+PASS back/forward button walks tabs in order (360/390/430), stays on the page
+PASS deep link #bt opens that tab; unknown hash falls back to risk
+PASS draft save → reload (app close/return) → restore works; app keys byte-identical; delete removes only the draft key
+PASS quota failure: clear recovery message, previous draft intact, on-screen work intact, file export still works
+PASS corrupt / future-version / wrong-format drafts: not restored, not deleted, user told, app keys untouched
+PASS storage blocked entirely: page still works, draft save reports it, no uncaught errors
+PASS app switch/return events and rotation keep state; cancelling file pickers changes nothing
+PASS offline: draft save, file export/import work in an already-open page; restore after reconnect; 0 external requests
+PASS watch-status screen: active real monitoring 0; synthetic/cache/unverified counted separately; provider/as-of/price type/currency/validity/error/verification shown
+PASS layout with draft controls at 360/390/430: no overflow, text ≥12px & contrast, targets ≥44px
+PASS CSP blocks network, no service worker, protected app files byte-identical, both bundles up to date
+
+11 groups passed

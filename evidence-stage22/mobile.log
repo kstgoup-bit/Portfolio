@@ -1,0 +1,30 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> kst-portfolio-radar-stage2@0.1.0 test:mobile
+> node tests/mobile.cjs
+
+PASS baseline 360px
+PASS mobile views, history, filters and preservation 360px
+PASS baseline 390px
+PASS mobile views, history, filters and preservation 390px
+PASS baseline 430px
+PASS mobile views, history, filters and preservation 430px
+PASS full portfolio backup restore preview, cancel, apply, undo and legacy 360px
+PASS full portfolio backup restore preview, cancel, apply, undo and legacy 390px
+PASS full portfolio backup restore preview, cancel, apply, undo and legacy 430px
+PASS portfolio restore journal quota failure leaves all account keys unchanged
+PASS hidden dashboard chart crash reproduced on baseline and fixed in development
+PASS legacy holding CRUD, calculations and export (four accounts)
+PASS loading, provider failure, missing data and retry UI
+PASS malicious text is rendered without HTML execution
+PASS duplicate provider ticker is shown as error
+PASS stage4 pilot blocked status and dated synthetic demo 360px
+PASS stage4 pilot blocked status and dated synthetic demo 390px
+PASS stage4 pilot blocked status and dated synthetic demo 430px
+PASS stage4 eligibility version mismatch fails closed and retries
+PASS stage4 interrupted portfolio restore is recovered before app load
+PASS stage5 isolated sell synthetic views, history, reload, offline and preservation 360px
+PASS stage5 isolated sell synthetic views, history, reload, offline and preservation 390px
+PASS stage5 isolated sell synthetic views, history, reload, offline and preservation 430px
+PASS stage5 sell module load failure and retry, XSS and CSP
+PASS PWA worker local network-first and offline cached HTML
