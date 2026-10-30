@@ -1,0 +1,42 @@
+[
+  {
+    "path": "portfolio_v5.html",
+    "unchanged": true,
+    "sha256": "88ece051be5ba22507061a214cf0273e4f5c5fbec7e078982d080d9d35792c0e"
+  },
+  {
+    "path": "backup/core.js",
+    "unchanged": true,
+    "sha256": "8a455cdc0606cce844fbb8d40551c9435d42c49b5d1bceafc8455c11a6e0eb3f"
+  },
+  {
+    "path": "backup/ui.js",
+    "unchanged": true,
+    "sha256": "88eda5884de2aa42416f4d1eaee4ba32301d6128d9ec9d6f252be408b9b8da24"
+  },
+  {
+    "path": "invest/ledger.js",
+    "unchanged": true,
+    "sha256": "86d04b1e4db38901258b7f37a9e81508af995e2069d034b480c38cbb4ba6946e"
+  },
+  {
+    "path": "has/price-trust.js",
+    "unchanged": true,
+    "sha256": "bde583bf34009267a9e7057e17d742fae65d8fc3844fff8473dfc54e2d263818"
+  },
+  {
+    "path": "providers/closing-stage22.cjs",
+    "unchanged": true,
+    "sha256": "8b8086921f165a3ebbec32ec080fe412bee2193c181a185457598fd3619c07d2"
+  },
+  {
+    "path": "service-worker.js",
+    "unchanged": true,
+    "sha256": "77d553efcfc3eb93f65a1f2901de1cf3b6b61b36febd9605053e66db6724dcd8"
+  },
+  {
+    "path": "manifest.json",
+    "unchanged": true,
+    "sha256": "33371c2e52960f0b862da0857723a5e7b2d603137e433afe1309bd1ab8d9d9ed"
+  }
+]

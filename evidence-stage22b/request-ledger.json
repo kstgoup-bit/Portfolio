@@ -1,0 +1,115 @@
+{
+  "status": "BLOCKED_BEFORE_AUTH_OR_LIVE_CALL",
+  "conditionalApproval": "user granted on 2026-10-30; prerequisites remain mandatory",
+  "budget": {
+    "totalMax": 40,
+    "before": 0,
+    "after": 0,
+    "authentication": 0,
+    "price": 0,
+    "metadata": 0,
+    "failed": 0,
+    "retries": 0,
+    "remaining": 40
+  },
+  "requests": [],
+  "costKRW": 0,
+  "realVerifiedPrices": 0,
+  "activeMonitoring": {
+    "US": 0,
+    "KR": 0
+  },
+  "candidates": [
+    {
+      "symbol": "MSFT",
+      "market": "US",
+      "providerAttempted": null,
+      "marketDate": null,
+      "priceKindObserved": null,
+      "independentComparison": "NOT_PERFORMED",
+      "reason": "RIGHTS_UNCONFIRMED_AND_SECURE_AUTH_UNAVAILABLE"
+    },
+    {
+      "symbol": "AVGO",
+      "market": "US",
+      "providerAttempted": null,
+      "marketDate": null,
+      "priceKindObserved": null,
+      "independentComparison": "NOT_PERFORMED",
+      "reason": "RIGHTS_UNCONFIRMED_AND_SECURE_AUTH_UNAVAILABLE"
+    },
+    {
+      "symbol": "GOOGL",
+      "market": "US",
+      "providerAttempted": null,
+      "marketDate": null,
+      "priceKindObserved": null,
+      "independentComparison": "NOT_PERFORMED",
+      "reason": "RIGHTS_UNCONFIRMED_AND_SECURE_AUTH_UNAVAILABLE"
+    },
+    {
+      "symbol": "NVDA",
+      "market": "US",
+      "providerAttempted": null,
+      "marketDate": null,
+      "priceKindObserved": null,
+      "independentComparison": "NOT_PERFORMED",
+      "reason": "RIGHTS_UNCONFIRMED_AND_SECURE_AUTH_UNAVAILABLE"
+    },
+    {
+      "symbol": "QTOP",
+      "market": "US",
+      "providerAttempted": null,
+      "marketDate": null,
+      "priceKindObserved": null,
+      "independentComparison": "NOT_PERFORMED",
+      "reason": "RIGHTS_UNCONFIRMED_AND_SECURE_AUTH_UNAVAILABLE"
+    },
+    {
+      "symbol": "005930",
+      "market": "KR",
+      "providerAttempted": null,
+      "marketDate": null,
+      "priceKindObserved": null,
+      "independentComparison": "NOT_PERFORMED",
+      "reason": "RIGHTS_UNCONFIRMED_AND_SECURE_AUTH_UNAVAILABLE"
+    },
+    {
+      "symbol": "000660",
+      "market": "KR",
+      "providerAttempted": null,
+      "marketDate": null,
+      "priceKindObserved": null,
+      "independentComparison": "NOT_PERFORMED",
+      "reason": "RIGHTS_UNCONFIRMED_AND_SECURE_AUTH_UNAVAILABLE"
+    },
+    {
+      "symbol": "035420",
+      "market": "KR",
+      "providerAttempted": null,
+      "marketDate": null,
+      "priceKindObserved": null,
+      "independentComparison": "NOT_PERFORMED",
+      "reason": "RIGHTS_UNCONFIRMED_AND_SECURE_AUTH_UNAVAILABLE"
+    },
+    {
+      "symbol": "069500",
+      "market": "KR",
+      "providerAttempted": null,
+      "marketDate": null,
+      "priceKindObserved": null,
+      "independentComparison": "NOT_PERFORMED",
+      "reason": "RIGHTS_UNCONFIRMED_AND_SECURE_AUTH_UNAVAILABLE"
+    },
+    {
+      "symbol": "360750",
+      "market": "KR",
+      "providerAttempted": null,
+      "marketDate": null,
+      "priceKindObserved": null,
+      "independentComparison": "NOT_PERFORMED",
+      "reason": "RIGHTS_UNCONFIRMED_AND_SECURE_AUTH_UNAVAILABLE"
+    }
+  ],
+  "publicDocumentationAccessExcludedFromMarketApiBudget": true
+}
