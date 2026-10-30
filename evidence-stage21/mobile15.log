@@ -1,0 +1,17 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> kst-portfolio-radar-stage2@0.1.0 test:mobile15
+> node tests/mobile-stage15.cjs
+
+PASS layout 360/390/430 × 4 tabs: no overflow, text ≥12px & contrast, targets ≥44px
+PASS risk screen: amounts/units, no-threshold notice, user-set threshold alert wording (not an order)
+FAIL AssertionError [ERR_ASSERTION]: 글자 크기(12px↑)/대비 위반 
++ actual - expected
+
++ [
++   'OPTION#:16px cr3.9'
++ ]
+- []
+
+    at textQuality (/workspace/scratch/40896427e613/has-stage21/tests/mobile-stage15.cjs:31:12)
+    at async /workspace/scratch/40896427e613/has-stage21/tests/mobile-stage15.cjs:67:128

@@ -1,0 +1,22 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> kst-portfolio-radar-stage2@0.1.0 test:mobile15
+> node tests/mobile-stage15.cjs
+
+PASS layout 360/390/430 × 4 tabs: no overflow, text ≥12px & contrast, targets ≥44px
+PASS risk screen: amounts/units, no-threshold notice, user-set threshold alert wording (not an order)
+PASS stress: input validation, loss amount/ratio/formula/assumptions, overlap not summed, delete
+PASS thesis log: validation, append-only history, export/import round trip, tampered import rejected
+PASS backup file load: read-only, FX missing → 자료 부족, broken file reported, storage untouched
+PASS P&L screen: hand-computed totals, 자료 부족 handling, estimate label, simple-return caveat
+PASS trade log import/export: CSV↔JSON round trip identical, bad file keeps previous data
+PASS reconcile ledger vs app holdings: match / qty-mismatch / missing-in-ledger
+PASS backtest screen: synthetic label, verdict wording, warnings, determinism, input validation, proxy-rule warning
+PASS provider pilot screen: plan only, locked off, all real counts 0, KRX identity ≠ price noted
+PASS CSP blocks fetch/WebSocket, no service worker/storage, works offline, 0 external requests
+PASS landscape and long-text layouts: no horizontal overflow
+PASS lab isolation: strict CSP, no storage/network APIs in UI code, app/service worker do not reference lab, server exposes only mobile-lab
+PASS protected files (app, service worker, manifest, backup core) byte-identical during the run
+PASS invest-bundle.js is up to date with sources
+
+15 groups passed

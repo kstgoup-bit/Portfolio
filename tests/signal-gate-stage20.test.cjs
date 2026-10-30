@@ -2,7 +2,7 @@
 /* 20단계 B-3: 미검증·기준시각 불명·실패·오래됨·기업행위 의심·기준일 불일치 가격은 신호를 만들지 못한다. */
 const { test } = require('node:test'), a = require('node:assert/strict'), T = require('../has/price-trust.js'), C = require('../radar/core.js');
 const NOW = '2026-10-29T09:00:00Z';
-const base = () => ({ ticker: 'AAA', asOf: '2026-10-28', currency: 'USD', timezone: 'America/New_York', adjustment: 'split-adjusted', close: 60, high52w: 100, high52wStart: '2025-10-28', high52wEnd: '2026-10-28', source: { name: '합성 시험', url: 'https://example.invalid/x' }, verification: 'independent-verified', priceKind: 'regular-close', status: 'ok' });
+const base = () => ({ fetchedAt: '2026-10-29T08:00:00Z', corporateActionChecked: true, ticker: 'AAA', asOf: '2026-10-28', currency: 'USD', timezone: 'America/New_York', adjustment: 'split-adjusted', close: 60, high52w: 100, high52wStart: '2025-10-28', high52wEnd: '2026-10-28', source: { name: '합성 시험', url: 'https://example.invalid/x' }, verification: 'independent-verified', priceKind: 'regular-close', status: 'ok' });
 const ev = (q, s) => C.evaluateSignals(q, s);
 test('독립 검증·기준일·통화·종류가 모두 있으면 관문을 통과해 급락 신호 계산', () => {
   const g = T.gateSignals(ev, base(), undefined, NOW); a.equal(g.held, false); a.ok(g.result.signals.length >= 1); a.equal(g.result.signals[0].type, 'drawdown');

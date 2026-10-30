@@ -55,8 +55,26 @@ function sourceNotice(sourceKey, counts, nowISO) {
 function quoteMeta(q) { q = q || {}; return { provider: q.source && q.source.name, marketDate: q.asOf, currency: q.currency, timezone: q.timezone, priceKind: q.priceKind || 'unknown', adjusted: q.adjustment === 'split-adjusted' ? 'split' : 'unknown', verification: q.verification || 'unverified', status: q.status || 'unknown' }; }
 function gateSignals(evaluate, q, settings, nowISO) {
   const d = describe(quoteMeta(q), nowISO);
-  if (d.signalHold) return { held: true, reason: d.label, result: { drawdown: null, marketExcess: null, sectorExcess: null, band: null, signals: [], missing: ['판단 불가: ' + d.label] } };
+  const errors = signalIssues(q, nowISO);
+  if (d.signalHold || errors.length) { const reason = errors.length ? errors.join(' · ') : d.label; return { held: true, reason, result: { drawdown: null, marketExcess: null, sectorExcess: null, band: null, signals: [], missing: ['판단 불가: ' + reason] } }; }
   return { held: false, reason: d.label, result: evaluate(q, settings) };
 }
-return { SCHEMA, KINDS, VERIFS, MAX_AGE_DAYS, KNOWN_SOURCES, describe, sessionCounts, sourceNotice, quoteMeta, gateSignals };
+/* 21단계: 이 관문은 순수 계산용이다. 실가격 연결/운영 신호 활성화 권한을 부여하지 않는다. */
+function signalIssues(q, nowISO) {
+  q = q || {}; const errors = [], now = Date.parse(nowISO);
+  const instant = s => typeof s === 'string' && /T.*(?:Z|[+-]\d{2}:\d{2})$/.test(s) && Number.isFinite(Date.parse(s));
+  const validDay = s => dayOk(s) && new Date(Date.parse(s)).toISOString().slice(0, 10) === s;
+  if (!instant(nowISO)) errors.push('판단 기준시각 미확인');
+  if (!instant(q.fetchedAt) || Date.parse(q.fetchedAt) > now || now - Date.parse(q.fetchedAt) > MAX_AGE_DAYS * 86400000) errors.push('취득시각 미확인·미래·오래됨');
+  if (!validDay(q.asOf) || Date.parse(q.asOf) > now || Date.parse(q.asOf) > Date.parse(q.fetchedAt)) errors.push('시장 기준일 오류');
+  if (!q.source || typeof q.source.name !== 'string' || !q.source.name.trim() || !/^https:\/\/[^\s/]+\//.test(q.source.url || '')) errors.push('출처 미확인');
+  if (!['America/New_York', 'Asia/Seoul'].includes(q.timezone)) errors.push('시장 시간대 미확인');
+  if (!['USD', 'KRW'].includes(q.currency) || (q.timezone === 'Asia/Seoul' && q.currency !== 'KRW') || (q.timezone === 'America/New_York' && q.currency !== 'USD')) errors.push('시장 통화 불일치');
+  if (!['regular-close', 'adjusted-close'].includes(q.priceKind)) errors.push('종가 종류 미검증');
+  if (q.adjustment !== 'split-adjusted' || q.corporateActionChecked !== true || q.corporateActionSuspected === true) errors.push('기업행위 미검증');
+  if (q.status !== 'ok' || q.verification !== 'independent-verified') errors.push('검증 상태 미충족');
+  if (!Number.isFinite(q.close) || q.close <= 0) errors.push('가격 오류');
+  return errors;
+}
+return { SCHEMA, KINDS, VERIFS, MAX_AGE_DAYS, KNOWN_SOURCES, describe, sessionCounts, sourceNotice, quoteMeta, gateSignals, signalIssues };
 });

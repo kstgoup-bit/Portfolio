@@ -19,3 +19,5 @@ input[type=date],input[inputmode]{width:100%;min-height:48px;font-size:1rem;padd
 .btn.small{min-height:48px;margin-top:8px;font-size:1rem}
 h3{font-size:1.05rem;margin:14px 0 6px}
 @media (max-width:380px){.tabs button{font-size:.95rem}}
+/* 21: Chromium native option colors must retain readable contrast. */
+select option{color:#202b3a;background:#fff}

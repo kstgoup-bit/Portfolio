@@ -1,0 +1,1658 @@
+{
+ "360:isa": {
+  "texts": 165,
+  "small": 0,
+  "smallMin": 99,
+  "low": 7,
+  "touchSmall": 0,
+  "touch": 33,
+  "overflowX": false,
+  "smallBy": {},
+  "lowBy": {
+   "button.tab": 1,
+   "div.chart-title": 2,
+   "button.record-btn": 3,
+   "button.btn-add": 1
+  },
+  "touchBy": {},
+  "unknownBg": 24,
+  "lowList": [
+   [
+    "button",
+    "tab active",
+    "rgb(245, 127, 23)",
+    "🇰🇷 ISA",
+    2.6
+   ],
+   [
+    "div",
+    "chart-title",
+    "rgb(245, 127, 23)",
+    "📈 ISA 자산 ",
+    2.6
+   ],
+   [
+    "button",
+    "record-btn",
+    "rgb(245, 127, 23)",
+    "💰 입금 기록",
+    2.6
+   ],
+   [
+    "button",
+    "record-btn",
+    "rgb(245, 127, 23)",
+    "📝 입금내역",
+    2.6
+   ],
+   [
+    "button",
+    "record-btn",
+    "rgb(245, 127, 23)",
+    "📸 자산 기록",
+    2.6
+   ],
+   [
+    "div",
+    "chart-title",
+    "rgb(245, 127, 23)",
+    "📅 ISA 자산 ",
+    2.6
+   ],
+   [
+    "button",
+    "btn-add",
+    "rgb(245, 127, 23)",
+    "+ 종목추가",
+    2.6
+   ]
+  ],
+  "svgText": 7,
+  "svgRawSmall": 4
+ },
+ "360:household": {
+  "texts": 126,
+  "small": 0,
+  "smallMin": 99,
+  "low": 3,
+  "touchSmall": 5,
+  "touch": 32,
+  "overflowX": false,
+  "smallBy": {},
+  "lowBy": {
+   "button": 3
+  },
+  "touchBy": {
+   "input.ldg-month-inp": 1,
+   "input": 4
+  },
+  "unknownBg": 18,
+  "touchList": [
+   [
+    "input",
+    "ldg-month-inp",
+    "2026-10",
+    132,
+    34
+   ],
+   [
+    "input",
+    "",
+    "",
+    146,
+    38
+   ],
+   [
+    "input",
+    "",
+    "",
+    146,
+    38
+   ],
+   [
+    "input",
+    "",
+    "2026-10",
+    235,
+    38
+   ],
+   [
+    "input",
+    "",
+    "",
+    146,
+    38
+   ]
+  ],
+  "lowList": [
+   [
+    "button",
+    "",
+    "rgb(255, 255, 255)",
+    "추가",
+    2.6
+   ],
+   [
+    "button",
+    "",
+    "rgb(255, 255, 255)",
+    "추가",
+    3.5
+   ],
+   [
+    "button",
+    "",
+    "rgb(255, 255, 255)",
+    "조회",
+    4.3
+   ]
+  ],
+  "svgText": 12
+ },
+ "360:assets-empty": {
+  "texts": 74,
+  "small": 0,
+  "smallMin": 99,
+  "low": 5,
+  "touchSmall": 0,
+  "touch": 21,
+  "overflowX": false,
+  "smallBy": {},
+  "lowBy": {
+   "button": 5
+  },
+  "touchBy": {},
+  "unknownBg": 26,
+  "lowList": [
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ]
+  ]
+ },
+ "360:asset-modal": {
+  "texts": 77,
+  "small": 0,
+  "smallMin": 99,
+  "low": 5,
+  "touchSmall": 4,
+  "touch": 25,
+  "overflowX": false,
+  "smallBy": {},
+  "lowBy": {
+   "button": 5
+  },
+  "touchBy": {
+   "input": 2,
+   "button": 2
+  },
+  "unknownBg": 27,
+  "lowList": [
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ]
+  ],
+  "touchList": [
+   [
+    "input",
+    "",
+    "",
+    264,
+    38
+   ],
+   [
+    "input",
+    "",
+    "",
+    264,
+    38
+   ],
+   [
+    "button",
+    "",
+    "취소",
+    129,
+    42
+   ],
+   [
+    "button",
+    "",
+    "추가",
+    127,
+    42
+   ]
+  ]
+ },
+ "360:debt-modal": {
+  "texts": 115,
+  "small": 0,
+  "smallMin": 99,
+  "low": 11,
+  "touchSmall": 4,
+  "touch": 38,
+  "overflowX": false,
+  "smallBy": {},
+  "lowBy": {
+   "button": 11
+  },
+  "touchBy": {
+   "input": 2,
+   "button": 2
+  },
+  "unknownBg": 23,
+  "lowList": [
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ]
+  ],
+  "touchList": [
+   [
+    "input",
+    "",
+    "",
+    264,
+    38
+   ],
+   [
+    "input",
+    "",
+    "",
+    264,
+    38
+   ],
+   [
+    "button",
+    "",
+    "취소",
+    129,
+    42
+   ],
+   [
+    "button",
+    "",
+    "추가",
+    127,
+    42
+   ]
+  ]
+ },
+ "390:isa": {
+  "texts": 165,
+  "small": 0,
+  "smallMin": 99,
+  "low": 7,
+  "touchSmall": 0,
+  "touch": 33,
+  "overflowX": false,
+  "smallBy": {},
+  "lowBy": {
+   "button.tab": 1,
+   "div.chart-title": 2,
+   "button.record-btn": 3,
+   "button.btn-add": 1
+  },
+  "touchBy": {},
+  "unknownBg": 24,
+  "lowList": [
+   [
+    "button",
+    "tab active",
+    "rgb(245, 127, 23)",
+    "🇰🇷 ISA",
+    2.6
+   ],
+   [
+    "div",
+    "chart-title",
+    "rgb(245, 127, 23)",
+    "📈 ISA 자산 ",
+    2.6
+   ],
+   [
+    "button",
+    "record-btn",
+    "rgb(245, 127, 23)",
+    "💰 입금 기록",
+    2.6
+   ],
+   [
+    "button",
+    "record-btn",
+    "rgb(245, 127, 23)",
+    "📝 입금내역",
+    2.6
+   ],
+   [
+    "button",
+    "record-btn",
+    "rgb(245, 127, 23)",
+    "📸 자산 기록",
+    2.6
+   ],
+   [
+    "div",
+    "chart-title",
+    "rgb(245, 127, 23)",
+    "📅 ISA 자산 ",
+    2.6
+   ],
+   [
+    "button",
+    "btn-add",
+    "rgb(245, 127, 23)",
+    "+ 종목추가",
+    2.6
+   ]
+  ],
+  "svgText": 7,
+  "svgRawSmall": 4
+ },
+ "390:household": {
+  "texts": 126,
+  "small": 0,
+  "smallMin": 99,
+  "low": 3,
+  "touchSmall": 5,
+  "touch": 32,
+  "overflowX": false,
+  "smallBy": {},
+  "lowBy": {
+   "button": 3
+  },
+  "touchBy": {
+   "input.ldg-month-inp": 1,
+   "input": 4
+  },
+  "unknownBg": 18,
+  "touchList": [
+   [
+    "input",
+    "ldg-month-inp",
+    "2026-10",
+    132,
+    34
+   ],
+   [
+    "input",
+    "",
+    "",
+    161,
+    38
+   ],
+   [
+    "input",
+    "",
+    "",
+    161,
+    38
+   ],
+   [
+    "input",
+    "",
+    "2026-10",
+    265,
+    38
+   ],
+   [
+    "input",
+    "",
+    "",
+    161,
+    38
+   ]
+  ],
+  "lowList": [
+   [
+    "button",
+    "",
+    "rgb(255, 255, 255)",
+    "추가",
+    2.6
+   ],
+   [
+    "button",
+    "",
+    "rgb(255, 255, 255)",
+    "추가",
+    3.5
+   ],
+   [
+    "button",
+    "",
+    "rgb(255, 255, 255)",
+    "조회",
+    4.3
+   ]
+  ],
+  "svgText": 12
+ },
+ "390:assets-empty": {
+  "texts": 74,
+  "small": 0,
+  "smallMin": 99,
+  "low": 5,
+  "touchSmall": 0,
+  "touch": 21,
+  "overflowX": false,
+  "smallBy": {},
+  "lowBy": {
+   "button": 5
+  },
+  "touchBy": {},
+  "unknownBg": 26,
+  "lowList": [
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ]
+  ]
+ },
+ "390:asset-modal": {
+  "texts": 77,
+  "small": 0,
+  "smallMin": 99,
+  "low": 5,
+  "touchSmall": 4,
+  "touch": 25,
+  "overflowX": false,
+  "smallBy": {},
+  "lowBy": {
+   "button": 5
+  },
+  "touchBy": {
+   "input": 2,
+   "button": 2
+  },
+  "unknownBg": 27,
+  "lowList": [
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ]
+  ],
+  "touchList": [
+   [
+    "input",
+    "",
+    "",
+    294,
+    38
+   ],
+   [
+    "input",
+    "",
+    "",
+    294,
+    38
+   ],
+   [
+    "button",
+    "",
+    "취소",
+    144,
+    42
+   ],
+   [
+    "button",
+    "",
+    "추가",
+    142,
+    42
+   ]
+  ]
+ },
+ "390:debt-modal": {
+  "texts": 115,
+  "small": 0,
+  "smallMin": 99,
+  "low": 11,
+  "touchSmall": 4,
+  "touch": 38,
+  "overflowX": false,
+  "smallBy": {},
+  "lowBy": {
+   "button": 11
+  },
+  "touchBy": {
+   "input": 2,
+   "button": 2
+  },
+  "unknownBg": 23,
+  "lowList": [
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ]
+  ],
+  "touchList": [
+   [
+    "input",
+    "",
+    "",
+    294,
+    38
+   ],
+   [
+    "input",
+    "",
+    "",
+    294,
+    38
+   ],
+   [
+    "button",
+    "",
+    "취소",
+    144,
+    42
+   ],
+   [
+    "button",
+    "",
+    "추가",
+    142,
+    42
+   ]
+  ]
+ },
+ "430:isa": {
+  "texts": 165,
+  "small": 0,
+  "smallMin": 99,
+  "low": 7,
+  "touchSmall": 0,
+  "touch": 33,
+  "overflowX": false,
+  "smallBy": {},
+  "lowBy": {
+   "button.tab": 1,
+   "div.chart-title": 2,
+   "button.record-btn": 3,
+   "button.btn-add": 1
+  },
+  "touchBy": {},
+  "unknownBg": 24,
+  "lowList": [
+   [
+    "button",
+    "tab active",
+    "rgb(245, 127, 23)",
+    "🇰🇷 ISA",
+    2.6
+   ],
+   [
+    "div",
+    "chart-title",
+    "rgb(245, 127, 23)",
+    "📈 ISA 자산 ",
+    2.6
+   ],
+   [
+    "button",
+    "record-btn",
+    "rgb(245, 127, 23)",
+    "💰 입금 기록",
+    2.6
+   ],
+   [
+    "button",
+    "record-btn",
+    "rgb(245, 127, 23)",
+    "📝 입금내역",
+    2.6
+   ],
+   [
+    "button",
+    "record-btn",
+    "rgb(245, 127, 23)",
+    "📸 자산 기록",
+    2.6
+   ],
+   [
+    "div",
+    "chart-title",
+    "rgb(245, 127, 23)",
+    "📅 ISA 자산 ",
+    2.6
+   ],
+   [
+    "button",
+    "btn-add",
+    "rgb(245, 127, 23)",
+    "+ 종목추가",
+    2.6
+   ]
+  ],
+  "svgText": 7,
+  "svgRawSmall": 4
+ },
+ "430:household": {
+  "texts": 126,
+  "small": 0,
+  "smallMin": 99,
+  "low": 3,
+  "touchSmall": 5,
+  "touch": 32,
+  "overflowX": false,
+  "smallBy": {},
+  "lowBy": {
+   "button": 3
+  },
+  "touchBy": {
+   "input.ldg-month-inp": 1,
+   "input": 4
+  },
+  "unknownBg": 18,
+  "touchList": [
+   [
+    "input",
+    "ldg-month-inp",
+    "2026-10",
+    132,
+    34
+   ],
+   [
+    "input",
+    "",
+    "",
+    181,
+    38
+   ],
+   [
+    "input",
+    "",
+    "",
+    181,
+    38
+   ],
+   [
+    "input",
+    "",
+    "2026-10",
+    305,
+    38
+   ],
+   [
+    "input",
+    "",
+    "",
+    181,
+    38
+   ]
+  ],
+  "lowList": [
+   [
+    "button",
+    "",
+    "rgb(255, 255, 255)",
+    "추가",
+    2.6
+   ],
+   [
+    "button",
+    "",
+    "rgb(255, 255, 255)",
+    "추가",
+    3.5
+   ],
+   [
+    "button",
+    "",
+    "rgb(255, 255, 255)",
+    "조회",
+    4.3
+   ]
+  ],
+  "svgText": 12
+ },
+ "430:assets-empty": {
+  "texts": 74,
+  "small": 0,
+  "smallMin": 99,
+  "low": 5,
+  "touchSmall": 0,
+  "touch": 21,
+  "overflowX": false,
+  "smallBy": {},
+  "lowBy": {
+   "button": 5
+  },
+  "touchBy": {},
+  "unknownBg": 26,
+  "lowList": [
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ]
+  ]
+ },
+ "430:asset-modal": {
+  "texts": 77,
+  "small": 0,
+  "smallMin": 99,
+  "low": 5,
+  "touchSmall": 4,
+  "touch": 25,
+  "overflowX": false,
+  "smallBy": {},
+  "lowBy": {
+   "button": 5
+  },
+  "touchBy": {
+   "input": 2,
+   "button": 2
+  },
+  "unknownBg": 27,
+  "lowList": [
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ]
+  ],
+  "touchList": [
+   [
+    "input",
+    "",
+    "",
+    312,
+    38
+   ],
+   [
+    "input",
+    "",
+    "",
+    312,
+    38
+   ],
+   [
+    "button",
+    "",
+    "취소",
+    153,
+    42
+   ],
+   [
+    "button",
+    "",
+    "추가",
+    151,
+    42
+   ]
+  ]
+ },
+ "430:debt-modal": {
+  "texts": 115,
+  "small": 0,
+  "smallMin": 99,
+  "low": 11,
+  "touchSmall": 4,
+  "touch": 38,
+  "overflowX": false,
+  "smallBy": {},
+  "lowBy": {
+   "button": 11
+  },
+  "touchBy": {
+   "input": 2,
+   "button": 2
+  },
+  "unknownBg": 23,
+  "lowList": [
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ]
+  ],
+  "touchList": [
+   [
+    "input",
+    "",
+    "",
+    312,
+    38
+   ],
+   [
+    "input",
+    "",
+    "",
+    312,
+    38
+   ],
+   [
+    "button",
+    "",
+    "취소",
+    153,
+    42
+   ],
+   [
+    "button",
+    "",
+    "추가",
+    151,
+    42
+   ]
+  ]
+ },
+ "1280:isa": {
+  "texts": 165,
+  "small": 0,
+  "smallMin": 99,
+  "low": 7,
+  "touchSmall": 0,
+  "touch": 33,
+  "overflowX": false,
+  "smallBy": {},
+  "lowBy": {
+   "button.tab": 1,
+   "div.chart-title": 2,
+   "button.record-btn": 3,
+   "button.btn-add": 1
+  },
+  "touchBy": {},
+  "unknownBg": 24,
+  "lowList": [
+   [
+    "button",
+    "tab active",
+    "rgb(245, 127, 23)",
+    "🇰🇷 ISA",
+    2.6
+   ],
+   [
+    "div",
+    "chart-title",
+    "rgb(245, 127, 23)",
+    "📈 ISA 자산 ",
+    2.6
+   ],
+   [
+    "button",
+    "record-btn",
+    "rgb(245, 127, 23)",
+    "💰 입금 기록",
+    2.6
+   ],
+   [
+    "button",
+    "record-btn",
+    "rgb(245, 127, 23)",
+    "📝 입금내역",
+    2.6
+   ],
+   [
+    "button",
+    "record-btn",
+    "rgb(245, 127, 23)",
+    "📸 자산 기록",
+    2.6
+   ],
+   [
+    "div",
+    "chart-title",
+    "rgb(245, 127, 23)",
+    "📅 ISA 자산 ",
+    2.6
+   ],
+   [
+    "button",
+    "btn-add",
+    "rgb(245, 127, 23)",
+    "+ 종목추가",
+    2.6
+   ]
+  ],
+  "svgText": 7,
+  "svgRawSmall": 4
+ },
+ "1280:household": {
+  "texts": 126,
+  "small": 0,
+  "smallMin": 99,
+  "low": 3,
+  "touchSmall": 5,
+  "touch": 32,
+  "overflowX": false,
+  "smallBy": {},
+  "lowBy": {
+   "button": 3
+  },
+  "touchBy": {
+   "input.ldg-month-inp": 1,
+   "input": 4
+  },
+  "unknownBg": 18,
+  "touchList": [
+   [
+    "input",
+    "ldg-month-inp",
+    "2026-10",
+    132,
+    34
+   ],
+   [
+    "input",
+    "",
+    "",
+    206,
+    38
+   ],
+   [
+    "input",
+    "",
+    "",
+    206,
+    38
+   ],
+   [
+    "input",
+    "",
+    "2026-10",
+    355,
+    38
+   ],
+   [
+    "input",
+    "",
+    "",
+    206,
+    38
+   ]
+  ],
+  "lowList": [
+   [
+    "button",
+    "",
+    "rgb(255, 255, 255)",
+    "추가",
+    2.6
+   ],
+   [
+    "button",
+    "",
+    "rgb(255, 255, 255)",
+    "추가",
+    3.5
+   ],
+   [
+    "button",
+    "",
+    "rgb(255, 255, 255)",
+    "조회",
+    4.3
+   ]
+  ],
+  "svgText": 12
+ },
+ "1280:assets-empty": {
+  "texts": 74,
+  "small": 0,
+  "smallMin": 99,
+  "low": 5,
+  "touchSmall": 0,
+  "touch": 21,
+  "overflowX": false,
+  "smallBy": {},
+  "lowBy": {
+   "button": 5
+  },
+  "touchBy": {},
+  "unknownBg": 26,
+  "lowList": [
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ]
+  ]
+ },
+ "1280:asset-modal": {
+  "texts": 77,
+  "small": 0,
+  "smallMin": 99,
+  "low": 5,
+  "touchSmall": 4,
+  "touch": 25,
+  "overflowX": false,
+  "smallBy": {},
+  "lowBy": {
+   "button": 5
+  },
+  "touchBy": {
+   "input": 2,
+   "button": 2
+  },
+  "unknownBg": 27,
+  "lowList": [
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ]
+  ],
+  "touchList": [
+   [
+    "input",
+    "",
+    "",
+    312,
+    38
+   ],
+   [
+    "input",
+    "",
+    "",
+    312,
+    38
+   ],
+   [
+    "button",
+    "",
+    "취소",
+    153,
+    42
+   ],
+   [
+    "button",
+    "",
+    "추가",
+    151,
+    42
+   ]
+  ]
+ },
+ "1280:debt-modal": {
+  "texts": 115,
+  "small": 0,
+  "smallMin": 99,
+  "low": 11,
+  "touchSmall": 4,
+  "touch": 38,
+  "overflowX": false,
+  "smallBy": {},
+  "lowBy": {
+   "button": 11
+  },
+  "touchBy": {
+   "input": 2,
+   "button": 2
+  },
+  "unknownBg": 23,
+  "lowList": [
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ],
+   [
+    "button",
+    "",
+    "rgb(187, 187, 187)",
+    "×",
+    1.9
+   ]
+  ],
+  "touchList": [
+   [
+    "input",
+    "",
+    "",
+    312,
+    38
+   ],
+   [
+    "input",
+    "",
+    "",
+    312,
+    38
+   ],
+   [
+    "button",
+    "",
+    "취소",
+    153,
+    42
+   ],
+   [
+    "button",
+    "",
+    "추가",
+    151,
+    42
+   ]
+  ]
+ }
+}

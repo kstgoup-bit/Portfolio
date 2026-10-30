@@ -1,0 +1,14 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> kst-portfolio-radar-stage2@0.1.0 test:e2e20
+> node tests/e2e-journey-stage20.cjs
+
+http@360     통과 18 실패 0
+http@390     통과 18 실패 0
+http@430     통과 18 실패 0
+http@1280    통과 15 실패 0
+file@360     통과 15 실패 0
+file@390     통과 15 실패 0
+file@430     통과 15 실패 0
+file@1280    통과 15 실패 0
+총 129 통과 129 실패 0 | 차단된 외부 호스트 종류 2

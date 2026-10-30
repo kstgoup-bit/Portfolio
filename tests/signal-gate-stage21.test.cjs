@@ -1,0 +1,8 @@
+'use strict';
+const {test}=require('node:test'), a=require('node:assert/strict'), T=require('../has/price-trust');
+const now='2026-10-30T09:00:00Z';
+const base=()=>({source:{name:'SYNTHETIC CONTRACT FIXTURE',url:'https://example.invalid/data'},asOf:'2026-10-29',fetchedAt:'2026-10-30T08:00:00Z',timezone:'America/New_York',currency:'USD',priceKind:'regular-close',adjustment:'split-adjusted',verification:'independent-verified',status:'ok',corporateActionChecked:true,close:100});
+const cases={missingFetch:q=>delete q.fetchedAt,futureFetch:q=>q.fetchedAt='2026-11-01T00:00:00Z',badDay:q=>q.asOf='2026-02-30',futureDay:q=>q.asOf='2026-11-01',missingZone:q=>delete q.timezone,wrongCurrency:q=>q.currency='KRW',missingActionCheck:q=>delete q.corporateActionChecked,actionSuspected:q=>q.corporateActionSuspected=true,unknownStatus:q=>q.status='unknown',staleStatus:q=>q.status='stale',manual:q=>q.verification='manual',delayed:q=>q.priceKind='delayed',badSource:q=>q.source.url='javascript:bad',negative:q=>q.close=-1,nan:q=>q.close=NaN,unknownAdjustment:q=>delete q.adjustment};
+for(const [name,mut] of Object.entries(cases))test('21 fail closed '+name,()=>{const q=base();mut(q);let called=0;const r=T.gateSignals(()=>{called++;},q,null,now);a.equal(r.held,true);a.equal(called,0);a.deepEqual(r.result.signals,[]);});
+test('21 missing now is held',()=>a.equal(T.gateSignals(()=>a.fail(),base(),null,undefined).held,true));
+test('21 valid synthetic contract only and input immutable',()=>{const q=base(),before=JSON.stringify(q);a.equal(T.gateSignals(()=>({signals:[]}),q,null,now).held,false);a.equal(JSON.stringify(q),before);});

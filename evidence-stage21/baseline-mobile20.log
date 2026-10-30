@@ -1,0 +1,12 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> kst-portfolio-radar-stage2@0.1.0 test:mobile20
+> node tests/mobile-stage20.cjs
+
+PASS 가로 넘침 0 (8화면 × 3폭)
+PASS 측정된 조작 요소는 전부 44px 이상 (잠금·대시보드·일반·해외·배당·위험·설정·원장 시범)
+PASS HTML 글씨는 전부 12px 이상, 차트(SVG) 라벨은 화면 표시 크기 기준 화면당 2개 이하 예외
+PASS 대비 4.5:1 미만은 화면당 2개 이하(색 의미가 있는 ✓ 아이콘·빈 점수 "—")
+PASS 그라데이션 배경 글씨는 별도 집계(측정 불가)로 분리되어 있음
+PASS 원장 시범: 이전 미리보기 카드 표시(합성·저장 안 함·이력 미확인·제외 항목), 가로 넘침 0, 열고 새로고침해도 저장소 불변 (360/390/430)
+6 groups passed
