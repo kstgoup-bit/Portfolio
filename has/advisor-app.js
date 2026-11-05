@@ -7,8 +7,8 @@
   var $ = function (id) { return document.getElementById(id); };
   function el(t, text, cls) { var e = document.createElement(t); if (text !== undefined && text !== null) e.textContent = text; if (cls) e.className = cls; return e; }
   function clear(n) { while (n.firstChild) n.removeChild(n.firstChild); return n; }
-  var DATA = { v5_gen: JSON.stringify([{ id: 1, name: '합성 국내 우량A', ticker: 'SYN-KR1', quantity: 10, avgPrice: 100, currentPrice: 60 }, { id: 2, name: '예수금', ticker: 'DEP_GEN', quantity: 1, avgPrice: 1, currentPrice: 150 }]),
-    v5_ov: JSON.stringify([{ id: 3, name: '합성 미국 성장B', ticker: 'SYN-US1', quantity: 3, avgPrice: 100, currentPrice: 92 }]), v5_dom: '[]', v5_pen: '[]', v5_fx: '1', v5_cma_amount: '0' };
+  var DATA = { v5_gen: JSON.stringify([{ id: 1, name: '합성 국내 우량A', ticker: 'SYN-KR1', quantity: 10000, avgPrice: 100, currentPrice: 60 }, { id: 2, name: '예수금', ticker: 'DEP_GEN', quantity: 1, avgPrice: 1, currentPrice: 150000 }]),
+    v5_ov: JSON.stringify([{ id: 3, name: '합성 미국 성장B', ticker: 'SYN-US1', quantity: 3, avgPrice: 100, currentPrice: 92 }]), v5_dom: '[]', v5_pen: '[]', v5_fx: '1400', v5_cma_amount: '0' };
   var getter = function (k) { return DATA[k] === undefined ? null : DATA[k]; };
   var raw = function (o) { return Object.assign({ kind: 'close', asOfDate: '2026-11-05', asOfTime: '2026-11-05T09:00:00+09:00', fetchedAt: NOW, source: '합성 시험 공급자', verification: 'independent-verified', synthetic: true }, o); };
   var RAWS = { 'SYN-KR1': raw({ ticker: 'SYN-KR1', market: 'KR', currency: 'KRW', price: 60 }), 'SYN-US1': raw({ ticker: 'SYN-US1', market: 'US', currency: 'USD', price: 92 }),

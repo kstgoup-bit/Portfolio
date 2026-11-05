@@ -15,8 +15,15 @@ const RENAMES = {
     ['"description": "HAS(Hidden Alpha System) — 개인 투자 연구·판단·기록 앱"', '"description": "클로 & 재미가 함께하는 투자 포트폴리오 앱"']] };
 /* 19단계: portfolio_v5.html에 가한 연결 수정 목록([지금 문구, 이전 문구], 적용 순서). 되돌릴 때는 마지막부터 거꾸로. */
 const STAGE19 = JSON.parse(fs.readFileSync(path.join(__dirname, 'has-stage19-edits.json'), 'utf8'));
-function stage18Text(file) {
+/* 25단계: AI 참모 연결 수정 목록([지금 문구, 24단계 문구]). 가장 먼저(마지막부터) 되돌린다. */
+const STAGE25 = JSON.parse(fs.readFileSync(path.join(__dirname, 'has-stage25-edits.json'), 'utf8'));
+function stage24Text(file) {
   let s = fs.readFileSync(path.join(ROOT, file), 'utf8');
+  if (file === 'portfolio_v5.html') for (let i = STAGE25.length - 1; i >= 0; i--) { const [now, old] = STAGE25[i]; if (s.split(now).length !== 2) throw new Error('25단계 수정 되돌리기 실패: ' + now.slice(0, 60)); s = s.replace(now, () => old); }
+  return s;
+}
+function stage18Text(file) {
+  let s = stage24Text(file);
   if (file === 'portfolio_v5.html') for (let i = STAGE19.length - 1; i >= 0; i--) { const [now, old] = STAGE19[i]; if (s.split(now).length !== 2) throw new Error('19단계 수정 되돌리기 실패: ' + now.slice(0, 60)); s = s.replace(now, () => old); }
   return s;
 }
@@ -27,4 +34,4 @@ function legacyText(file) {
 }
 const legacySha = file => crypto.createHash('sha256').update(RENAMES[file] ? legacyText(file) : fs.readFileSync(path.join(ROOT, file))).digest('hex');
 const stage18Sha = file => crypto.createHash('sha256').update(stage18Text(file)).digest('hex');
-module.exports = { RENAMES, STAGE19, stage18Text, legacyText, legacySha, stage18Sha };
+module.exports = { RENAMES, STAGE19, STAGE25, stage24Text, stage18Text, legacyText, legacySha, stage18Sha };

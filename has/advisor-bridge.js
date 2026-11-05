@@ -22,7 +22,7 @@
       if (!p.holdings.length) { out.status = 'insufficient'; out.notices.push('분석할 보유종목이 없습니다.'); return out; }
       if (!p.complete) { out.notices.push('보유자료 일부가 불완전합니다: ' + p.issues.join('; ')); }
       var ex = external || {};
-      var targets = p.holdings.map(function (h) { return { ticker: h.ticker, market: h.market, name: null, weightPct: h.weightPct, held: { quantity: h.quantity, avgPrice: h.avgPrice } }; });
+      var targets = p.holdings.map(function (h) { return { ticker: h.ticker, market: h.market, name: null, weightPct: p.complete ? h.weightPct : null, held: { quantity: h.quantity, avgPrice: h.avgPrice } }; });
       var have = {}; targets.forEach(function (t) { have[t.ticker] = 1; });
       (ex.watchlist || []).forEach(function (w) { if (w && typeof w.ticker === 'string' && !have[w.ticker]) targets.push({ ticker: w.ticker, market: w.market, name: w.name || null, weightPct: p.complete ? 0 : null, held: null }); }); // 관심종목(미보유)
       targets.forEach(function (h) {

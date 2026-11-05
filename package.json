@@ -17,7 +17,8 @@
     "test:lab23": "node tests/advisor-lab-stage23.cjs",
     "test:protect24": "node tests/protection-browser-stage24.cjs",
     "test:app24": "node tests/advisor-app-stage24.cjs",
-    "analysis24": "node tools/diff-analysis-stage24.cjs origin/main docs/KST-stage24-diff-analysis.md"
+    "analysis24": "node tools/diff-analysis-stage24.cjs origin/main docs/KST-stage24-diff-analysis.md",
+    "test:staff25": "node tests/staff-integration-stage25.cjs"
   },
   "devDependencies": {
     "@fontsource/noto-sans-kr": "5.2.6",
