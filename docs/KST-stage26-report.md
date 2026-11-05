@@ -8,7 +8,7 @@
 ## 1. 기준 브랜치·커밋 확인
 지시서 기준 `work/has-stage25-mobile-advisor-integration-20261106` = c3d5b18. **실제 원격 HEAD는 fe4c92c**(c3d5b18 + 25단계 보고서 표기 수정 커밋 1개, 코드 차이 없음). 덮어쓰지 않고 fe4c92c에서 분기. main = fd2599398d2f2ef1816ca9b64ea134ea8811309d(불변 확인).
 ## 2. 신규 브랜치·최종 커밋
-`work/has-stage26-mobile-readiness-20261106` — 최종 커밋은 전달 메시지에 기재.
+`work/has-stage26-mobile-readiness-20261106` — 최종 커밋 fd8d2bc(본 보고서 포함 직전 커밋 기준; 보고서 표기 수정 커밋이 뒤따를 수 있음).
 
 ## 3. color 오류 (제1과제)
 - **위치/경로**: `renderDashboard()`(portfolio_v5.html) 전체 수익률 막대 준비부 — `colorRanks[0..2].color`.
