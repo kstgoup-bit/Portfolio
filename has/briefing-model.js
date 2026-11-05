@@ -18,8 +18,12 @@
     if (p.cashRecorded && fin(p.cashPct) && p.cashPct < D.minCashPct) risks.push({ id: 'cash-low', type: 'cash-low', ticker: null, text: '현금 비중 ' + p.cashPct + '% (최소 ' + D.minCashPct + '%)', basis: '내 기록 기준' });
     if (p.cashRecorded && p.cashMissingAccounts && p.cashMissingAccounts.length) risks.push({ id: 'cash-partial', type: 'data', ticker: null, text: '예수금 기록이 없는 계좌: ' + p.cashMissingAccounts.join('·') + ' — 현금 비중은 기록된 금액(CMA 등) 기준이며 실제는 더 클 수 있음', basis: '데이터 부족' });
     if (!p.cashRecorded) risks.push({ id: 'cash-unknown', type: 'data', ticker: null, text: '예수금·CMA 기록이 없어 현금 비중을 알 수 없음', basis: '데이터 부족' });
-    p.issues.forEach(function (m, i) { if (/^수량 0/.test(m)) return; risks.push({ id: 'data|' + i, type: 'data', ticker: null, text: m, basis: '데이터 부족' }); });
-    if (held.length) risks.push({ id: 'price-unverified', type: 'stale', ticker: null, text: '보유 ' + held.length + '종목의 현재가는 출처·기준시각 미확인(오래되었는지 알 수 없음)', basis: '시세 최신성' });
+    p.issues.forEach(function (m, i) { if (/^수량 0/.test(m) || /^예수금 기록이 없는 계좌/.test(m)) return; // 예수금 안내는 cash-partial 항목이 대신 표시(중복 방지)
+       risks.push({ id: 'data|' + i, type: 'data', ticker: null, text: m, basis: '데이터 부족' }); });
+    if (held.length) { var pf = p.priceFreshness, kst = function (iso) { return iso ? new Date(Date.parse(iso) + 9 * 3600000).toISOString().slice(11, 16) : null; };
+      var ptxt = !pf || !pf.fresh ? '보유 ' + held.length + '종목의 현재가는 출처·기준시각 미확인 — 이번 접속에서 갱신되지 않은 저장값(오래되었는지 알 수 없음)' : (pf.fresh === held.length ? '보유 ' + held.length + '종목 전부 이번 접속에서 구글 시트(GAS)로 갱신(' + kst(pf.oldestAt) + (kst(pf.oldestAt) === kst(pf.newestAt) ? '' : '~' + kst(pf.newestAt)) + ' KST)' : '보유 ' + held.length + '종목 중 ' + pf.fresh + '종목만 이번 접속에서 갱신(' + kst(pf.oldestAt) + (kst(pf.oldestAt) === kst(pf.newestAt) ? '' : '~' + kst(pf.newestAt)) + ' KST). 나머지는 저장값: ' + pf.staleTickers.join('·')) + ' — 단일 출처·가격 종류(실시간/지연) 미확인·독립 대조 불가';
+      if (pf && pf.fresh) ptxt += pf.fxAt ? ' / 환율은 이번 접속 갱신(' + kst(pf.fxAt) + ' KST)' : ' / 환율은 갱신 기록 없음(입력값)';
+      risks.push({ id: 'price-unverified', type: 'stale', ticker: null, text: ptxt, basis: '시세 최신성' }); }
     var advices = bridge && bridge.advices || [], held2 = advices.filter(function (a) { return a.holding && a.holding.held; }), watch = advices.filter(function (a) { return !(a.holding && a.holding.held); });
     var cnt = {}; advices.forEach(function (a) { cnt[a.opinion] = (cnt[a.opinion] || 0) + 1; });
     var buy = watch.filter(function (a) { return a.opinion === '매수 검토'; });

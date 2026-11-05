@@ -16,7 +16,7 @@
         if (k === 'v5_gen') return Array.isArray(genStocks) ? JSON.stringify(genStocks) : null; if (k === 'v5_dom') return Array.isArray(domStocks) ? JSON.stringify(domStocks) : null;
         if (k === 'v5_ov') return Array.isArray(ovStocks) ? JSON.stringify(ovStocks) : null; if (k === 'v5_pen') return Array.isArray(penStocks) ? JSON.stringify(penStocks) : null;
         if (k === 'v5_fx') { var f = document.getElementById('usdKrw'); return f ? String(f.value) : null; }
-        if (k === 'v5_cma_amount') return localStorage.getItem('v5_cma_amount');
+        if (k === 'v5_cma_amount') return localStorage.getItem('v5_cma_amount'); if (k === 'v5_quote_meta') return typeof quoteMeta === 'object' ? JSON.stringify(quoteMeta) : null;
       } catch (e) { return null; }
       return null;
     };

@@ -7021,6 +7021,8 @@ function renderCommandments() {
 // =============================================
 // 이번 세션에서 시세가 실제로 갱신된 종목 (localStorage에 남은 전 세션 시세와 구분)
 var freshPrice={};
+/* 28단계: 이번 접속에서 GAS로 시세를 받은 시각(메모리 전용·저장 안 함). AI 참모가 "얼마나 최근 값인지" 표시하는 데만 읽는다. */
+var quoteMeta={};
 
 // 자동 자산기록: 보유 종목 전부가 '이번 세션에 갱신된 시세'일 때만 기록한다.
 // (평단가·전 세션 시세로 대신 계산하지 않음 → 과거 점이 실제보다 높게 남는 문제 방지)
@@ -7080,7 +7082,7 @@ function fetchUS(attempt) {
   function cleanup(){ delete window[cb]; if(document.body.contains(script))document.body.removeChild(script); }
   window[cb]=function(data){
     finished=true;
-    ovStocks.forEach(function(s){if(data[s.ticker]){s.currentPrice=data[s.ticker]; freshPrice["US:"+s.ticker]=true;}});
+    ovStocks.forEach(function(s){if(data[s.ticker]){s.currentPrice=data[s.ticker]; freshPrice["US:"+s.ticker]=true; quoteMeta["US:"+s.ticker]=Date.now();}});
     autoSnapshot();
     save(); renderAll();
     cleanup();
@@ -7104,7 +7106,7 @@ function fetchKR(attempt) {
   window[cb]=function(data){
     finished=true;
     [domStocks,penStocks,genStocks].forEach(function(arr){
-      arr.forEach(function(s){if(data[s.ticker]){s.currentPrice=data[s.ticker]; freshPrice["KR:"+s.ticker]=true;}});
+      arr.forEach(function(s){if(data[s.ticker]){s.currentPrice=data[s.ticker]; freshPrice["KR:"+s.ticker]=true; quoteMeta["KR:"+s.ticker]=Date.now();}});
     });
     autoSnapshot();
     save(); renderAll();
@@ -7123,7 +7125,7 @@ function fetchFX() {
   script.src=gasUrl+"?type=exchange&callback="+cb;
   window[cb]=function(data){
     if(data.usdKrw){
-      document.getElementById("usdKrw").value=data.usdKrw;
+      document.getElementById("usdKrw").value=data.usdKrw; quoteMeta["FX"]=Date.now();
       document.getElementById("fxTime").textContent="환율 자동갱신: "+new Date().toLocaleTimeString("ko-KR");
       renderAll();
     }
@@ -7799,7 +7801,7 @@ window.addEventListener("load", function() {
     var hasToday=(snapshots.all||[]).some(function(d){return new Date(d.ts).toDateString()===todayStr;});
     if(hasToday) return;
     _lastResume=Date.now();
-    freshPrice={};
+    freshPrice={}; quoteMeta={};
     fetchFX(); setTimeout(function(){fetchKR(0);},1000); setTimeout(function(){fetchUS(0);},2000);
   }
   document.addEventListener("visibilitychange", resumeCheck);

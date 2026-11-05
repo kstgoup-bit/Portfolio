@@ -37,8 +37,13 @@
     if (!cashRecorded) issues.push('예수금·CMA 기록 없음 — 현금 비중은 미확인'); else if (cashMissing.length) issues.push('예수금 기록이 없는 계좌: ' + cashMissing.join('·') + ' — 현금 비중은 기록된 금액 기준(실제는 더 클 수 있음)');
     var pct = function (v) { return total > 0 ? Math.round(v / total * 1000) / 10 : null; };
     holdings.forEach(function (h) { h.weightPct = pct(h.valueKRW); });
+    /* 28단계: 이번 접속에서 GAS로 받은 시각(메모리 전용 v5_quote_meta). 단일 출처·미검증이며 '얼마나 최근 값인지' 표시용. 없으면 전부 '저장된 값'으로 본다. */
+    var qm = parseJson(get(src, 'v5_quote_meta')).value; qm = qm && typeof qm === 'object' && !Array.isArray(qm) ? qm : {};
+    var okT = function (t) { return fin(t) && t > 0 && t < 8.64e15; }, fr = { source: 'gas', verification: 'unverified', total: holdings.length, fresh: 0, staleTickers: [], newestAt: null, oldestAt: null, fxAt: okT(qm.FX) ? new Date(qm.FX).toISOString() : null }, tmin = null, tmax = null;
+    holdings.forEach(function (h) { var t = qm[h.market + ':' + h.ticker]; if (okT(t)) { fr.fresh++; tmin = tmin === null || t < tmin ? t : tmin; tmax = tmax === null || t > tmax ? t : tmax; } else fr.staleTickers.push(h.ticker); });
+    if (tmin !== null) { fr.oldestAt = new Date(tmin).toISOString(); fr.newestAt = new Date(tmax).toISOString(); }
     var okAll = accounts.every(function (a) { return a.ok; }) && !missingFields && !!fx;
-    return deepFreeze({ basis: basis, asOf: o.asOf || null, readOnly: true, priceBasis: 'app-entered-unverified', fx: fx, totalKRW: Math.round(total), cashKRW: Math.round(cashKRW), cashRecorded: cashRecorded, cashMissingAccounts: cashMissing, cashPct: cashRecorded ? pct(cashKRW) : null, spearPct: pct(spearKRW), shieldPct: pct(shieldKRW), zeroQty: zeroQty, noAvg: noAvg,
+    return deepFreeze({ basis: basis, asOf: o.asOf || null, readOnly: true, priceBasis: 'app-entered-unverified', priceFreshness: fr, fx: fx, totalKRW: Math.round(total), cashKRW: Math.round(cashKRW), cashRecorded: cashRecorded, cashMissingAccounts: cashMissing, cashPct: cashRecorded ? pct(cashKRW) : null, spearPct: pct(spearKRW), shieldPct: pct(shieldKRW), zeroQty: zeroQty, noAvg: noAvg,
       accounts: accounts, holdings: holdings, complete: okAll, issues: issues });
   }
   /* AI에 넘기는 최소 정보: 종목코드·시장·비중·현금 비중만. 이름·수량·평단·계좌 상세·메모는 전달하지 않는다. */
