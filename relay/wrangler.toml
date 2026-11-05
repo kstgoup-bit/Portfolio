@@ -1,0 +1,6 @@
+# 배포 설정 예시 — 이 파일은 비밀을 담지 않는다. 비밀은 `wrangler secret put` 또는 대시보드에서 직접 입력한다.
+name = "has-quote-relay"
+main = "worker.mjs"
+compatibility_date = "2026-01-01"
+workers_dev = true
+# HAS_ALLOWED_ORIGIN(앱 주소, 예: https://kstgoup-bit.github.io)은 비밀이 아니지만 배포 시 직접 설정한다.

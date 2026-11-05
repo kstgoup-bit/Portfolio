@@ -23,7 +23,8 @@
     "test:records26": "node tests/records-integrity-stage26.cjs",
     "test:aiacc26": "node tests/ai-accuracy-stage26.cjs",
     "test:rehearsal26": "node tests/restore-rehearsal-stage26.cjs",
-    "test:galaxy26": "node tests/galaxy-test-stage26.cjs"
+    "test:galaxy26": "node tests/galaxy-test-stage26.cjs",
+    "test:relay27": "node --require ./tests/lib/no-network.cjs --test tests/relay-worker-stage27.test.cjs"
   },
   "devDependencies": {
     "@fontsource/noto-sans-kr": "5.2.6",
