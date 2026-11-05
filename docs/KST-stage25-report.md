@@ -8,7 +8,7 @@
 ## 1. 기준 브랜치와 실제 커밋
 지시서 기준 `work/has-stage24-safe-integration-20261105` = d08e418. **실제 원격 HEAD는 3b2e65c**(d08e418 + 24단계 보고서 커밋 1개). 코드 차이 없음, 덮어쓰지 않고 3b2e65c에서 분기.
 ## 2. 신규 브랜치와 최종 커밋
-`work/has-stage25-mobile-advisor-integration-20261106` — 최종 커밋은 push 후 전달 메시지에 기재(본 문서가 포함된 커밋). main = fd2599398d2f2ef1816ca9b64ea134ea8811309d(불변).
+`work/has-stage25-mobile-advisor-integration-20261106` — 최종 커밋 c3d5b18(본 보고서 포함). main = fd2599398d2f2ef1816ca9b64ea134ea8811309d(불변).
 
 ## 3. 변경 파일과 이유
 - 수정: `portfolio_v5.html`(추가 10곳: 연결), `has/portfolio-reader.js`(수량 0·평단 누락·환율 범위·현금 기록 유무·공격/방어 구분), `has/advisor-bridge.js`(자료 불완전 시 비중 미상 처리), `has/advisor-app.js`(합성 데이터 갱신), `package.json`(test:staff25)
