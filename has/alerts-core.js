@@ -17,7 +17,7 @@
       var type = map[it.kind]; if (!type) { rejected.push({ id: it.id, reason: '알림 대상 아님' }); return; }
       if (!it.dataOk) { rejected.push({ id: it.id, reason: '자료 불충분(미검증·오래됨)' }); return; }
       if (!Array.isArray(it.evidence) || !it.evidence.length) { rejected.push({ id: it.id, reason: '근거 없음' }); return; }
-      out.push({ key: type + '|' + (it.ticker || '*'), type: type, label: TYPES[type].label, ticker: it.ticker || null, level: typeof it.level === 'number' ? it.level : 1, evidence: it.evidence.slice(), asOfDate: it.asOfDate || null, source: it.source || null, priority: TYPES[type].priority, createdAt: nowISO });
+      out.push({ key: type + '|' + (it.ticker || it.scope || '*'), type: type, label: TYPES[type].label, ticker: it.ticker || null, level: typeof it.level === 'number' ? it.level : 1, evidence: it.evidence.slice(), asOfDate: it.asOfDate || null, source: it.source || null, priority: TYPES[type].priority, createdAt: nowISO });
     });
     return { candidates: out, rejected: rejected };
   }

@@ -14,7 +14,10 @@
     "test:mobile20": "node tests/mobile-stage20.cjs",
     "test:e2e20": "node tests/e2e-journey-stage20.cjs",
     "test:years": "node tests/ledger-years-browser.cjs",
-    "test:lab23": "node tests/advisor-lab-stage23.cjs"
+    "test:lab23": "node tests/advisor-lab-stage23.cjs",
+    "test:protect24": "node tests/protection-browser-stage24.cjs",
+    "test:app24": "node tests/advisor-app-stage24.cjs",
+    "analysis24": "node tools/diff-analysis-stage24.cjs origin/main docs/KST-stage24-diff-analysis.md"
   },
   "devDependencies": {
     "@fontsource/noto-sans-kr": "5.2.6",

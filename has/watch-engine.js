@@ -3,7 +3,7 @@
    '활성 감시' 수는 합성(synthetic) 시세를 제외하고 센다. 저장소·네트워크·타이머 없음. */
 (function (root, factory) { if (typeof module === 'object' && module.exports) module.exports = factory(require('./quote-model.js')); else root.HASWatchEngine = factory(root.HASQuoteModel); })(typeof globalThis !== 'undefined' ? globalThis : this, function (Q) {
   'use strict';
-  var DEFAULTS = Object.freeze({ drawdownLevels: [20, 30, 35], relativeOverdropPp: 10, fundamentalsMaxAgeDays: 180, concentrationPct: 25, lossRiskPct: 20, lossRiskMinWeightPct: 10, minCashPct: 10, vixLevel: 30, vixSpikePct: 30 });
+  var DEFAULTS = Object.freeze({ drawdownLevels: [20, 30, 35], relativeOverdropPp: 10, fundamentalsMaxAgeDays: 180, concentrationPct: 25, lossRiskPct: 20, lossRiskMinWeightPct: 10, minCashPct: 10, fxShockPct: 3, vixLevel: 30, vixSpikePct: 30 });
   var fin = function (x) { return typeof x === 'number' && isFinite(x); };
   var daysBetween = function (a, nowISO) { return Math.floor((Date.parse(String(nowISO).slice(0, 10)) - Date.parse(a)) / 86400000); };
   var dateOk = function (s) { return typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s) && !isNaN(Date.parse(s)); };
@@ -71,6 +71,11 @@
     if (!v || !fin(v.level) || !dateOk(v.asOfDate) || !v.source) out.missing.push('시장 위험 지표(VIX 등) 출처·기준일 없음');
     else if (daysBetween(v.asOfDate, nowISO) > 4) out.missing.push('시장 위험 지표가 오래됨');
     else if (v.level >= c.vixLevel || (fin(v.change5dPct) && v.change5dPct >= c.vixSpikePct)) out.signals.push(sig('market-risk', null, v.level, ['변동성 지표 ' + v.level + (fin(v.change5dPct) ? ' (5일 ' + v.change5dPct + '%)' : '')], v.asOfDate, v.source));
+    // 환율 급변(24단계): 출처·두 시점이 모두 있어야 신호. 없으면 '자료 없음'으로 두고 만들어내지 않는다.
+    var x = ctx && ctx.fx, lim = c.fxShockPct;
+    if (!x || !fin(x.rate) || !fin(x.prevRate) || x.prevRate <= 0 || !dateOk(x.asOfDate) || !dateOk(x.prevAsOfDate) || !x.source) out.missing.push('환율 변동 자료(출처·두 시점) 없음');
+    else if (daysBetween(x.asOfDate, nowISO) > 4) out.missing.push('환율 자료가 오래됨');
+    else { var ch = Math.round((x.rate - x.prevRate) / x.prevRate * 1000) / 10; if (Math.abs(ch) >= lim) { var g = sig('market-risk', null, Math.abs(ch), ['원/달러 ' + x.prevRate + ' → ' + x.rate + ' (' + (ch > 0 ? '+' : '') + ch + '%, ' + x.prevAsOfDate + '~' + x.asOfDate + ')'], x.asOfDate, x.source); g.id = 'market-risk|fx'; g.scope = 'fx'; out.signals.push(g); } }
     return out;
   }
   /* 활성 감시 집계: 사용 가능한 실제(비합성) 시세로 평가 가능한 종목만 '실제 활성'. 합성은 따로 센다. */

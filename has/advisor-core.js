@@ -42,6 +42,7 @@
     else { adv.opinion = '판단 보류'; adv.reasonsAgainst.push('뚜렷한 신호 없음(관찰 유지)'); if (aBuy) adv.reasonsAgainst.push('공격형만 매수 검토, 방어형 조건 미충족'); }
     if (!adv.reasonsAgainst.length) adv.reasonsAgainst.push('반대 근거는 자료에서 확인되지 않음(검토 필요)');
     adv.unknown = w.missing.slice();
+    if (!adv.checks.length) adv.checks.push('다음 실적 발표·공시 일정과 최신 재무자료를 확인');
     return adv;
   }
   /* 외부(AI) 출력 포함 모든 조언의 표시 전 검증. 오류가 있으면 표시하지 않는다. */
