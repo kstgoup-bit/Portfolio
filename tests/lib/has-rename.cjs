@@ -17,8 +17,11 @@ const RENAMES = {
 const STAGE19 = JSON.parse(fs.readFileSync(path.join(__dirname, 'has-stage19-edits.json'), 'utf8'));
 /* 25단계: AI 참모 연결 수정 목록([지금 문구, 24단계 문구]). 가장 먼저(마지막부터) 되돌린다. */
 const STAGE25 = JSON.parse(fs.readFileSync(path.join(__dirname, 'has-stage25-edits.json'), 'utf8'));
+/* 26단계: color 오류 수정 1곳([지금 문구, 25단계 문구]). 25단계 되돌리기보다 먼저 되돌린다. */
+const STAGE26 = JSON.parse(fs.readFileSync(path.join(__dirname, 'has-stage26-edits.json'), 'utf8'));
 function stage24Text(file) {
   let s = fs.readFileSync(path.join(ROOT, file), 'utf8');
+  if (file === 'portfolio_v5.html') for (let i = STAGE26.length - 1; i >= 0; i--) { const [now, old] = STAGE26[i]; if (s.split(now).length !== 2) throw new Error('26단계 수정 되돌리기 실패'); s = s.replace(now, () => old); }
   if (file === 'portfolio_v5.html') for (let i = STAGE25.length - 1; i >= 0; i--) { const [now, old] = STAGE25[i]; if (s.split(now).length !== 2) throw new Error('25단계 수정 되돌리기 실패: ' + now.slice(0, 60)); s = s.replace(now, () => old); }
   return s;
 }
@@ -34,4 +37,4 @@ function legacyText(file) {
 }
 const legacySha = file => crypto.createHash('sha256').update(RENAMES[file] ? legacyText(file) : fs.readFileSync(path.join(ROOT, file))).digest('hex');
 const stage18Sha = file => crypto.createHash('sha256').update(stage18Text(file)).digest('hex');
-module.exports = { RENAMES, STAGE19, STAGE25, stage24Text, stage18Text, legacyText, legacySha, stage18Sha };
+module.exports = { RENAMES, STAGE19, STAGE25, STAGE26, stage24Text, stage18Text, legacyText, legacySha, stage18Sha };

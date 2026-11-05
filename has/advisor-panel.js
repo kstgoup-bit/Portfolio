@@ -54,10 +54,10 @@
     var n = el('div', 'hs-note', b.monitoring); n.setAttribute('data-testid', 'hs-monitor'); root.appendChild(n);
     var s0 = section('hs-headline', '오늘의 투자 브리핑'); s0.appendChild(el('div', 'hs-big', b.headline)); s0.appendChild(el('div', 'hs-kv', '점검 시각 ' + b.generatedAt + ' · 분석 상태 ' + b.status)); if (b.errors.length) b.errors.forEach(function (x) { s0.appendChild(el('div', 'hs-warn', '오류: ' + x)); }); root.appendChild(s0);
     // ① 포트폴리오 상태
-    var s1 = section('hs-state', '① 내 포트폴리오 상태'); s1.appendChild(el('div', 'hs-big', '전체 ' + won(st.totalKRW))); s1.appendChild(el('div', 'hs-note', b.priceNote));
+    var s1 = section('hs-state', '① 내 포트폴리오 상태'); s1.appendChild(el('div', 'hs-big', '전체 ' + won(st.totalKRW) + ' (예수금·CMA 포함)')); s1.appendChild(el('div', 'hs-note', b.priceNote));
     st.accounts.forEach(function (a) { var r = el('div', 'hs-row'); r.appendChild(el('span', 'hs-kv', a.label + ' 계좌' + (a.ok ? '' : ' (자료 오류 — 제외)'))); r.appendChild(el('span', 'hs-kv', won(a.valueKRW) + ' · ' + pct(a.weightPct))); s1.appendChild(r); });
     s1.appendChild(el('div', 'hs-kv', '공격(창) ' + pct(st.spearPct) + ' · 방어(방패) ' + pct(st.shieldPct) + ' (예수금·CMA는 방어로 계산, 역할 미지정 종목은 앱 규칙대로 창)'));
-    var cash = el('div', 'hs-kv', '현금 비중 ' + (st.cashKnown ? pct(st.cashPct) + ' (' + won(st.cashKRW) + ')' : '미확인 — 예수금·CMA 기록 없음')); cash.setAttribute('data-testid', 'hs-cash'); s1.appendChild(cash);
+    var cash = el('div', 'hs-kv', '현금 비중 ' + (st.cashKnown ? pct(st.cashPct) + ' (' + won(st.cashKRW) + ')' + (st.cashMissingAccounts && st.cashMissingAccounts.length ? ' — 일부만 기록됨(예수금 없는 계좌: ' + st.cashMissingAccounts.join('·') + ')' : '') : '미확인 — 예수금·CMA 기록 없음')); cash.setAttribute('data-testid', 'hs-cash'); s1.appendChild(cash);
     if (st.zeroQty) s1.appendChild(el('div', 'hs-note', '수량 0인 항목 ' + st.zeroQty + '건은 보유로 세지 않았습니다.')); if (!st.top.length) s1.appendChild(el('div', 'hs-warn', '보유종목이 없습니다.')); st.top.forEach(function (h) { var r = el('div', 'hs-row'); r.appendChild(el('span', 'hs-kv', nm(h.ticker, c.names))); r.appendChild(el('span', 'hs-kv', pct(h.weightPct) + (h.role === 'shield' ? ' 🛡' : ' ⚔️'))); r.setAttribute('data-testid', 'hs-top'); s1.appendChild(r); }); root.appendChild(s1);
     // ② 주의할 위험
     var s2 = section('hs-risk', '② 주의할 위험'); if (!b.risks.length) s2.appendChild(el('div', 'hs-kv', '확인된 위험 신호 없음'));

@@ -18,7 +18,12 @@
     "test:protect24": "node tests/protection-browser-stage24.cjs",
     "test:app24": "node tests/advisor-app-stage24.cjs",
     "analysis24": "node tools/diff-analysis-stage24.cjs origin/main docs/KST-stage24-diff-analysis.md",
-    "test:staff25": "node tests/staff-integration-stage25.cjs"
+    "test:staff25": "node tests/staff-integration-stage25.cjs",
+    "test:color26": "node tests/color-regression-stage26.cjs",
+    "test:records26": "node tests/records-integrity-stage26.cjs",
+    "test:aiacc26": "node tests/ai-accuracy-stage26.cjs",
+    "test:rehearsal26": "node tests/restore-rehearsal-stage26.cjs",
+    "test:galaxy26": "node tests/galaxy-test-stage26.cjs"
   },
   "devDependencies": {
     "@fontsource/noto-sans-kr": "5.2.6",

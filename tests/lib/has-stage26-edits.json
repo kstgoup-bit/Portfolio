@@ -1,0 +1,106 @@
+[
+[
+"}\n/* 26단계: 저장 실패(저장공간 부족 등)가 화면 처리를 중단시키지 않게 하는 보조 함수. safeSet=사용자 기록(실패 시 안내), quietSet=앱 자체 캐시·화면 설정(실패해도 조용히 무시) */\nfunction safeSet(k, v) { try { localStorage.setItem(k, v); return true; } catch(e) { try{ showToast(\"⚠ 저장하지 못했습니다(저장공간 오류). 이번 변경은 저장되지 않았습니다. 백업 후 앱을 다시 열어 확인하세요.\", true); }catch(e2){} return false; } }\nfunction quietSet(k, v) { try { localStorage.setItem(k, v); return true; } catch(e) { return false; } }\n",
+"}\n"
+],
+[
+"        var utm=JSON.parse(localStorage.getItem('v5_userThemeMap')||'{}');\n        if (utm[oldTicker]) { utm[newTicker]=utm[oldTicker]; delete utm[oldTicker]; safeSet('v5_userThemeMap', JSON.stringify(utm)); }\n        s.name=nameMap[oldTicker]||s.name;",
+"        var utm=JSON.parse(localStorage.getItem('v5_userThemeMap')||'{}');\n        if (utm[oldTicker]) { utm[newTicker]=utm[oldTicker]; delete utm[oldTicker]; localStorage.setItem('v5_userThemeMap', JSON.stringify(utm)); }\n        s.name=nameMap[oldTicker]||s.name;"
+],
+[
+"function save() {\n  /* 26단계: 저장 도중 오류(저장공간 부족 등)가 나도 계좌별로 일부만 바뀌어 어긋나지 않도록, 실패하면 이번 저장에서 쓴 키를 전부 직전 값으로 되돌리고 알린다. */\n  var pairs=[\n    [\"v5_dom\",JSON.stringify(domStocks)],[\"v5_ov\",JSON.stringify(ovStocks)],[\"v5_pen\",JSON.stringify(penStocks)],[\"v5_gen\",JSON.stringify(genStocks)],\n    [\"v5_div\",JSON.stringify(divList)],[\"v5_snap\",JSON.stringify(snapshots)],[\"v5_deposits\",JSON.stringify(deposits)],\n    [\"v5_fx\",document.getElementById(\"usdKrw\").value||\"1370\"],[\"v5_balGoals\",JSON.stringify(balGoals)]\n  ];\n  var prev={};\n  try {",
+"function save() {\n  try {"
+],
+[
+"  try {\n    pairs.forEach(function(kv){ prev[kv[0]]=localStorage.getItem(kv[0]); localStorage.setItem(kv[0],kv[1]); });\n  } catch(e) {\n    Object.keys(prev).forEach(function(k){ try{ if(prev[k]===null) localStorage.removeItem(k); else localStorage.setItem(k,prev[k]); }catch(e2){} });\n    try{ showToast(\"⚠ 저장하지 못했습니다(저장공간 오류). 저장된 기록은 이전 상태 그대로입니다. 백업 후 앱을 다시 열어 확인하세요.\", true); }catch(e3){}\n  }\n}",
+"  try {\n    localStorage.setItem(\"v5_dom\", JSON.stringify(domStocks));\n    localStorage.setItem(\"v5_ov\", JSON.stringify(ovStocks));\n    localStorage.setItem(\"v5_pen\", JSON.stringify(penStocks));\n    localStorage.setItem(\"v5_gen\", JSON.stringify(genStocks));\n    localStorage.setItem(\"v5_div\", JSON.stringify(divList));\n    localStorage.setItem(\"v5_snap\", JSON.stringify(snapshots));\n    localStorage.setItem(\"v5_deposits\", JSON.stringify(deposits));\n    localStorage.setItem(\"v5_fx\", document.getElementById(\"usdKrw\").value||\"1370\");\n    localStorage.setItem(\"v5_balGoals\", JSON.stringify(balGoals));\n  } catch(e) {}\n}"
+],
+[
+"    var gradColors=m.color==='url(#allGrad)'?\n      [0,1,2].map(function(ri){return colorRanks[Math.min(ri,colorRanks.length-1)].color;}):null; /* 자산 있는 계좌가 3개 미만이어도 마지막 색으로 채움(26단계 수정) */\n    return {",
+"    var gradColors=m.color==='url(#allGrad)'?\n      [colorRanks[0].color,colorRanks[1].color,colorRanks[2].color]:null;\n    return {"
+],
+[
+"  var amt=numVal(document.getElementById(\"cmaAmt\").value);\n  safeSet(\"v5_cma_amount\", String(amt));\n  document.getElementById(\"cmaEditForm\").style.display=\"none\";",
+"  var amt=numVal(document.getElementById(\"cmaAmt\").value);\n  localStorage.setItem(\"v5_cma_amount\", String(amt));\n  document.getElementById(\"cmaEditForm\").style.display=\"none\";"
+],
+[
+"  if(fxHist.length>365) fxHist=fxHist.slice(-365);\n  quietSet(\"v5_fxHistory\",JSON.stringify(fxHist));\n  var fx52avg=Math.round(fxHist.reduce(function(s,x){return s+x.v;},0)/fxHist.length);",
+"  if(fxHist.length>365) fxHist=fxHist.slice(-365);\n  localStorage.setItem(\"v5_fxHistory\",JSON.stringify(fxHist));\n  var fx52avg=Math.round(fxHist.reduce(function(s,x){return s+x.v;},0)/fxHist.length);"
+],
+[
+"  if(lu) lu.textContent=\"마지막 조회: \"+now.toLocaleString(\"ko-KR\");\n  quietSet(\"v5_riskData\", JSON.stringify({hy:hy, rate:rate, vix:vix, ts:now.getTime()}));\n}",
+"  if(lu) lu.textContent=\"마지막 조회: \"+now.toLocaleString(\"ko-KR\");\n  localStorage.setItem(\"v5_riskData\", JSON.stringify({hy:hy, rate:rate, vix:vix, ts:now.getTime()}));\n}"
+],
+[
+"  );\n  quietSet(\"v5_riskData\", JSON.stringify({hy:hy||(cached.hy||280),rate:rate||(cached.rate||4.5),vix:vix||(cached.vix||18),dxy:dxy||(cached.dxy||100),spread:spread!==null?spread:(cached.spread||null),fg:fg!==null?fg:(cached.fg||null),oil:oil!==null?oil:(cached.oil||null),ts:Date.now()}));\n",
+"  );\n  localStorage.setItem(\"v5_riskData\", JSON.stringify({hy:hy||(cached.hy||280),rate:rate||(cached.rate||4.5),vix:vix||(cached.vix||18),dxy:dxy||(cached.dxy||100),spread:spread!==null?spread:(cached.spread||null),fg:fg!==null?fg:(cached.fg||null),oil:oil!==null?oil:(cached.oil||null),ts:Date.now()}));\n"
+],
+[
+"  utm[ticker]=theme;\n  safeSet('v5_userThemeMap', JSON.stringify(utm));\n  renderDashboard();",
+"  utm[ticker]=theme;\n  localStorage.setItem('v5_userThemeMap', JSON.stringify(utm));\n  renderDashboard();"
+],
+[
+"    delete utm[target.ticker];\n    safeSet('v5_userThemeMap', JSON.stringify(utm));\n  }",
+"    delete utm[target.ticker];\n    localStorage.setItem('v5_userThemeMap', JSON.stringify(utm));\n  }"
+],
+[
+"function loadPrinciples(){ try{var v=localStorage.getItem(\"v5_investPrinciples\"); return v?JSON.parse(v):{};}catch(e){return {};} }\nfunction savePrinciples(obj){ safeSet(\"v5_investPrinciples\",JSON.stringify(obj)); }\nfunction principleKey(type,id){ return type+\"-\"+id; }",
+"function loadPrinciples(){ try{var v=localStorage.getItem(\"v5_investPrinciples\"); return v?JSON.parse(v):{};}catch(e){return {};} }\nfunction savePrinciples(obj){ localStorage.setItem(\"v5_investPrinciples\",JSON.stringify(obj)); }\nfunction principleKey(type,id){ return type+\"-\"+id; }"
+],
+[
+"  // 사용자 지정 테마 저장\n  try{ var utm=JSON.parse(localStorage.getItem('v5_userThemeMap')||'{}');\n  utm[ticker]=theme;",
+"  // 사용자 지정 테마 저장\n  var utm=JSON.parse(localStorage.getItem('v5_userThemeMap')||'{}');\n  utm[ticker]=theme;"
+],
+[
+"  utm[ticker]=theme;\n  safeSet('v5_userThemeMap', JSON.stringify(utm)); }catch(e){ /* 26단계: 테마 저장 실패가 종목 추가를 중단시키지 않게 함(저장 실패는 save()가 안내) */ }\n  document.getElementById(type+\"AddForm\").style.display=\"none\";",
+"  utm[ticker]=theme;\n  localStorage.setItem('v5_userThemeMap', JSON.stringify(utm));\n  document.getElementById(type+\"AddForm\").style.display=\"none\";"
+],
+[
+"        utm[ticker]=\"방어·예수금\";\n        safeSet('v5_userThemeMap', JSON.stringify(utm));\n      }",
+"        utm[ticker]=\"방어·예수금\";\n        localStorage.setItem('v5_userThemeMap', JSON.stringify(utm));\n      }"
+],
+[
+"      utm[ticker]=\"방어·예수금\";\n      safeSet('v5_userThemeMap', JSON.stringify(utm));\n    }",
+"      utm[ticker]=\"방어·예수금\";\n      localStorage.setItem('v5_userThemeMap', JSON.stringify(utm));\n    }"
+],
+[
+"  }\n  safeSet('v5_div', JSON.stringify(divList));\n  renderDividend();",
+"  }\n  localStorage.setItem('v5_div', JSON.stringify(divList));\n  renderDividend();"
+],
+[
+"  var y=dsy.value;\n  quietSet(\"v5_divSumYear\", y);\n  if(!y){el.textContent=\"0원\";return;}",
+"  var y=dsy.value;\n  localStorage.setItem(\"v5_divSumYear\", y);\n  if(!y){el.textContent=\"0원\";return;}"
+],
+[
+"  var m=dsm.value;\n  quietSet(\"v5_divSumMonth\", m);\n  if(!m){el.textContent=\"-\";return;}",
+"  var m=dsm.value;\n  localStorage.setItem(\"v5_divSumMonth\", m);\n  if(!m){el.textContent=\"-\";return;}"
+],
+[
+"function loadDebtBank(){ try{var v=localStorage.getItem(\"v5_debtBank\"); return v?JSON.parse(v):DEBT_BANK_SEED.slice();}catch(e){return DEBT_BANK_SEED.slice();} }\nfunction saveDebtBank(list){ safeSet(\"v5_debtBank\",JSON.stringify(list)); }\nfunction loadDebtHouse(){ try{var v=localStorage.getItem(\"v5_debtHouse\"); return v?JSON.parse(v):DEBT_HOUSE_SEED.slice();}catch(e){return DEBT_HOUSE_SEED.slice();} }",
+"function loadDebtBank(){ try{var v=localStorage.getItem(\"v5_debtBank\"); return v?JSON.parse(v):DEBT_BANK_SEED.slice();}catch(e){return DEBT_BANK_SEED.slice();} }\nfunction saveDebtBank(list){ localStorage.setItem(\"v5_debtBank\",JSON.stringify(list)); }\nfunction loadDebtHouse(){ try{var v=localStorage.getItem(\"v5_debtHouse\"); return v?JSON.parse(v):DEBT_HOUSE_SEED.slice();}catch(e){return DEBT_HOUSE_SEED.slice();} }"
+],
+[
+"function loadDebtHouse(){ try{var v=localStorage.getItem(\"v5_debtHouse\"); return v?JSON.parse(v):DEBT_HOUSE_SEED.slice();}catch(e){return DEBT_HOUSE_SEED.slice();} }\nfunction saveDebtHouse(list){ safeSet(\"v5_debtHouse\",JSON.stringify(list)); }\n",
+"function loadDebtHouse(){ try{var v=localStorage.getItem(\"v5_debtHouse\"); return v?JSON.parse(v):DEBT_HOUSE_SEED.slice();}catch(e){return DEBT_HOUSE_SEED.slice();} }\nfunction saveDebtHouse(list){ localStorage.setItem(\"v5_debtHouse\",JSON.stringify(list)); }\n"
+],
+[
+"function loadNonFinAssets(){ try{var v=localStorage.getItem(\"v5_nonFinAssets\"); return v?JSON.parse(v):NONFIN_ASSET_SEED.slice();}catch(e){return NONFIN_ASSET_SEED.slice();} }\nfunction saveNonFinAssets(list){ safeSet(\"v5_nonFinAssets\",JSON.stringify(list)); }\n",
+"function loadNonFinAssets(){ try{var v=localStorage.getItem(\"v5_nonFinAssets\"); return v?JSON.parse(v):NONFIN_ASSET_SEED.slice();}catch(e){return NONFIN_ASSET_SEED.slice();} }\nfunction saveNonFinAssets(list){ localStorage.setItem(\"v5_nonFinAssets\",JSON.stringify(list)); }\n"
+],
+[
+"function loadMemos(){ try{return JSON.parse(localStorage.getItem(\"v5_memos\")||\"[]\");}catch(e){return [];} }\nfunction saveMemos(m){ safeSet(\"v5_memos\",JSON.stringify(m)); }\nfunction delMemo(i){",
+"function loadMemos(){ try{return JSON.parse(localStorage.getItem(\"v5_memos\")||\"[]\");}catch(e){return [];} }\nfunction saveMemos(m){ localStorage.setItem(\"v5_memos\",JSON.stringify(m)); }\nfunction delMemo(i){"
+],
+[
+"  if(isNaN(val)||val<0||val>100) return;\n  quietSet(\"v5_fg\", val);\n  // 저장된 riskData에도 병합",
+"  if(isNaN(val)||val<0||val>100) return;\n  localStorage.setItem(\"v5_fg\", val);\n  // 저장된 riskData에도 병합"
+],
+[
+"  rk.fg=val; rk.ts=Date.now();\n  quietSet(\"v5_riskData\",JSON.stringify(rk));\n  // UI 즉시 반영",
+"  rk.fg=val; rk.ts=Date.now();\n  localStorage.setItem(\"v5_riskData\",JSON.stringify(rk));\n  // UI 즉시 반영"
+],
+[
+"function saveLedgerData(data){\n  safeSet(\"v5_ledger\",JSON.stringify(data));\n}",
+"function saveLedgerData(data){\n  localStorage.setItem(\"v5_ledger\",JSON.stringify(data));\n}"
+]
+]

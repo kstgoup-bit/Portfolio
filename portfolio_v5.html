@@ -2391,6 +2391,9 @@ function showToast(msg, isWarn) {
   t.className = "toast show" + (isWarn?" warn":"");
   setTimeout(function(){ t.classList.remove("show"); }, 3000);
 }
+/* 26단계: 저장 실패(저장공간 부족 등)가 화면 처리를 중단시키지 않게 하는 보조 함수. safeSet=사용자 기록(실패 시 안내), quietSet=앱 자체 캐시·화면 설정(실패해도 조용히 무시) */
+function safeSet(k, v) { try { localStorage.setItem(k, v); return true; } catch(e) { try{ showToast("⚠ 저장하지 못했습니다(저장공간 오류). 이번 변경은 저장되지 않았습니다. 백업 후 앱을 다시 열어 확인하세요.", true); }catch(e2){} return false; } }
+function quietSet(k, v) { try { localStorage.setItem(k, v); return true; } catch(e) { return false; } }
 
 function load() {
   try { domStocks = JSON.parse(localStorage.getItem("v5_dom")) || DOM_INIT; } catch { domStocks=DOM_INIT; }
@@ -2406,7 +2409,7 @@ function load() {
       if (renameMap[s.ticker]) {
         var oldTicker=s.ticker, newTicker=renameMap[oldTicker];
         var utm=JSON.parse(localStorage.getItem('v5_userThemeMap')||'{}');
-        if (utm[oldTicker]) { utm[newTicker]=utm[oldTicker]; delete utm[oldTicker]; localStorage.setItem('v5_userThemeMap', JSON.stringify(utm)); }
+        if (utm[oldTicker]) { utm[newTicker]=utm[oldTicker]; delete utm[oldTicker]; safeSet('v5_userThemeMap', JSON.stringify(utm)); }
         s.name=nameMap[oldTicker]||s.name;
         s.ticker=newTicker;
         changed=true;
@@ -2441,17 +2444,19 @@ function load() {
 }
 
 function save() {
+  /* 26단계: 저장 도중 오류(저장공간 부족 등)가 나도 계좌별로 일부만 바뀌어 어긋나지 않도록, 실패하면 이번 저장에서 쓴 키를 전부 직전 값으로 되돌리고 알린다. */
+  var pairs=[
+    ["v5_dom",JSON.stringify(domStocks)],["v5_ov",JSON.stringify(ovStocks)],["v5_pen",JSON.stringify(penStocks)],["v5_gen",JSON.stringify(genStocks)],
+    ["v5_div",JSON.stringify(divList)],["v5_snap",JSON.stringify(snapshots)],["v5_deposits",JSON.stringify(deposits)],
+    ["v5_fx",document.getElementById("usdKrw").value||"1370"],["v5_balGoals",JSON.stringify(balGoals)]
+  ];
+  var prev={};
   try {
-    localStorage.setItem("v5_dom", JSON.stringify(domStocks));
-    localStorage.setItem("v5_ov", JSON.stringify(ovStocks));
-    localStorage.setItem("v5_pen", JSON.stringify(penStocks));
-    localStorage.setItem("v5_gen", JSON.stringify(genStocks));
-    localStorage.setItem("v5_div", JSON.stringify(divList));
-    localStorage.setItem("v5_snap", JSON.stringify(snapshots));
-    localStorage.setItem("v5_deposits", JSON.stringify(deposits));
-    localStorage.setItem("v5_fx", document.getElementById("usdKrw").value||"1370");
-    localStorage.setItem("v5_balGoals", JSON.stringify(balGoals));
-  } catch(e) {}
+    pairs.forEach(function(kv){ prev[kv[0]]=localStorage.getItem(kv[0]); localStorage.setItem(kv[0],kv[1]); });
+  } catch(e) {
+    Object.keys(prev).forEach(function(k){ try{ if(prev[k]===null) localStorage.removeItem(k); else localStorage.setItem(k,prev[k]); }catch(e2){} });
+    try{ showToast("⚠ 저장하지 못했습니다(저장공간 오류). 저장된 기록은 이전 상태 그대로입니다. 백업 후 앱을 다시 열어 확인하세요.", true); }catch(e3){}
+  }
 }
 
 // =============================================
@@ -3488,7 +3493,7 @@ function renderDashboard() {
     var bc=m.color==='url(#allGrad)'?colorRanks[0].color:m.color;
     var cv=colorVariants[bc]||{light:'#82b1ff',dark:'#0d47a1',mid:'#1565c0'};
     var gradColors=m.color==='url(#allGrad)'?
-      [colorRanks[0].color,colorRanks[1].color,colorRanks[2].color]:null;
+      [0,1,2].map(function(ri){return colorRanks[Math.min(ri,colorRanks.length-1)].color;}):null; /* 자산 있는 계좌가 3개 미만이어도 마지막 색으로 채움(26단계 수정) */
     return {
       pct:m.g.pct||0,
       label:m.label.replace(/🇰🇷 |🇺🇸 |🏦 |💼 /g,''),
@@ -3905,7 +3910,7 @@ function toggleCmaEdit() {
 
 function saveCma() {
   var amt=numVal(document.getElementById("cmaAmt").value);
-  localStorage.setItem("v5_cma_amount", String(amt));
+  safeSet("v5_cma_amount", String(amt));
   document.getElementById("cmaEditForm").style.display="none";
   renderAllCashSummary();
 }
@@ -4232,7 +4237,7 @@ function rkUpdateUI(hy, rate, vix, fxScore, dxy, spread, fg, oil) {
   if(!fxHist.length||fxHist[fxHist.length-1].d!==today) fxHist.push({d:today,v:fxNow});
   else fxHist[fxHist.length-1].v=fxNow;
   if(fxHist.length>365) fxHist=fxHist.slice(-365);
-  localStorage.setItem("v5_fxHistory",JSON.stringify(fxHist));
+  quietSet("v5_fxHistory",JSON.stringify(fxHist));
   var fx52avg=Math.round(fxHist.reduce(function(s,x){return s+x.v;},0)/fxHist.length);
   var fxDiff=((fxNow-fx52avg)/fx52avg)*100;
   var fxAbs=Math.abs(fxDiff);
@@ -4251,7 +4256,7 @@ function rkUpdateUI(hy, rate, vix, fxScore, dxy, spread, fg, oil) {
   var now = new Date();
   var lu = document.getElementById("rkLastUpdate");
   if(lu) lu.textContent="마지막 조회: "+now.toLocaleString("ko-KR");
-  localStorage.setItem("v5_riskData", JSON.stringify({hy:hy, rate:rate, vix:vix, ts:now.getTime()}));
+  quietSet("v5_riskData", JSON.stringify({hy:hy, rate:rate, vix:vix, ts:now.getTime()}));
 }
 
 async function fetchRiskData() {
@@ -4402,7 +4407,7 @@ async function fetchRiskData() {
     fg!==null?fg:(cached.fg||null),
     oil!==null?oil:(cached.oil||null)
   );
-  localStorage.setItem("v5_riskData", JSON.stringify({hy:hy||(cached.hy||280),rate:rate||(cached.rate||4.5),vix:vix||(cached.vix||18),dxy:dxy||(cached.dxy||100),spread:spread!==null?spread:(cached.spread||null),fg:fg!==null?fg:(cached.fg||null),oil:oil!==null?oil:(cached.oil||null),ts:Date.now()}));
+  quietSet("v5_riskData", JSON.stringify({hy:hy||(cached.hy||280),rate:rate||(cached.rate||4.5),vix:vix||(cached.vix||18),dxy:dxy||(cached.dxy||100),spread:spread!==null?spread:(cached.spread||null),fg:fg!==null?fg:(cached.fg||null),oil:oil!==null?oil:(cached.oil||null),ts:Date.now()}));
 
   // ── 상태 메시지 (사라지지 않음) ────────
   var now=new Date().toLocaleTimeString("ko-KR");
@@ -5043,7 +5048,7 @@ function renderEditForm(s, type) {
 function saveThemeEdit(ticker, theme) {
   var utm=JSON.parse(localStorage.getItem('v5_userThemeMap')||'{}');
   utm[ticker]=theme;
-  localStorage.setItem('v5_userThemeMap', JSON.stringify(utm));
+  safeSet('v5_userThemeMap', JSON.stringify(utm));
   renderDashboard();
 }
 
@@ -5118,7 +5123,7 @@ function delStock(id, type) {
   if(target && target.ticker){
     var utm=JSON.parse(localStorage.getItem('v5_userThemeMap')||'{}');
     delete utm[target.ticker];
-    localStorage.setItem('v5_userThemeMap', JSON.stringify(utm));
+    safeSet('v5_userThemeMap', JSON.stringify(utm));
   }
   save(); renderAll();
 }
@@ -5147,7 +5152,7 @@ function survivalBand(score){
 }
 
 function loadPrinciples(){ try{var v=localStorage.getItem("v5_investPrinciples"); return v?JSON.parse(v):{};}catch(e){return {};} }
-function savePrinciples(obj){ localStorage.setItem("v5_investPrinciples",JSON.stringify(obj)); }
+function savePrinciples(obj){ safeSet("v5_investPrinciples",JSON.stringify(obj)); }
 function principleKey(type,id){ return type+"-"+id; }
 
 function getPrincipleStatusDot(type,id){
@@ -6344,9 +6349,9 @@ function addStock(type) {
   var id=Math.max.apply(null,[0].concat(stocks.map(function(s){return s.id;}))) + 1;
   stocks.push({id:id,name:name,ticker:ticker,quantity:parseFloat(document.getElementById("aq_"+type).value)||0,avgPrice:numVal(document.getElementById("aa_"+type).value),currentPrice:numVal(document.getElementById("ac_"+type).value)});
   // 사용자 지정 테마 저장
-  var utm=JSON.parse(localStorage.getItem('v5_userThemeMap')||'{}');
+  try{ var utm=JSON.parse(localStorage.getItem('v5_userThemeMap')||'{}');
   utm[ticker]=theme;
-  localStorage.setItem('v5_userThemeMap', JSON.stringify(utm));
+  safeSet('v5_userThemeMap', JSON.stringify(utm)); }catch(e){ /* 26단계: 테마 저장 실패가 종목 추가를 중단시키지 않게 함(저장 실패는 save()가 안내) */ }
   document.getElementById(type+"AddForm").style.display="none";
   save(); renderAll();
 }
@@ -6486,7 +6491,7 @@ function setDeposit(type) {
         stocks.push({id:id,name:"예수금("+sub+")",ticker:ticker,quantity:1,avgPrice:amt,currentPrice:amt,role:"shield"});
         var utm=JSON.parse(localStorage.getItem('v5_userThemeMap')||'{}');
         utm[ticker]="방어·예수금";
-        localStorage.setItem('v5_userThemeMap', JSON.stringify(utm));
+        safeSet('v5_userThemeMap', JSON.stringify(utm));
       }
     });
   } else {
@@ -6503,7 +6508,7 @@ function setDeposit(type) {
       stocks.push({id:id,name:"예수금",ticker:ticker,quantity:1,avgPrice:amt,currentPrice:amt,role:"shield"});
       var utm=JSON.parse(localStorage.getItem('v5_userThemeMap')||'{}');
       utm[ticker]="방어·예수금";
-      localStorage.setItem('v5_userThemeMap', JSON.stringify(utm));
+      safeSet('v5_userThemeMap', JSON.stringify(utm));
     }
   }
   document.getElementById(type+"DepositAddForm").style.display="none";
@@ -6835,7 +6840,7 @@ function saveDivEdit(i){
     divList[i].amount=Math.round(amt);
     divList[i].usd=null;
   }
-  localStorage.setItem('v5_div', JSON.stringify(divList));
+  safeSet('v5_div', JSON.stringify(divList));
   renderDividend();
 }
 
@@ -6844,7 +6849,7 @@ function updateDivSumYear(){
   var el=document.getElementById("divYear");
   if(!dsy||!el) return;
   var y=dsy.value;
-  localStorage.setItem("v5_divSumYear", y);
+  quietSet("v5_divSumYear", y);
   if(!y){el.textContent="0원";return;}
   var sum=divList.filter(function(d){return String(new Date(d.date).getFullYear())===y;}).reduce(function(s,d){return s+d.amount;},0);
   el.textContent=Math.round(sum).toLocaleString()+"원";
@@ -6855,7 +6860,7 @@ function updateDivSumMonth(){
   var el=document.getElementById("divMonthSel");
   if(!dsm||!el) return;
   var m=dsm.value;
-  localStorage.setItem("v5_divSumMonth", m);
+  quietSet("v5_divSumMonth", m);
   if(!m){el.textContent="-";return;}
   var sum=divList.filter(function(d){return d.date.substring(0,7)===m;}).reduce(function(s,d){return s+d.amount;},0);
   var label=m.replace('-','년 ')+'월';
@@ -7352,9 +7357,9 @@ var DEBT_HOUSE_SEED=[
   {name:"원흥푸 808호", amount:5000000}
 ];
 function loadDebtBank(){ try{var v=localStorage.getItem("v5_debtBank"); return v?JSON.parse(v):DEBT_BANK_SEED.slice();}catch(e){return DEBT_BANK_SEED.slice();} }
-function saveDebtBank(list){ localStorage.setItem("v5_debtBank",JSON.stringify(list)); }
+function saveDebtBank(list){ safeSet("v5_debtBank",JSON.stringify(list)); }
 function loadDebtHouse(){ try{var v=localStorage.getItem("v5_debtHouse"); return v?JSON.parse(v):DEBT_HOUSE_SEED.slice();}catch(e){return DEBT_HOUSE_SEED.slice();} }
-function saveDebtHouse(list){ localStorage.setItem("v5_debtHouse",JSON.stringify(list)); }
+function saveDebtHouse(list){ safeSet("v5_debtHouse",JSON.stringify(list)); }
 
 // 기존에 저장된 데이터에서 '지윤 대출'/'공제회 대출'이 주택보증금 쪽에 남아있으면 금융기관대출로 자동 이동
 function migrateDebtItems(){
@@ -7524,7 +7529,7 @@ var NONFIN_ASSET_SEED=[
   {name:"엠버418", amount:140000000}
 ];
 function loadNonFinAssets(){ try{var v=localStorage.getItem("v5_nonFinAssets"); return v?JSON.parse(v):NONFIN_ASSET_SEED.slice();}catch(e){return NONFIN_ASSET_SEED.slice();} }
-function saveNonFinAssets(list){ localStorage.setItem("v5_nonFinAssets",JSON.stringify(list)); }
+function saveNonFinAssets(list){ safeSet("v5_nonFinAssets",JSON.stringify(list)); }
 
 function renderNetWorth(){
   // 주식 자산 (연동)
@@ -8117,7 +8122,7 @@ window.addEventListener("load", function() {
 // 📝 메모장
 // ═══════════════════════════════
 function loadMemos(){ try{return JSON.parse(localStorage.getItem("v5_memos")||"[]");}catch(e){return [];} }
-function saveMemos(m){ localStorage.setItem("v5_memos",JSON.stringify(m)); }
+function saveMemos(m){ safeSet("v5_memos",JSON.stringify(m)); }
 function delMemo(i){
   var memos=loadMemos(); memos.splice(i,1); saveMemos(memos); renderMemo();
 }
@@ -8181,11 +8186,11 @@ function applyFgManual(){
   if(!inp) return;
   var val=parseFloat(inp.value);
   if(isNaN(val)||val<0||val>100) return;
-  localStorage.setItem("v5_fg", val);
+  quietSet("v5_fg", val);
   // 저장된 riskData에도 병합
   var rk={}; try{rk=JSON.parse(localStorage.getItem("v5_riskData")||"{}");}catch(e){}
   rk.fg=val; rk.ts=Date.now();
-  localStorage.setItem("v5_riskData",JSON.stringify(rk));
+  quietSet("v5_riskData",JSON.stringify(rk));
   // UI 즉시 반영
   var fxH=[];try{fxH=JSON.parse(localStorage.getItem("v5_fxHistory")||"[]");}catch(e){}
   var fx52a=fxH.length?Math.round(fxH.reduce(function(s,x){return s+x.v;},0)/fxH.length):1370;
@@ -8313,7 +8318,7 @@ function loadLedgerData(){
   return data;
 }
 function saveLedgerData(data){
-  localStorage.setItem("v5_ledger",JSON.stringify(data));
+  safeSet("v5_ledger",JSON.stringify(data));
 }
 function initLedgerMonth(){
   var m=document.getElementById("ldgMonth");

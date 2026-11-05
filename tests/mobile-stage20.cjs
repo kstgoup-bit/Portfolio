@@ -24,7 +24,8 @@ ok('그라데이션 배경 글씨는 별도 집계(측정 불가)로 분리되�
       const ctx = await b.newContext({ viewport: { width: w, height: 844 }, isMobile: true, hasTouch: true, serviceWorkers: 'block' }); await ctx.route('**/*', r => r.request().url().startsWith(origin + '/') ? r.continue() : r.abort());
       await ctx.addInitScript(() => { sessionStorage.setItem('v5_auth', '1'); if (!localStorage.getItem('__s')) { localStorage.setItem('v5_gen', JSON.stringify([{ id: 1, name: '합성', ticker: 'AAA', quantity: 2, avgPrice: 40000, currentPrice: 50000 }])); localStorage.setItem('__s', '1'); } });
       const page = await ctx.newPage(); await page.goto(origin + '/portfolio_v5.html'); await page.waitForTimeout(500);
-      const snap = () => page.evaluate(() => JSON.stringify(Object.keys(localStorage).sort().map(k => [k, localStorage.getItem(k)])));
+      /* 26단계: color 오류 수정으로 대시보드가 끝까지 그려지면서 앱이 스스로 쓰는 '벤치마크 캐시(v5_benchHist)' 등 앱 자체 캐시 키는 사용자 원장이 아니므로 비교에서 제외한다. */
+      const snap = () => page.evaluate(() => JSON.stringify(Object.keys(localStorage).filter(k => !/^(v5_benchHist|v5_fxHistory|v5_riskData|v5_rkCache|v5_lastAutoSnap)$/.test(k)).sort().map(k => [k, localStorage.getItem(k)])));
       const before = await snap(); await page.evaluate("switchTab('ledgerdemo')"); await page.waitForTimeout(300);
       const card = page.locator('[data-testid=hld-migration]'); assert.equal(await card.count(), 1, w + ' 카드');
       const t = await card.innerText(); for (const x of ['합성', '저장 안 함', '이력 미확인', '쓰기 0건', '제외']) assert.ok(t.includes(x), w + ' ' + x);

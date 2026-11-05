@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'none'; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<title>백업 복원 리허설 (격리·읽기 전용)</title>
+<style>
+ *{box-sizing:border-box}body{margin:0;background:#f4f7f9;color:#1a1a1a;font:16px/1.55 'Noto Sans KR',system-ui,sans-serif;padding:16px;max-width:760px;margin-inline:auto}
+ h1{font-size:20px;margin:0 0 8px}h2{font-size:17px;margin:0 0 8px}
+ .banner{background:#e8f1ff;border:2px solid #17446b;color:#10304d;border-radius:10px;padding:12px;font-weight:700;font-size:14px;margin-bottom:12px}
+ .card{background:#fff;border:1px solid #9bb0c1;border-radius:10px;padding:12px;margin:0 0 12px}
+ .note{font-size:14px;color:#2b2b2b}.ok{color:#0b5d1e;font-weight:800}.bad{color:#9b1c1c;font-weight:800}
+ button,label.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:10px 16px;border:2px solid #17446b;border-radius:10px;background:#17446b;color:#fff;font:700 16px 'Noto Sans KR',system-ui,sans-serif;cursor:pointer;margin:4px 6px 4px 0}
+ button.alt{background:#fff;color:#17446b}input[type=file]{position:absolute;opacity:0;width:1px;height:1px}
+ table{width:100%;border-collapse:collapse;font-size:14px}th,td{border-bottom:1px solid #c9d4dd;padding:6px 4px;text-align:left;vertical-align:top}
+ textarea{width:100%;min-height:220px;font:13px/1.5 ui-monospace,monospace;color:#1a1a1a;background:#fff;border:1px solid #9bb0c1;border-radius:8px;padding:8px}
+ .mono{font-family:ui-monospace,monospace;word-break:break-all;font-size:13px}
+</style></head><body>
+<h1>🧪 백업 복원 리허설</h1>
+<div class="banner" data-testid="rh-banner">리허설 전용 화면입니다. 선택한 백업 파일은 이 기기 안에서만 읽습니다(업로드·전송 없음). 앱의 실제 저장소는 열어 보지도 바꾸지도 않고, 가짜 저장소에서만 복원을 연습합니다. 파일은 수정·삭제되지 않습니다.</div>
+<div class="card"><h2>1. 백업 파일 선택</h2>
+ <p class="note">포폴앱 설정 탭의 “백업 파일 다운로드”로 만든 파일(KST-전체백업-v6-날짜.json, 또는 이전 버전 백업)을 고르세요. 파일 내용(종목명·금액)은 화면에 표시하지 않고 개수만 보여 줍니다.</p>
+ <label class="btn" for="rhFile">백업 파일 고르기</label><input id="rhFile" type="file" accept=".json,application/json" data-testid="rh-file">
+ <div id="rhFileInfo" class="note" data-testid="rh-fileinfo"></div></div>
+<div class="card"><h2>2. 리허설 결과</h2><div id="rhResult" class="note" data-testid="rh-result">파일을 고르면 자동으로 시험합니다.</div></div>
+<div class="card"><h2>3. 보고용 요약</h2><p class="note">아래 글은 파일 이름·크기·SHA-256·개수·시험 결과만 담고 있습니다(종목명·금액 없음). 복사해서 클로에게 보내거나 보관하세요.</p>
+ <textarea id="rhReport" readonly data-testid="rh-report" aria-label="리허설 보고 요약"></textarea>
+ <button type="button" class="alt" id="rhCopy" data-testid="rh-copy">요약 복사</button></div>
+<script src="../backup/core.js"></script><script src="../mobile-lab/sha256.js"></script><script src="restore-rehearsal.js"></script>
+</body></html>
