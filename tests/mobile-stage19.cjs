@@ -81,7 +81,7 @@ const txt = (page, sel) => page.locator(sel).innerText();
   });
   await check('기존 화면 보존: 시범 화면 다녀온 뒤 보유 종목·가계부·메모가 그대로 보임', async () => {
     const { ctx, page } = await open(390); const t0 = await page.locator('#panel-dashboard').innerText(); await enter(page); await page.locator('[data-testid=hld-back]').click(); await page.waitForTimeout(300);
-    assert.ok(await page.locator('#panel-dashboard').isVisible()); assert.equal(await page.locator('#panel-dashboard').innerText(), t0);
+    assert.ok(await page.locator('#panel-principledash').isVisible(), '돌아가기는 들어오기 직전 화면(위험관리 첫 화면)'); assert.equal(await page.evaluate(() => location.hash), ''); await page.locator('#gtab-invest').click(); await page.waitForTimeout(200); assert.ok(await page.locator('#panel-dashboard').isVisible()); assert.equal(await page.locator('#panel-dashboard').innerText(), t0);
     await page.locator('#gtab-asset').click(); await page.locator('#subtabs-asset button').filter({ hasText: '가계부' }).click(); assert.ok(await page.locator('#panel-ledger').isVisible()); await ctx.close();
   });
   await check('합성 시험 거래: 정상 추가는 합계 반영, 초과 매도·음수·0은 거부(오류 표시, 합계 불변)', async () => {

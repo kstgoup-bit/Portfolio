@@ -9,7 +9,7 @@ test('차단 장치: 외부 호스트로의 http·fetch·dns·tls는 예외(NO_E
   await a.rejects(async () => fetch('https://api.tiingo.com/x'), e => e.code === 'NO_EXTERNAL_NETWORK');
   a.throws(() => dns.lookup('api.tiingo.com', () => { }), e => e.code === 'NO_EXTERNAL_NETWORK');
   a.throws(() => require('node:tls').connect({ host: 'api.tiingo.com', port: 443 }), e => e.code === 'NO_EXTERNAL_NETWORK');
-  a.equal(G.attempts.length - n0, 4); G.attempts.length = n0;   // 의도된 차단 4건은 비워서 종료 시 경고가 나오지 않게 함
+  a.equal(G.attempts.length - n0, 4); if (process.env.HAS_BLOCK_LOG) require('fs').appendFileSync(process.env.HAS_BLOCK_LOG, G.attempts.slice(n0).map(x => 'DELIBERATE ' + x).join('\n') + '\n'); G.attempts.length = n0;   // 의도된 차단 4건은 비워서 종료 시 경고가 나오지 않게 함
 });
 test('차단 장치: 127.0.0.1 로컬 서버와는 정상 통신', async () => {
   const srv = http.createServer((q, s) => s.end('ok')); await new Promise(r => srv.listen(0, '127.0.0.1', r));

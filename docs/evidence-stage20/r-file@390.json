@@ -1,0 +1,86 @@
+{
+ "total": 15,
+ "passed": 15,
+ "failed": 0,
+ "blockedHosts": [
+  "api.allorigins.win",
+  "fonts.googleapis.com"
+ ],
+ "results": [
+  {
+   "tag": "file@390",
+   "name": "잠금 화면 표시",
+   "ok": true
+  },
+  {
+   "tag": "file@390",
+   "name": "틀린 비밀번호는 거부하고 안내",
+   "ok": true
+  },
+  {
+   "tag": "file@390",
+   "name": "기본 비밀번호(파일을 직접 연 경우의 비밀번호)로 입장",
+   "ok": true
+  },
+  {
+   "tag": "file@390",
+   "name": "일반 사용자: 투자 → 일반 탭의 가격 신뢰도 띠와 자세히 보기",
+   "ok": true
+  },
+  {
+   "tag": "file@390",
+   "name": "해외 투자 사용자: 해외 탭의 가격 신뢰도 띠",
+   "ok": true
+  },
+  {
+   "tag": "file@390",
+   "name": "위험관리 → 탭 줄에 원장 시범이 있고 옆으로 더 있음을 알 수 있음",
+   "ok": true
+  },
+  {
+   "tag": "file@390",
+   "name": "원장 시범 첫 화면: 합계·이전 미리보기·지원 현황",
+   "ok": true
+  },
+  {
+   "tag": "file@390",
+   "name": "일반 계좌 시험 거래 추가 → 안내·숫자 변화·바뀐 숫자 이동",
+   "ok": true
+  },
+  {
+   "tag": "file@390",
+   "name": "해외 계좌 시험 거래(환율 포함) 추가",
+   "ok": true
+  },
+  {
+   "tag": "file@390",
+   "name": "잘못된 입력(수량 0)은 거부하고 숫자 불변",
+   "ok": true
+  },
+  {
+   "tag": "file@390",
+   "name": "돌아가기 버튼 → 들어오기 직전 화면(위험관리 첫 화면)",
+   "ok": true
+  },
+  {
+   "tag": "file@390",
+   "name": "브라우저 뒤로/앞으로: 오류 없이 시범 화면 출입",
+   "ok": true
+  },
+  {
+   "tag": "file@390",
+   "name": "새로고침(F5)해도 시범 화면이 열리고 시험 거래는 사라짐",
+   "ok": true
+  },
+  {
+   "tag": "file@390",
+   "name": "저장소 불변: 일반 사용자·해외 사용자 여정 전후 v5_*·kst* 키와 값 동일",
+   "ok": true
+  },
+  {
+   "tag": "file@390",
+   "name": "화면 오류(pageerror) 0",
+   "ok": true
+  }
+ ]
+}

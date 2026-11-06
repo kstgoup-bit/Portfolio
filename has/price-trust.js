@@ -50,5 +50,13 @@ function sourceNotice(sourceKey, counts, nowISO) {
   lines.push('이 표시는 가격을 새로 확보했다는 뜻이 아니며 평가금액·거래 기록을 바꾸지 않습니다.');
   return { label: d.label, severity: d.severity, signalNote: d.signalNote, lines };
 }
-return { SCHEMA, KINDS, VERIFS, MAX_AGE_DAYS, KNOWN_SOURCES, describe, sessionCounts, sourceNotice };
+/* 20단계: 신호 계산 전에 가격 신뢰도로 걸러내는 관문. evaluate(q, settings)는 레이더의 evaluateSignals 같은 함수를 주입한다.
+   보류 조건(미검증·기준시각 불명·실패·오래됨·기업행위 의심·기준일 불일치·합성)이면 evaluate를 호출하지 않고 "판단 불가"를 돌려준다. */
+function quoteMeta(q) { q = q || {}; return { provider: q.source && q.source.name, marketDate: q.asOf, currency: q.currency, timezone: q.timezone, priceKind: q.priceKind || 'unknown', adjusted: q.adjustment === 'split-adjusted' ? 'split' : 'unknown', verification: q.verification || 'unverified', status: q.status || 'unknown' }; }
+function gateSignals(evaluate, q, settings, nowISO) {
+  const d = describe(quoteMeta(q), nowISO);
+  if (d.signalHold) return { held: true, reason: d.label, result: { drawdown: null, marketExcess: null, sectorExcess: null, band: null, signals: [], missing: ['판단 불가: ' + d.label] } };
+  return { held: false, reason: d.label, result: evaluate(q, settings) };
+}
+return { SCHEMA, KINDS, VERIFS, MAX_AGE_DAYS, KNOWN_SOURCES, describe, sessionCounts, sourceNotice, quoteMeta, gateSignals };
 });

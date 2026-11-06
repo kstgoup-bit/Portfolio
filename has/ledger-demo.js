@@ -3,7 +3,7 @@
    추가 입력은 이 화면의 메모리에만 있고 새로고침하면 사라진다. 앱의 보유·가계부·백업 데이터를 읽지도 쓰지도 않는다. */
 (function () {
   'use strict';
-  var HASH = '#has-ledger-demo', root = null, M = window.HASLedgerDemoModel, L = window.KSTLedger, extra = [], formError = '', prevTab = 'dashboard';
+  var HASH = '#has-ledger-demo', root = null, M = window.HASLedgerDemoModel, L = window.KSTLedger, extra = [], formError = '', notice = '', lastAcc = 'gen', prevTab = 'dashboard';
   if (!M || !L) return;
   function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
   function fmt(n) { var v = M.won(n); return v === null ? '계산 불가' : v.toLocaleString('ko-KR') + '원'; }
@@ -34,6 +34,16 @@
       card.appendChild(el('div', 'hld-note', '※ 합성 데이터입니다. 실제 보유·수익이 아닙니다.'));
       root.appendChild(card);
     });
+    // 기존 보유 → 원장 이전 미리보기 (합성 보유만 사용, 저장 없음)
+    if (window.HASMigrationSim) {
+      var SYN = { gen: [{ id: 1, name: '합성 일반주', ticker: 'AAA', quantity: 10, avgPrice: 1000 }], ov: [{ id: 3, name: '합성 해외주', ticker: 'CCC', quantity: 2, avgPrice: 50 }], pen: [{ id: 4, name: '합성 연금주', ticker: 'DDD', quantity: 0, avgPrice: 10 }] };
+      var mp = window.HASMigrationSim.preview(SYN, { fxUsd: 1300 }), mc = el('section', 'hld-card'); mc.setAttribute('data-testid', 'hld-migration');
+      mc.appendChild(el('h3', '', '기존 보유 → 원장 이전 미리보기 (합성 보유 · 저장 안 함)'));
+      mc.appendChild(el('p', 'hld-note', '실제 보유는 읽지 않습니다. 보유 잔고만으로 과거 매매를 만들어 채우지 않으며, 거래 이력·실현손익은 "이력 미확인"으로 둡니다. 쓰기 ' + mp.writes + '건.'));
+      var mt = el('table', 'hld-support'), mh = el('tr'); ['계좌·종목', '수량', '평균단가', '원화 원가(근사)', '이력'].forEach(function (x) { mh.appendChild(el('th', '', x)); }); mt.appendChild(mh);
+      mp.rows.forEach(function (r) { var tr = el('tr'); [r.accountLabel + ' ' + r.ticker, String(r.qty), r.avgLocal === null ? '없음' : r.avgLocal + ' ' + r.currency, r.costKRWApprox === null ? '계산 불가' : r.costKRWApprox.toLocaleString('ko-KR') + '원', r.historyStatus].forEach(function (x) { tr.appendChild(el('td', '', x)); }); mt.appendChild(tr); });
+      mc.appendChild(mt); mp.excluded.forEach(function (x) { mc.appendChild(el('p', 'hld-note', '제외: ' + x.where + ' — ' + x.reason)); }); root.appendChild(mc);
+    }
     // 지원 현황
     var sc = el('section', 'hld-card'); sc.appendChild(el('h3', '', '지원 현황 (미지원은 계산하지 않습니다)')); var tb = el('table', 'hld-support'); tb.setAttribute('data-testid', 'hld-support');
     var hr = el('tr'); ['항목', '상태', '설명'].forEach(function (x) { hr.appendChild(el('th', '', x)); }); tb.appendChild(hr);
@@ -52,20 +62,21 @@
     var add = el('button', 'hld-btn primary', '시험 거래 추가'); add.type = 'submit'; add.setAttribute('data-testid', 'hld-add'); f.appendChild(add);
     var reset = el('button', 'hld-btn', '예시로 되돌리기'); reset.type = 'button'; reset.setAttribute('data-testid', 'hld-reset'); f.appendChild(reset);
     f.addEventListener('submit', function (ev) {
-      ev.preventDefault(); var isOv = acc.value === 'ov', t = { id: 'x' + (extra.length + 1), type: ty.value, date: '2026-04-01', account: acc.value, ticker: isOv ? 'SYN-B' : 'SYN-A', name: isOv ? '합성해외B' : '합성일반A', currency: isOv ? 'USD' : 'KRW', qty: Number(qty.value), price: Number(price.value), fee: Number(fee.value) || 0 };
+      ev.preventDefault(); lastAcc = acc.value; var isOv = acc.value === 'ov', t = { id: 'x' + (extra.length + 1), type: ty.value, date: '2026-04-01', account: acc.value, ticker: isOv ? 'SYN-B' : 'SYN-A', name: isOv ? '합성해외B' : '합성일반A', currency: isOv ? 'USD' : 'KRW', qty: Number(qty.value), price: Number(price.value), fee: Number(fee.value) || 0 };
       if (isOv) t.fx = Number(fx.value);
       var test = M.buildModel(trades().concat([t]), L);
-      if (!test.ok) { formError = test.errors.map(function (e) { return e.message; }).join(' / '); } else { formError = ''; extra.push(t); }
+      if (!test.ok) { notice = ''; formError = test.errors.map(function (e) { return e.message; }).join(' / '); } else { formError = ''; extra.push(t); notice = '추가했습니다: ' + (isOv ? '해외' : '일반') + ' ' + (t.type === 'buy' ? '매수' : '매도') + ' ' + t.qty + '주 × ' + t.price + (isOv ? ' USD' : '원') + '. 바뀐 결과는 이 화면 맨 위 「' + (isOv ? '해외' : '일반') + ' 계좌」 카드에 나옵니다(추가한 시험 거래 ' + extra.length + '건).'; }
       render();
     });
-    reset.addEventListener('click', function () { extra = []; formError = ''; render(); });
-    fc.appendChild(f); if (formError) { var fe = el('div', 'hld-err', '추가하지 않았습니다: ' + formError); fe.setAttribute('role', 'alert'); fc.appendChild(fe); }
+    reset.addEventListener('click', function () { extra = []; formError = ''; notice = ''; render(); });
+    fc.appendChild(f); if (notice && !formError) { var nt = el('div', 'hld-note', notice); nt.setAttribute('role', 'status'); nt.setAttribute('data-testid', 'hld-notice'); fc.appendChild(nt); var jump = el('button', 'hld-btn', '바뀐 숫자 보러 가기 ↑'); jump.type = 'button'; jump.setAttribute('data-testid', 'hld-jump'); jump.addEventListener('click', function () { var t = root.querySelector('[data-testid=hld-account-' + lastAcc + ']'); if (t && t.scrollIntoView) t.scrollIntoView({ block: 'start' }); }); fc.appendChild(jump); }
+    if (formError) { var fe = el('div', 'hld-err', '추가하지 않았습니다: ' + formError); fe.setAttribute('role', 'alert'); fc.appendChild(fe); }
     fc.appendChild(el('p', 'hld-note', '추가한 거래는 저장되지 않으며 새로고침하면 사라집니다.')); root.appendChild(fc);
-    var back = el('button', 'hld-btn', '← 현황으로 돌아가기'); back.type = 'button'; back.setAttribute('data-testid', 'hld-back'); back.addEventListener('click', function () { if (location.hash === HASH && history.state && history.state.hasLedgerDemo) history.back(); else window.switchTab(prevTab && prevTab !== 'ledgerdemo' ? prevTab : 'dashboard'); }); root.appendChild(back);
+    var back = el('button', 'hld-btn', '← 이전 화면으로 돌아가기'); back.type = 'button'; back.setAttribute('data-testid', 'hld-back'); back.addEventListener('click', function () { window.switchTab(prevTab && prevTab !== 'ledgerdemo' ? prevTab : 'dashboard'); }); root.appendChild(back);
   }
   function onTabChange(tab) {
     if (tab === 'ledgerdemo') {
-      root = document.getElementById('panel-ledgerdemo'); extra = []; formError = '';
+      root = document.getElementById('panel-ledgerdemo'); extra = []; formError = ''; notice = '';
       if (location.hash !== HASH) { try { history.pushState({ hasLedgerDemo: true }, '', location.pathname + location.search + HASH); } catch (e) { } }
       render();
     } else if (location.hash === HASH) { try { history.replaceState(null, '', location.pathname + location.search); } catch (e) { } if (root) root.replaceChildren(); }

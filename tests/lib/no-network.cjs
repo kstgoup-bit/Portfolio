@@ -12,5 +12,5 @@ net.Socket.prototype.connect = function (...a) { const o = a[0]; if (o && typeof
 const origTls = tls.connect; tls.connect = function (...a) { const o = a[0] || {}; deny('tls', String(o.host || o.servername || '')); return origTls.apply(this, a); };
 for (const fn of ['lookup', 'resolve', 'resolve4', 'resolve6']) { const o = dns[fn]; dns[fn] = function (host, ...rest) { if (!LOCAL.has(String(host))) deny('dns.' + fn, String(host)); return o.call(this, host, ...rest); }; }
 if (typeof globalThis.fetch === 'function') { const f = globalThis.fetch; globalThis.fetch = function (u, ...r) { let h = ''; try { h = new URL(typeof u === 'string' ? u : u.url).hostname; } catch { } if (!LOCAL.has(h)) deny('fetch', h || String(u)); return f.call(this, u, ...r); }; }
-process.on('exit', () => { if (attempts.length) { console.error('외부 접속 시도 ' + attempts.length + '회 차단됨: ' + attempts.join(', ')); } });
+process.on('exit', () => { if (attempts.length && process.env.HAS_BLOCK_LOG) { try { require('fs').appendFileSync(process.env.HAS_BLOCK_LOG, attempts.map(x => process.pid + ' ' + x).join('\n') + '\n'); } catch { } } if (attempts.length) { console.error('외부 접속 시도 ' + attempts.length + '회 차단됨: ' + attempts.join(', ')); } });
 globalThis.__hasNoNetworkInstalled = { attempts }; module.exports = globalThis.__hasNoNetworkInstalled;
