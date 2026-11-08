@@ -6,7 +6,7 @@
   var $ = function (id) { return document.getElementById(id); };
   function el(tag, text, cls) { var e = document.createElement(tag); if (text !== undefined) e.textContent = text; if (cls) e.className = cls; return e; }
   function clear(n) { while (n.firstChild) n.removeChild(n.firstChild); return n; }
-  function raw(o) { return Object.assign({ kind: 'close', asOfDate: '2026-11-05', asOfTime: '2026-11-05T09:00:00+09:00', fetchedAt: NOW, source: '합성 시험 공급자', verification: 'independent-verified', synthetic: true }, o); }
+  function raw(o) { return Object.assign({ kind: 'close', asOfDate: '2026-11-05', asOfTime: o.market === 'US' ? '2026-11-05T00:00:00-05:00' : '2026-11-05T09:00:00+09:00', fetchedAt: NOW, source: '합성 시험 공급자', verification: 'independent-verified', synthetic: true }, o); }
   var HOLD = [{ ticker: 'SYN-KR1', name: '합성 국내 우량A', market: 'KR', currency: 'KRW', quantity: 10, avgPrice: 100 }, { ticker: 'SYN-US1', name: '합성 미국 성장B', market: 'US', currency: 'USD', quantity: 3, avgPrice: 100 }];
   var HOLD_SNAPSHOT = JSON.stringify(HOLD);
   var RAWS = {
@@ -14,7 +14,7 @@
     'SYN-KR2': raw({ ticker: 'SYN-KR2', market: 'KR', currency: 'KRW', price: 55, verification: 'unverified' }), 'SYN-US2': raw({ ticker: 'SYN-US2', market: 'US', currency: 'USD', price: 60 }) };
   var FX = { rate: 1400, source: '합성 환율', appliedAt: '2026-11-05T09:00:00+09:00' };
   var common = { high52w: function (s) { return { price: 100, asOfDate: '2026-11-05', source: '합성 시험 공급자' }; }, returns: { stockPct: -30, benchPct: -5, periodDays: 20, asOfDate: '2026-11-05', source: '합성 시험 공급자' } };
-  var FUND_OK = { asOfDate: '2026-09-30', source: '합성 재무', revenueGrowthPct: 8, freeCashFlow: 100, freeCashFlowPrev: 90, debtToEquity: 0.6, debtToEquityPrev: 0.6 };
+  var FUND_OK = { asOfDate: '2026-09-30', verification: 'independent-verified', source: '합성 재무', revenueGrowthPct: 8, freeCashFlow: 100, freeCashFlowPrev: 90, debtToEquity: 0.6, debtToEquityPrev: 0.6 };
   var META = {
     'SYN-KR1': { name: '합성 국내 우량A', market: 'KR', fundamentals: FUND_OK, thesis: { intact: true, note: '합성' }, held: HOLD[0] },
     'SYN-US1': { name: '합성 미국 성장B', market: 'US', fundamentals: Object.assign({}, FUND_OK, { freeCashFlow: -5 }), thesis: { intact: false, note: '합성: 핵심 제품 경쟁력 약화' }, held: HOLD[1] },
@@ -78,7 +78,7 @@
     r.shown.forEach(function (a) { var d = el('div', null, 'stock'); d.setAttribute('data-testid', 'alert'); var row = el('div', null, 'row'); row.appendChild(el('b', a.label + (a.ticker ? ' · ' + a.ticker : ''))); row.appendChild(tag('단계 ' + a.level, 'warn')); d.appendChild(row); d.appendChild(el('div', a.evidence.join(' / ') + ' (기준일 ' + a.asOfDate + ', 출처 ' + a.source + ')', 'kv')); box.appendChild(d); });
     var log = $('alert-log'); log.textContent = '표시 ' + r.shown.length + '건 · 억제 ' + r.suppressed.length + '건' + (r.suppressed.length ? ' (' + r.suppressed.map(function (x) { return x.reason; }).filter(function (v, i, a) { return a.indexOf(v) === i; }).join(', ') + ')' : '') + ' · 알림 제외 ' + cands.rejected.length + '건(알림 유형 아님 또는 자료 불충분)'; }
   function renderJournal(evals) { var kr = evals.filter(function (e) { return e.s.ticker === 'SYN-KR1'; })[0], box = clear($('journal'));
-    var rec = J.record(kr.adv, { priceAtAdvice: 60, weightPct: 6, inputsUsed: [{ name: '시세', asOfDate: '2026-11-05', source: '합성 시험 공급자' }, { name: '재무', asOfDate: '2026-09-30', source: '합성 재무' }] }, NOW);
+    var rec = J.record(kr.adv, { priceAtAdvice: 60, weightPct: 6, inputsUsed: [{ name: '시세', asOfDate: '2026-11-05', source: '합성 시험 공급자' }, { name: '재무', asOfDate: '2026-09-30', verification: 'independent-verified', source: '합성 재무' }] }, NOW);
     entryObj = rec.entry; box.appendChild(el('div', '기록: ' + entryObj.id + ' · 의견 ' + entryObj.opinion + ' · 당시 가격 ' + entryObj.priceAtAdvice + ' · 사용자 결정 ' + entryObj.userDecision, 'kv'));
     box.appendChild(el('div', '사용한 자료: ' + entryObj.inputsUsed.map(function (x) { return x.name + '(' + x.asOfDate + ')'; }).join(', ') + ' — 조언일 이후 자료는 기록에 넣을 수 없습니다(누출 방지). 투자 원장과 분리된 기록입니다.', 'note')); }
   function renderEval() { var b = clear($('eval')); var later = { benchAtAdvice: 1000, prices: [{ date: '2026-11-12', price: 66 }, { date: '2026-11-20', price: 58 }, { date: '2026-12-05', price: 72 }], bench: [{ date: '2026-12-05', price: 1030 }] };

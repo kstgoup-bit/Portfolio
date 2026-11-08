@@ -1,5 +1,7 @@
 {
   "files": [
+    "tests/advice-gates-independent.test.cjs",
+    "tests/advice-gates.test.cjs",
     "tests/advisor-reliability-stage24.test.cjs",
     "tests/advisor-stage23.test.cjs",
     "tests/alerts-journal-stage23.test.cjs",

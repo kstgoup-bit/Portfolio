@@ -28,7 +28,9 @@
     "test:valuation": "node --require ./tests/lib/no-network.cjs --test tests/valuation-engine.test.cjs tests/valuation-independent.test.cjs tests/valuation-ui.test.cjs",
     "test:valuation-dom": "node tests/valuation-dom.cjs",
     "test:valuation-mobile": "node tests/valuation-mobile.cjs",
-    "test:valuation-regression": "node tools/valuation-regression.cjs"
+    "test:valuation-regression": "node tools/valuation-regression.cjs",
+    "test:advice-gates": "node --require ./tests/lib/no-network.cjs --test tests/advice-gates.test.cjs tests/advice-gates-independent.test.cjs",
+    "test:advice-gates-dom": "node tests/advice-gates-dom.cjs"
   },
   "devDependencies": {
     "@fontsource/noto-sans-kr": "5.2.6",

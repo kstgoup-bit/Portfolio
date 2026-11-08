@@ -12,6 +12,9 @@
 
   /* stock/w(evaluateStock 결과)/ctx{weightPct,cashPct,cashBasis}로 조언 한 건을 만든다. */
   function analyze(stock, w, ctx, nowISO, settings) {
+    // Re-evaluate current inputs: a cached/caller-supplied watch result is not evidence.
+    stock = stock && typeof stock === 'object' ? stock : {};
+    w = W.evaluateStock(stock, ctx, nowISO, settings && settings.watchSettings);
     var s = Object.assign({}, DEF, settings || {}), q = stock.quote, held = !!stock.held;
     var wt = ctx && fin(ctx.weightPct) ? ctx.weightPct : null, cash = ctx && fin(ctx.cashPct) ? ctx.cashPct : null;
     var adv = { ticker: stock.ticker, name: stock.name || stock.ticker, asOf: nowISO, opinion: '판단 보류', aggressive: null, defensive: null,
@@ -32,11 +35,12 @@
     // 방어형: 더 큰 하락 + 매수 후 현금 여력 + 비중 여유
     var dBuy = dd !== null && dd >= s.defensiveDrawdown && f === 'ok' && t === 'intact' && wt !== null && wt < s.targetWeightPct && cash !== null && cash >= s.minCashPct + 2;
     var reduce = held && (t === 'broken' || (f === 'deteriorated' && (sg('loss-risk') || sg('concentration'))) || sg('concentration'));
-    adv.aggressive = { stance: aBuy ? '매수 검토' : (reduce ? '비중 축소 검토' : (held ? '보유' : '판단 보류')), why: [] };
-    adv.defensive = { stance: dBuy ? '매수 검토' : (reduce ? '비중 축소 검토' : (held ? '보유' : '판단 보류')), why: [] };
+    var incomplete = f !== 'ok' || t !== 'intact';
+    adv.aggressive = { stance: aBuy ? '매수 검토' : (reduce ? '비중 축소 검토' : (held && !incomplete ? '보유' : '판단 보류')), why: [] };
+    adv.defensive = { stance: dBuy ? '매수 검토' : (reduce ? '비중 축소 검토' : (held && !incomplete ? '보유' : '판단 보류')), why: [] };
     if (aBuy) adv.aggressive.why.push('하락 ' + dd + '% 이상이고 재무·투자 논리 이상 없음'); if (!dBuy && aBuy) adv.defensive.why.push('방어형은 하락 ' + s.defensiveDrawdown + '% 이상과 현금 여력(' + (s.minCashPct + 2) + '% 이상)이 필요');
     if (reduce) { adv.opinion = '비중 축소 검토'; adv.reasonsFor.push('위험 신호: ' + adv.risks.join(', ')); adv.reasonsAgainst.push('가격 하락이 일시적일 수 있음(추정)'); adv.estimates.push({ text: '일시 하락 가능성', basis: '자료로 확인되지 않은 일반론' }); }
-    else if (dd !== null && dd >= s.buyDrawdown && (f !== 'ok' || t !== 'intact')) { adv.opinion = '판단 보류'; adv.reasonsAgainst.push('가격만 하락했고 재무(' + f + ')·투자 논리(' + t + ') 근거가 부족해 매수 의견을 내지 않습니다'); adv.checks.push('최신 재무자료와 투자 논리 점검'); }
+    else if (incomplete) { adv.opinion = '판단 보류'; adv.reasonsAgainst.push((dd !== null && dd >= s.buyDrawdown ? '가격만 하락했고 ' : '') + '재무(' + f + ')·투자 논리(' + t + ') 근거가 부족해 긍정적인 판단을 내지 않습니다'); adv.checks.push('최신 재무자료와 투자 논리 점검'); }
     else if (aBuy && dBuy) { adv.opinion = '매수 검토'; adv.reasonsFor.push('고점 대비 -' + dd + '%, 재무·투자 논리 이상 없음'); adv.reasonsAgainst.push('하락 원인이 구조적일 가능성은 자료로 완전히 배제되지 않음'); adv.checks.push('매수 전 최신 공시·실적 확인'); }
     else if (held) { adv.opinion = '보유'; adv.reasonsFor.push('매도·매수 조건에 해당하는 확인된 신호 없음'); if (aBuy) adv.reasonsAgainst.push('공격형은 매수 검토, 방어형 조건 미충족 → 의견 불일치로 보유'); }
     else { adv.opinion = '판단 보류'; adv.reasonsAgainst.push('뚜렷한 신호 없음(관찰 유지)'); if (aBuy) adv.reasonsAgainst.push('공격형만 매수 검토, 방어형 조건 미충족'); }

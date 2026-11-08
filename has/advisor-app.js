@@ -10,10 +10,10 @@
   var DATA = { v5_gen: JSON.stringify([{ id: 1, name: '합성 국내 우량A', ticker: 'SYN-KR1', quantity: 10000, avgPrice: 100, currentPrice: 60 }, { id: 2, name: '예수금', ticker: 'DEP_GEN', quantity: 1, avgPrice: 1, currentPrice: 150000 }]),
     v5_ov: JSON.stringify([{ id: 3, name: '합성 미국 성장B', ticker: 'SYN-US1', quantity: 3, avgPrice: 100, currentPrice: 92 }]), v5_dom: '[]', v5_pen: '[]', v5_fx: '1400', v5_cma_amount: '0' };
   var getter = function (k) { return DATA[k] === undefined ? null : DATA[k]; };
-  var raw = function (o) { return Object.assign({ kind: 'close', asOfDate: '2026-11-05', asOfTime: '2026-11-05T09:00:00+09:00', fetchedAt: NOW, source: '합성 시험 공급자', verification: 'independent-verified', synthetic: true }, o); };
+  var raw = function (o) { return Object.assign({ kind: 'close', asOfDate: '2026-11-05', asOfTime: o.market === 'US' ? '2026-11-05T00:00:00-05:00' : '2026-11-05T09:00:00+09:00', fetchedAt: NOW, source: '합성 시험 공급자', verification: 'independent-verified', synthetic: true }, o); };
   var RAWS = { 'SYN-KR1': raw({ ticker: 'SYN-KR1', market: 'KR', currency: 'KRW', price: 60 }), 'SYN-US1': raw({ ticker: 'SYN-US1', market: 'US', currency: 'USD', price: 92 }),
     'SYN-KR2': raw({ ticker: 'SYN-KR2', market: 'KR', currency: 'KRW', price: 60 }), 'SYN-US2': raw({ ticker: 'SYN-US2', market: 'US', currency: 'USD', price: 55, verification: 'unverified' }) };
-  var FUND = { asOfDate: '2026-09-30', source: '합성 재무', revenueGrowthPct: 8, freeCashFlow: 100, freeCashFlowPrev: 90, debtToEquity: 0.6, debtToEquityPrev: 0.6 };
+  var FUND = { asOfDate: '2026-09-30', verification: 'independent-verified', source: '합성 재무', revenueGrowthPct: 8, freeCashFlow: 100, freeCashFlowPrev: 90, debtToEquity: 0.6, debtToEquityPrev: 0.6 };
   var WATCH = [{ ticker: 'SYN-KR2', name: '합성 국내 우량C', market: 'KR' }, { ticker: 'SYN-US2', name: '합성 미국 대형D(시세 미검증)', market: 'US' }];
   var mk = function (m) { return { price: 100, asOfDate: '2026-11-05', source: '합성 시험 공급자' }; };
   var ret = { stockPct: -30, benchPct: -5, periodDays: 20, asOfDate: '2026-11-05', source: '합성 시험 공급자' };

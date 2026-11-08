@@ -8,8 +8,14 @@
   var KIND_LABEL = Object.freeze({ realtime: '실시간', delayed: '지연', close: '종가', unknown: '미확인' });
   var REALTIME_MAX_MIN = 5, DELAYED_MAX_MIN = 24 * 60, STALE_DAYS = 4;
   var fin = function (x) { return typeof x === 'number' && isFinite(x); };
-  var dayOk = function (s) { return typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s) && !isNaN(Date.parse(s)); };
-  var tsOk = function (s) { return typeof s === 'string' && /^\d{4}-\d{2}-\d{2}T/.test(s) && !isNaN(Date.parse(s)); };
+  var dayOk = function (s) { return typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s) && !isNaN(Date.parse(s)) && new Date(s).toISOString().slice(0, 10) === s; };
+  var tsOk = function (s) { return typeof s === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?(?:Z|[+-]\d{2}:\d{2})$/.test(s) && dayOk(s.slice(0,10)) && !isNaN(Date.parse(s)) && Number(s.slice(11,13))<24 && Number(s.slice(14,16))<60 && Number(s.slice(17,19))<60; };
+  var textOk = function (s) { return typeof s === 'string' && s.trim().length > 0; };
+  function marketDate(nowISO, market) {
+    if(!tsOk(nowISO))return null;
+    var parts=new Intl.DateTimeFormat('en-CA',{timeZone:market==='KR'?'Asia/Seoul':market==='US'?'America/New_York':'UTC',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date(nowISO));
+    var p={};parts.forEach(function(x){p[x.type]=x.value;});return p.year+'-'+p.month+'-'+p.day;
+  }
   var UNK = '미확인';
 
   /* 공급자(중계) 응답 → 표준 시세. 검증 못 하면 ok:false. 숫자 가격이 없으면 가격을 만들지 않는다. */
@@ -22,6 +28,8 @@
     var market = r.market === 'KR' || r.market === 'US' ? r.market : null; if (!market) issues.push('시장(KR/US) 없음');
     var currency = r.currency === 'KRW' || r.currency === 'USD' ? r.currency : null; if (!currency) issues.push('통화 없음');
     if (market === 'KR' && currency === 'USD' || market === 'US' && currency === 'KRW') issues.push('시장과 통화 불일치');
+    if (r.asOfTime != null && !tsOk(r.asOfTime)) issues.push('시세 시각 형식 오류');
+    if (r.fetchedAt != null && !tsOk(r.fetchedAt)) issues.push('조회 시각 형식 오류');
     if (issues.length) return { ok: false, issues: issues, quote: null };
     var kind = KINDS.indexOf(r.kind) >= 0 ? r.kind : 'unknown';
     return { ok: true, issues: [], quote: Object.freeze({
@@ -35,9 +43,16 @@
     if (!q) return { kind: 'unknown', label: KIND_LABEL.unknown, note: '시세 없음', stale: true, ageMinutes: null };
     var age = q.asOfTime && tsOk(nowISO) ? minutesBetween(q.asOfTime, nowISO) : null, kind = q.kind, note = '';
     if (kind === 'realtime') { if (age === null) { kind = 'unknown'; note = '실시간이라 했으나 기준시각 없음'; } else if (age > REALTIME_MAX_MIN || age < -1) { kind = 'delayed'; note = '실시간 표시 조건(5분 이내) 불충족 → 지연으로 표시'; } }
+    if (kind === 'delayed' && age === null) { kind = 'unknown'; note = '지연 시세 기준시각 없음'; }
     if (kind === 'delayed' && age !== null && age > DELAYED_MAX_MIN) { kind = 'unknown'; note = '기준시각이 하루를 넘어 지연 아님'; }
-    var days = q.asOfDate && tsOk(nowISO) ? Math.floor((Date.parse(String(nowISO).slice(0, 10)) - Date.parse(q.asOfDate)) / 86400000) : null;
-    var stale = days === null ? true : days > STALE_DAYS;
+    var today=marketDate(nowISO,q.market);
+    var days = dayOk(q.asOfDate) && today ? Math.floor((Date.parse(today) - Date.parse(q.asOfDate)) / 86400000) : null;
+    var invalidTime=q.asOfTime!=null&&(!tsOk(q.asOfTime)||!tsOk(nowISO)||Date.parse(q.asOfTime)>Date.parse(nowISO)+60000);
+    var dateMismatch = tsOk(q.asOfTime) && dayOk(q.asOfDate) && marketDate(q.asOfTime,q.market) !== q.asOfDate;
+    var stale = days === null || days < 0 || days > STALE_DAYS || invalidTime || dateMismatch;
+    if (dateMismatch) note = '시세 기준시각과 거래소 기준일 불일치 — 판단에 사용하지 않음';
+    if(days!==null&&days<0||invalidTime)note='미래 또는 잘못된 시세 시각 — 판단에 사용하지 않음';
+    if(KINDS.indexOf(kind)<0)kind='unknown';
     if (!q.source) note = (note ? note + ' · ' : '') + '출처 없음';
     return { kind: kind, label: KIND_LABEL[kind], note: note, stale: stale, ageMinutes: age, ageDays: days };
   }
@@ -45,8 +60,16 @@
   function usableForSignals(q, nowISO) {
     var c = classify(q, nowISO), why = [];
     if (!q) return { ok: false, why: ['시세 없음'] };
+    if (!tsOk(nowISO)) why.push('분석 시각 오류');
+    if (!fin(q.price) || q.price <= 0) why.push('가격 오류');
+    if (!textOk(q.ticker)) why.push('종목코드 없음');
+    if (!['KR','US'].includes(q.market) || (q.market==='KR'?q.currency!=='KRW':q.currency!=='USD')) why.push('시장·통화 오류');
+    if(q.asOfTime!=null&&(!tsOk(q.asOfTime)||Date.parse(q.asOfTime)>Date.parse(nowISO)+60000))why.push('미래 또는 잘못된 시세 시각');
+    if(q.fetchedAt!=null&&(!tsOk(q.fetchedAt)||Date.parse(q.fetchedAt)>Date.parse(nowISO)+60000))why.push('미래 또는 잘못된 조회 시각');
+    if (tsOk(q.asOfTime) && dayOk(q.asOfDate) && marketDate(q.asOfTime,q.market) !== q.asOfDate) why.push('시세 시각과 거래소 기준일 불일치');
+    if (tsOk(q.fetchedAt) && ((tsOk(q.asOfTime) && Date.parse(q.fetchedAt) + 60000 < Date.parse(q.asOfTime)) || (dayOk(q.asOfDate) && marketDate(q.fetchedAt,q.market) < q.asOfDate))) why.push('조회 시각이 시세보다 이전');
     if (q.verification !== 'independent-verified') why.push('독립 검증 전(미검증)');
-    if (!q.source) why.push('출처 없음'); if (!q.asOfDate) why.push('기준일 없음'); if (c.stale) why.push('오래됨 또는 기준일 불명'); if (c.kind === 'unknown') why.push('가격 종류 미확인');
+    if (!textOk(q.source)) why.push('출처 없음'); if (!dayOk(q.asOfDate)) why.push('기준일 없음/오류'); if(c.ageDays!==null&&c.ageDays<0)why.push('미래 기준일'); if (c.stale) why.push('오래됨 또는 기준일 불명'); if (c.kind === 'unknown') why.push('가격 종류 미확인');
     return { ok: why.length === 0, why: why };
   }
   /* 가격 장부(PriceBook): 종목별 current(마지막 성공 조회)와 lastVerified(마지막 독립 검증). 입력을 바꾸지 않는다. */
@@ -71,7 +94,7 @@
   }
   /* 환율: 출처·적용시각이 모두 있어야 '확정', 아니면 '미확인'으로 표시(계산은 하되 근사 표시). */
   function fxView(fx, nowISO) {
-    var ok = fx && fin(fx.rate) && fx.rate > 0 && typeof fx.source === 'string' && fx.source && tsOk(fx.appliedAt);
+    var ok = fx && fin(fx.rate) && fx.rate > 0 && textOk(fx.source) && tsOk(fx.appliedAt) && tsOk(nowISO) && Date.parse(fx.appliedAt)<=Date.parse(nowISO)+60000;
     if (!ok) return { ok: false, label: '환율 출처·적용시각 미확인 — 원화 환산은 근사', rate: fx && fin(fx.rate) && fx.rate > 0 ? fx.rate : null };
     var age = minutesBetween(fx.appliedAt, nowISO);
     return { ok: true, rate: fx.rate, label: '환율 ' + fx.rate + ' (' + fx.source + ', ' + fx.appliedAt + ' 적용' + (age > 24 * 60 ? ', 하루 넘게 지난 값' : '') + ')', stale: age > 24 * 60 };
@@ -91,5 +114,5 @@
     });
     return { rows: rows, totalKRW: Math.round(total), estimatedPartKRW: Math.round(est), fx: f };
   }
-  return Object.freeze({ KINDS: KINDS, KIND_LABEL: KIND_LABEL, REALTIME_MAX_MIN: REALTIME_MAX_MIN, normalize: normalize, classify: classify, usableForSignals: usableForSignals, emptyBook: emptyBook, applyFetch: applyFetch, view: view, fxView: fxView, valuation: valuation });
+  return Object.freeze({ isValidDate: dayOk, isValidTimestamp: tsOk, marketDate: marketDate, KINDS: KINDS, KIND_LABEL: KIND_LABEL, REALTIME_MAX_MIN: REALTIME_MAX_MIN, normalize: normalize, classify: classify, usableForSignals: usableForSignals, emptyBook: emptyBook, applyFetch: applyFetch, view: view, fxView: fxView, valuation: valuation });
 });

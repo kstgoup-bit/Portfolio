@@ -1,5 +1,7 @@
 # HAS 기업가치·재무분석 개발 결과 (2026-11-08)
 
+후속 작업: [시세·재무 판단 관문 보강](ADVICE-GATES.md), [실데이터 연결 로드맵](LIVE-DATA-ROADMAP.md). 아래 내용은 최초 가치평가 추가 단계의 기록이며, 당시 남겨둔 레거시 관문 문제는 후속 문서에서 수정·재검증했습니다.
+
 ## 기준과 범위
 
 - 저장소: https://github.com/kstgoup-bit/Portfolio
