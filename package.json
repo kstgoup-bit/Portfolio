@@ -24,10 +24,15 @@
     "test:aiacc26": "node tests/ai-accuracy-stage26.cjs",
     "test:rehearsal26": "node tests/restore-rehearsal-stage26.cjs",
     "test:galaxy26": "node tests/galaxy-test-stage26.cjs",
-    "test:gas28": "node tests/gas-freshness-stage28.cjs"
+    "test:gas28": "node tests/gas-freshness-stage28.cjs",
+    "test:valuation": "node --require ./tests/lib/no-network.cjs --test tests/valuation-engine.test.cjs tests/valuation-independent.test.cjs tests/valuation-ui.test.cjs",
+    "test:valuation-dom": "node tests/valuation-dom.cjs",
+    "test:valuation-mobile": "node tests/valuation-mobile.cjs",
+    "test:valuation-regression": "node tools/valuation-regression.cjs"
   },
   "devDependencies": {
     "@fontsource/noto-sans-kr": "5.2.6",
+    "jsdom": "26.1.0",
     "playwright": "1.62.1"
   }
 }

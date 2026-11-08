@@ -46,6 +46,7 @@
   function render() {
     if (!root) return; root.replaceChildren();
     root.appendChild(el('h2', '', '🧭 AI 투자참모 (읽기 전용)'));
+    var valueLink = el('a', 'hs-kv', '기업 품질·가격 매력도·시장 심리 분석실 열기 (입력 자료 기반)'); valueLink.href = 'has/valuation-lab.html'; valueLink.setAttribute('data-testid', 'hs-valuation-link'); root.appendChild(valueLink);
     if (!ready()) { var w = el('div', 'hs-warn', 'AI 참모 모듈을 불러오지 못해 이 화면을 사용할 수 없습니다. 기존 투자·백업 기능에는 영향이 없습니다.'); w.setAttribute('role', 'alert'); w.setAttribute('data-testid', 'hs-unavailable'); root.appendChild(w); return; }
     var c = compute(); cached = c;
     var ban = el('div', 'hs-banner' + (mode === 'synthetic' ? ' syn' : ''), mode === 'synthetic' ? '합성 예시 · 가짜 보유·시세·재무입니다 · 실제 내 기록이 아닙니다 · 아무것도 저장하지 않습니다' : '내 실제 기록을 읽기만 합니다 · 아무것도 저장·변경하지 않습니다 · 외부 AI로 보내지 않습니다'); ban.setAttribute('data-testid', 'hs-banner'); ban.setAttribute('role', 'status'); root.appendChild(ban);
