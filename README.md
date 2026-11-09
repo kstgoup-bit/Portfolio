@@ -1,5 +1,11 @@
 # Portfolio
 
+## GAS + KIS 추가 대조 · 2026-11-09
+
+최신 독립 작업은 [검증 보고서](docs/kis-complementary/REPORT.md), [기존 단계 대조와 다음 계획](docs/kis-complementary/PLAN-AND-OVERLAP.md), [공식 자료 확인 범위](docs/kis-complementary/OFFICIAL-SOURCES.md)를 참조하세요.
+
+`has/kis-comparison-lab.html`은 키·네트워크·저장 기능이 없는 별도 합성 시험 화면입니다. GAS를 유지하고 KIS 자료가 추가로 제공됐을 때의 엄격한 비교 조건만 시험합니다. 운영 연결·실시간 시세·모바일 실기기 검증 완료를 뜻하지 않습니다.
+
 ## HAS 독립 보완본 · 2026-11-09
 
 현재 개발 결과는 [보완 보고서](docs/boundary-progress/REPORT.md), [직접 실행 시험](docs/boundary-progress/TEST-RESULTS.md), [클로 검토 안내](docs/boundary-progress/REVIEW-HANDOFF.md)를 참조하세요. 과거 보고서는 당시 기록으로 남아 있으며, 현재 시험 수나 보안 보장으로 재사용하지 않습니다.

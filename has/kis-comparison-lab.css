@@ -1,0 +1,25 @@
+:root { color-scheme: light; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #172c40; background: #eef3f7; line-height: 1.65; }
+* { box-sizing: border-box; }
+body { margin: 0; }
+main { width: 100%; max-width: 48rem; margin: 0 auto; padding: 20px 16px 40px; }
+header { padding: 8px 2px 16px; }
+h1 { font-size: clamp(1.9rem, 7vw, 2.7rem); line-height: 1.22; letter-spacing: -.04em; margin: 10px 0 16px; }
+h2 { font-size: 1.2rem; line-height: 1.4; margin: 0 0 12px; }
+p { margin: 10px 0; overflow-wrap: anywhere; }
+.eyebrow { font-size: .85rem; font-weight: 700; color: #28536b; }
+.badge { padding: 10px 12px; background: #dceaf2; border-radius: 10px; font-weight: 700; }
+section { margin: 0 0 16px; padding: 18px 16px; border: 1px solid #bdcbd7; border-radius: 14px; background: #fff; min-width: 0; }
+.warning { background: #fff5dc; border-color: #b08a32; }
+label { display: block; font-weight: 700; margin: 16px 0 8px; }
+textarea { display: block; width: 100%; min-width: 0; max-width: 100%; min-height: 16rem; padding: 12px; border: 1px solid #61798c; border-radius: 8px; background: #f9fbfd; color: #172c40; font: 1rem/1.5 ui-monospace, monospace; resize: vertical; overflow-wrap: anywhere; white-space: pre-wrap; }
+.actions { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 14px; }
+button { width: 100%; min-height: 48px; padding: 12px; border: 1px solid #61798c; border-radius: 8px; background: #f1f5f9; color: #172c40; font: inherit; font-weight: 700; cursor: pointer; }
+button.primary { background: #174a70; border-color: #174a70; color: white; }
+button:focus-visible, textarea:focus-visible { outline: 3px solid #a45a00; outline-offset: 3px; }
+#status { min-height: 3.3em; font-weight: 600; }
+#result:empty::before { content: '아직 분석 결과가 없습니다.'; color: #445e72; }
+#result ul { padding-left: 1.3rem; }
+#result li { margin: 8px 0; overflow-wrap: anywhere; }
+footer { color: #445e72; font-size: .9rem; padding: 0 2px; }
+@media (min-width: 600px) { main { padding: 32px 24px 48px; } section { padding: 24px; } .actions { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto; } }
