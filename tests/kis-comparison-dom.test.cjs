@@ -7,7 +7,7 @@ const { JSDOM } = require('jsdom');
 const root = path.join(__dirname, '../has');
 const html = fs.readFileSync(path.join(root, 'kis-comparison-lab.html'), 'utf8');
 const css = fs.readFileSync(path.join(root, 'kis-comparison-lab.css'), 'utf8');
-const sources = ['kis-comparison.js', 'kis-comparison-fixtures.js', 'kis-comparison-lab.js'];
+const sources = ['kis-comparison.js', 'kis-comparison-fixtures.js', 'close-comparison.js', 'close-comparison-fixtures.js', 'kis-comparison-lab.js'];
 function setup() {
   const dom = new JSDOM(html, { runScripts: 'outside-only', url: 'https://offline.invalid/' });
   const w = dom.window;
@@ -97,7 +97,7 @@ test('page is self contained and has no connection, export, storage, order or up
   assert.equal(h.w.document.querySelectorAll('form,a,iframe,input,[download]').length, 0);
   assert.equal(h.w.document.querySelectorAll('textarea').length, 1);
   assert.deepEqual(Array.from(h.w.document.querySelectorAll('button')).map(x => x.id), ['example', 'analyze', 'reset']);
-  for (const el of h.w.document.querySelectorAll('[src],[href]')) assert.match(el.getAttribute('src') || el.getAttribute('href'), /^kis-comparison[\w.-]*\.(js|css)$/);
+  for (const el of h.w.document.querySelectorAll('[src],[href]')) assert.match(el.getAttribute('src') || el.getAttribute('href'), /^(?:kis|close)-comparison[\w.-]*\.(js|css)$/);
   const js = fs.readFileSync(path.join(root, 'kis-comparison-lab.js'), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
   assert.doesNotMatch(js, /innerHTML|outerHTML|insertAdjacentHTML|fetch\s*\(|localStorage|sessionStorage|XMLHttpRequest|sendBeacon|serviceWorker|clipboard|createObjectURL/);
   assert.equal(globalThis.__hasNoNetworkInstalled.attempts.length, 0); h.dom.window.close();

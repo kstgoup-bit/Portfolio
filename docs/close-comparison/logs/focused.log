@@ -1,0 +1,37 @@
+✔ mode switching clears input/results and chooses separate sample and primitive JSON engine (86.271775ms)
+✔ officialclose invalid input and engine failures never echo values or revive prior success (22.217203ms)
+✔ close edits, samples, resets and lifecycle invalidate results (16.011011ms)
+✔ mode selector is labelled, local-only, and has mobile touch and focus styles (14.15633ms)
+✔ same-session comparison tolerates differing publication times but withholds unmet close conditions (13.73191ms)
+✔ independent close: differing publication/retrieval times compare declarations only (16.74069ms)
+✔ independent close: missing required fields never compare (11.18016ms)
+✔ independent close: every identity/definition/completion mismatch withholds (2.601886ms)
+✔ independent close: calendar identity/closed/null and mixed provenance withhold (1.058153ms)
+✔ independent close: publication, retrieval, observation and analysis order rejects races (2.600014ms)
+✔ independent close: exact declared close boundary and optional observation are not invented (0.623619ms)
+✔ independent close: strict UTC timestamps reject invalid dates and alternate encodings (1.276582ms)
+✔ independent close: declared US DST, early close, weekend/holiday analysis remains historical (1.236301ms)
+✔ independent close: object boundary never executes getters/coercion (0.320452ms)
+✔ independent close: unknown/secret/prototype fields never echo (3.119676ms)
+✔ independent close: duplicate and escaped equivalent keys reject ambiguity (0.649537ms)
+✔ independent close: numeric bounds and raw precision prevent false agreement (2.82941ms)
+✔ independent close: exact UTF8 budget and nested malformed input fail closed (1.827681ms)
+✔ independent close: impossible venue clock, weekday, unsupported session and DST offset withhold (1.771007ms)
+✔ independent close: calendar timezone and provenance-reference labels cannot contradict each other (0.540503ms)
+✔ independent close: absent publication is not fabricated or required; retrieval ordering still enforced (3.772648ms)
+✔ independent close: missing/unknown/contradictory final-close evidence never compares (0.77764ms)
+✔ declared same close supports distinct publication times, never verification (14.586336ms)
+✔ conflict and shared provenance never imply independent sources (0.754335ms)
+✔ session identity and evidence fail closed (3.222991ms)
+✔ primitive bounded JSON, secret and duplicate keys, finite prices only (0.991233ms)
+✔ required source/calendar declarations and adjusted inputs withheld (3.191434ms)
+✔ US DST and early close use venue time while preserving historical-only status (1.228439ms)
+✔ unknown publication is not fabricated; final close evidence remains mandatory (0.631771ms)
+ℹ tests 29
+ℹ suites 0
+ℹ pass 29
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 454.092344

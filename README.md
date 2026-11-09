@@ -1,5 +1,11 @@
 # Portfolio
 
+## 동일 거래 세션 종가 비교 · 2026-11-09
+
+최신 독립 보완은 [직접 검증 보고서](docs/close-comparison/REPORT.md), [종가 계약](docs/close-comparison/CONTRACT.md), [공식 일봉 자료의 한계](docs/close-comparison/DAILY-SOURCE-GAPS.md), [FX 별도 적합 기준](docs/close-comparison/FX-SUITABILITY.md)을 참조하세요.
+
+기존 `has/kis-comparison-lab.html`에서 동일 시각과 동일 거래 세션 종가 모드를 명확히 나눴습니다. 둘 다 합성/선언 자료의 오프라인 숫자 비교이며 실제 시세·공식성·최신성·출처 독립성을 인증하지 않습니다. 운영 앱이나 투자기록에 연결되지 않았습니다.
+
 ## GAS + KIS 추가 대조 · 2026-11-09
 
 최신 독립 작업은 [검증 보고서](docs/kis-complementary/REPORT.md), [기존 단계 대조와 다음 계획](docs/kis-complementary/PLAN-AND-OVERLAP.md), [공식 자료 확인 범위](docs/kis-complementary/OFFICIAL-SOURCES.md)를 참조하세요.

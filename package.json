@@ -38,7 +38,8 @@
     "test:boundary-progress": "node --require ./tests/lib/no-network.cjs --test tests/market-json-boundary.test.cjs tests/redact-battery.test.cjs tests/source-readiness.test.cjs tests/boundary-progress-independent.test.cjs",
     "test:redact-battery": "node --require ./tests/lib/no-network.cjs tools/review-redact-battery.cjs",
     "check:source-readiness": "node --require ./tests/lib/no-network.cjs tools/source-readiness-check.cjs",
-    "test:kis-comparison": "node --require ./tests/lib/no-network.cjs --test tests/kis-comparison.test.cjs tests/kis-comparison-independent.test.cjs tests/kis-comparison-dom.test.cjs"
+    "test:kis-comparison": "node --require ./tests/lib/no-network.cjs --test tests/kis-comparison.test.cjs tests/kis-comparison-independent.test.cjs tests/kis-comparison-dom.test.cjs tests/kis-comparison-colors.test.cjs",
+    "test:close-comparison": "node --require ./tests/lib/no-network.cjs --test tests/close-comparison.test.cjs tests/close-comparison-independent.test.cjs tests/close-comparison-dom.test.cjs"
   },
   "devDependencies": {
     "@fontsource/noto-sans-kr": "5.2.6",

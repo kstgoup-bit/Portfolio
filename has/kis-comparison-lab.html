@@ -9,6 +9,8 @@
   <link rel="stylesheet" href="kis-comparison-lab.css">
   <script src="kis-comparison.js" defer></script>
   <script src="kis-comparison-fixtures.js" defer></script>
+  <script src="close-comparison.js" defer></script>
+  <script src="close-comparison-fixtures.js" defer></script>
   <script src="kis-comparison-lab.js" defer></script>
 </head>
 <body>
@@ -26,8 +28,14 @@
   </section>
   <section aria-labelledby="input-title">
     <h2 id="input-title">1. 합성 데이터 확인</h2>
+    <label for="comparison-mode">비교 모드</label>
+    <select id="comparison-mode" aria-describedby="mode-help">
+      <option value="exacttime">동일 시각 · GAS + KIS</option>
+      <option value="officialclose">동일 거래 세션 · 공식 종가 표기</option>
+    </select>
+    <p id="mode-help">동일 시각 모드: 가격 시각이 정확히 같아야 합니다. 시각 오차는 허용하지 않습니다.</p>
     <p id="input-help">동일 종목·거래소·통화·가격 종류와 각 가격의 시각이 필요합니다. 같은 값이어도 독립적인 출처라는 뜻은 아닙니다.</p>
-    <label for="comparison-input">GAS + KIS 비교 JSON</label>
+    <label id="input-label" for="comparison-input">GAS + KIS 비교 JSON</label>
     <textarea id="comparison-input" rows="16" spellcheck="false" autocomplete="off" autocapitalize="off" aria-describedby="input-help safety-title" placeholder="합성 예제 넣기 버튼을 눌러 시작하세요."></textarea>
     <div class="actions">
       <button id="example" type="button">합성 예제 넣기</button>
@@ -38,7 +46,7 @@
   </section>
   <section aria-labelledby="result-title">
     <h2 id="result-title">2. 비교 결과</h2>
-    <p>GAS: 기존 경로 유지 / KIS: 추가 확인 경로 / 실연결: 없음</p>
+    <p id="result-context">GAS: 기존 경로 유지 / KIS: 추가 확인 경로 / 실연결: 없음</p>
     <div id="result" aria-live="polite" aria-atomic="true"></div>
   </section>
   <footer>

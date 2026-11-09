@@ -15,7 +15,7 @@ textarea { display: block; width: 100%; min-width: 0; max-width: 100%; min-heigh
 .actions { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 14px; }
 button { width: 100%; min-height: 48px; padding: 12px; border: 1px solid #61798c; border-radius: 8px; background: #f1f5f9; color: #172c40; font: inherit; font-weight: 700; cursor: pointer; }
 button.primary { background: #174a70; border-color: #174a70; color: white; }
-button:focus-visible, textarea:focus-visible { outline: 3px solid #a45a00; outline-offset: 3px; }
+button:focus-visible, textarea:focus-visible, select:focus-visible { outline: 3px solid #a45a00; outline-offset: 3px; }
 #status { min-height: 3.3em; font-weight: 600; }
 #result:empty::before { content: '아직 분석 결과가 없습니다.'; color: #22303c; }
 #result ul { padding-left: 1.3rem; }
@@ -23,3 +23,7 @@ button:focus-visible, textarea:focus-visible { outline: 3px solid #a45a00; outli
 footer { color: #22303c; font-size: .9rem; padding: 0 2px; }
 @media (min-width: 600px) { main { padding: 32px 24px 48px; } section { padding: 24px; } .actions { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto; } }
+
+select { display: block; width: 100%; max-width: 100%; min-width: 0; min-height: 48px; padding: 10px; border: 1px solid #61798c; border-radius: 8px; background: #f9fbfd; color: #172c40; font: inherit; }
+
+textarea::placeholder { color: #22303c; opacity: 1; }
