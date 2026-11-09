@@ -160,12 +160,74 @@
     out.metricMethod={return:'첫 종가 대비 마지막 종가',maxDrawdown:'입력 종가 표본 내 최고점 대비 하락률',volatility:'일별 로그수익률 표본 표준편차 × sqrt(252), 최소 20 수익률, 평일 누락 시 보류' ,rsi:'Wilder 14, 최소 15 종가; 완전 횡보 50'};
     return out;
   }
-  /* 직렬화 전에 접근자(getter/setter)·비일반 객체(Map/Date/Proxy 등)를 거절해 호출자 코드가 실행되지 않게 한다. UI 입력은 JSON.parse 결과라 영향 없음 */
-  function jsonLike(root){let nodes=0;const seen=new Set();(function walk(x,d){if(++nodes>150000||d>16)throw Error();if(x===undefined||x===null||typeof x==='boolean'||typeof x==='string')return; /* undefined 는 직렬화에서 사라짐(기존 동작 유지) */if(typeof x==='number'){if(!Number.isFinite(x))throw Error();return;}if(typeof x!=='object')throw Error();if(seen.has(x))throw Error();seen.add(x);const proto=Object.getPrototypeOf(x);if(Array.isArray(x)){if(proto!==Array.prototype)throw Error();}else if(proto!==Object.prototype&&proto!==null)throw Error();for(const k of Reflect.ownKeys(x)){if(typeof k==='symbol')throw Error();const ds=Object.getOwnPropertyDescriptor(x,k);if(!ds||!('value' in ds))throw Error();if(Array.isArray(x)&&k==='length')continue;walk(ds.value,d+1);}seen.delete(x);})(root,0);return true;}
+  // Untrusted callers must use analyzeJSON. Reflection on programmatic objects can
+  // execute Proxy traps: analyzePack is only for trusted, same-realm data objects.
+  const MAX_BYTES=1000000, MAX_NODES=150000, MAX_DEPTH=16;
+  function utf8Size(s,quoted){
+    if(s.length>MAX_BYTES)throw Error();
+    let size=quoted?2:0;
+    for(let i=0;i<s.length;i++){
+      const c=s.charCodeAt(i);
+      if(quoted&&(c<32||c===34||c===92))size+=c<32?6:2;
+      else if(c<128)size++;
+      else if(c<2048)size+=2;
+      else if(c>=0xd800&&c<=0xdbff&&i+1<s.length&&s.charCodeAt(i+1)>=0xdc00&&s.charCodeAt(i+1)<=0xdfff){size+=4;i++;}
+      else size+=quoted&&c>=0xd800&&c<=0xdfff?6:3;
+      if(size>MAX_BYTES)throw Error();
+    }
+    return size;
+  }
+  function snapshot(input){
+    let nodes=0,bytes=0;const seen=new Set();
+    function add(n){bytes+=n;if(bytes>MAX_BYTES)throw Error();}
+    function walk(x,depth){
+      if(++nodes>MAX_NODES||depth>MAX_DEPTH)throw Error();
+      if(x===undefined)return undefined;
+      if(x===null||typeof x==='boolean'){add(x===null?4:x?4:5);return x;}
+      if(typeof x==='string'){add(utf8Size(x,true));return x;}
+      if(typeof x==='number'){if(!Number.isFinite(x))throw Error();add(String(x).length);return x;}
+      if(typeof x!=='object'||seen.has(x))throw Error();
+      const array=Array.isArray(x),proto=Object.getPrototypeOf(x);
+      if(array?proto!==Array.prototype:proto!==Object.prototype&&proto!==null)throw Error();
+      seen.add(x);add(2);
+      // Capture descriptors before descending. Never read x[k] or stringify x.
+      // This is not a sandbox for hostile Proxy traps or a compromised JS runtime.
+      if(array){const length=Object.getOwnPropertyDescriptor(x,'length');if(!length||!('value' in length)||!Number.isInteger(length.value)||length.value<0||length.value>MAX_NODES)throw Error();}
+      const keys=Reflect.ownKeys(x);if(keys.length>MAX_NODES)throw Error();
+      const entries=keys.map(k=>{if(typeof k!=='string')throw Error();const d=Object.getOwnPropertyDescriptor(x,k);if(!d||!('value' in d))throw Error();return [k,d];});
+      const result=array?[]:Object.create(null);
+      if(array){
+        const length=entries.find(([k])=>k==='length')[1].value;
+        if(!Number.isInteger(length)||length<0||length>MAX_NODES)throw Error();
+        const values=new Map();
+        for(const [k,d] of entries){if(k==='length')continue;if(!/^(0|[1-9][0-9]*)$/.test(k)||Number(k)>=length)throw Error();values.set(Number(k),d.value);}
+        for(let i=0;i<length;i++){if(i)add(1);const value=walk(values.get(i),depth+1);if(value===undefined)add(4);result.push(value===undefined?null:value);}
+      }else{
+        let count=0;
+        for(const [k,d] of entries){
+          // Preserve JSON's omission of non-enumerable and undefined object fields.
+          if(!d.enumerable||d.value===undefined)continue;
+          if(count++)add(1);add(utf8Size(k,true)+1);
+          result[k]=walk(d.value,depth+1);
+        }
+      }
+      seen.delete(x);return result;
+    }
+    return walk(input,0);
+  }
+  function invalidPack(){return {version:VERSION,status:'invalid',mode:null,instrument:null,quote:{status:'invalid',label:'판단 보류',selected:null,comparison:null,issues:[]},chart:{status:'missing',points:[],metrics:nullMetrics(),issues:[],warnings:[]},valuation:null,issues:[],notice:NOTICE};}
+  function inputFailure(){const out=invalidPack();out.issues.push('1 MB 이내 JSON 객체 필요 (깊이 16·노드 150000 제한)');return out;}
+  function analyzeJSON(raw,now){
+    let p;try{if(typeof raw!=='string'||utf8Size(raw,false)>MAX_BYTES)throw Error();p=snapshot(JSON.parse(raw));}catch(_){return inputFailure();}
+    return analyzeSnapshot(p,now);
+  }
   function analyzePack(input,now){
-    const out={version:VERSION,status:'invalid',mode:null,instrument:null,quote:{status:'invalid',label:'판단 보류',selected:null,comparison:null,issues:[]},chart:{status:'missing',points:[],metrics:nullMetrics(),issues:[],warnings:[]},valuation:null,issues:[],notice:NOTICE};
-    let p;try{if(!jsonLike(input))throw Error();const serialized=JSON.stringify(input);if(!serialized||serialized.length>1000000)throw Error();p=JSON.parse(serialized);}catch(_){out.issues.push('1 MB 이내 직렬화 가능한 JSON 객체 필요');return out;}
-    if(!Q||!V||!obj(p)||p.version!==1||!['synthetic','imported'].includes(p.mode)||!id(p.instrument)||!ts(now)){out.issues.push('버전·모드·종목·시장·통화·분석시각 또는 모듈 오류');return out;}
+    let p;try{p=snapshot(input);}catch(_){return inputFailure();}
+    return analyzeSnapshot(p,now);
+  }
+  function analyzeSnapshot(p,now){
+    const out=invalidPack();
+    if(!Q||!V||!obj(p)||p.version!==1||!['synthetic','imported'].includes(p.mode)||!id(p.instrument)||typeof now!=='string'||!ts(now)){out.issues.push('버전·모드·종목·시장·통화·분석시각 또는 모듈 오류');return out;}
     out.mode=p.mode;out.instrument={ticker:p.instrument.ticker,market:p.instrument.market,currency:p.instrument.currency};
     out.quote=analyzeQuotes(p.quotes,p.instrument,p.mode,now,p.sessionCalendar,p.closedDates);out.chart=analyzeHistory(p.history,p.instrument,p.mode,now);
     if(p.valuationDocument!=null){
@@ -178,6 +240,9 @@
       else {
         // Imported quote claims never become verified simply because JSON says so.
         if(p.mode==='imported')price.verification='unverified';
+        // The legacy valuation module serializes its input. Neutralize inherited
+        // array toJSON hooks on our private snapshot, never on caller objects.
+        (function protectArrays(x){if(!x||typeof x!=='object')return;Object.values(x).forEach(protectArrays);if(Array.isArray(x))Object.defineProperty(x,'toJSON',{value:null});})(d);
         out.valuation=V.analyze(d,now);
         if(p.mode==='imported')out.issues.push('수입 자료 시세의 독립 검증 전이므로 가격 가치 비교·매수 판단은 보류. 재무 검증 표시는 입력자 선언임');
       }
@@ -190,5 +255,5 @@
     if(p.mode==='synthetic')out.issues.push('발명된 합성 자료: 실제 기업·시세 또는 투자 판단 아님');
     return out;
   }
-  return Object.freeze({VERSION,analyzePack});
+  return Object.freeze({VERSION,analyzeJSON,analyzePack});
 });

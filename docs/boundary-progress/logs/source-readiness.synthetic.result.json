@@ -1,0 +1,153 @@
+{
+  "version": 1,
+  "status": "declared-only",
+  "verification": "unverified",
+  "liveConnection": "unavailable",
+  "independenceVerified": false,
+  "secretScanPerformed": false,
+  "checks": [
+    {
+      "field": "transport.kind",
+      "status": "declared-only"
+    },
+    {
+      "field": "transport.sampleRef",
+      "status": "declared-only"
+    },
+    {
+      "field": "transport.keysOmitted",
+      "status": "declared-only"
+    },
+    {
+      "field": "upstream.provider",
+      "status": "declared-only"
+    },
+    {
+      "field": "upstream.originId",
+      "status": "declared-only"
+    },
+    {
+      "field": "upstream.evidenceRef",
+      "status": "declared-only"
+    },
+    {
+      "field": "quote.exchangeAt",
+      "status": "declared-only"
+    },
+    {
+      "field": "quote.receivedAt",
+      "status": "declared-only"
+    },
+    {
+      "field": "quote.type",
+      "status": "declared-only"
+    },
+    {
+      "field": "quote.delaySeconds",
+      "status": "declared-only"
+    },
+    {
+      "field": "quote.exchangeTimeEvidenceRef",
+      "status": "declared-only"
+    },
+    {
+      "field": "quote.entitlementEvidenceRef",
+      "status": "declared-only"
+    },
+    {
+      "field": "rights.personalDisplay",
+      "status": "declared-only"
+    },
+    {
+      "field": "rights.derivedAnalytics",
+      "status": "declared-only"
+    },
+    {
+      "field": "rights.storagePolicy",
+      "status": "declared-only"
+    },
+    {
+      "field": "rights.redistributionPolicy",
+      "status": "declared-only"
+    },
+    {
+      "field": "rights.evidenceRef",
+      "status": "declared-only"
+    },
+    {
+      "field": "comparison.originId",
+      "status": "declared-only"
+    },
+    {
+      "field": "comparison.originEvidenceRef",
+      "status": "declared-only"
+    },
+    {
+      "field": "comparison.sampleRef",
+      "status": "declared-only"
+    },
+    {
+      "field": "history.sampleRef",
+      "status": "declared-only"
+    },
+    {
+      "field": "history.adjustment",
+      "status": "declared-only"
+    },
+    {
+      "field": "history.adjustmentEvidenceRef",
+      "status": "declared-only"
+    },
+    {
+      "field": "history.calendarEvidenceRef",
+      "status": "declared-only"
+    },
+    {
+      "field": "history.timeZone",
+      "status": "declared-only"
+    },
+    {
+      "field": "history.from",
+      "status": "declared-only"
+    },
+    {
+      "field": "history.through",
+      "status": "declared-only"
+    },
+    {
+      "field": "financials.provider",
+      "status": "declared-only"
+    },
+    {
+      "field": "financials.sampleRef",
+      "status": "declared-only"
+    },
+    {
+      "field": "financials.filingRef",
+      "status": "declared-only"
+    },
+    {
+      "field": "financials.entityIdentityRef",
+      "status": "declared-only"
+    },
+    {
+      "field": "financials.periodRef",
+      "status": "declared-only"
+    },
+    {
+      "field": "financials.unitsRef",
+      "status": "declared-only"
+    },
+    {
+      "field": "financials.revisionPolicyRef",
+      "status": "declared-only"
+    },
+    {
+      "field": "financials.secSelectionRef",
+      "status": "declared-only"
+    }
+  ],
+  "issues": [],
+  "notice": "Offline metadata declarations only. No source, account entitlement, secret removal, exchange clock, source independence or live connection has been verified.",
+  "mode": "synthetic"
+}

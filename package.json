@@ -34,7 +34,10 @@
     "test:workbench-ui": "node tests/data-workbench-colors.cjs",
     "test:workbench-dom": "node tests/data-workbench-dom.cjs",
     "test:review-fixes": "node --require ./tests/lib/no-network.cjs --test tests/gas-redact.test.cjs tests/gas-redactor-dom.test.cjs tests/market-sessions.test.cjs tests/data-workbench-claude-fixes.test.cjs tests/review-fixes-independent.test.cjs",
-    "test:redactor-dom": "node --require ./tests/lib/no-network.cjs --test tests/gas-redactor-dom.test.cjs"
+    "test:redactor-dom": "node --require ./tests/lib/no-network.cjs --test tests/gas-redactor-dom.test.cjs",
+    "test:boundary-progress": "node --require ./tests/lib/no-network.cjs --test tests/market-json-boundary.test.cjs tests/redact-battery.test.cjs tests/source-readiness.test.cjs tests/boundary-progress-independent.test.cjs",
+    "test:redact-battery": "node --require ./tests/lib/no-network.cjs tools/review-redact-battery.cjs",
+    "check:source-readiness": "node --require ./tests/lib/no-network.cjs tools/source-readiness-check.cjs"
   },
   "devDependencies": {
     "@fontsource/noto-sans-kr": "5.2.6",
