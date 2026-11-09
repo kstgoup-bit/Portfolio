@@ -2,7 +2,7 @@
 // Runs actual browser DOM behavior without external requests or installation.
 const assert = require('node:assert/strict');
 const path = require('node:path');
-let playwright; try { playwright = require('playwright'); } catch (_) { playwright = require('/opt/codex/runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright'); }
+let playwright; try { playwright = require('playwright'); } catch (_) { console.error('playwright is required. Install the declared development dependencies before running browser checks.'); process.exit(2); }
 const url = 'file://' + path.join(__dirname, '../has/data-workbench.html');
 async function run(width = 1280) {
  const browser = await playwright.chromium.launch({executablePath:process.env.BROWSER_EXECUTABLE_PATH || '/usr/bin/chromium',args:['--no-sandbox']});

@@ -13,10 +13,61 @@
     if(!obj(r)||!txt(r.reference)||!before(r.checkedAt,now)||r.personalDisplay!==true||r.derivedAnalytics!==true)return false;
     return mode==='synthetic'?r.synthetic===true:r.synthetic!==true&&/^https:\/\//.test(r.reference);
   }
-  /* 종가 최신성: 기준일 다음 날부터 오늘(거래소 날짜)까지의 평일 수 - 입력자가 선언한 휴장일. 1 이하만 '직전 거래일 종가'로 본다.
-     (기존 quote-model 은 달력 4일 허용이라 금요일 종가가 화요일에도 통과했음. 휴장일 달력은 입력 선언이며 독립 확인 아님) */
-  function weekdaysSince(asOfDate,today,closed){let n=0;const skip=new Set(closed||[]);for(let t=Date.parse(asOfDate)+86400000;t<=Date.parse(today);t+=86400000){const d=new Date(t);if(d.getUTCDay()%6&&!skip.has(d.toISOString().slice(0,10)))n++;}return n;}
-  function quote(raw,instrument,mode,now,closed){
+  /* One workbench-only policy; never delegates close freshness to legacy calendar-age gates. */
+  const SESSION_GRACE_MS=5*60000;
+  function localClock(iso,market){
+    const parts=new Intl.DateTimeFormat('en-GB',{timeZone:market==='US'?'America/New_York':'Asia/Seoul',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'}).formatToParts(new Date(iso));
+    const p={};parts.forEach(x=>p[x.type]=x.value);return Number(p.hour)*3600+Number(p.minute)*60+Number(p.second);
+  }
+  function closeFreshness(raw,market,mode,now,calendar,legacyClosed){
+    const out={status:'unknown',latestSessionDate:null,verification:'unverified',basis:null,graceMinutes:5,issues:[]};
+    const fail=s=>{out.issues.push(s);return out;};
+    if(!day(raw.asOfDate)||!ts(raw.asOfTime)||!ts(now)||!['US','KR'].includes(market))return fail('종가 세션 기준일/시각 오류');
+    const today=Q.marketDate(now,market),start=raw.asOfDate,regular=market==='US'?16*3600:15*3600+30*60,opening=market==='US'?9*3600+30*60:9*3600;
+    if(start>today||Date.parse(raw.asOfTime)>Date.parse(now)||Q.marketDate(raw.asOfTime,market)!==start)return fail('미래 또는 거래소 날짜 불일치 종가');
+    if(legacyClosed!==undefined)return fail('closedDates는 종가 최신성 근거가 아님: 출처·검토 상태와 완전한 sessionCalendar 필요');
+    let entries;
+    if(calendar===undefined){
+      if(mode!=='synthetic')return fail('sessionCalendar 없음: 실제 휴장·단축장 여부 미확인');
+      out.basis='synthetic-regular-weekdays';
+      if((Date.parse(today)-Date.parse(start))/86400000>370)return fail('합성 세션 범위 초과');
+      entries=[];
+      for(let t=Date.parse(start);t<=Date.parse(today);t+=86400000){const d=new Date(t),date=d.toISOString().slice(0,10);entries.push({date,status:d.getUTCDay()%6?'regular':'closed'});}
+    }else{
+      if(!obj(calendar)||calendar.market!==market||calendar.timeZone!==(market==='US'?'America/New_York':'Asia/Seoul')||!txt(calendar.source)||!txt(calendar.reference)||!['declared','reviewed'].includes(calendar.reviewStatus)||!before(calendar.reviewedAt,now)||!day(calendar.from)||!day(calendar.through)||calendar.from>start||calendar.through<today||calendar.from>calendar.through)return fail('sessionCalendar 출처·검토 상태·시장·시간대·범위 오류');
+      if(mode==='imported'&&(calendar.synthetic===true||[calendar.source,calendar.reference].some(x=>/SYNTHETIC|가상|발명|invented/i.test(x))||!/^https:\/\//i.test(calendar.reference)))return fail('수입 sessionCalendar에 합성 출처/표시 또는 HTTPS 원문 참조 누락');
+      const count=(Date.parse(calendar.through)-Date.parse(calendar.from))/86400000+1;
+      if(count>371||!Array.isArray(calendar.sessions)||calendar.sessions.length!==count)return fail('sessionCalendar 날짜별 완전성/범위 오류');
+      entries=calendar.sessions;
+      for(let i=0;i<entries.length;i++){
+        const e=entries[i],date=new Date(Date.parse(calendar.from)+i*86400000).toISOString().slice(0,10);
+        if(!obj(e)||e.date!==date||!['regular','early','closed'].includes(e.status))return fail('sessionCalendar 누락·중복·역순·세션 상태 오류');
+        if(e.status==='closed'){if(e.closeAt!==undefined||!txt(e.reason))return fail('휴장 선언과 마감 시각 모순/사유 누락');}
+        else {
+          if(!new Date(date).getUTCDay()||new Date(date).getUTCDay()===6||!ts(e.closeAt)||Q.marketDate(e.closeAt,market)!==date)return fail('주말 개장 또는 세션 마감 날짜 오류');
+          const clock=localClock(e.closeAt,market);
+          if(e.status==='regular'&&clock!==regular||e.status==='early'&&(clock<=opening||clock>=regular||!txt(e.reason)))return fail('정규/단축 마감 시각 또는 사유 오류');
+        }
+      }
+      out.basis='supplied-calendar';out.calendar={source:calendar.source,reference:calendar.reference,declaredReviewStatus:calendar.reviewStatus,reviewedAt:calendar.reviewedAt,verification:'unverified'};
+    }
+    let quotedClose=null,pending=false;
+    for(const e of entries){
+      if(e.date<start||e.date>today||e.status==='closed')continue;
+      // Synthetic schedule uses real timezone conversion via the quote/analysis clocks, not a fixed UTC offset.
+      let closed,settled;
+      if(e.closeAt){const t=Date.parse(e.closeAt);closed=Date.parse(now)>=t;settled=Date.parse(now)>=t+SESSION_GRACE_MS;}
+      else {closed=e.date<today||localClock(now,market)>=regular;settled=e.date<today||localClock(now,market)>=regular+SESSION_GRACE_MS/1000;}
+      if(e.date===start)quotedClose=e.closeAt?Date.parse(e.closeAt):Date.parse(raw.asOfTime)-(localClock(raw.asOfTime,market)-regular)*1000;
+      if(closed&&!settled)pending=true;
+      if(settled)out.latestSessionDate=e.date;
+    }
+    if(quotedClose===null||Date.parse(raw.asOfTime)<quotedClose||Date.parse(raw.asOfTime)>quotedClose+60000)return fail('종가 시각이 선언된 세션 마감과 불일치(마감 후 60초 이내 필요)');
+    if(pending)return fail('마감 후 5분 공표 유예 중: 종가 최신성 판단 보류');
+    if(out.latestSessionDate!==start){out.status='stale';return fail('종가가 최근 완료 세션 이전 자료');}
+    out.status='current-declared';return out;
+  }
+  function quote(raw,instrument,mode,now,calendar,closed){
     const issues=[];
     if(!obj(raw))return {valid:false,issues:['시세 객체 없음'],quote:null};
     if(!same(raw,instrument))issues.push('종목·시장·통화 불일치');
@@ -29,20 +80,24 @@
     else if(Q.marketDate(raw.asOfTime,instrument.market)!==raw.asOfDate||Date.parse(raw.receivedAt)<Date.parse(raw.asOfTime))issues.push('거래소 기준일 불일치 또는 거래 전 수신');
     if(!rights(raw.rights,mode,now))issues.push('개인 표시·파생 분석 이용 권리의 확인 근거 입력 필요');
     if(raw.priceKind==='realtime'&&raw.rights&&raw.rights.realtime!==true)issues.push('실시간 이용 권한 근거 입력 필요');
-    const classification=Q&&Q.classify({kind:raw.priceKind,price:raw.price,market:instrument.market,asOfDate:raw.asOfDate,asOfTime:raw.asOfTime,source:raw.source},now);
-    if(classification&&classification.stale)issues.push('시세 기준일이 오래되었거나 유효하지 않음');
+    let classification=Q&&Q.classify({kind:raw.priceKind,price:raw.price,market:instrument.market,asOfDate:raw.asOfDate,asOfTime:raw.asOfTime,source:raw.source},now);
+    if(raw.priceKind!=='close'&&classification&&classification.stale)issues.push('시세 기준일이 오래되었거나 유효하지 않음');
     if(raw.priceKind==='realtime'&&classification&&classification.kind!=='realtime')issues.push('실시간 유형이나 거래소 시각이 5분을 초과');
     if(raw.priceKind==='delayed'&&(!num(raw.delayMinutes)||raw.delayMinutes<0||raw.delayMinutes>1440||classification&&classification.ageMinutes<raw.delayMinutes))issues.push('지연 시간 선언 누락/모순');
     if(raw.priceKind==='delayed'&&classification&&classification.kind==='unknown')issues.push('지연 시세 기준시각이 하루 초과');
-    let weekdaysOld=null;
-    if(raw.priceKind==='close'&&day(raw.asOfDate)&&ts(now)){weekdaysOld=weekdaysSince(raw.asOfDate,Q.marketDate(now,instrument.market),closed);if(weekdaysOld>1)issues.push('종가가 직전 거래일 이전 자료(평일 기준 '+weekdaysOld+'일 경과): 휴장일을 closedDates 로 선언하지 않으면 사용 보류');}
-    const selected={weekdaysOld,ticker:raw.ticker,market:raw.market,currency:raw.currency,price:raw.price,source:raw.source,originId:raw.originId,reference:raw.reference,asOfDate:raw.asOfDate,asOfTime:raw.asOfTime,receivedAt:raw.receivedAt,priceKind:raw.priceKind,delayMinutes:raw.delayMinutes??null,adjustment:raw.adjustment,synthetic:raw.synthetic,rights:raw.rights,verification:'unverified',classification};
+    let freshness=null;
+    if(raw.priceKind==='close'){
+      freshness=closeFreshness(raw,instrument.market,mode,now,calendar,closed);
+      issues.push(...freshness.issues);
+      classification={kind:freshness.status==='current-declared'?'close':'unknown',label:'입력상 종가 · 세션 달력 미검증',stale:freshness.status!=='current-declared',note:freshness.issues.join(' · '),freshnessStatus:freshness.status,ageMinutes:ts(raw.asOfTime)?(Date.parse(now)-Date.parse(raw.asOfTime))/60000:null};
+    }
+    const selected={freshness,ticker:raw.ticker,market:raw.market,currency:raw.currency,price:raw.price,source:raw.source,originId:raw.originId,reference:raw.reference,asOfDate:raw.asOfDate,asOfTime:raw.asOfTime,receivedAt:raw.receivedAt,priceKind:raw.priceKind,delayMinutes:raw.delayMinutes??null,adjustment:raw.adjustment,synthetic:raw.synthetic,rights:raw.rights,verification:'unverified',classification};
     return {valid:issues.length===0,issues,quote:selected};
   }
-  function analyzeQuotes(raw,instrument,mode,now,closed){
+  function analyzeQuotes(raw,instrument,mode,now,calendar,closed){
     const out={status:'invalid',label:'시세 판단 보류',selected:null,comparison:null,issues:[]};
     if(!Array.isArray(raw)||!raw.length||raw.length>8){out.issues.push('시세 표본은 1~8개 필요');return out;}
-    const rows=raw.map(x=>quote(x,instrument,mode,now,closed));
+    const rows=raw.map(x=>quote(x,instrument,mode,now,calendar,closed));
     rows.forEach((r,i)=>r.issues.forEach(s=>out.issues.push('시세 '+(i+1)+': '+s)));
     // Malformed evidence cannot be silently dropped from a comparison.
     if(rows.some(r=>!r.valid))return out;
@@ -110,11 +165,14 @@
     let p;try{const serialized=JSON.stringify(input);if(!serialized||serialized.length>1000000)throw Error();p=JSON.parse(serialized);}catch(_){out.issues.push('1 MB 이내 직렬화 가능한 JSON 객체 필요');return out;}
     if(!Q||!V||!obj(p)||p.version!==1||!['synthetic','imported'].includes(p.mode)||!id(p.instrument)||!ts(now)){out.issues.push('버전·모드·종목·시장·통화·분석시각 또는 모듈 오류');return out;}
     out.mode=p.mode;out.instrument={ticker:p.instrument.ticker,market:p.instrument.market,currency:p.instrument.currency};
-    const closed=Array.isArray(p.closedDates)&&p.closedDates.length<=60&&p.closedDates.every(day)?p.closedDates:[];if(p.closedDates!==undefined&&closed.length!==(Array.isArray(p.closedDates)?p.closedDates.length:-1))out.issues.push('closedDates 형식 오류(유효한 날짜 60개 이하): 무시함');
-    out.quote=analyzeQuotes(p.quotes,p.instrument,p.mode,now,closed);out.chart=analyzeHistory(p.history,p.instrument,p.mode,now);
+    out.quote=analyzeQuotes(p.quotes,p.instrument,p.mode,now,p.sessionCalendar,p.closedDates);out.chart=analyzeHistory(p.history,p.instrument,p.mode,now);
     if(p.valuationDocument!=null){
       const d=p.valuationDocument,q=out.quote.selected,price=obj(d)&&d.observations&&d.observations.price;
       if(!obj(d)||!same(d,p.instrument)||d.synthetic!==(p.mode==='synthetic')||!q||!price||price.value!==q.price||price.unit!==q.currency+'/share'||price.asOf!==q.asOfDate||price.period?.kind!=='instant'||price.period?.end!==q.asOfDate||!['consistent-unverified','single-source'].includes(out.quote.status))out.issues.push('재무 문서와 선택 시세의 종목·통화·가격·기준일·합성 여부 불일치 또는 시세 대조 충돌: 가치 분석 보류');
+      else if(q.priceKind==='close'&&q.freshness?.status==='current-declared'&&(Date.parse(Q.marketDate(now,p.instrument.market))-Date.parse(q.asOfDate))/86400000>4){
+        // A session-valid preview does not override the separate legacy valuation policy.
+        out.issues.push('선언된 세션 달력상 종가 미리보기는 가능하지만 기존 가치평가의 4일 정책과 호환되지 않아 가치 분석 보류. 달력·가격 검증 상태는 미검증 유지');
+      }
       else {
         // Imported quote claims never become verified simply because JSON says so.
         if(p.mode==='imported')price.verification='unverified';

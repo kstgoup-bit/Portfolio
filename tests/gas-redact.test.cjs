@@ -14,3 +14,96 @@ test('큰 입력도 빠르게 끝난다(정규식 폭주 없음)', () => { for (
 test('항상 완전하지 않다는 경고를 낸다', () => { a.ok(R.redact('hello').warnings.some(w => /완전하지 않을 수 있습니다/.test(w))); });
 test('토큰 접두사가 가려지지 않고 남으면 경고', () => { a.ok(R.redact("x = 'sk-abcdefg'").warnings.some(w => /토큰 접두사/.test(w))); });
 test('모듈에 저장·네트워크 코드가 없다', () => { const src = require('fs').readFileSync(require('path').join(__dirname, '../has/gas-redact.js'), 'utf8').replace(/\/\*[\s\S]*?\*\//g, ''); a.ok(!/localStorage|sessionStorage|fetch\(|XMLHttpRequest|indexedDB|navigator\./.test(src)); const ui = require('fs').readFileSync(require('path').join(__dirname, '../has/gas-redactor.js'), 'utf8'); a.ok(!/localStorage|sessionStorage|fetch\(|XMLHttpRequest|indexedDB|innerHTML/.test(ui)); });
+
+test('escaped JSON quotes/backslashes preserve structure without secret tails', () => {
+  for (const secret of ['prefix"tailSecret123', "prefix'tailSecret123", 'prefix\\tailSecret123', 'prefix\\"tailSecret123']) {
+    const src = JSON.stringify({ password: secret, price: 123, other: 'unchanged' });
+    const out = R.redact(src); a.ok(out.ok); a.equal(JSON.parse(out.text).password, '[가림:값]');
+    a.equal(JSON.parse(out.text).other, 'unchanged'); a.equal(JSON.parse(out.text).price, 123);
+    a.ok(!out.text.includes('tailSecret123'));
+  }
+});
+test('GAS escaped strings, multiline literals and property initialization', () => {
+  for (const src of [
+    String.raw`const password = 'prefix\'tailSecret123';`,
+    String.raw`const password = "prefix\\\"tailSecret123";`,
+    'const secret = `first\ntailSecret123`;',
+    `PropertiesService.getScriptProperties().setProperty('API_KEY', 'tailSecret123');`,
+    `props.setProperties({ API_KEY: 'tailSecret123', price: 123 });`,
+    String.raw`const cfg = { "pass\u0077ord": "tailSecret123" };`,
+    String.raw`SpreadsheetApp.openById('prefix\'tailSecret123');`
+  ]) { const out = R.redact(src); a.ok(out.ok, src); a.ok(!out.text.includes('tailSecret123'), src); }
+});
+test('uncertain sensitive expression boundaries refuse all output', () => {
+  for (const src of [
+    `const secret = 'first' + 'tailSecret123';`,
+    `const secret = 'first' /* comment */ + 'tailSecret123';`,
+    `const secret = 'first'\n + 'tailSecret123';`,
+    'const secret = `first${value}tailSecret123`;',
+    `const secret = 'unterminated tailSecret123`,
+    `const secret = 'first'.concat('tailSecret123');`,
+    `props.setProperty('API_KEY', 'first' + 'tailSecret123');`,
+    `const secret = build('tailSecret123');`,
+    `const secret = 'first' /* unfinished`,
+    `const password = { value: 'tailSecret123' };`
+  ]) { const out = R.redact(src); a.equal(out.ok, false, src); a.equal(out.text, '', src); a.ok(out.warnings.length); }
+});
+test('adjacent nonsecret values and escaped delimiters do not get swallowed', () => {
+  const out = R.redact(String.raw`const cfg = { password: 'p\'secret', label: 'visible', enabled: true };`);
+  a.ok(out.ok); a.ok(out.text.includes("label: 'visible', enabled: true"));
+});
+test('many escaped literals and unterminated tails remain bounded', () => {
+  for (const src of [String.raw`const secret = 'a\'b';`.repeat(9000), 'const secret = "' + '\\\\'.repeat(100000)]) {
+    const started = Date.now(); R.redact(src); a.ok(Date.now() - started < 2000);
+  }
+});
+test('commented-out secret assignments are blocked rather than silently exposed', () => {
+  for (const src of ["// const password = 'tailSecret123';", "/* const secret = 'tailSecret123'; */", "// props.setProperty('API_KEY', 'tailSecret123');"]) {
+    const out = R.redact(src); a.equal(out.ok, false); a.equal(out.text, '');
+  }
+});
+test('empty and numeric secret literals are hidden without damaging adjacent JSON', () => {
+  for (const password of ['', 12345]) {
+    const out = R.redact(JSON.stringify({password, price: 42})); a.ok(out.ok);
+    a.deepEqual(JSON.parse(out.text), {password: '[가림:값]', price: 42});
+  }
+});
+test('static bracket secret keys are hidden, compound assignments are withheld', () => {
+  for (const src of [`config["password"] = "demoValue123";`, String.raw`config['pass\u0077ord'] = 'demoValue123';`]) {
+    const out = R.redact(src); a.ok(out.ok); a.ok(!out.text.includes('demoValue123'));
+  }
+  for (const op of ['+=', '??=', '||=', '&&=', '**=']) {
+    for (const key of ['config.password', 'config["password"]']) {
+      const out = R.redact(`${key} ${op} "demoValue123";`); a.equal(out.ok, false); a.equal(out.text, '');
+    }
+  }
+});
+test('escaped API prefixes and URLs are screened as decoded literal values', () => {
+  const fakeKey = 'SyA1234567890abcdefghijklmn' + 'opqrstuv';
+  const fakeId = 'AKfycbx' + 'A'.repeat(33);
+  for (const src of [
+    'const x = "\\x41Iza' + fakeKey + '";',
+    'const x = "\\u0041Iza' + fakeKey + '";',
+    'const x = "\\u{41}Iza' + fakeKey + '";',
+    'const x = "https:\\/\\/script.google.com\\/macros\\/s\\/' + fakeId + '\\/exec";'
+  ]) {
+    const out = R.redact(src); a.ok(out.ok); a.ok(!out.text.includes(fakeKey)); a.ok(!out.text.includes(fakeId));
+  }
+  const json = '{"url":"https:\\/\\/script.google.com\\/macros\\/s\\/' + fakeId + '\\/exec","other":"stay\\nput"}';
+  const out = R.redact(json); a.ok(out.ok); a.equal(JSON.parse(out.text).other, 'stay\nput'); a.ok(!out.text.includes(fakeId));
+});
+test('escaped identifier unsupported forms fail closed and codepoint keys are recognized', () => {
+  for (const src of [String.raw`const pass\u0077ord = 'demoValue123';`, String.raw`const x = '\u{110000}';`, String.raw`const x = '\uZZZZ';`]) {
+    const out = R.redact(src); a.equal(out.ok, false); a.equal(out.text, '');
+  }
+  const out = R.redact(String.raw`const cfg = { "pass\u{77}ord": "demoValue123" };`);
+  a.ok(out.ok); a.ok(!out.text.includes('demoValue123'));
+});
+test('legacy octal and ambiguous zero-digit escapes are withheld', () => {
+  const id = 'AKfycbx' + 'A'.repeat(33);
+  const src = 'const x="https:\\057\\057script.google.com\\057macros\\057s\\057' + id + '\\057exec";';
+  for (const input of [src, String.raw`const x = '\08';`, String.raw`const x = '\00';`, String.raw`const x = '\09';`]) {
+    const out = R.redact(input); a.equal(out.ok, false); a.equal(out.text, '');
+  }
+  a.ok(R.redact(String.raw`const x = '\0';`).ok);
+});
