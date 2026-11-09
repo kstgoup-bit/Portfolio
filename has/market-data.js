@@ -160,9 +160,11 @@
     out.metricMethod={return:'첫 종가 대비 마지막 종가',maxDrawdown:'입력 종가 표본 내 최고점 대비 하락률',volatility:'일별 로그수익률 표본 표준편차 × sqrt(252), 최소 20 수익률, 평일 누락 시 보류' ,rsi:'Wilder 14, 최소 15 종가; 완전 횡보 50'};
     return out;
   }
+  /* 직렬화 전에 접근자(getter/setter)·비일반 객체(Map/Date/Proxy 등)를 거절해 호출자 코드가 실행되지 않게 한다. UI 입력은 JSON.parse 결과라 영향 없음 */
+  function jsonLike(root){let nodes=0;const seen=new Set();(function walk(x,d){if(++nodes>150000||d>16)throw Error();if(x===undefined||x===null||typeof x==='boolean'||typeof x==='string')return; /* undefined 는 직렬화에서 사라짐(기존 동작 유지) */if(typeof x==='number'){if(!Number.isFinite(x))throw Error();return;}if(typeof x!=='object')throw Error();if(seen.has(x))throw Error();seen.add(x);const proto=Object.getPrototypeOf(x);if(Array.isArray(x)){if(proto!==Array.prototype)throw Error();}else if(proto!==Object.prototype&&proto!==null)throw Error();for(const k of Reflect.ownKeys(x)){if(typeof k==='symbol')throw Error();const ds=Object.getOwnPropertyDescriptor(x,k);if(!ds||!('value' in ds))throw Error();if(Array.isArray(x)&&k==='length')continue;walk(ds.value,d+1);}seen.delete(x);})(root,0);return true;}
   function analyzePack(input,now){
     const out={version:VERSION,status:'invalid',mode:null,instrument:null,quote:{status:'invalid',label:'판단 보류',selected:null,comparison:null,issues:[]},chart:{status:'missing',points:[],metrics:nullMetrics(),issues:[],warnings:[]},valuation:null,issues:[],notice:NOTICE};
-    let p;try{const serialized=JSON.stringify(input);if(!serialized||serialized.length>1000000)throw Error();p=JSON.parse(serialized);}catch(_){out.issues.push('1 MB 이내 직렬화 가능한 JSON 객체 필요');return out;}
+    let p;try{if(!jsonLike(input))throw Error();const serialized=JSON.stringify(input);if(!serialized||serialized.length>1000000)throw Error();p=JSON.parse(serialized);}catch(_){out.issues.push('1 MB 이내 직렬화 가능한 JSON 객체 필요');return out;}
     if(!Q||!V||!obj(p)||p.version!==1||!['synthetic','imported'].includes(p.mode)||!id(p.instrument)||!ts(now)){out.issues.push('버전·모드·종목·시장·통화·분석시각 또는 모듈 오류');return out;}
     out.mode=p.mode;out.instrument={ticker:p.instrument.ticker,market:p.instrument.market,currency:p.instrument.currency};
     out.quote=analyzeQuotes(p.quotes,p.instrument,p.mode,now,p.sessionCalendar,p.closedDates);out.chart=analyzeHistory(p.history,p.instrument,p.mode,now);

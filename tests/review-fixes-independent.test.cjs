@@ -72,3 +72,12 @@ test('independent: failed legacy copy cannot report success or replace original 
   a.match(elements.status.textContent, /복사하지 못했습니다/); a.match(elements.status.textContent, /원본이 남아/);
   a.doesNotMatch(elements.status.textContent, /결과를 복사했습니다/);
 });
+
+// --- 클로 통합 검토(2026-11-09): 호출자 코드 실행 방지 ---
+test('접근자(getter)·Map·Date·Proxy·심볼·비유한 수가 든 입력은 거절하고 getter 를 실행하지 않는다(함정을 단 Proxy 포함. 함정 없는 Proxy 는 일반 객체와 구별 불가라 허용)', () => {
+  const M = require('../has/market-data.js'), F = require('../has/market-fixtures.js'); const base = () => JSON.parse(JSON.stringify(F.create()));
+  let hit = 0; const g = base(); Object.defineProperty(g, 'evil', { enumerable: true, get() { hit++; return 1; } }); require('node:assert/strict').equal(M.analyzePack(g, F.NOW).status, 'invalid'); require('node:assert/strict').equal(hit, 0);
+  for (const mut of [p => { p.x = new Map(); }, p => { p.x = new Date(); }, p => { p.x = new Proxy({}, { get() { throw new Error('trap'); } }); }, p => { p[Symbol('s')] = 1; }, p => { p.x = NaN; }, p => { p.x = Infinity; }, p => { p.x = () => 1; }, p => { p.x = 1n; }, p => { const a = {}; a.a = a; p.x = a; }]) { const p = base(); mut(p); require('node:assert/strict').equal(M.analyzePack(p, F.NOW).status, 'invalid'); }
+  require('node:assert/strict').notEqual(M.analyzePack(Object.assign(Object.create(null), base()), F.NOW).status, 'invalid'); // 프로토타입 없는 일반 객체는 허용
+  for (let i = 0; i < 3; i++) { const p = base(), s = JSON.stringify(p); M.analyzePack(p, F.NOW); require('node:assert/strict').equal(JSON.stringify(p), s); }
+});
