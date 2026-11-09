@@ -1,6 +1,6 @@
 'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
-let JSDOM;try{({JSDOM}=require('jsdom'));}catch(_){({JSDOM}=require('/workspace/scratch/a69a663b2cde/dabi-lab-closure/node_modules/jsdom'));}
+let JSDOM;try{({JSDOM}=require('jsdom'));}catch(_){console.error('jsdom 이 필요합니다: npm install (package.json 의 devDependencies) 후 다시 실행하세요.');process.exit(2);}
 const root=path.join(__dirname,'../has');
 const dom=new JSDOM(fs.readFileSync(path.join(root,'data-workbench.html'),'utf8'),{runScripts:'outside-only',url:'https://offline.invalid/has/data-workbench.html'});
 const w=dom.window,d=w.document,$=id=>d.getElementById(id),click=id=>$(id).click();w.TextEncoder=TextEncoder;

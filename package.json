@@ -30,7 +30,9 @@
     "test:valuation-mobile": "node tests/valuation-mobile.cjs",
     "test:valuation-regression": "node tools/valuation-regression.cjs",
     "test:advice-gates": "node --require ./tests/lib/no-network.cjs --test tests/advice-gates.test.cjs tests/advice-gates-independent.test.cjs",
-    "test:advice-gates-dom": "node tests/advice-gates-dom.cjs"
+    "test:advice-gates-dom": "node tests/advice-gates-dom.cjs",
+    "test:workbench-ui": "node tests/data-workbench-colors.cjs",
+    "test:workbench-dom": "node tests/data-workbench-dom.cjs"
   },
   "devDependencies": {
     "@fontsource/noto-sans-kr": "5.2.6",

@@ -52,9 +52,9 @@ if(candidates.some(g=>g!==f&&g.filed<=today&&(g.filed>s.filed||g.filed===s.filed
 const url='https://www.sec.gov/Archives/edgar/data/'+cik(raw.cik)+'/'+s.accession.replace(/-/g,'')+'/'+s.accession+'-index.html';
 const period=instant?{kind,end:s.end}:{kind,start:s.start,end:s.end};
 const filingAgeDays=Math.floor((Date.parse(today)-Date.parse(s.filed))/86400000),periodAgeDays=Math.floor((Date.parse(today)-Date.parse(s.end))/86400000);
-if(filingAgeDays>185||(!/Prev$/.test(field)&&periodAgeDays>185))fail('stale-draft-fact');
-out.observations[field]={value:f.val,unit:s.unit==='USD/shares'?'USD/share':s.unit,period,asOf:s.filed,basis:'reported',verification:'unverified',source:d.mode==='synthetic'?'SYNTHETIC: invented SEC-shaped fixture, not SEC evidence':'Imported unverified SEC-shaped data; '+url};
-out.selectionEvidence.push({field,namespace:'us-gaap',tag:s.tag,unit:s.unit,accession:s.accession,form:s.form,filed:s.filed,period:{...period},cik:cik(raw.cik),entityName:raw.entityName,sourceURL:d.mode==='synthetic'?null:url,generatedExampleURL:d.mode==='synthetic'?url:null,filingAgeDays,periodAgeDays,identityReview:'caller-reviewed-only',verification:'unverified',revisionPolicy:'latest available exact tag/unit/period in supplied snapshot only'});
+const stale=filingAgeDays>185||(!/Prev$/.test(field)&&periodAgeDays>185);if(stale)fail('stale-draft-fact');
+out.observations[field]={value:f.val,unit:s.unit==='USD/shares'?'USD/share':s.unit,period,asOf:s.filed,basis:'reported',verification:'unverified',stale,source:d.mode==='synthetic'?'SYNTHETIC: invented SEC-shaped fixture, not SEC evidence':'Imported unverified SEC-shaped data; '+url};
+out.selectionEvidence.push({field,namespace:'us-gaap',tag:s.tag,unit:s.unit,accession:s.accession,form:s.form,filed:s.filed,period:{...period},cik:cik(raw.cik),entityName:raw.entityName,sourceURL:d.mode==='synthetic'?null:url,generatedExampleURL:d.mode==='synthetic'?url:null,filingAgeDays,periodAgeDays,stale,identityReview:'caller-reviewed-only',verification:'unverified',revisionPolicy:'latest available exact tag/unit/period in supplied snapshot only'});
 }
 const count=Object.keys(out.observations).length;out.status=count?(out.issues.length?'partial':'ready'):'invalid';return out;
 }
