@@ -3,7 +3,7 @@
    '활성 감시' 수는 합성(synthetic) 시세를 제외하고 센다. 저장소·네트워크·타이머 없음. */
 (function (root, factory) { if (typeof module === 'object' && module.exports) module.exports = factory(require('./quote-model.js')); else root.HASWatchEngine = factory(root.HASQuoteModel); })(typeof globalThis !== 'undefined' ? globalThis : this, function (Q) {
   'use strict';
-  var DEFAULTS = Object.freeze({ drawdownLevels: [20, 30, 35], relativeOverdropPp: 10, fundamentalsMaxAgeDays: 180, concentrationPct: 25, lossRiskPct: 20, lossRiskMinWeightPct: 10, minCashPct: 10, fxShockPct: 3, vixLevel: 30, vixSpikePct: 30 });
+  var DEFAULTS = Object.freeze({ drawdownLevels: [20, 30, 35], relativeOverdropPp: 10, fundamentalsMaxAgeDays: 180, concentrationPct: 25, lossRiskPct: 20, lossRiskMinWeightPct: 10, minCashPct: 10, fxShockPct: 3, vixLevel: 30, vixSpikePct: 30, euphoriaLevels: [30, 50, 80], relativeOverheatPp: 15, nearHighPct: 5 });
   var fin = function (x) { return typeof x === 'number' && isFinite(x); };
   var daysBetween = function (a, nowISO, market) { var day=Q.marketDate(nowISO,market); return day&&Q.isValidDate(a)?Math.floor((Date.parse(day)-Date.parse(a))/86400000):NaN; };
   var dateOk = Q.isValidDate;
@@ -38,6 +38,8 @@
     else if (age(r.asOfDate) > 4) out.missing.push('시장 대비 수익률 자료가 오래됨');
     else if(age(r.asOfDate)<0 || r.asOfDate!==q.asOfDate)out.missing.push('상대 수익률 기준일 불일치 또는 미래 자료');
     else if (r.stockPct < 0 && r.stockPct - r.benchPct <= -c.relativeOverdropPp) out.signals.push(sig('relative-overdrop', stock.ticker, Math.round((r.stockPct - r.benchPct) * 10) / 10, ['최근 ' + (r.periodDays || '?') + '일 종목 ' + r.stockPct + '% / 시장 ' + r.benchPct + '% (초과 하락 ' + Math.round((r.benchPct - r.stockPct) * 10) / 10 + '%p)'], r.asOfDate, r.source));
+    /* 29단계: 환호성(급등) 신호 — 곡소리(drawdown)의 대칭. 가격 상승만으로 매도 의견을 만들지 않으며, 이 신호는 자문 엔진이 비중·재무·논리와 함께 볼 때만 쓴다. 조건: 최근 상승률이 단계(30/50/80%) 이상, 시장 대비 초과 상승, 52주 고점 근접. */
+    else if (r.stockPct > 0 && r.stockPct - r.benchPct >= c.relativeOverheatPp && out.drawdownPct !== null && out.drawdownPct <= c.nearHighPct && r.stockPct >= c.euphoriaLevels[0]) { var elv = null; c.euphoriaLevels.forEach(function (L) { if (r.stockPct >= L) elv = L; }); out.signals.push(sig('euphoria', stock.ticker, elv, ['최근 ' + r.periodDays + '일 종목 +' + r.stockPct + '% / 시장 ' + (r.benchPct >= 0 ? '+' : '') + r.benchPct + '% (초과 상승 ' + Math.round((r.stockPct - r.benchPct) * 10) / 10 + '%p)', '52주 고점 대비 -' + out.drawdownPct + '% (고점 근접)'], r.asOfDate, r.source)); }
     // 3) 실적·현금흐름·부채·성장성
     var f = stock.fundamentals;
     if (!f || !dateOk(f.asOfDate)) { out.missing.push('재무자료 없음'); }
