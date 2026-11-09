@@ -22,6 +22,7 @@
     "tests/draft-store-stage16.test.cjs",
     "tests/euphoria-stage29.test.cjs",
     "tests/galaxy-guard-stage26.test.cjs",
+    "tests/gas-history-draft.test.cjs",
     "tests/gas-redact.test.cjs",
     "tests/gas-redactor-dom.test.cjs",
     "tests/has-stage17.test.cjs",
