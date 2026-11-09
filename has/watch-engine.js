@@ -3,21 +3,42 @@
    '활성 감시' 수는 합성(synthetic) 시세를 제외하고 센다. 저장소·네트워크·타이머 없음. */
 (function (root, factory) { if (typeof module === 'object' && module.exports) module.exports = factory(require('./quote-model.js')); else root.HASWatchEngine = factory(root.HASQuoteModel); })(typeof globalThis !== 'undefined' ? globalThis : this, function (Q) {
   'use strict';
-  var DEFAULTS = Object.freeze({ drawdownLevels: [20, 30, 35], relativeOverdropPp: 10, fundamentalsMaxAgeDays: 180, concentrationPct: 25, lossRiskPct: 20, lossRiskMinWeightPct: 10, minCashPct: 10, fxShockPct: 3, vixLevel: 30, vixSpikePct: 30, euphoriaLevels: [30, 50, 80], relativeOverheatPp: 15, nearHighPct: 5 });
+  var DEFAULTS = Object.freeze({ drawdownLevels: [20, 30, 35], relativeOverdropPp: 10, fundamentalsMaxAgeDays: 180, concentrationPct: 25, lossRiskPct: 20, lossRiskMinWeightPct: 10, minCashPct: 10, fxShockPct: 3, vixLevel: 30, vixSpikePct: 30, euphoriaLevels: [30, 50, 80], relativeOverheatPp: 15, nearHighPct: 5, euphoriaMinDays: 20, euphoriaMaxDays: 120 });
   var fin = function (x) { return typeof x === 'number' && isFinite(x); };
   var daysBetween = function (a, nowISO, market) { var day=Q.marketDate(nowISO,market); return day&&Q.isValidDate(a)?Math.floor((Date.parse(day)-Date.parse(a))/86400000):NaN; };
   var dateOk = Q.isValidDate;
   var textOk = function(s){return typeof s==='string'&&s.trim().length>0;};
   var amountOk = function(n){return fin(n)&&Math.abs(n)<=1e18;};
   function quoteGate(stock, nowISO){var use=Q.usableForSignals(stock&&stock.quote,nowISO),q=stock&&stock.quote;if(!stock||!textOk(stock.ticker)||q&&(q.ticker!==stock.ticker||q.market!==stock.market)){use.why.push('감시 종목과 시세의 종목코드·시장 불일치');use.ok=false;}return use;}
-  function cfg(o) { return Object.assign({}, DEFAULTS, o || {}); }
+  function cfg(o) {
+    var c=Object.assign({}, DEFAULTS, o || {});
+    // Research-only settings stay bounded; invalid settings fail back to documented defaults.
+    if (!Number.isInteger(c.euphoriaMinDays)||c.euphoriaMinDays<5||c.euphoriaMinDays>120) c.euphoriaMinDays=20;
+    if (!Number.isInteger(c.euphoriaMaxDays)||c.euphoriaMaxDays<c.euphoriaMinDays||c.euphoriaMaxDays>366) c.euphoriaMaxDays=Math.max(120,c.euphoriaMinDays);
+    if (!Array.isArray(c.euphoriaLevels)||!c.euphoriaLevels.length||!c.euphoriaLevels.every(function(n,i,a){return fin(n)&&n>0&&n<=1000&&(!i||n>a[i-1]);})) c.euphoriaLevels=DEFAULTS.euphoriaLevels;
+    if (!fin(c.relativeOverheatPp)||c.relativeOverheatPp<=0||c.relativeOverheatPp>1000) c.relativeOverheatPp=15;
+    if (!fin(c.nearHighPct)||c.nearHighPct<0||c.nearHighPct>20) c.nearHighPct=5;
+    return c;
+  }
+  function comparableRise(stock,c) {
+    var r=stock.returns,h=stock.high52w,q=stock.quote;
+    return r && h && r.verification==='independent-verified' && h.verification==='independent-verified' &&
+      r.periodUnit==='calendar-days' && r.periodDays>=c.euphoriaMinDays && r.periodDays<=c.euphoriaMaxDays &&
+      dateOk(r.startDate) && r.startDate===r.benchStartDate && r.asOfDate===r.benchAsOfDate &&
+      (Date.parse(r.asOfDate)-Date.parse(r.startDate))/86400000===r.periodDays &&
+      r.ticker===stock.ticker && h.ticker===stock.ticker && textOk(q.venue) && r.venue===q.venue && h.venue===q.venue && r.benchVenue===r.venue &&
+      r.market===stock.market && r.benchMarket===r.market && h.market===r.market &&
+      r.currency===q.currency && r.benchCurrency===r.currency && h.currency===r.currency &&
+      ['split-adjusted','total-return'].indexOf(r.adjustment)>=0 && r.benchAdjustment===r.adjustment && h.adjustment===r.adjustment && q.adjustment===r.adjustment &&
+      textOk(r.benchmark) && r.benchmark!==stock.ticker && textOk(r.benchSource) && textOk(h.source);
+  }
   function sig(type, ticker, level, evidence, asOf, source) { return { id: type + '|' + (ticker || '*'), type: type, ticker: ticker || null, level: level, evidence: evidence, asOfDate: asOf || null, source: source || null }; }
 
   /* 한 종목 평가. stock: {ticker,name,market,quote,high52w:{price,asOfDate,source},returns:{stockPct,benchPct,periodDays,asOfDate,source},
      fundamentals:{asOfDate,source,verification,revenueGrowthPct,freeCashFlow,freeCashFlowPrev,debtToEquity,debtToEquityPrev}, thesis:{intact,note}, held:{quantity,avgPrice}} ctx: {weightPct,weightBasis} */
   function evaluateStock(stock, ctx, nowISO, settings) {
     stock=stock&&typeof stock==='object'?stock:{};
-    var c = cfg(settings), out = { ticker: stock.ticker, held: !!stock.held, signals: [], missing: [], dataGate: null, drawdownPct: null, fundamentalsStatus: 'missing', thesisStatus: 'unknown' };
+    var c = cfg(settings), out = { ticker: stock.ticker, held: !!stock.held, signals: [], missing: [], dataGate: null, drawdownPct: null, fundamentalsStatus: 'missing', thesisStatus: 'unknown', fundamentalsComplete: false };
     var use = quoteGate(stock, nowISO); out.dataGate = { ok: use.ok, why: use.why };
     var q = stock.quote, age=function(date){return daysBetween(date,nowISO,stock.market);};
     if(!Q.isValidTimestamp(nowISO)){out.missing.push('분석 시각 오류');return out;}
@@ -38,8 +59,9 @@
     else if (age(r.asOfDate) > 4) out.missing.push('시장 대비 수익률 자료가 오래됨');
     else if(age(r.asOfDate)<0 || r.asOfDate!==q.asOfDate)out.missing.push('상대 수익률 기준일 불일치 또는 미래 자료');
     else if (r.stockPct < 0 && r.stockPct - r.benchPct <= -c.relativeOverdropPp) out.signals.push(sig('relative-overdrop', stock.ticker, Math.round((r.stockPct - r.benchPct) * 10) / 10, ['최근 ' + (r.periodDays || '?') + '일 종목 ' + r.stockPct + '% / 시장 ' + r.benchPct + '% (초과 하락 ' + Math.round((r.benchPct - r.stockPct) * 10) / 10 + '%p)'], r.asOfDate, r.source));
-    /* 29단계: 환호성(급등) 신호 — 곡소리(drawdown)의 대칭. 가격 상승만으로 매도 의견을 만들지 않으며, 이 신호는 자문 엔진이 비중·재무·논리와 함께 볼 때만 쓴다. 조건: 최근 상승률이 단계(30/50/80%) 이상, 시장 대비 초과 상승, 52주 고점 근접. */
-    else if (r.stockPct > 0 && r.stockPct - r.benchPct >= c.relativeOverheatPp && out.drawdownPct !== null && out.drawdownPct <= c.nearHighPct && r.stockPct >= c.euphoriaLevels[0]) { var elv = null; c.euphoriaLevels.forEach(function (L) { if (r.stockPct >= L) elv = L; }); out.signals.push(sig('euphoria', stock.ticker, elv, ['최근 ' + r.periodDays + '일 종목 +' + r.stockPct + '% / 시장 ' + (r.benchPct >= 0 ? '+' : '') + r.benchPct + '% (초과 상승 ' + Math.round((r.stockPct - r.benchPct) * 10) / 10 + '%p)', '52주 고점 대비 -' + out.drawdownPct + '% (고점 근접)'], r.asOfDate, r.source)); }
+    /* Synthetic research policy, not a validated trading rule or proof of crowd sentiment/overvaluation. Default: 20–120 calendar days, rise 30/50/80%, relative rise 15pp, within 5% of high. Detection is separate from any advice. */
+    if (use.ok && r && r.stockPct>0 && !comparableRise(stock,c)) out.missing.push('환호성 검토 보류: 연구 기간 또는 비교 기간·시장·통화·수정 기준·검증 출처 불일치/누락');
+    if (use.ok && r && dateOk(r.asOfDate) && age(r.asOfDate)>=0 && age(r.asOfDate)<=4 && r.asOfDate===q.asOfDate && comparableRise(stock,c) && fin(r.stockPct) && fin(r.benchPct) && r.stockPct<=1e6 && r.benchPct>=-100 && r.benchPct<=1e6 && r.stockPct > 0 && r.stockPct - r.benchPct >= c.relativeOverheatPp && out.drawdownPct !== null && out.drawdownPct <= c.nearHighPct && r.stockPct >= c.euphoriaLevels[0]) { var elv = null; c.euphoriaLevels.forEach(function (L) { if (r.stockPct >= L) elv = L; }); out.signals.push(sig('euphoria', stock.ticker, elv, ['연구 기준 최근 ' + r.periodDays + '달력일 종목 +' + r.stockPct + '% / 시장 ' + (r.benchPct >= 0 ? '+' : '') + r.benchPct + '% (초과 상승 ' + Math.round((r.stockPct - r.benchPct) * 10) / 10 + '%p)', '52주 고점 대비 -' + out.drawdownPct + '% (고점 근접)'], r.asOfDate, r.source)); }
     // 3) 실적·현금흐름·부채·성장성
     var f = stock.fundamentals;
     if (!f || !dateOk(f.asOfDate)) { out.missing.push('재무자료 없음'); }
@@ -52,6 +74,7 @@
       if (amountOk(f.freeCashFlow) && (f.freeCashFlow < 0 || (amountOk(f.freeCashFlowPrev) && f.freeCashFlowPrev > 0 && f.freeCashFlow < f.freeCashFlowPrev * 0.7))) ev.push('잉여현금흐름 악화(' + f.freeCashFlowPrev + ' → ' + f.freeCashFlow + ')');
       if (amountOk(f.debtToEquity) && amountOk(f.debtToEquityPrev) && f.debtToEquityPrev > 0 && f.debtToEquity > f.debtToEquityPrev * 1.3 && f.debtToEquity > 1.5) ev.push('부채비율 상승(' + f.debtToEquityPrev + ' → ' + f.debtToEquity + ')');
       var complete=['revenueGrowthPct','freeCashFlow','freeCashFlowPrev','debtToEquity','debtToEquityPrev'].every(function(k){return amountOk(f[k]);})&&f.revenueGrowthPct>=-100&&f.revenueGrowthPct<=1e6&&f.debtToEquity>=0&&f.debtToEquityPrev>=0;
+      out.fundamentalsComplete=complete;
       if(!complete)out.missing.push('재무 필수 항목 또는 전기 비교값 부족/오류: 매출 성장·현금흐름·부채를 모두 확인해야 함');
       if (ev.length) { out.fundamentalsStatus = 'deteriorated'; out.signals.push(sig('fundamental-deterioration', stock.ticker, ev.length, ev, f.asOfDate, f.source)); }
       else if(complete)out.fundamentalsStatus = 'ok';

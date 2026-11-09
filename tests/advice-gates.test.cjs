@@ -22,9 +22,12 @@ for (const price of [95, 80, 60]) {
     a.equal(r.opinion,'판단 보류'); a.equal(r.aggressive.stance,'판단 보류'); a.equal(r.defensive.stance,'판단 보류');
   });
 }
-test('known concentration risk is retained even when financials are missing', () => {
+test('concentration risk remains visible but missing financials cannot authorize trim', () => {
   const s = F.stock({fundamentals:null,held:{quantity:1,avgPrice:60}});
-  a.equal(advice(s,F.ctx({weightPct:31})).opinion,'비중 축소 검토');
+  const result = advice(s,F.ctx({weightPct:31}));
+  a.equal(result.opinion,'판단 보류');
+  a.ok(result.risks.includes('보유 비중 과다'));
+  a.ok(result.unknown.some(x => /축소.*근거 부족/.test(x)));
 });
 for (const patch of [{fundamentals:null},{quote:null},{thesis:null}]) {
   test('cached/forged healthy watch cannot bypass current data: ' + Object.keys(patch), () => {

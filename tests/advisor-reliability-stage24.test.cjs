@@ -15,8 +15,8 @@ test('3 공급자 간 가격 불일치 → 충돌 표시, 신호 제외, 판단 
   assert.equal(Q.usableForSignals(q, F.NOW).ok, false); assert.equal(one(dropped({ quote: q })).a.opinion, '판단 보류');
   assert.equal(X.check([a, F.quote({ price: 60.3, source: 'P2' })]).status, 'agree'); assert.equal(X.check([a]).status, 'single-source');
   assert.equal(X.check([a, F.quote({ price: 60, source: 'P2', asOfDate: '2026-11-04' })]).status, 'conflict'); });
-test('4 실적 악화+주가 급락 동시(보유) → 비중 축소 검토 + 위험 표기, 저가 매수 의견 아님', () => {
-  const r = one(dropped({ fundamentals: F.fund({ revenueGrowthPct: -9, freeCashFlow: -5, freeCashFlowPrev: 90 }), held: { quantity: 10, avgPrice: 120 } }), F.ctx({ weightPct: 30 })); assert.equal(r.a.opinion, '비중 축소 검토'); assert.ok(r.a.risks.length >= 2); });
+test('4 실적 악화+급락은 위험으로 표시하되 종합 축소 근거가 없으면 판단 보류', () => {
+  const r = one(dropped({ fundamentals: F.fund({ revenueGrowthPct: -9, freeCashFlow: -5, freeCashFlowPrev: 90 }), held: { quantity: 10, avgPrice: 120 } }), F.ctx({ weightPct: 30 })); assert.equal(r.a.opinion, '판단 보류'); assert.ok(r.a.risks.length >= 2); assert.ok(r.a.unknown.some(x => /축소.*근거 부족/.test(x))); });
 test('5 특정 종목 비중 과다 → 집중 신호·비중 축소 검토, 매수 아님', () => { const r = one(F.stock({ held: { quantity: 5, avgPrice: 70 } }), F.ctx({ weightPct: 40 })); assert.ok(r.w.signals.some(s => s.type === 'concentration')); assert.notEqual(r.a.opinion, '매수 검토'); });
 test('6 현금 부족 → 현금 신호·위험 표기, 방어형은 매수 검토 불가(공격형만이면 보류)', () => { const c = F.ctx({ cashPct: 3 }), r = one(dropped(), c); assert.ok(W.evaluatePortfolio(c, F.NOW).signals.some(s => s.type === 'cash-low')); assert.ok(r.a.risks.includes('현금 비중 부족')); assert.notEqual(r.a.opinion, '매수 검토'); });
 test('7 환율 급변 → 근거·출처 있는 신호, 자료 없으면 만들어내지 않음, 알림 키는 VIX와 분리', () => {

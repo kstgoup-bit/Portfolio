@@ -54,11 +54,11 @@ test('공격형만 긍정이면 의견 불일치로 보유/보류, 방어형 조
   const lowCash = adv(F.stock({ quote: F.quote({ price: 60 }) }), F.ctx({ cashPct: 11 })); a.equal(lowCash.opinion, '보유' === lowCash.opinion ? '보유' : '판단 보류'); a.notEqual(lowCash.opinion, '매수 검토');
   const overW = adv(F.stock({ quote: F.quote({ price: 60 }) }), F.ctx({ weightPct: 12 })); a.notEqual(overW.opinion, '매수 검토');
 });
-test('비중 축소 검토: 논리 훼손/재무 악화+손실/비중 한도 초과(보유 종목)', () => {
+test('위험 신호가 있어도 가치·비용·보유 및 재진입 근거가 없으면 축소 판단 보류', () => {
   const held = { quantity: 5, avgPrice: 100 };
-  a.equal(adv(F.stock({ quote: F.quote({ price: 95 }), thesis: { intact: false, note: 'n' }, held })).opinion, '비중 축소 검토');
-  a.equal(adv(F.stock({ quote: F.quote({ price: 95 }), held }), F.ctx({ weightPct: 31 })).opinion, '비중 축소 검토');
-  const r = adv(F.stock({ quote: F.quote({ price: 70 }), fundamentals: F.fund({ freeCashFlow: -1 }), held }), F.ctx({ weightPct: 12 })); a.equal(r.opinion, '비중 축소 검토'); a.ok(r.risks.length);
+  a.equal(adv(F.stock({ quote: F.quote({ price: 95 }), thesis: { intact: false, note: 'n' }, held })).opinion, '판단 보류');
+  a.equal(adv(F.stock({ quote: F.quote({ price: 95 }), held }), F.ctx({ weightPct: 31 })).opinion, '판단 보류');
+  const r = adv(F.stock({ quote: F.quote({ price: 70 }), fundamentals: F.fund({ freeCashFlow: -1 }), held }), F.ctx({ weightPct: 12 })); a.equal(r.opinion, '판단 보류'); a.ok(r.risks.length); a.ok(r.unknown.some(x => /축소.*근거 부족/.test(x)));
   a.equal(adv(F.stock({ quote: F.quote({ price: 95 }), thesis: { intact: false, note: 'n' }, held: null })).opinion, '판단 보류');   // 미보유는 축소 검토 없음
 });
 test('두 관점은 같은 엔진의 두 역할이라고 명시, 독립 모델 검증이라 쓰지 않음', () => {

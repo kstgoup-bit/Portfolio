@@ -6,7 +6,7 @@
   function closeMode() { return mode.value === 'officialclose'; }
   function engine() {
     if (mode.value === 'exacttime') return window.HASKISComparison;
-    if (closeMode()) return window.HASCloseComparison;
+    if (closeMode()) return window.HASCloseEvidence;
     throw new Error('mode');
   }
   var result = document.getElementById('result');
@@ -18,6 +18,11 @@
     invalid: '입력 거부: 허용된 합성 JSON만 사용하세요'
   };
   var reasons = {
+    'calendar-registry-unavailable': '검토된 달력 근거 모듈을 불러오지 못해 비교를 보류합니다.',
+    'normalized-evidence-required': '실제·정규화 자료는 검토된 달력과 공급자 확정 근거가 없어 보류합니다.',
+    'official-calendar-closed': '한국거래소 공식 공지에서 확인한 휴장일입니다. 정규장 선언으로 변경할 수 없습니다.',
+    'calendar-source-unreviewed': '달력 출처가 독립 검토 목록에 없습니다.',
+    'calendar-positive-evidence-unavailable': '이 출처는 휴장 근거만 제공합니다. 개장·확정 종가를 입증하지 않습니다.',
     'invalid-input': 'JSON 형식, 허용 필드 또는 선택한 모드의 크기 제한을 확인하세요.',
     'missing-source': 'GAS와 KIS 두 가격이 모두 필요합니다.',
     'within-tolerance': '가격 차이가 실험용 기준 0.5% 이내입니다. 정확성 인증이 아닙니다.',
@@ -70,7 +75,7 @@
       ? '동일 종목·시장·거래소·통화·가격 조정 기준·거래 세션과 공식 종가 표기가 필요합니다. 조회 시각은 거래 세션을 대신하지 않습니다.'
       : '동일 종목·거래소·통화·가격 종류와 각 가격의 시각이 필요합니다. 같은 값이어도 독립적인 출처라는 뜻은 아닙니다.';
     document.getElementById('result-context').textContent = closeMode()
-      ? '동일 거래 세션으로 선언된 종가의 숫자 비교 / 공식성 인증: 없음 / 실연결: 없음'
+      ? '합성 시뮬레이션 전용 / 실제·정규화 자료: 보류 / 공식성 인증·실연결: 없음'
       : 'GAS: 기존 경로 유지 / KIS: 추가 확인 경로 / 실연결: 없음';
     status.textContent = '모드를 바꾸어 입력과 결과를 지웠습니다. 선택한 모드의 합성 예제를 넣으세요.';
   });
@@ -82,7 +87,7 @@
   document.getElementById('reset').addEventListener('click', reset);
   document.getElementById('example').addEventListener('click', function () {
     clear('합성 예제를 넣었습니다. 실제 시세가 아닙니다.');
-    try { var fixtures = closeMode() ? window.HASCloseComparisonFixtures : window.HASKISComparisonFixtures;
+    try { var fixtures = closeMode() ? window.HASCloseEvidenceFixtures : window.HASKISComparisonFixtures;
       engine();
       input.value = JSON.stringify(fixtures.create('agree'), null, 2); }
     catch (_) { input.value = ''; clear('합성 예제를 불러오지 못했습니다. 입력은 비워 두었습니다.'); }
@@ -93,7 +98,7 @@
       var data = engine().compareJSON(input.value);
       if (!data || !Object.prototype.hasOwnProperty.call(statusLabels, data.status)) throw new Error('contract');
       var list = document.createElement('ul');
-      item(list, closeMode() && data.status === 'agree' ? '허용 차이 이내: 선언된 동일 세션 종가의 숫자만 일치' : statusLabels[data.status]);
+      item(list, closeMode() && data.status === 'agree' ? '허용 차이 이내: 합성 시뮬레이션 숫자만 일치' : statusLabels[data.status]);
       item(list, Object.prototype.hasOwnProperty.call(reasons, data.reason) ? reasons[data.reason] : '비교 조건을 확인하세요.');
       if (typeof data.spreadPct === 'number' && Number.isFinite(data.spreadPct) && data.spreadPct >= 0) {
         item(list, '가격 차이: ' + String(data.spreadPct) + '% (낮은 가격 기준)');

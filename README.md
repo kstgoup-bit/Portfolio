@@ -1,5 +1,11 @@
 # Portfolio
 
+## 29단계 판단 보류와 기록 보호 보완 2026년 11월 9일
+
+현재 독립 개발본은 [검증 보고서](docs/stage29-evidence/REPORT.md), [읽기 전용 근거 연결](docs/stage29-evidence/ADAPTER.md), [종가 출처와 확정 근거 계약](docs/close-evidence/CONTRACT.md), [클로 후속 검토 안내](docs/stage29-evidence/REVIEW-HANDOFF.md)를 참조하세요. 아래 항목과 기존 팀 보고서는 이전 시점 기록입니다.
+
+클로 29단계 전체 트리를 보존하면서, 자료 부족을 비중 축소 근거로 쓰던 판단과 점검기록 일부 손상의 덮어쓰기를 막았습니다. 환호성 감지와 축소 판단을 분리하고, 기존 엔진에 합성 자료를 읽기 전용으로 연결했습니다. 실제 자료의 신뢰는 입력 선언만으로 승인하지 않습니다. GAS·투자원장·백업 형식은 그대로이며 main·운영에 반영하지 않았습니다.
+
 ## 동일 거래 세션 종가 비교 · 2026-11-09
 
 최신 독립 보완은 [직접 검증 보고서](docs/close-comparison/REPORT.md), [종가 계약](docs/close-comparison/CONTRACT.md), [공식 일봉 자료의 한계](docs/close-comparison/DAILY-SOURCE-GAPS.md), [FX 별도 적합 기준](docs/close-comparison/FX-SUITABILITY.md)을 참조하세요.

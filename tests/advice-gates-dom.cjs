@@ -17,7 +17,7 @@ const settle = () => new Promise(resolve => w.setTimeout(resolve,30));
 w.localStorage.setItem('record-sentinel','unchanged');
 w.fetch = () => { throw new Error('Network must not be called'); };
 for(const m of html.matchAll(/<script src="([^"]+)"/g)) w.eval(fs.readFileSync(path.join(root,m[1]),'utf8'));
-assert.match(get('sec-summary').textContent,/비중 축소 검토 2/);
+assert.match(get('sec-summary').textContent,/판단 보류 3/);
 assert.match(get('sec-summary').textContent,/매수 검토 1/);
 assert.equal(w.__advResult.errors.length,0);
 for(let i=0;i<2;i++) {

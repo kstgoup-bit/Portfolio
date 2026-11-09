@@ -8,7 +8,7 @@
   var INDEPENDENCE = 'same-engine-two-roles';
   var NOTICE = '공격형·방어형은 같은 분석 엔진의 서로 다른 역할입니다. 독립된 두 AI 모델이 검증한 결과가 아닙니다. 매수·매도 결정과 주문은 사용자가 직접 합니다.';
   var fin = function (x) { return typeof x === 'number' && isFinite(x); };
-  var DEF = Object.freeze({ targetWeightPct: 10, minCashPct: 10, aggressiveDrawdown: 20, defensiveDrawdown: 35, buyDrawdown: 30 });
+  var DEF = Object.freeze({ targetWeightPct: 10, reviewWeightPct: 10, minCashPct: 10, aggressiveDrawdown: 20, defensiveDrawdown: 35, buyDrawdown: 30 });
 
   /* stock/w(evaluateStock 결과)/ctx{weightPct,cashPct,cashBasis}로 조언 한 건을 만든다. */
   function analyze(stock, w, ctx, nowISO, settings) {
@@ -16,40 +16,58 @@
     stock = stock && typeof stock === 'object' ? stock : {};
     w = W.evaluateStock(stock, ctx, nowISO, settings && settings.watchSettings);
     var s = Object.assign({}, DEF, settings || {}), q = stock.quote, held = !!stock.held;
+    if (!fin(s.reviewWeightPct)||s.reviewWeightPct<=0||s.reviewWeightPct>100) s.reviewWeightPct=10;
     var wt = ctx && fin(ctx.weightPct) ? ctx.weightPct : null, cash = ctx && fin(ctx.cashPct) ? ctx.cashPct : null;
     var adv = { ticker: stock.ticker, name: stock.name || stock.ticker, asOf: nowISO, opinion: '판단 보류', aggressive: null, defensive: null,
       facts: [], estimates: [], reasonsFor: [], reasonsAgainst: [], unknown: w.missing.slice(), risks: [], holding: { held: held, weightPct: wt, cashPct: cash },
-      conditions: { buyReview: [], sellReview: [] }, checks: [], dataQuality: { ok: w.dataGate.ok, why: w.dataGate.why.slice() }, independence: INDEPENDENCE, notice: NOTICE, source: q && q.source || null };
+      conditions: { buyReview: [], sellReview: [] }, checks: [], dataQuality: { ok: w.dataGate.ok, why: w.dataGate.why.slice() }, independence: INDEPENDENCE, notice: NOTICE, source: q && q.source || null, synthetic:!!(q&&q.synthetic), basis:q&&q.synthetic?'synthetic':'real' };
     if (!w.dataGate.ok) { adv.reasonsAgainst.push('시세를 신뢰할 수 없어 판단하지 않습니다: ' + w.dataGate.why.join(', ')); adv.checks.push('시세 출처·기준일·독립 대조 확인'); adv.aggressive = { stance: '판단 보류', why: ['자료 부족'] }; adv.defensive = { stance: '판단 보류', why: ['자료 부족'] }; return adv; }
     adv.facts.push({ text: '현재가 ' + q.price + ' ' + q.currency + ' (' + q.asOfDate + ')', source: q.source });
     w.signals.forEach(function (g) { adv.facts.push({ text: g.evidence.join(' / '), source: g.source || '신호 계산' }); });
     var dd = w.drawdownPct, f = w.fundamentalsStatus, t = w.thesisStatus;
     var sg = function (type) { return w.signals.some(function (x) { return x.type === type; }); };
-    if (f === 'deteriorated') adv.risks.push('재무 악화 신호'); if (t === 'broken') adv.risks.push('투자 논리 훼손'); if (sg('concentration')) adv.risks.push('보유 비중 과다'); if (sg('loss-risk')) adv.risks.push('손실 위험 증가'); if (sg('euphoria')) adv.risks.push('단기 급등(환호성) 구간');
+    if (f === 'deteriorated') adv.risks.push('재무 악화 신호'); if (t === 'broken') adv.risks.push('투자 논리 훼손'); if (sg('concentration')) adv.risks.push('보유 비중 과다'); if (sg('loss-risk')) adv.risks.push('손실 위험 증가'); if (sg('euphoria')) adv.risks.push('기간 내 상승·상대 상승·고점 근접 신호(환호성 연구 기준)');
     if (cash !== null && cash < s.minCashPct) adv.risks.push('현금 비중 부족');
     // 매수 검토 조건 문구(항상 제시)
     adv.conditions.buyReview = ['52주 고점 대비 -' + s.buyDrawdown + '% 이상 하락', '재무 악화 신호 없음(최신 재무자료 확인)', '투자 논리 유지 확인', '종목 비중 ' + s.targetWeightPct + '% 미만이고 매수 후에도 현금 ' + s.minCashPct + '% 이상'];
-    adv.conditions.sellReview = ['투자 논리 훼손 또는 재무 악화 확인', '손실 -20% 이하이면서 비중 10% 이상', '비중 한도(25%) 초과', '급등(환호성) 신호가 있고 종목 비중이 ' + s.targetWeightPct + '%를 넘음(분할 비중 축소 검토)'];
+    adv.conditions.sellReview = ['비중 '+s.reviewWeightPct+'% 초과는 점검 시작 기준이며 축소 지시가 아님', '검증된 비중·최신 완전한 재무·투자 논리·경쟁력 확인', '확인된 재무·논리·경쟁력 위험은 점검 비중 미만에서도 별도 검토', '세금·수수료·환율 비용과 장기 보유·재진입 위험을 검토한 근거 필요'];
     // 공격형
     var aBuy = dd !== null && dd >= s.aggressiveDrawdown && f === 'ok' && t === 'intact' && (wt === null || wt < s.targetWeightPct);
     // 방어형: 더 큰 하락 + 매수 후 현금 여력 + 비중 여유
     var dBuy = dd !== null && dd >= s.defensiveDrawdown && f === 'ok' && t === 'intact' && wt !== null && wt < s.targetWeightPct && cash !== null && cash >= s.minCashPct + 2;
-    var euTrim = held && sg('euphoria') && wt !== null && wt > s.targetWeightPct;
-    var reduceBase = held && (t === 'broken' || (f === 'deteriorated' && (sg('loss-risk') || sg('concentration'))) || sg('concentration'));
-    var reduce = reduceBase || euTrim, healthy = f === 'ok' && t === 'intact';
-    var incomplete = f !== 'ok' || t !== 'intact';
-    var aReduce = reduceBase || (euTrim && !healthy); /* 공격형은 재무·논리가 건강한 우량주는 급등만으로 줄이지 않는다(위대한 기업은 오래 보유) */
+    var e=stock.sellReviewEvidence, weightVerified=ctx && ctx.weightBasis==='verified' && wt!==null && wt>=0 && wt<=100;
+    var note=function(x){return x&&typeof x.note==='string'&&x.note.trim().length>0;};
+    var age=e && /^\d{4}-\d{2}-\d{2}$/.test(e.asOfDate||'') && isFinite(Date.parse(e.asOfDate)) && new Date(e.asOfDate).toISOString().slice(0,10)===e.asOfDate ? (Date.parse(q.asOfDate)-Date.parse(e.asOfDate))/86400000 : NaN;
+    var validDay=function(d){return typeof d==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(d)&&isFinite(Date.parse(d))&&new Date(d).toISOString().slice(0,10)===d;};
+    var reviewComplete=!!(e && e.verification==='independent-verified' && typeof e.source==='string' && e.source.trim() && age>=0 && age<=30 &&
+      e.ticker===stock.ticker && e.market===stock.market && e.currency===q.currency && typeof q.venue==='string' && q.venue.trim() && e.venue===q.venue && ['split-adjusted','total-return'].indexOf(q.adjustment)>=0 && e.adjustment===q.adjustment && typeof e.synthetic==='boolean' && e.synthetic===q.synthetic &&
+      stock.fundamentals && stock.fundamentals.ticker===stock.ticker && stock.fundamentals.market===stock.market && stock.fundamentals.currency===q.currency && stock.fundamentals.venue===q.venue && stock.fundamentals.adjustment===q.adjustment && stock.fundamentals.synthetic===q.synthetic && validDay(e.periodStartDate) && validDay(e.periodEndDate) && e.periodStartDate<e.periodEndDate && e.periodEndDate<=e.asOfDate && e.periodStartDate===stock.fundamentals.periodStartDate && e.periodEndDate===stock.fundamentals.periodEndDate && stock.fundamentals.asOfDate===stock.fundamentals.periodEndDate &&
+      weightVerified && w.fundamentalsComplete && (f==='ok'||f==='deteriorated') && (t==='intact'||t==='broken') && stock.thesis && note(stock.thesis) &&
+      note(e.valuation) && typeof e.valuation.overvalued==='boolean' && note(e.competitiveThesis) && typeof e.competitiveThesis.intact==='boolean' &&
+      note(e.costs) && e.costs.considered===true && typeof e.costs.trimJustified==='boolean' && note(e.holdAndReentryRisk) && e.holdAndReentryRisk.considered===true && typeof e.holdAndReentryRisk.trimJustified==='boolean');
+    var confirmedRisk=t==='broken'||f==='deteriorated'||(reviewComplete&&!e.competitiveThesis.intact);
+    var priorityReview=weightVerified&&wt>s.reviewWeightPct;
+    var reviewTriggered=held && (sg('euphoria') || sg('concentration') || confirmedRisk);
+    // The adjustable weight is a review-priority threshold, never a global risk-review cutoff.
+    var reduce=reviewTriggered && reviewComplete && (confirmedRisk || priorityReview) && e.costs.trimJustified && e.holdAndReentryRisk.trimJustified &&
+      (e.valuation.overvalued || !e.competitiveThesis.intact || t==='broken' || f==='deteriorated' || sg('concentration'));
+    var healthy=f==='ok'&&t==='intact', incomplete=f!=='ok'||t!=='intact';
+    var aReduce=reduce && !(healthy && e.competitiveThesis.intact);
+    if (reduce) { aBuy=false; dBuy=false; }
+    adv.sellReview={ triggered:!!reviewTriggered, thresholdPct:s.reviewWeightPct, priorityReview:!!priorityReview, confirmedRisk:!!confirmedRisk, evidenceComplete:reviewComplete, eligible:!!reduce };
+    if(reviewTriggered&&!reviewComplete) { adv.unknown.push('비중 축소 판단에 필요한 가치·재무·경쟁력·검증 비중·비용·보유 및 재진입 근거 부족'); adv.checks.push('누락된 축소 검토 근거를 확인하기 전 판단 보류'); }
+    if(reviewComplete) adv.facts.push({text:'축소 검토 기록: '+e.valuation.note+' / '+e.competitiveThesis.note+' / '+e.costs.note+' / '+e.holdAndReentryRisk.note,source:e.source});
     adv.aggressive = { stance: aBuy ? '매수 검토' : (aReduce ? '비중 축소 검토' : (held && !incomplete ? '보유' : '판단 보류')), why: [] };
     adv.defensive = { stance: dBuy ? '매수 검토' : (reduce ? '비중 축소 검토' : (held && !incomplete ? '보유' : '판단 보류')), why: [] };
     if (aBuy) adv.aggressive.why.push('하락 ' + dd + '% 이상이고 재무·투자 논리 이상 없음'); if (!dBuy && aBuy) adv.defensive.why.push('방어형은 하락 ' + s.defensiveDrawdown + '% 이상과 현금 여력(' + (s.minCashPct + 2) + '% 이상)이 필요');
-    if (reduce && !reduceBase) { adv.opinion = '비중 축소 검토'; adv.reasonsFor.push('단기 급등(환호성) 구간이고 보유 비중이 목표 ' + s.targetWeightPct + '%를 넘음 → 분할 비중 축소 검토'); adv.reasonsAgainst.push(healthy ? '재무·투자 논리가 유지되면 위대한 기업은 오래 보유한다는 원칙과 충돌할 수 있음(공격형은 보유 의견)' : '급등 이후 추가 상승이 이어질 수 있어 한 번에 줄이면 이익 기회를 놓칠 수 있음'); adv.checks.push('매도 전 최신 뉴스·실적·컨센서스·커뮤니티 과열 여부 확인과 세금·환율 검토'); }
-    else if (reduce) { adv.opinion = '비중 축소 검토'; adv.reasonsFor.push('위험 신호: ' + adv.risks.join(', ')); adv.reasonsAgainst.push('가격 하락이 일시적일 수 있음(추정)'); adv.estimates.push({ text: '일시 하락 가능성', basis: '자료로 확인되지 않은 일반론' }); }
+    if (reduce) { adv.opinion='비중 축소 검토'; adv.reasonsFor.push('검증된 비중과 가치·재무·경쟁력·비용·보유 및 재진입 위험을 함께 검토한 결과'); adv.reasonsAgainst.push(healthy && e.competitiveThesis.intact ? '재무·투자 논리가 유지되는 위대한 기업은 오래 보유한다는 원칙에 따라 공격형은 보유' : '축소 이후 추가 상승 또는 재진입 실패 가능성이 남음'); }
+    else if (reviewTriggered && !reviewComplete) { adv.opinion='판단 보류'; adv.aggressive.stance='판단 보류'; adv.defensive.stance='판단 보류'; adv.reasonsAgainst.push('가격 상승이나 비중 기준 초과만으로 축소하지 않으며 필수 근거가 부족해 판단 보류'); }
     else if (incomplete) { adv.opinion = '판단 보류'; adv.reasonsAgainst.push((dd !== null && dd >= s.buyDrawdown ? '가격만 하락했고 ' : '') + '재무(' + f + ')·투자 논리(' + t + ') 근거가 부족해 긍정적인 판단을 내지 않습니다'); adv.checks.push('최신 재무자료와 투자 논리 점검'); }
     else if (aBuy && dBuy) { adv.opinion = '매수 검토'; adv.reasonsFor.push('고점 대비 -' + dd + '%, 재무·투자 논리 이상 없음'); adv.reasonsAgainst.push('하락 원인이 구조적일 가능성은 자료로 완전히 배제되지 않음'); adv.checks.push('매수 전 최신 공시·실적 확인'); }
-    else if (held) { adv.opinion = '보유'; adv.reasonsFor.push('매도·매수 조건에 해당하는 확인된 신호 없음'); if (sg('euphoria')) { adv.reasonsAgainst.push('급등(환호성) 구간이지만 비중이 목표 이내라 비중 축소 근거로는 부족함 — 주가 상승만으로 매도를 권하지 않음'); adv.checks.push('고평가 여부와 컨센서스·커뮤니티 과열을 확인하고 비중이 늘면 분할 매도 검토'); } if (aBuy) adv.reasonsAgainst.push('공격형은 매수 검토, 방어형 조건 미충족 → 의견 불일치로 보유'); }
+    else if (held) { adv.opinion = '보유'; adv.reasonsFor.push('매도·매수 조건에 해당하는 확인된 신호 없음'); if (sg('euphoria')) { adv.reasonsAgainst.push('상승 신호만으로는 비중 축소 근거가 부족함: 주가 상승만으로 매도를 권하지 않음'); adv.checks.push('가치·경쟁력·집중도·비용·장기 보유와 재진입 위험을 함께 점검'); } if (aBuy) adv.reasonsAgainst.push('공격형은 매수 검토, 방어형 조건 미충족 → 의견 불일치로 보유'); }
     else { adv.opinion = '판단 보류'; adv.reasonsAgainst.push('뚜렷한 신호 없음(관찰 유지)'); if (aBuy) adv.reasonsAgainst.push('공격형만 매수 검토, 방어형 조건 미충족'); }
     if (!adv.reasonsAgainst.length) adv.reasonsAgainst.push('반대 근거는 자료에서 확인되지 않음(검토 필요)');
-    adv.unknown = w.missing.slice();
+
     if (!adv.checks.length) adv.checks.push('다음 실적 발표·공시 일정과 최신 재무자료를 확인');
     return adv;
   }

@@ -13,7 +13,7 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'PASS ' : 'FAIL ') + m); 
     ok(/시험 화면 · 합성 데이터/.test(await txt('adv-banner')), T('시험·합성 배너 표시'));
     ok(/실제 활성 감시 종목: 0개/.test(await txt('real-active')) && /합성 시험 종목: 3개 활성 \/ 1개/.test(await txt('synth-active')), T('실제 활성 감시 0개, 합성 3 활성/1 비활성 구분'));
     const ops = {}; for (const t of ['SYN-KR1', 'SYN-US1', 'SYN-KR2', 'SYN-US2']) ops[t] = await txt('opinion-' + t);
-    ok(ops['SYN-KR1'] === '매수 검토' && ops['SYN-US1'] === '비중 축소 검토' && ops['SYN-KR2'] === '판단 보류' && ops['SYN-US2'] === '판단 보류', T('의견: 매수 검토/비중 축소 검토/판단 보류(미검증 시세)/판단 보류(가격만 하락) ' + JSON.stringify(ops)));
+    ok(ops['SYN-KR1'] === '매수 검토' && ops['SYN-US1'] === '판단 보류' && ops['SYN-KR2'] === '판단 보류' && ops['SYN-US2'] === '판단 보류', T('의견: 매수 검토/판단 보류(축소 종합 근거 부족)/판단 보류(미검증 시세)/판단 보류(가격만 하락) ' + JSON.stringify(ops)));
     ok((await txt('kind-SYN-KR1')) === '종가', T('가격 종류 표시(종가)'));
     const before = await txt('valuation'); await p.click('[data-testid="btn-fail"]'); const during = await txt('valuation'), pr = await txt('price-SYN-KR1');
     ok(/조회 실패.*최신이 아닙니다|최신이 아닙니다/.test(pr), T('조회 실패 시 "최신이 아닙니다" 경고'));

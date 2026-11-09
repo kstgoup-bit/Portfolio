@@ -16,7 +16,9 @@
     consensus: Object.freeze({ label: '③ 애널리스트 컨센서스를 확인했다', research: true, sides: ['buy', 'sell', 'trim'] }),
     community: Object.freeze({ label: '④ 커뮤니티 분위기를 확인했다', research: true, sides: ['buy', 'sell', 'trim'] }),
     weightCash: Object.freeze({ label: '현재 보유 비중과 현금 여력을 확인했다', research: false, sides: ['buy', 'sell', 'trim'] }),
-    moat: Object.freeze({ label: '기업의 본질가치·경쟁력(해자)이 유지되는지 확인했다', research: false, sides: ['buy'] }),
+    moat: Object.freeze({ label: '기업의 본질가치·경쟁력(해자)이 유지되는지 확인했다', research: false, sides: ['buy', 'sell', 'trim'] }),
+    valuation: Object.freeze({ label: '가격 대비 가치·밸류에이션과 재무 건전성을 확인했다', research: false, sides: ['buy', 'sell', 'trim'] }),
+    holdRisk: Object.freeze({ label: '계속 보유할 위험·매도 후 기회비용·재진입 위험을 비교했다', research: false, sides: ['sell', 'trim'] }),
     temporary: Object.freeze({ label: '악재가 일시적인지 구조적인지 구분했다', research: false, sides: ['buy'] }),
     split: Object.freeze({ label: '분할 매수 계획(회차·금액)을 정했다', research: false, sides: ['buy'] }),
     sellReason: Object.freeze({ label: '매도 이유가 고평가·성장 둔화·투자 논리 훼손·집중도 중 무엇인지 적었다', research: false, sides: ['sell', 'trim'] }),
@@ -90,43 +92,91 @@
     return Object.freeze(s);
   }
 
+  /* UTF-8 bytes, including surrogate pairs and lone-surrogate replacement. */
+  function utf8Bytes(s) {
+    var n = 0;
+    for (var i = 0; i < s.length; i++) {
+      var c = s.charCodeAt(i);
+      if (c < 128) n++;
+      else if (c < 2048) n += 2;
+      else if (c >= 0xD800 && c <= 0xDBFF && i + 1 < s.length && s.charCodeAt(i + 1) >= 0xDC00 && s.charCodeAt(i + 1) <= 0xDFFF) { n += 4; i++; }
+      else n += 3;
+    }
+    return n;
+  }
+
+  /* JSON.parse accepts duplicate object keys. Reject them before trusting a snapshot.
+     Run after JSON.parse syntax validation; scan iteratively to bound stack use. */
+  function duplicateKeys(raw) {
+    var stack = [], i = 0;
+    while (i < raw.length) {
+      var c = raw.charAt(i);
+      if (c === '{') { stack.push(Object.create(null)); i++; }
+      else if (c === '[') { stack.push(null); i++; }
+      else if (c === '}' || c === ']') { stack.pop(); i++; }
+      else if (c === '"') {
+        var start = i++;
+        while (i < raw.length) {
+          if (raw.charAt(i) === '\\') { i += 2; continue; }
+          if (raw.charAt(i++) === '"') break;
+        }
+        var end = i, next = i;
+        while (/\s/.test(raw.charAt(next)) && next < raw.length) next++;
+        if (raw.charAt(next) === ':') {
+          var key = JSON.parse(raw.slice(start, end)), keys = stack[stack.length - 1];
+          if (has(keys, key)) return true;
+          keys[key] = true;
+        }
+      } else i++;
+    }
+    return false;
+  }
+
   /* 저장소: 이 모듈의 키 하나만 다룬다. 주입된 storage 에 getItem/setItem 이 없으면 사용 불가로 처리한다. */
   function createStore(storage) {
     function usable() { return !!storage && typeof storage.getItem === 'function' && typeof storage.setItem === 'function'; }
-    function load() {
+    function read() {
       if (!usable()) return { ok: false, entries: [], dropped: 0, error: 'storage-unavailable' };
       var raw; try { raw = storage.getItem(KEY); } catch (e) { return { ok: false, entries: [], dropped: 0, error: 'read-failed' }; }
-      if (raw === null || raw === undefined) return { ok: true, entries: [], dropped: 0, error: null };
-      if (typeof raw !== 'string' || raw.length > MAX_BYTES) return { ok: false, entries: [], dropped: 0, error: 'too-large-or-invalid' };
+      if (raw === null || raw === undefined) return { ok: true, entries: [], dropped: 0, error: null, raw: raw, originals: [] };
+      if (typeof raw !== 'string' || utf8Bytes(raw) > MAX_BYTES) return { ok: false, entries: [], dropped: 0, error: 'too-large-or-invalid' };
       var p; try { p = JSON.parse(raw); } catch (e) { return { ok: false, entries: [], dropped: 0, error: 'corrupt' }; }
-      if (!isObj(p) || p.v !== 1 || !Array.isArray(p.entries)) return { ok: false, entries: [], dropped: 0, error: 'corrupt' };
-      var out = [], dropped = 0, seen = {};
+      if (duplicateKeys(raw)) return { ok: false, entries: [], dropped: 0, error: 'duplicate-key' };
+      if (!isObj(p) || p.v !== 1 || !Array.isArray(p.entries) || Object.keys(p).some(function (k) { return k !== 'v' && k !== 'entries'; })) return { ok: false, entries: [], dropped: 0, error: 'corrupt' };
+      var out = [], dropped = 0, seen = Object.create(null);
       p.entries.slice(0, MAX_ENTRIES).forEach(function (x) { var v = validate(x); if (v.ok && !seen[v.entry.id]) { seen[v.entry.id] = 1; out.push(v.entry); } else dropped++; });
-      return { ok: true, entries: out, dropped: dropped + Math.max(0, p.entries.length - MAX_ENTRIES), error: null };
+      dropped += Math.max(0, p.entries.length - MAX_ENTRIES);
+      return { ok: dropped === 0, entries: out, dropped: dropped, error: dropped ? 'partial-corrupt' : null, raw: raw, originals: p.entries };
     }
-    function write(entries) {
+    function load() {
+      var r = read();
+      return { ok: r.ok, entries: r.entries, dropped: r.dropped, error: r.error };
+    }
+    function write(entries, raw) {
       var text = JSON.stringify({ v: 1, entries: entries });
-      if (text.length > MAX_BYTES) return { ok: false, error: 'full' };
+      if (utf8Bytes(text) > MAX_BYTES) return { ok: false, error: 'full' };
+      /* Best-effort conflict detection: localStorage has no atomic compare-and-swap. */
+      try { if (storage.getItem(KEY) !== raw) return { ok: false, error: 'storage-changed' }; } catch (e) { return { ok: false, error: 'read-failed' }; }
       try { storage.setItem(KEY, text); } catch (e) { return { ok: false, error: 'write-failed' }; }
       return { ok: true, error: null };
     }
     /* 읽기가 손상으로 실패하면 덮어쓰지 않는다(기존 기록 보호). */
     function add(entry) {
       var v = validate(entry); if (!v.ok) return { ok: false, error: 'invalid', errors: v.errors };
-      var cur = load(); if (!cur.ok) return { ok: false, error: cur.error };
+      var cur = read(); if (!cur.ok) return { ok: false, error: cur.error };
       if (cur.entries.some(function (x) { return x.id === v.entry.id; })) return { ok: false, error: 'duplicate-id' };
       if (cur.entries.length >= MAX_ENTRIES) return { ok: false, error: 'full' };
-      return write(cur.entries.concat([v.entry]));
+      return write(cur.originals.concat([v.entry]), cur.raw);
     }
     function addReview(id, note, nowISO) {
-      var cur = load(); if (!cur.ok) return { ok: false, error: cur.error };
-      var found = false, next = cur.entries.map(function (e) {
+      var cur = read(); if (!cur.ok) return { ok: false, error: cur.error };
+      var found = false, next = cur.originals.map(function (e) {
         if (e.id !== id) return e; found = true;
-        var v = validate(Object.assign({}, e, { checks: e.checks, review: { at: nowISO, note: note } })); return v.ok ? v.entry : e;
+        var v = validate(Object.assign({}, e, { checks: e.checks, review: { at: nowISO, note: note } })); return v.ok ? Object.assign({}, e, { review: v.entry.review }) : e;
       });
       if (!found) return { ok: false, error: 'not-found' };
-      if (next.every(function (e, i) { return e === cur.entries[i]; })) return { ok: false, error: 'invalid' };
-      return write(next);
+      if (next.every(function (e, i) { return e === cur.originals[i]; })) return { ok: false, error: 'invalid' };
+      return write(next, cur.raw);
     }
     return Object.freeze({ load: load, add: add, addReview: addReview });
   }

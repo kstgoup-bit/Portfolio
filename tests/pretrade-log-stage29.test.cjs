@@ -8,7 +8,7 @@ const mem = () => { const m = new Map(); return { getItem: k => (m.has(k) ? m.ge
 
 test('점검표: 매수와 매도는 필수 항목이 다르고 순태씨 4단계 조사는 둘 다 필수다', () => {
   ['news', 'earnings', 'consensus', 'community', 'weightCash'].forEach(k => { a.ok(P.required('buy').includes(k)); a.ok(P.required('sell').includes(k)); a.ok(P.required('trim').includes(k)); });
-  a.ok(P.required('buy').includes('moat') && !P.required('sell').includes('moat'));
+  a.ok(P.required('buy').includes('moat') && P.required('sell').includes('moat'));
   a.ok(P.required('sell').includes('greatCompany') && !P.required('buy').includes('greatCompany'));
 });
 test('완전한 기록은 complete, 경고 없음', () => {
@@ -57,9 +57,9 @@ test('저장소: 손상된 저장값은 덮어쓰지 않고 오류를 알린다(
   const s = mem(); s.setItem(P.KEY, '{broken'); const st = P.createStore(s);
   a.equal(st.load().ok, false); a.equal(st.add(mk()).ok, false); a.equal(s.getItem(P.KEY), '{broken');
 });
-test('저장소: 일부만 잘못된 항목은 버리고 개수를 알린다', () => {
+test('저장소: 일부 손상도 쓰기를 막고 안전한 기록만 읽기 전용으로 표시한다', () => {
   const s = mem(); const good = P.validate(mk()).entry; s.setItem(P.KEY, JSON.stringify({ v: 1, entries: [good, { bad: 1 }] }));
-  const r = P.createStore(s).load(); a.equal(r.ok, true); a.equal(r.entries.length, 1); a.equal(r.dropped, 1);
+  const r = P.createStore(s).load(); a.equal(r.ok, false); a.equal(r.error, 'partial-corrupt'); a.equal(r.entries.length, 1); a.equal(r.dropped, 1);
 });
 test('저장소: 쓰기 오류·읽기 오류·storage 없음에서 예외 없이 실패한다', () => {
   a.equal(P.createStore(null).load().error, 'storage-unavailable'); a.equal(P.createStore({}).add(mk()).ok, false);

@@ -1,8 +1,8 @@
 /* Offline normalized evidence comparison only. No transport, credentials, or trading. */
 (function (root, factory) {
-  if (typeof module === 'object' && module.exports) module.exports = factory();
-  else root.HASCloseComparison = factory();
-})(typeof globalThis !== 'undefined' ? globalThis : this, function () {
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('./close-evidence-sources.js'));
+  else root.HASCloseComparison = factory(root.HASCloseEvidenceSources);
+})(typeof globalThis !== 'undefined' ? globalThis : this, function (sources) {
   'use strict';
   var MAX_BYTES = 12288, TOLERANCE = 0.5;
   var FIELDS = ['source', 'ticker', 'market', 'exchange', 'currency', 'tradingDate', 'price', 'definition', 'session', 'completion', 'adjustment', 'upstreamOrigin', 'provenance', 'closeEvidence', 'publishedAt', 'retrievedAt', 'observedAt'];
@@ -38,7 +38,7 @@
     // All values are scalar, so this freeze is also a deep freeze. No input strings or errors are reflected.
     return Object.freeze({ status: status, reason: reason, verification: 'unverified', independenceVerified: false,
       usableForSignals: false, freshnessVerified: false, liveConnection: 'unavailable', tolerancePct: TOLERANCE, spreadPct: spread === undefined ? null : spread,
-      finalityVerified: false, calendarVerified: false, latestSessionVerified: false, comparisonBasis: 'declared-historical-session', originRelationship: origin || 'unknown' });
+      finalityVerified: false, calendarVerified: false, latestSessionVerified: false, comparisonBasis: 'synthetic-simulation-only', originRelationship: origin || 'unknown' });
   }
   function originRelationship(a, b) {
     if (!a.upstreamOrigin || !b.upstreamOrigin || a.upstreamOrigin === 'unknown' || b.upstreamOrigin === 'unknown') return 'unknown';
@@ -106,6 +106,8 @@
     var match = ['ticker', 'market', 'exchange', 'currency', 'tradingDate'];
     for (var m = 0; m < match.length; m++) if (a[match[m]] !== b[match[m]]) return hold('different-' + match[m]);
     if (cal.market !== a.market || cal.exchange !== a.exchange || cal.tradingDate !== a.tradingDate) return hold('calendar-mismatch');
+    if (!sources || typeof sources.knownClosed !== 'function' || !sources.closure || sources.closure.sourceId !== 'krx-kind-11637') return hold('calendar-registry-unavailable');
+    if (sources.knownClosed(cal, 'listed-equity')) return hold('official-calendar-closed');
     if (cal.sessionType === 'closed') return hold('calendar-closed');
     if (a.provenance === 'unknown' || b.provenance === 'unknown' || cal.provenance === 'unknown' || a.upstreamOrigin === 'unknown' || b.upstreamOrigin === 'unknown') return hold('missing-provenance');
     if (a.provenance !== b.provenance || cal.provenance !== a.provenance) return hold('different-provenance');
@@ -128,6 +130,8 @@
       // observedAt is optional supplied evidence, never synthesized from scheduledCloseAt.
       if (!absent(q.observedAt) && (Date.parse(q.observedAt) < close || Date.parse(q.observedAt) > (absent(q.publishedAt) ? retrieved : published))) return hold('inconsistent-observation-time');
     }
+    // Caller labels, URLs, elapsed time and matching prices cannot authenticate real data.
+    if (a.provenance !== 'synthetic' || b.provenance !== 'synthetic' || cal.provenance !== 'synthetic') return hold('normalized-evidence-required');
     var spread = (Math.max(a.price, b.price) - Math.min(a.price, b.price)) / Math.min(a.price, b.price) * 100;
     // Decide on full precision: display rounding must not hide an over-threshold conflict.
     return result(spread <= TOLERANCE ? 'agree' : 'conflict', spread <= TOLERANCE ? 'within-tolerance' : 'price-disagreement', spread, origin);

@@ -15,13 +15,14 @@
     if (!root) return; root.replaceChildren(); var M = mod();
     root.appendChild(el('h2', '', '📝 매매 전 점검 · 사유 기록'));
     if (!M) { root.appendChild(note('pt-warn', '매매 점검 모듈을 불러오지 못해 이 화면을 사용할 수 없습니다. 기존 투자·백업 기능에는 영향이 없습니다.', 'pt-unavailable')); return; }
-    root.appendChild(note('pt-note', '이 화면은 매수·매도를 하거나 권하지 않습니다. 결정 전에 점검하고, 이유와 반대 근거를 기록해 나중에 돌아보는 용도입니다. 최종 결정은 순태씨가 직접 합니다.'));
+    root.appendChild(note('pt-note', '이 화면은 매수·매도를 하거나 권하지 않습니다. 결정 전에 점검하고, 이유와 반대 근거를 기록해 나중에 돌아보는 용도입니다. 최종 결정은 순태씨가 직접 합니다. ‘진행’ 기록은 주문 실행 승인이 아닙니다.'));
+    root.appendChild(note('pt-warn', '이 매매 점검 기록은 기존 백업에 아직 포함되지 않습니다.', 'pt-backup-warn'));
     var st = store(), loaded = st ? st.load() : { ok: false, entries: [], dropped: 0, error: 'storage-unavailable' };
-    if (!loaded.ok) root.appendChild(note('pt-warn', '기록 저장소를 읽지 못했습니다(' + loaded.error + '). 새 기록은 저장하지 않습니다. 기존 기록은 그대로입니다.', 'pt-storage-warn'));
-    if (loaded.dropped) root.appendChild(note('pt-warn', '형식이 맞지 않는 기록 ' + loaded.dropped + '건은 표시하지 않았습니다(삭제하지 않음).'));
+    if (!loaded.ok) root.appendChild(note('pt-warn', '기록 저장소를 읽지 못했습니다(' + loaded.error + '). 새 기록과 사후 메모 저장을 모두 중단합니다. 표시 가능한 기록만 읽기 전용으로 보여 줍니다. 기존 저장값은 그대로입니다.', 'pt-storage-warn'));
+    if (loaded.dropped) root.appendChild(note('pt-warn', '손상·중복·저장 한도 초과로 기록 ' + loaded.dropped + '건은 표시하지 않았습니다(삭제하지 않음).'));
     if (msg) { root.appendChild(note(msg.ok ? 'pt-ok' : 'pt-warn', msg.text, 'pt-msg')); msg = null; }
     root.appendChild(form(loaded.ok ? st : null));
-    root.appendChild(history(st, loaded));
+    root.appendChild(history(loaded.ok ? st : null, loaded));
   }
 
   function form(st) {
@@ -45,7 +46,7 @@
     Object.keys(M.EMOTIONS).forEach(function (k) { var o = el('option', '', M.EMOTIONS[k]); o.value = k; em.appendChild(o); }); c.appendChild(em);
     var l4 = el('label', '', '결정'); c.appendChild(l4); var dc = el('select'); dc.setAttribute('data-testid', 'pt-decision'); dc.setAttribute('aria-label', '결정');
     Object.keys(M.DECISIONS).forEach(function (k) { var o = el('option', '', M.DECISIONS[k]); o.value = k; if (k === 'wait') o.selected = true; dc.appendChild(o); }); c.appendChild(dc);
-    var b = el('button', '', '점검 결과 기록하기'); b.type = 'button'; b.setAttribute('data-testid', 'pt-save');
+    var b = el('button', '', '점검 결과 기록하기'); b.type = 'button'; b.disabled = !st; b.setAttribute('data-testid', 'pt-save');
     b.addEventListener('click', function () {
       if (!st) { msg = { ok: false, text: '기록 저장소를 사용할 수 없어 저장하지 않았습니다.' }; render(); return; }
       var checks = {}; Object.keys(refs).forEach(function (k) { checks[k] = { done: refs[k].cb.checked, note: refs[k].ta ? refs[k].ta.value : '' }; });
@@ -60,9 +61,10 @@
 
   function history(st, loaded) {
     var M = mod(), c = el('section', 'pt-card'); c.setAttribute('data-testid', 'pt-history'); c.appendChild(el('h3', '', '내 점검 기록'));
-    var es = loaded.entries.slice().reverse(); if (!es.length) { c.appendChild(el('div', 'pt-kv', '아직 기록이 없습니다.')); return c; }
+    var es = loaded.entries.slice().reverse(); if (!es.length) { c.appendChild(el('div', 'pt-kv', loaded.ok ? '아직 기록이 없습니다.' : '읽을 수 있는 기록이 없습니다. 저장값은 변경하지 않았습니다.')); return c; }
     var s = M.summarize(loaded.entries);
-    c.appendChild(note('pt-kv', '전체 ' + s.total + '건 · 진행 ' + s.proceed + '건(점검 완료 ' + s.proceedComplete + ' / 점검 미완료 ' + s.proceedIncomplete + ') · 보류 ' + s.wait + ' · 취소 ' + s.cancel + ' · 감정 상태에서 진행 ' + s.emotionalProceed + '건 · 사후 메모 ' + s.reviewed + '건', 'pt-summary'));
+    c.appendChild(note('pt-kv', '완료 여부는 현재 점검표 기준입니다. 추가된 항목 때문에 과거 기록도 미완료로 표시될 수 있으며, 저장된 기록은 변경하지 않습니다.'));
+    c.appendChild(note('pt-kv', (loaded.ok ? '전체 ' : '읽을 수 있는 기록 ') + s.total + '건 · 진행 ' + s.proceed + '건(점검 완료 ' + s.proceedComplete + ' / 점검 미완료 ' + s.proceedIncomplete + ') · 보류 ' + s.wait + ' · 취소 ' + s.cancel + ' · 감정 상태에서 진행 ' + s.emotionalProceed + '건 · 사후 메모 ' + s.reviewed + '건', 'pt-summary'));
     es.slice(0, 10).forEach(function (e) {
       var a = M.assess(e), d = el('div', 'pt-card'); d.setAttribute('data-testid', 'pt-entry');
       var r = el('div', 'pt-row'); r.appendChild(el('b', '', e.name + ' · ' + M.SIDES[e.side] + ' · ' + M.DECISIONS[e.decision])); r.appendChild(el('span', 'pt-kv', kst(e.createdAt))); d.appendChild(r);
