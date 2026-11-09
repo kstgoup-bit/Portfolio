@@ -21,8 +21,11 @@ const STAGE25 = JSON.parse(fs.readFileSync(path.join(__dirname, 'has-stage25-edi
 const STAGE26 = JSON.parse(fs.readFileSync(path.join(__dirname, 'has-stage26-edits.json'), 'utf8'));
 /* 28단계: 시세 갱신 시각 기록 5곳([지금 문구, 26단계 문구]). 가장 먼저 되돌린다. */
 const STAGE28 = JSON.parse(fs.readFileSync(path.join(__dirname, 'has-stage28-edits.json'), 'utf8'));
+/* 29단계: 매매 점검 탭 연결 수정 목록([지금 문구, 28단계 문구]). 가장 먼저 되돌린다. */
+const STAGE29 = JSON.parse(fs.readFileSync(path.join(__dirname, 'has-stage29-edits.json'), 'utf8'));
 function stage24Text(file) {
   let s = fs.readFileSync(path.join(ROOT, file), 'utf8');
+  if (file === 'portfolio_v5.html') for (let i = STAGE29.length - 1; i >= 0; i--) { const [now, old] = STAGE29[i]; if (s.split(now).length !== 2) throw new Error('29단계 수정 되돌리기 실패: ' + now.slice(0, 60)); s = s.replace(now, () => old); }
   if (file === 'portfolio_v5.html') for (let i = STAGE28.length - 1; i >= 0; i--) { const [now, old] = STAGE28[i]; if (s.split(now).length !== 2) throw new Error('28단계 수정 되돌리기 실패: ' + now.slice(0, 60)); s = s.replace(now, () => old); }
   if (file === 'portfolio_v5.html') for (let i = STAGE26.length - 1; i >= 0; i--) { const [now, old] = STAGE26[i]; if (s.split(now).length !== 2) throw new Error('26단계 수정 되돌리기 실패'); s = s.replace(now, () => old); }
   if (file === 'portfolio_v5.html') for (let i = STAGE25.length - 1; i >= 0; i--) { const [now, old] = STAGE25[i]; if (s.split(now).length !== 2) throw new Error('25단계 수정 되돌리기 실패: ' + now.slice(0, 60)); s = s.replace(now, () => old); }

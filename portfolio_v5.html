@@ -16,6 +16,7 @@
 <link rel="stylesheet" href="has/ledger-demo.css">
 <link rel="stylesheet" href="has/readability.css">
 <link rel="stylesheet" href="has/advisor-panel.css">
+<link rel="stylesheet" href="has/pretrade-panel.css">
 <script defer src="invest/ledger.js"></script>
 <script defer src="has/ledger-demo-model.js"></script>
 <script defer src="has/migration-sim.js"></script>
@@ -34,6 +35,8 @@
 <script defer src="has/opinion-conflict.js"></script>
 <script defer src="has/advisor-synthetic.js"></script>
 <script defer src="has/advisor-panel.js"></script>
+<script defer src="has/pretrade-log.js"></script>
+<script defer src="has/pretrade-panel.js"></script>
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="HAS">
@@ -658,6 +661,7 @@ select { -webkit-user-select: none; user-select: none; touch-action: manipulatio
   <button class="tab" onclick="switchTab('radar')">📡 곡소리 레이더</button>
   <button class="tab" onclick="switchTab('ledgerdemo')">🧪 원장 시범</button>
   <button class="tab" onclick="switchTab('staff')">🧭 AI 참모</button>
+  <button class="tab" onclick="switchTab('pretrade')">📝 매매 점검</button>
 </div>
 <div class="tabs sub-tabs" id="subtabs-asset" style="display:none">
   <button class="tab" onclick="switchTab('ledger')">📒 가계부</button>
@@ -673,6 +677,7 @@ select { -webkit-user-select: none; user-select: none; touch-action: manipulatio
 <!-- Radar is isolated from portfolio state; no API keys or holdings are passed. -->
 <div class="panel" id="panel-ledgerdemo" aria-label="원장 시범(합성 데이터)"></div>
 <div class="panel" id="panel-staff" aria-label="AI 투자참모(읽기 전용)"></div>
+<div class="panel" id="panel-pretrade" aria-label="매매 전 점검과 사유 기록"></div>
 <div class="panel" id="panel-radar" aria-label="곡소리 레이더"><p>레이더를 준비하고 있습니다. 불러오지 못하면 기존 포트폴리오 메뉴를 이용하세요.</p></div>
 
 <!-- 현황 -->
@@ -7172,7 +7177,7 @@ function changePw() {
 // =============================================
 var TAB_GROUPS={
   invest:  ["dashboard","general","domestic","overseas","pension","dividend"],
-  risk:    ["principledash","advisor","risk","commandments","news","radar","ledgerdemo","staff"],
+  risk:    ["principledash","advisor","risk","commandments","news","radar","ledgerdemo","staff","pretrade"],
   asset:   ["ledger","networth","debt","retirement","memo"],
   settings:["settings"]
 };
@@ -7232,6 +7237,7 @@ function switchTab(tab) {
   if(window.KSTRadar) window.KSTRadar.onTabChange(tab);
   if(window.HASLedgerDemo) window.HASLedgerDemo.onTabChange(tab);
   if(window.HASAdvisorPanel) window.HASAdvisorPanel.onTabChange(tab);
+  if(window.HASPretradePanel) window.HASPretradePanel.onTabChange(tab);
   if(window.HASPriceTrustUI) window.HASPriceTrustUI.refresh();
   if(window.HASAdvisorPanel) window.HASAdvisorPanel.refresh();
   if(tab==="memo") renderMemo();

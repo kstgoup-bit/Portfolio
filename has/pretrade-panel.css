@@ -1,0 +1,18 @@
+/* HAS 29단계 매매 전 점검 화면. 글자 12px 이상, 글자색 #333 이하(어둡게). */
+#panel-pretrade { color: #1f2933; font-size: 15px; line-height: 1.6; padding: 12px; }
+#panel-pretrade h2 { font-size: 18px; margin: 0 0 8px; color: #1f2933; }
+#panel-pretrade h3 { font-size: 16px; margin: 14px 0 6px; color: #1f2933; }
+#panel-pretrade .pt-card { background: #fff; border: 1px solid #8a99a8; border-radius: 10px; padding: 12px; margin: 10px 0; }
+#panel-pretrade .pt-note { background: #fff5dc; border: 1px solid #a37c1a; border-radius: 8px; padding: 10px; margin: 8px 0; color: #1f2933; font-size: 14px; }
+#panel-pretrade .pt-warn { background: #ffe9e6; border: 1px solid #a8362a; border-radius: 8px; padding: 10px; margin: 8px 0; color: #1f2933; font-size: 14px; }
+#panel-pretrade .pt-ok { background: #e6f4ea; border: 1px solid #2d6a3e; border-radius: 8px; padding: 10px; margin: 8px 0; color: #1f2933; font-size: 14px; }
+#panel-pretrade label { display: block; font-weight: 700; margin: 10px 0 4px; color: #1f2933; }
+#panel-pretrade .pt-check { display: flex; gap: 8px; align-items: flex-start; font-weight: 600; margin: 8px 0 2px; }
+#panel-pretrade .pt-check input { width: 22px; height: 22px; flex: none; margin-top: 2px; }
+#panel-pretrade input[type=text], #panel-pretrade textarea, #panel-pretrade select { width: 100%; box-sizing: border-box; font: inherit; font-size: 16px; color: #1f2933; background: #fff; border: 1.5px solid #61798c; border-radius: 8px; padding: 10px; }
+#panel-pretrade textarea { min-height: 64px; resize: vertical; }
+#panel-pretrade button { min-height: 48px; width: 100%; font: inherit; font-weight: 700; font-size: 16px; border-radius: 8px; border: 1px solid #174a70; background: #174a70; color: #fff; margin-top: 12px; cursor: pointer; }
+#panel-pretrade button.pt-sub { background: #eef3f7; color: #1f2933; border-color: #61798c; min-height: 44px; }
+#panel-pretrade .pt-kv { font-size: 14px; color: #1f2933; }
+#panel-pretrade .pt-row { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+#panel-pretrade ul { margin: 4px 0 4px 18px; padding: 0; }
