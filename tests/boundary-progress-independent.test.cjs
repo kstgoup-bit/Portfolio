@@ -50,3 +50,11 @@ test('independent: readiness CLI rejects malformed UTF-8/JSON without echoing in
   a.equal(processMock.exitCode,1);a.equal(closed,1);a.ok(!output.includes('synthetic-private'));a.equal(JSON.parse(output).status,'invalid');a.equal(JSON.parse(output).verification,'unverified');
  }
 });
+
+// --- 클로 통합 검토(2026-11-09): 결과 동결 ---
+test('준비도 결과는 깊이 동결되어 호출자가 상태를 바꿀 수 없다', () => {
+  const R = require('../has/source-readiness.js'), fs = require('fs'), a = require('node:assert/strict');
+  const ex = fs.readFileSync(require('path').join(__dirname, '../docs/data-workbench/source-readiness.synthetic.json'), 'utf8');
+  for (const raw of [ex, '{', null]) { const r = R.inspectJSON(raw); a.ok(Object.isFrozen(r)); a.ok(Object.isFrozen(r.checks) && Object.isFrozen(r.issues)); a.throws(() => { 'use strict'; r.status = 'verified'; }, TypeError); a.throws(() => { 'use strict'; r.independenceVerified = true; }, TypeError); }
+  a.equal(R.inspectJSON(ex).status, 'declared-only');
+});

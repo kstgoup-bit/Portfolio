@@ -19,7 +19,7 @@
     history:{sampleRef:ref,adjustment:choice('raw','split','split-dividend'),adjustmentEvidenceRef:ref,calendarEvidenceRef:ref,timeZone:choice('America/New_York','Asia/Seoul'),from:day,through:day},
     financials:{provider:choice('SEC','DART','other'),sampleRef:ref,filingRef:ref,entityIdentityRef:ref,periodRef:ref,unitsRef:ref,revisionPolicyRef:ref,secSelectionRef:ref}
   };
-  function inspectJSON(input){
+  function inspectRaw(input){
     const out={version:1,status:'invalid',verification:'unverified',liveConnection:'unavailable',independenceVerified:false,secretScanPerformed:false,checks:[],issues:[],notice:'Offline metadata declarations only. No source, account entitlement, secret removal, exchange clock, source independence or live connection has been verified.'};
     const issue=code=>out.issues.push(code);
     if(typeof input!=='string'||input.length>MAX_BYTES){issue('input-type-or-size');return out;}
@@ -53,5 +53,7 @@
     out.status=out.checks.some(c=>c.status==='invalid')?'invalid':out.checks.some(c=>c.status==='missing')?'incomplete':'declared-only';
     return out;
   }
+  function deepFreeze(x){if(x&&typeof x==='object'&&!Object.isFrozen(x)){Object.freeze(x);Object.values(x).forEach(deepFreeze);}return x;}
+  function inspectJSON(input){return deepFreeze(inspectRaw(input));} // 호출자가 결과를 바꿔 '준비됨'처럼 보이게 만들 수 없도록 동결
   return Object.freeze({VERSION:1,MAX_BYTES,inspectJSON});
 });
