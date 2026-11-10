@@ -1,0 +1,202 @@
+TAP version 13
+# Subtest: backup: duplicate outer JSON keys cannot silently replace account content
+ok 1 - backup: duplicate outer JSON keys cannot silently replace account content
+  ---
+  duration_ms: 1.89441
+  type: 'test'
+  ...
+# Subtest: backup: duplicate keys hidden in serialized storage JSON are rejected
+ok 2 - backup: duplicate keys hidden in serialized storage JSON are rejected
+  ---
+  duration_ms: 3.536073
+  type: 'test'
+  ...
+# Subtest: backup: unknown storage keys reject without changing fake storage
+ok 3 - backup: unknown storage keys reject without changing fake storage
+  ---
+  duration_ms: 2.364439
+  type: 'test'
+  ...
+# Subtest: backup: absent legacy account survives while explicit empty account clears
+ok 4 - backup: absent legacy account survives while explicit empty account clears
+  ---
+  duration_ms: 0.650749
+  type: 'test'
+  ...
+# Subtest: backup: malformed snapshot cost is rejected, not exported/restored as valid
+ok 5 - backup: malformed snapshot cost is rejected, not exported/restored as valid
+  ---
+  duration_ms: 1.227106
+  type: 'test'
+  ...
+# Subtest: backup: malformed benchmark history is rejected before mutation
+ok 6 - backup: malformed benchmark history is rejected before mutation
+  ---
+  duration_ms: 1.594212
+  type: 'test'
+  ...
+# Subtest: backup: populated history, old missing cost and custom metadata survive exact roundtrip
+ok 7 - backup: populated history, old missing cost and custom metadata survive exact roundtrip
+  ---
+  duration_ms: 1.327766
+  type: 'test'
+  ...
+# Subtest: backup: damaged recovery journal refuses changes and remains byte-for-byte preserved
+ok 8 - backup: damaged recovery journal refuses changes and remains byte-for-byte preserved
+  ---
+  duration_ms: 0.971556
+  type: 'test'
+  ...
+# Subtest: backup: stale reviewed storage cannot silently overwrite intervening edits
+ok 9 - backup: stale reviewed storage cannot silently overwrite intervening edits
+  ---
+  duration_ms: 0.498692
+  type: 'test'
+  ...
+# Subtest: snapshot: manual price is distinct from current price and average cost
+ok 10 - snapshot: manual price is distinct from current price and average cost
+  ---
+  duration_ms: 1.193076
+  type: 'test'
+  ...
+# Subtest: snapshot: malformed type, stale/future/calendar-invalid asOf and currency mismatch reject
+ok 11 - snapshot: malformed type, stale/future/calendar-invalid asOf and currency mismatch reject
+  ---
+  duration_ms: 0.520675
+  type: 'test'
+  ...
+# Subtest: snapshot: currentPrice or avgPrice alone never fabricates a refreshed quote
+ok 12 - snapshot: currentPrice or avgPrice alone never fabricates a refreshed quote
+  ---
+  duration_ms: 0.153458
+  type: 'test'
+  ...
+# Subtest: snapshot: later manual edits invalidate prior quote evidence
+ok 13 - snapshot: later manual edits invalidate prior quote evidence
+  ---
+  duration_ms: 0.237093
+  type: 'test'
+  ...
+# Subtest: snapshot: overseas holdings need explicit captured FX, never fallback FX
+ok 14 - snapshot: overseas holdings need explicit captured FX, never fallback FX
+  ---
+  duration_ms: 0.330942
+  type: 'test'
+  ...
+# Subtest: snapshot: same-day append refuses replacement and preserves metadata byte-for-byte
+ok 15 - snapshot: same-day append refuses replacement and preserves metadata byte-for-byte
+  ---
+  duration_ms: 0.2622
+  type: 'test'
+  ...
+# Subtest: snapshot: legacy absent cost remains intact while a later day appends
+ok 16 - snapshot: legacy absent cost remains intact while a later day appends
+  ---
+  duration_ms: 0.239706
+  type: 'test'
+  ...
+# Subtest: snapshot: impossible totals fail rather than becoming Infinity or fabricated zero
+ok 17 - snapshot: impossible totals fail rather than becoming Infinity or fabricated zero
+  ---
+  duration_ms: 0.199297
+  type: 'test'
+  ...
+# Subtest: runtime HTML: recordSnap refuses missing quote without modifying stored snapshot
+ok 18 - runtime HTML: recordSnap refuses missing quote without modifying stored snapshot
+  ---
+  duration_ms: 563.741316
+  type: 'test'
+  ...
+# Subtest: runtime HTML: manual snapshot records explicit value and preserves same-day point
+ok 19 - runtime HTML: manual snapshot records explicit value and preserves same-day point
+  ---
+  duration_ms: 136.036551
+  type: 'test'
+  ...
+# Subtest: runtime HTML: explicit manual controls reject blank asOf and preserve entered units
+ok 20 - runtime HTML: explicit manual controls reject blank asOf and preserve entered units
+  ---
+  duration_ms: 132.744151
+  type: 'test'
+  ...
+# Subtest: runtime HTML: prepared restore blocks loads, saves, recording and scheduled fetch entrypoints
+ok 21 - runtime HTML: prepared restore blocks loads, saves, recording and scheduled fetch entrypoints
+  ---
+  duration_ms: 116.10871
+  type: 'test'
+  ...
+# Subtest: runtime HTML: restored benchmark values refresh runtime memory with rendering stubbed
+ok 22 - runtime HTML: restored benchmark values refresh runtime memory with rendering stubbed
+  ---
+  duration_ms: 123.059075
+  type: 'test'
+  ...
+# Subtest: runtime HTML: restore, undo and reload preserve legacy pension labels and theme maps exactly
+ok 23 - runtime HTML: restore, undo and reload preserve legacy pension labels and theme maps exactly
+  ---
+  duration_ms: 132.548699
+  type: 'test'
+  ...
+# Subtest: runtime HTML: quote callback captured before runtime invalidation cannot mutate restored holdings
+ok 24 - runtime HTML: quote callback captured before runtime invalidation cannot mutate restored holdings
+  ---
+  duration_ms: 102.132097
+  type: 'test'
+  ...
+# Subtest: runtime HTML: stale errors and already-scheduled retries remain cancelled after restore
+ok 25 - runtime HTML: stale errors and already-scheduled retries remain cancelled after restore
+  ---
+  duration_ms: 109.508175
+  type: 'test'
+  ...
+# Subtest: integration: same ticker under distinct holding IDs remains backupable after recording
+ok 26 - integration: same ticker under distinct holding IDs remains backupable after recording
+  ---
+  duration_ms: 3.024862
+  type: 'test'
+  ...
+# Subtest: GAS: repository preferred-share ticker 00680K is supported without widening foreign venues
+ok 27 - GAS: repository preferred-share ticker 00680K is supported without widening foreign venues
+  ---
+  duration_ms: 1.34314
+  type: 'test'
+  ...
+# Subtest: GAS: positive control accepts coherent metadata and preserves raw close
+ok 28 - GAS: positive control accepts coherent metadata and preserves raw close
+  ---
+  duration_ms: 2.030792
+  type: 'test'
+  ...
+# Subtest: GAS: wrong returned symbol or currency cannot masquerade as requested QQQ
+ok 29 - GAS: wrong returned symbol or currency cannot masquerade as requested QQQ
+  ---
+  duration_ms: 1.092236
+  type: 'test'
+  ...
+# Subtest: GAS: non-finite/overflow/zero-after-rounding close never escapes numeric boundary
+ok 30 - GAS: non-finite/overflow/zero-after-rounding close never escapes numeric boundary
+  ---
+  duration_ms: 0.983534
+  type: 'test'
+  ...
+# Subtest: GAS: invalid timestamp is rejected without parser throwing
+ok 31 - GAS: invalid timestamp is rejected without parser throwing
+  ---
+  duration_ms: 0.584079
+  type: 'test'
+  ...
+# Subtest: all verification paths made zero external network attempts
+ok 32 - all verification paths made zero external network attempts
+  ---
+  duration_ms: 0.069514
+  type: 'test'
+  ...
+1..32
+# tests 32
+# suites 0
+# pass 32
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1551.679846

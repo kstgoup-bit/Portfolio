@@ -1,0 +1,19 @@
+{
+  "remoteBaseline": "12cd44955f328755ab4713e7c6b39c934cc86dec",
+  "baselineHTMLSha256": "d87b43a16880b83ef4448d6852697f2a1ab7fc4a2febe8601c84df0144d11367",
+  "reviewedFiles": {
+    "backup/core.js": "5b42724ace95134b4eacef8c4049627968d689024dce5ce138987ec944efa949",
+    "backup/ui.js": "16a4ba51b1c4d09053d09575a27f0031ea22a063f3b3ac8d4dac2501a2a64c90"
+  },
+  "unchangedFiles": {
+    "portfolio.html": "97235e2a02feeec84511d9b4caf4c548e47ba37eb229625438acbc15427bfa2d",
+    "manifest.json": "33371c2e52960f0b862da0857723a5e7b2d603137e433afe1309bd1ab8d9d9ed",
+    "service-worker.js": "77d553efcfc3eb93f65a1f2901de1cf3b6b61b36febd9605053e66db6724dcd8",
+    "invest/ledger.js": "86d04b1e4db38901258b7f37a9e81508af995e2069d034b480c38cbb4ba6946e",
+    "has/pretrade-log.js": "f91b32b3165720076d262614ca9f3e5dcbeace02f3eb316897e216789e938c7d",
+    "has/advisor-core.js": "c6ad2a3c18d96f86c5926bd7f89fa738348cb979689d7756d876e286e17cb225",
+    "has/valuation-engine.js": "77d285aac605f0cebc39a1544af0e291edff91f75ea7429c5cf7cc4e357f186a",
+    "has/close-evidence.js": "98f23e85452be3d0851052eb1370cadf1c490a72ea492002a6cfeeef88c9b397",
+    "has/kis-comparison.js": "a41166b4e6bf6e5b44cd29a28f34100541fd0fd20020a1db83ee4b18db85aa7f"
+  }
+}

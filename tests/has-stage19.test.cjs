@@ -41,12 +41,12 @@ test('앱 수정 범위 증명: 지금 portfolio_v5.html에서 19단계 연결(1
   a.equal(H.stage18Sha('portfolio_v5.html'), STAGE18_HTML_SHA); a.equal(H.STAGE19.length, 13);
   const now = rd('portfolio_v5.html'), old = H.stage18Text('portfolio_v5.html'); a.ok(now.length > old.length);
 });
-test('앱 수정 범위: 새 외부 주소·새 저장 키·키 사용 코드를 앱에 추가하지 않았다', () => {
-  const now = rd('portfolio_v5.html'), old = H.stage18Text('portfolio_v5.html'), urls = s => (s.match(/https?:\/\/[^\s"'<>)]+/g) || []).sort().join('\n'), keys = s => (s.match(/\b(v5_[A-Za-z0-9_]+|has_[a-z_0-9]+|kst\.[a-z.A-Z0-9_]+)/g) || []).sort().join('\n');
+test('기록 보완 전 19단계 범위: 새 외부 주소·저장 키·키 사용 코드가 없었다', () => {
+  const now = H.beforeRecordingText('portfolio_v5.html'), old = H.stage18Text('portfolio_v5.html'), urls = s => (s.match(/https?:\/\/[^\s"'<>)]+/g) || []).sort().join('\n'), keys = s => (s.match(/\b(v5_[A-Za-z0-9_]+|has_[a-z_0-9]+|kst\.[a-z.A-Z0-9_]+)/g) || []).sort().join('\n');
   a.equal(urls(now), urls(old)); a.equal(keys(now), keys(old));
 });
-test('보호 파일: 서비스워커·매니페스트·백업 모듈·구 화면은 17단계와 바이트 동일', () => {
-  const pins = { 'portfolio.html': '97235e2a02feeec84511d9b4caf4c548e47ba37eb229625438acbc15427bfa2d', 'service-worker.js': '77d553efcfc3eb93f65a1f2901de1cf3b6b61b36febd9605053e66db6724dcd8', 'backup/core.js': '8a455cdc0606cce844fbb8d40551c9435d42c49b5d1bceafc8455c11a6e0eb3f', 'backup/ui.js': '88eda5884de2aa42416f4d1eaee4ba32301d6128d9ec9d6f252be408b9b8da24', 'invest/ledger.js': null };
+test('보호 파일은 기존 단계와 같고 백업 모듈은 기록 보완 검토 핀과 일치', () => {
+  const pins = { 'portfolio.html': '97235e2a02feeec84511d9b4caf4c548e47ba37eb229625438acbc15427bfa2d', 'service-worker.js': '77d553efcfc3eb93f65a1f2901de1cf3b6b61b36febd9605053e66db6724dcd8', 'backup/core.js': require('./lib/recording-review-pins.json').reviewedFiles['backup/core.js'], 'backup/ui.js': require('./lib/recording-review-pins.json').reviewedFiles['backup/ui.js'], 'invest/ledger.js': null };
   for (const [f, h] of Object.entries(pins)) if (h) a.equal(crypto.createHash('sha256').update(fs.readFileSync(path.join(ROOT, f))).digest('hex'), h, f);
 });
 // ---- 가격 신뢰도 ----

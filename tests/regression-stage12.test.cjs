@@ -3,15 +3,15 @@
 const { test } = require('node:test'), a = require('node:assert/strict'), fs = require('node:fs'), os = require('node:os'), path = require('node:path'), crypto = require('node:crypto');
 const B = require('../backup/core.js'), SC = require('../tools/scan-secrets.cjs');
 const ROOT = path.join(__dirname, '..'), sha = f => crypto.createHash('sha256').update(fs.readFileSync(path.join(ROOT, f))).digest('hex');
-// 11단계 시점의 해시. 이 파일들을 의도적으로 바꾸려면 영향 분석과 함께 이 값을 갱신해야 한다.
-const PINNED = { 'portfolio_v5.html': 'b16656a6525d9127fe3a3fb4d3ad19c8717afc58fb0fe256feb503692913ebd5', 'portfolio.html': '97235e2a02feeec84511d9b4caf4c548e47ba37eb229625438acbc15427bfa2d', 'service-worker.js': '77d553efcfc3eb93f65a1f2901de1cf3b6b61b36febd9605053e66db6724dcd8', 'manifest.json': '79f5292b2c95dba718b453194b255f02d16a1585677b559735b9fad52f16d878', 'backup/core.js': '8a455cdc0606cce844fbb8d40551c9435d42c49b5d1bceafc8455c11a6e0eb3f', 'backup/ui.js': '88eda5884de2aa42416f4d1eaee4ba32301d6128d9ec9d6f252be408b9b8da24' };
+// 과거 앱/PWA 해시를 유지한다. 승인된 백업 보완은 별도 검토 핀과 영향 분석으로 고정한다.
+const PINNED = { 'portfolio_v5.html': 'b16656a6525d9127fe3a3fb4d3ad19c8717afc58fb0fe256feb503692913ebd5', 'portfolio.html': '97235e2a02feeec84511d9b4caf4c548e47ba37eb229625438acbc15427bfa2d', 'service-worker.js': '77d553efcfc3eb93f65a1f2901de1cf3b6b61b36febd9605053e66db6724dcd8', 'manifest.json': '79f5292b2c95dba718b453194b255f02d16a1585677b559735b9fad52f16d878', 'backup/core.js': require('./lib/recording-review-pins.json').reviewedFiles['backup/core.js'], 'backup/ui.js': require('./lib/recording-review-pins.json').reviewedFiles['backup/ui.js'] };
 function memory(seed = {}) { const m = new Map(Object.entries(seed)); return { get length() { return m.size; }, key: i => [...m.keys()][i] ?? null, getItem: k => m.get(k) ?? null, setItem: (k, v) => m.set(k, String(v)), removeItem: k => m.delete(k), all: () => Object.fromEntries(m) }; }
 const stock = (id, name, extra = {}) => ({ id, name, ticker: 'S' + id, quantity: 10 + id, avgPrice: 100.5 * id, currentPrice: 120 * id, ...extra });
 // 합성 사용자: 일반/국내/해외/연금 4계좌가 서로 다른 내용
 const synthetic = () => memory({ v5_gen: JSON.stringify([stock(1, '합성 일반 A')]), v5_dom: JSON.stringify([stock(2, '합성 국내 B'), stock(3, '합성 국내 C')]), v5_ov: JSON.stringify([stock(4, '합성 해외 D', { currency: 'USD' })]), v5_pen: JSON.stringify([stock(5, '합성 연금 E')]),
   v5_deposits: JSON.stringify({ gen: [{ ts: 1, amount: 100 }], dom: [{ ts: 2, amount: 200 }], ov: [{ ts: 3, amount: 300 }], pen: [{ ts: 4, amount: 400 }] }), v5_snap: JSON.stringify({ gen: [{ ts: 1, val: 2, cost: 1 }], all: [], dom: [], ov: [], pen: [] }), v5_fg: '0' });
 
-test('protected files (app HTML, PWA worker/manifest, backup module/UI) are byte-identical to stage 11', () => { for (const [f, h] of Object.entries(PINNED)) a.equal(require('./lib/has-rename.cjs').legacySha(f), h, f); });
+test('historic app/PWA projections and explicitly reviewed backup pins are preserved', () => { for (const [f, h] of Object.entries(PINNED)) a.equal(require('./lib/has-rename.cjs').legacySha(f), h, f); });
 test('synthetic user data: 4 accounts round-trip exactly and stay separate (overseas vs pension vs domestic vs general)', () => {
   const src = synthetic(), dst = memory({ v5_gen: '[]', v5_dom: '[]', v5_ov: '[]', v5_pen: '[]' });
   B.apply(dst, B.parse(JSON.stringify(B.create(src)))); for (const [k, v] of Object.entries(src.all())) a.equal(dst.getItem(k), v, k);

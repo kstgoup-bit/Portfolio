@@ -41,7 +41,8 @@
     "test:kis-comparison": "node --require ./tests/lib/no-network.cjs --test tests/kis-comparison.test.cjs tests/kis-comparison-independent.test.cjs tests/kis-comparison-dom.test.cjs tests/kis-comparison-colors.test.cjs",
     "test:close-comparison": "node --require ./tests/lib/no-network.cjs --test tests/close-comparison.test.cjs tests/close-comparison-independent.test.cjs tests/close-comparison-dom.test.cjs",
     "test:stage29-evidence": "node --require ./tests/lib/no-network.cjs --test tests/euphoria-stage29.test.cjs tests/advisor-evidence.test.cjs tests/pretrade-log-stage29.test.cjs tests/pretrade-protection-stage29.test.cjs tests/advisor-navigation-stage29.test.cjs",
-    "test:close-evidence": "node --require ./tests/lib/no-network.cjs --test tests/close-evidence.test.cjs tests/close-comparison.test.cjs tests/close-comparison-independent.test.cjs tests/close-comparison-dom.test.cjs"
+    "test:close-evidence": "node --require ./tests/lib/no-network.cjs --test tests/close-evidence.test.cjs tests/close-comparison.test.cjs tests/close-comparison-independent.test.cjs tests/close-comparison-dom.test.cjs",
+    "test:recording-backup": "node --require ./tests/lib/no-network.cjs --test tests/backup.test.cjs tests/backup-compat-stage19.test.cjs tests/backup-contract.test.cjs tests/record-protection-stage24.test.cjs tests/regression-stage13.test.cjs tests/snapshot-policy.test.cjs tests/gas-history-draft.test.cjs tests/gas-history-boundary.test.cjs tests/recording-independent.test.cjs tests/recording-protection.test.cjs"
   },
   "devDependencies": {
     "@fontsource/noto-sans-kr": "5.2.6",

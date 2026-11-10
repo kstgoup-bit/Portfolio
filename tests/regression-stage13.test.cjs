@@ -51,11 +51,11 @@ test('복원 중 저장 실패(용량) → 모든 계좌·가계부 원상복구
   for (const k of ['v5_gen', 'v5_dom', 'v5_ov', 'v5_pen', 'v5_ledger']) a.equal(s.getItem(k), mid[k], k);
   a.equal(s.getItem('v5_pw'), before.v5_pw);
 });
-test('중단된 복원(prepared 저널) → recover 가 원상복구', () => {
+test('중단된 복원(prepared 저널) → recover 는 거절하고 원본 바이트 유지', () => {
   const s = base(); B.apply(s, B.parse(JSON.stringify(B.create(base())))); const j = B.readJournal(s); a.ok(j);
   const crashed = base(); const orig = crashed.all(); crashed.setItem(B.JOURNAL, JSON.stringify({ version: 1, status: 'prepared', savedAt: new Date().toISOString(), before: { v5_gen: orig.v5_gen, v5_ledger: orig.v5_ledger } }));
-  crashed.setItem('v5_gen', JSON.stringify([stock(7, '반쯤 복원됨')])); a.equal(B.recover(crashed), true); a.equal(crashed.getItem('v5_gen'), orig.v5_gen);
-  a.equal(B.recover(crashed), false);
+  crashed.setItem('v5_gen', JSON.stringify([stock(7, '반쯤 복원됨')])); const pending = crashed.all(); a.throws(() => B.recover(crashed), /자동 복구하지/); a.deepEqual(crashed.all(), pending);
+  a.throws(() => B.recover(crashed), /자동 복구하지/); a.deepEqual(crashed.all(), pending);
 });
 test('계좌 분리: 해외(USD)·연금·일반이 복원 후에도 서로 섞이지 않음', () => {
   const src = base(), dst = base(); dst.setItem('v5_pen', '[]'); B.apply(dst, B.parse(JSON.stringify(B.create(src))));
