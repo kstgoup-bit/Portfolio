@@ -1,0 +1,96 @@
+{
+  "reviewDate": "2026-11-10",
+  "mode": "read-only synthetic current-behavior inventory; no runtime fix",
+  "current": {
+    "path": "/workspace/scratch/a69a663b2cde/has-kis-free-auth-20261110",
+    "localCommit": "eba37f0dc231fb94382ee31e45b79260731197b7",
+    "tree": "31d9ce5ec99c3607d0eb881cddb1b00f52bcfd97",
+    "remoteEquivalent": "08fb2a537f29f97e4f8e35a8e626f5c76f27248f",
+    "remoteEquivalenceEvidence": "verified source-tree equality; remote Git history absent locally",
+    "files": {
+      "has/snapshot-policy.js": "9109c84c4f4a8bfdde046646e668dc1c4b9ebf4712f50ff271daadf2f2bc3d1a",
+      "has/benchmark-history-policy.js": "6b1d7d5e2c26c619412090592b171d8868f8ec8e06aeb905c143343a72562014",
+      "backup/core.js": "d1313ec285deebd674a03f9b48f698227247756a042643f39a643d894e3fb22b",
+      "portfolio_v5.html": "23bacc9e5f3de930b055292898d00ef6c6b162f8e3152cb7d9f383989a0269a5",
+      "tests/lib/no-network.cjs": "d637d25bb9c8cd3dda7569bdb92b9ba5c925b6c3fa296ccdfdfb0bf030178e7f"
+    }
+  },
+  "preDaily": {
+    "path": "/workspace/scratch/a69a663b2cde/has-recording-backup-20261110",
+    "commit": "e0a84925c4b32beed6f797cfd74aaa7dee2d4d18",
+    "tree": "2f3884f7a57667ecb4623fa25fcbe2501d47e8f7",
+    "files": {
+      "portfolio_v5.html": "d5b2991ab28e289a3ad60c0659a148696425dddb221841e560e7ac32509a7c5a"
+    },
+    "bundledCopy": {
+      "path": "historical-reference/portfolio_v5.functions.js.txt",
+      "kind": "exact required function excerpts, not full original HTML",
+      "originalFullSourceSha256": "d5b2991ab28e289a3ad60c0659a148696425dddb221841e560e7ac32509a7c5a",
+      "sha256": "c7a946df8c755deb8ce45f455c37fb758a43feb4dd76859578ad242fbac5fb72",
+      "segments": [
+        {
+          "name": "getDepositsForKey",
+          "startLine": 3101,
+          "endLine": 3106,
+          "sourceRange": "start inclusive, end exclusive",
+          "sha256": "2ca913c93746606bfe86108cb154298527c5abee1b8c88f850ce6aa3a9b1eb34"
+        },
+        {
+          "name": "calcModifiedDietz",
+          "startLine": 3107,
+          "endLine": 3119,
+          "sourceRange": "start inclusive, end exclusive",
+          "sha256": "60afb8d97c8a7bc4a4794ce6b3567ec552e0540c327d741f09dda9bb2059fa1b"
+        },
+        {
+          "name": "findSnapAtOrBefore",
+          "startLine": 3120,
+          "endLine": 3128,
+          "sourceRange": "start inclusive, end exclusive",
+          "sha256": "0a8c6530e4bba04c12c1226e15fd29c9517e525307b70d9fddc8be363234cef8"
+        },
+        {
+          "name": "returnRowHtml",
+          "startLine": 3138,
+          "endLine": 3197,
+          "sourceRange": "start inclusive, end exclusive",
+          "sha256": "1b521de601ba01555c1fb4b73d4da17a14dc9f9155dfedc041b3dedd4c5985ba"
+        },
+        {
+          "name": "fetchBenchmarkHistory",
+          "startLine": 2664,
+          "endLine": 2930,
+          "sourceRange": "start inclusive, end exclusive; excludes terminal separator newline before findBenchAtOrBefore",
+          "sha256": "f11047809859877aa5405a85803666820b5061c49fb74fa94033a4734d2f8906"
+        }
+      ],
+      "extractionNote": "The final source segment excludes its terminal separator newline; function source is unchanged and the excerpt has one final newline."
+    }
+  },
+  "verification": {
+    "cases": 24,
+    "timeZones": [
+      "Etc/UTC",
+      "Asia/Seoul",
+      "America/New_York"
+    ],
+    "externalAttempts": 0,
+    "browser": false,
+    "fullNpm": false,
+    "actualProvider": false,
+    "actualStorage": false,
+    "restore": false,
+    "currentSourceHashesMatched": true
+  },
+  "delivery": {
+    "directory": "docs/kis-free-auth/daily-regression-followup",
+    "repositoryRootRelativeToReproducer": "../../..",
+    "historicalReference": "historical-reference/portfolio_v5.functions.js.txt",
+    "historicalReferenceMode": "only required historical function source excerpts; not full HTML; never initialize or render the old application",
+    "sourcePathsAreProvenanceOnly": true,
+    "overrides": [
+      "HAS_REVIEW_ROOT",
+      "HAS_PREDAILY_FILE"
+    ]
+  }
+}

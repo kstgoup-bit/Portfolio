@@ -1,0 +1,354 @@
+function getDepositsForKey(key) {
+  if (key==="all") return (deposits.dom||[]).concat(deposits.ov||[],deposits.pen||[],deposits.gen||[]);
+  return deposits[key]||[];
+}
+
+// Modified Dietz 방식: 기간 중 입금액(외부 유입)을 제외한 순수 운용수익률
+function calcModifiedDietz(key, startTs, endTs, startVal, endVal) {
+  if (!(startVal>0) || !(endVal>0) || endTs<=startTs) return null;
+  var cfs = getDepositsForKey(key).filter(function(d){ return d.ts>startTs && d.ts<=endTs; });
+  var netCF = cfs.reduce(function(s,d){ return s+d.amount; }, 0);
+  var weightedCF = cfs.reduce(function(s,d){
+    var w = (endTs-d.ts)/(endTs-startTs);
+    return s + d.amount*w;
+  }, 0);
+  var denom = startVal + weightedCF;
+  if (denom<=0) return null;
+  return ((endVal-startVal-netCF)/denom)*100;
+}
+
+function findSnapAtOrBefore(snapKey, targetTs) {
+  var arr = snapshots[snapKey]||[];
+  var best = null;
+  for (var i=0;i<arr.length;i++){
+    if (arr[i].ts<=targetTs && (!best || arr[i].ts>best.ts)) best=arr[i];
+  }
+  return best;
+}
+
+function returnRowHtml(p, key, current, now, mode) {
+  var targetTs;
+  var TRACK_START = new Date('2026-05-22').getTime();
+  var TRACK_START_YEAR = new Date(TRACK_START).getFullYear();
+  if (p.ytd) {
+    var y=new Date().getFullYear();
+    // 추적 시작년도(2026)는 5/22 기준, 그 이후 해는 정상적으로 1/1 기준
+    targetTs = (y===TRACK_START_YEAR) ? TRACK_START : new Date(y,0,1).getTime();
+  } else {
+    targetTs=now-p.days*86400000;
+  }
+  // 추적 시작일(TRACK_START) 이전 시점은 개발단계 테스트 데이터라 조회 자체를 막음
+  var snap = (!p.ytd && targetTs < TRACK_START) ? null : findSnapAtOrBefore(key,targetTs);
+  var valCell;
+  if (!snap || !(snap.val>0) || !(current>0)) {
+    valCell='<span style="color:#b0bec5;font-weight:700">-</span>';
+  } else if (mode==="dietz") {
+    var dietz=calcModifiedDietz(key, targetTs, now, snap.val, current);
+    if (dietz===null) {
+      valCell='<span style="color:#b0bec5;font-weight:700">-</span>';
+    } else {
+      var dpos=dietz>=0;
+      var dietzCagrStr="";
+      if (p.days && p.days>365) {
+        var dActualDays=(now-snap.ts)/86400000;
+        if (dActualDays>0) {
+          var dCagr=(Math.pow(1+dietz/100,365/dActualDays)-1)*100;
+          dietzCagrStr=' <span style="font-size:0.85em;opacity:0.75">(연 '+(dCagr>=0?"+":"")+dCagr.toFixed(1)+'%)</span>';
+        }
+      }
+      valCell='<span style="color:'+(dpos?"#c62828":"#1565c0")+';font-weight:800">'+(dpos?"+":"")+dietz.toFixed(2)+'%'+dietzCagrStr+'</span>';
+    }
+  } else if (mode==="alpha") {
+    var dietz2=calcModifiedDietz(key, targetTs, now, snap.val, current);
+    var bench=getBenchmarkReturnPct(key, targetTs, now);
+    if (dietz2===null || bench===null) {
+      valCell='<span style="color:#b0bec5;font-weight:700">-</span>';
+    } else {
+      var alpha=dietz2-bench;
+      var apos=alpha>=0;
+      valCell='<span style="color:'+(apos?"#c62828":"#1565c0")+';font-weight:800">'+(apos?"+":"")+alpha.toFixed(2)+'%p</span>';
+    }
+  } else {
+    var pct=((current-snap.val)/snap.val)*100;
+    var pos=pct>=0;
+    var rawCagrStr="";
+    if (p.days && p.days>365) {
+      var rActualDays=(now-snap.ts)/86400000;
+      if (rActualDays>0) {
+        var rCagr=(Math.pow(current/snap.val,365/rActualDays)-1)*100;
+        rawCagrStr=' <span style="font-size:0.85em;opacity:0.75">(연 '+(rCagr>=0?"+":"")+rCagr.toFixed(1)+'%)</span>';
+      }
+    }
+    valCell='<span style="color:'+(pos?"#c62828":"#1565c0")+';font-weight:800">'+(pos?"+":"")+pct.toFixed(2)+'%'+rawCagrStr+'</span>';
+  }
+  return '<div style="padding:7px 2px 0 2px;display:flex;justify-content:center">'+
+    '<div style="display:grid;grid-template-columns:48px 1fr;align-items:center;gap:6px;width:108px;padding-bottom:7px;border-bottom:1px solid var(--border)">'+
+    '<span style="color:var(--muted);font-weight:600;font-size:12.5px">'+p.label+'</span><span style="text-align:left;font-size:12.5px">'+valCell+'</span></div></div>';
+}
+
+function fetchBenchmarkHistory(force) {
+  if(snapshotWriteBlocked()) return;
+  // 이미 진행 중이면 중복 실행 방지. 단, 수동 새로고침(force)은 20초 넘게 걸리는 실행이 있으면
+  // 멈춘 것으로 보고 새로 시작한다 (예전엔 응답 없는 프록시 하나 때문에 잠금이 영원히 안 풀렸음)
+  if (_benchFetchInFlight) {
+    if (!force || (Date.now()-_benchFetchStartedAt) < 20000) { if (force) setBenchStatus("이미 새로고침 중입니다. 잠시만 기다려 주세요."); return; }
+  }
+  var myRun=++_benchRunId;
+  function activeBenchRun(){return _benchRunId===myRun && !snapshotWriteBlocked();}
+  _benchFetchStartedAt=Date.now();
+  var releaseLock=function(){ if (_benchRunId===myRun) _benchFetchInFlight=false; };
+  var cached=null;
+  try { cached=JSON.parse(localStorage.getItem("v5_benchHist")||"null"); } catch(e){}
+  var today=new Date().toDateString();
+  var hasValidCache = cached && cached.KS200 && cached.KS200.length>0 && cached.QQQ && cached.QQQ.length>0;
+  var hasValidSPY = cached && cached.SPY && cached.SPY.length>0;
+  // 캐시된 데이터의 실제 최신 시점이 너무 오래되지 않았는지 확인 (프록시가 계속 실패해도
+  // fetchedAt만 오늘로 찍히고 실제 데이터는 며칠 전 값에 멈춰있을 수 있어, 그 경우 강제 재시도)
+  // 세 지수 중 "가장 최근에 갱신된 것"이 아니라 "가장 오래 정체된 것" 기준으로 판단해야
+  // SPY 하나만 계속 실패해도 놓치지 않고 잡아낼 수 있다 (Math.max가 아니라 Math.min)
+  var latestDataTs = (hasValidCache && hasValidSPY)
+    ? Math.min(cached.KS200[cached.KS200.length-1].ts, cached.QQQ[cached.QQQ.length-1].ts, cached.SPY[cached.SPY.length-1].ts)
+    : 0;
+  var isStale = !latestDataTs || !hasValidSPY || (Date.now()-latestDataTs) > 4*86400000; // 주말/공휴일 감안 4일
+  if (hasValidCache && cached.fetchedAt===today && !force && !isStale) {
+    benchmarkHistory={KS200:cached.KS200||[], NDX:cached.QQQ||[], SPY:cached.SPY||[]};
+    renderAllReturnsTables();
+    refreshAllLineCharts();
+    return;
+  }
+  _benchFetchInFlight=true;
+  setBenchStatus("지수 새로고침 중… (최대 2~3분 걸릴 수 있습니다)");
+  setTimeout(function(){
+    if (_benchRunId===myRun && _benchFetchInFlight) { _benchFetchInFlight=false; setBenchStatus("⚠️ 시간 초과 — 지수 서버 응답이 없습니다. 잠시 후 다시 눌러주세요."); }
+  }, 240000);
+  var syms=[{sym:"QQQ",id:"QQQ"},{sym:"SPY",id:"SPY"},{sym:"069500.KS",id:"KS200"}];
+  var results={fetchedAt:today, fetchedAtISO:(cached&&cached.fetchedAtISO)||null, KS200:(cached&&cached.KS200)||[], QQQ:(cached&&cached.QQQ)||[], SPY:(cached&&cached.SPY)||[]};
+  var freshCount=0;
+
+  var PROXIES=[
+    function(u){ return "https://api.allorigins.win/raw?url="+encodeURIComponent(u); },
+    function(u){ return "https://corsproxy.io/?url="+encodeURIComponent(u); },
+    function(u){ return "https://api.codetabs.com/v1/proxy?quest="+encodeURIComponent(u); },
+    function(u){ return "https://api.allorigins.win/get?url="+encodeURIComponent(u); },
+    function(u){ return "https://corsproxy.org/?"+encodeURIComponent(u); }
+  ];
+  // 매 실행마다 순서를 섞어서, 특정 프록시(예: 자체 캐싱하는 프록시) 하나에
+  // 계속 걸려 오래된 응답만 받는 상황을 줄인다
+  for (var _i=PROXIES.length-1; _i>0; _i--) {
+    var _j=Math.floor(Math.random()*(_i+1));
+    var _tmp=PROXIES[_i]; PROXIES[_i]=PROXIES[_j]; PROXIES[_j]=_tmp;
+  }
+  PROXIES.unshift(function(u){ return u; }); // 프록시 없이 직접 호출 (브라우저가 허용하면 가장 빠름, 막히면 즉시 다음으로)
+
+  // 무료 프록시가 전부 막혔을 때를 대비한 경로: 설정에 저장된 Alpha Vantage 키로 최근 100거래일 종가를 받아
+  // 기존 5년 기록에 날짜 기준으로 이어 붙인다 (미국 지수 QQQ/SPY 전용, 호출 2회/일 사용)
+  var avNote="", avLastCall=0;
+  function fetchAV(s, cb) {
+    if(!activeBenchRun()) return;
+    var key=""; try { key=getAlphaVantageKey(); } catch(e){}
+    if (!key) { avNote="Alpha Vantage 키가 설정에 없습니다"; cb(false); return; }
+    setBenchStatus("지수 새로고침 중… "+s.id+" (Alpha Vantage)");
+    var settled=false, timer=null, ctrl=null;
+    var done=function(ok){ if (settled || !activeBenchRun()) return; settled=true; clearTimeout(timer); cb(ok); };
+    try { if (window.AbortController) ctrl=new AbortController(); } catch(e){ ctrl=null; }
+    timer=setTimeout(function(){ try{ if(ctrl) ctrl.abort(); }catch(e){} avNote="응답 시간 초과"; done(false); }, 12000);
+    var opts={cache:"no-store"}; if (ctrl) opts.signal=ctrl.signal;
+    fetch("https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol="+encodeURIComponent(s.sym)+"&outputsize=compact&apikey="+encodeURIComponent(key), opts)
+      .then(function(r){ if(!r.ok) throw new Error("http "+r.status); return r.json(); })
+      .then(function(data){
+        if (settled || !activeBenchRun()) return;
+        var ser=data&&data["Time Series (Daily)"];
+        if (!ser) { avNote=String((data&&(data.Note||data.Information||data["Error Message"]))||"응답 형식 오류").slice(0,60); done(false); return; }
+        var byDay={};
+        (results[s.id]||[]).forEach(function(pt){ byDay[new Date(pt.ts).toISOString().slice(0,10)]=pt; });
+        var added=0;
+        for (var d in ser) {
+          var c=parseFloat(ser[d]&&ser[d]["4. close"]);
+          var pp=d.split("-");
+          if (c>0 && pp.length===3) { byDay[d]={ts:Date.UTC(+pp[0],+pp[1]-1,+pp[2],14,30), close:c}; added++; }
+        }
+        if (!added) { avNote="데이터 없음"; done(false); return; }
+        results[s.id]=Object.keys(byDay).sort().map(function(k){ return byDay[k]; });
+        freshCount++; freshIds[s.id]=true;
+        done(true);
+      })
+      .catch(function(){ avNote="네트워크 오류"; done(false); });
+  }
+  // 심볼 하나 가져오기: 미국 지수는 Alpha Vantage 먼저, 실패하면 기존 프록시 경로로
+  function fetchSym(s, cb) {
+    if(!activeBenchRun()) return;
+    if (s.id==="QQQ" || s.id==="SPY") {
+      var wait=Math.max(0, 1500-(Date.now()-avLastCall)); // Alpha Vantage 무료 키는 초당 1회 제한
+      setTimeout(function(){
+        if(!activeBenchRun()) return;
+        avLastCall=Date.now();
+        fetchAV(s, function(ok){ if (ok) cb(); else fetchOne(s, 0, cb, 0); });
+      }, wait);
+    } else {
+      fetchOne(s, 0, cb, 1); // 코스피200은 프록시 1회전만 (실패해도 미국 지수 갱신에는 영향 없음)
+    }
+  }
+
+  function fetchOne(s, proxyIdx, cb, round) {
+    if(!activeBenchRun()) return;
+    round = round || 0;
+    if (proxyIdx>=PROXIES.length) {
+      if (round<1) { fetchOne(s, 0, cb, round+1); return; } // 프록시 목록 한 바퀴 더 자동 재시도 (2차는 야후 보조 서버)
+      cb(); return;
+    }
+    var host = (round===0) ? "query1" : "query2";
+    var url="https://"+host+".finance.yahoo.com/v8/finance/chart/"+encodeURIComponent(s.sym)+"?interval=1d&range=5y&_cb="+Date.now();
+    var settled=false, timer=null, ctrl=null;
+    var next=function(){ if (settled || !activeBenchRun()) return; settled=true; clearTimeout(timer); fetchOne(s, proxyIdx+1, cb, round); };
+    try { if (window.AbortController) ctrl=new AbortController(); } catch(e){ ctrl=null; }
+    // 응답이 없는 프록시에 무한정 걸리지 않도록 7초 후 다음 프록시로 넘어감
+    timer=setTimeout(function(){ try{ if(ctrl) ctrl.abort(); }catch(e){} next(); }, 5000);
+    setBenchStatus("지수 새로고침 중… "+s.id+" ("+(round*PROXIES.length+proxyIdx+1)+"/"+(PROXIES.length*2)+")");
+    var opts={cache:"no-store"}; if (ctrl) opts.signal=ctrl.signal;
+    fetch(PROXIES[proxyIdx](url), opts)
+      .then(function(r){ if(!r.ok) throw new Error("http "+r.status); return r.json(); })
+      .then(function(data){
+        if (settled || !activeBenchRun()) return;
+        if (data && typeof data.contents==="string") { try{ data=JSON.parse(data.contents); }catch(e){} } // allorigins /get 래핑 해제
+        var res=data&&data.chart&&data.chart.result&&data.chart.result[0];
+        var hist=[];
+        if(res){
+          var ts=res.timestamp||[];
+          var closes=(res.indicators&&res.indicators.quote&&res.indicators.quote[0]&&res.indicators.quote[0].close)||[];
+          for(var i=0;i<ts.length;i++){
+            if(closes[i]!=null) hist.push({ts:ts[i]*1000, close:closes[i]});
+          }
+        }
+        if(hist.length) { settled=true; clearTimeout(timer); results[s.id]=hist; freshCount++; freshIds[s.id]=true; cb(); }
+        else next();
+      })
+      .catch(function(){ next(); });
+  }
+
+  function latestTsOf(arr){
+    if (!arr || !arr.length) return 0;
+    var m=0; for (var i=0;i<arr.length;i++){ if (arr[i].ts>m) m=arr[i].ts; }
+    return m;
+  }
+  // 이 실행의 결과를 저장하기 직전, 현재 localStorage에 이미 저장돼있는 값과 심볼별로 비교해서
+  // 더 최신인 쪽을 최종적으로 채택 후 저장 (동시에 여러 fetchBenchmarkHistory 실행이 겹칠 때,
+  // 느리게 끝난 쪽이 더 오래된 자기 스냅샷으로 방금 저장된 최신 데이터를 덮어쓰는 것을 방지)
+  function mergeAndSaveBench(r){
+    if(!activeBenchRun()) return;
+    var live=null;
+    try { live=JSON.parse(localStorage.getItem("v5_benchHist")||"null"); } catch(e){}
+    var merged={
+      fetchedAt: r.fetchedAt, fetchedAtISO: r.fetchedAtISO,
+      KS200: r.KS200, QQQ: r.QQQ, SPY: r.SPY
+    };
+    ["KS200","QQQ","SPY"].forEach(function(sym){
+      if (live && live[sym] && latestTsOf(live[sym]) > latestTsOf(merged[sym])) {
+        merged[sym]=live[sym];
+      }
+    });
+    if (live && live.fetchedAtISO && (!merged.fetchedAtISO || new Date(live.fetchedAtISO)>new Date(merged.fetchedAtISO))) {
+      // 병합 결과 세 지수 모두 그 스냅샷 것 그대로라면 그 시각도 함께 채택
+      var allFromLive = ["KS200","QQQ","SPY"].every(function(sym){ return merged[sym]===live[sym]; });
+      if (allFromLive) merged.fetchedAtISO=live.fetchedAtISO;
+    }
+    try{ localStorage.setItem("v5_benchHist", JSON.stringify(merged)); }catch(e){}
+    benchmarkHistory={KS200:merged.KS200, NDX:merged.QQQ, SPY:merged.SPY};
+    return merged;
+  }
+
+  var freshIds={};
+  var benchResultMsg=function(){
+    var failed=[]; ["KS200","QQQ","SPY"].forEach(function(id){ if(!freshIds[id]) failed.push(id); });
+    if (!failed.length) return "✓ 지수 새로고침 완료";
+    var usFail=failed.filter(function(x){ return x!=="KS200"; });
+    if (!usFail.length) return "✓ QQQ·S&P500 갱신 완료 (코스피200만 실패 — 기존 데이터 유지)";
+    return "⚠️ 갱신 실패: "+failed.join(", ")+(avNote?" · "+avNote:"")+" (기존 데이터 유지)";
+  };
+  // 순차 실행 (동시 요청으로 인한 프록시 과부하 방지), 프록시별로 순회 시도
+  fetchSym(syms[0], function(){
+    fetchSym(syms[1], function(){
+      fetchSym(syms[2], function(){
+        if(!activeBenchRun()) return;
+        if (freshIds.QQQ && freshIds.SPY) results.fetchedAtISO=new Date().toISOString();
+        try {
+        mergeAndSaveBench(results);
+        setBenchStatus(benchResultMsg());
+        renderAllReturnsTables();
+        refreshAllLineCharts();
+        } catch(e){ releaseLock(); setBenchStatus("⚠️ 화면 갱신 중 오류: "+(e&&e.message||e)); return; }
+        // SPY는 순서상 세 번째라 프록시 rate limit에 가장 자주 걸림.
+        // 배열 길이가 아니라 "이번 실행에서 실제로 새로 받아왔는지"를 기준으로 재시도 판단
+        // (오래된 캐시가 남아있으면 배열은 항상 비어있지 않아 예전 로직은 재시도가 영영 안 걸렸음)
+        if (!freshIds.SPY) {
+          var spyRetries=0;
+          var retrySpy=function(){
+            spyRetries++;
+            fetchSym({sym:"SPY",id:"SPY"}, function(){
+              if (freshIds.SPY) {
+                if (freshIds.QQQ) results.fetchedAtISO=new Date().toISOString();
+                try { mergeAndSaveBench(results); setBenchStatus(benchResultMsg()); renderAllReturnsTables(); refreshAllLineCharts(); } catch(e){}
+                releaseLock();
+              } else if (spyRetries<3) {
+                setTimeout(retrySpy, 3000*(spyRetries+1));
+              } else {
+                setBenchStatus(benchResultMsg());
+                try { renderAllReturnsTables(); } catch(e){}
+                releaseLock();
+              }
+            });
+          };
+          setTimeout(retrySpy, 3000);
+        } else {
+          releaseLock();
+        }
+      });
+    });
+  });
+}
+
+function getBenchFetchTimeLabel() {
+  try {
+    var cached=JSON.parse(localStorage.getItem("v5_benchHist")||"null");
+    if (!cached || !cached.fetchedAtISO) return {text:"미확인", stale:true};
+    var d=new Date(cached.fetchedAtISO);
+    var mm=(d.getMonth()+1);
+    var dd=d.getDate();
+    var hh=String(d.getHours()).padStart(2,"0");
+    var mi=String(d.getMinutes()).padStart(2,"0");
+    var ageHours=(Date.now()-d.getTime())/3600000;
+    return {text:mm+"/"+dd+" "+hh+":"+mi, stale:ageHours>24};
+  } catch(e) { return {text:"미확인", stale:true}; }
+}
+
+function getBenchDataLatestLabel(key) {
+  try {
+    var cached=JSON.parse(localStorage.getItem("v5_benchHist")||"null");
+    if (!cached) return {text:"미확인", stale:true, name:"지수"};
+
+    function latestOf(arr){
+      if (!arr || !arr.length) return 0;
+      var maxTs=0;
+      for (var i=0;i<arr.length;i++){ if (arr[i].ts>maxTs) maxTs=arr[i].ts; }
+      return maxTs;
+    }
+
+    var maxTs, name;
+    if (key==="dom") { maxTs=latestOf(cached.KS200); name="KODEX200"; }
+    else if (key==="ov" || key==="pen") {
+      var qqqTs2=latestOf(cached.QQQ), spyTs2=latestOf(cached.SPY);
+      maxTs = Math.min(qqqTs2||0, spyTs2||0) || Math.max(qqqTs2, spyTs2);
+      name="QQQ·S&P500";
+    }
+    else { // all: 두 지수 중 더 오래된(느린) 쪽 기준으로 표시
+      var ksTs=latestOf(cached.KS200), qqqTs=latestOf(cached.QQQ);
+      maxTs = Math.min(ksTs||0, qqqTs||0) || Math.max(ksTs, qqqTs);
+      name="KODEX200·QQQ";
+    }
+    if (!maxTs) return {text:"미확인", stale:true, name:name};
+    var d=new Date(maxTs);
+    var mm=(d.getMonth()+1);
+    var dd=d.getDate();
+    var ageDays=(Date.now()-maxTs)/86400000;
+    return {text:mm+"/"+dd, stale:ageDays>3, name:name};
+  } catch(e) { return {text:"미확인", stale:true, name:"지수"}; }
+}
