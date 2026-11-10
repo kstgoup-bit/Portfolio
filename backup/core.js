@@ -1,5 +1,5 @@
 /* Local-only portfolio backup. No network or credential capture. Storage is NOT transactional. */
-(function(root,f){if(typeof module==='object'&&module.exports)module.exports=f();else root.KSTPortfolioBackup=f();})(globalThis,function(){
+(function(root,f){if(typeof module==='object'&&module.exports)module.exports=f(require('../has/snapshot-policy.js'));else root.KSTPortfolioBackup=f(root.HASSnapshotPolicy);})(globalThis,function(snapshotPolicy){
  'use strict';
  const FORMAT='kst-portfolio-backup',VERSION=6,JOURNAL='kst.portfolio.restoreJournal',MAX_BYTES=20*1024*1024;
  const LIMITS=Object.freeze({depth:30,nodes:500000,array:50000,keys:50000,string:MAX_BYTES});
@@ -75,17 +75,20 @@
   }
  }
  function provenance(s){
+  // Revision payloads use the same pure validator as recording, including flat
+  // history, aggregate valuation, source-time and scope-change invariants.
   if(own(s,'cost')&&!nonnegative(s.cost))fail('기록 원가 형식 오류');
   if(own(s,'schemaVersion')&&s.schemaVersion!==1)fail('지원하지 않는 기록 출처 버전');
-  const fields=['origin','priceAsOf','recordedAt','quality','signalHold','manualComponents','components','fx'];
+  const fields=['origin','priceAsOf','recordedAt','quality','signalHold','manualComponents','components','fx','dailyHistory','scopeChange','comparisonHold'];
   if(!fields.some(k=>own(s,k))&&!own(s,'schemaVersion'))return;
+  if(!snapshotPolicy||typeof snapshotPolicy.validateRecord!=='function'||!snapshotPolicy.validateRecord(s).ok)fail('기록 정책을 불러오지 못했거나 기록 출처·평가 합계 형식이 올바르지 않습니다');
   if(s.schemaVersion!==1||!['manual-included','session-quote','entered-balance'].includes(s.origin)||!nullableInstant(s.priceAsOf)||!instant(s.recordedAt)||s.quality!=='unconfirmed'||s.signalHold!==true||!Array.isArray(s.manualComponents)||!Array.isArray(s.components)||!own(s,'fx'))fail('기록 출처 필드 손상');
   const ids=new Set();for(const c of s.components){if(!object(c)||!account(c.account)||!componentIdValid(c)||!ticker(c.ticker)||!nonnegative(c.quantity)||c.quantity>1e12||!nonnegative(c.price)||c.price>1e12||!['KRW','USD'].includes(c.currency)||c.unit!=='per-held-unit'||!['manual','session-quote','entered-balance'].includes(c.origin)||!nullableInstant(c.priceAsOf)||!nullableInstant(c.receivedAt))fail('기록 구성 가격 형식 오류');const id=componentId(c);if(ids.has(id))fail('중복 기록 구성 가격');ids.add(id);}
   const manualIds=new Set();for(const c of s.manualComponents){if(!object(c)||!account(c.account)||!componentIdValid(c)||!ticker(c.ticker))fail('수동 기록 구성 형식 오류');priceMeta(c);const id=componentId(c);if(manualIds.has(id))fail('중복 수동 기록 구성');manualIds.add(id);}
   const manual=s.components.filter(c=>c.origin==='manual'),expectedOrigin=manual.length?'manual-included':s.components.some(c=>c.origin==='session-quote')?'session-quote':'entered-balance';
   if(s.origin!==expectedOrigin||manual.length!==s.manualComponents.length)fail('기록 출처 구성이 일치하지 않습니다.');
   for(const c of manual){const m=s.manualComponents.find(x=>componentId(x)===componentId(c)&&x.ticker===c.ticker);if(!m||m.value!==c.price||m.priceAsOf!==c.priceAsOf||m.currency!==c.currency||m.unit!==c.unit||m.maxAgeDays!==c.maxAgeDays)fail('수동 가격 출처 구성이 일치하지 않습니다.');}
-  if(s.fx!==null&&(!object(s.fx)||!finite(s.fx.value)||s.fx.value<=0||s.fx.value>1e6||s.fx.currencyPair!=='USD/KRW'||s.fx.origin!=='session-quote'||s.fx.priceAsOf!==null||!instant(s.fx.receivedAt)))fail('기록 환율 출처 형식 오류');
+  if(s.fx!==null&&(!object(s.fx)||!finite(s.fx.value)||s.fx.value<=0||s.fx.value>1e6||s.fx.currencyPair!=='USD/KRW'||s.fx.origin!=='session-quote'||!nullableInstant(s.fx.priceAsOf)||!instant(s.fx.receivedAt)))fail('기록 환율 출처 형식 오류');
  }
  function benchmark(v){
   const allowedFields=['KS200','QQQ','SPY','fetchedAt','fetchedAtISO'];if(Object.keys(v).some(k=>!allowedFields.includes(k)))fail('지원하지 않는 지수 기록 필드');

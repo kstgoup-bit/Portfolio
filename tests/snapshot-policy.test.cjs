@@ -70,9 +70,9 @@ test('bad quantity/cost/mode and overflow do not produce partial snapshots', () 
   assert.ok(hasCode(evaluateStock(stock({ pricingMode: 'auto-anyway' })), 'pricing-mode'));
   assert.ok(hasCode(evaluateStock({ ...manual({ value: 1e12 }), quantity: 1e12 }), 'total-range'));
 });
-test('daily append preserves same-day and older legacy rows exactly, with no backfill', () => {
+test('daily revision preserves original legacy payload and old rows without backfilling provenance', () => {
   const s = P.evaluate(input()).snapshot, today = { ts: NOW - 1000, val: 999 }, old = { ts: NOW - 7 * DAY, val: 500 };
-  const original = JSON.stringify([old, today]); assert.equal(P.appendDaily([old, today], s).code, 'day-exists'); assert.equal(JSON.stringify([old, today]), original);
+  const original = JSON.stringify([old, today]), updated = P.appendDaily([old, today], s); assert.equal(updated.action, 'revised'); assert.deepEqual(updated.records[1].dailyHistory.entries[0].point, today); assert.equal(updated.records[1].comparisonHold, true); assert.equal(JSON.stringify([old, today]), original);
   const r = P.appendDaily([old], s); assert.equal(r.ok, true); assert.equal(r.records.length, 2); assert.equal(r.records[0], old); assert.equal(old.cost, undefined);
 });
 test('malformed existing rows are preserved by refusing the write', () => {
@@ -94,11 +94,11 @@ function harness() {
   for (const name of ['snapshotWriteBlocked', 'snapshotEvaluation', 'snapshotMissingText', 'renderSnapshotStatuses', 'recordSnap', 'invalidateSnapshotEvidence', 'snapshotQuoteTargets', 'acceptSnapshotQuotes', 'autoSnapshot', 'snapshotEscape', 'manualLocalInput', 'readManualPriceForm', 'renderManualPriceForm', 'toggleManualPriceFields']) vm.runInContext(fn(name), context);
   return { context, nodes, data, messages, writes };
 }
-test('button and automatic writes share fail-closed recording policy, preserve day, and show manual warning', () => {
+test('button and automatic writes share revision policy, preserve prior payload, and show manual warning', () => {
   const h = harness(); h.context.genStocks = [manual()]; h.context.recordSnap('gen');
   assert.equal(h.context.snapshots.gen.length, 1); assert.match(h.nodes['snapshotStatus-gen'].textContent || h.messages.join(' '), /수동 가격/);
   const before = JSON.stringify(h.context.snapshots.gen); h.context.genStocks[0].manualPrice.value = 200; h.context.recordSnap('gen'); h.context.autoSnapshot();
-  assert.equal(JSON.stringify(h.context.snapshots.gen), before); assert.ok(h.messages.some(m => /덮어쓰지/.test(m)));
+  assert.equal(JSON.stringify(h.context.snapshots.gen[0].dailyHistory.entries[0].point), JSON.stringify(JSON.parse(before)[0])); assert.equal(h.context.snapshots.gen[0].val, 400); assert.equal(h.context.snapshots.gen[0].dailyHistory.entries.length, 2);
 });
 test('missing policy and pending journal block both record methods without fallback or writes', () => {
   for (const block of ['module', 'journal', 'ui']) {

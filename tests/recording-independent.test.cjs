@@ -86,9 +86,9 @@ test('snapshot: overseas holdings need explicit captured FX, never fallback FX',
   const r = evaluate([], evidence); a.equal(r.ok, true); a.equal(r.snapshot.val, 282800); a.equal(r.snapshot.priceAsOf, null);
   a.equal(evaluate([], { ...evidence, fx: 1401 }).ok, false);
 });
-test('snapshot: same-day append refuses replacement and preserves metadata byte-for-byte', () => {
+test('snapshot: same-day legacy revision preserves prior metadata byte-for-byte', () => {
   const next = evaluate([manual()]).snapshot, rows = [{ ts: now - 1000, val: 123, cost: 100, unknown: { preserve: true } }], original = JSON.stringify(rows);
-  const r = policy().appendDaily(rows, next); a.equal(r.ok, false); a.equal(JSON.stringify(rows), original);
+  const r = policy().appendDaily(rows, next); a.equal(r.ok, true); a.equal(r.action, 'revised'); a.equal(JSON.stringify(r.records[0].dailyHistory.entries[0].point), JSON.stringify(rows[0])); a.equal(r.records[0].comparisonHold, true); a.equal(JSON.stringify(rows), original);
 });
 test('snapshot: legacy absent cost remains intact while a later day appends', () => {
   const next = evaluate([manual()]).snapshot, rows = [{ ts: now - 86400000, val: 123 }], original = JSON.stringify(rows);
@@ -115,7 +115,7 @@ function appHarness() {
   const events = []; w.addEventListener = (name, fn) => events.push({ name, fn });
   const docListen = w.document.addEventListener.bind(w.document); w.document.addEventListener = (name, fn, opts) => { if (name !== 'DOMContentLoaded') docListen(name, fn, opts); };
   for (const m of html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)) if (!/\bsrc\s*=/.test(m[1]) && m[2].trim()) w.eval(m[2]);
-  for (const file of ['has/snapshot-policy.js', 'backup/core.js']) w.eval(fs.readFileSync(path.join(ROOT, file), 'utf8'));
+  for (const file of ['has/snapshot-policy.js', 'backup/core.js', 'has/quote-model.js', 'has/benchmark-history-policy.js']) w.eval(fs.readFileSync(path.join(ROOT, file), 'utf8'));
   w.renderAll = no; w.updateHeaderH = no; w.loadRiskData = no; w.fetchMarketIndices = no;
   w.domStocks = []; w.ovStocks = []; w.penStocks = []; w.genStocks = [];
   w.snapshots = { all: [], dom: [], ov: [], pen: [], gen: [] }; w.deposits = { dom: [], ov: [], pen: [], gen: [] }; w.divList = [];
@@ -127,11 +127,11 @@ test('runtime HTML: recordSnap refuses missing quote without modifying stored sn
     a.equal(h.w.snapshots.gen.length, 0); a.deepEqual(h.storage.all(), before);
   } finally { h.close(); }
 });
-test('runtime HTML: manual snapshot records explicit value and preserves same-day point', () => {
+test('runtime HTML: changed explicit value revises the day and preserves the prior point', () => {
   const h = appHarness(); try {
     const ts = Date.now(), s = manual({ priceAsOf: new Date(ts - 1000).toISOString() }); h.w.genStocks = [s];
     h.w.recordSnap('gen'); a.equal(h.w.snapshots.gen.length, 1); a.equal(h.w.snapshots.gen[0].val, 202);
-    const text = JSON.stringify(h.w.snapshots.gen); h.w.genStocks[0].manualPrice.value = 150; h.w.recordSnap('gen'); a.equal(JSON.stringify(h.w.snapshots.gen), text);
+    const text = JSON.stringify(h.w.snapshots.gen[0]); h.w.genStocks[0].manualPrice.value = 150; h.w.recordSnap('gen'); a.equal(h.w.snapshots.gen[0].val, 300); a.equal(JSON.stringify(h.w.snapshots.gen[0].dailyHistory.entries[0].point), text);
   } finally { h.close(); }
 });
 
@@ -156,9 +156,10 @@ test('runtime HTML: prepared restore blocks loads, saves, recording and schedule
 });
 test('runtime HTML: restored benchmark values refresh runtime memory with rendering stubbed', async () => {
   const h = appHarness(); try {
+    const observed = Date.now() - 86400000; // Synthetic prior-day bar, never a future bar.
     h.w.load(); h.w.eval(fs.readFileSync(path.join(ROOT, 'backup/ui.js'), 'utf8'));
-    h.w.benchmarkHistory = { KS200: [{ ts: now, close: 1 }], NDX: [{ ts: now, close: 2 }], SPY: [] };
-    const source = memory(accountSeed()); source.setItem('v5_benchHist', JSON.stringify({ KS200: [{ ts: now, close: 300 }], QQQ: [{ ts: now, close: 400 }], SPY: [] }));
+    h.w.benchmarkHistory = { KS200: [{ ts: observed, close: 1 }], NDX: [{ ts: observed, close: 2 }], SPY: [] };
+    const source = memory(accountSeed()); source.setItem('v5_benchHist', JSON.stringify({ KS200: [{ ts: observed, close: 300 }], QQQ: [{ ts: observed, close: 400 }], SPY: [] }));
     const text = JSON.stringify(valid(source)); await h.w.importData({ target: { value: 'synthetic', files: [{ size: Buffer.byteLength(text), text: async () => text }] } });
     const apply = [...h.w.document.querySelectorAll('#portfolioRestorePreview button')].find(b => b.textContent === '복원 적용'); a.ok(apply); apply.click();
     a.equal(h.w.benchmarkHistory.NDX[0].close, 400); a.equal(h.w.benchmarkHistory.KS200[0].close, 300);

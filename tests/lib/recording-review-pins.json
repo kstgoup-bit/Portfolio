@@ -2,7 +2,7 @@
   "remoteBaseline": "12cd44955f328755ab4713e7c6b39c934cc86dec",
   "baselineHTMLSha256": "d87b43a16880b83ef4448d6852697f2a1ab7fc4a2febe8601c84df0144d11367",
   "reviewedFiles": {
-    "backup/core.js": "5b42724ace95134b4eacef8c4049627968d689024dce5ce138987ec944efa949",
+    "backup/core.js": "d1313ec285deebd674a03f9b48f698227247756a042643f39a643d894e3fb22b",
     "backup/ui.js": "16a4ba51b1c4d09053d09575a27f0031ea22a063f3b3ac8d4dac2501a2a64c90"
   },
   "unchangedFiles": {
@@ -15,5 +15,10 @@
     "has/valuation-engine.js": "77d285aac605f0cebc39a1544af0e291edff91f75ea7429c5cf7cc4e357f186a",
     "has/close-evidence.js": "98f23e85452be3d0851052eb1370cadf1c490a72ea492002a6cfeeef88c9b397",
     "has/kis-comparison.js": "a41166b4e6bf6e5b44cd29a28f34100541fd0fd20020a1db83ee4b18db85aa7f"
-  }
+  },
+  "previousReviewedFiles": {
+    "backup/core.js": "5b42724ace95134b4eacef8c4049627968d689024dce5ce138987ec944efa949",
+    "backup/ui.js": "16a4ba51b1c4d09053d09575a27f0031ea22a063f3b3ac8d4dac2501a2a64c90"
+  },
+  "reviewedRevisionReport": "docs/daily-records/REPORT.md"
 }

@@ -22,12 +22,16 @@ test('new policy keeps network and storage access in the existing application bo
   const html = fs.readFileSync(path.join(root, 'portfolio_v5.html'), 'utf8');
   a.equal(html.split('src="has/snapshot-policy.js"').length - 1, 1);
 });
-test('recording changes add no external URL or new storage key', () => {
+test('recording changes retain the reviewed endpoint inventory and no new storage key', () => {
   const now = fs.readFileSync(path.join(root, 'portfolio_v5.html'), 'utf8');
   const old = require('./lib/has-rename.cjs').beforeRecordingText('portfolio_v5.html');
   const urls = s => (s.match(/https?:\/\/[^\s"'<>)]+/g) || []).sort();
   const keys = s => new Set(s.match(/\b(v5_[A-Za-z0-9_]+|has_[a-z_0-9]+|kst\.[a-z.A-Z0-9_]+)/g) || []);
-  a.deepEqual(urls(now), urls(old));
+  const daily = require('./lib/daily-review-pins.json');
+  const expected = urls(old).slice();
+  for (const removed of daily.removedExternalURLOccurrences) { const i = expected.indexOf(removed); a.ok(i >= 0, removed); expected.splice(i, 1); }
+  expected.push(...daily.addedExternalURLOccurrences);
+  a.deepEqual(urls(now), expected.sort());
   const existing = keys(old); existing.add(require('../backup/core.js').JOURNAL);
   for (const key of keys(now)) a.ok(existing.has(key), key);
 });

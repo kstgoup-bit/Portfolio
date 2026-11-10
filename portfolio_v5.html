@@ -11,6 +11,7 @@
 <script defer src="radar/verification.js"></script>
 <script defer src="radar/core.js"></script>
 <script defer src="radar/ui.js"></script>
+<script defer src="has/snapshot-policy.js"></script>
 <script defer src="backup/core.js"></script>
 <script defer src="backup/ui.js"></script>
 <link rel="stylesheet" href="has/ledger-demo.css">
@@ -23,9 +24,9 @@
 <script defer src="has/ledger-years.js"></script>
 <script defer src="has/ledger-demo.js"></script>
 <script defer src="has/price-trust.js"></script>
-<script defer src="has/snapshot-policy.js"></script>
 <script defer src="has/price-trust-ui.js"></script>
 <script defer src="has/quote-model.js"></script>
+<script defer src="has/benchmark-history-policy.js"></script>
 <script defer src="has/watch-engine.js"></script>
 <script defer src="has/advisor-core.js"></script>
 <script defer src="has/quote-crosscheck.js"></script>
@@ -722,10 +723,11 @@ select { -webkit-user-select: none; user-select: none; touch-action: manipulatio
     <div style="display:flex;justify-content:center;gap:14px;margin-top:4px;flex-wrap:wrap">
       <span style="font-size:10px;color:#546e7a"><span style="display:inline-block;width:14px;height:2px;background:#1565c0;vertical-align:middle;margin-right:3px"></span>평가금액</span>
       <span style="font-size:10px;color:#78909c"><span style="display:inline-block;width:14px;height:2px;background:#90a4ae;vertical-align:middle;margin-right:3px;border-top:2px dashed #90a4ae"></span>매수금</span>
-      <span style="font-size:10px;color:#ef6c00"><span style="display:inline-block;width:14px;height:2px;background:#ef6c00;vertical-align:middle;margin-right:3px;border-top:2px dashed #ef6c00"></span>코스피200 20%+QQQ 80%</span>
+      <span style="font-size:12px;color:#ef6c00"><span style="display:inline-block;width:14px;height:2px;background:#ef6c00;vertical-align:middle;margin-right:3px;border-top:2px dashed #ef6c00"></span>KODEX 200 ETF 20%+QQQ ETF 80%</span>
     </div>
     <button class="record-btn" onclick="recordSnap('all')">📸 오늘 전체 자산 기록</button>
-    <div id="snapshotStatus-all" role="status" style="font-size:11px;line-height:1.6;white-space:pre-line;margin-top:8px;color:#795000"></div>
+    <div id="snapshotStatus-all" role="status" style="font-size:12px;line-height:1.6;white-space:pre-line;margin-top:8px;color:#795000"></div>
+    <div id="snapshotHistory-all" style="font-size:12px;line-height:1.6;overflow-wrap:anywhere"></div>
   </div>
   <div class="card" id="allReturnsCard" style="margin-top:14px">
     <div class="chart-title">📅 전체 자산 변화율(2년부터 연)</div>
@@ -785,14 +787,15 @@ select { -webkit-user-select: none; user-select: none; touch-action: manipulatio
     <div style="display:flex;justify-content:center;gap:14px;margin-top:4px;flex-wrap:wrap">
       <span style="font-size:10px;color:#546e7a"><span style="display:inline-block;width:14px;height:2px;background:#f57f17;vertical-align:middle;margin-right:3px"></span>평가금액</span>
       <span style="font-size:10px;color:#78909c"><span style="display:inline-block;width:14px;height:2px;background:#90a4ae;vertical-align:middle;margin-right:3px;border-top:2px dashed #90a4ae"></span>매수금</span>
-      <span style="font-size:10px;color:#ef6c00"><span style="display:inline-block;width:14px;height:2px;background:#ef6c00;vertical-align:middle;margin-right:3px;border-top:2px dashed #ef6c00"></span>코스피200</span>
+      <span style="font-size:12px;color:#ef6c00"><span style="display:inline-block;width:14px;height:2px;background:#ef6c00;vertical-align:middle;margin-right:3px;border-top:2px dashed #ef6c00"></span>KODEX 200 ETF (069500)</span>
     </div>
     <div style="display:flex;gap:8px">
       <button class="record-btn" style="background:#fff;border:1px solid var(--yellow-border);color:var(--yellow-accent);flex:1" onclick="addDeposit('dom')">💰 입금 기록</button>
       <button class="record-btn" style="background:var(--yellow-card);border-color:var(--yellow-border);color:var(--yellow-accent);flex:1" onclick="manageDeposits('dom')">📝 입금내역</button>
       <button class="record-btn" style="background:var(--yellow-card);border-color:var(--yellow-border);color:var(--yellow-accent);flex:1" onclick="recordSnap('dom')">📸 자산 기록</button>
     </div>
-    <div id="snapshotStatus-dom" role="status" style="font-size:11px;line-height:1.6;white-space:pre-line;margin-top:8px;color:#795000"></div>
+    <div id="snapshotStatus-dom" role="status" style="font-size:12px;line-height:1.6;white-space:pre-line;margin-top:8px;color:#795000"></div>
+    <div id="snapshotHistory-dom" style="font-size:12px;line-height:1.6;overflow-wrap:anywhere"></div>
   </div>
   <div class="card" id="domReturnsCard" style="margin-top:14px">
     <div class="chart-title" style="color:var(--yellow-accent)">📅 ISA 자산 변화율(2년부터 연)</div>
@@ -851,14 +854,15 @@ select { -webkit-user-select: none; user-select: none; touch-action: manipulatio
     <div style="display:flex;justify-content:center;gap:14px;margin-top:4px;flex-wrap:wrap">
       <span style="font-size:10px;color:#546e7a"><span style="display:inline-block;width:14px;height:2px;background:#00897b;vertical-align:middle;margin-right:3px"></span>평가금액</span>
       <span style="font-size:10px;color:#78909c"><span style="display:inline-block;width:14px;height:2px;background:#90a4ae;vertical-align:middle;margin-right:3px;border-top:2px dashed #90a4ae"></span>매수금</span>
-      <span style="font-size:10px;color:#ef6c00"><span style="display:inline-block;width:14px;height:2px;background:#ef6c00;vertical-align:middle;margin-right:3px;border-top:2px dashed #ef6c00"></span>코스피200</span>
+      <span style="font-size:12px;color:#ef6c00"><span style="display:inline-block;width:14px;height:2px;background:#ef6c00;vertical-align:middle;margin-right:3px;border-top:2px dashed #ef6c00"></span>KODEX 200 ETF (069500)</span>
     </div>
     <div style="display:flex;gap:8px">
       <button class="record-btn" style="background:#fff;border:1px solid #00897b;color:#00897b;flex:1" onclick="addDeposit('gen')">💰 입금 기록</button>
       <button class="record-btn" style="background:#b2dfdb;border-color:#00897b;color:#00695c;flex:1" onclick="manageDeposits('gen')">📝 입금내역</button>
       <button class="record-btn" style="background:#b2dfdb;border-color:#00897b;color:#00695c;flex:1" onclick="recordSnap('gen')">📸 자산 기록</button>
     </div>
-    <div id="snapshotStatus-gen" role="status" style="font-size:11px;line-height:1.6;white-space:pre-line;margin-top:8px;color:#795000"></div>
+    <div id="snapshotStatus-gen" role="status" style="font-size:12px;line-height:1.6;white-space:pre-line;margin-top:8px;color:#795000"></div>
+    <div id="snapshotHistory-gen" style="font-size:12px;line-height:1.6;overflow-wrap:anywhere"></div>
   </div>
   <div class="card" id="genReturnsCard" style="margin-top:14px">
     <div class="chart-title" style="color:#00897b">📅 일반 자산 변화율(2년부터 연)</div>
@@ -933,15 +937,16 @@ select { -webkit-user-select: none; user-select: none; touch-action: manipulatio
     <div style="display:flex;justify-content:center;gap:14px;margin-top:4px;flex-wrap:wrap">
       <span style="font-size:10px;color:#546e7a"><span style="display:inline-block;width:14px;height:2px;background:#1565c0;vertical-align:middle;margin-right:3px"></span>평가금액</span>
       <span style="font-size:10px;color:#78909c"><span style="display:inline-block;width:14px;height:2px;background:#90a4ae;vertical-align:middle;margin-right:3px;border-top:2px dashed #90a4ae"></span>매수금</span>
-      <span style="font-size:10px;color:#ef6c00"><span style="display:inline-block;width:14px;height:2px;background:#ef6c00;vertical-align:middle;margin-right:3px;border-top:2px dashed #ef6c00"></span>QQQ</span>
-      <span style="font-size:10px;color:#2e7d32"><span style="display:inline-block;width:14px;height:2px;background:#2e7d32;vertical-align:middle;margin-right:3px;border-top:2px dashed #2e7d32"></span>S&P500</span>
+      <span style="font-size:12px;color:#ef6c00"><span style="display:inline-block;width:14px;height:2px;background:#ef6c00;vertical-align:middle;margin-right:3px;border-top:2px dashed #ef6c00"></span>QQQ ETF</span>
+      <span style="font-size:12px;color:#2e7d32"><span style="display:inline-block;width:14px;height:2px;background:#2e7d32;vertical-align:middle;margin-right:3px;border-top:2px dashed #2e7d32"></span>SPY ETF (S&P500 대용)</span>
     </div>
     <div style="display:flex;gap:8px">
       <button class="record-btn" style="background:#fff;border:1px solid #90caf9;color:var(--blue);flex:1" onclick="addDeposit('ov')">💰 입금 기록</button>
       <button class="record-btn" style="background:var(--blue-light);border:1px solid #90caf9;color:var(--blue);flex:1" onclick="manageDeposits('ov')">📝 입금내역</button>
       <button class="record-btn" style="flex:1" onclick="recordSnap('ov')">📸 자산 기록</button>
     </div>
-    <div id="snapshotStatus-ov" role="status" style="font-size:11px;line-height:1.6;white-space:pre-line;margin-top:8px;color:#795000"></div>
+    <div id="snapshotStatus-ov" role="status" style="font-size:12px;line-height:1.6;white-space:pre-line;margin-top:8px;color:#795000"></div>
+    <div id="snapshotHistory-ov" style="font-size:12px;line-height:1.6;overflow-wrap:anywhere"></div>
   </div>
   <div class="card" id="ovReturnsCard" style="margin-top:14px">
     <div class="chart-title">📅 해외 자산 변화율(2년부터 연)</div>
@@ -1000,14 +1005,15 @@ select { -webkit-user-select: none; user-select: none; touch-action: manipulatio
     <div style="display:flex;justify-content:center;gap:14px;margin-top:4px;flex-wrap:wrap">
       <span style="font-size:10px;color:#546e7a"><span style="display:inline-block;width:14px;height:2px;background:#6a1b9a;vertical-align:middle;margin-right:3px"></span>평가금액</span>
       <span style="font-size:10px;color:#78909c"><span style="display:inline-block;width:14px;height:2px;background:#90a4ae;vertical-align:middle;margin-right:3px;border-top:2px dashed #90a4ae"></span>매수금</span>
-      <span style="font-size:10px;color:#ef6c00"><span style="display:inline-block;width:14px;height:2px;background:#ef6c00;vertical-align:middle;margin-right:3px;border-top:2px dashed #ef6c00"></span>QQQ</span>
+      <span style="font-size:12px;color:#ef6c00"><span style="display:inline-block;width:14px;height:2px;background:#ef6c00;vertical-align:middle;margin-right:3px;border-top:2px dashed #ef6c00"></span>QQQ ETF</span>
     </div>
     <div style="display:flex;gap:8px">
       <button class="record-btn" style="background:#fff;border:1px solid #ce93d8;color:var(--purple);flex:1" onclick="addDeposit('pen')">💰 입금 기록</button>
       <button class="record-btn" style="background:var(--purple-light);border-color:#ce93d8;color:var(--purple);flex:1" onclick="manageDeposits('pen')">📝 입금내역</button>
       <button class="record-btn" style="background:var(--purple-light);border-color:#ce93d8;color:var(--purple);flex:1" onclick="recordSnap('pen')">📸 자산 기록</button>
     </div>
-    <div id="snapshotStatus-pen" role="status" style="font-size:11px;line-height:1.6;white-space:pre-line;margin-top:8px;color:#795000"></div>
+    <div id="snapshotStatus-pen" role="status" style="font-size:12px;line-height:1.6;white-space:pre-line;margin-top:8px;color:#795000"></div>
+    <div id="snapshotHistory-pen" style="font-size:12px;line-height:1.6;overflow-wrap:anywhere"></div>
   </div>
   <div class="card" id="penReturnsCard" style="margin-top:14px">
     <div class="chart-title" style="color:var(--purple)">📅 연금 자산 변화율(2년부터 연)</div>
@@ -2380,12 +2386,15 @@ var domStocks=[], ovStocks=[], penStocks=[], genStocks=[], divList=[], gasUrl=""
 var backupStateLoaded=false;
 var deposits={dom:[],ov:[],pen:[],gen:[]};
 var benchmarkHistory={KS200:[],NDX:[],SPY:[]};
+// Receipt/source evidence is deliberately session-only; the legacy backup schema is unchanged.
+var _benchReceipts={};
 function loadBenchmarkCacheSync() {
+  _benchReceipts={};
   try {
+    if (!window.HASBenchmarkHistory) return;
     var cached=JSON.parse(localStorage.getItem("v5_benchHist")||"null");
-    if (cached && cached.KS200 && cached.QQQ) {
-      benchmarkHistory={KS200:cached.KS200||[], NDX:cached.QQQ||[], SPY:cached.SPY||[]};
-    }
+    var checked=HASBenchmarkHistory.readCache(cached,Date.now());
+    if (checked.ok) benchmarkHistory={KS200:checked.series.KS200.points, NDX:checked.series.QQQ.points, SPY:checked.series.SPY.points};
   } catch(e){}
 }
 var balGoals={all:80, dom:80, ov:80, pen:80, gen:80};
@@ -2663,269 +2672,91 @@ function invalidateBackupRuntime() {
 }
 function fetchBenchmarkHistory(force) {
   if(snapshotWriteBlocked()) return;
-  // 이미 진행 중이면 중복 실행 방지. 단, 수동 새로고침(force)은 20초 넘게 걸리는 실행이 있으면
-  // 멈춘 것으로 보고 새로 시작한다 (예전엔 응답 없는 프록시 하나 때문에 잠금이 영원히 안 풀렸음)
-  if (_benchFetchInFlight) {
-    if (!force || (Date.now()-_benchFetchStartedAt) < 20000) { if (force) setBenchStatus("이미 새로고침 중입니다. 잠시만 기다려 주세요."); return; }
+  if (!window.HASBenchmarkHistory) { setBenchStatus("이력 검사 모듈을 불러오지 못했습니다. 기존 데이터 유지"); return; }
+  if (_benchFetchInFlight && (!force || Date.now()-_benchFetchStartedAt<20000)) {
+    if(force) setBenchStatus("이미 새로고침 중입니다. 잠시만 기다려 주세요.");
+    return;
   }
   var myRun=++_benchRunId;
   function activeBenchRun(){return _benchRunId===myRun && !snapshotWriteBlocked();}
-  _benchFetchStartedAt=Date.now();
-  var releaseLock=function(){ if (_benchRunId===myRun) _benchFetchInFlight=false; };
-  var cached=null;
-  try { cached=JSON.parse(localStorage.getItem("v5_benchHist")||"null"); } catch(e){}
-  var today=new Date().toDateString();
-  var hasValidCache = cached && cached.KS200 && cached.KS200.length>0 && cached.QQQ && cached.QQQ.length>0;
-  var hasValidSPY = cached && cached.SPY && cached.SPY.length>0;
-  // 캐시된 데이터의 실제 최신 시점이 너무 오래되지 않았는지 확인 (프록시가 계속 실패해도
-  // fetchedAt만 오늘로 찍히고 실제 데이터는 며칠 전 값에 멈춰있을 수 있어, 그 경우 강제 재시도)
-  // 세 지수 중 "가장 최근에 갱신된 것"이 아니라 "가장 오래 정체된 것" 기준으로 판단해야
-  // SPY 하나만 계속 실패해도 놓치지 않고 잡아낼 수 있다 (Math.max가 아니라 Math.min)
-  var latestDataTs = (hasValidCache && hasValidSPY)
-    ? Math.min(cached.KS200[cached.KS200.length-1].ts, cached.QQQ[cached.QQQ.length-1].ts, cached.SPY[cached.SPY.length-1].ts)
-    : 0;
-  var isStale = !latestDataTs || !hasValidSPY || (Date.now()-latestDataTs) > 4*86400000; // 주말/공휴일 감안 4일
-  if (hasValidCache && cached.fetchedAt===today && !force && !isStale) {
-    benchmarkHistory={KS200:cached.KS200||[], NDX:cached.QQQ||[], SPY:cached.SPY||[]};
-    renderAllReturnsTables();
-    refreshAllLineCharts();
-    return;
-  }
-  _benchFetchInFlight=true;
-  setBenchStatus("지수 새로고침 중… (최대 2~3분 걸릴 수 있습니다)");
-  setTimeout(function(){
-    if (_benchRunId===myRun && _benchFetchInFlight) { _benchFetchInFlight=false; setBenchStatus("⚠️ 시간 초과 — 지수 서버 응답이 없습니다. 잠시 후 다시 눌러주세요."); }
-  }, 240000);
-  var syms=[{sym:"QQQ",id:"QQQ"},{sym:"SPY",id:"SPY"},{sym:"069500.KS",id:"KS200"}];
-  var results={fetchedAt:today, fetchedAtISO:(cached&&cached.fetchedAtISO)||null, KS200:(cached&&cached.KS200)||[], QQQ:(cached&&cached.QQQ)||[], SPY:(cached&&cached.SPY)||[]};
-  var freshCount=0;
-
+  _benchFetchStartedAt=Date.now(); _benchFetchInFlight=true;
+  var releaseLock=function(){if(_benchRunId===myRun)_benchFetchInFlight=false;};
+  var timeout=setTimeout(function(){
+    if(activeBenchRun()&&_benchFetchInFlight){_benchRunId++;_benchFetchInFlight=false;setBenchStatus("응답 시간 초과 · 기존 이력 유지 · 최신성 미확인");}
+  },240000);
+  var candidates={},outcomes={},syms=[{sym:"QQQ",id:"QQQ"},{sym:"SPY",id:"SPY"},{sym:"069500.KS",id:"KS200"}];
+  // Existing Yahoo transport only. No GAS history route is enabled here.
+  // Alpha Vantage date-only bars cannot fit {ts,close} without invented timestamps;
+  // the local candidate no longer reads its key or spends its history quota.
   var PROXIES=[
-    function(u){ return "https://api.allorigins.win/raw?url="+encodeURIComponent(u); },
-    function(u){ return "https://corsproxy.io/?url="+encodeURIComponent(u); },
-    function(u){ return "https://api.codetabs.com/v1/proxy?quest="+encodeURIComponent(u); },
-    function(u){ return "https://api.allorigins.win/get?url="+encodeURIComponent(u); },
-    function(u){ return "https://corsproxy.org/?"+encodeURIComponent(u); }
+    function(u){return u;},
+    function(u){return "https://api.allorigins.win/raw?url="+encodeURIComponent(u);},
+    function(u){return "https://corsproxy.io/?url="+encodeURIComponent(u);},
+    function(u){return "https://api.codetabs.com/v1/proxy?quest="+encodeURIComponent(u);},
+    function(u){return "https://api.allorigins.win/get?url="+encodeURIComponent(u);},
+    function(u){return "https://corsproxy.org/?"+encodeURIComponent(u);}
   ];
-  // 매 실행마다 순서를 섞어서, 특정 프록시(예: 자체 캐싱하는 프록시) 하나에
-  // 계속 걸려 오래된 응답만 받는 상황을 줄인다
-  for (var _i=PROXIES.length-1; _i>0; _i--) {
-    var _j=Math.floor(Math.random()*(_i+1));
-    var _tmp=PROXIES[_i]; PROXIES[_i]=PROXIES[_j]; PROXIES[_j]=_tmp;
+  function fetchOne(s,index,cb){
+    if(!activeBenchRun())return;
+    if(index>=PROXIES.length){outcomes[s.id]="응답 검증 실패/조회 실패";cb();return;}
+    var settled=false,ctrl=null,timer=null;
+    var next=function(){if(settled||!activeBenchRun())return;settled=true;clearTimeout(timer);fetchOne(s,index+1,cb);};
+    try{if(window.AbortController)ctrl=new AbortController();}catch(e){}
+    timer=setTimeout(function(){try{if(ctrl)ctrl.abort();}catch(e){}next();},5000);
+    setBenchStatus(s.sym+" ETF 이력 확인 중 · 최신성·종가 확정 여부 미확인");
+    var url="https://query1.finance.yahoo.com/v8/finance/chart/"+encodeURIComponent(s.sym)+"?interval=1d&range=5y&_cb="+Date.now();
+    var opts={cache:"no-store"};if(ctrl)opts.signal=ctrl.signal;
+    try {
+      fetch(PROXIES[index](url),opts).then(function(r){if(!r.ok)throw new Error("http");return r.json();}).then(function(data){
+        if(settled||!activeBenchRun())return;
+        if(data&&typeof data.contents==="string"){try{data=JSON.parse(data.contents);}catch(e){next();return;}}
+        var parsed=HASBenchmarkHistory.parseYahoo(data,s.id,new Date().toISOString());
+        if(!parsed.ok){next();return;}
+        settled=true;clearTimeout(timer);candidates[s.id]=parsed;cb();
+      }).catch(function(){next();});
+    } catch(e){next();}
   }
-  PROXIES.unshift(function(u){ return u; }); // 프록시 없이 직접 호출 (브라우저가 허용하면 가장 빠름, 막히면 즉시 다음으로)
-
-  // 무료 프록시가 전부 막혔을 때를 대비한 경로: 설정에 저장된 Alpha Vantage 키로 최근 100거래일 종가를 받아
-  // 기존 5년 기록에 날짜 기준으로 이어 붙인다 (미국 지수 QQQ/SPY 전용, 호출 2회/일 사용)
-  var avNote="", avLastCall=0;
-  function fetchAV(s, cb) {
-    if(!activeBenchRun()) return;
-    var key=""; try { key=getAlphaVantageKey(); } catch(e){}
-    if (!key) { avNote="Alpha Vantage 키가 설정에 없습니다"; cb(false); return; }
-    setBenchStatus("지수 새로고침 중… "+s.id+" (Alpha Vantage)");
-    var settled=false, timer=null, ctrl=null;
-    var done=function(ok){ if (settled || !activeBenchRun()) return; settled=true; clearTimeout(timer); cb(ok); };
-    try { if (window.AbortController) ctrl=new AbortController(); } catch(e){ ctrl=null; }
-    timer=setTimeout(function(){ try{ if(ctrl) ctrl.abort(); }catch(e){} avNote="응답 시간 초과"; done(false); }, 12000);
-    var opts={cache:"no-store"}; if (ctrl) opts.signal=ctrl.signal;
-    fetch("https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol="+encodeURIComponent(s.sym)+"&outputsize=compact&apikey="+encodeURIComponent(key), opts)
-      .then(function(r){ if(!r.ok) throw new Error("http "+r.status); return r.json(); })
-      .then(function(data){
-        if (settled || !activeBenchRun()) return;
-        var ser=data&&data["Time Series (Daily)"];
-        if (!ser) { avNote=String((data&&(data.Note||data.Information||data["Error Message"]))||"응답 형식 오류").slice(0,60); done(false); return; }
-        var byDay={};
-        (results[s.id]||[]).forEach(function(pt){ byDay[new Date(pt.ts).toISOString().slice(0,10)]=pt; });
-        var added=0;
-        for (var d in ser) {
-          var c=parseFloat(ser[d]&&ser[d]["4. close"]);
-          var pp=d.split("-");
-          if (c>0 && pp.length===3) { byDay[d]={ts:Date.UTC(+pp[0],+pp[1]-1,+pp[2],14,30), close:c}; added++; }
-        }
-        if (!added) { avNote="데이터 없음"; done(false); return; }
-        results[s.id]=Object.keys(byDay).sort().map(function(k){ return byDay[k]; });
-        freshCount++; freshIds[s.id]=true;
-        done(true);
-      })
-      .catch(function(){ avNote="네트워크 오류"; done(false); });
-  }
-  // 심볼 하나 가져오기: 미국 지수는 Alpha Vantage 먼저, 실패하면 기존 프록시 경로로
-  function fetchSym(s, cb) {
-    if(!activeBenchRun()) return;
-    if (s.id==="QQQ" || s.id==="SPY") {
-      var wait=Math.max(0, 1500-(Date.now()-avLastCall)); // Alpha Vantage 무료 키는 초당 1회 제한
-      setTimeout(function(){
-        if(!activeBenchRun()) return;
-        avLastCall=Date.now();
-        fetchAV(s, function(ok){ if (ok) cb(); else fetchOne(s, 0, cb, 0); });
-      }, wait);
-    } else {
-      fetchOne(s, 0, cb, 1); // 코스피200은 프록시 1회전만 (실패해도 미국 지수 갱신에는 영향 없음)
-    }
-  }
-
-  function fetchOne(s, proxyIdx, cb, round) {
-    if(!activeBenchRun()) return;
-    round = round || 0;
-    if (proxyIdx>=PROXIES.length) {
-      if (round<1) { fetchOne(s, 0, cb, round+1); return; } // 프록시 목록 한 바퀴 더 자동 재시도 (2차는 야후 보조 서버)
-      cb(); return;
-    }
-    var host = (round===0) ? "query1" : "query2";
-    var url="https://"+host+".finance.yahoo.com/v8/finance/chart/"+encodeURIComponent(s.sym)+"?interval=1d&range=5y&_cb="+Date.now();
-    var settled=false, timer=null, ctrl=null;
-    var next=function(){ if (settled || !activeBenchRun()) return; settled=true; clearTimeout(timer); fetchOne(s, proxyIdx+1, cb, round); };
-    try { if (window.AbortController) ctrl=new AbortController(); } catch(e){ ctrl=null; }
-    // 응답이 없는 프록시에 무한정 걸리지 않도록 7초 후 다음 프록시로 넘어감
-    timer=setTimeout(function(){ try{ if(ctrl) ctrl.abort(); }catch(e){} next(); }, 5000);
-    setBenchStatus("지수 새로고침 중… "+s.id+" ("+(round*PROXIES.length+proxyIdx+1)+"/"+(PROXIES.length*2)+")");
-    var opts={cache:"no-store"}; if (ctrl) opts.signal=ctrl.signal;
-    fetch(PROXIES[proxyIdx](url), opts)
-      .then(function(r){ if(!r.ok) throw new Error("http "+r.status); return r.json(); })
-      .then(function(data){
-        if (settled || !activeBenchRun()) return;
-        if (data && typeof data.contents==="string") { try{ data=JSON.parse(data.contents); }catch(e){} } // allorigins /get 래핑 해제
-        var res=data&&data.chart&&data.chart.result&&data.chart.result[0];
-        var hist=[];
-        if(res){
-          var ts=res.timestamp||[];
-          var closes=(res.indicators&&res.indicators.quote&&res.indicators.quote[0]&&res.indicators.quote[0].close)||[];
-          for(var i=0;i<ts.length;i++){
-            if(closes[i]!=null) hist.push({ts:ts[i]*1000, close:closes[i]});
-          }
-        }
-        if(hist.length) { settled=true; clearTimeout(timer); results[s.id]=hist; freshCount++; freshIds[s.id]=true; cb(); }
-        else next();
-      })
-      .catch(function(){ next(); });
-  }
-
-  function latestTsOf(arr){
-    if (!arr || !arr.length) return 0;
-    var m=0; for (var i=0;i<arr.length;i++){ if (arr[i].ts>m) m=arr[i].ts; }
-    return m;
-  }
-  // 이 실행의 결과를 저장하기 직전, 현재 localStorage에 이미 저장돼있는 값과 심볼별로 비교해서
-  // 더 최신인 쪽을 최종적으로 채택 후 저장 (동시에 여러 fetchBenchmarkHistory 실행이 겹칠 때,
-  // 느리게 끝난 쪽이 더 오래된 자기 스냅샷으로 방금 저장된 최신 데이터를 덮어쓰는 것을 방지)
-  function mergeAndSaveBench(r){
-    if(!activeBenchRun()) return;
-    var live=null;
-    try { live=JSON.parse(localStorage.getItem("v5_benchHist")||"null"); } catch(e){}
-    var merged={
-      fetchedAt: r.fetchedAt, fetchedAtISO: r.fetchedAtISO,
-      KS200: r.KS200, QQQ: r.QQQ, SPY: r.SPY
-    };
-    ["KS200","QQQ","SPY"].forEach(function(sym){
-      if (live && live[sym] && latestTsOf(live[sym]) > latestTsOf(merged[sym])) {
-        merged[sym]=live[sym];
-      }
-    });
-    if (live && live.fetchedAtISO && (!merged.fetchedAtISO || new Date(live.fetchedAtISO)>new Date(merged.fetchedAtISO))) {
-      // 병합 결과 세 지수 모두 그 스냅샷 것 그대로라면 그 시각도 함께 채택
-      var allFromLive = ["KS200","QQQ","SPY"].every(function(sym){ return merged[sym]===live[sym]; });
-      if (allFromLive) merged.fetchedAtISO=live.fetchedAtISO;
-    }
-    try{ localStorage.setItem("v5_benchHist", JSON.stringify(merged)); }catch(e){}
-    benchmarkHistory={KS200:merged.KS200, NDX:merged.QQQ, SPY:merged.SPY};
-    return merged;
-  }
-
-  var freshIds={};
-  var benchResultMsg=function(){
-    var failed=[]; ["KS200","QQQ","SPY"].forEach(function(id){ if(!freshIds[id]) failed.push(id); });
-    if (!failed.length) return "✓ 지수 새로고침 완료";
-    var usFail=failed.filter(function(x){ return x!=="KS200"; });
-    if (!usFail.length) return "✓ QQQ·S&P500 갱신 완료 (코스피200만 실패 — 기존 데이터 유지)";
-    return "⚠️ 갱신 실패: "+failed.join(", ")+(avNote?" · "+avNote:"")+" (기존 데이터 유지)";
-  };
-  // 순차 실행 (동시 요청으로 인한 프록시 과부하 방지), 프록시별로 순회 시도
-  fetchSym(syms[0], function(){
-    fetchSym(syms[1], function(){
-      fetchSym(syms[2], function(){
-        if(!activeBenchRun()) return;
-        if (freshIds.QQQ && freshIds.SPY) results.fetchedAtISO=new Date().toISOString();
-        try {
-        mergeAndSaveBench(results);
-        setBenchStatus(benchResultMsg());
-        renderAllReturnsTables();
-        refreshAllLineCharts();
-        } catch(e){ releaseLock(); setBenchStatus("⚠️ 화면 갱신 중 오류: "+(e&&e.message||e)); return; }
-        // SPY는 순서상 세 번째라 프록시 rate limit에 가장 자주 걸림.
-        // 배열 길이가 아니라 "이번 실행에서 실제로 새로 받아왔는지"를 기준으로 재시도 판단
-        // (오래된 캐시가 남아있으면 배열은 항상 비어있지 않아 예전 로직은 재시도가 영영 안 걸렸음)
-        if (!freshIds.SPY) {
-          var spyRetries=0;
-          var retrySpy=function(){
-            spyRetries++;
-            fetchSym({sym:"SPY",id:"SPY"}, function(){
-              if (freshIds.SPY) {
-                if (freshIds.QQQ) results.fetchedAtISO=new Date().toISOString();
-                try { mergeAndSaveBench(results); setBenchStatus(benchResultMsg()); renderAllReturnsTables(); refreshAllLineCharts(); } catch(e){}
-                releaseLock();
-              } else if (spyRetries<3) {
-                setTimeout(retrySpy, 3000*(spyRetries+1));
-              } else {
-                setBenchStatus(benchResultMsg());
-                try { renderAllReturnsTables(); } catch(e){}
-                releaseLock();
-              }
-            });
-          };
-          setTimeout(retrySpy, 3000);
-        } else {
-          releaseLock();
-        }
+  function finish(){
+    if(!activeBenchRun())return;
+    try {
+      // Re-read just before the append: another tab or restore may have newer history.
+      var raw=localStorage.getItem("v5_benchHist"),live=raw===null?{KS200:[],QQQ:[],SPY:[]}:JSON.parse(raw);
+      var checked=HASBenchmarkHistory.readCache(live,Date.now());
+      if(!checked.ok){setBenchStatus("기존 캐시 형식을 확인할 수 없어 저장을 보류했습니다. 원본 유지");return;}
+      var merged=Object.assign({},live),accepted={},changed=[];
+      ["KS200","QQQ","SPY"].forEach(function(id){
+        if(!candidates[id])return;
+        var r=HASBenchmarkHistory.mergeSeries(checked.series[id].points,candidates[id],id,Date.now());
+        if(r.ok&&r.changed){merged[id]=r.points;accepted[id]={source:candidates[id].source+(checked.series[id].points.length?" (새 관측; 이전 이력 출처 미확인)":""),receivedAt:candidates[id].receivedAt,latestDate:r.latestDate,pointCount:r.points.length,lastClose:r.points[r.points.length-1].close,pointsJSON:JSON.stringify(r.points)};changed.push(id);outcomes[id]="새 관측 추가";}
+        else outcomes[id]=r.ok?"새 관측 없음":r.reason==="older-response"?"과거 응답 보류":r.reason==="historical-correction-needs-review"?"기존 가격과 충돌하여 보류":"검사 실패로 보류";
       });
-    });
-  });
+      // No valid addition means no write, including no new fetchedAt/receipt stamp.
+      if(changed.length){
+        localStorage.setItem("v5_benchHist",JSON.stringify(merged));
+        changed.forEach(function(id){_benchReceipts[id]=accepted[id];});
+      }
+      benchmarkHistory={KS200:merged.KS200||[],NDX:merged.QQQ||[],SPY:merged.SPY||[]};
+      setBenchStatus(["KS200","QQQ","SPY"].map(function(id){return (id==="KS200"?"069500":id)+": "+(outcomes[id]||"기존 이력 유지");}).join(" · ")+" · 최신성 미확인");
+      renderAllReturnsTables();refreshAllLineCharts();
+    } catch(e){setBenchStatus("이력 검사/저장 실패 · 기존 저장 이력 유지 · 최신성 미확인");}
+    finally{clearTimeout(timeout);releaseLock();}
+  }
+  fetchOne(syms[0],0,function(){fetchOne(syms[1],0,function(){fetchOne(syms[2],0,finish);});});
 }
 
-function getBenchFetchTimeLabel() {
+function getBenchDescription(key) {
   try {
-    var cached=JSON.parse(localStorage.getItem("v5_benchHist")||"null");
-    if (!cached || !cached.fetchedAtISO) return {text:"미확인", stale:true};
-    var d=new Date(cached.fetchedAtISO);
-    var mm=(d.getMonth()+1);
-    var dd=d.getDate();
-    var hh=String(d.getHours()).padStart(2,"0");
-    var mi=String(d.getMinutes()).padStart(2,"0");
-    var ageHours=(Date.now()-d.getTime())/3600000;
-    return {text:mm+"/"+dd+" "+hh+":"+mi, stale:ageHours>24};
-  } catch(e) { return {text:"미확인", stale:true}; }
+    if(window.HASBenchmarkHistory)return HASBenchmarkHistory.describe(JSON.parse(localStorage.getItem("v5_benchHist")||"null"),key,_benchReceipts,Date.now());
+  } catch(e){}
+  return {latestness:"unconfirmed",rows:[]};
 }
-
+function getBenchFetchTimeLabel(key) {
+  var rows=getBenchDescription(key).rows;
+  return {text:rows.length?rows.map(function(r){return r.symbol+": "+(r.receivedAt?r.receivedAt.replace("T"," ").replace(/\.\d{3}Z$/," UTC"):"미확인 (캐시)");}).join(" · "):"미확인",stale:true};
+}
 function getBenchDataLatestLabel(key) {
-  try {
-    var cached=JSON.parse(localStorage.getItem("v5_benchHist")||"null");
-    if (!cached) return {text:"미확인", stale:true, name:"지수"};
-
-    function latestOf(arr){
-      if (!arr || !arr.length) return 0;
-      var maxTs=0;
-      for (var i=0;i<arr.length;i++){ if (arr[i].ts>maxTs) maxTs=arr[i].ts; }
-      return maxTs;
-    }
-
-    var maxTs, name;
-    if (key==="dom") { maxTs=latestOf(cached.KS200); name="KODEX200"; }
-    else if (key==="ov" || key==="pen") {
-      var qqqTs2=latestOf(cached.QQQ), spyTs2=latestOf(cached.SPY);
-      maxTs = Math.min(qqqTs2||0, spyTs2||0) || Math.max(qqqTs2, spyTs2);
-      name="QQQ·S&P500";
-    }
-    else { // all: 두 지수 중 더 오래된(느린) 쪽 기준으로 표시
-      var ksTs=latestOf(cached.KS200), qqqTs=latestOf(cached.QQQ);
-      maxTs = Math.min(ksTs||0, qqqTs||0) || Math.max(ksTs, qqqTs);
-      name="KODEX200·QQQ";
-    }
-    if (!maxTs) return {text:"미확인", stale:true, name:name};
-    var d=new Date(maxTs);
-    var mm=(d.getMonth()+1);
-    var dd=d.getDate();
-    var ageDays=(Date.now()-maxTs)/86400000;
-    return {text:mm+"/"+dd, stale:ageDays>3, name:name};
-  } catch(e) { return {text:"미확인", stale:true, name:"지수"}; }
+  var rows=getBenchDescription(key).rows;
+  return {text:rows.length?rows.map(function(r){return r.symbol+" ["+r.currency+"]: "+(r.latestDate||"미확인");}).join(" · "):"미확인",stale:true,name:"ETF 대용치",source:rows.length?rows.map(function(r){return r.symbol+": "+r.source;}).join(" · "):"출처 미확인"};
 }
 
 function findBenchAtOrBefore(hist, targetTs) {
@@ -3151,6 +2982,8 @@ function returnRowHtml(p, key, current, now, mode) {
   var valCell;
   if (!snap || !(snap.val>0) || !(current>0)) {
     valCell='<span style="color:#b0bec5;font-weight:700">-</span>';
+  } else if (snapshotComparisonStatus(key,snap.ts,now,true).hold) {
+    valCell='<span style="color:#795000;font-size:12px">비교 보류</span>';
   } else if (mode==="dietz") {
     var dietz=calcModifiedDietz(key, targetTs, now, snap.val, current);
     if (dietz===null) {
@@ -3208,10 +3041,11 @@ function renderReturnsTable(key, tableId) {
   var el=document.getElementById(tableId);
   if (!el) return;
   var KEY_LABELS={all:"전체",dom:"ISA",ov:"해외",pen:"연금",gen:"일반"};
-  var BENCH_LABELS={all:"코스피200 20% + QQQ(나스닥100) 80%",dom:"코스피200 (KODEX200)",ov:"QQQ(나스닥100)",pen:"QQQ(나스닥100)",gen:"코스피200 (KODEX200)"};
+  var BENCH_LABELS={all:"KODEX 200 ETF 20% + QQQ ETF 80%",dom:"KODEX 200 ETF (069500, KRW)",ov:"QQQ ETF (USD)",pen:"QQQ ETF (USD)",gen:"KODEX 200 ETF (069500, KRW)"};
   var label=KEY_LABELS[key]||"";
   var benchLabel=BENCH_LABELS[key]||"";
-  var current=getCurrentTotalByKey(key);
+  var currentEvaluation=snapshotEvaluation(key);
+  var current=currentEvaluation.ok?currentEvaluation.snapshot.val:null;
   var now=Date.now();
   el.innerHTML =
     returnsSectionHtml(key, current, now, "raw") +
@@ -3227,15 +3061,17 @@ function renderReturnsTable(key, tableId) {
     '<div style="font-size:12px;color:#333;text-align:center">알파: 순수 수익률 − 기준지수 수익률</div>' +
     '<div style="display:flex;flex-direction:column;align-items:center;gap:4px;margin-top:8px">'+
       (function(){
-        var bt=getBenchFetchTimeLabel();
+        var bt=getBenchFetchTimeLabel(key);
         var dt=getBenchDataLatestLabel(key);
-        var mismatch = dt.stale;
-        var line1='<span style="font-size:12px;color:#333">새로고침 시각: '+bt.text+' · '+dt.name+' 데이터 최신일: '+dt.text+'</span>';
-        var line2 = mismatch ? '<span style="font-size:11px;color:#e65100;font-weight:700">⚠️ 데이터가 오래됐습니다 — 수동 새로고침을 눌러주세요</span>' : '<span style="font-size:11px;color:#2e7d32;font-weight:700">✓ 데이터 최신 확인됨</span>';
-        var line3='<span class="benchStatusMsg" style="font-size:12px;color:#333;font-weight:700">'+(typeof _benchStatusMsg==='string'?_benchStatusMsg:'')+'</span>';
-        return line1+line2+line3;
+        var line1='<span style="font-size:12px;color:#333;text-align:center;overflow-wrap:anywhere">마지막 관측일 (거래소 날짜): '+dt.text+'</span>';
+        var line2='<span style="font-size:12px;color:#795000;font-weight:700;text-align:center">최신성 미확인 · 거래일 달력·종가 확정 근거 없음</span>';
+        var line3='<span style="font-size:12px;color:#333;text-align:center;overflow-wrap:anywhere">보유 이력에 추가된 응답 수신: '+bt.text+'</span>';
+        var line4='<span style="font-size:12px;color:#333;text-align:center;overflow-wrap:anywhere">출처: '+dt.source+' · ETF 대용치 · 수정주가 미검증</span>';
+        var line5='<span style="font-size:12px;color:#333;text-align:center">지수 자체가 아닌 ETF 가격 비교이며 배당·환율·보수 차이가 반영되지 않을 수 있습니다.</span>';
+        var status='<span class="benchStatusMsg" role="status" style="font-size:12px;color:#333;font-weight:700;text-align:center">'+(typeof _benchStatusMsg==='string'?_benchStatusMsg:'')+'</span>';
+        return line1+line2+line3+line4+line5+status;
       })()+
-      '<button onclick="fetchBenchmarkHistory(true)" style="font-size:12px;font-weight:700;color:#00695c;background:#e0f2f1;border:1px solid #80cbc4;border-radius:8px;padding:8px 16px;cursor:pointer;margin-top:2px">↻ 지수 새로고침</button>'+
+      '<button onclick="fetchBenchmarkHistory(true)" style="min-height:44px;min-width:44px;font-size:12px;font-weight:700;color:#00695c;background:#e0f2f1;border:1px solid #80cbc4;border-radius:8px;padding:8px 16px;cursor:pointer;margin-top:2px">↻ ETF 이력 새로고침</button>'+
     '</div>';
 }
 
@@ -4623,6 +4459,7 @@ function refreshAllLineCharts() {
   var map=[
     {btnId:"allPeriodBtns", chartId:"allLineChart", snapKey:"all", color:"#1565c0"},
     {btnId:"domPeriodBtns", chartId:"domLineChart", snapKey:"dom", color:"#f57f17"},
+    {btnId:"genPeriodBtns", chartId:"genLineChart", snapKey:"gen", color:"#00897b"},
     {btnId:"ovPeriodBtns", chartId:"ovLineChart", snapKey:"ov", color:"#1565c0"},
     {btnId:"penPeriodBtns", chartId:"penLineChart", snapKey:"pen", color:"#6a1b9a"}
   ];
@@ -4724,42 +4561,20 @@ function renderLineChart(period, btnId, chartId, snapKey, color) {
     pts=data.filter(function(d){return ((now-d.ts)/86400000)<=days&&d.ts>=validStart;});
   }
   if(pts.length<2) pts=data.filter(function(d){return d.ts>=validStart;}).slice(-2);
-  // 오늘자 지점을 실시간 평가액으로 갱신(있으면 덮어쓰기, 없으면 추가)
-  var liveNow=null;
-  try { liveNow=getCurrentTotalByKey(snapKey); } catch(e){}
-  if (liveNow>0) {
-    var todayStr=new Date().toDateString();
-    var lastPt=pts[pts.length-1];
-    if (lastPt && new Date(lastPt.ts).toDateString()===todayStr) {
-      pts=pts.slice(0,-1).concat([{ts:lastPt.ts, val:liveNow, cost:lastPt.cost}]);
-    } else if (lastPt) {
-      pts=pts.concat([{ts:Date.now(), val:liveNow, cost:lastPt.cost}]);
-    }
+  // Display saved observations only. A display refresh cannot replace a stored
+  // price, create a point, or fill a missing historical cost with today's cost.
+  if(pts.length<2 || pts.some(function(d){return !d || !Number.isFinite(d.ts) || !Number.isFinite(d.val) || d.val<0;})) {
+    svg.innerHTML='<text x="170" y="80" text-anchor="middle" fill="#795000" font-size="12">비교 가능한 저장 기록이 부족합니다</text>';
+    return;
   }
+  var chartComparison=snapshotComparisonStatus(snapKey,pts[0].ts,pts[pts.length-1].ts);
   var vals=pts.map(function(d){return d.val;});
-  // 탭별 현재 매수금 계산
-  var fx=parseFloat(document.getElementById("usdKrw").value)||1370;
-  var curCost=0;
-  if(snapKey==="all"){
-    curCost=domStocks.filter(function(s){return s.quantity>0;}).reduce(function(s,x){return s+x.quantity*x.avgPrice;},0)
-      +ovStocks.filter(function(s){return s.quantity>0;}).reduce(function(s,x){return s+x.quantity*x.avgPrice*fx;},0)
-      +penStocks.filter(function(s){return s.quantity>0;}).reduce(function(s,x){return s+x.quantity*x.avgPrice;},0)
-      +genStocks.filter(function(s){return s.quantity>0;}).reduce(function(s,x){return s+x.quantity*x.avgPrice;},0);
-  } else if(snapKey==="dom"){
-    curCost=domStocks.filter(function(s){return s.quantity>0;}).reduce(function(s,x){return s+x.quantity*x.avgPrice;},0);
-  } else if(snapKey==="ov"){
-    curCost=ovStocks.filter(function(s){return s.quantity>0;}).reduce(function(s,x){return s+x.quantity*x.avgPrice*fx;},0);
-  } else if(snapKey==="pen"){
-    curCost=penStocks.filter(function(s){return s.quantity>0;}).reduce(function(s,x){return s+x.quantity*x.avgPrice;},0);
-  } else if(snapKey==="gen"){
-    curCost=genStocks.filter(function(s){return s.quantity>0;}).reduce(function(s,x){return s+x.quantity*x.avgPrice;},0);
-  }
-  var costs=pts.map(function(d){return d.cost||curCost;});
-  var hasCost=curCost>0;
-  var benchSeries=getBenchmarkSeriesForChart(snapKey, pts);
-  var BENCH_NAMES={all:"코스피200 20%+QQQ 80%",dom:"코스피200",ov:"QQQ",pen:"QQQ"};
+  var hasCost=pts.every(function(d){return typeof d.cost==="number" && Number.isFinite(d.cost) && d.cost>=0;});
+  var costs=hasCost?pts.map(function(d){return d.cost;}):[];
+  var benchSeries=chartComparison.hold?null:getBenchmarkSeriesForChart(snapKey, pts);
+  var BENCH_NAMES={all:"KODEX 200 ETF 20%+QQQ ETF 80%",dom:"KODEX 200 ETF",gen:"KODEX 200 ETF",ov:"QQQ ETF",pen:"QQQ ETF"};
   var benchName=BENCH_NAMES[snapKey]||"기준지수";
-  var spySeries = snapKey==="ov" ? getSP500SeriesForChart(pts) : null;
+  var spySeries = snapKey==="ov" && !chartComparison.hold ? getSP500SeriesForChart(pts) : null;
   var allVals=hasCost?vals.concat(costs):vals;
   if (benchSeries) allVals=allVals.concat(benchSeries.filter(function(v){return v!=null;}));
   if (spySeries) allVals=allVals.concat(spySeries.filter(function(v){return v!=null;}));
@@ -4869,8 +4684,8 @@ function renderLineChart(period, btnId, chartId, snapKey, color) {
     xLabels+
     peakSvg+
     milestoneSvg+
-    '<text x="'+lx.toFixed(1)+'" y="'+(ly+14).toFixed(1)+'" text-anchor="end" font-size="9" fill="#333" font-weight="bold"><tspan fill="'+(chg>=0?"#c62828":"#1565c0")+'">'+(chg>=0?"▲":"▼")+'</tspan> '+fmt(Math.abs(chg))+"원 ("+(chgP>=0?"+":"")+chgP.toFixed(1)+"%)"+
-    '</text>';
+    (chartComparison.hold?'<text x="170" y="166" text-anchor="middle" font-size="12" fill="#795000">기록 범위·근거 확인 전 성과 비교 보류</text>':
+    '<text x="'+lx.toFixed(1)+'" y="'+(ly+14).toFixed(1)+'" text-anchor="end" font-size="12" fill="#333" font-weight="bold">기록 변화 '+fmt(chg)+'원 ('+(chgP>=0?'+':'')+chgP.toFixed(1)+'%)</text>');
 }
 
 // Recording uses the same bounded policy for automatic and button-triggered writes.
@@ -4881,6 +4696,17 @@ function snapshotWriteBlocked() {
     // Before deferred modules arrive, an existing journal cannot be assumed safe.
     return localStorage.getItem("kst.portfolio.restoreJournal")!==null;
   } catch(e) { return true; }
+}
+function snapshotComparisonStatus(key,fromTs,toTs,includeCurrent) {
+  var policy=window.HASSnapshotPolicy;
+  if(!policy || typeof policy.comparisonStatus!=="function") return {hold:true,reasons:["policy-unavailable"]};
+  var candidate;
+  if(includeCurrent) {
+    var evaluated=snapshotEvaluation(key);
+    if(!evaluated.ok) return {hold:true,reasons:["current-incomplete"]};
+    candidate=evaluated.snapshot;
+  }
+  return policy.comparisonStatus(snapshots[key]===undefined?[]:snapshots[key],fromTs,toTs,candidate);
 }
 function snapshotEvaluation(key) {
   if(!window.HASSnapshotPolicy) return {ok:false,missing:[{account:key,ticker:"",reason:"기록 정책을 불러오지 못했습니다. 기록은 변경하지 않습니다"}]};
@@ -4898,8 +4724,9 @@ function renderSnapshotStatuses() {
     var rows=Array.isArray(snapshots[key])?snapshots[key]:[];
     var today=rows.filter(function(r){return r && new Date(r.ts).toDateString()===new Date().toDateString();});
     if(today.length) {
-      lines.push("오늘 기록 보존 중: 다시 눌러도 기존 기록을 덮어쓰지 않습니다.");
+      lines.push("오늘 평가 기록: 달라진 완전한 평가만 갱신하고 이전 버전은 보존합니다.");
       today.forEach(function(r){
+        if(!window.HASSnapshotPolicy || !window.HASSnapshotPolicy.validateRecord(r).ok){lines.push("저장 기록 형식 확인이 필요합니다. 원본은 변경하지 않았습니다.");return;}
         if(Array.isArray(r.manualComponents) && r.manualComponents.length) lines.push("저장 기록에 수동 가격 포함(미확정·판단 보류): "+r.manualComponents.map(function(c){return c.account+" / "+c.ticker+" · 기준 "+c.priceAsOf;}).join(", "));
         else lines.push(r.quality==="unconfirmed"?"저장 기록은 미확정·판단 보류입니다. 수신 시각은 시장 기준시각이 아닙니다.":"기존 기록의 출처·가격 기준시각은 미확인입니다.");
       });
@@ -4907,9 +4734,30 @@ function renderSnapshotStatuses() {
     if(!result.ok) lines.push("기록 대기\n"+snapshotMissingText(result));
     else {
       var manual=result.snapshot.manualComponents;
-      lines.push(manual.length?"수동 가격 포함 "+manual.length+"개 · 미확정·판단 보류. 실제 기준 일시와 보유수량 단위를 직접 확인해주세요.":"기록 가능(미확정·판단 보류). 시세의 공식성·시장 기준시각을 확인한 것은 아닙니다.");
+      var proposed=window.HASSnapshotPolicy.appendDaily(snapshots[key]===undefined?[]:snapshots[key],result.snapshot);
+      if(!proposed.ok) lines.push("저장 보류: "+proposed.reason);
+      else if(proposed.changed===false) lines.push("새 평가 내용이 없어 기존 버전을 보존합니다. 수신시각 변경만으로 새 가격이라 판단하지 않습니다.");
+      else lines.push("평가 기록 저장 가능 · 이전 버전 보존 · 미확정·판단 보류");
+      lines.push(manual.length?"수동 가격 포함 "+manual.length+"개 · 미확정·판단 보류. 실제 기준 일시와 보유수량 단위를 직접 확인해주세요.":"시세의 공식성·시장 기준시각을 확인한 것은 아닙니다.");
     }
+    if(rows.some(function(r){return r && r.comparisonHold===true;})) lines.push("자산 구성·수량·원가 또는 과거 근거가 달라진 구간은 성과 비교를 보류합니다. 자산 제외는 투자손실로 단정하지 않습니다.");
+    lines.push("차트는 저장된 평가 기록만 표시합니다. 현재 화면 값으로 과거 점이나 누락 원가를 만들지 않습니다.");
     el.textContent=lines.join("\n");
+    var historyEl=document.getElementById("snapshotHistory-"+key);
+    if(historyEl) {
+      var versions=[],historyDamaged=false;
+      today.forEach(function(r){
+        if(!window.HASSnapshotPolicy || !window.HASSnapshotPolicy.validateRecord(r).ok){historyDamaged=true;return;}
+        if(r.dailyHistory && Array.isArray(r.dailyHistory.entries)) versions=versions.concat(r.dailyHistory.entries);
+      });
+      if(historyDamaged){historyEl.textContent="변경 이력 형식 확인이 필요합니다. 원본을 그대로 보존했습니다.";return;}
+      var descriptions={"legacy-provenance-unverified":"과거 근거 미확인 상태에서 평가 갱신","valuation-input-change":"평가 입력 변경","price-change":"평가 가격 변경","price-time-change":"실제 가격 기준시각 변경","scope-change":"기록 범위·원가 변경"};
+      historyEl.innerHTML=versions.length?'<details><summary style="min-height:44px;display:list-item;padding:10px 4px;cursor:pointer">오늘 평가 변경 이력 '+versions.length+'개 · 이전 값 포함</summary><ol style="padding-left:24px">'+versions.map(function(v,i){
+        var point=v.point||{}, stamp=point.recordedAt || (Number.isFinite(point.ts)?new Date(point.ts).toISOString():"기록 시각 미확인");
+        var asOf=point.priceAsOf || "가격 기준시각 미확인";
+        return '<li style="margin-bottom:10px">'+snapshotEscape(stamp)+' · 평가액 '+snapshotEscape(point.val)+'원<br>'+snapshotEscape(asOf)+'<br>'+snapshotEscape(i===0?"보존된 첫 버전":descriptions[v.reason]||"평가 변경 · 상세 출처는 백업에 보존")+' · 미확정</li>';
+      }).join('')+'</ol></details>':"";
+    }
   });
 }
 function recordSnap(key) {
@@ -4917,11 +4765,12 @@ function recordSnap(key) {
   if(!result.ok){renderSnapshotStatuses();showToast("⚠ 기록 보류: "+snapshotMissingText(result),true);return;}
   var appended=window.HASSnapshotPolicy.appendDaily(snapshots[key]===undefined?[]:snapshots[key],result.snapshot);
   if(!appended.ok){renderSnapshotStatuses();showToast(appended.reason,true);return;}
+  if(appended.changed===false){renderSnapshotStatuses();showToast("새 평가 내용이 없어 기존 기록을 보존했습니다");return;}
   var next=Object.assign({},snapshots); next[key]=appended.records;
   if(!safeSet("v5_snap",JSON.stringify(next))) return;
   snapshots=next;
   renderAll(); updateHeaderH();
-  showToast("오늘 자산 기록 저장 · "+(result.snapshot.manualComponents.length?"수동 가격 포함 · ":"")+"미확정·판단 보류");
+  showToast((appended.action==="revised"?"오늘 자산 기록 갱신 · 이전 버전 보존 · ":"오늘 자산 기록 저장 · ")+(result.snapshot.manualComponents.length?"수동 가격 포함 · ":"")+"미확정·판단 보류");
 }
 function snapshotEscape(value) {
   return String(value==null?"":value).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});
@@ -4939,7 +4788,7 @@ function renderManualPriceForm(stock,type) {
     '<div id="epf_'+suffix+'"'+(!manual?' hidden':'')+' style="margin-top:8px"><label style="font-size:13px" for="emp_'+suffix+'">보유수량 1단위당 가격 ('+currency+')</label><input id="emp_'+suffix+'" type="number" inputmode="decimal" min="0.00000001" max="1000000000000" step="any" value="'+snapshotEscape(m.value)+'" style="width:100%;min-height:44px;font-size:14px;padding:8px">'+
     '<label style="font-size:13px" for="emas_'+suffix+'">실제 가격 기준 일시(기기 시간대: '+snapshotEscape(timezone)+')</label><input id="emas_'+suffix+'" type="datetime-local" step="0.001" value="'+snapshotEscape(manualLocalInput(m.priceAsOf))+'" style="width:100%;min-height:44px;font-size:14px;padding:8px">'+
     '<label style="font-size:13px" for="emage_'+suffix+'">입력 가격 허용 기간(KST 달력 날짜 기준)</label><select id="emage_'+suffix+'" style="width:100%;min-height:44px;font-size:14px;padding:8px">'+[1,2,3,4].map(function(n){return '<option value="'+n+'"'+(n===(m.maxAgeDays||1)?' selected':'')+'>'+n+'일</option>';}).join('')+'</select>'+
-    '<p style="font-size:11px;margin-top:6px">기준 일시는 자동 입력하지 않습니다. 수량이 g이면 가격도 1g당 금액을 입력하세요. 한국 시간의 날짜 차이가 선택한 일수를 넘으면 기록을 보류합니다. 이 기간은 사용자 입력 허용 기준이며 시장 최신성·공식 시세를 인증하지 않습니다. 수동 값은 매수·매도 판단 근거로 확인된 값이 아닙니다.</p></div></fieldset>';
+    '<p style="font-size:12px;margin-top:6px">기준 일시는 자동 입력하지 않습니다. 수량이 g이면 가격도 1g당 금액을 입력하세요. 한국 시간의 날짜 차이가 선택한 일수를 넘으면 기록을 보류합니다. 이 기간은 사용자 입력 허용 기준이며 시장 최신성·공식 시세를 인증하지 않습니다. 수동 값은 매수·매도 판단 근거로 확인된 값이 아닙니다.</p></div></fieldset>';
 }
 function toggleManualPriceFields(type,id) {
   var mode=document.getElementById("epm_"+type+"_"+id), fields=document.getElementById("epf_"+type+"_"+id);
@@ -7105,14 +6954,14 @@ function acceptSnapshotQuotes(stocks,targets,data,prefix,epoch) {
     s.currentPrice=price; freshPrice[prefix+t.ticker]=true; quoteMeta[prefix+t.ticker]=Date.now(); snapshotQuoteValues[prefix+t.ticker]=price;
   });
 }
-// Never replace any existing daily point, including legacy/unknown-quality records.
+// Same-day updates preserve earlier versions; receipt time never certifies a newer market price.
 function autoSnapshot() {
   if(!window.HASSnapshotPolicy || snapshotWriteBlocked()) return;
   var next=Object.assign({},snapshots), changed=false, wroteAll=false;
   ["all","dom","ov","pen","gen"].forEach(function(key){
     var result=snapshotEvaluation(key); if(!result.ok) return;
     var appended=window.HASSnapshotPolicy.appendDaily(snapshots[key]===undefined?[]:snapshots[key],result.snapshot);
-    if(!appended.ok) return;
+    if(!appended.ok || appended.changed===false) return;
     next[key]=appended.records; changed=true; if(key==="all") wroteAll=true;
   });
   if(changed && safeSet("v5_snap",JSON.stringify(next))) {

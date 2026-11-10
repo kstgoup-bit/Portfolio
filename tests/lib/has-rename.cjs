@@ -26,8 +26,21 @@ const STAGE29 = JSON.parse(fs.readFileSync(path.join(__dirname, 'has-stage29-edi
 /* 2026-11-10: explicitly reviewed recording edits are reversed before historical stage checks. */
 const RECORDING = require('./has-recording-edits.json');
 const RECORDING_PINS = require('./recording-review-pins.json');
-function beforeRecordingText(file) {
+const DAILY = require('./has-daily-edits.json');
+const DAILY_PINS = require('./daily-review-pins.json');
+function beforeDailyText(file) {
   let s = fs.readFileSync(path.join(ROOT, file), 'utf8');
+  if (file === 'portfolio_v5.html') {
+    for (const [now, old] of DAILY.slice().reverse()) {
+      if (s.split(now).length !== 2) throw new Error('당일 기록 변경 역검증 실패');
+      s = s.replace(now, () => old);
+    }
+    if (crypto.createHash('sha256').update(s).digest('hex') !== DAILY_PINS.baselineHTMLSha256) throw new Error('승인된 당일 기록 변경 외 HTML 차이');
+  }
+  return s;
+}
+function beforeRecordingText(file) {
+  let s = beforeDailyText(file);
   if (file === 'portfolio_v5.html') {
     for (let i = RECORDING.length - 1; i >= 0; i--) {
       const [now, old] = RECORDING[i];
@@ -58,4 +71,4 @@ function legacyText(file) {
 }
 const legacySha = file => crypto.createHash('sha256').update(RENAMES[file] ? legacyText(file) : fs.readFileSync(path.join(ROOT, file))).digest('hex');
 const stage18Sha = file => crypto.createHash('sha256').update(stage18Text(file)).digest('hex');
-module.exports = { RENAMES, STAGE19, STAGE25, STAGE26, STAGE28, beforeRecordingText, stage24Text, stage18Text, legacyText, legacySha, stage18Sha };
+module.exports = { RENAMES, STAGE19, STAGE25, STAGE26, STAGE28, beforeDailyText, beforeRecordingText, stage24Text, stage18Text, legacyText, legacySha, stage18Sha };

@@ -1,0 +1,11 @@
+{
+  "remoteBaseline": "8aa15fcd05299ae020745f6395f1a302c1024725",
+  "baselineHTMLSha256": "d5b2991ab28e289a3ad60c0659a148696425dddb221841e560e7ac32509a7c5a",
+  "htmlHunks": 19,
+  "removedExternalURLOccurrences": [
+    "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol="
+  ],
+  "addedExternalURLOccurrences": [
+    "https://query1.finance.yahoo.com/v8/finance/chart/"
+  ]
+}
