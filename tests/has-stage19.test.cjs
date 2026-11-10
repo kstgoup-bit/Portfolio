@@ -47,7 +47,7 @@ test('기록 보완 전 19단계 범위: 새 외부 주소·저장 키·키 사�
 });
 test('보호 파일은 기존 단계와 같고 백업 모듈은 기록 보완 검토 핀과 일치', () => {
   const pins = { 'portfolio.html': '97235e2a02feeec84511d9b4caf4c548e47ba37eb229625438acbc15427bfa2d', 'service-worker.js': '77d553efcfc3eb93f65a1f2901de1cf3b6b61b36febd9605053e66db6724dcd8', 'backup/core.js': require('./lib/recording-review-pins.json').reviewedFiles['backup/core.js'], 'backup/ui.js': require('./lib/recording-review-pins.json').reviewedFiles['backup/ui.js'], 'invest/ledger.js': null };
-  for (const [f, h] of Object.entries(pins)) if (h) a.equal(crypto.createHash('sha256').update(fs.readFileSync(path.join(ROOT, f))).digest('hex'), h, f);
+  for (const [f, h] of Object.entries(pins)) if (h) a.equal(crypto.createHash('sha256').update(require('./lib/daily-repair-projection.cjs').beforeDailyRepairBytes(f)).digest('hex'), h, f);
 });
 // ---- 가격 신뢰도 ----
 const NOW = '2026-10-29T03:00:00Z';

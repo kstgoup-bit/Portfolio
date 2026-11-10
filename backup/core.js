@@ -1,10 +1,10 @@
 /* Local-only portfolio backup. No network or credential capture. Storage is NOT transactional. */
-(function(root,f){if(typeof module==='object'&&module.exports)module.exports=f(require('../has/snapshot-policy.js'));else root.KSTPortfolioBackup=f(root.HASSnapshotPolicy);})(globalThis,function(snapshotPolicy){
+(function(root,f){if(typeof module==='object'&&module.exports)module.exports=f(require('../has/snapshot-policy.js'),require('../has/return-assessment.js'),require('../has/benchmark-history-policy.js'));else root.KSTPortfolioBackup=f(root.HASSnapshotPolicy,root.HASReturnAssessment,root.HASBenchmarkHistory);})(globalThis,function(snapshotPolicy,returnAssessment,benchmarkPolicy){
  'use strict';
- const FORMAT='kst-portfolio-backup',VERSION=6,JOURNAL='kst.portfolio.restoreJournal',MAX_BYTES=20*1024*1024;
+ const FORMAT='kst-portfolio-backup',VERSION=7,JOURNAL='kst.portfolio.restoreJournal',MAX_BYTES=20*1024*1024;
  const LIMITS=Object.freeze({depth:30,nodes:500000,array:50000,keys:50000,string:MAX_BYTES});
  const ACCOUNTS=Object.freeze(['v5_gen','v5_dom','v5_ov','v5_pen']);
- const JSON_KEYS=Object.freeze([...ACCOUNTS,'v5_snap','v5_deposits','v5_div','v5_balGoals','v5_ledger','v5_fxHistory','v5_memos','v5_userThemeMap','v5_investPrinciples','v5_debtBank','v5_debtHouse','v5_nonFinAssets','v5_benchHist','v5_riskData','v5_rkCache']);
+ const JSON_KEYS=Object.freeze([...ACCOUNTS,'v5_snap','v5_deposits','v5_div','v5_balGoals','v5_ledger','v5_fxHistory','v5_memos','v5_userThemeMap','v5_investPrinciples','v5_debtBank','v5_debtHouse','v5_nonFinAssets','v5_benchHist','v5_benchHistV2','v5_riskData','v5_rkCache']);
  const TEXT_KEYS=Object.freeze(['v5_fx','v5_fg','v5_cma_amount','v5_lastAutoSnap','v5_divMonthFilter','v5_divSumMonth','v5_divSumYear','v5_divTickerYear']);
  const calc=k=>/^calc_[qp][123]_(dom|ov|pen|gen)_\d+$/.test(k);
  const allowed=k=>typeof k==='string'&&k.length<=256&&(JSON_KEYS.includes(k)||TEXT_KEYS.includes(k)||calc(k));
@@ -38,7 +38,7 @@
   }else if(v!==null&&!['string','number','boolean'].includes(typeof v))fail('JSON이 아닌 자료 값');
  }
  /* Inspect tokens BEFORE JSON.parse: a reviver cannot detect overwritten duplicate keys.
-    Resource limits also apply to encoded JSON strings inside a v6 envelope. */
+    Resource limits also apply to encoded JSON strings inside a versioned envelope. */
  function parseJSON(text){
   if(typeof text!=='string'||text.length>MAX_BYTES||bytes(text)>MAX_BYTES)fail('백업은 최대 20MiB입니다.');
   let i=0,nodes=0;const ws=()=>{while(i<text.length&&/[\t\n\r ]/.test(text[i]))i++;};
@@ -92,12 +92,46 @@
  }
  function benchmark(v){
   const allowedFields=['KS200','QQQ','SPY','fetchedAt','fetchedAtISO'];if(Object.keys(v).some(k=>!allowedFields.includes(k)))fail('지원하지 않는 지수 기록 필드');
-  for(const sym of ['KS200','QQQ','SPY'])if(own(v,sym)){if(!Array.isArray(v[sym]))fail('지수 기록 배열 형식 오류');let prev=-1;for(const p of v[sym]){if(!object(p)||!timestamp(p.ts)||p.ts<=prev||!finite(p.close)||p.close<=0)fail('지수 기록 가격·시각·중복 또는 정렬 오류');prev=p.ts;}}
+  if(!benchmarkPolicy||typeof benchmarkPolicy.validateSeries!=='function')fail('지수 기록 검증 정책을 불러오지 못했습니다.');
+  for(const sym of ['KS200','QQQ','SPY'])if(own(v,sym)){
+   // Backup retains legacy duplicate-date evidence. Runtime may quarantine it;
+   // backup never deduplicates, relabels, or makes it available for calculations.
+   const checked=benchmarkPolicy.validateSeries(v[sym],sym,8640000000000000,{allowDuplicateDates:true,legacyOnly:true});
+   if(!checked.ok)fail('지수 기록 가격·시각·중복 또는 정렬 오류');
+  }
   if(own(v,'fetchedAt')&&(typeof v.fetchedAt!=='string'||v.fetchedAt.length>100))fail('지수 수신 날짜 형식 오류');
   if(own(v,'fetchedAtISO')&&!nullableInstant(v.fetchedAtISO))fail('지수 수신 시각 형식 오류');
  }
- function validateValue(k,raw){
+ function sidecar(v){
+  if(!benchmarkPolicy||typeof benchmarkPolicy.validateStore!=='function'||!benchmarkPolicy.validateStore(v).ok)fail('지수 관측·충돌 보류 기록 형식 오류');
+ }
+ function boundSidecar(raw,legacyRaw){
+  const v=parseJSON(raw);sidecar(v);
+  const checked=benchmarkPolicy.validateStore(v,legacyRaw);
+  if(checked.ok)return;
+  // Legacy duplicates can be archived and restored read-only, but cannot hide
+  // new overlap, conflict-target errors, or a changed fingerprint.
+  const read=benchmarkPolicy.readStore(v,legacyRaw,8640000000000000);
+  if(!read.ok)fail('지수 보조 기록과 원본 지수 기록의 연결이 다릅니다. 원본은 변경하지 않았습니다.');
+  for(const id of ['KS200','QQQ','SPY'])if(!read.series[id].ok){
+   const old=read.legacy.series[id],group=v.series[id];
+   if(read.series[id].reason!=='cache-date-conflict'||!old.compatible||!old.compatible.ok||group&&(group.observations.length||group.conflicts.length))fail('지수 보조 기록의 통합 그룹 또는 충돌 대상이 유효하지 않습니다.');
+  }
+ }
+ function archiveWarnings(values){
+  const warnings=[];
+  if(!own(values,'v5_benchHist'))warnings.push('지수 기록이 백업에 없습니다. 현재 지수 기록을 유지합니다.');
+  else{
+   const legacy=parseJSON(values.v5_benchHist);
+   for(const id of ['KS200','QQQ','SPY'])if(own(legacy,id)&&benchmarkPolicy.validateSeries(legacy[id],id,8640000000000000,{allowDuplicateDates:true,legacyOnly:true}).readOnly)warnings.push(id+'의 같은 날짜 구버전 지수 관측은 원문 그대로 보존하며 계산에서는 읽기 전용 보류합니다.');
+  }
+  if(!own(values,'v5_benchHistV2'))warnings.push('지수 보조 기록이 백업에 없습니다. 현재 보조 기록을 유지하며 원본 연결이 달라지면 사용을 보류합니다.');
+  else warnings.push('지수 관측과 충돌 보류 자료를 별도로 보존합니다. 복원 전 원본 연결과 누락 그룹을 검증하며 자동 재연결·삭제·변환하지 않습니다.');
+  return warnings;
+ }
+ function validateValue(k,raw,sourceVersion=VERSION){
   if(!allowed(k)||typeof raw!=='string'||raw.length>MAX_BYTES)fail('지원하지 않는 저장 키 또는 값');
+  if(k==='v5_benchHistV2'&&sourceVersion!==VERSION)fail('구버전 백업에는 새 지수 보조 기록을 넣을 수 없습니다.');
   if(!JSON_KEYS.includes(k)){
    safeTree(raw);
    if(['v5_fx','v5_fg','v5_cma_amount','v5_lastAutoSnap'].includes(k)||calc(k)){
@@ -112,9 +146,22 @@
   else if(!object(v))fail('객체 형식 오류: '+k);
   if(k==='v5_snap'||k==='v5_deposits'){
    const groups=k==='v5_snap'?['all','dom','ov','pen','gen']:['dom','ov','pen','gen'];
-   for(const [g,rows] of Object.entries(v)){if(!groups.includes(g)||!Array.isArray(rows))fail('기록 형식 오류: '+k);const seen=new Set();for(const r of rows){if(!object(r)||!timestamp(r.ts)||!(k==='v5_snap'?nonnegative(r.val):finite(r.amount))||(k==='v5_snap'&&seen.has(r.ts)))fail('기록 형식 또는 중복 오류: '+k);seen.add(r.ts);if(k==='v5_snap')provenance(r);}}
+   const typed=[];
+   for(const [g,rows] of Object.entries(v)){
+    if(!groups.includes(g)||!Array.isArray(rows))fail('기록 형식 오류: '+k);const seen=new Set(),groupTyped=[];
+    for(const r of rows){
+     if(!object(r)||!timestamp(r.ts)||!(k==='v5_snap'?nonnegative(r.val):finite(r.amount))||(k==='v5_snap'&&seen.has(r.ts)))fail('기록 형식 또는 중복 오류: '+k);
+     seen.add(r.ts);if(k==='v5_snap')provenance(r);
+     else if(own(r,'activityVersion')){if(sourceVersion!==VERSION)fail('구버전 백업에는 새 활동 분류를 넣을 수 없습니다.');groupTyped.push(r);typed.push(r);}
+    }
+    if(groupTyped.length&&(!returnAssessment||!returnAssessment.validateFlows(groupTyped,g).ok))fail('입출금·내부 매매 활동 형식 또는 중복 오류');
+   }
+   // Only the explicit activityVersion marker opts into v7 semantics. Historical
+   // rows (including inert id/kind metadata and duplicates) are never rewritten.
+   if(typed.length&&!returnAssessment.validateFlows(typed,'all').ok)fail('입출금·내부 매매 활동 ID 또는 중복 오류');
   }
   if(k==='v5_benchHist')benchmark(v);
+  if(k==='v5_benchHistV2')sidecar(v);
   if(k==='v5_balGoals'&&(Object.keys(v).some(g=>!['all','dom','ov','pen','gen'].includes(g))||Object.values(v).some(n=>!finite(n)||n<0||n>100)))fail('목표 비중 형식 오류');
   if(['v5_debtBank','v5_debtHouse','v5_nonFinAssets'].includes(k)&&v.some(r=>!object(r)||typeof r.name!=='string'||!nonnegative(r[k==='v5_debtBank'?'balance':'amount'])))fail('자산·부채 기록 형식 오류');
   if(k==='v5_userThemeMap'&&Object.values(v).some(t=>typeof t!=='string'))fail('분류 설정 형식 오류');
@@ -138,12 +185,12 @@
   if(bytes(JSON.stringify(b))>MAX_BYTES)fail('전체 백업 용량 한도 초과');return b;
  }
  function validateEnvelope(b){
-  if(!object(b)||b.format!==FORMAT||b.schemaVersion!==VERSION||!object(b.storage))fail('지원하지 않는 전체 백업 스키마');
+  if(!object(b)||b.format!==FORMAT||![6,VERSION].includes(b.schemaVersion)||!object(b.storage))fail('지원하지 않는 전체 백업 스키마');
   if(Object.keys(b).some(k=>!['format','schemaVersion','exportedAt','scope','storage'].includes(k)))fail('지원하지 않는 백업 메타데이터');
   if(own(b,'exportedAt')&&!instant(b.exportedAt))fail('백업 생성 시각 형식 오류');
   if(own(b,'scope')&&b.scope!=='portfolio-only-no-secrets-no-radar')fail('지원하지 않는 백업 범위');
   if(!ACCOUNTS.every(k=>own(b.storage,k)))fail('새 백업에 4개 계좌가 모두 필요합니다.');
-  const keys=Object.keys(b.storage);if(keys.length>LIMITS.keys)fail('백업 키 한도 초과');for(const k of keys)validateValue(k,b.storage[k]);return b.storage;
+  const keys=Object.keys(b.storage);if(keys.length>LIMITS.keys)fail('백업 키 한도 초과');for(const k of keys)validateValue(k,b.storage[k],b.schemaVersion);return b.storage;
  }
  const plans=new WeakMap();
  function parsedPlan(values,legacy,warnings,sourceVersion){const plan=freeze({values,legacy,warnings,sourceVersion});plans.set(plan,new WeakMap());return plan;}
@@ -151,7 +198,7 @@
   const b=parseJSON(text);
   if(object(b)&&own(b,'gasUrl')&&['v4','v5',4,5].includes(b.version))delete b.gasUrl; // Never copy legacy endpoint/credentials into the plan or journal.
   safeTree(b);
-  if(b&&b.format===FORMAT){const values=validateEnvelope(b),warnings=['포함된 키만 교체하며 누락된 설정·기록 그룹은 유지합니다.'];if(!own(values,'v5_benchHist'))warnings.push('지수 기록이 백업에 없습니다. 현재 지수 기록을 유지합니다.');return parsedPlan(values,false,warnings,6);}
+  if(b&&b.format===FORMAT){const values=validateEnvelope(b),warnings=['포함된 키만 교체하며 누락된 설정·기록 그룹은 유지합니다.',...archiveWarnings(values)];return parsedPlan(values,false,warnings,b.schemaVersion);}
   if(!object(b)||!['v4','v5',4,5].includes(b.version))fail('알 수 없는 구버전 또는 미래 버전');
   const values={},warnings=['구버전 백업: 없는 계좌·설정·기록 그룹은 현재 값을 유지합니다.','GAS 주소·API 키·잠금정보는 복원하지 않습니다.'];
   const fields={genStocks:'v5_gen',domStocks:'v5_dom',ovStocks:'v5_ov',penStocks:'v5_pen',divList:'v5_div',snapshots:'v5_snap',deposits:'v5_deposits',ledger:'v5_ledger',fxHistory:'v5_fxHistory',memos:'v5_memos',userThemeMap:'v5_userThemeMap',balGoals:'v5_balGoals',benchHist:'v5_benchHist'};
@@ -165,27 +212,50 @@
   if(b.snapshots&&own(b.snapshots,'normal')){if(own(b.snapshots,'all')||own(b.snapshots,'dom'))fail('구버전 기록 그룹이 충돌합니다.');const groups={...b.snapshots,all:b.snapshots.normal};delete groups.normal;values.v5_snap=JSON.stringify(groups);}
   for(const [field,key]of [['usdKrw','v5_fx'],['fg','v5_fg']])if(own(b,field)){if(!finite(b[field]))fail('구버전 숫자 설정 형식 오류');values[key]=String(b[field]);}
   if(own(b,'calcData')){if(!object(b.calcData))fail('계산기 자료 오류');for(const[k,v]of Object.entries(b.calcData)){if(!calc(k)||!['string','number'].includes(typeof v))fail('구버전 계산기 키 또는 값 범위 오류');values[k]=String(v);}}
-  if(!Object.keys(values).length)fail('복원할 지원 자료가 없습니다.');for(const[k,v]of Object.entries(values))validateValue(k,v);
+  if(!Object.keys(values).length)fail('복원할 지원 자료가 없습니다.');for(const[k,v]of Object.entries(values))validateValue(k,v,5);
   if(!own(values,'v5_gen'))warnings.push('일반계좌가 백업에 없습니다. 현재 일반계좌를 유지합니다.');
-  if(!own(values,'v5_benchHist'))warnings.push('지수 기록이 백업에 없습니다. 현재 지수 기록을 유지합니다.');
+  warnings.push(...archiveWarnings(values));
   if(['v4',4].includes(b.version))warnings.push('v4 변환은 미리보기 계획입니다. 적용하지 않으면 아무 자료도 바뀌지 않습니다.');
   return parsedPlan(values,true,warnings,b.version);
  }
  function checkPlan(plan){if(!plans.has(plan))fail('검증된 백업 계획이 아닙니다. 파일을 다시 선택하세요.');}
  function resolved(storage,plan){
-  checkPlan(plan);const values={...plan.values};
+  checkPlan(plan);const values={...plan.values},dependencies={};
+  function currentRaw(k){const raw=storage.getItem(k);dependencies[k]=raw;if(raw!==null)validateValue(k,raw);return raw;}
   for(const k of ['v5_snap','v5_deposits','v5_benchHist','v5_balGoals'])if(own(values,k)){
-   const raw=storage.getItem(k);if(raw!==null)validateValue(k,raw);const current=raw===null?{}:parseJSON(raw),incoming=parseJSON(values[k]);
-   // Omitted groups are unknown, not empty. An explicitly supplied [] still replaces that group.
-   values[k]=JSON.stringify({...current,...incoming});
-  }return values;
+   const raw=currentRaw(k),current=raw===null?{}:parseJSON(raw),incoming=parseJSON(values[k]);
+   // Omitted groups are unknown, not empty. Preserve incoming raw text whenever
+   // it covers every current field, which is essential for exact hash binding.
+   const missing=Object.keys(current).filter(g=>!own(incoming,g));
+   if(missing.length){
+    if(k==='v5_benchHist'&&own(values,'v5_benchHistV2'))fail('누락된 현재 지수 그룹을 합치면 보조 기록의 원본 연결이 바뀝니다. 복원하지 않았습니다.');
+    values[k]=JSON.stringify({...current,...incoming});
+   }
+  }
+  if(own(values,'v5_benchHistV2')){
+   const raw=currentRaw('v5_benchHistV2'),incoming=parseJSON(values.v5_benchHistV2);
+   if(raw!==null){
+    const current=parseJSON(raw),missing=Object.keys(current.series).filter(g=>!own(incoming.series,g));
+    if(missing.length){
+     if(current.legacyFingerprint!==incoming.legacyFingerprint)fail('누락된 지수 보조 그룹의 원본 연결이 달라 합칠 수 없습니다. 복원하지 않았습니다.');
+     values.v5_benchHistV2=JSON.stringify({...incoming,series:{...current.series,...incoming.series}});
+    }
+   }
+   const legacyRaw=own(values,'v5_benchHist')?values.v5_benchHist:currentRaw('v5_benchHist');
+   boundSidecar(values.v5_benchHistV2,legacyRaw);
+  }
+  // Validate the combined result too: omitted groups can carry typed IDs that
+  // collide with an otherwise valid incoming group.
+  for(const[k,v]of Object.entries(values))validateValue(k,v);
+  return {values,dependencies};
  }
  function readCurrent(storage,values){const before={};for(const k of Object.keys(values)){before[k]=storage.getItem(k);if(before[k]!==null)validateValue(k,before[k]);}return before;}
  const same=(storage,values)=>Object.entries(values).every(([k,v])=>storage.getItem(k)===v);
  function preview(storage,plan){
-  const values=resolved(storage,plan),before=readCurrent(storage,values),journal=storage.getItem(JOURNAL);readJournal(storage);
+  const {values,dependencies}=resolved(storage,plan),before=readCurrent(storage,values),journal=storage.getItem(JOURNAL);readJournal(storage);
+  if(!same(storage,dependencies)||!same(storage,before))fail('미리보기 중 자료가 바뀌었습니다. 파일을 다시 선택하세요.');
   const rows=Object.entries(values).map(([key,value])=>({key,before:ACCOUNTS.includes(key)?(before[key]===null?0:parseJSON(before[key]).length):null,after:ACCOUNTS.includes(key)?parseJSON(value).length:null,changed:before[key]!==value}));
-  plans.get(plan).set(storage,{before,journal});return rows;
+  plans.get(plan).set(storage,{before,journal,dependencies});return rows;
  }
  function readJournal(storage){
   const raw=storage.getItem(JOURNAL);if(raw===null)return null;const j=parseJSON(raw);safeTree(j);
@@ -206,18 +276,19 @@
  }
  function apply(storage,plan){
   checkPlan(plan);const pending=readJournal(storage);if(pending&&(pending.status==='prepared'||pending.version!==2&&pending.status!=='undone'))fail('중단된 복원이 있습니다. 자동 복구하지 않습니다. 사본을 내보내고 별도 검토하세요.');
-  const seen=plans.get(plan).get(storage);if(seen&&(!same(storage,seen.before)||storage.getItem(JOURNAL)!==seen.journal))fail('미리보기 이후 자료가 바뀌었습니다. 파일을 다시 선택하세요.');
-  const values=resolved(storage,plan),before=readCurrent(storage,values),oldJournal=storage.getItem(JOURNAL);
+  const seen=plans.get(plan).get(storage);if(seen&&(!same(storage,seen.before)||!same(storage,seen.dependencies)||storage.getItem(JOURNAL)!==seen.journal))fail('미리보기 이후 자료가 바뀌었습니다. 파일을 다시 선택하세요.');
+  const {values,dependencies}=resolved(storage,plan),before=readCurrent(storage,values),oldJournal=storage.getItem(JOURNAL);
+  if(!same(storage,dependencies))fail('자료가 바뀌어 복원하지 않았습니다.');
   if(seen&&(JSON.stringify(seen.before)!==JSON.stringify(before)||seen.journal!==oldJournal))fail('미리보기 이후 자료가 바뀌었습니다. 파일을 다시 선택하세요.');
   for(const[k,v]of Object.entries(values))validateValue(k,v);
   const journal={version:2,status:'prepared',savedAt:new Date().toISOString(),before,after:values};let prepared=JSON.stringify(journal);
   if(bytes(prepared)>MAX_BYTES)fail('복원 전 사본 용량 한도 초과. 자료는 변경하지 않았습니다.');
-  if(!same(storage,before)||storage.getItem(JOURNAL)!==oldJournal)fail('자료가 바뀌어 복원하지 않았습니다.');
+  if(!same(storage,before)||!same(storage,dependencies)||storage.getItem(JOURNAL)!==oldJournal)fail('자료가 바뀌어 복원하지 않았습니다.');
   try{storage.setItem(JOURNAL,prepared);if(storage.getItem(JOURNAL)!==prepared)fail('사본 저장 확인 실패');}catch{fail('복원 전 사본을 저장하지 못했습니다. 자료는 변경하지 않았습니다. 전체 백업을 따로 보관한 뒤 저장 공간을 확인하세요.');}
-  const expected={...before};let ownedJournal=prepared;
+  const expected={...dependencies,...before};let ownedJournal=prepared;
   try{
    for(const[k,v]of Object.entries(values)){if(storage.getItem(JOURNAL)!==prepared||!same(storage,expected))fail('동시 편집 감지');storage.setItem(k,v);expected[k]=v;if(storage.getItem(k)!==v)fail('복원 저장 확인 실패');}
-   if(!same(storage,values)||storage.getItem(JOURNAL)!==prepared)fail('동시 편집 감지');
+   if(!same(storage,expected)||storage.getItem(JOURNAL)!==prepared)fail('동시 편집 감지');
    journal.status='applied';const applied=JSON.stringify(journal);storage.setItem(JOURNAL,applied);ownedJournal=storage.getItem(JOURNAL)===applied?applied:prepared;if(storage.getItem(JOURNAL)!==applied)fail('복원 완료 표시 저장 실패');
   }catch(e){try{rollbackOwned(storage,before,values,ownedJournal);journal.status='undone';storage.setItem(JOURNAL,JSON.stringify(journal));}catch{fail('자동 복구가 끝나지 않았습니다. 다른 편집 또는 저장 실패가 있을 수 있습니다. 앱 사용을 멈추고 복원 전 사본을 내보내세요.');}fail('복원 실패. 변경 전 자료로 복구했습니다.');}
   plans.get(plan).delete(storage);return journal;
@@ -232,5 +303,5 @@
  }
  function isWriteBlocked(storage){try{const j=readJournal(storage);return !!j&&(j.status==='prepared'||j.version!==2&&j.status!=='undone');}catch{return true;}}
  function recover(storage){const j=readJournal(storage);if(j?.status==='prepared')fail('중단된 복원은 자동 복구하지 않습니다. 사본을 내보내고 별도 검토하세요.');return false;}
- return Object.freeze({FORMAT,VERSION,JOURNAL,MAX_BYTES,LIMITS,ACCOUNTS,JSON_KEYS,TEXT_KEYS,allowed,create,parse,preview,apply,undo,recover,readJournal,capture,isWriteBlocked});
+ return Object.freeze({FORMAT,VERSION,JOURNAL,MAX_BYTES,LIMITS,ACCOUNTS,JSON_KEYS,TEXT_KEYS,allowed,validateStoredValue:validateValue,create,parse,preview,apply,undo,recover,readJournal,capture,isWriteBlocked});
 });

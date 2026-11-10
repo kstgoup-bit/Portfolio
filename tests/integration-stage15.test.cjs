@@ -11,8 +11,8 @@ const stock = (id, ticker, name, q, avg, cur) => ({ id, ticker, name, quantity: 
 const mkStore = () => new Store({ v5_gen: JSON.stringify([stock(1, 'AAA', '합성전자', 10, 100, 150)]), v5_dom: JSON.stringify([stock(2, 'BBB', '합성화학', 5, 200, 180)]), v5_ov: JSON.stringify([stock(3, 'USX', '합성미국', 2, 90, 100)]), v5_pen: '[]', v5_userThemeMap: JSON.stringify({ AAA: '반도체' }) });
 
 test('운영 파일은 과거 단계로 되돌려 검증하고 백업은 기록 보완 검토 핀과 일치', () => { for (const [f, h] of Object.entries(PROTECTED)) a.equal(require('./lib/has-rename.cjs').legacySha(f), h, f); });
-test('백업 형식 v6 상수 유지, 새 투자기록 키는 백업 허용 목록에 없음(백업 스키마 무변경)', () => {
-  a.equal(P.FORMAT, 'kst-portfolio-backup'); a.equal(P.VERSION, 6); for (const k of ['kst-trade-log', 'kst-thesis-log', 'kst.trades', 'kst.theses', 'v5_trades', 'v5_theses']) a.equal(P.allowed(k), false, k);
+test('백업 v7 명시적 확장, 분리된 시범 투자기록 키는 허용 목록에 없음', () => {
+  a.equal(P.FORMAT, 'kst-portfolio-backup'); a.equal(P.VERSION, 7); for (const k of ['kst-trade-log', 'kst-thesis-log', 'kst.trades', 'kst.theses', 'v5_trades', 'v5_theses']) a.equal(P.allowed(k), false, k);
 });
 test('백업 생성 → 파싱 → 위험·손익 모듈: 저장소는 읽기만 하고 한 번도 쓰지 않음', () => {
   const store = mkStore(), before = store.snapshot(), env = P.create(store), text = JSON.stringify(env), textBefore = text.slice();

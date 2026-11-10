@@ -29,7 +29,7 @@ const RECORDING_PINS = require('./recording-review-pins.json');
 const DAILY = require('./has-daily-edits.json');
 const DAILY_PINS = require('./daily-review-pins.json');
 function beforeDailyText(file) {
-  let s = fs.readFileSync(path.join(ROOT, file), 'utf8');
+  let s = require('./daily-repair-projection.cjs').beforeDailyRepairText(file);
   if (file === 'portfolio_v5.html') {
     for (const [now, old] of DAILY.slice().reverse()) {
       if (s.split(now).length !== 2) throw new Error('당일 기록 변경 역검증 실패');
@@ -69,6 +69,6 @@ function legacyText(file) {
   for (const [now, old] of RENAMES[file] || []) { if (s.split(now).length !== 2) throw new Error(file + ': 치환 대상이 정확히 1개가 아님: ' + now); s = s.replace(now, () => old); }
   return s;
 }
-const legacySha = file => crypto.createHash('sha256').update(RENAMES[file] ? legacyText(file) : fs.readFileSync(path.join(ROOT, file))).digest('hex');
+const legacySha = file => crypto.createHash('sha256').update(RENAMES[file] ? legacyText(file) : require('./daily-repair-projection.cjs').beforeDailyRepairBytes(file)).digest('hex');
 const stage18Sha = file => crypto.createHash('sha256').update(stage18Text(file)).digest('hex');
 module.exports = { RENAMES, STAGE19, STAGE25, STAGE26, STAGE28, beforeDailyText, beforeRecordingText, stage24Text, stage18Text, legacyText, legacySha, stage18Sha };

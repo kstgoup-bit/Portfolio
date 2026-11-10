@@ -20,7 +20,7 @@ test('시험 자료는 전부 합성 표시이고 백업 검증 형식을 통과
   global.window = {}; require('../has/galaxy-test-data.js'); const D = globalThis.HASGalaxyTestData, B = require('../backup/core.js'); a.ok(D);
   for (const k of ['v5_gen', 'v5_dom', 'v5_ov', 'v5_pen']) for (const s of D.DATA[k]) a.ok(/합성/.test(s.name), s.name);
   const store = new Map(Object.entries(D.DATA).map(([k, v]) => [k, typeof v === 'string' ? v : JSON.stringify(v)])), fake = { getItem: k => store.has(k) ? store.get(k) : null, setItem() {}, removeItem() {}, key: i => [...store.keys()][i] ?? null, get length() { return store.size; } };
-  const b = B.create(fake); a.equal(b.schemaVersion, 6);
+  const b = B.create(fake); a.equal(b.schemaVersion, 7);
 });
 test('시험·리허설 화면 코드: 네트워크·쿠키·세션저장·IndexedDB·eval·innerHTML 없음, 리허설은 localStorage 자체를 쓰지 않음', () => {
   for (const f of ['has/galaxy-test.js', 'has/galaxy-test-guard.js', 'has/galaxy-test-data.js', 'has/restore-rehearsal.js']) { const s = rd(f); for (const w of ['fetch(', 'XMLHttpRequest', 'WebSocket', 'sendBeacon', 'document.cookie', 'sessionStorage', 'indexedDB', 'eval(', 'new Function', 'innerHTML', 'outerHTML', 'insertAdjacentHTML', 'document.write', 'serviceWorker']) a.ok(!s.includes(w), f + ' ' + w); }

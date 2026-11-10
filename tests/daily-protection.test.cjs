@@ -25,26 +25,26 @@ test('six prior new 11px labels are at least 12px; revision disclosure has a 44p
 });
 test('dependency order makes revision validator available before browser backup captures it', () => {
   const scripts = [...html.matchAll(/<script defer src="([^"]+)"/g)].map(m => m[1]);
-  for (const file of ['has/snapshot-policy.js', 'backup/core.js', 'has/quote-model.js', 'has/benchmark-history-policy.js']) a.equal(scripts.filter(x => x === file).length, 1);
+  for (const file of ['has/snapshot-policy.js', 'has/return-assessment.js', 'backup/core.js', 'has/quote-model.js', 'has/benchmark-history-policy.js']) a.equal(scripts.filter(x => x === file).length, 1);
   a.ok(scripts.indexOf('has/snapshot-policy.js') < scripts.indexOf('backup/core.js'));
   a.ok(scripts.indexOf('has/quote-model.js') < scripts.indexOf('has/benchmark-history-policy.js'));
 });
 test('saved chart path has no live-price or historical-cost fabrication', () => {
   const chart = fn('renderLineChart');
   a.doesNotMatch(chart, /getCurrentTotalByKey|liveNow|1370|\.cost\s*\|\|/);
-  a.match(chart, /snapshotComparisonStatus/);
+  a.match(chart, /HASReturnAssessment\.assess/);
   a.match(chart, /chartComparison\.hold\?null:getBenchmarkSeriesForChart/);
-  a.match(fn('returnRowHtml'), /snapshotComparisonStatus\(key,snap\.ts,now,true\)\.hold/);
+  a.match(fn('returnRowHtml'), /HASReturnAssessment/); a.match(fn('returnRowHtml'), /metric\.status==="hold"/);
   a.match(fn('renderReturnsTable'), /currentEvaluation=snapshotEvaluation\(key\)/);
 });
 test('receipt-only repeated snapshots do not write or announce a new saved version', () => {
   a.match(fn('recordSnap'), /appended\.changed===false/);
   a.match(fn('autoSnapshot'), /!appended\.ok \|\| appended\.changed===false/);
 });
-test('GAS history remains synthetic-only and storage key inventory is unchanged', () => {
+test('GAS history remains synthetic-only and storage key inventory adds only the reviewed benchmark sidecar', () => {
   const H = require('../has/benchmark-history-policy.js'); a.equal(H.liveGasEnabled, false);
   a.equal(H.parseGasHistory({}, 'KS200', '2026-11-10T00:00:00Z', { mode: 'live' }).ok, false);
   a.doesNotMatch(html, /[?&]type=history/);
   const keys = s => [...new Set(s.match(/\b(v5_[A-Za-z0-9_]+|has_[a-z_0-9]+|kst\.[a-z.A-Z0-9_]+)/g) || [])].sort();
-  a.deepEqual(keys(html), keys(require('./lib/has-rename.cjs').beforeDailyText('portfolio_v5.html')));
+  a.deepEqual(keys(html), [...keys(require('./lib/has-rename.cjs').beforeDailyText('portfolio_v5.html')), 'v5_benchHistV2'].sort());
 });

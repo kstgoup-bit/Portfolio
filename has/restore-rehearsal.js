@@ -37,7 +37,7 @@
   }
   function run(text) {
     var res = [], add = function (name, okk, detail) { res.push({ name: name, ok: !!okk, detail: detail || '' }); };
-    var plan; try { plan = B.parse(text); add('백업 형식·필수 항목·안전성 검사', true, plan.legacy ? '이전 버전 형식으로 인식' : '현재(v6) 형식으로 인식'); } catch (e) { add('백업 형식·필수 항목·안전성 검사', false, '거절됨: ' + e.message); return { plan: null, res: res }; }
+    var plan; try { plan = B.parse(text); add('백업 형식·필수 항목·안전성 검사', true, plan.legacy ? '이전 버전 형식으로 인식' : 'v' + plan.sourceVersion + ' 형식으로 인식'); } catch (e) { add('백업 형식·필수 항목·안전성 검사', false, '거절됨: ' + e.message); return { plan: null, res: res }; }
     try {
       var s = baseline(), pre = s.dump(); var rows = B.preview(s, plan); add('복원 미리보기(아직 적용 안 함)', s.dump() === pre && rows.length > 0, '변경될 항목 ' + rows.filter(function (r) { return r.changed; }).length + '개 · 미리보기가 저장소를 바꾸지 않음');
       B.apply(s, plan);

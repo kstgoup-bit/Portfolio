@@ -13,7 +13,7 @@ const parse=o=>B.parse(typeof o==='string'?o:JSON.stringify(o));
 const bench=()=>({KS200:[{ts,close:100}],QQQ:[{ts,close:200}],SPY:[{ts,close:300}],fetchedAt:'Tue Nov 10 2026',fetchedAtISO:iso});
 function refused(o){const s=seeded(),before=s.all();a.throws(()=>B.apply(s,parse(o)));a.deepEqual(s.all(),before);}
 
-test('all v6 allowlisted fields, manual provenance and actual QQQ benchmark key round trip without losing metadata',()=>{
+test('v7 exports preserve all legacy allowlisted fields, manual provenance and actual QQQ benchmark metadata',()=>{
  const src=seeded();src.setItem('v5_gen',JSON.stringify([{...stock(),pricingMode:'manual',manualPrice:manual()}]));
  const values={v5_snap:{all:[point()],gen:[point()],dom:[],ov:[],pen:[]},v5_deposits:{gen:[{ts,amount:-10,note:'출금'}]},v5_div:[{date:'2026-11-10',amount:1}],v5_balGoals:{all:80,gen:0},v5_ledger:{'2026-11':{income:[],expense:[],invest:[{name:'합성',amount:-5}]}},v5_fxHistory:[{d:'2026-11-10',v:1400}],v5_memos:[{text:'보존'}],v5_userThemeMap:{SYNTH_GOLD:'금'},v5_investPrinciples:{p1:'기록'},v5_debtBank:[{name:'합성',balance:1}],v5_debtHouse:[{name:'합성',amount:2}],v5_nonFinAssets:[{name:'합성',amount:3}],v5_benchHist:bench(),v5_riskData:{vix:20},v5_rkCache:{vix:20}};
  for(const[k,v]of Object.entries(values))src.setItem(k,JSON.stringify(v));
@@ -21,7 +21,8 @@ test('all v6 allowlisted fields, manual provenance and actual QQQ benchmark key 
  const text=JSON.stringify(B.create(src)),dst=seeded(),plan=parse(text),before=dst.all();B.preview(dst,plan);a.deepEqual(dst.all(),before);B.apply(dst,plan);
  for(const[k,v]of Object.entries(src.all()))a.equal(dst.getItem(k),v,k);
  a.deepEqual(JSON.parse(dst.getItem('v5_snap')).gen[0],point());a.equal(JSON.parse(dst.getItem('v5_benchHist')).QQQ[0].close,200);
- a.equal(B.parse(JSON.stringify(B.create(dst))).sourceVersion,6);
+ a.equal(B.parse(JSON.stringify(B.create(dst))).sourceVersion,7);
+ const legacy=B.create(src);legacy.schemaVersion=6;const legacyPlan=parse(legacy),legacyDst=seeded();a.equal(legacyPlan.sourceVersion,6);B.apply(legacyDst,legacyPlan);for(const[k,v]of Object.entries(src.all()))a.equal(legacyDst.getItem(k),v,k);
 });
 test('v5 omits general account/benchmark: preserves existing bytes; absent group differs from explicit empty group',()=>{
  const s=seeded();s.setItem('v5_benchHist',JSON.stringify(bench()));s.setItem('v5_snap',JSON.stringify({gen:[point()],dom:[{ts:1,val:2}]}));const before=s.all();
@@ -29,7 +30,7 @@ test('v5 omits general account/benchmark: preserves existing bytes; absent group
  const p=parse({version:'v5',genStocks:[],benchHist:{KS200:[]}});B.apply(s,p);a.equal(s.getItem('v5_gen'),'[]');a.deepEqual(JSON.parse(s.getItem('v5_benchHist')),{...bench(),KS200:[]});
 });
 test('v6 missing benchmark and nested snapshot groups do not erase existing data',()=>{
- const s=seeded(),doc=B.create(seeded());s.setItem('v5_benchHist',JSON.stringify(bench()));s.setItem('v5_snap',JSON.stringify({gen:[point()]}));doc.storage.v5_snap=JSON.stringify({dom:[]});B.apply(s,parse(doc));a.deepEqual(JSON.parse(s.getItem('v5_benchHist')),bench());a.deepEqual(JSON.parse(s.getItem('v5_snap')),{gen:[point()],dom:[]});
+ const s=seeded(),doc=B.create(seeded());doc.schemaVersion=6;s.setItem('v5_benchHist',JSON.stringify(bench()));s.setItem('v5_snap',JSON.stringify({gen:[point()]}));doc.storage.v5_snap=JSON.stringify({dom:[]});B.apply(s,parse(doc));a.deepEqual(JSON.parse(s.getItem('v5_benchHist')),bench());a.deepEqual(JSON.parse(s.getItem('v5_snap')),{gen:[point()],dom:[]});
 });
 for(const [name,text]of [
  ['outer duplicate','{"version":"v5","genStocks":[],"genStocks":[]}'],
@@ -41,7 +42,7 @@ for(const [name,text]of [
  ['null supplied account','{"version":"v5","genStocks":null}'],
  ['unknown future metadata','{"version":"v5","genStocks":[],"futureData":{}}']
 ])test(name+' input fails closed without writes',()=>refused(text));
-test('duplicate key inside serialized v6 storage JSON is rejected, not hidden by JSON.parse',()=>{const d=B.create(seeded());d.storage.v5_benchHist='{"QQQ":[],"QQQ":[]}';refused(d);});
+test('duplicate key inside serialized v6 storage JSON is rejected, not hidden by JSON.parse',()=>{const d=B.create(seeded());d.schemaVersion=6;d.storage.v5_benchHist='{"QQQ":[],"QQQ":[]}';refused(d);});
 test('array and total node budgets reject bounded-size hostile JSON',()=>{
  refused({version:'v5',memos:Array.from({length:B.LIMITS.array+1},()=>({text:'x'}))});
  const row={text:'x',extra:Array(11).fill(0)};refused({version:'v5',memos:Array(40000).fill(row)});
@@ -91,7 +92,7 @@ function harness(seed={},runtime=true){
  const body=el('body'),host=el('div'),message=el('div');host.id='portfolioBackupTools';message.id='backupMsg';const fx=el('input');fx.id='usdKrw';fx.value='1400';body.append(host,message,fx);
  const document={body,createElement:el,getElementById:id=>all.find(x=>x.id===id&&x.parent)||null};
  const calls=[],downloads=[];const context={backupStateLoaded:true,document,localStorage:storage,TextEncoder,Blob,URL:{createObjectURL:b=>{downloads.push(b);return 'blob:synthetic';},revokeObjectURL(){}},setTimeout(){},confirm:()=>true,console};context.window=context;
- const ctx=vm.createContext(context);vm.runInContext(core,ctx);vm.runInContext(`var genStocks=[],domStocks=[],ovStocks=[],penStocks=[],divList=[],snapshots={},deposits={},balGoals={},benchmarkHistory={KS200:[{ts:1,close:1}],NDX:[{ts:1,close:1}],SPY:[]};function getRate(){return 1400;}function loadDebtBank(){return [];}function loadDebtHouse(){return [];}function loadNonFinAssets(){return [];}function load(){call('load');}function renderAll(){call('render');}function loadBenchmarkCacheSync(){call('bench');var b=JSON.parse(localStorage.getItem('v5_benchHist')||'null');if(b&&b.KS200&&b.QQQ)benchmarkHistory={KS200:b.KS200,NDX:b.QQQ,SPY:b.SPY||[]};}`,ctx);
+ const ctx=vm.createContext(context);for(const file of ['quote-model','snapshot-policy','return-assessment','benchmark-history-policy'])vm.runInContext(fs.readFileSync(require.resolve('../has/'+file+'.js'),'utf8'),ctx);vm.runInContext(core,ctx);vm.runInContext(`var genStocks=[],domStocks=[],ovStocks=[],penStocks=[],divList=[],snapshots={},deposits={},balGoals={},benchmarkHistory={KS200:[{ts:1,close:1}],NDX:[{ts:1,close:1}],SPY:[]};function getRate(){return 1400;}function loadDebtBank(){return [];}function loadDebtHouse(){return [];}function loadNonFinAssets(){return [];}function load(){call('load');}function renderAll(){call('render');}function loadBenchmarkCacheSync(){call('bench');var b=JSON.parse(localStorage.getItem('v5_benchHist')||'null');if(b&&b.KS200&&b.QQQ)benchmarkHistory={KS200:b.KS200,NDX:b.QQQ,SPY:b.SPY||[]};}`,ctx);
  ctx.call=v=>calls.push(v);if(runtime)ctx.invalidateBackupRuntime=()=>calls.push('invalidate');vm.runInContext(ui,ctx);
  return{ctx,storage,calls,downloads,document,message,all,async select(text){await ctx.importData({target:{files:[{size:Buffer.byteLength(text),text:async()=>text}],value:'x'}});},button(text){return all.find(x=>x.parent&&x.textContent===text);}};
 }

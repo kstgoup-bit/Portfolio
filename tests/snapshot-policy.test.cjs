@@ -122,7 +122,8 @@ test('manual editor has explicit opt-in, no guessed asOf and calendar/timezone w
   assert.match(ui, /KST 달력 날짜/); assert.match(ui, /기기 시간대/); assert.match(ui, /보유수량 1단위당/);
   h.nodes.epm_gen_1 = { value: 'manual' }; h.nodes.emp_gen_1 = { value: '125' }; h.nodes.emas_gen_1 = { value: '' }; h.nodes.emage_gen_1 = { value: '1' };
   assert.equal(h.context.readManualPriceForm('gen', 1).ok, false);
-  h.nodes.emas_gen_1.value = '2026-11-10T10:00:00'; assert.equal(h.context.readManualPriceForm('gen', 1).ok, true);
+  // Fixed past local fixture for UTC/Seoul/New York; 10:00 New York was future at NOW.
+  h.nodes.emas_gen_1.value = '2026-11-10T06:00:00'; assert.equal(h.context.readManualPriceForm('gen', 1).ok, true);
 });
 test('late callbacks cannot target replacement stocks or edit new quantity/manual mode', () => {
   for (const change of ['replace', 'quantity', 'mode', 'epoch', 'journal']) {
@@ -147,7 +148,7 @@ test('HTML contains startup/save/load and benchmark cancellation guards, with sn
   assert.equal((html.match(/src="has\/snapshot-policy.js"/g) || []).length, 1);
   assert.match(fn('load'), /if\(snapshotWriteBlocked\(\)\) return false/);
   assert.match(fn('save'), /if\(snapshotWriteBlocked\(\)\) return false/);
-  assert.match(fn('fetchBenchmarkHistory'), /function activeBenchRun\(\)/);
+  assert.match(fn('fetchBenchmarkHistory'), /function active\(\)\{return _benchRunId===myRun&&!snapshotWriteBlocked\(\);\}/);
   assert.match(fn('invalidateBackupRuntime'), /_benchRunId\+\+/);
   assert.match(html, /Pending or malformed restore state must not trigger migrations/);
 });
@@ -170,7 +171,7 @@ test('retry scheduling and execution both reject invalidated epochs', () => {
 
 test('manual local timestamp accepts normalized milliseconds without rolling over bad dates', () => {
   const h = harness(); h.nodes.epm_gen_1 = { value: 'manual' }; h.nodes.emp_gen_1 = { value: '125' }; h.nodes.emage_gen_1 = { value: '1' }; h.nodes.emas_gen_1 = { value: '' };
-  for (const value of ['2026-11-10T10:00', '2026-11-10T10:00:01.000', '2026-11-10T10:00:01.12', '2026-11-10T10:00:01.123']) { h.nodes.emas_gen_1.value = value; assert.equal(h.context.readManualPriceForm('gen', 1).ok, true, value); }
+  for (const value of ['2026-11-10T06:00', '2026-11-10T06:00:01.000', '2026-11-10T06:00:01.12', '2026-11-10T06:00:01.123']) { h.nodes.emas_gen_1.value = value; assert.equal(h.context.readManualPriceForm('gen', 1).ok, true, value); }
   for (const value of ['2026-02-30T10:00:01.000', '2026-11-10T25:00:01.000', '2026-11-10T10:00:01.1234']) { h.nodes.emas_gen_1.value = value; assert.equal(h.context.readManualPriceForm('gen', 1).ok, false, value); }
 });
 

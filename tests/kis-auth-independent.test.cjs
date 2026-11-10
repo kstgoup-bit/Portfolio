@@ -4,10 +4,8 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const { webcrypto } = require('node:crypto');
-const { execFileSync } = require('node:child_process');
 const path = require('node:path');
 const ROOT = path.resolve(__dirname, '..');
-const BASELINE = 'eba37f0dc231fb94382ee31e45b79260731197b7';
 const NOW = Math.floor(Date.parse('2026-11-10T01:00:00Z') / 1000);
 const PROJECT = 'synthetic-has-project';
 const OWNER = 'synthetic-owner-not-a-person';
@@ -545,8 +543,6 @@ async function signed(payload = claims(), header = { alg: 'RS256', kid: KEY_ID, 
   return wire + '.' + Buffer.from(signature).toString('base64url');
 }
 
-test('independent: original GAS, ledger, backup, application and policy files are byte-preserved', () => {
-  const protectedPaths = ['gas', 'backup', 'has', 'invest', 'sell', 'management', 'radar', 'kr-radar', 'mobile-lab', 'experimental', 'tools', 'portfolio.html', 'portfolio_v5.html', 'service-worker.js', 'manifest.json', 'package-lock.json'];
-  const changed = execFileSync('git', ['diff', '--name-only', BASELINE, '--', ...protectedPaths], { cwd: ROOT, encoding: 'utf8' });
-  assert.equal(changed, '', 'Protected existing source differs from reviewed baseline');
+test('independent: original source is byte-preserved after explicit reviewed daily repair projections without local Git', () => {
+  assert.ok(require('./lib/daily-repair-projection.cjs').assertPortableKisPreservation() > 100);
 });

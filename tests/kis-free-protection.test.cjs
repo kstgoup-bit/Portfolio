@@ -4,7 +4,7 @@ const fs = require('node:fs'), path = require('node:path'), crypto = require('no
 const root = path.join(__dirname, '..'), read = p => fs.readFileSync(path.join(root, p), 'utf8');
 test('KIS candidate leaves GAS, app, backup, ledger and prior analysis boundaries byte-identical', () => {
   const pins = JSON.parse(read('docs/kis-free-auth/protected-baseline.json'));
-  for (const [file, expected] of Object.entries(pins.unchangedFiles)) a.equal(crypto.createHash('sha256').update(fs.readFileSync(path.join(root, file))).digest('hex'), expected, file);
+  for (const [file, expected] of Object.entries(pins.unchangedFiles)) a.equal(crypto.createHash('sha256').update(require('./lib/daily-repair-projection.cjs').beforeDailyRepairBytes(file)).digest('hex'), expected, file);
 });
 test('existing app and service worker never load or cache the isolated KIS candidate', () => {
   for (const file of ['portfolio_v5.html','portfolio.html','service-worker.js','manifest.json']) a.doesNotMatch(read(file), /kis-free-auth|has\.synthetic\.invalid|synthetic-account-pilot-v1/);

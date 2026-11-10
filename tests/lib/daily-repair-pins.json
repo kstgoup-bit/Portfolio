@@ -1,0 +1,41 @@
+{
+  "reviewedSha256": {
+    "portfolio_v5.html": "e9ed6c4367be436323e59a2979a11b89b3b8126bfd919106fa94ce7f4b3ea3cc",
+    "backup/core.js": "123c9b91bcffaf91c8c5c55b47f07b3a32e5f9462fe7d9418aa1f6c21f651854",
+    "backup/ui.js": "55cfd9a5242218942dbd77c2c3716b06cad446b643f6d8865d7c90d926941c4f",
+    "has/benchmark-history-policy.js": "e3581fe48c5d53826364d84b3067b3813e2a45d5ae498bdd28e20893862a9018",
+    "has/restore-rehearsal.html": "635b30e9c1204cb09101b5c763d4baae532ba0cc5e62fbde46ae5c1c7a6bd375",
+    "has/restore-rehearsal.js": "bb92bbfa5b1d5826fa3fbbe7a5bdfb253c60e6ebc5e66724518f0ec9b38aed59"
+  },
+  "removedExternalURLOccurrences": [
+    "https://query1.finance.yahoo.com/v8/finance/chart/"
+  ],
+  "addedExternalURLOccurrences": [
+    "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol="
+  ],
+  "remoteBaseline": "d3f123fc757f4c6ad0a5017de8be894a3ae6e71b",
+  "baselineTree": "6f8978e1181378bfccb2700fee456f1068c403b2",
+  "baselineSha256": {
+    "portfolio_v5.html": "23bacc9e5f3de930b055292898d00ef6c6b162f8e3152cb7d9f383989a0269a5",
+    "backup/core.js": "d1313ec285deebd674a03f9b48f698227247756a042643f39a643d894e3fb22b",
+    "backup/ui.js": "16a4ba51b1c4d09053d09575a27f0031ea22a063f3b3ac8d4dac2501a2a64c90",
+    "has/benchmark-history-policy.js": "6b1d7d5e2c26c619412090592b171d8868f8ec8e06aeb905c143343a72562014",
+    "has/restore-rehearsal.html": "66affc120933a978e1d747e322ca0a129df714a406bcb0e7ae8755ab6f0b72bc",
+    "has/restore-rehearsal.js": "1fce24d223ce42a5514e79a017a7752c3e9c9ad38ceca8ffefd1acd484b9520c"
+  },
+  "addedRuntimeFiles": {
+    "has/return-assessment.js": "67dc8d3b8e56f0d3621c9389a0fec9b3fd017205841d33582e853fab1be3ad6d"
+  },
+  "newStorageKeys": [
+    "v5_benchHistV2"
+  ],
+  "approvedChangedPaths": [
+    "portfolio_v5.html",
+    "backup/core.js",
+    "backup/ui.js",
+    "has/benchmark-history-policy.js",
+    "has/restore-rehearsal.html",
+    "has/restore-rehearsal.js"
+  ],
+  "htmlHunks": 14
+}

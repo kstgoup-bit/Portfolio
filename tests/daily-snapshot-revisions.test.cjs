@@ -123,14 +123,14 @@ test('non-JSON accessors, cycles and resource overflow reject without evaluating
   a.equal(P.appendDaily([], deep).code, 'resource-limit');
   a.equal(P.appendDaily(Array(P.MAX_RECORDS + 1).fill({ ts: 1, val: 1 }), snapshot()).code, 'resource-limit');
 });
-test('v6 preserves complete revision metadata, missing fields and omitted groups through synthetic roundtrip', () => {
+test('v7 preserves complete revision metadata, missing fields and omitted groups through synthetic roundtrip', () => {
   const old = { ts: NOW - 1000, val: 12, note: { preserve: true } }; let rows = revise([old], snapshot()); rows = revise(rows, snapshot({ ts: NOW + 1000, price: 120 }));
   const src = seeded(); src.setItem('v5_snap', JSON.stringify({ gen: rows }));
   const backup = B.create(src), dst = seeded(); dst.setItem('v5_snap', JSON.stringify({ dom: [{ ts: 1, val: 2 }] }));
   const plan = B.parse(JSON.stringify(backup)), before = dst.all(); B.preview(dst, plan); a.deepEqual(dst.all(), before); B.apply(dst, plan);
   a.deepEqual(JSON.parse(dst.getItem('v5_snap')), { dom: [{ ts: 1, val: 2 }], gen: rows });
   a.equal(Object.hasOwn(JSON.parse(dst.getItem('v5_snap')).gen[0].dailyHistory.entries[0].point, 'cost'), false);
-  a.equal(B.parse(JSON.stringify(B.create(dst))).sourceVersion, 6);
+  a.equal(B.parse(JSON.stringify(B.create(dst))).sourceVersion, 7);
 });
 for (const [name, mutate] of [
   ['nested history', p => { p.dailyHistory.entries[0].point.dailyHistory = {}; }],

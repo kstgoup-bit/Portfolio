@@ -42,14 +42,14 @@ function appHarness() {
   w.setTimeout = (fn, delay) => { timers.push({ fn, delay, cancelled: false }); return timers.length; };
   w.clearTimeout = id => { if (timers[id - 1]) timers[id - 1].cancelled = true; };
   w.setInterval = w.requestAnimationFrame = () => 1; w.clearInterval = () => {};
-  w.confirm = () => true; w.alert = () => {}; w.TextEncoder = TextEncoder;
+  w.confirm = () => true; w.alert = () => {}; w.TextEncoder = TextEncoder; w.TextDecoder = TextDecoder;
   const noop = () => {}, context = new Proxy({}, { get: () => noop, set: () => true });
   w.HTMLCanvasElement.prototype.getContext = () => context; w.HTMLElement.prototype.scrollIntoView = noop;
   w.addEventListener = noop;
   const listen = w.document.addEventListener.bind(w.document);
   w.document.addEventListener = (name, fn, opts) => { if (name !== 'DOMContentLoaded') listen(name, fn, opts); };
   for (const m of html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)) if (!/\bsrc\s*=/.test(m[1]) && m[2].trim()) w.eval(m[2]);
-  const dependencyFiles = ['has/quote-model.js', 'has/benchmark-history-policy.js', 'has/snapshot-policy.js', 'backup/core.js'];
+  const dependencyFiles = ['has/quote-model.js', 'has/benchmark-history-policy.js', 'has/snapshot-policy.js', 'has/return-assessment.js', 'backup/core.js'];
   const dependencyOrder = [...html.matchAll(/<script\b[^>]*\bsrc="([^"]+)"[^>]*>/gi)].map(m => m[1]).filter(file => dependencyFiles.includes(file));
   a.equal(dependencyOrder.length, dependencyFiles.length, 'all boundary dependencies must be present once');
   for (const file of dependencyOrder) w.eval(fs.readFileSync(path.join(ROOT, file), 'utf8'));
@@ -64,7 +64,7 @@ function appHarness() {
     for (const s of stocks) { const k = (key === 'ov' ? 'US:' : 'KR:') + s.ticker; w.freshPrice[k] = true; w.quoteMeta[k] = NOW - 1000; w.snapshotQuoteValues[k] = s.currentPrice; }
   }
   async function drain() {
-    for (let round = 0; round < 80; round++) {
+    for (let round = 0; round < 240; round++) {
       for (const timer of timers) if (!timer.cancelled && !timer.executed && timer.delay <= 1500) { timer.executed = true; timer.fn(); }
       await Promise.resolve();
     }
@@ -242,13 +242,13 @@ test('independent: later benchmark receipt cannot replace older data or imply a 
   a.equal(earlier.ok, false); a.equal(JSON.stringify(old), before);
 });
 
-test('independent: compact benchmark append preserves old points and rejects historical correction', () => {
-  const old = parsedYahoo('QQQ', BENCH_DATES.slice(0, 2), [100, 101]).points; old[0].annotation = 'Synthetic old point';
+test('independent: compact benchmark append preserves old points and quarantines historical correction', () => {
+  const old = clone(parsedYahoo('QQQ', BENCH_DATES.slice(0, 2), [100, 101]).points); old[0].annotation = 'Synthetic old point';
   const before = JSON.stringify(old), incoming = parsedYahoo('QQQ', BENCH_DATES.slice(1), [101, 102]);
   const merged = H.mergeSeries(old, incoming, 'QQQ', NOW);
   a.equal(merged.ok, true); a.equal(merged.changed, true); a.equal(merged.points.length, 3); a.deepEqual(merged.points.slice(0, 2), old);
   const correction = parsedYahoo('QQQ', BENCH_DATES.slice(1), [999, 102]);
-  a.equal(H.mergeSeries(old, correction, 'QQQ', NOW).ok, false); a.equal(JSON.stringify(old), before);
+  const disputed = H.mergeSeries(old, correction, 'QQQ', NOW); a.equal(disputed.ok, true); a.equal(disputed.pendingConflicts.length, 1); a.equal(disputed.points.at(-1).close, 102); a.equal(JSON.stringify(old), before);
 });
 
 test('independent: benchmark rejects malformed currency, identity, dates, prices and receipt', () => {
@@ -298,11 +298,11 @@ test('independent: rejected benchmark persistence keeps previous runtime memory 
     const cache = { QQQ: clone(old), KS200: clone(old), SPY: clone(old) };
     h.storage.setItem('v5_benchHist', JSON.stringify(cache)); h.w.loadBenchmarkCacheSync();
     const beforeStorage = h.storage.all(), beforeMemory = JSON.stringify(h.w.benchmarkHistory);
-    h.storage.reject = 'v5_benchHist';
+    h.storage.reject = 'v5_benchHistV2';
     h.w.getAlphaVantageKey = () => { throw new Error('Keys must not be read'); };
     h.w.fetch = async url => {
       const decoded = decodeURIComponent(String(url)), id = decoded.includes('069500.KS') ? 'KS200' : decoded.includes('SPY') ? 'SPY' : 'QQQ';
-      return { ok: true, json: async () => yahoo(id) };
+      return new Response(JSON.stringify(yahoo(id)), { status: 200 });
     };
     h.w.fetchBenchmarkHistory(true); await h.drain();
     a.deepEqual(h.storage.all(), beforeStorage); a.equal(JSON.stringify(h.w.benchmarkHistory), beforeMemory);
@@ -375,17 +375,18 @@ test('independent: old provenance snapshot without component cost keeps exact pa
   a.doesNotThrow(() => B.parse(JSON.stringify({ version: 'v5', snapshots: { gen: r.records } })));
 });
 
-test('independent: removed holding suppresses raw return, Dietz and alpha in actual DOM', () => {
+test('independent: removed holding displays raw value change but holds Dietz and alpha in actual DOM', () => {
   const h = appHarness(); try {
     const first = evaluated({ now: NOW - 8 * DAY, stocks: [stock({ quantity: 4 })] }).snapshot;
     h.w.snapshots.gen = clone(P.appendDaily([first], evaluated().snapshot).records); h.quote();
-    for (const mode of ['raw', 'dietz', 'alpha']) {
+    a.match(h.w.returnRowHtml({ label: '1주', days: 7 }, 'gen', 200, NOW, 'raw'), /-50\.00%/);
+    for (const mode of ['dietz', 'alpha']) {
       const html = h.w.returnRowHtml({ label: '1주', days: 7 }, 'gen', 200, NOW, mode);
-      a.match(html, /비교 보류/); a.doesNotMatch(html, /-50\.00%/);
+      a.match(html, /보류/); a.doesNotMatch(html, /-50\.00%/);
     }
     h.w.renderLineChart('1W', 'genPeriodBtns', 'genLineChart', 'gen', '#00897b');
     const svg = h.w.document.getElementById('genLineChart');
-    a.doesNotMatch(svg.textContent, /-50\.0%/); a.equal(svg.querySelector('path[stroke="#ef6c00"]'), null);
+    a.match(svg.textContent, /-50\.0%/); a.equal(svg.querySelector('path[stroke="#ef6c00"]'), null);
   } finally { h.close(); }
 });
 

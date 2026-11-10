@@ -115,7 +115,7 @@ function appHarness() {
   const events = []; w.addEventListener = (name, fn) => events.push({ name, fn });
   const docListen = w.document.addEventListener.bind(w.document); w.document.addEventListener = (name, fn, opts) => { if (name !== 'DOMContentLoaded') docListen(name, fn, opts); };
   for (const m of html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)) if (!/\bsrc\s*=/.test(m[1]) && m[2].trim()) w.eval(m[2]);
-  for (const file of ['has/snapshot-policy.js', 'backup/core.js', 'has/quote-model.js', 'has/benchmark-history-policy.js']) w.eval(fs.readFileSync(path.join(ROOT, file), 'utf8'));
+  for (const file of ['has/snapshot-policy.js', 'has/return-assessment.js', 'has/quote-model.js', 'has/benchmark-history-policy.js', 'backup/core.js']) w.eval(fs.readFileSync(path.join(ROOT, file), 'utf8'));
   w.renderAll = no; w.updateHeaderH = no; w.loadRiskData = no; w.fetchMarketIndices = no;
   w.domStocks = []; w.ovStocks = []; w.penStocks = []; w.genStocks = [];
   w.snapshots = { all: [], dom: [], ov: [], pen: [], gen: [] }; w.deposits = { dom: [], ov: [], pen: [], gen: [] }; w.divList = [];

@@ -6,10 +6,10 @@ const fs = require('node:fs'), path = require('node:path'), crypto = require('no
 const root = path.join(__dirname, '..'), pins = require('./lib/recording-review-pins.json');
 const sha = text => crypto.createHash('sha256').update(text).digest('hex');
 test('reviewed backup files match explicit recording-stage pins', () => {
-  for (const [file, hash] of Object.entries(pins.reviewedFiles)) a.equal(sha(fs.readFileSync(path.join(root, file))), hash, file);
+  for (const [file, hash] of Object.entries(pins.reviewedFiles)) a.equal(sha(require('./lib/daily-repair-projection.cjs').beforeDailyRepairBytes(file)), hash, file);
 });
 test('legacy portfolio, PWA, ledger and investment-analysis modules remain unchanged', () => {
-  for (const [file, hash] of Object.entries(pins.unchangedFiles)) a.equal(sha(fs.readFileSync(path.join(root, file))), hash, file);
+  for (const [file, hash] of Object.entries(pins.unchangedFiles)) a.equal(sha(require('./lib/daily-repair-projection.cjs').beforeDailyRepairBytes(file)), hash, file);
 });
 test('recording HTML patch reverses exactly to verified remote baseline', () => {
   const projected = require('./lib/has-rename.cjs').beforeRecordingText('portfolio_v5.html');
@@ -22,8 +22,8 @@ test('new policy keeps network and storage access in the existing application bo
   const html = fs.readFileSync(path.join(root, 'portfolio_v5.html'), 'utf8');
   a.equal(html.split('src="has/snapshot-policy.js"').length - 1, 1);
 });
-test('recording changes retain the reviewed endpoint inventory and no new storage key', () => {
-  const now = fs.readFileSync(path.join(root, 'portfolio_v5.html'), 'utf8');
+test('prior recording changes retain the reviewed endpoint inventory and no new storage key after explicit daily repair reversal', () => {
+  const now = require('./lib/daily-repair-projection.cjs').beforeDailyRepairText('portfolio_v5.html');
   const old = require('./lib/has-rename.cjs').beforeRecordingText('portfolio_v5.html');
   const urls = s => (s.match(/https?:\/\/[^\s"'<>)]+/g) || []).sort();
   const keys = s => new Set(s.match(/\b(v5_[A-Za-z0-9_]+|has_[a-z_0-9]+|kst\.[a-z.A-Z0-9_]+)/g) || []);

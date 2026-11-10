@@ -9,8 +9,8 @@ test('기본 비밀번호 값은 portfolio_v5.html 밖(문서·시험·신규 �
   const hits = walk('.').filter(f => f !== 'portfolio_v5.html' && read(f).includes(pw));
   a.deepEqual(hits, [], '기본 비밀번호 값 포함 파일 ' + hits.length + '개');
 });
-test('API 키가 URL 쿼리에 실리는 지점은 검토된 4곳이며 신규 코드(has/)에는 없음', () => {
-  a.equal((html.match(/[?&](?:key|apikey)=/gi) || []).length, 4, '당일 기록 단계: Gemini 3, AlphaVantage 재무 1. 임의 시각을 만들던 이력 요청 1곳 제거; docs/daily-records/BENCHMARK-HISTORY.md 참조');
+test('API 키가 URL 쿼리에 실리는 지점은 검토된 5곳이며 신규 코드(has/)에는 없음', () => {
+  a.equal((html.match(/[?&](?:key|apikey)=/gi) || []).length, 5, '일일 기록 보완: Gemini 3, AlphaVantage 재무 1, 명시적 새로고침 직접 이력 fallback 1. 합성 시험만, 실호출 안 함');
   for (const f of fs.readdirSync(path.join(ROOT, 'has')).filter(x => x.endsWith('.js'))) { const s = read('has/' + f); a.ok(!/apikey|api_key|[?&]key=|geminiKey|alphaVantageKey|v5_pw|PW_DEFAULT/i.test(s), f); }
 });
 test('새 코드·문서에 키 형태(긴 영숫자 토큰, Bearer, Token) 값이 없음', () => {

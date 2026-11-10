@@ -1,7 +1,7 @@
 'use strict';
 const test = require('node:test'), a = require('node:assert/strict'), fs = require('fs'), path = require('path'), crypto = require('crypto');
 const { legacySha, legacyText, stage18Text, RENAMES } = require('./lib/has-rename.cjs');
-const ROOT = path.join(__dirname, '..'), rd = f => fs.readFileSync(path.join(ROOT, f), 'utf8'), sha = f => crypto.createHash('sha256').update(fs.readFileSync(path.join(ROOT, f))).digest('hex');
+const ROOT = path.join(__dirname, '..'), rd = f => fs.readFileSync(path.join(ROOT, f), 'utf8'), sha = f => crypto.createHash('sha256').update(require('./lib/daily-repair-projection.cjs').beforeDailyRepairBytes(f)).digest('hex');
 const STAGE16 = { 'portfolio_v5.html': 'b16656a6525d9127fe3a3fb4d3ad19c8717afc58fb0fe256feb503692913ebd5', 'manifest.json': '79f5292b2c95dba718b453194b255f02d16a1585677b559735b9fad52f16d878' };
 const UNTOUCHED = { 'portfolio.html': '97235e2a02feeec84511d9b4caf4c548e47ba37eb229625438acbc15427bfa2d', 'service-worker.js': '77d553efcfc3eb93f65a1f2901de1cf3b6b61b36febd9605053e66db6724dcd8', 'backup/core.js': require('./lib/recording-review-pins.json').reviewedFiles['backup/core.js'], 'backup/ui.js': require('./lib/recording-review-pins.json').reviewedFiles['backup/ui.js'] };
 
