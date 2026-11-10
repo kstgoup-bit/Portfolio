@@ -6,7 +6,7 @@
 - 기존 Code.gs에 `type==="history"` 분기(3줄) + `gas/has-history-request.gs` 78줄 추가, 같은 URL로 새 버전 배포.
 - 실호출 결과(순태씨 브라우저, JSONP):
   - `type=history&tickers=QQQ&market=US` → source yahoo-chart-v8, USD, NasdaqGM, America/New_York, barCount 251, regularMarketTime 2026-11-09T21:00Z, price 679.35, 52wHigh 762.86, adjustment "unverified"
-  - `type=history&tickers=069500&market=KR` → 069500.KS, KRW, KSE, Asia/Seoul, barCount 245, price 81835, 52wHigh 152455(검증 필요: 현재가 대비 -46%, bars 최대값과 대조할 것)
+  - `type=history&tickers=069500&market=KR` → 069500.KS, KRW, KSE, Asia/Seoul, barCount 245, price 81835, 52wHigh 152455 (순태씨 확인: 실제 52주 최고가 맞음, 올해 급등 후 급락. 현재가 81835도 장중 약 81880과 일치)
   - 기존 `?tickers=QQQ&market=US` → {"QQQ":679.35} (불변), `?type=exchange` → {"usdKrw":1344} (불변)
 - 기존 응답 형태 불변 확인. 응답은 비공식 Yahoo 기반 '미검증'.
 
