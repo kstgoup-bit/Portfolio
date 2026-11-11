@@ -13,7 +13,8 @@ function navDOM(){
 }
 test('risk menu preserves every existing internal destination and adds a separate same-origin euphoria entry',()=>{
  const d=navDOM();try{const w=d.window,nav=w.document.querySelector('#subtabs-risk');
- a.deepEqual(Array.from(w.TAB_GROUPS.risk),['principledash','advisor','risk','commandments','news','radar','ledgerdemo','staff','pretrade']);
+ a.deepEqual(Array.from(w.TAB_GROUPS.risk),['principledash','risk','commandments','news','radar','ledgerdemo','staff','pretrade']);
+ a.equal([...nav.querySelectorAll('.tab')].some(b=>/AI자문|'advisor'/.test(b.textContent+b.getAttribute('onclick'))),false); // 순태씨 결정 2026-11-11: AI자문 메뉴 제거(패널 코드는 보존)
  const buttons=[...nav.querySelectorAll('.tab')];a.equal(buttons.length,w.TAB_GROUPS.risk.length);
  a.match(buttons.find(b=>b.getAttribute('onclick').includes('ledgerdemo')).textContent,/거래 기록·손익 계산 체험/);
  a.match(buttons.find(b=>b.getAttribute('onclick').includes('pretrade')).textContent,/매매 점검/);

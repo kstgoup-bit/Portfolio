@@ -20,3 +20,10 @@
 
 ## 4. 승인 상태
 A–E 미승인. 배포·main 변경 없음.
+
+## 5. 순태씨 결정 반영 (2026-11-11 23:00) — AI자문 메뉴 제거 (클로 수정)
+- 이유(순태씨): AI 참모·곡소리·환호성이 있으므로 AI자문 불필요.
+- 변경: `portfolio_v5.html`에서 `switchTab('advisor')` 버튼 1줄 삭제 + `TAB_GROUPS.risk`에서 `"advisor"` 제거(버튼 순서-배열 인덱스 정합 유지). 패널 코드·Gemini 설정·저장 키는 **삭제하지 않음**(진입만 제거).
+- 보호 계층: 다비 `risk-menu-edits.json`에 두 편집의 정확한 역변환 쌍을 추가하고 `risk-menu-pins.json` currentSha256 갱신(기준 해시 불변). `risk-menu-harmonization.test.cjs` 기대값을 새 메뉴로 갱신 + AI자문 부재 단언 추가.
+- 검증: 전체 1930 통과+2 생략/실패 0, 비밀 0, `risk-menu-browser.cjs` Chromium 4개 폭 PASS, 전체 앱 Chromium 메뉴 = 종목분석·위험계·15계명·뉴스·곡소리·환호성·거래 기록·손익 계산 체험·AI 참모·매매 점검, 넘침·오류 0.
+- '가상 검증·실운용 준비'는 원본 확보 후 별도 추가(이번 반영 제외) — 순태씨 동의.

@@ -658,7 +658,6 @@ select { -webkit-user-select: none; user-select: none; touch-action: manipulatio
 </div>
 <div class="tabs sub-tabs" id="subtabs-risk" style="display:none">
   <button class="tab" onclick="switchTab('principledash')">📋 종목분석</button>
-  <button class="tab" onclick="switchTab('advisor')">🤖 AI자문</button>
   <button class="tab" onclick="switchTab('risk')">🌡️ 위험계</button>
   <button class="tab" onclick="switchTab('commandments')">📜 15계명</button>
   <button class="tab" onclick="switchTab('news')">📰 뉴스</button>
@@ -7207,7 +7206,7 @@ function changePw() {
 // =============================================
 var TAB_GROUPS={
   invest:  ["dashboard","general","domestic","overseas","pension","dividend"],
-  risk:    ["principledash","advisor","risk","commandments","news","radar","ledgerdemo","staff","pretrade"],
+  risk:    ["principledash","risk","commandments","news","radar","ledgerdemo","staff","pretrade"],
   asset:   ["ledger","networth","debt","retirement","memo"],
   settings:["settings"]
 };
