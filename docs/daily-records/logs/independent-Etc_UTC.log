@@ -1,0 +1,44 @@
+✔ independent: quote receipt never becomes market price time or verified quality (2.629054ms)
+✔ independent: stale, future, string and invalid numeric quote inputs reject atomically (0.406745ms)
+✔ independent: app snapshot persistence failure preserves runtime and stored history (546.971904ms)
+✔ independent: loaded prepared restore blocks recording without mutating any key (135.557816ms)
+✔ independent: pre-restore quote callback cannot write restored holdings or prices (107.672085ms)
+✔ independent: legacy v5 missing cost and arbitrary inert metadata survive restore/export (2.825756ms)
+✔ independent: omitted legacy benchmark groups preserve current cached groups (0.578621ms)
+✔ independent: chart points are recorded points, never unchecked current valuations (118.998431ms)
+✔ independent: receipt-only same-day repeat does not create a revision or fresh price time (1.444921ms)
+✔ independent: same-day changed price preserves complete previous point and older days (0.882043ms)
+✔ independent: legacy same-day point is never silently replaced or promoted (0.405414ms)
+✔ independent: bounded revisions refuse overflow rather than trim or recurse (58.476671ms)
+✔ independent: removed holding marks scope change and does not relabel it as price return (1.375587ms)
+✔ independent: revision-bearing daily snapshot survives v6 export/restore exactly (2.40491ms)
+✔ independent: nested revision histories are rejected before backup mutation (1.07481ms)
+✔ independent: benchmark parser separates provider bar timestamp, exchange date and receipt (4.824441ms)
+✔ independent: later benchmark receipt cannot replace older data or imply a new observation (2.155159ms)
+✔ independent: compact benchmark append preserves old points and rejects historical correction (1.493453ms)
+✔ independent: benchmark rejects malformed currency, identity, dates, prices and receipt (1.405062ms)
+✔ independent: GAS date-only data stays synthetic, cannot be promoted into timestamped cache (0.454747ms)
+✔ independent: benchmark cache reload does not manufacture source provenance from fetchedAt (1.318453ms)
+✔ independent: in-flight benchmark response cannot mutate state after restore invalidation (107.693657ms)
+✔ independent: rejected benchmark persistence keeps previous runtime memory and storage (117.248526ms)
+✔ independent: actual HTML dependency order supports new revision export and restore (107.781497ms)
+✔ independent: malformed saved revision display does not throw or create HTML elements (104.637428ms)
+✔ independent: scope hold cannot be stripped from a later same-day price revision (1.954169ms)
+✔ independent: malformed revision sequence and active-point mismatch cannot be restored (3.745135ms)
+✔ independent: known market price time cannot move backwards or disappear after later receipt (0.320287ms)
+✔ independent: old provenance snapshot without component cost keeps exact payload on update (0.79986ms)
+✔ independent: removed holding suppresses raw return, Dietz and alpha in actual DOM (93.798092ms)
+✔ independent: missing current quote suppresses return table rather than using average cost (112.766649ms)
+✔ independent: revised-row save failure preserves prior versions in memory and storage (94.118309ms)
+✔ independent: local-midnight boundary appends another day without rewriting yesterday (0.313847ms)
+✔ independent: removing and re-adding a holding cannot erase its known source-time floor (0.992347ms)
+✔ independent: revision-cap status explains refusal without claiming recording is available (215.693014ms)
+✔ independent: malformed non-array saved history is not advertised as recordable (103.817176ms)
+ℹ tests 36
+ℹ suites 0
+ℹ pass 36
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2176.963772

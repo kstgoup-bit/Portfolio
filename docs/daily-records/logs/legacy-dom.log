@@ -1,0 +1,4 @@
+PASS actual engine sample integration
+PASS DOM: controls, byte limit, invalid JSON, inert malicious strings, identity, finite/flat/gap charts, stale clearing, missing engine, reset, storage sentinel
+PASS DOM: six synthetic sectors; three signals; five evidence sections; metric provenance; repeated/reset/invalid/XSS flows; storage sentinel intact
+PASS synthetic adviser DOM: initial counts, repeated failure/retry, detail/hash dismissal, duplicate alerts, no record writes. No browser-layout claim.

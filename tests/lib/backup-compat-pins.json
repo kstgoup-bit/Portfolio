@@ -1,0 +1,12 @@
+{
+  "remoteBaseline": "d7c15c5fa876ca7f887a1ac85f81d14d492c6247",
+  "baselineTree": "031b0d5c4d17ddbeecfb4d006f1aaced10b2d627",
+  "baselineSha256": {
+    "backup/core.js": "123c9b91bcffaf91c8c5c55b47f07b3a32e5f9462fe7d9418aa1f6c21f651854",
+    "backup/ui.js": "55cfd9a5242218942dbd77c2c3716b06cad446b643f6d8865d7c90d926941c4f"
+  },
+  "currentSha256": {
+    "backup/core.js": "ff1a15979d0dbca717538e2ec5197f641756440ac837da524a57218e56878b82",
+    "backup/ui.js": "0999a78cf1fa8c8bdd89d82afd4b905954b2c2bc27b1b8a24dd4866731345c3d"
+  }
+}

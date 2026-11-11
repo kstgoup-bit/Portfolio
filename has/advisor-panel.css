@@ -1,0 +1,20 @@
+/* HAS 25단계 — AI 참모 화면 스타일. 글자 12px 이상, 어두운 색(대비 7:1 이상), 버튼 44px 이상. */
+#panel-staff{background:#f4f7f9;border-radius:12px;padding:8px 10px 12px;--hs-ink:#1a1a1a;--hs-sub:#333;--hs-line:#90a4ae;--hs-ok:#1b5e20;--hs-warn:#6b3a00;--hs-bad:#8e1111;--hs-blue:#0d47a1;overflow-wrap:anywhere}
+#panel-staff h2{font-size:17px;margin:4px 0 8px;color:var(--hs-ink)}#panel-staff h3{font-size:15px;margin:8px 0 2px;color:var(--hs-ink)}
+#panel-staff .hs-banner{border:2px solid var(--hs-blue);border-radius:10px;padding:8px 12px;font-size:14px;font-weight:700;color:#0b2a5e;background:#e8f0fe}
+#panel-staff .hs-banner.syn{border-color:var(--hs-warn);background:#fff3e0;color:#3e2300}
+#panel-staff .hs-card{background:#fff;border:1px solid var(--hs-line);border-radius:12px;padding:12px;margin:10px 0}
+#panel-staff .hs-row{display:flex;justify-content:space-between;gap:8px;align-items:baseline;flex-wrap:wrap}
+#panel-staff .hs-kv{font-size:14px;color:var(--hs-sub)}#panel-staff .hs-big{font-size:18px;font-weight:800;color:var(--hs-ink)}#panel-staff .hs-note{font-size:13px;color:var(--hs-sub)}#panel-staff .hs-warn{font-size:14px;color:var(--hs-warn);font-weight:700}
+#panel-staff .hs-tag{display:inline-block;border:1.5px solid var(--hs-sub);border-radius:999px;padding:2px 10px;font-size:12px;font-weight:700;color:var(--hs-sub)}
+#panel-staff .hs-tag.ok{border-color:var(--hs-ok);color:var(--hs-ok)}#panel-staff .hs-tag.warn{border-color:var(--hs-warn);color:var(--hs-warn)}#panel-staff .hs-tag.bad{border-color:var(--hs-bad);color:var(--hs-bad)}#panel-staff .hs-tag.blue{border-color:var(--hs-blue);color:var(--hs-blue)}
+#panel-staff button{min-height:44px;min-width:44px;padding:8px 14px;border-radius:10px;border:2px solid var(--hs-blue);background:#fff;color:var(--hs-blue);font:700 14px "Noto Sans KR",system-ui,sans-serif;cursor:pointer}
+#panel-staff button.primary{background:var(--hs-blue);color:#fff}#panel-staff .hs-btns{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+#panel-staff .hs-item{border-top:1px solid var(--hs-line);padding:10px 0}#panel-staff .hs-item:first-of-type{border-top:0}
+#panel-staff details{border-top:1px solid var(--hs-line)}#panel-staff summary{min-height:44px;display:flex;align-items:center;font-weight:700;font-size:14px;cursor:pointer;color:var(--hs-ink)}
+#panel-staff ul{margin:4px 0 8px;padding-left:20px;font-size:14px;color:var(--hs-sub)}
+#panel-staff textarea{width:100%;min-height:88px;font:14px/1.5 "Noto Sans KR",system-ui,sans-serif;color:var(--hs-ink);border:2px solid var(--hs-line);border-radius:8px;padding:8px}
+#panel-staff select{min-height:44px;font:14px "Noto Sans KR",system-ui,sans-serif;color:var(--hs-ink);max-width:100%}
+#hasBriefStrip[hidden]{display:none}
+#hasBriefStrip{margin:8px 0;padding:8px 12px;border:2px solid #0d47a1;border-radius:10px;background:#e8f0fe;color:#0b2a5e;font-size:14px;font-weight:700;display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+#hasBriefStrip button{min-height:44px;min-width:44px;padding:6px 14px;border-radius:10px;border:2px solid #0d47a1;background:#fff;color:#0d47a1;font:700 14px "Noto Sans KR",system-ui,sans-serif;cursor:pointer}

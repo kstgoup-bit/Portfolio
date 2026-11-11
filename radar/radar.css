@@ -1,0 +1,42 @@
+/* Scoped to the new panel; existing portfolio styles and PWA remain unchanged. */
+#panel-radar{background:#f3f6fb;max-width:900px;margin:auto;color:#182a42;font-size:14px;line-height:1.65;overflow-wrap:anywhere}
+#panel-radar *{box-sizing:border-box}
+#panel-radar h1{font-size:25px;letter-spacing:-1px;margin:4px 0 8px}
+#panel-radar h2{font-size:18px;margin:0 0 10px}
+#panel-radar h3{font-size:15px;margin:8px 0}
+#panel-radar p{margin:6px 0 12px}
+#panel-radar .kr-eyebrow{font-weight:800;color:#526886;font-size:11px;letter-spacing:1px}
+#panel-radar .kr-banner{border-left:4px solid #b45309;background:#fff5de;border-radius:8px;padding:12px;margin-bottom:14px;color:#713f12}
+#panel-radar .kr-card{padding:16px;background:#fff;border:1px solid #d9e3ef;border-radius:14px;margin-bottom:12px;box-shadow:0 2px 8px #182a4208}
+#panel-radar .kr-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
+#panel-radar .kr-toolbar{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+#panel-radar .kr-wide{grid-column:1/-1}
+#panel-radar label{display:block;font-size:12px;font-weight:700;min-width:0}
+#panel-radar input,#panel-radar select,#panel-radar button{font:inherit;min-height:44px;border:1px solid #b8c9dd;border-radius:8px;max-width:100%}
+#panel-radar input,#panel-radar select{width:100%;min-width:0;background:#fff;color:#182a42;padding:8px}
+#panel-radar button{background:#edf4fc;color:#184678;font-weight:700;padding:9px 12px;cursor:pointer;white-space:normal}
+#panel-radar button:disabled{opacity:.6;cursor:wait}
+#panel-radar button:focus-visible,#panel-radar input:focus-visible,#panel-radar select:focus-visible{outline:3px solid #1575d4;outline-offset:2px}
+#panel-radar .kr-primary{background:#194b7e;color:#fff;border-color:#194b7e}
+#panel-radar .kr-pill{display:inline-block;font-size:11px;font-weight:700;padding:4px 8px;border-radius:6px;background:#ecf2fa;color:#25496b}
+#panel-radar .kr-risk{background:#ffebeb;color:#a12323}
+#panel-radar .kr-muted{color:#52657b;font-size:12px}
+#panel-radar .kr-metric{font-size:25px;font-weight:800;letter-spacing:-1px}
+#panel-radar .kr-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:12px 0}
+#panel-radar .kr-kpis>div{background:#f2f6fc;border-radius:8px;padding:9px;min-width:0}
+#panel-radar .kr-kpis span{display:block;font-size:11px;color:#52657b}
+#panel-radar .kr-kpis b{font-size:18px}
+#panel-radar .kr-kpis b.kr-missing{font-size:13px}
+#panel-radar .kr-candidate{margin-top:10px;border-top:1px solid #d9e3ef;padding-top:12px}
+#panel-radar .kr-candidate button{width:100%;margin-top:10px}
+#panel-radar .kr-candidate p{font-size:12px}
+#panel-radar .kr-criteria{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#panel-radar .kr-status{padding:12px;background:#edf4fc;border-radius:8px;margin:10px 0}
+#panel-radar dl{display:grid;grid-template-columns:90px 1fr;gap:5px;font-size:12px;margin:10px 0}
+#panel-radar dt{color:#52657b}#panel-radar dd{margin:0;min-width:0}
+#panel-radar a{color:#185a99;text-decoration:underline}
+#panel-radar [hidden]{display:none!important}
+#panel-radar .kr-check{padding:9px 0;border-bottom:1px solid #edf1f6}
+#panel-radar .kr-actions{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+#panel-radar .kr-actions>*{flex:1 1 130px}
+@media(min-width:640px){#panel-radar .kr-toolbar{grid-template-columns:2fr 1fr 1fr}#panel-radar .kr-wide{grid-column:auto}}

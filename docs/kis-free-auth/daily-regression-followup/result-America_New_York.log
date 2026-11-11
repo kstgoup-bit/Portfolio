@@ -1,0 +1,57 @@
+CURRENT-BEHAVIOR REGRESSION INVENTORY, NOT A FIX PASS
+timezone=America/New_York; ROOT=/workspace/scratch/a69a663b2cde/has-kis-free-auth-20261110; PREDAILY=/workspace/scratch/a69a663b2cde/has-kis-free-auth-20261110/docs/kis-free-auth/daily-regression-followup/historical-reference/portfolio_v5.functions.js.txt
+historical excerpt sha256 portfolio_v5.functions.js.txt c7a946df8c755deb8ce45f455c37fb758a43feb4dd76859578ad242fbac5fb72
+source sha256 has/snapshot-policy.js 9109c84c4f4a8bfdde046646e668dc1c4b9ebf4712f50ff271daadf2f2bc3d1a
+source sha256 has/benchmark-history-policy.js 6b1d7d5e2c26c619412090592b171d8868f8ec8e06aeb905c143343a72562014
+source sha256 backup/core.js d1313ec285deebd674a03f9b48f698227247756a042643f39a643d894e3fb22b
+source sha256 portfolio_v5.html 23bacc9e5f3de930b055292898d00ef6c6b162f8e3152cb7d9f383989a0269a5
+PASS [REGRESSION] computable legacy without cost differs from malformed metadata
+  {"legacyValid":true,"partialSchemaValid":false,"oldRawAndDietz":"+10.00%","current":"held despite computable legacy endpoints"}
+PASS [SAFETY CONTROL] missing live quote remains incomplete and no candidate is invented
+  {"missing":["quote-missing"],"ui":"current-incomplete"}
+PASS [REGRESSION] one saved endpoint plus valid current endpoint is still called insufficient
+  {"hold":true,"reasons":["insufficient-history"]}
+PASS [REGRESSION / MISSING EVENT MODEL] same account synthetic rebalance at equal total triggers holdings hold
+  {"values":[1000,1000],"calculatedDietz":0,"status":{"hold":true,"reasons":["scope-change"]},"note":"Fixture describes a rebalance; runtime accepts no transaction/event proof."}
+PASS [REGRESSION] recorded contribution gives zero Dietz but quantity gate suppresses it
+  {"flows":[{"ts":1793761200000,"amount":500}],"calculatedDietz":0,"status":{"hold":true,"reasons":["scope-change"]}}
+PASS [MISSING EVENT MODEL] same endpoint change without contribution has identical policy decision
+  {"calculatedDietz":50,"status":{"hold":true,"reasons":["scope-change"]},"note":"comparisonStatus receives no deposits or event argument; no inference can distinguish the prior case."}
+PASS [SAFETY CONTROL] unexplained asset removal is still held and original remains intact
+  {"before":1500,"after":1000,"status":{"hold":true,"reasons":["scope-change"]}}
+PASS [REGRESSION] event marker on starting row contaminates entirely post-event interval
+  {"contaminated":{"hold":true,"reasons":["scope-change"]},"clean":{"hold":false,"reasons":[]},"eventPreviousTs":1793718000000,"intervalStart":1793804400000}
+PASS [REGRESSION] basis correction suppresses raw and Dietz despite unchanged value
+  {"unchangedVal":1000,"changedCost":900,"status":{"hold":true,"reasons":["scope-change","cost-basis-change"]}}
+PASS [POLICY CHOICE TO ISOLATE] invalid row outside selected interval still blocks whole history
+  {"goodInterval":"computable","unrelatedBadRow":"global invalid-history hold; never overwrite invalid source"}
+PASS [PRESERVATION CONTROL] same-day revisions preserve exact original and backup parse/export bytes
+  {"revisionEntries":2,"backupSchema":6,"readOnlyRoundTrip":true}
+PASS [REGRESSION] precision-only overlap conflicts reject all unrelated new dates
+  {"delta":0.00009999999997489795,"unrelatedNewDates":2,"result":{"ok":false,"reason":"historical-correction-needs-review"},"priorBarsPreserved":true}
+PASS [REGRESSION / REVIEW POLICY] material historical correction also rejects unrelated newer observations
+  {"result":{"ok":false,"reason":"historical-correction-needs-review"},"note":"Historical replacement requires review; rejecting unrelated 11/09 is unnecessary coupling."}
+PASS [PRESERVATION CONTROL] clean append retains old objects and their arbitrary inert metadata
+  {"appended":1,"prefixExact":true}
+PASS [DOCUMENTED POLICY CHOICE] empty latest date is not backfilled by compact response
+  {"result":"no-new-observation","missingDate":"2026-11-06","note":"Intentional append-only rule, not proof provider lacks date."}
+PASS [POLICY CHOICE TO ISOLATE] invalid QQQ cache hides valid KS200 metadata too
+  {"validKS200LastDate":"2026-11-06","displayedKS200LastDate":null}
+PASS [COMPATIBILITY BLOCKER] date-only bars need schema and consumers, not a fabricated clock
+  {"policy":"cache-point","backup":"rejects missing ts","consumer":"returns null for d-only bars"}
+PASS [SAFETY / INTEGRATION CONTROL] GAS date-only sample remains synthetic and cannot persist
+  {"parsedSynthetic":true,"persistable":false,"inventedTimestamp":false}
+PASS [COMPATIBILITY BLOCKER] new top-level metadata cannot be quietly inserted into current backup schema
+  {"runtimeAndBackupReject":"revisionLog top-level without explicit schema change"}
+PASS [VALIDATOR MISMATCH] backup accepts two same-exchange-day timestamps that runtime rejects
+  {"backup":"accept","runtime":"cache-date-conflict","note":"Synthetic parse only, no restore applied."}
+PASS [KNOWN REGRESSION SOURCE CONTROL] fall back transport removed in current source while old AV invented time
+  {"oldAV":true,"oldQuery2":true,"currentAV":false,"currentQuery2":false,"warning":"Restoring old implementation verbatim would restore timestamp fabrication and overwrite behavior."}
+PASS [INHERITED DEFECT, NOT DAILY INTRODUCED] Dietz start uses requested target instead of actual selected snapshot time in both baselines
+  {"requestedStart":"2026-11-03T15:00:00.000Z","actualSnapshot":"2026-11-01T15:00:00.000Z","currentCallRate":50,"consistentEndpointRate":0}
+PASS [INHERITED MODEL LIMIT] deposit schema allows signed flows while existing input UI only accepts positive
+  {"backupAcceptsWithdrawal":true,"UIOnlyPositive":true,"warning":"Do not reinterpret all old deposits as correctly classified external flows."}
+PASS [SAFETY CONTROL] no external networking was attempted
+  {"externalAttempts":0}
+
+SUMMARY {"total":24,"passed":24,"failed":0,"meaning":"Expected CURRENT behavior matched. REGRESSION entries intentionally demonstrate UNFIXED defects."}

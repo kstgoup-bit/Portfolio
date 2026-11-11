@@ -1,0 +1,42 @@
+✔ synthetic fixture compares without network or storage; repeat analysis has one result (79.771166ms)
+✔ edits, example replacement, resets and page lifecycle discard stale results (19.971498ms)
+✔ invalid, hostile and oversized inputs never echo content; prior success is replaced (16.361685ms)
+✔ missing metadata, venue differences and shared origin cannot imply independent verification (12.409146ms)
+✔ above-threshold conflict keeps unrounded spread so the boundary is not disguised (9.026795ms)
+✔ module failure is fixed message with no exception detail or previous results (9.294418ms)
+✔ static 360/390/430 mobile and accessibility constraints (not actual layout verification) (9.673029ms)
+✔ page is self contained and has no connection, export, storage, order or upload controls (11.084382ms)
+✔ independent: equal declarations are never verification or signal permission (2.885153ms)
+✔ independent: every comparability dimension blocks same-price agreement (0.867646ms)
+✔ independent: omitted required dimensions on either source withhold comparison (3.945668ms)
+✔ independent: unknown or receipt-only time never substitutes for exchange time (0.768166ms)
+✔ independent: distinct or shared origin declarations cannot confer independence (0.781256ms)
+✔ independent: delayed observations require exact nonmissing delay duration (0.658541ms)
+✔ independent: combined venues and US daytime codes cannot masquerade as normalized exchanges (0.53127ms)
+✔ independent: unknown, secret and prototype keys fail closed without echo (1.69457ms)
+✔ independent: object input does not invoke getters or coercion (0.234844ms)
+✔ independent: invalid numeric prices and nested values fail closed (1.718787ms)
+✔ independent: extreme finite input prices never produce nonfinite output (0.424369ms)
+✔ independent: UTF-8 budget includes legal Unicode whitespace string values (0.592532ms)
+✔ independent: input immutable; output and module frozen; price rounding never hides conflict (0.666153ms)
+✔ independent: malformed envelopes and absent sources never agree (0.362666ms)
+✔ independent: duplicate known and escaped-equivalent keys cannot override evidence (0.359671ms)
+✔ independent: bounded adversarial JSON never throws or leaks input strings (7.838643ms)
+✔ independent: delayed zero contradicts declared delayed quote (0.217447ms)
+✔ synthetic agreement and conflict never certify independence, freshness or signals (2.977191ms)
+✔ requires instrument, venue, currency, kind, adjustment and exact exchange clock (2.52507ms)
+✔ rejects receipt clock fallback, ambiguous price basis and malformed clocks (0.766964ms)
+✔ delayed quotes require known matching delay and price kinds never merge (0.721687ms)
+✔ US quotes use explicit venue and clocks without calendar inference (0.232971ms)
+✔ bounded primitive JSON rejects unknown and secret fields without echo (2.055423ms)
+✔ tolerance uses full precision and no rounding into agreement (0.514915ms)
+✔ origin declarations never prove independence and unknown origin is visible (0.460683ms)
+✔ subnormal prices and ambiguous duplicate JSON members fail closed (0.668546ms)
+ℹ tests 34
+ℹ suites 0
+ℹ pass 34
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 506.088424

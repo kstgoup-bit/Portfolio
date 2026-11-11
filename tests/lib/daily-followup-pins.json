@@ -1,0 +1,14 @@
+{
+  "remoteBaseline": "e738952130116cc943134872f3260c5b0099af89",
+  "baselineTree": "ac855b6e41a88a24e1bda33e40f20d42cb2cb591",
+  "baselineSha256": {
+    "portfolio_v5.html": "e9ed6c4367be436323e59a2979a11b89b3b8126bfd919106fa94ce7f4b3ea3cc",
+    "has/return-assessment.js": "67dc8d3b8e56f0d3621c9389a0fec9b3fd017205841d33582e853fab1be3ad6d",
+    "has/benchmark-history-policy.js": "e3581fe48c5d53826364d84b3067b3813e2a45d5ae498bdd28e20893862a9018"
+  },
+  "currentSha256": {
+    "portfolio_v5.html": "e1342a6eb6479d1fe6accd688bde2034cd9c42974e150602d83d6b764f42b22c",
+    "has/return-assessment.js": "1b1c7a54d05443f0cd96f9677338aa9af7c79677fa8f589cbbca1c3d3aedfd51",
+    "has/benchmark-history-policy.js": "8d64e852feb00050449f3b66b51e0188059a77accc10dcff9e8880a3969893f9"
+  }
+}

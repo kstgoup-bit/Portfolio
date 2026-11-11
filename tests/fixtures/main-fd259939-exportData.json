@@ -1,0 +1,9 @@
+{
+  "repository": "kstgoup-bit/Portfolio",
+  "commit": "fd2599398d2f2ef1816ca9b64ea134ea8811309d",
+  "path": "portfolio_v5.html",
+  "githubBlobSha": "de4d506b4d7c05eab198f0e87ae74114b2305be5",
+  "functionSha256": "39309f52296b9188eba4a2761ae726bd951b419aa77069b487f28ae468512778",
+  "sourceUrl": "https://github.com/kstgoup-bit/Portfolio/blob/fd2599398d2f2ef1816ca9b64ea134ea8811309d/portfolio_v5.html",
+  "extraction": "Exact exportData function body, trailing newlines normalized to one LF; not rewritten."
+}

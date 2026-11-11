@@ -1,0 +1,87 @@
+{
+  "date": "2026-11-11",
+  "scope": "isolated local development; synthetic data only; no actual records/live API/push/main/deploy",
+  "remoteBaseline": "e738952130116cc943134872f3260c5b0099af89",
+  "baselineTree": "ac855b6e41a88a24e1bda33e40f20d42cb2cb591",
+  "localEquivalentBaseline": "1871adc58d0b46fc42f8af3ceda9f58d0333b4f3",
+  "mainUnchanged": "fd2599398d2f2ef1816ca9b64ea134ea8811309d",
+  "tests": {
+    "baseline-subset-UTC": {
+      "counts": {
+        "tests": 1807,
+        "pass": 1805,
+        "fail": 0,
+        "skipped": 2
+      },
+      "sha256": "91d480fe1c795030e8f9161358c9f7c1aee1aa4652facd620ac99d314cae6ead"
+    },
+    "final-subset-UTC": {
+      "counts": {
+        "tests": 1836,
+        "pass": 1834,
+        "fail": 0,
+        "skipped": 2
+      },
+      "sha256": "2b55c6c3a7ee8baa80dd5db6c8ca351a54079a79c1d8358b64e2e98b548008e2"
+    },
+    "final-subset-Seoul": {
+      "counts": {
+        "tests": 1836,
+        "pass": 1834,
+        "fail": 0,
+        "skipped": 2
+      },
+      "sha256": "aa2ca9a7f17007dfaeac594bb29c51016be1299ab4ff214f594c62362aed1990"
+    },
+    "final-subset-NewYork": {
+      "counts": {
+        "tests": 1836,
+        "pass": 1836,
+        "fail": 0,
+        "skipped": 0
+      },
+      "sha256": "7a9d2f2329162bb7f79c66512d2c2267ff22975aa0771db5302f32953005e1c1"
+    },
+    "new-focused": {
+      "counts": {
+        "tests": 30,
+        "pass": 30,
+        "fail": 0,
+        "skipped": 0
+      },
+      "sha256": "2334ac13391b4d41a24e02fc892cc3b2665f063418a2275bef3839adb9ecbd9f"
+    }
+  },
+  "excludedSuites": [
+    "network-guard-stage19.test.cjs",
+    "kis-runner-stage21.test.cjs",
+    "us-pilot-stage18.test.cjs",
+    "krx-runner-cli.test.cjs",
+    "kr-krx-stage13.test.cjs"
+  ],
+  "runtimeSHA256": {
+    "portfolio_v5.html": "e1342a6eb6479d1fe6accd688bde2034cd9c42974e150602d83d6b764f42b22c",
+    "has/return-assessment.js": "1b1c7a54d05443f0cd96f9677338aa9af7c79677fa8f589cbbca1c3d3aedfd51",
+    "has/benchmark-history-policy.js": "8d64e852feb00050449f3b66b51e0188059a77accc10dcff9e8880a3969893f9"
+  },
+  "networkAttemptsInSafeRegression": 0,
+  "secretFindings": 0,
+  "syntax": {
+    "inlineScripts": 2,
+    "runtimeModules": 2,
+    "passed": true
+  },
+  "independentReview": {
+    "newEdgeTests": 6,
+    "blockingFindings": 0
+  },
+  "notValidated": [
+    "full npm test (reviewer rejected legacy api.tiingo.com request attempt)",
+    "actual browser rendering (Chromium Unix socket denied before page execution)",
+    "actual mobile hardware",
+    "live GAS 245/251-bar sample (only summary available)",
+    "actual user-data restore/migration",
+    "source rights and official closing-price finality",
+    "production deployment"
+  ]
+}

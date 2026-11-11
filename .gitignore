@@ -1,0 +1,11 @@
+node_modules/
+test-results/
+# KST: 실조회 산출물·승인 파일·키는 저장소에 올리지 않는다
+krx-private/
+*.approval.json
+.env
+.env.*
+
+# KIS 시세 스냅샷은 약관 제5조③(제3자 제공 금지)에 따라 저장소에 올리지 않음
+data/kis-snapshots/
+*.kis-snapshot.json

@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; base-uri 'none'; form-action 'none'">
+<title>KST 모바일 실험실 (합성 시험)</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <h1>KST 모바일 실험실</h1>
+  <p class="banner" id="banner" role="status">합성 시험 전용 · 외부 요청 0회 · 운영 앱과 분리됨 · 배포 금지</p>
+</header>
+<main>
+  <section aria-labelledby="h-status" class="card" id="sec-status">
+    <h2 id="h-status">데이터 상태 (실제 / 합성 구분)</h2>
+    <dl class="counts" id="counts"></dl>
+    <p class="note" id="status-note"></p>
+    <ul class="samples" id="samples" aria-label="합성 예시 3건(집계 제외)"></ul>
+  </section>
+
+  <section aria-labelledby="h-admin" class="card" id="sec-admin">
+    <h2 id="h-admin">관리자 잠금</h2>
+    <p id="lock-text" class="note">잠금 상태입니다. 실제 서비스에서는 서버가 발급한 관리자 세션이 필요합니다. 이 화면은 합성 세션(10분)으로만 시험합니다.</p>
+    <button type="button" class="btn" id="btn-unlock">관리자 잠금 해제 (모의)</button>
+    <button type="button" class="btn secondary" id="btn-lock" hidden>다시 잠그기</button>
+  </section>
+
+  <section aria-labelledby="h-krx" class="card" id="sec-krx" hidden>
+    <h2 id="h-krx">공식 종목정보 확인</h2>
+    <p class="warn" id="identity-notice"></p>
+    <div id="step-prepare">
+      <label for="in-basdt">조회 기준일 (YYYYMMDD)</label>
+      <input id="in-basdt" inputmode="numeric" maxlength="8" autocomplete="off">
+      <label for="in-max">최대 호출 횟수</label>
+      <select id="in-max"><option>1</option><option>2</option><option selected>3</option></select>
+      <label for="in-scn">합성 시나리오</label>
+      <select id="in-scn">
+        <option value="none">정상 응답</option><option value="429">429 요청 제한</option><option value="401">401 인증 실패</option>
+        <option value="garbage">잘못된 응답</option><option value="gateway30">게이트웨이 오류(30)</option>
+        <option value="timeout">타임아웃</option><option value="network">네트워크 끊김</option><option value="empty">빈 응답</option>
+      </select>
+      <p class="warn" id="input-error" role="alert" hidden></p>
+      <button type="button" class="btn" id="btn-prepare">다음: 확인 화면</button>
+    </div>
+    <div id="step-confirm" hidden>
+      <ul class="plan" id="plan-list"></ul>
+      <label class="check"><input type="checkbox" id="chk-ack"> 위 내용을 읽었고, 이번 한 번의 조회만 승인합니다</label>
+      <button type="button" class="btn" id="btn-run" disabled>승인하고 실행</button>
+      <button type="button" class="btn secondary" id="btn-back">뒤로</button>
+    </div>
+    <div id="step-running" hidden><p id="running-text" role="status">진행 중… (합성 응답 처리)</p><button type="button" class="btn secondary" id="btn-cancel">중단</button></div>
+    <div id="step-result" hidden>
+      <p id="result-state" role="status"></p>
+      <dl class="counts" id="result-counts"></dl>
+      <p class="note" id="result-note"></p>
+      <button type="button" class="btn" id="btn-resume" hidden>남은 쪽만 이어하기</button>
+      <button type="button" class="btn secondary" id="btn-again">처음으로</button>
+    </div>
+  </section>
+</main>
+<footer class="foot"><p>종목정보 API는 신원 확인용이며 주가 API가 아닙니다. 신호 점수는 "백테스트 미검증 가설"입니다. 실제 호출·키·서버 없음.</p></footer>
+<script src="sha256.js"></script>
+<script src="bundle.js"></script>
+<script src="ui.js"></script>
+</body>
+</html>

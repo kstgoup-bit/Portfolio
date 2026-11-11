@@ -1,0 +1,794 @@
+{
+  "schemaVersion": 1,
+  "version": "2026-10-29-review.1",
+  "universeVersion": "2026-10-28-candidates.1",
+  "policy": "원칙적 시총 50억 달러·공식 근거·30일 내 확인·위험 우선·금융/고성장 별도 검사",
+  "records": [
+    {
+      "ticker": "AAPL",
+      "riskFlags": [],
+      "checks": {
+        "listing": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "marketCap": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "financialHealth": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "moat": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "sector": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "dataRights": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        }
+      }
+    },
+    {
+      "ticker": "MSFT",
+      "riskFlags": [],
+      "checks": {
+        "listing": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "marketCap": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "financialHealth": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "moat": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "sector": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "dataRights": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        }
+      },
+      "identityReference": {
+        "sourceURL": "https://www.microsoft.com/investor/reports/ar26/index.html",
+        "checkedAt": "2026-10-29",
+        "documentAsOf": "2026-07-23",
+        "scope": "ticker-exchange-identity-only; not admission evidence"
+      }
+    },
+    {
+      "ticker": "NVDA",
+      "riskFlags": [],
+      "checks": {
+        "listing": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "marketCap": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "financialHealth": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "moat": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "sector": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "dataRights": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        }
+      }
+    },
+    {
+      "ticker": "GOOGL",
+      "riskFlags": [],
+      "checks": {
+        "listing": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "marketCap": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "financialHealth": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "moat": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "sector": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "dataRights": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        }
+      },
+      "identityReference": {
+        "sourceURL": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000066/googexhibit991q22026.htm",
+        "checkedAt": "2026-10-29",
+        "documentAsOf": "2026-07-22",
+        "scope": "ticker-exchange-identity-only; not admission evidence"
+      }
+    },
+    {
+      "ticker": "META",
+      "riskFlags": [],
+      "checks": {
+        "listing": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "marketCap": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "financialHealth": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "moat": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "sector": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "dataRights": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        }
+      }
+    },
+    {
+      "ticker": "AMZN",
+      "riskFlags": [],
+      "checks": {
+        "listing": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "marketCap": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "financialHealth": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "moat": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "sector": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "dataRights": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        }
+      }
+    },
+    {
+      "ticker": "COST",
+      "riskFlags": [],
+      "checks": {
+        "listing": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "marketCap": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "financialHealth": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "moat": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "sector": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "dataRights": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        }
+      }
+    },
+    {
+      "ticker": "PG",
+      "riskFlags": [],
+      "checks": {
+        "listing": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "marketCap": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "financialHealth": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "moat": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "sector": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "dataRights": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        }
+      }
+    },
+    {
+      "ticker": "JNJ",
+      "riskFlags": [],
+      "checks": {
+        "listing": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "marketCap": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "financialHealth": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "moat": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "sector": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "dataRights": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        }
+      }
+    },
+    {
+      "ticker": "ABT",
+      "riskFlags": [],
+      "checks": {
+        "listing": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "marketCap": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "financialHealth": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "moat": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "sector": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "dataRights": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        }
+      }
+    },
+    {
+      "ticker": "JPM",
+      "riskFlags": [],
+      "checks": {
+        "listing": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "marketCap": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "financialHealth": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "moat": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "sector": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "dataRights": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        }
+      },
+      "identityReference": {
+        "sourceURL": "https://jpmorganchaseco.gcs-web.com/ir/shareholder-information/faqs",
+        "checkedAt": "2026-10-29",
+        "documentAsOf": null,
+        "scope": "ticker-exchange-identity-only; not admission evidence"
+      }
+    },
+    {
+      "ticker": "V",
+      "riskFlags": [],
+      "checks": {
+        "listing": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "marketCap": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "financialHealth": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "moat": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "sector": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "dataRights": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        }
+      }
+    },
+    {
+      "ticker": "CAT",
+      "riskFlags": [],
+      "checks": {
+        "listing": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "marketCap": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "financialHealth": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "moat": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "sector": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "dataRights": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        }
+      }
+    },
+    {
+      "ticker": "UNP",
+      "riskFlags": [],
+      "checks": {
+        "listing": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "marketCap": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "financialHealth": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "moat": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "sector": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "dataRights": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        }
+      }
+    },
+    {
+      "ticker": "XOM",
+      "riskFlags": [],
+      "checks": {
+        "listing": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "marketCap": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "financialHealth": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "moat": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "sector": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "dataRights": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        }
+      }
+    },
+    {
+      "ticker": "NEE",
+      "riskFlags": [],
+      "checks": {
+        "listing": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "marketCap": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "financialHealth": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "moat": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "sector": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        },
+        "dataRights": {
+          "status": "unknown",
+          "asOf": null,
+          "checkedAt": null,
+          "sourceURL": null,
+          "note": "편입 적격성 미검증"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'none'; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<title>갤럭시 시험 모드 (합성 자료)</title>
+<style>
+ *{box-sizing:border-box}body{margin:0;background:#f4f7f9;color:#1a1a1a;font:16px/1.55 'Noto Sans KR',system-ui,sans-serif;padding:16px;max-width:760px;margin-inline:auto}
+ h1{font-size:20px;margin:0 0 8px}h2{font-size:17px;margin:0 0 8px}
+ .banner{background:#fff4d6;border:2px solid #7a4b00;color:#3b2500;border-radius:10px;padding:12px;font-weight:700;font-size:14px;margin-bottom:12px}
+ .card{background:#fff;border:1px solid #9bb0c1;border-radius:10px;padding:12px;margin:0 0 12px}.note{font-size:14px;color:#2b2b2b}
+ .ok{color:#0b5d1e;font-weight:800}.bad{color:#9b1c1c;font-weight:800}
+ button{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:10px 16px;border:2px solid #17446b;border-radius:10px;background:#17446b;color:#fff;font:700 16px 'Noto Sans KR',system-ui,sans-serif;cursor:pointer;margin:4px 6px 4px 0}
+ button.alt{background:#fff;color:#17446b}button[disabled]{opacity:.45;cursor:not-allowed}
+ ol{padding-left:22px;margin:6px 0}li{margin:4px 0}textarea{width:100%;min-height:200px;font:13px/1.5 ui-monospace,monospace;color:#1a1a1a;background:#fff;border:1px solid #9bb0c1;border-radius:8px;padding:8px}
+</style></head><body>
+<h1>📱 갤럭시 시험 모드</h1>
+<div class="banner" data-testid="gt-banner">합성(가짜) 자료로만 시험합니다. 실제 투자기록이 아닙니다. 이 화면은 실제 앱과 저장공간이 분리된 주소에서만 시험 자료를 넣고, 기존 사용자 기록이 있으면 아무것도 하지 않습니다.</div>
+<div class="card"><h2>0. 이 주소 점검</h2><div id="gtStatus" class="note" data-testid="gt-status">점검 중…</div></div>
+<div class="card"><h2>1. 시험 시작</h2>
+ <p class="note">아래 버튼은 이 주소의 저장공간에 “합성 …” 이름의 시험 자료를 넣고 앱을 엽니다. 홈 화면에 설치된 실제 앱·이름·아이콘에는 영향이 없습니다.</p>
+ <button type="button" id="gtStart" data-testid="gt-start" disabled>합성 자료로 포폴앱 열기</button>
+ <button type="button" class="alt" id="gtRehearsal" data-testid="gt-rehearsal">백업 복원 리허설 화면 열기</button></div>
+<div class="card"><h2>2. 시험 종료</h2><p class="note">시험이 끝나면 아래 버튼으로 이 주소의 시험 자료만 지웁니다(표시가 있을 때만 동작). 그 뒤 홈 화면의 원래 앱을 열면 됩니다.</p>
+ <button type="button" class="alt" id="gtClear" data-testid="gt-clear" disabled>시험 자료 지우기</button><div id="gtMsg" class="note" role="status" data-testid="gt-msg"></div></div>
+<div class="card"><h2>3. 확인할 것(갤럭시 실기기)</h2><ol>
+ <li>홈 화면 앱(실제)과 이 시험 화면이 서로 다른 데이터를 보여 주는가(시험 화면에는 “합성” 종목만 보임)</li>
+ <li>투자 탭 상단 “오늘의 투자 브리핑” 띠 표시, 눌러서 AI 참모 열림</li>
+ <li>AI 참모 탭 이동·화면 스크롤·버튼 터치(손가락으로 정확히 눌리는가)</li>
+ <li>휴대폰 뒤로가기 버튼: AI 참모 → 이전 탭으로 돌아오는가</li>
+ <li>새로고침 후 같은 화면·같은 합성 자료</li>
+ <li>비행기 모드에서 앱 열기(오프라인)</li>
+ <li>종목 상세 보기(보유종목 눌러 보기)</li>
+ <li>설정 탭 “백업 파일 다운로드” → 파일이 내려받아지는가(파일 이름·저장 위치 기록)</li>
+ <li>복원 리허설 화면에서 방금 받은 백업 파일 선택 → 전체 통과인가</li></ol>
+ <p class="note">결과를 아래 칸에 적어 두세요(저장되지 않습니다. 필요하면 복사해서 보관).</p>
+ <textarea id="gtLog" data-testid="gt-log" aria-label="시험 결과 메모">기기 모델:
+Android/One UI 버전:
+Chrome 버전:
+시험 일시:
+1 ( 통과 / 실패 / 모름 ):
+2 :
+3 :
+4 :
+5 :
+6 :
+7 :
+8 :
+9 :
+화면 캡처 첨부 여부:</textarea></div>
+<script src="galaxy-test-guard.js"></script><script src="galaxy-test-data.js"></script><script src="galaxy-test.js"></script>
+</body></html>

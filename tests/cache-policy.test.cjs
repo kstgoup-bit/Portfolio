@@ -1,0 +1,11 @@
+'use strict';
+const {test}=require('node:test'),assert=require('node:assert/strict'),vm=require('node:vm'),fs=require('node:fs');
+const P=require('../experimental/cache-policy.cjs');
+const origin='https://example.test';
+const req=(path,mode='cors')=>({url:origin+path,method:'GET',mode});
+function cache(){const m=new Map();return {put:async(r,s)=>m.set(r.url,s.clone()),match:async r=>m.get(r.url)?.clone()};}
+test('운영 워커 오프라인 JSON 요청의 HTML 대체 문제 독립 재현',async()=>{const events={},html=new Response('<html>old</html>',{headers:{'Content-Type':'text/html'}});vm.runInNewContext(fs.readFileSync(require('node:path').join(__dirname,'../service-worker.js'),'utf8'),{self:{addEventListener:(n,f)=>events[n]=f},Date,fetch:async()=>{throw Error();},caches:{match:async r=>r==='./portfolio_v5.html'?html:null}});let response;events.fetch({request:req('/radar/data/demo.json'),respondWith:p=>response=p});assert.match((await response).headers.get('content-type'),/text\/html/);});
+test('개선안: 오프라인 JSON·JS는 HTML로 대체하지 않음',async()=>{const handler=P.createHandler({fetcher:async()=>{throw Error();},cache:cache(),origin});for(const path of ['/radar/data/demo.json','/radar/ui.js']){const r=await handler(req(path));assert.equal(r.status,503);assert.match(r.headers.get('content-type'),/application\/json/);assert.equal((await r.json()).evaluation,'unavailable');}});
+test('개선안: 정상 HTML만 저장·오프라인 탐색 복귀',async()=>{const c=cache(),r=req('/portfolio_v5.html','navigate');const online=P.createHandler({fetcher:async()=>new Response('<html>ok</html>',{headers:{'Content-Type':'text/html'}}),cache:c,origin});await online(r);const offline=P.createHandler({fetcher:async()=>{throw Error();},cache:c,origin});assert.equal(await(await offline(r)).text(),'<html>ok</html>');});
+test('개선안: JSON·비밀 쿼리·타 출처·HTML로 위장된 JS는 캐시하지 않음',async()=>{const c=cache(),handler=P.createHandler({fetcher:async()=>new Response('<html>fallback</html>',{headers:{'Content-Type':'text/html'}}),cache:c,origin});for(const r of [req('/x.json'),req('/x.js?apikey=SYNTHETIC'),{...req('/x.js'),url:'https://external.test/x.js'},req('/x.js')]){await handler(r);assert.equal(await c.match(r),undefined);}});
+test('개선안은 자기 네임스페이스 캐시만 정리 대상으로 선정',()=>assert.deepEqual(P.ownedCaches(['portfolio-v5-old','other-app','kst-radar-experimental-v0']),['kst-radar-experimental-v0']));

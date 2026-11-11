@@ -1,0 +1,2 @@
+<response> <header> <resultCode>00</resultCode> <resultMsg>NORMAL SERVICE.</resultMsg> </header> <body> <numOfRows>1</numOfRows> <pageNo>1</pageNo> <totalCount>1</totalCount> <items> <item> <basDt>20260729</basDt> <srtnCd>A000040</srtnCd> <isinCd>KR7000040006</isinCd> <mrktCtg>KOSPI</mrktCtg> <itmsNm>KR모터스</itmsNm> <crno>1601110007032</crno> <corpNm>KR모터스(주)</corpNm> </item> </items>
+</body> </response>

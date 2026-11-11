@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI 투자참모 · 시험 화면</title>
+<style>
+:root{--ink:#1a1a1a;--sub:#333;--line:#90a4ae;--bg:#f4f7f9;--card:#fff;--ok:#1b5e20;--warn:#6b3a00;--bad:#8e1111;--blue:#0d47a1}
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Malgun Gothic",sans-serif;overflow-wrap:anywhere}
+main{max-width:520px;margin:0 auto;padding:10px 16px 40px}
+h1{font-size:20px;margin:6px 0}h2{font-size:17px;margin:0 0 6px}h3{font-size:15px;margin:8px 0 2px}
+.banner{background:#fff3e0;border:2px solid #6b3a00;color:#3e2300;border-radius:10px;padding:8px 12px;font-weight:700;font-size:14px}
+.tabs{display:flex;gap:8px;margin:10px 0;position:sticky;top:0;background:var(--bg);padding:4px 0;z-index:2}
+.tabs button{flex:1}.tabs button[aria-selected=true]{background:var(--blue);color:#fff}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;margin:10px 0}
+.row{display:flex;justify-content:space-between;gap:8px;align-items:baseline;flex-wrap:wrap}
+.kv{font-size:14px;color:var(--sub)}.big{font-size:18px;font-weight:800}.note{font-size:13px;color:var(--sub)}.warnline{font-size:14px;color:var(--warn);font-weight:700}
+.tag{display:inline-block;border:1.5px solid var(--sub);border-radius:999px;padding:2px 10px;font-size:12px;font-weight:700;color:var(--sub)}
+.tag.ok{border-color:var(--ok);color:var(--ok)}.tag.warn{border-color:var(--warn);color:var(--warn)}.tag.bad{border-color:var(--bad);color:var(--bad)}.tag.blue{border-color:var(--blue);color:var(--blue)}
+button{min-height:44px;min-width:44px;padding:8px 14px;border-radius:10px;border:2px solid var(--blue);background:#fff;color:var(--blue);font:700 14px system-ui,"Malgun Gothic",sans-serif;cursor:pointer}
+button.primary{background:var(--blue);color:#fff}.btns{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.item{border-top:1px solid var(--line);padding:10px 0}.item:first-of-type{border-top:0}
+details{border-top:1px solid var(--line)}summary{min-height:44px;display:flex;align-items:center;font-weight:700;font-size:14px;cursor:pointer}
+ul{margin:4px 0 8px;padding-left:20px;font-size:14px}
+[hidden]{display:none!important}
+</style></head><body><main>
+<h1>AI 투자참모</h1>
+<div class="banner" data-testid="app-banner">시험 화면 · 합성 데이터 · 실제 시세·보유·조언이 아닙니다 · 저장하지 않으며 새로고침하면 처음으로 돌아갑니다 · 이 화면은 투자기록을 읽기만 하고 쓰지 않습니다</div>
+<div class="tabs" role="tablist"><button role="tab" id="tab-staff" data-testid="tab-staff" aria-selected="true">참모</button><button role="tab" id="tab-alerts" data-testid="tab-alerts" aria-selected="false">알림 <span id="alert-badge"></span></button></div>
+<div id="view-staff" data-testid="view-staff"></div>
+<div id="view-alerts" data-testid="view-alerts" hidden></div>
+<div id="view-detail" data-testid="view-detail" hidden></div>
+</main>
+<script src="quote-model.js"></script><script src="watch-engine.js"></script><script src="advisor-core.js"></script><script src="quote-crosscheck.js"></script><script src="advice-guard.js"></script><script src="portfolio-reader.js"></script><script src="alerts-core.js"></script><script src="advisor-bridge.js"></script><script src="advisor-app.js"></script>
+</body></html>

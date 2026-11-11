@@ -1,7 +1,7 @@
 {
-  "name": "순태씨의 5년 안에 10억",
-  "short_name": "10억 포폴",
-  "description": "클로 & 재미가 함께하는 투자 포트폴리오 앱",
+  "name": "HAS (Hidden Alpha System)",
+  "short_name": "HAS",
+  "description": "HAS(Hidden Alpha System) — 개인 투자 연구·판단·기록 앱",
   "start_url": "./portfolio_v5.html",
   "display": "standalone",
   "background_color": "#7ec8e3",

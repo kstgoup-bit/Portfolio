@@ -1,0 +1,65 @@
+{
+  "date": "2026-11-10",
+  "mode": "offline synthetic candidate only; live entry always503",
+  "baseline": {
+    "allowedTests": 1498,
+    "passed": 1498,
+    "failed": 0
+  },
+  "final": {
+    "allowedFiles": 100,
+    "tests": 1572,
+    "passed": 1572,
+    "failed": 0,
+    "skipped": 0
+  },
+  "focused": {
+    "tests": 74,
+    "implementation": 29,
+    "independent": 41,
+    "preservation": 4,
+    "includedInFinal": true,
+    "timeZones": [
+      "Etc/UTC",
+      "Asia/Seoul",
+      "America/New_York"
+    ]
+  },
+  "dailyReview": {
+    "cases": 24,
+    "timeZones": [
+      "Etc/UTC",
+      "Asia/Seoul",
+      "America/New_York"
+    ],
+    "meaning": "known current behavior reproduced, not fixes",
+    "runtimeEdits": false
+  },
+  "protectedFiles": 14,
+  "externalTestConnectionAttempts": 0,
+  "guard": "tests/lib/no-network.cjs with HAS_BLOCK_LOG; final log absent; no external attempt warning in results",
+  "secretPatternFindings": 0,
+  "syntaxFiles": 8,
+  "fullNpmTest": false,
+  "browserOrMobile": false,
+  "firebaseSdkOrProductionKeys": false,
+  "liveDurableObjects": false,
+  "liveKisOrGas": false,
+  "cloudResourcesOrConfigurationChanged": false,
+  "mainChanged": false,
+  "pushedOrDeployed": false,
+  "ordersOrAutotradingImplemented": false,
+  "exclusions": [
+    "network-guard-stage19.test.cjs",
+    "kis-runner-stage21.test.cjs",
+    "us-pilot-stage18.test.cjs",
+    "krx-runner-cli.test.cjs",
+    "kr-krx-stage13.test.cjs"
+  ],
+  "intermediatePackagingFailure": {
+    "failedTests": 1,
+    "reason": "full historical HTML duplicated a legacy default value outside the original file",
+    "resolution": "replaced the full duplicate with exact required function excerpts; no weakened test or allowlist",
+    "retestedFinal": "1572/1572"
+  }
+}

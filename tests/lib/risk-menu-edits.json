@@ -1,0 +1,30 @@
+{
+  "portfolio_v5.html": [
+    [
+      "<link rel=\"stylesheet\" href=\"has/ledger-demo.css\">\n<link rel=\"stylesheet\" href=\"has/risk-menu-shortcuts.css\">",
+      "<link rel=\"stylesheet\" href=\"has/ledger-demo.css\">"
+    ],
+    [
+      "  <a class=\"has-risk-shortcut\" href=\"./sell/index.html\" aria-label=\"환호성 레이더 · 합성 연구\">📣 환호성 레이더</a>\n  <button class=\"tab\" onclick=\"switchTab('ledgerdemo')\">🧪 거래 기록·손익 계산 체험</button>",
+      "  <button class=\"tab\" onclick=\"switchTab('ledgerdemo')\">🧪 원장 시범</button>"
+    ],
+    [
+      "id=\"panel-ledgerdemo\" aria-label=\"거래 기록·손익 계산 체험(합성 데이터)\"",
+      "id=\"panel-ledgerdemo\" aria-label=\"원장 시범(합성 데이터)\""
+    ],
+    [
+      "  <button class=\"tab\" onclick=\"switchTab('principledash')\">📋 종목분석</button>\n",
+      "  <button class=\"tab\" onclick=\"switchTab('principledash')\">📋 종목분석</button>\n  <button class=\"tab\" onclick=\"switchTab('advisor')\">🤖 AI자문</button>\n"
+    ],
+    [
+      "  risk:    [\"principledash\",\"risk\",\"commandments\",\"news\",\"radar\",\"ledgerdemo\",\"staff\",\"pretrade\"],",
+      "  risk:    [\"principledash\",\"advisor\",\"risk\",\"commandments\",\"news\",\"radar\",\"ledgerdemo\",\"staff\",\"pretrade\"],"
+    ]
+  ],
+  "has/ledger-demo.js": [
+    [
+      "root.appendChild(el('h2', '', '🧪 거래 기록·손익 계산 체험 (합성 자료)'));",
+      "root.appendChild(el('h2', '', '🧪 원장 시범 (읽기 전용)'));"
+    ]
+  ]
+}

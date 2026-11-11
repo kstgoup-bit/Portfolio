@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "mode": "synthetic",
+  "transport": {
+    "kind": "gas",
+    "sampleRef": "invented-sample",
+    "keysOmitted": true
+  },
+  "upstream": {
+    "provider": "Invented provider",
+    "originId": "invented-a",
+    "evidenceRef": "invented-source"
+  },
+  "quote": {
+    "exchangeAt": "2026-11-06T21:00:00Z",
+    "receivedAt": "2026-11-06T21:00:10Z",
+    "type": "close",
+    "delaySeconds": 0,
+    "exchangeTimeEvidenceRef": "invented-clock",
+    "entitlementEvidenceRef": "invented-plan"
+  },
+  "rights": {
+    "personalDisplay": true,
+    "derivedAnalytics": true,
+    "storagePolicy": "not-stored",
+    "redistributionPolicy": "not-shared",
+    "evidenceRef": "invented-rights"
+  },
+  "comparison": {
+    "originId": "invented-b",
+    "originEvidenceRef": "invented-origin",
+    "sampleRef": "invented-comparison"
+  },
+  "history": {
+    "sampleRef": "invented-bars",
+    "adjustment": "split",
+    "adjustmentEvidenceRef": "invented-adjustments",
+    "calendarEvidenceRef": "invented-calendar",
+    "timeZone": "America/New_York",
+    "from": "2026-11-01",
+    "through": "2026-11-06"
+  },
+  "financials": {
+    "provider": "SEC",
+    "sampleRef": "invented-facts",
+    "filingRef": "invented-filing",
+    "entityIdentityRef": "invented-entity",
+    "periodRef": "invented-period",
+    "unitsRef": "invented-units",
+    "revisionPolicyRef": "invented-revisions",
+    "secSelectionRef": "invented-selection"
+  }
+}

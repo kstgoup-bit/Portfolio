@@ -1,0 +1,74 @@
+'use strict';
+// 17단계: 표시 이름만 바뀐 파일이 "16단계 원본에서 아래 치환만 한 것"임을 증명하는 도우미.
+// 현재 파일에서 새 이름을 옛 이름으로 되돌린 뒤 해시를 내면 16단계 해시와 같아야 한다.
+const fs = require('fs'), path = require('path'), crypto = require('crypto');
+const ROOT = path.join(__dirname, '..', '..');
+const RENAMES = {
+  'portfolio_v5.html': [
+    ['<meta name="apple-mobile-web-app-title" content="HAS">', '<meta name="apple-mobile-web-app-title" content="10억 포폴">'],
+    ['<title>HAS · Hidden Alpha System</title>', '<title>순태씨의 5년 안에 10억!</title>'],
+    ['<div class="lock-title">HAS · Hidden Alpha System</div>', '<div class="lock-title">순태씨의 5년 안에 10억!</div>'],
+    ['<div class="header-title" style="text-align:center">HAS · Hidden Alpha System 💰</div>', '<div class="header-title" style="text-align:center">순태씨의 5년 안에 10억! 💰</div>']],
+  'manifest.json': [
+    ['"name": "HAS (Hidden Alpha System)"', '"name": "순태씨의 5년 안에 10억"'],
+    ['"short_name": "HAS"', '"short_name": "10억 포폴"'],
+    ['"description": "HAS(Hidden Alpha System) — 개인 투자 연구·판단·기록 앱"', '"description": "클로 & 재미가 함께하는 투자 포트폴리오 앱"']] };
+/* 19단계: portfolio_v5.html에 가한 연결 수정 목록([지금 문구, 이전 문구], 적용 순서). 되돌릴 때는 마지막부터 거꾸로. */
+const STAGE19 = JSON.parse(fs.readFileSync(path.join(__dirname, 'has-stage19-edits.json'), 'utf8'));
+/* 25단계: AI 참모 연결 수정 목록([지금 문구, 24단계 문구]). 가장 먼저(마지막부터) 되돌린다. */
+const STAGE25 = JSON.parse(fs.readFileSync(path.join(__dirname, 'has-stage25-edits.json'), 'utf8'));
+/* 26단계: color 오류 수정 1곳([지금 문구, 25단계 문구]). 25단계 되돌리기보다 먼저 되돌린다. */
+const STAGE26 = JSON.parse(fs.readFileSync(path.join(__dirname, 'has-stage26-edits.json'), 'utf8'));
+/* 28단계: 시세 갱신 시각 기록 5곳([지금 문구, 26단계 문구]). 가장 먼저 되돌린다. */
+const STAGE28 = JSON.parse(fs.readFileSync(path.join(__dirname, 'has-stage28-edits.json'), 'utf8'));
+/* 29단계: 매매 점검 탭 연결 수정 목록([지금 문구, 28단계 문구]). 가장 먼저 되돌린다. */
+const STAGE29 = JSON.parse(fs.readFileSync(path.join(__dirname, 'has-stage29-edits.json'), 'utf8'));
+/* 2026-11-10: explicitly reviewed recording edits are reversed before historical stage checks. */
+const RECORDING = require('./has-recording-edits.json');
+const RECORDING_PINS = require('./recording-review-pins.json');
+const DAILY = require('./has-daily-edits.json');
+const DAILY_PINS = require('./daily-review-pins.json');
+function beforeDailyText(file) {
+  let s = require('./daily-repair-projection.cjs').beforeDailyRepairText(file);
+  if (file === 'portfolio_v5.html') {
+    for (const [now, old] of DAILY.slice().reverse()) {
+      if (s.split(now).length !== 2) throw new Error('당일 기록 변경 역검증 실패');
+      s = s.replace(now, () => old);
+    }
+    if (crypto.createHash('sha256').update(s).digest('hex') !== DAILY_PINS.baselineHTMLSha256) throw new Error('승인된 당일 기록 변경 외 HTML 차이');
+  }
+  return s;
+}
+function beforeRecordingText(file) {
+  let s = beforeDailyText(file);
+  if (file === 'portfolio_v5.html') {
+    for (let i = RECORDING.length - 1; i >= 0; i--) {
+      const [now, old] = RECORDING[i];
+      if (s.split(now).length !== 2) throw new Error('기록 보완 수정 되돌리기 실패: ' + now.slice(0, 60));
+      s = s.replace(now, () => old);
+    }
+    if (crypto.createHash('sha256').update(s).digest('hex') !== RECORDING_PINS.baselineHTMLSha256) throw new Error('기록 보완 외 HTML 변경 감지');
+  }
+  return s;
+}
+function stage24Text(file) {
+  let s = beforeRecordingText(file);
+  if (file === 'portfolio_v5.html') for (let i = STAGE29.length - 1; i >= 0; i--) { const [now, old] = STAGE29[i]; if (s.split(now).length !== 2) throw new Error('29단계 수정 되돌리기 실패: ' + now.slice(0, 60)); s = s.replace(now, () => old); }
+  if (file === 'portfolio_v5.html') for (let i = STAGE28.length - 1; i >= 0; i--) { const [now, old] = STAGE28[i]; if (s.split(now).length !== 2) throw new Error('28단계 수정 되돌리기 실패: ' + now.slice(0, 60)); s = s.replace(now, () => old); }
+  if (file === 'portfolio_v5.html') for (let i = STAGE26.length - 1; i >= 0; i--) { const [now, old] = STAGE26[i]; if (s.split(now).length !== 2) throw new Error('26단계 수정 되돌리기 실패'); s = s.replace(now, () => old); }
+  if (file === 'portfolio_v5.html') for (let i = STAGE25.length - 1; i >= 0; i--) { const [now, old] = STAGE25[i]; if (s.split(now).length !== 2) throw new Error('25단계 수정 되돌리기 실패: ' + now.slice(0, 60)); s = s.replace(now, () => old); }
+  return s;
+}
+function stage18Text(file) {
+  let s = stage24Text(file);
+  if (file === 'portfolio_v5.html') for (let i = STAGE19.length - 1; i >= 0; i--) { const [now, old] = STAGE19[i]; if (s.split(now).length !== 2) throw new Error('19단계 수정 되돌리기 실패: ' + now.slice(0, 60)); s = s.replace(now, () => old); }
+  return s;
+}
+function legacyText(file) {
+  let s = stage18Text(file);
+  for (const [now, old] of RENAMES[file] || []) { if (s.split(now).length !== 2) throw new Error(file + ': 치환 대상이 정확히 1개가 아님: ' + now); s = s.replace(now, () => old); }
+  return s;
+}
+const legacySha = file => crypto.createHash('sha256').update(RENAMES[file] ? legacyText(file) : require('./daily-repair-projection.cjs').beforeDailyRepairBytes(file)).digest('hex');
+const stage18Sha = file => crypto.createHash('sha256').update(stage18Text(file)).digest('hex');
+module.exports = { RENAMES, STAGE19, STAGE25, STAGE26, STAGE28, beforeDailyText, beforeRecordingText, stage24Text, stage18Text, legacyText, legacySha, stage18Sha };

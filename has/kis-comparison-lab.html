@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'none'; img-src 'none'; font-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
+  <title>GAS + KIS · 오프라인 비교 실험실</title>
+  <link rel="stylesheet" href="kis-comparison-lab.css">
+  <script src="kis-comparison.js" defer></script>
+  <script src="kis-comparison-fixtures.js" defer></script>
+  <script src="close-evidence-sources.js" defer></script>
+  <script src="close-comparison.js" defer></script>
+  <script src="close-comparison-fixtures.js" defer></script>
+  <script src="close-evidence.js" defer></script>
+  <script src="close-evidence-fixtures.js" defer></script>
+  <script src="kis-comparison-lab.js" defer></script>
+</head>
+<body>
+<main>
+  <header>
+    <p class="eyebrow">모바일 · 키 없는 메타데이터 계약 시험</p>
+    <h1>GAS 유지,<br>KIS 추가 비교</h1>
+    <p>기존 GAS를 대체하지 않습니다. 합성 시세 두 건의 비교 조건만 확인합니다.</p>
+    <p class="badge">실연결 없음 · 출처 독립성 미확인</p>
+  </header>
+  <section class="warning" aria-labelledby="safety-title">
+    <h2 id="safety-title">키나 계좌정보를 넣지 마세요</h2>
+    <p>앱 키, 비밀키, 토큰, 계좌번호, 개인정보는 입력 금지입니다. KIS 로그인 화면이 아닙니다. 키를 브라우저·localStorage·GitHub·백업에 두지 마세요.</p>
+    <p>네트워크 호출·저장·업로드·내보내기 기능이 없습니다. 합성 데이터만 사용하세요. 주문·자동매매·매수/매도 조언 기능도 없습니다.</p>
+  </section>
+  <section aria-labelledby="input-title">
+    <h2 id="input-title">1. 합성 데이터 확인</h2>
+    <label for="comparison-mode">비교 모드</label>
+    <select id="comparison-mode" aria-describedby="mode-help">
+      <option value="exacttime">동일 시각 · GAS + KIS</option>
+      <option value="officialclose">동일 거래 세션 · 공식 종가 표기</option>
+    </select>
+    <p id="mode-help">동일 시각 모드: 가격 시각이 정확히 같아야 합니다. 시각 오차는 허용하지 않습니다.</p>
+    <p id="input-help">동일 종목·거래소·통화·가격 종류와 각 가격의 시각이 필요합니다. 같은 값이어도 독립적인 출처라는 뜻은 아닙니다.</p>
+    <label id="input-label" for="comparison-input">GAS + KIS 비교 JSON</label>
+    <textarea id="comparison-input" rows="16" spellcheck="false" autocomplete="off" autocapitalize="off" aria-describedby="input-help safety-title" placeholder="합성 예제 넣기 버튼을 눌러 시작하세요."></textarea>
+    <div class="actions">
+      <button id="example" type="button">합성 예제 넣기</button>
+      <button id="analyze" class="primary" type="button">비교 조건 분석</button>
+      <button id="reset" type="button">입력·결과 지우기</button>
+    </div>
+    <p id="status" role="status" aria-live="polite" aria-atomic="true">합성 예제를 넣거나 키 없는 JSON을 입력하세요.</p>
+  </section>
+  <section aria-labelledby="result-title">
+    <h2 id="result-title">2. 비교 결과</h2>
+    <p id="result-context">GAS: 기존 경로 유지 / KIS: 추가 확인 경로 / 실연결: 없음</p>
+    <div id="result" aria-live="polite" aria-atomic="true"></div>
+  </section>
+  <footer>
+    <p>오프라인 계약 시험입니다. 실제 시세 정확도·KIS 연결·투자 적합성을 검증하지 않습니다.</p>
+    <p>360 / 390 / 430px 모바일 레이아웃 기준으로 작성했습니다. 실제 모바일 화면 검증은 아직 하지 않았습니다.</p>
+  </footer>
+</main>
+</body>
+</html>

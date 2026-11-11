@@ -1,0 +1,22 @@
+[
+ [
+  "var freshPrice={};\n/* 28단계: 이번 접속에서 GAS로 시세를 받은 시각(메모리 전용·저장 안 함). AI 참모가 \"얼마나 최근 값인지\" 표시하는 데만 읽는다. */\nvar quoteMeta={};",
+  "var freshPrice={};"
+ ],
+ [
+  "freshPrice[\"US:\"+s.ticker]=true; quoteMeta[\"US:\"+s.ticker]=Date.now();}",
+  "freshPrice[\"US:\"+s.ticker]=true;}"
+ ],
+ [
+  "freshPrice[\"KR:\"+s.ticker]=true; quoteMeta[\"KR:\"+s.ticker]=Date.now();}",
+  "freshPrice[\"KR:\"+s.ticker]=true;}"
+ ],
+ [
+  "    freshPrice={}; quoteMeta={};\n    fetchFX();",
+  "    freshPrice={};\n    fetchFX();"
+ ],
+ [
+  "document.getElementById(\"usdKrw\").value=data.usdKrw; quoteMeta[\"FX\"]=Date.now();\n",
+  "document.getElementById(\"usdKrw\").value=data.usdKrw;\n"
+ ]
+]

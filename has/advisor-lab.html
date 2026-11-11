@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI 투자참모 시험 화면</title>
+<style>
+:root{--ink:#1a1a1a;--sub:#333;--line:#b0bec5;--bg:#f4f7f9;--card:#fff;--ok:#1b5e20;--warn:#8a4b00;--bad:#b71c1c;--blue:#0d47a1}
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Malgun Gothic",sans-serif}
+main{max-width:520px;margin:0 auto;padding:12px 16px 40px}
+h1{font-size:20px;margin:8px 0}h2{font-size:17px;margin:0 0 8px}
+.banner{background:#fff3e0;border:2px solid #8a4b00;color:#3e2300;border-radius:10px;padding:10px 12px;font-weight:700;font-size:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;margin:12px 0}
+.row{display:flex;justify-content:space-between;gap:8px;align-items:baseline;flex-wrap:wrap}
+.kv{font-size:14px;color:var(--sub)}.big{font-size:18px;font-weight:800}
+.tag{display:inline-block;border:1.5px solid var(--sub);border-radius:999px;padding:2px 10px;font-size:12px;font-weight:700;color:var(--sub)}
+.tag.ok{border-color:var(--ok);color:var(--ok)}.tag.warn{border-color:var(--warn);color:var(--warn)}.tag.bad{border-color:var(--bad);color:var(--bad)}.tag.blue{border-color:var(--blue);color:var(--blue)}
+.note{font-size:13px;color:var(--sub)}.warnline{font-size:14px;color:var(--warn);font-weight:700}
+button{min-height:44px;min-width:44px;padding:8px 14px;border-radius:10px;border:2px solid var(--blue);background:#fff;color:var(--blue);font:700 14px system-ui,"Malgun Gothic",sans-serif;cursor:pointer}
+button.primary{background:var(--blue);color:#fff}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+details{border-top:1px solid var(--line);padding:6px 0}summary{min-height:44px;display:flex;align-items:center;font-weight:700;font-size:14px;cursor:pointer}
+ul{margin:4px 0 8px;padding-left:20px;font-size:14px}li{margin:2px 0}
+.stock{border-top:1px solid var(--line);padding:10px 0}.stock:first-of-type{border-top:0}
+</style></head><body><main>
+<h1>AI 투자참모 시험 화면</h1>
+<div class="banner" data-testid="adv-banner">시험 화면 · 합성 데이터 · 실제 시세·보유·조언이 아닙니다 · 아무것도 저장하지 않으며 새로고침하면 처음 상태로 돌아갑니다.</div>
+<section class="card" data-testid="adv-counts"><h2>감시 현황</h2><div id="counts"></div></section>
+<section class="card"><h2>1. 시세 상태 (출처·기준일·종류)</h2><div id="prices"></div><div class="btns"><button id="btn-fail" data-testid="btn-fail">조회 실패 시뮬레이션</button><button id="btn-retry" data-testid="btn-retry" class="primary">다시 조회(합성)</button></div><div id="valuation" data-testid="valuation"></div></section>
+<section class="card"><h2>2. 감시 신호</h2><div id="signals"></div></section>
+<section class="card"><h2>3. 참모 의견</h2><div id="advice"></div></section>
+<section class="card"><h2>4. 선제 알림 (후보 생성·중복 방지)</h2><div id="alerts" data-testid="alerts"></div><div class="btns"><button id="btn-again" data-testid="btn-again">같은 신호 다시 생성</button><button id="btn-nextday" data-testid="btn-nextday">8일 뒤 다시 생성</button></div><div id="alert-log" class="note" data-testid="alert-log"></div><p class="note" id="push-note"></p></section>
+<section class="card"><h2>5. 판단 기록·사후 검증</h2><div id="journal" data-testid="journal"></div><div class="btns"><button id="btn-eval" data-testid="btn-eval">30일 뒤 평가(합성)</button></div><div id="eval" data-testid="eval"></div></section>
+</main>
+<script src="quote-model.js"></script><script src="watch-engine.js"></script><script src="advisor-core.js"></script><script src="alerts-core.js"></script><script src="advice-journal.js"></script><script src="advisor-lab.js"></script>
+</body></html>

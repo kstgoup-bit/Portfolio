@@ -1,0 +1,8 @@
+'use strict';const {test}=require('node:test'),a=require('node:assert/strict'),{parseMassiveDaily:parse}=require('../radar/vendor-massive.js');
+function fixture(){return {status:'OK',ticker:'MSFT',adjusted:true,resultsCount:2,results:[{t:Date.parse('2026-10-28T04:00:00Z'),h:100,c:90},{t:Date.parse('2026-10-29T04:00:00Z'),h:110,c:95}]};}
+const ctx={ticker:'MSFT',synthetic:true,requestTimespan:'day',requestMultiplier:1};
+test('Massive raw fixture normalizes NY dates but remains unavailable for real signals',()=>{const r=parse(fixture(),ctx);a.deepEqual(r.bars.map(x=>x.date),['2026-10-28','2026-10-29']);a.equal(r.readyForSignals,false);a.equal(r.session,'unverified');a.equal(r.currency,null);});
+for(const [label,change]of [['pagination',r=>r.next_url='https://example.invalid/?apiKey=secret'],['raw unadjusted',r=>r.adjusted=false],['provider error',r=>r.status='ERROR'],['missing bars',r=>r.results=[]],['wrong ticker',r=>r.ticker='AAPL'],['bad price',r=>r.results[0].c=-1],['duplicate',r=>r.results[1].t=r.results[0].t],['count mismatch',r=>r.resultsCount=1]])test('Massive rejects '+label,()=>{const r=fixture();change(r);a.throws(()=>parse(r,ctx),/^Error: MASSIVE_RAW_CONTRACT_INVALID$/);});
+test('real payload path blocked',()=>a.throws(()=>parse(fixture(),{...ctx,synthetic:false})));
+test('intraday request context blocked',()=>a.throws(()=>parse(fixture(),{...ctx,requestTimespan:'minute'})));
+test('UTC rolls back to New York previous date',()=>{const r=fixture();r.results=[{t:Date.parse('2026-10-29T00:00:00Z'),h:10,c:9}];r.resultsCount=1;a.equal(parse(r,ctx).bars[0].date,'2026-10-28');});

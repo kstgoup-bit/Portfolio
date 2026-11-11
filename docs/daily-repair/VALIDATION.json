@@ -1,0 +1,109 @@
+{
+  "date": "2026-11-10",
+  "scope": "offline synthetic only; no live API, credentials, user storage, deployment or orders",
+  "remoteBaseline": "d3f123fc757f4c6ad0a5017de8be894a3ae6e71b",
+  "remoteBaselineTree": "6f8978e1181378bfccb2700fee456f1068c403b2",
+  "localEquivalentBaseline": "35bc9d241d475cf53df56ddb3867263a25195280",
+  "remoteMainUnchanged": "fd2599398d2f2ef1816ca9b64ea134ea8811309d",
+  "baseline": {
+    "tests": 1572,
+    "pass": 1572,
+    "fail": 0,
+    "skipped": 0
+  },
+  "allowedFiles": 106,
+  "excludedFiles": [
+    "network-guard-stage19.test.cjs",
+    "kis-runner-stage21.test.cjs",
+    "us-pilot-stage18.test.cjs",
+    "krx-runner-cli.test.cjs",
+    "kr-krx-stage13.test.cjs"
+  ],
+  "regression": {
+    "UTC": {
+      "tests": 1807,
+      "pass": 1805,
+      "fail": 0,
+      "skipped": 2
+    },
+    "Asia_Seoul": {
+      "tests": 1807,
+      "pass": 1805,
+      "fail": 0,
+      "skipped": 2
+    },
+    "America_New_York": {
+      "tests": 1807,
+      "pass": 1807,
+      "fail": 0,
+      "skipped": 0
+    }
+  },
+  "newFocused": {
+    "tests": 235,
+    "pass": 235,
+    "fail": 0,
+    "skipped": 0
+  },
+  "independent": {
+    "cases": 42,
+    "timezones": [
+      "UTC",
+      "Asia/Seoul",
+      "America/New_York"
+    ],
+    "passPerRun": 42,
+    "skippedPerRun": 0,
+    "externalAttempts": 0
+  },
+  "portableNoGitSource": {
+    "gitMetadataPresent": false,
+    "filesAtTest": 645,
+    "sameRuntimeAndTestsAsRelease": true,
+    "run": {
+      "tests": 1807,
+      "pass": 1807,
+      "fail": 0,
+      "skipped": 0
+    }
+  },
+  "syntax": {
+    "inlineScripts": 2,
+    "changedRuntimeJavaScriptFiles": 5,
+    "passed": true
+  },
+  "whitespacePassed": true,
+  "networkGuard": {
+    "externalAttempts": 0,
+    "blockedLogFilesCreated": false
+  },
+  "runtimeSHA256": {
+    "portfolio_v5.html": "e9ed6c4367be436323e59a2979a11b89b3b8126bfd919106fa94ce7f4b3ea3cc",
+    "backup/core.js": "123c9b91bcffaf91c8c5c55b47f07b3a32e5f9462fe7d9418aa1f6c21f651854",
+    "backup/ui.js": "55cfd9a5242218942dbd77c2c3716b06cad446b643f6d8865d7c90d926941c4f",
+    "has/benchmark-history-policy.js": "e3581fe48c5d53826364d84b3067b3813e2a45d5ae498bdd28e20893862a9018",
+    "has/restore-rehearsal.html": "635b30e9c1204cb09101b5c763d4baae532ba0cc5e62fbde46ae5c1c7a6bd375",
+    "has/restore-rehearsal.js": "bb92bbfa5b1d5826fa3fbbe7a5bdfb253c60e6ebc5e66724518f0ec9b38aed59",
+    "has/return-assessment.js": "67dc8d3b8e56f0d3621c9389a0fec9b3fd017205841d33582e853fab1be3ad6d"
+  },
+  "logsSHA256": {
+    "baseline.log": "2aa3a6cafe3aa57f139078daaf4bdc16ad68d31885242a9a9cef533e81b32bce",
+    "regression-UTC.log": "8f46531056176c0499002318258fe1d4fa1d7ea0ad655ed651643d9698a7394e",
+    "regression-Asia_Seoul.log": "4f8914a368c190547bb3d9d4652ba3b07ffa7094a9c33fa82bebc6255d9c0ad3",
+    "regression-America_New_York.log": "352b667ca0a5935173f04283e2d82463521457c3addaa4697dd70b53d9e10134",
+    "focus-New_York.log": "de95e47019aaf36b62f2f26966aa1f29c4b0cd9b3f1a6e5979e896cd12c9e856",
+    "portable-New_York.log": "8bde07f19a41fe92ae3ecbb44772fb33bdc7c888bc9cf30bd7821205f2aa69aa",
+    "baseline-NY-manual-fixture.log": "547d18cf53276d0ca327e2621c3973a3bd594bcf57b13ad57f56a3d827a77a7c"
+  },
+  "notValidated": [
+    "full npm test including five excluded suites",
+    "real mobile/browser layout and touch",
+    "real user data migration/restore",
+    "live GAS/KIS/Yahoo/Alpha Vantage connectivity",
+    "provider data rights or independence",
+    "official session close/finality",
+    "production deployment",
+    "complete holdings/cash trade reconciliation UI"
+  ],
+  "testOnlyFixtureCorrection": "Two legacy manual-price tests used local10:00 after fixed12:00UTC in New York. Reproduced on unchanged baseline, replaced with past06:00 fixture; runtime future-time rejection remains unchanged."
+}

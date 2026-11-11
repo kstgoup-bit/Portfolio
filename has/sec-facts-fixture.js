@@ -1,0 +1,6 @@
+/* Invented values, entity and accession. Never live SEC evidence. */
+(function(root,factory){if(typeof module==='object'&&module.exports)module.exports=factory();else root.HASSECFactFixtures=factory();})(typeof globalThis!=='undefined'?globalThis:this,function(){
+'use strict';
+function create(){const accn='0000123456-26-000001',end='2025-12-31',filed='2026-02-20';const defs=[['revenue','Revenues','USD',123000000,false],['eps','EarningsPerShareDiluted','USD/shares',2.75,false],['cash','CashAndCashEquivalentsAtCarryingValue','USD',17000000,true],['equity','StockholdersEquity','USD',48000000,true]];const selections={},facts={};for(const [field,tag,unit,val,instant] of defs){const row={end,val,accn,fy:2025,fp:'FY',form:'10-K',filed};const s={tag,unit,accession:accn,end,form:'10-K',filed};if(!instant){row.start='2025-01-01';s.start=row.start;}facts[tag]={label:tag,description:'Invented fixture value; no actual issuer',units:{[unit]:[row]}};selections[field]=s;}return{version:1,synthetic:true,mode:'synthetic',instrument:{ticker:'EXAMPLE',market:'US',currency:'USD'},identityReview:{reviewed:true,ticker:'EXAMPLE',cik:'0000123456',reviewedOn:'2026-02-21'},companyfacts:{cik:123456,entityName:'Invented Example Company (not a real issuer)',facts:{'us-gaap':facts}},selections};}
+return Object.freeze({create});
+});

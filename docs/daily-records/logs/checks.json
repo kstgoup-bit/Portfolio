@@ -1,0 +1,11 @@
+{
+  "changedJsCjsSyntax": 12,
+  "inlineScriptSyntax": 2,
+  "networkAttemptLogPresent": false,
+  "sourceSha256": {
+    "backup/core.js": "d1313ec285deebd674a03f9b48f698227247756a042643f39a643d894e3fb22b",
+    "has/snapshot-policy.js": "9109c84c4f4a8bfdde046646e668dc1c4b9ebf4712f50ff271daadf2f2bc3d1a",
+    "has/benchmark-history-policy.js": "6b1d7d5e2c26c619412090592b171d8868f8ec8e06aeb905c143343a72562014",
+    "portfolio_v5.html": "23bacc9e5f3de930b055292898d00ef6c6b162f8e3152cb7d9f383989a0269a5"
+  }
+}

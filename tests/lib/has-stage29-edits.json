@@ -1,0 +1,26 @@
+[
+ [
+  "<link rel=\"stylesheet\" href=\"has/advisor-panel.css\">\n<link rel=\"stylesheet\" href=\"has/pretrade-panel.css\">",
+  "<link rel=\"stylesheet\" href=\"has/advisor-panel.css\">"
+ ],
+ [
+  "<script defer src=\"has/advisor-panel.js\"></script>\n<script defer src=\"has/pretrade-log.js\"></script>\n<script defer src=\"has/pretrade-panel.js\"></script>",
+  "<script defer src=\"has/advisor-panel.js\"></script>"
+ ],
+ [
+  "  <button class=\"tab\" onclick=\"switchTab('staff')\">🧭 AI 참모</button>\n  <button class=\"tab\" onclick=\"switchTab('pretrade')\">📝 매매 점검</button>\n</div>",
+  "  <button class=\"tab\" onclick=\"switchTab('staff')\">🧭 AI 참모</button>\n</div>"
+ ],
+ [
+  "<div class=\"panel\" id=\"panel-staff\" aria-label=\"AI 투자참모(읽기 전용)\"></div>\n<div class=\"panel\" id=\"panel-pretrade\" aria-label=\"매매 전 점검과 사유 기록\"></div>",
+  "<div class=\"panel\" id=\"panel-staff\" aria-label=\"AI 투자참모(읽기 전용)\"></div>"
+ ],
+ [
+  "\"radar\",\"ledgerdemo\",\"staff\",\"pretrade\"],",
+  "\"radar\",\"ledgerdemo\",\"staff\"],"
+ ],
+ [
+  "  if(window.HASAdvisorPanel) window.HASAdvisorPanel.onTabChange(tab);\n  if(window.HASPretradePanel) window.HASPretradePanel.onTabChange(tab);",
+  "  if(window.HASAdvisorPanel) window.HASAdvisorPanel.onTabChange(tab);"
+ ]
+]

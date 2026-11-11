@@ -1,0 +1,64 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> kst-portfolio-radar-stage2@0.1.0 test:review-fixes
+> node --require ./tests/lib/no-network.cjs --test tests/gas-redact.test.cjs tests/gas-redactor-dom.test.cjs tests/market-sessions.test.cjs tests/data-workbench-claude-fixes.test.cjs tests/review-fixes-independent.test.cjs
+
+✔ Friday close expires at Monday close, not Tuesday midnight (106.010313ms)
+✔ closedDates cannot grant freshness, regardless of shape (52.715846ms)
+✔ delayed quotes retain existing rules (10.597746ms)
+✔ SEC: 오래된 공시 값에는 stale 가 값·근거 양쪽에 true, 최신 값에는 false (1.867119ms)
+✔ 입력 원본은 변경되지 않는다 (6.552669ms)
+✔ 비밀로 보이는 값은 결과에 남지 않는다 (4.670347ms)
+✔ 구조·함수 이름·로직은 남는다(분석 가능) (0.683929ms)
+✔ 가격·종목코드·날짜·환율이 든 응답 예시는 훼손하지 않는다 (0.353812ms)
+✔ 이미 가린 결과를 다시 가려도 같다(멱등) (1.751335ms)
+✔ 입력이 문자열이 아니거나 너무 길면 거절 (0.198138ms)
+✔ 큰 입력도 빠르게 끝난다(정규식 폭주 없음) (248.227587ms)
+✔ 항상 완전하지 않다는 경고를 낸다 (0.291749ms)
+✔ 토큰 접두사가 가려지지 않고 남으면 경고 (0.15274ms)
+✔ 모듈에 저장·네트워크 코드가 없다 (0.593643ms)
+✔ escaped JSON quotes/backslashes preserve structure without secret tails (0.553122ms)
+✔ GAS escaped strings, multiline literals and property initialization (0.515395ms)
+✔ uncertain sensitive expression boundaries refuse all output (0.450608ms)
+✔ adjacent nonsecret values and escaped delimiters do not get swallowed (0.17969ms)
+✔ many escaped literals and unterminated tails remain bounded (69.256964ms)
+✔ commented-out secret assignments are blocked rather than silently exposed (0.270547ms)
+✔ empty and numeric secret literals are hidden without damaging adjacent JSON (0.894696ms)
+✔ static bracket secret keys are hidden, compound assignments are withheld (0.485671ms)
+✔ escaped API prefixes and URLs are screened as decoded literal values (0.311539ms)
+✔ escaped identifier unsupported forms fail closed and codepoint keys are recognized (0.205139ms)
+✔ legacy octal and ambiguous zero-digit escapes are withheld (0.237898ms)
+✔ copy false and throw are explicit failure, never success (4.861454ms)
+✔ legacy copy true reports success (0.686803ms)
+✔ clipboard rejection cannot report success or trigger a second copy (5.375187ms)
+✔ clipboard resolves before success, repeated clicks do not race (1.41561ms)
+✔ input edits immediately clear stale output and block copying (0.943179ms)
+✔ pending copy after edit, rerun, reset or pageshow warns about old clipboard (3.441348ms)
+✔ failed redaction clears previous output and is not copyable (0.799142ms)
+✔ normal synthetic fixture stays usable, visibly invented and unverified (41.415544ms)
+✔ close grace boundary withholds old and new close (9.548486ms)
+✔ US DST real local clock handles summer and winter closes (5.917694ms)
+✔ KR 15:30 KST close and grace (3.566436ms)
+✔ complete declared long holiday removes obsolete four calendar day gate (2.394182ms)
+✔ early close expires prior close at declared early boundary (4.700272ms)
+✔ missing imported calendar fails closed even if caller asserts quote verified (2.151017ms)
+✔ invalid missing out-of-range contradictory calendar withholds, never fallback (16.135928ms)
+✔ future quote and future receipt rejected; supplied schedule may contain future session closes (2.795696ms)
+✔ weekend DST transitions change the next session close UTC time (3.639972ms)
+✔ calendar and close input remain unchanged and unverified (0.765672ms)
+✔ imported calendar cannot launder explicit synthetic provenance (4.364887ms)
+✔ long holiday session preview explicitly withholds incompatible legacy valuation (19.418497ms)
+✔ independent: decoded API prefix and escaped deployment URL cannot leak (2.818471ms)
+✔ independent: escaped identifiers, codepoint keys and brackets cannot leak (0.808236ms)
+✔ independent: zero-prefixed octal URL escapes withhold all output (0.201323ms)
+✔ independent: admitted synthetic calendar cannot establish imported freshness (26.795006ms)
+✔ independent: long-holiday preview explicitly withholds legacy valuation without rewriting evidence (25.96059ms)
+✔ independent: failed legacy copy cannot report success or replace original clipboard (2.240781ms)
+ℹ tests 51
+ℹ suites 0
+ℹ pass 51
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 424.678945

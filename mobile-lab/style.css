@@ -1,0 +1,24 @@
+:root{--ink:#1f1f1f;--bg:#ffffff;--card:#f4f6f8;--line:#555;--accent:#0b3d91;--warn:#7a1f00}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{margin:0;font:1rem/1.55 system-ui,-apple-system,"Noto Sans KR",sans-serif;color:var(--ink);background:var(--bg);padding:0 16px 32px;max-width:640px;margin-inline:auto;overflow-wrap:anywhere}
+.top h1{font-size:1.4rem;margin:16px 0 8px}
+.banner{background:#fff3c4;border:2px solid #7a5b00;color:#2b2000;padding:10px 12px;border-radius:8px;font-weight:700;margin:0 0 12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin:0 0 14px}
+.card h2{font-size:1.15rem;margin:0 0 8px}
+.note{font-size:.95rem;color:#333;margin:8px 0}
+.warn{font-size:1rem;color:var(--warn);font-weight:700;margin:8px 0}
+.counts{display:grid;grid-template-columns:1fr auto;gap:6px 12px;margin:0}
+.counts dt{margin:0}.counts dd{margin:0;font-weight:700;text-align:right}
+label{display:block;font-weight:700;margin:12px 0 4px}
+input[type=text],input:not([type]),select{width:100%;min-height:48px;font-size:1rem;padding:8px 10px;border:2px solid #333;border-radius:8px;background:#fff;color:var(--ink)}
+.check{display:flex;gap:10px;align-items:flex-start;font-weight:600;min-height:48px;margin:14px 0}
+.check input{width:44px;height:44px;flex:none;margin:0}
+.btn{display:block;width:100%;min-height:52px;margin:12px 0 0;font-size:1.05rem;font-weight:700;border:2px solid var(--accent);background:var(--accent);color:#fff;border-radius:10px;padding:10px 14px}
+.btn.secondary{background:#fff;color:var(--accent)}
+.btn:disabled{background:#d9dde3;border-color:#555;color:#222;cursor:not-allowed}
+.btn[hidden],[hidden]{display:none!important}
+.plan,.samples{padding-left:20px;margin:8px 0}.plan li,.samples li{margin:6px 0}
+.foot{font-size:.9rem;color:#333;border-top:1px solid var(--line);padding-top:10px}
+:focus-visible{outline:3px solid #000;outline-offset:2px}
+@media (orientation:landscape) and (max-height:480px){.btn{min-height:48px}}
