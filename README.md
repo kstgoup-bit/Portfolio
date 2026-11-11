@@ -1,5 +1,9 @@
 # Portfolio
 
+## 위험관리 메뉴 대조 · 확인된 범위 수정
+
+[체험판 대조·미확인 사항 보고서](docs/risk-menu-review/REPORT.md)와 [폰 검토 목록](docs/risk-menu-review/PHONE-REVIEW.md)을 먼저 읽는다. 환호성 바로가기와 거래·손익 체험 이름을 정리하고 기존 매매 점검을 보존했다. **가상 검증·실운용 준비는 원본 미확인으로 아직 통합하지 않았다. 전체 체험판 통합 완료나 운영 배포본이 아니다.**
+
 ## 단일 반영 후보 · 2026-11-11
 
 현재 정리본은 [후보 보고서](docs/release-candidate/REPORT.md)와 [폰 확인 목록](docs/release-candidate/PHONE-CHECKLIST.md)을 따른다. GAS 일일기록·미검증 참고값·v5 FG 호환을 중복 적용 없이 보존한 독립 로컬 후보다. 아래 과거 문서의 이관 보류 기준은 현재 보고서의 범위 구분과 최신 결정 기록을 함께 읽는다. 배포·실자료 이관 완료를 뜻하지 않는다.

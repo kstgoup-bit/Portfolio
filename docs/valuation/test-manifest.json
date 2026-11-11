@@ -100,6 +100,7 @@
     "tests/relay-policy-stage24.test.cjs",
     "tests/release-candidate-composition.test.cjs",
     "tests/review-fixes-independent.test.cjs",
+    "tests/risk-menu-harmonization.test.cjs",
     "tests/risk-stage15.test.cjs",
     "tests/sec-facts-adapter.test.cjs",
     "tests/security-stage20.test.cjs",

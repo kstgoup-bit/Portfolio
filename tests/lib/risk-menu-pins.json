@@ -1,0 +1,15 @@
+{
+  "baselineCommit": "8005cd0cd2540ad6a94612477cfface6236d7d63",
+  "baselineTree": "83f5555f68662f00113a40c4ae9abbb6e31d335d",
+  "baselineSha256": {
+    "portfolio_v5.html": "e1342a6eb6479d1fe6accd688bde2034cd9c42974e150602d83d6b764f42b22c",
+    "has/ledger-demo.js": "46af017e85c9a053eba2a5c9bf35b7b68bb0e4bf1a52e97bba905fcac46d2733"
+  },
+  "currentSha256": {
+    "portfolio_v5.html": "de2d118ad487bb5cb4865291bde8721491743626a5c01650a72f92179278d379",
+    "has/ledger-demo.js": "ff5fc12f8ebec9533ea1f14d009a51dd3481aa95b5867d564c0f6f0dbbf11901"
+  },
+  "addedRuntimeFiles": {
+    "has/risk-menu-shortcuts.css": "b8d469d2e74508df97faf07a55a56c48f898580eba075f7b918311117c38043a"
+  }
+}

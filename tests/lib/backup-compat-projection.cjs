@@ -5,7 +5,7 @@ const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypt
 const ROOT=path.resolve(__dirname,'../..'),edits=require('./has-backup-compat-edits.json'),pins=require('./backup-compat-pins.json');
 const sha=b=>crypto.createHash('sha256').update(b).digest('hex');
 function beforeBackupCompatBytes(file){
- let bytes=fs.readFileSync(path.join(ROOT,file));
+ let bytes=require('./risk-menu-projection.cjs').beforeRiskMenuBytes(file);
  if(edits[file]){
   if(sha(bytes)!==pins.currentSha256[file])throw Error('Unreviewed backup compatibility change: '+file);
   let text=bytes.toString('utf8');

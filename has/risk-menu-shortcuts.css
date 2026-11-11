@@ -1,0 +1,4 @@
+/* A separate anchor class preserves the existing switchTab button indices. */
+.has-risk-shortcut{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;min-height:44px;min-width:44px;box-sizing:border-box;padding:8px 12px;margin:4px 2px;border:2px solid transparent;border-radius:20px;background:none;color:#333;font:700 14px/1.4 "Noto Sans KR",sans-serif;white-space:nowrap;text-decoration:none}
+.has-risk-shortcut:focus-visible{outline:3px solid #1565c0;outline-offset:-3px}
+.has-risk-shortcut:hover{background:#e8f0fb;color:#123d73}

@@ -12,7 +12,7 @@
   function trades() { return M.SAMPLE_TRADES.concat(extra); }
   function render() {
     if (!root) return; root.replaceChildren();
-    root.appendChild(el('h2', '', '🧪 원장 시범 (읽기 전용)'));
+    root.appendChild(el('h2', '', '🧪 거래 기록·손익 계산 체험 (합성 자료)'));
     var b = el('div', 'hld-banner', M.BANNER); b.setAttribute('role', 'status'); b.setAttribute('data-testid', 'hld-banner'); root.appendChild(b);
     root.appendChild(el('p', 'hld-note', '이 화면의 숫자는 모두 예시용 합성 거래에서 나온 것입니다. 내 보유 종목·가계부·백업은 이 화면에 사용되지도 저장되지도 않습니다. 아래에 추가하는 시험 거래도 이 화면 메모리에만 있고 새로고침하면 사라집니다.'));
     var m = M.buildModel(trades(), L);

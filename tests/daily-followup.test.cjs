@@ -64,5 +64,5 @@ test('followup reversible source proof pins exact reviewed remote baseline and o
  const crypto=require('node:crypto'),pins=require('./lib/daily-followup-pins.json'),F=require('./lib/daily-followup-projection.cjs');
  a.equal(pins.remoteBaseline,'e738952130116cc943134872f3260c5b0099af89');a.equal(pins.baselineTree,'ac855b6e41a88a24e1bda33e40f20d42cb2cb591');
  a.deepEqual(Object.keys(pins.currentSha256).sort(),['has/benchmark-history-policy.js','has/return-assessment.js','portfolio_v5.html']);
- for(const file of Object.keys(pins.currentSha256)){a.equal(crypto.createHash('sha256').update(fs.readFileSync(path.join(__dirname,'..',file))).digest('hex'),pins.currentSha256[file]);a.equal(crypto.createHash('sha256').update(F.beforeFollowupBytes(file)).digest('hex'),pins.baselineSha256[file]);}
+ for(const file of Object.keys(pins.currentSha256)){a.equal(crypto.createHash('sha256').update(require('./lib/risk-menu-projection.cjs').beforeRiskMenuBytes(file)).digest('hex'),pins.currentSha256[file]);a.equal(crypto.createHash('sha256').update(F.beforeFollowupBytes(file)).digest('hex'),pins.baselineSha256[file]);}
 });
