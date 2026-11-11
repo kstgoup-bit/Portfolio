@@ -2675,6 +2675,8 @@ function updateBrief() {
 // ═══════════════════════════════
 var _benchFetchInFlight=false;
 var _benchRunId=0, _benchFetchStartedAt=0, _benchStatusMsg="";
+var _benchGasCleanup=null, _benchGasSequence=0;
+function cancelBenchmarkGas(){if(_benchGasCleanup){var cancel=_benchGasCleanup;_benchGasCleanup=null;cancel();}}
 function setBenchStatus(msg){
   _benchStatusMsg=msg||"";
   try {
@@ -2684,7 +2686,7 @@ function setBenchStatus(msg){
 }
 function invalidateBackupRuntime() {
   invalidateSnapshotEvidence();
-  _benchRunId++; _benchFetchInFlight=false;
+  _benchRunId++; _benchFetchInFlight=false; cancelBenchmarkGas();
 }
 function fetchBenchmarkHistory(force) {
   if(snapshotWriteBlocked())return;
@@ -2694,13 +2696,14 @@ function fetchBenchmarkHistory(force) {
   if(_benchFetchInFlight&&(!force||Date.now()-_benchFetchStartedAt<20000)){
     if(force)setBenchStatus("이미 확인 중입니다. 잠시 기다려 주세요.");return;
   }
+  cancelBenchmarkGas();
   var myRun=++_benchRunId;
   function active(){return _benchRunId===myRun&&!snapshotWriteBlocked();}
   _benchFetchStartedAt=Date.now();_benchFetchInFlight=true;
-  var timeout=setTimeout(function(){if(active()){_benchRunId++;_benchFetchInFlight=false;setBenchStatus("응답 시간 초과 · 원본 유지");}},240000);
+  var timeout=setTimeout(function(){if(active()){_benchRunId++;_benchFetchInFlight=false;cancelBenchmarkGas();setBenchStatus("응답 시간 초과 · 원본 유지");}},240000);
   var candidates={},outcomes={},syms=[{sym:"QQQ",id:"QQQ"},{sym:"SPY",id:"SPY"},{sym:"069500.KS",id:"KS200"}];
   var PROXIES=[function(u){return u;},function(u){return "https://api.allorigins.win/raw?url="+encodeURIComponent(u);},function(u){return "https://corsproxy.io/?url="+encodeURIComponent(u);},function(u){return "https://api.codetabs.com/v1/proxy?quest="+encodeURIComponent(u);},function(u){return "https://api.allorigins.win/get?url="+encodeURIComponent(u);},function(u){return "https://corsproxy.org/?"+encodeURIComponent(u);}];
-  // Existing Yahoo query1/query2 routes. GAS history remains disabled.
+  // Configured GAS date-only route first for KS200; existing Yahoo routes remain fallback.
   // AV is a direct-only fallback for an explicit refresh with an existing key.
   function attempt(url,parse,done){
     if(!active())return;
@@ -2722,6 +2725,36 @@ function fetchBenchmarkHistory(force) {
       if(data&&typeof data.contents==="string"){envelope=HASBenchmarkHistory.parseTransportJSON(data.contents);if(!envelope.ok){finish(null);return;}data=envelope.data;}
       var result=parse(data,new Date().toISOString());finish(result&&result.ok?result:null);
     }).catch(function(){finish(null);});}catch(e){finish(null);}
+  }
+  function gasFirst(item,done){
+    if(!active())return;
+    var url;
+    try{
+      // Only the existing configured Google Apps Script deployment is trusted to
+      // execute JSONP. Never forward its address or query to a public proxy.
+      url=new URL(gasUrl);
+      if(url.protocol!=="https:"||url.hostname!=="script.google.com"||url.port||url.username||url.password||!/^\/macros\/s\/[A-Za-z0-9_-]+\/exec$/.test(url.pathname))throw Error("gas-url");
+    }catch(e){done(null);return;}
+    var cb="hasBenchGas_"+myRun+"_"+(++_benchGasSequence),script=document.createElement("script"),timer=null,settled=false;
+    function cleanup(){clearTimeout(timer);script.onerror=null;if(script.parentNode)script.parentNode.removeChild(script);try{delete window[cb];}catch(e){window[cb]=undefined;}if(_benchGasCleanup===cancel)_benchGasCleanup=null;}
+    function cancel(){settled=true;cleanup();}
+    function finish(result){if(settled)return;settled=true;cleanup();if(active())done(result);}
+    _benchGasCleanup=cancel;
+    window[cb]=function(data){
+      if(settled)return;
+      if(!active()){cancel();return;}
+      var result=HASBenchmarkHistory.parseGasHistory(data,item.id,new Date().toISOString(),{mode:"configured-gas"});
+      var state=readBenchmarkState(),group=state.ok&&state.series[item.id],points=group&&group.ok?group.points:[];
+      var latest=points.length?HASBenchmarkHistory.observedDate(points[points.length-1],item.id):null;
+      if(result.ok&&latest&&result.bars[result.bars.length-1].d<latest)result=null;
+      finish(result&&result.ok?result:null);
+    };
+    script.onerror=function(){finish(null);};
+    timer=setTimeout(function(){finish(null);},8000);
+    url.hash="";url.searchParams.set("type","history");url.searchParams.set("tickers","069500");url.searchParams.set("market","KR");url.searchParams.set("callback",cb);
+    script.referrerPolicy="no-referrer";script.src=url.href;
+    setBenchStatus("069500 GAS ETF 이력 확인 · 날짜만 제공 · 최신성·종가 미확정");
+    try{document.head.appendChild(script);}catch(e){finish(null);}
   }
   function avFallback(item,done){
     if(!force||item.id==="KS200"){outcomes[item.id]="기존 경로 응답 없음";done();return;}
@@ -2765,7 +2798,10 @@ function fetchBenchmarkHistory(force) {
     }catch(e){setBenchStatus("이력 검사·저장 실패 · 원본 보존 · 결과 재확인 필요");}
     finally{clearTimeout(timeout);if(_benchRunId===myRun)_benchFetchInFlight=false;}
   }
-  fetchOne(syms[0],0,function(){fetchOne(syms[1],0,function(){fetchOne(syms[2],0,finish);});});
+  gasFirst(syms[2],function(result){
+    function otherSymbols(){fetchOne(syms[0],0,function(){fetchOne(syms[1],0,finish);});}
+    if(result){candidates.KS200=result;otherSymbols();}else fetchOne(syms[2],0,otherSymbols);
+  });
 }
 
 function getBenchDescription(key) {
@@ -3069,6 +3105,17 @@ function getDepositsForKey(key) {
   return out;
 }
 
+// Read the validated stored activity once per assessment. The general app loader's
+// recovery default must not turn corrupt/missing-read data into zero cash flows.
+function getReturnActivity(key) {
+  try {
+    var groups=activityReadStored().groups,keys=key==="all"?["dom","ov","pen","gen"]:[key],rows=[],accounts=[];
+    if(keys.some(function(k){return !activityAccountLabel(k);}))throw Error("account");
+    keys.forEach(function(k){(groups[k]||[]).forEach(function(row){rows.push(row);accounts.push(k);});});
+    return {flows:rows,flowAccounts:accounts};
+  } catch(e) { return {flows:null}; }
+}
+
 // Modified Dietz 방식: 기간 중 입금액(외부 유입)을 제외한 순수 운용수익률
 function getDepositAccountContexts(key) {
   var keys=key==="all"?["dom","ov","pen","gen"]:[key],out=[];
@@ -3078,7 +3125,8 @@ function getDepositAccountContexts(key) {
 
 function calcModifiedDietz(key,startTs,endTs,startVal,endVal) {
   if(!window.HASReturnAssessment)return null;
-  var result=HASReturnAssessment.modifiedDietz({key:key,startTs:startTs,endTs:endTs,startVal:startVal,endVal:endVal,flows:getDepositsForKey(key),flowAccounts:getDepositAccountContexts(key)});
+  var activity=getReturnActivity(key);
+  var result=HASReturnAssessment.modifiedDietz({key:key,startTs:startTs,endTs:endTs,startVal:startVal,endVal:endVal,flows:activity.flows,flowAccounts:activity.flowAccounts});
   return result.status==="hold"?null:result.valuePct;
 }
 
@@ -3107,7 +3155,8 @@ function returnRowHtml(p,key,current,now,mode,context) {
   targetTs=p.ytd?(year===2026?trackStart:new Date(year,0,1).getTime()):now-p.days*86400000;
   var report=view.cache[p.label];
   if(!report){
-    report=R?R.assess({key:key,records:targetTs<trackStart&&!p.ytd?[]:(snapshots[key]||[]),targetTs:targetTs,endTs:now,currentCandidate:view.candidate,flows:getDepositsForKey(key),flowAccounts:getDepositAccountContexts(key)}):null;
+    var activity=getReturnActivity(key);
+    report=R?R.assess({key:key,records:targetTs<trackStart&&!p.ytd?[]:(snapshots[key]||[]),targetTs:targetTs,endTs:now,currentCandidate:view.candidate,flows:activity.flows,flowAccounts:activity.flowAccounts}):null;
     if(report&&report.interval&&R.applyBenchmark){
       var bench=benchmarkAssessmentForInterval(key,report.interval.fromTs,report.interval.toTs),detail=bench.detail;delete bench.detail;
       report=Object.assign({},R.applyBenchmark(report,bench),{benchmarkDetail:detail});
@@ -3120,21 +3169,22 @@ function returnRowHtml(p,key,current,now,mode,context) {
     var annual=(Math.pow(1+metric.valuePct/100,365/report.interval.actualDays)-1)*100;
     if(Number.isFinite(annual))value+=' (참고 연 '+(annual>=0?'+':'')+annual.toFixed(1)+'%)';
   }
+  if(!held&&metric.status==="unverified")value+=" · 미검증 참고값";
   var messages=metric?(held?metric.reasons:metric.warnings):["policy-unavailable"];
   var explanation=messages.map(returnReasonText).filter(function(t,i,a){return a.indexOf(t)===i;}).join(" · ");
   var period=report&&report.interval?formatReturnTime(report.interval.fromTs)+" → "+formatReturnTime(report.interval.toTs):"계산 가능한 실제 기간 없음";
   return '<div style="padding:8px 0;border-bottom:1px solid var(--border);min-width:0">'+
     '<div style="display:flex;gap:8px;justify-content:space-between;align-items:flex-start"><span style="font-size:12px;color:var(--muted)">'+snapshotEscape(p.label)+'</span><strong style="font-size:12px;overflow-wrap:anywhere;color:'+(held?'#795000':metric.valuePct>=0?'#c62828':'#1565c0')+'">'+snapshotEscape(value)+'</strong></div>'+
-    '<div style="font-size:12px;line-height:1.5;color:#546e7a;overflow-wrap:anywhere">실제 '+snapshotEscape(period)+'</div>'+
+    '<div style="font-size:12px;line-height:1.5;color:#333;overflow-wrap:anywhere">실제 '+snapshotEscape(period)+'</div>'+
     '<div style="font-size:12px;line-height:1.5;color:#795000;overflow-wrap:anywhere">'+snapshotEscape(explanation||"입력 기반 참고값")+'</div>'+
-    (mode==="benchmark"&&report&&report.benchmarkDetail?'<div style="font-size:12px;line-height:1.5;color:#546e7a">관측일 '+snapshotEscape(report.benchmarkDetail)+'</div>':'')+'</div>';
+    (mode==="benchmark"&&report&&report.benchmarkDetail?'<div style="font-size:12px;line-height:1.5;color:#333">관측일 '+snapshotEscape(report.benchmarkDetail)+'</div>':'')+'</div>';
 }
 function formatReturnTime(ts) {
   var d=new Date(ts),pad=function(n){return String(n).padStart(2,"0");};
   return d.getFullYear()+"."+pad(d.getMonth()+1)+"."+pad(d.getDate())+" "+pad(d.getHours())+":"+pad(d.getMinutes());
 }
 function returnReasonText(code) {
-  var text={"policy-unavailable":"계산 모듈 확인 필요","insufficient-history":"기간 시작 또는 종료 기록 부족","current-incomplete":"현재 평가 자료 부족","invalid-current":"현재 평가 근거 확인 필요","invalid-history":"기존 기록 형식 확인 필요","current-time-mismatch":"평가 시각 불일치","current-price-time-regression":"가격 기준시각 후퇴 확인 필요","ambiguous-current-endpoint":"같은 시각 평가 충돌","legacy-provenance-unverified":"구형 기록 출처 미검증","legacy-flow-classification-unverified":"기존 입금 분류 미검증","legacy-flow-time-unverified":"기존 입금 시각 미검증","legacy-scope-unverified":"구형 기록의 보유 범위 미검증","stored-value-change-not-investment-return":"자산가치 변화이며 투자손익 아님","recorded-valuations-unconfirmed":"평가기록 미확정","historical-cost-unavailable":"과거 원가 없음","portfolio-krw-includes-fx-change":"원화 평가에 환율 변화 포함","tracked-assets-only-cash-coverage-unverified":"추적 자산 기준 · 현금 포함 범위 미검증","scope-uncertain-value-change-only":"보유 범위 확인 전 단순 가치 변화만 표시","tracking-scope-change":"추적 범위 변경 확인 필요","unexplained-scope-marker":"매매·자산 제외 근거 확인 필요","flow-time-uncertain":"외부 입출금의 정확한 시각 미확인","duplicate-flow":"중복 입출금 가능성 확인 필요","invalid-flow":"입출금 형식 확인 필요","invalid-flows":"입출금 자료 확인 필요","flow-account-mismatch":"입출금 계좌 불일치","user-entered-flow-unverified":"사용자 입력 입출금 · 미검증","cash-completeness-user-declared":"현금 범위는 사용자 진술 기준","benchmark-binding-unverified":"지수 확장 자료와 원본 기준 불일치 · 비교 보류","benchmark-currency-mismatch":"원화 자산과 지수 통화 불일치 · 알파 보류","benchmark-unavailable":"지수 자료 부족","benchmark-interval-mismatch":"지수 비교 기간 불일치","benchmark-input-unverified":"지수 출처·조정 미검증","benchmark-prior-date-retrospective":"이전 거래일 관측 참고값 · 당시 가용성 미검증","benchmark-date-conflict":"해당 날짜 지수 가격 충돌","benchmark-insufficient-period":"서로 다른 지수 관측일 부족","same-day-provisional":"당일 지수 막대 미확정","no-prior-observation":"이전 거래일 관측 없음","nonpositive-start-value":"시작 자산가치가 양수가 아님","nonpositive-denominator":"입출금 반영 분모 확인 필요","calculation-overflow":"안전한 계산 범위 초과","flow-overflow":"입출금 합계 범위 초과"};
+  var text={"policy-unavailable":"계산 모듈 확인 필요","insufficient-history":"기간 시작 또는 종료 기록 부족","current-incomplete":"현재 평가 자료 부족","invalid-current":"현재 평가 근거 확인 필요","invalid-history":"기존 기록 형식 확인 필요","current-time-mismatch":"평가 시각 불일치","current-price-time-regression":"가격 기준시각 후퇴 확인 필요","ambiguous-current-endpoint":"같은 시각 평가 충돌","legacy-provenance-unverified":"구형 기록 출처 미검증","legacy-flow-classification-unverified":"기존 입금 분류 미검증","legacy-flow-time-unverified":"기존 입금 시각 미검증","legacy-scope-unverified":"구형 기록의 보유 범위 미검증","stored-value-change-not-investment-return":"자산가치 변화이며 투자손익 아님","recorded-valuations-unconfirmed":"평가기록 미확정","historical-cost-unavailable":"과거 원가 없음","portfolio-krw-includes-fx-change":"원화 평가에 환율 변화 포함","tracked-assets-only-cash-coverage-unverified":"추적 자산 기준 · 현금 포함 범위 미검증","scope-uncertain-value-change-only":"보유 범위 확인 전 단순 가치 변화만 표시","tracking-scope-change":"추적 범위 변경 확인 필요","unexplained-scope-marker":"보유 변화 이력 미검증", "unexplained-holdings-change":"보유 변화 미검증 · 매매·외부 입출금 여부 추정 안 함", "cash-balance-timing-unverified":"예수금 지연 수정·자산 제외로 수치가 왜곡될 수 있음", "external-flow-completeness-unverified":"기록된 외부 입출금만 반영 · 누락 여부 미검증", "missing-flow-history":"입출금 자료 누락 · 0원으로 가정하지 않음", "transition-evidence-mismatch":"보유 변화와 입력 근거 불일치","flow-time-uncertain":"외부 입출금의 정확한 시각 미확인","duplicate-flow":"중복 입출금 가능성 확인 필요","invalid-flow":"입출금 형식 확인 필요","invalid-flows":"입출금 자료 확인 필요","flow-account-mismatch":"입출금 계좌 불일치","user-entered-flow-unverified":"사용자 입력 입출금 · 미검증","cash-completeness-user-declared":"현금 범위는 사용자 진술 기준","benchmark-binding-unverified":"지수 확장 자료와 원본 기준 불일치 · 비교 보류","benchmark-currency-mismatch":"원화 자산과 지수 통화 불일치 · 알파 보류","benchmark-unavailable":"지수 자료 부족","benchmark-interval-mismatch":"지수 비교 기간 불일치","benchmark-input-unverified":"지수 출처·조정 미검증","benchmark-prior-date-retrospective":"이전 거래일 관측 참고값 · 당시 가용성 미검증","benchmark-date-conflict":"해당 날짜 지수 가격 충돌","benchmark-insufficient-period":"서로 다른 지수 관측일 부족","same-day-provisional":"당일 지수 막대 미확정","no-prior-observation":"이전 거래일 관측 없음","nonpositive-start-value":"시작 자산가치가 양수가 아님","nonpositive-denominator":"입출금 반영 분모 확인 필요","calculation-overflow":"안전한 계산 범위 초과","flow-overflow":"입출금 합계 범위 초과"};
   return text[code]||"자료 근거 확인 필요";
 }
 
@@ -3150,8 +3200,8 @@ function renderReturnsTable(key,tableId) {
   var context={candidate:candidate,cache:{}},benchCurrency=key==="dom"||key==="gen"?"KRW":key==="all"?"KRW/USD 혼합":"USD";
   var headings=[["raw","기록 자산가치 변화"],["dietz","입출금 반영 참고 수익률 (Modified Dietz)"],["benchmark","ETF 관측 수익률 ("+benchCurrency+")"],["alpha","같은 통화·기간의 참고 알파"]];
   el.innerHTML=headings.map(function(h){return '<div style="font-size:14px;font-weight:800;color:#17446b;margin:14px 0 6px">'+snapshotEscape(label+' '+h[1])+'</div>'+returnsSectionHtml(key,current,now,h[0],context);}).join("")+
-    '<p style="font-size:12px;line-height:1.6;color:#795000">기존 입금은 소급 분류하지 않습니다. 계좌 내 매매는 외부 자금 유입이 아닙니다. 현금·매매 근거가 없는 보유 범위 변화는 투자 수익률을 보류하며 저장된 가치 변화만 표시합니다. 각 행의 실제 계산 기간은 기기 현지 시각입니다.</p>'+
-    '<p style="font-size:12px;line-height:1.6;color:#546e7a">ETF 대용치이며 배당·보수·환율 차이가 있습니다. 원화 평가와 USD/혼합 지수의 알파 및 원화 비교선은 환율 근거가 없어 보류합니다. 당일 막대·공식 종가·최신성은 미확정입니다.</p>'+
+    '<p style="font-size:12px;line-height:1.6;color:#795000">기존 입금은 소급 분류하지 않습니다. 계좌 내 매매는 외부 자금 유입이 아닙니다. 보유 수량이 바뀌면 보유 변화 미검증 경고와 함께 기록된 외부 입출금만 반영한 참고값을 표시합니다. 예수금 지연 수정·누락 입출금·추적 자산 제외가 있으면 수익률과 알파가 실제 성과와 다를 수 있습니다. 외부 입출금은 빠짐없이 기록하고 예수금도 맞춰 주세요. 입출금 자료 누락·시각 불명확·손상 자료는 계산을 보류합니다. 각 행의 실제 계산 기간은 기기 현지 시각입니다.</p>'+
+    '<p style="font-size:12px;line-height:1.6;color:#333">ETF 대용치이며 배당·보수·환율 차이가 있습니다. 원화 평가와 USD/혼합 지수의 알파 및 원화 비교선은 환율 근거가 없어 보류합니다. 당일 막대·공식 종가·최신성은 미확정입니다.</p>'+
     '<div style="font-size:12px;line-height:1.6;overflow-wrap:anywhere">관측일: '+snapshotEscape(getBenchDataLatestLabel(key).text)+'<br>수신: '+snapshotEscape(getBenchFetchTimeLabel(key).text)+'<br>출처: '+snapshotEscape(getBenchDataLatestLabel(key).source)+'</div>'+
     '<div class="benchStatusMsg" role="status" style="font-size:12px;line-height:1.6;color:#795000">'+snapshotEscape(_benchStatusMsg)+'</div>'+
     '<button onclick="fetchBenchmarkHistory(true)" style="min-height:44px;min-width:44px;font-size:12px;padding:8px 16px;margin-top:8px">↻ ETF 이력 새로고침</button>';
@@ -4557,7 +4607,8 @@ function priceAtTs(hist,ts,id) {
 
 function buildCashFlows(snapKey,pts) {
   if(!window.HASReturnAssessment||!pts||pts.length<2||!Number.isFinite(pts[0].val)||pts[0].val<0)return null;
-  var t0=pts[0].ts,end=pts[pts.length-1].ts,parsed=HASReturnAssessment.validateFlows(getDepositsForKey(snapKey),snapKey,getDepositAccountContexts(snapKey));
+  var activity=getReturnActivity(snapKey);
+  var t0=pts[0].ts,end=pts[pts.length-1].ts,parsed=HASReturnAssessment.validateFlows(activity.flows,snapKey,activity.flowAccounts);
   if(!parsed.ok)return null;
   var flows=[{ts:t0,amount:pts[0].val}],uncertain=false;
   parsed.flows.forEach(function(d){
@@ -4626,11 +4677,12 @@ function renderLineChart(period, btnId, chartId, snapKey, color) {
     svg.innerHTML='<text x="170" y="80" text-anchor="middle" fill="#795000" font-size="12">비교 가능한 저장 기록이 부족합니다</text>';
     return;
   }
-  var chartAssessment=window.HASReturnAssessment?HASReturnAssessment.assess({key:snapKey,records:data,targetTs:pts[0].ts,endTs:pts[pts.length-1].ts,flows:getDepositsForKey(snapKey),flowAccounts:getDepositAccountContexts(snapKey)}):null;
+  var activity=getReturnActivity(snapKey);
+  var chartAssessment=window.HASReturnAssessment?HASReturnAssessment.assess({key:snapKey,records:data,targetTs:pts[0].ts,endTs:pts[pts.length-1].ts,flows:activity.flows,flowAccounts:activity.flowAccounts}):null;
   var chartComparison={hold:!chartAssessment||chartAssessment.dietz.status==="hold"};
   if(svg.parentNode&&document.createElement){
     var note=document.getElementById(chartId+"Assessment");if(!note){note=document.createElement("div");note.id=chartId+"Assessment";note.style.cssText="font-size:12px;line-height:1.6;color:#795000;overflow-wrap:anywhere";svg.parentNode.insertBefore(note,svg.nextSibling);}
-    note.textContent="저장 관측만 표시 · 투자손익 확정 아님"+(chartComparison.hold?" · "+(chartAssessment?chartAssessment.dietz.reasons.map(returnReasonText).join(" · "):"계산 모듈 확인 필요"):" · 출처 미검증 참고값")+((snapKey!=="dom"&&snapKey!=="gen")?" · 원화/외화 비교선 보류":"");
+    note.textContent="저장 관측만 표시 · 투자손익 확정 아님"+(chartComparison.hold?" · "+(chartAssessment?chartAssessment.dietz.reasons.map(returnReasonText).join(" · "):"계산 모듈 확인 필요"):" · "+chartAssessment.dietz.warnings.map(returnReasonText).filter(function(t,i,a){return a.indexOf(t)===i;}).join(" · "))+((snapKey!=="dom"&&snapKey!=="gen")?" · 원화/외화 비교선 보류":"");
   }
   var vals=pts.map(function(d){return d.val;});
   var hasCost=pts.every(function(d){return typeof d.cost==="number" && Number.isFinite(d.cost) && d.cost>=0;});
@@ -4748,7 +4800,7 @@ function renderLineChart(period, btnId, chartId, snapKey, color) {
     xLabels+
     peakSvg+
     milestoneSvg+
-    '<text x="170" y="166" text-anchor="middle" font-size="12" fill="#546e7a">기록 변화 '+fmt(chg)+'원 ('+(chgP>=0?'+':'')+chgP.toFixed(1)+'%) · 투자손익 아님</text>';
+    '<text x="170" y="166" text-anchor="middle" font-size="12" fill="#333">기록 변화 '+fmt(chg)+'원 ('+(chgP>=0?'+':'')+chgP.toFixed(1)+'%) · 투자손익 아님</text>';
 }
 
 // Recording uses the same bounded policy for automatic and button-triggered writes.

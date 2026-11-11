@@ -375,15 +375,14 @@ test('independent: old provenance snapshot without component cost keeps exact pa
   a.doesNotThrow(() => B.parse(JSON.stringify({ version: 'v5', snapshots: { gen: r.records } })));
 });
 
-test('independent: removed holding displays raw value change but holds Dietz and alpha in actual DOM', () => {
+test('independent: removed holding displays explicit unverified estimate while unavailable benchmark alpha stays held', () => {
   const h = appHarness(); try {
     const first = evaluated({ now: NOW - 8 * DAY, stocks: [stock({ quantity: 4 })] }).snapshot;
     h.w.snapshots.gen = clone(P.appendDaily([first], evaluated().snapshot).records); h.quote();
     a.match(h.w.returnRowHtml({ label: '1주', days: 7 }, 'gen', 200, NOW, 'raw'), /-50\.00%/);
-    for (const mode of ['dietz', 'alpha']) {
-      const html = h.w.returnRowHtml({ label: '1주', days: 7 }, 'gen', 200, NOW, mode);
-      a.match(html, /보류/); a.doesNotMatch(html, /-50\.00%/);
-    }
+    const dietz = h.w.returnRowHtml({ label: '1주', days: 7 }, 'gen', 200, NOW, 'dietz');
+    a.match(dietz, /-50\.00% · 미검증 참고값/); a.match(dietz, /보유 변화 미검증/);
+    a.match(h.w.returnRowHtml({ label: '1주', days: 7 }, 'gen', 200, NOW, 'alpha'), /보류/);
     h.w.renderLineChart('1W', 'genPeriodBtns', 'genLineChart', 'gen', '#00897b');
     const svg = h.w.document.getElementById('genLineChart');
     a.match(svg.textContent, /-50\.0%/); a.equal(svg.querySelector('path[stroke="#ef6c00"]'), null);

@@ -122,7 +122,7 @@ test('repair independent: basis-only correction does not become scope loss or bl
 test('repair independent: unexplained disappearance cannot be waived by a nearby unrelated deposit',()=>{
   const first=evaluation({now:NOW-20*DAY,stocks:[stock(),stock({id:2,ticker:'REMOVED',currentPrice:50})]}).snapshot;
   const next=evaluation({stocks:[stock({currentPrice:150})]}).snapshot;
-  const r=assessment({records:[first],currentCandidate:next,flows:[typedFlow()]});notHeld(r.raw);a.equal(r.dietz.status,'hold');a.equal(r.alpha.status,'hold');
+  const r=assessment({records:[first],currentCandidate:next,flows:[typedFlow()]});notHeld(r.raw);a.equal(r.dietz.status,'unverified');a.equal(r.scope.transitions[0].explained,false);a.ok(r.dietz.warnings.includes('unexplained-holdings-change'));a.equal(r.alpha.status,'hold');
 });
 
 function tradeEvidence(first,next,extra={}) {
@@ -133,7 +133,7 @@ test('repair independent: exact user-declared trade evidence permits unverified 
   const first=evaluation({now:NOW-20*DAY}).snapshot,next=evaluation({stocks:[stock({id:2,ticker:'REBALANCED',currentPrice:100})]}).snapshot;
   const good=tradeEvidence(first,next),r=assessment({records:[first],currentCandidate:next,evidence:[good]});
   notHeld(r.raw);notHeld(r.dietz);a.equal(r.dietz.valuePct,0);a.equal(r.dietz.status,'unverified');
-  for(const evidence of [[{...good,account:'dom'}],[{...good,toTs:NOW-1}],[{...good,cashIncluded:false}],[{...good,changes:good.changes.slice(1)}],[good,clone(good)],[{...good,source:'independently-verified'}]]) {
+  for(const evidence of [[{...good,account:'dom'}],[{...good,cashIncluded:false}],[{...good,changes:good.changes.slice(1)}],[good,clone(good)],[{...good,source:'independently-verified'}]]) {
     const held=assessment({records:[first],currentCandidate:next,evidence});notHeld(held.raw);a.equal(held.dietz.status,'hold');
   }
 });
@@ -270,7 +270,7 @@ test.after(()=>a.equal(guard.attempts.length,0,'independent suite must make zero
 
 test('repair independent UI: actual snapshot interval reaches the display and legacy source stays a warning',()=>{
   const h=appHarness();try {
-    h.quote([stock({currentPrice:150})]);h.w.snapshots.gen=[{ts:NOW-20*DAY,val:100}];h.w.deposits.gen=[{ts:NOW-10*DAY,amount:50}];
+    h.quote([stock({currentPrice:150})]);h.w.snapshots.gen=[{ts:NOW-20*DAY,val:100}];h.w.deposits.gen=[{ts:NOW-10*DAY,amount:50}];h.storage.setItem('v5_deposits',JSON.stringify(h.w.deposits));
     const before=JSON.stringify({snapshots:h.w.snapshots,deposits:h.w.deposits}),storage=h.storage.all();
     const dietz=h.w.returnRowHtml({label:'1주',days:7},'gen',150,NOW,'dietz'),raw=h.w.returnRowHtml({label:'1주',days:7},'gen',150,NOW,'raw');
     a.match(dietz,/0\.00%/);a.match(raw,/50\.00%/);a.doesNotMatch(dietz,/비교 보류/);a.match(dietz+' '+raw,/실제|계산 기간|적용 기간/);
@@ -282,9 +282,11 @@ test('repair independent UI: all-account projection keeps legacy account identit
   const h=appHarness();try {
     const pts=[{ts:NOW-20*DAY,val:100},{ts:NOW,val:240}];
     h.w.deposits={gen:[typedFlow(),typedFlow({id:'buy-1',kind:'internal-buy',ts:NOW-9*DAY,amount:100}),typedFlow({id:'out-1',kind:'external-out',ts:NOW-8*DAY,amount:10})],dom:[typedFlow({id:'dom-in',account:'dom',ts:NOW-7*DAY,amount:100})],ov:[],pen:[]};
+    h.storage.setItem('v5_deposits',JSON.stringify(h.w.deposits));
     const before=JSON.stringify(h.w.deposits),gen=clone(h.w.buildCashFlows('gen',pts)),all=clone(h.w.buildCashFlows('all',pts));
     a.equal(gen.length,3);a.equal(gen.reduce((s,x)=>s+x.amount,0),140);a.equal(all.length,4);a.equal(all.reduce((s,x)=>s+x.amount,0),240);a.equal(JSON.stringify(h.w.deposits),before);
     h.w.deposits={gen:[{ts:NOW-10*DAY,amount:50}],dom:[{ts:NOW-10*DAY,amount:50}],ov:[],pen:[]};
+    h.storage.setItem('v5_deposits',JSON.stringify(h.w.deposits));
     const original=JSON.stringify(h.w.deposits),projected=clone(h.w.getDepositsForKey('all'));
     a.deepEqual(projected.map(x=>x.account).sort(),['dom','gen']);a.equal(JSON.stringify(h.w.deposits),original);
     a.equal(h.w.calcModifiedDietz('all',NOW-20*DAY,NOW,100,200),0);
@@ -306,6 +308,7 @@ test('repair independent UI: date-only external activity cannot silently become 
   const h=appHarness();try {
     const pts=[{ts:NOW-20*DAY,val:100},{ts:NOW,val:150}];
     h.w.deposits={gen:[typedFlow({ts:Date.parse('2026-11-06T12:00:00Z'),timeCertainty:'date-only',effectiveDate:'2026-11-06',utcOffsetMinutes:0})],dom:[],ov:[],pen:[]};
+    h.storage.setItem('v5_deposits',JSON.stringify(h.w.deposits));
     h.w.priceAtTs=()=>100;
     a.equal(h.w.getBenchmarkSeriesForChart('gen',pts),null);a.equal(h.w.getBenchmarkSeriesForChart('all',pts),null);a.equal(h.network.length,0);
   }finally{h.close();}

@@ -1,5 +1,9 @@
 # Portfolio
 
+## 일일기록 후속 수정 · 2026-11-11
+
+[후속 수정 및 직접 검증 보고서](docs/daily-followup/REPORT.md)를 참조하세요. 코스피200 ETF의 설정 GAS 이력 우선 경로와 보유 변화 시 미검증 참고 수익률 표시를 보완했습니다. 원본 기록·main·운영은 변경하지 않은 독립 로컬 개발본입니다. 아래 문서는 각 작성 시점의 기록입니다.
+
 ## 29단계 판단 보류와 기록 보호 보완 2026년 11월 9일
 
 현재 독립 개발본은 [검증 보고서](docs/stage29-evidence/REPORT.md), [읽기 전용 근거 연결](docs/stage29-evidence/ADAPTER.md), [종가 출처와 확정 근거 계약](docs/close-evidence/CONTRACT.md), [클로 후속 검토 안내](docs/stage29-evidence/REVIEW-HANDOFF.md)를 참조하세요. 아래 항목과 기존 팀 보고서는 이전 시점 기록입니다.

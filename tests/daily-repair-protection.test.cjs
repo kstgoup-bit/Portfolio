@@ -6,7 +6,7 @@ const P=require('./lib/daily-repair-projection.cjs'),pins=require('./lib/daily-r
 test('daily repair reverses enumerated reviewed edits to exact remote baseline bytes',()=>{
  a.equal(pins.remoteBaseline,'d3f123fc757f4c6ad0a5017de8be894a3ae6e71b');
  for(const[file,hash]of Object.entries(pins.baselineSha256))a.equal(sha(P.beforeDailyRepairBytes(file)),hash,file);
- for(const[file,hash]of Object.entries({...pins.reviewedSha256,...pins.addedRuntimeFiles}))a.equal(sha(read(file)),hash,file);
+ for(const[file,hash]of Object.entries({...pins.reviewedSha256,...pins.addedRuntimeFiles}))a.equal(sha(require('./lib/daily-followup-projection.cjs').beforeFollowupBytes(file)),hash,file);
  a.equal(require('./lib/has-daily-repair-edits.json')['portfolio_v5.html'].length,pins.htmlHunks);
  a.equal(Object.keys(pins.reviewedSha256).length,6);
 });
@@ -26,8 +26,8 @@ test('endpoint occurrences match exact reviewed changes and no KIS live path is 
  const expected=urls(P.beforeDailyRepairText('portfolio_v5.html'));
  for(const u of pins.removedExternalURLOccurrences){const at=expected.indexOf(u);a.ok(at>=0);expected.splice(at,1);}
  expected.push(...pins.addedExternalURLOccurrences);a.deepEqual(urls(read('portfolio_v5.html')),expected.sort());
- const html=read('portfolio_v5.html');a.doesNotMatch(html,/kis-free-auth|openapi\.koreainvestment|[?&]type=history/);
- a.equal(require('../has/benchmark-history-policy.js').liveGasEnabled,false);
+ const html=read('portfolio_v5.html');a.doesNotMatch(html,/kis-free-auth|openapi\.koreainvestment/);
+ a.equal(require('../has/benchmark-history-policy.js').liveGasEnabled,true);
 });
 test('analysis pure modules cannot read storage, call providers or submit orders',()=>{
  for(const f of ['has/return-assessment.js','has/benchmark-history-policy.js']){

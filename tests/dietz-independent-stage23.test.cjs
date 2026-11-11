@@ -4,7 +4,7 @@ const test = require('node:test'), a = require('node:assert/strict'), fs = requi
 const html = fs.readFileSync(path.join(__dirname, '../portfolio_v5.html'), 'utf8');
 const m = /function calcModifiedDietz\(key,\s*startTs,\s*endTs,\s*startVal,\s*endVal\) \{[\s\S]*?\n\}\n/.exec(html); a.ok(m, 'calcModifiedDietz 원문을 찾지 못함');
 const R = require('../has/return-assessment.js');
-const make = (flows) => new Function('getDepositsForKey', 'getDepositAccountContexts', 'window', 'HASReturnAssessment', m[0] + '\nreturn calcModifiedDietz;')(() => flows, () => flows.map(() => 'gen'), { HASReturnAssessment: R }, R);
+const make = (flows) => new Function('getReturnActivity', 'window', 'HASReturnAssessment', m[0] + '\nreturn calcModifiedDietz;')(() => ({flows,flowAccounts:flows.map(() => 'gen')}), { HASReturnAssessment: R }, R);
 const DAY = 86400000, T0 = Date.UTC(2026, 0, 1), T1 = T0 + 100 * DAY;
 const close = (x, y, e = 1e-9) => a.ok(Math.abs(x - y) <= e, x + ' vs ' + y);
 test('사례1 흐름 없음: 1000→1100 = 10%', () => close(make([])('gen', T0, T1, 1000, 1100), 10));

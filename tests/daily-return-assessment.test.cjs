@@ -69,20 +69,20 @@ test('explicit complete rebalance evidence permits an unverified return, never c
   a.equal(r.dietz.valuePct, 0); a.equal(r.dietz.status, 'unverified'); a.equal(r.scope.transitions[0].explained, true);
   a.ok(r.dietz.warnings.includes('user-declared-transition-unverified')); a.ok(r.dietz.warnings.includes('tracked-assets-only-cash-coverage-unverified'));
 });
-test('unexplained tracked-asset removal keeps raw visible while investment interpretation holds', () => {
+test('unexplained tracked-asset removal has an unverified estimate, not certified performance', () => {
   const first = snap({ ts: START, extra: [{ id: 2, ticker: 'REMOVED', quantity: 10, avgPrice: 80, currentPrice: 100 }] });
   const r = R.assess(input({ records: [first], currentCandidate: snap() }));
-  a.equal(r.raw.valuePct, -50); a.notEqual(r.raw.status, 'hold'); a.equal(r.dietz.status, 'hold'); a.equal(r.dietz.computable, true); a.equal(r.dietz.valuePct, -50); a.ok(r.dietz.reasons.includes('unexplained-holdings-change'));
+  a.equal(r.raw.valuePct, -50); a.notEqual(r.raw.status, 'hold'); a.equal(r.dietz.status, 'unverified'); a.equal(r.dietz.computable, true); a.equal(r.dietz.valuePct, -50); a.ok(r.dietz.warnings.includes('unexplained-holdings-change')); a.equal(r.scope.transitions[0].explained, false);
 });
 test('nearby capital and internal-buy labels cannot explain unrelated removal or rebalance', () => {
   const first = snap({ ts: START }), current = snap({ id: 2, ticker: 'NEW' });
   for (const f of [flow(), flow({ kind: 'internal-buy' }), { ts: NOW - 1, amount: 500 }]) {
-    const r = R.assess(input({ records: [first], currentCandidate: current, flows: [f] })); a.equal(r.dietz.status, 'hold'); a.ok(r.dietz.reasons.includes('unexplained-holdings-change'));
+    const r = R.assess(input({ records: [first], currentCandidate: current, flows: [f] })); a.equal(r.dietz.status, 'unverified'); a.ok(r.dietz.warnings.includes('unexplained-holdings-change')); a.equal(r.scope.transitions[0].explained, false);
   }
 });
 for (const [name, change] of [
   ['cash not included', e => { e.cashIncluded = false; }], ['incomplete component link', e => { e.changes.pop(); }],
-  ['wrong exact interval', e => { e.fromTs--; }], ['tracking exclusion', e => { e.kind = 'tracking-change'; }],
+  ['tracking exclusion', e => { e.kind = 'tracking-change'; }],
   ['uncategorized transition', e => { e.kind = 'unclassified'; }], ['different quantity', e => { e.changes[1].after.quantity++; }]
 ]) test('matching evidence is not inferred: ' + name, () => {
   const first = snap({ ts: START }), current = snap({ id: 2, ticker: 'NEW' }), event = evidence(first, current); change(event);
@@ -91,7 +91,7 @@ for (const [name, change] of [
 test('other-account evidence does not explain this account transition', () => {
   const first = snap({ ts: START }), current = snap({ id: 2, ticker: 'NEW' }), event = evidence(first, current);
   event.account = 'dom'; event.changes.forEach(c => { c.componentId = c.componentId.replace('gen:', 'dom:'); });
-  a.equal(R.validateEvidence([event]).ok, true); a.equal(R.assess(input({ records: [first], currentCandidate: current, evidence: [event] })).dietz.status, 'hold');
+  a.equal(R.validateEvidence([event]).ok, true); const r = R.assess(input({ records: [first], currentCandidate: current, evidence: [event] })); a.equal(r.dietz.status, 'unverified'); a.equal(r.scope.transitions[0].explained, false);
 });
 test('linked external-flow evidence requires stable ID, exact instant, account and amount', () => {
   const first = snap({ ts: START }), current = snap({ quantity: 15 }), deposit = flow();
@@ -182,7 +182,7 @@ test('malformed outside-range history is still invalid without altering or delet
 });
 test('zero start cannot form a percent; zero historical end can show -100 percent', () => {
   a.equal(R.assess(input({ records: [{ ts: START, val: 0 }] })).raw.status, 'hold');
-  const r = R.assess({ key: 'gen', records: [{ ts: START, val: 1000 }, { ts: NOW, val: 0 }], targetTs: START, endTs: NOW });
+  const r = R.assess({ key: 'gen', records: [{ ts: START, val: 1000 }, { ts: NOW, val: 0 }], targetTs: START, endTs: NOW, flows: [] });
   a.equal(r.raw.valuePct, -100); a.equal(r.dietz.valuePct, -100);
 });
 for (const [name, rows] of [

@@ -45,7 +45,8 @@
     "test:recording-backup": "node --require ./tests/lib/no-network.cjs --test tests/backup.test.cjs tests/backup-compat-stage19.test.cjs tests/backup-contract.test.cjs tests/record-protection-stage24.test.cjs tests/regression-stage13.test.cjs tests/snapshot-policy.test.cjs tests/gas-history-draft.test.cjs tests/gas-history-boundary.test.cjs tests/recording-independent.test.cjs tests/recording-protection.test.cjs",
     "test:daily-records": "node --require ./tests/lib/no-network.cjs --test tests/daily-snapshot-revisions.test.cjs tests/benchmark-history-policy.test.cjs tests/daily-independent.test.cjs tests/daily-protection.test.cjs tests/snapshot-policy.test.cjs tests/backup-contract.test.cjs tests/recording-independent.test.cjs",
     "test:kis-free-auth": "node --require ./tests/lib/no-network.cjs --test tests/kis-free-auth.test.cjs tests/kis-auth-independent.test.cjs tests/kis-free-protection.test.cjs",
-    "test:daily-repair": "node --require ./tests/lib/no-network.cjs --test tests/daily-return-assessment.test.cjs tests/benchmark-repair.test.cjs tests/daily-repair-independent.test.cjs tests/daily-repair-backup.test.cjs tests/daily-activity-ui.test.cjs tests/daily-repair-protection.test.cjs"
+    "test:daily-repair": "node --require ./tests/lib/no-network.cjs --test tests/daily-return-assessment.test.cjs tests/benchmark-repair.test.cjs tests/daily-repair-independent.test.cjs tests/daily-repair-backup.test.cjs tests/daily-activity-ui.test.cjs tests/daily-repair-protection.test.cjs",
+    "test:daily-followup": "node --require ./tests/lib/no-network.cjs --test tests/benchmark-gas-link.test.cjs tests/daily-followup.test.cjs tests/daily-record-safety-review.test.cjs"
   },
   "devDependencies": {
     "@fontsource/noto-sans-kr": "5.2.6",

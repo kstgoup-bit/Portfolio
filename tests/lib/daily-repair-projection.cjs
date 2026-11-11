@@ -6,7 +6,7 @@ const ROOT=path.resolve(__dirname,'../..');
 const edits=require('./has-daily-repair-edits.json'),pins=require('./daily-repair-pins.json');
 const sha=bytes=>crypto.createHash('sha256').update(bytes).digest('hex');
 function beforeDailyRepairBytes(file){
-  let bytes=fs.readFileSync(path.join(ROOT,file));
+  let bytes=require('./daily-followup-projection.cjs').beforeFollowupBytes(file);
   if(edits[file]){
     let text=bytes.toString('utf8');
     for(const [current,previous]of edits[file].slice().reverse()){
@@ -26,7 +26,7 @@ function assertPortableKisPreservation(){
   function walk(file){const full=path.join(ROOT,file);if(fs.statSync(full).isDirectory()){for(const name of fs.readdirSync(full))walk(file+'/'+name);}else if(!Object.hasOwn(original.files,file))added.push(file);}
   original.protectedPaths.forEach(walk);
   if(JSON.stringify(added.sort())!==JSON.stringify(Object.keys(pins.addedRuntimeFiles).sort()))throw Error('Unreviewed protected source addition');
-  for(const[file,hash]of Object.entries(pins.addedRuntimeFiles))if(sha(fs.readFileSync(path.join(ROOT,file)))!==hash)throw Error('Reviewed new runtime source differs: '+file);
+  for(const[file,hash]of Object.entries(pins.addedRuntimeFiles))if(sha(require('./daily-followup-projection.cjs').beforeFollowupBytes(file))!==hash)throw Error('Reviewed new runtime source differs: '+file);
   return Object.keys(original.files).length;
 }
 module.exports={beforeDailyRepairBytes,beforeDailyRepairText,assertPortableKisPreservation};
