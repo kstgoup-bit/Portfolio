@@ -42,24 +42,54 @@
 <script>
 (function () {
   'use strict';
-  var FORMAT = 'has-raw-localstorage-v2';
+  var FORMAT = 'has-raw-localstorage-v3';
+  // Exact portfolio keys (same 28 as 다비 preservation-v3). Secrets, GAS URL, lock and other apps are never read.
+  var FIXED = ['v5_gen', 'v5_dom', 'v5_ov', 'v5_pen', 'v5_snap', 'v5_deposits', 'v5_div', 'v5_balGoals', 'v5_ledger', 'v5_fxHistory', 'v5_memos', 'v5_userThemeMap', 'v5_investPrinciples', 'v5_debtBank', 'v5_debtHouse', 'v5_nonFinAssets', 'v5_benchHist', 'v5_benchHistV2', 'v5_riskData', 'v5_rkCache', 'v5_cma_amount', 'v5_divMonthFilter', 'v5_divSumMonth', 'v5_divSumYear', 'v5_divTickerYear', 'v5_fg', 'v5_fx', 'v5_lastAutoSnap'];
   var EXCLUDED = ['v5_alphaVantageKey', 'v5_geminiKey', 'v5_pw', 'v5_gas'];
-  var ACCOUNTS = [['v5_gen', '일반'], ['v5_dom', 'ISA(국내)'], ['v5_ov', '해외'], ['v5_pen', '연금']];
-  function allowed(k) {
-    return typeof k === 'string' && EXCLUDED.indexOf(k) < 0 && (/^v5_[A-Za-z0-9_]{1,60}$/.test(k) || /^calc_[pq][A-Za-z0-9_]{0,60}$/.test(k));
-  }
+  var ACCOUNTS = [['v5_gen', '일반', 'gen'], ['v5_dom', 'ISA(국내)', 'dom'], ['v5_ov', '해외', 'ov'], ['v5_pen', '연금', 'pen']];
   function $(id) { return document.getElementById(id); }
+  function idsOf(raw) {
+    try { var v = JSON.parse(raw); return Array.isArray(v) ? v.filter(function (s) { return s && typeof s === 'object' && (typeof s.id === 'number' || typeof s.id === 'string'); }).map(function (s) { return String(s.id); }) : []; } catch (e) { return []; }
+  }
+  // Exact calculator names for the holdings present in the given account values.
+  function calcNames(accountRaw) {
+    var names = [];
+    ACCOUNTS.forEach(function (a) {
+      if (accountRaw[a[0]] == null) return;
+      idsOf(accountRaw[a[0]]).forEach(function (id) {
+        ['q', 'p'].forEach(function (qp) { [1, 2, 3].forEach(function (n) { names.push('calc_' + qp + n + '_' + a[2] + '_' + id); }); });
+      });
+    });
+    return names;
+  }
+  function allowed(k, calcSet) { return typeof k === 'string' && (FIXED.indexOf(k) >= 0 || (!!calcSet && calcSet.has(k))); }
 
-  // Returns [[key, rawString], ...] sorted by key. Throws on read inconsistency.
+  // Returns [[key, rawString], ...] sorted by key. Reads only allowed names. Throws on read inconsistency.
   function snapshot() {
-    var keys = [];
-    for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i); if (allowed(k)) keys.push(k); }
-    keys.sort();
+    var present = new Set();
+    for (var i = 0; i < localStorage.length; i++) present.add(localStorage.key(i));
+    var accountRaw = {};
+    ACCOUNTS.forEach(function (a) { if (present.has(a[0])) { var v = localStorage.getItem(a[0]); if (v === null) throw new Error('read-changed'); accountRaw[a[0]] = v; } });
+    var calcSet = new Set(calcNames(accountRaw));
+    var keys = Array.from(present).filter(function (k) { return allowed(k, calcSet); }).sort();
     return keys.map(function (k) {
-      var v = localStorage.getItem(k);
+      var v = Object.prototype.hasOwnProperty.call(accountRaw, k) ? accountRaw[k] : localStorage.getItem(k);
       if (v === null) throw new Error('read-changed');
       return [k, v];
     });
+  }
+  function holdingProblem(v) {
+    if (!Array.isArray(v)) return '형식 확인 불가';
+    var seen = new Set();
+    for (var i = 0; i < v.length; i++) {
+      var s = v[i];
+      if (!s || typeof s !== 'object' || Array.isArray(s)) return '종목 형식 오류';
+      if (!(typeof s.id === 'number' || typeof s.id === 'string') || seen.has(String(s.id))) return '종목 ID 오류';
+      seen.add(String(s.id));
+      if (typeof s.ticker !== 'string' || !s.ticker) return '종목코드 없음';
+      if (typeof s.quantity !== 'number' || !isFinite(s.quantity) || s.quantity < 0) return '수량 오류';
+    }
+    return null;
   }
   function samePairs(a, b) {
     if (a.length !== b.length) return false;
@@ -70,10 +100,10 @@
     var map = new Map(pairs), rows = [], problems = [];
     ACCOUNTS.forEach(function (a) {
       if (!map.has(a[0])) { rows.push(a[1] + ' 계좌: 저장값 없음'); problems.push(a[1] + ' 계좌 저장값 없음'); return; }
-      var n = null;
-      try { var v = JSON.parse(map.get(a[0])); if (Array.isArray(v)) n = v.length; } catch (e) {}
-      if (n === null) { rows.push(a[1] + ' 계좌: 형식 확인 불가'); problems.push(a[1] + ' 계좌 형식 확인 불가'); }
-      else rows.push(a[1] + ' 계좌: ' + n + '종목');
+      var v, bad;
+      try { v = JSON.parse(map.get(a[0])); bad = holdingProblem(v); } catch (e) { bad = '형식 확인 불가'; }
+      if (bad) { rows.push(a[1] + ' 계좌: ' + bad); problems.push(a[1] + ' 계좌 ' + bad); }
+      else rows.push(a[1] + ' 계좌: ' + v.length + '종목');
     });
     return { rows: rows, problems: problems };
   }
@@ -128,7 +158,10 @@
     f.text().then(function (txt) {
       var file;
       try { file = JSON.parse(txt); } catch (e) { return fail(vs, '❌ 파일을 읽을 수 없습니다(손상 또는 다른 파일).'); }
-      if (!file || file.format !== FORMAT || !Array.isArray(file.pairs) || !file.pairs.every(function (p) { return Array.isArray(p) && p.length === 2 && allowed(p[0]) && typeof p[1] === 'string'; }))
+      var shapeOK = file && file.format === FORMAT && Array.isArray(file.pairs) && file.pairs.length <= 2000 && file.pairs.every(function (p, i) { return Array.isArray(p) && p.length === 2 && typeof p[0] === 'string' && typeof p[1] === 'string' && (i === 0 || file.pairs[i - 1][0] < p[0]); });
+      var fileAcc = {}; if (shapeOK) file.pairs.forEach(function (p) { if (ACCOUNTS.some(function (a) { return a[0] === p[0]; })) fileAcc[p[0]] = p[1]; });
+      var fileCalc = new Set(calcNames(fileAcc));
+      if (!shapeOK || !file.pairs.every(function (p) { return allowed(p[0], fileCalc); }) || file.itemCount !== file.pairs.length)
         return fail(vs, '❌ HAS 원본 사본 파일이 아닙니다.');
       return sha256Hex(JSON.stringify(file.pairs)).then(function (hash) {
         if (hash !== file.pairsSha256) return fail(vs, '❌ 확인값 불일치: 파일이 손상됐습니다. 다시 내려받으세요.');

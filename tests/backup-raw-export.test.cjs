@@ -9,7 +9,7 @@ const crypto = require('node:crypto');
 const { JSDOM } = require('jsdom');
 const html = fs.readFileSync(path.join(__dirname, '..', 'backup-raw-export.html'), 'utf8');
 
-const FULL = { v5_gen: '[{"ticker":"005930","qty":3}]', v5_dom: '[]', v5_ov: '[{"ticker":"QQQ"}]', v5_pen: '[]', v5_fg: '50', v5_snap: '{"all":[]}', calc_q1: '7' };
+const FULL = { v5_gen: '[{"id":7,"ticker":"005930","quantity":3}]', v5_dom: '[]', v5_ov: '[{"id":1,"ticker":"QQQ","quantity":2}]', v5_pen: '[]', v5_fg: '50', v5_snap: '{"all":[]}', calc_q1_gen_7: '7', calc_p3_ov_1: '1' };
 
 function boot(seed, opts) {
   opts = opts || {};
@@ -32,18 +32,18 @@ function boot(seed, opts) {
 async function waitFor(fn) { for (let i = 0; i < 100; i++) { const v = fn(); if (v) return v; await new Promise(r => setTimeout(r, 5)); } return null; }
 
 test('full HAS storage: verbatim pairs, allowlist only, secrets/GAS/other apps excluded, no writes', async () => {
-  const seed = Object.assign({}, FULL, { v5_gas: 'https://script.google.com/macros/s/X/exec', v5_alphaVantageKey: 'S1', v5_geminiKey: 'S2', v5_pw: 'S3', other_app_access_token: 'S4', wondang_admin: 'S5' });
+  const seed = Object.assign({}, FULL, { v5_gas: 'https://script.google.com/macros/s/X/exec', v5_alphaVantageKey: 'S1', v5_geminiKey: 'S2', v5_pw: 'S3', other_app_access_token: 'S4', wondang_admin: 'S5', v5_access_token: 'S6', calc_password: 'S7', calc_q1_gen_99: 'S8' });
   const env = boot(seed);
   assert.match(env.w.document.getElementById('summary').textContent, /일반 계좌: 1종목/);
   assert.strictEqual(env.btn.disabled, false);
   env.btn.click();
   const text = await waitFor(env.blob);
   const file = JSON.parse(text);
-  assert.strictEqual(file.format, 'has-raw-localstorage-v2');
+  assert.strictEqual(file.format, 'has-raw-localstorage-v3');
   assert.deepStrictEqual(file.pairs.map(p => p[0]), Object.keys(FULL).sort());
   for (const [k, v] of file.pairs) assert.strictEqual(v, FULL[k]);
   assert.strictEqual(file.pairsSha256, crypto.createHash('sha256').update(JSON.stringify(file.pairs)).digest('hex'));
-  for (const s of ['S1', 'S2', 'S3', 'S4', 'S5', 'script.google.com']) assert.ok(!text.includes(s), s);
+  for (const s of ['S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'S7', 'S8', 'script.google.com']) assert.ok(!text.includes(s), s);
   assert.deepStrictEqual(env.writes, []);
 });
 
@@ -84,4 +84,12 @@ test('storage changed after opening blocks the download', () => {
 test('page has no network or storage-write code and a no-network CSP', () => {
   assert.match(html, /connect-src 'none'/);
   assert.doesNotMatch(html, /fetch\(|XMLHttpRequest|setItem|removeItem|\.clear\(|sendBeacon|WebSocket/);
+});
+
+test('invalid holdings like [null] or missing ticker block the download', () => {
+  for (const bad of ['[null]', '[{}]', '[{"id":1,"ticker":"A","quantity":-1}]', '[{"id":1,"ticker":"A","quantity":1},{"id":1,"ticker":"B","quantity":1}]']) {
+    const env = boot(Object.assign({}, FULL, { v5_gen: bad }));
+    assert.strictEqual(env.btn.disabled, true, bad);
+    assert.match(env.status(), /일반 계좌/);
+  }
 });
