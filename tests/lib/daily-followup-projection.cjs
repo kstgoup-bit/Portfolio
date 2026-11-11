@@ -5,7 +5,7 @@ const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypt
 const ROOT=path.resolve(__dirname,'../..'),edits=require('./has-daily-followup-edits.json'),pins=require('./daily-followup-pins.json');
 const sha=b=>crypto.createHash('sha256').update(b).digest('hex');
 function beforeFollowupBytes(file){
- let bytes=fs.readFileSync(path.join(ROOT,file));
+ let bytes=require('./backup-compat-projection.cjs').beforeBackupCompatBytes(file);
  if(edits[file]){
   if(sha(bytes)!==pins.currentSha256[file])throw Error('Unreviewed followup change: '+file);
   let text=bytes.toString('utf8');
