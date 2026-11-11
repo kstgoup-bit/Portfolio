@@ -272,8 +272,8 @@ test('repair independent UI: actual snapshot interval reaches the display and le
   const h=appHarness();try {
     h.quote([stock({currentPrice:150})]);h.w.snapshots.gen=[{ts:NOW-20*DAY,val:100}];h.w.deposits.gen=[{ts:NOW-10*DAY,amount:50}];h.storage.setItem('v5_deposits',JSON.stringify(h.w.deposits));
     const before=JSON.stringify({snapshots:h.w.snapshots,deposits:h.w.deposits}),storage=h.storage.all();
-    const dietz=h.w.returnRowHtml({label:'1주',days:7},'gen',150,NOW,'dietz'),raw=h.w.returnRowHtml({label:'1주',days:7},'gen',150,NOW,'raw');
-    a.match(dietz,/0\.00%/);a.match(raw,/50\.00%/);a.doesNotMatch(dietz,/비교 보류/);a.match(dietz+' '+raw,/실제|계산 기간|적용 기간/);
+    const dietz=h.w.returnRowHtml({label:'1주',days:7},'gen',150,NOW,'dietz'),d1=h.w.returnRowHtml.lastDetail,raw=h.w.returnRowHtml({label:'1주',days:7},'gen',150,NOW,'raw'),d2=h.w.returnRowHtml.lastDetail;
+    a.match(dietz,/0\.00%/);a.match(raw,/50\.00%/);a.doesNotMatch(dietz,/비교 보류/);a.match(d1+' '+d2,/실제|계산 기간|적용 기간/);
     a.equal(JSON.stringify({snapshots:h.w.snapshots,deposits:h.w.deposits}),before);a.deepEqual(h.storage.all(),storage);a.equal(h.network.length,0);
   }finally{h.close();}
 });

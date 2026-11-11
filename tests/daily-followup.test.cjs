@@ -45,8 +45,9 @@ test('rendered number carries unverified label, quantity/cash/omission warnings 
  const {JSDOM}=require('jsdom'),d=new JSDOM('<!doctype html><main></main>');try{
   const context={Date,Number,String,window:{HASReturnAssessment:R},snapshotEscape:s=>String(s).replace(/[<>&]/g,''),getReturnActivity:()=>({flows:[],flowAccounts:[]})};vm.createContext(context);
   vm.runInContext(html.slice(html.indexOf('function returnRowHtml('),html.indexOf('function returnsSectionHtml(')),context);
-  const report=R.assess(input());const out=context.returnRowHtml({label:'7일',days:7},'gen',2000,NOW,'dietz',{cache:{'7일':report}});d.window.document.querySelector('main').innerHTML=out;
-  const text=d.window.document.body.textContent;a.match(text,/미검증 참고값/);a.match(text,/보유 변화 미검증/);a.match(text,/예수금 지연/);a.match(text,/누락 여부 미검증/);a.doesNotMatch(out,/#546e7a/);a.match(d.window.document.querySelector('strong').textContent,/% · 미검증/);
+  const report=R.assess(input());const view={cache:{'7일':report}};const out=context.returnRowHtml({label:'7일',days:7},'gen',2000,NOW,'dietz',view);d.window.document.querySelector('main').innerHTML=out;
+  // 2026-11-12 declutter: row shows value + '*'; reasons live in the section's collapsible details (view.details)
+  const text=d.window.document.body.textContent+' '+view.details.dietz.join(' ');a.match(text,/미검증 참고값/);a.match(text,/보유 변화 미검증/);a.match(text,/예수금 지연/);a.match(text,/누락 여부 미검증/);a.doesNotMatch(out,/#546e7a/);a.match(d.window.document.querySelector('strong').textContent,/% \*$/);
  }finally{d.window.close();}
 });
 test('return activity reader uses validated stored source once and never stale memory or writes',()=>{
