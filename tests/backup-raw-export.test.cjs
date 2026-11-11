@@ -93,3 +93,10 @@ test('invalid holdings like [null] or missing ticker block the download', () => 
     assert.match(env.status(), /일반 계좌/);
   }
 });
+
+test('re-open message: green only when identical to current storage', () => {
+  const src = html;
+  assert.match(src, /사본 확보 완료/);
+  assert.match(src, /최신 사본이 아닙니다/);
+  assert.doesNotMatch(src, /✅[^']*다릅니다/);
+});

@@ -169,7 +169,8 @@
         if (rep.problems.length) return fail(vs, '❌ ' + rep.problems.join(', '));
         var now; try { now = snapshot(); } catch (e) { now = null; }
         var same = now && samePairs(now, file.pairs);
-        vs.textContent = '✅ 파일 정상 · 확인값 ' + hash.slice(0, 12) + '\n' + rep.rows.join('\n') + '\n지금 폰 자료와 ' + (same ? '완전히 같습니다.' : '다릅니다(내려받은 뒤 앱을 사용했다면 정상).');
+        if (same) vs.textContent = '✅ 사본 확보 완료 · 확인값 ' + hash.slice(0, 12) + '\n' + rep.rows.join('\n') + '\n지금 폰 자료와 완전히 같습니다.';
+        else { vs.className = 'status bad'; vs.textContent = '⚠️ 파일은 손상되지 않았지만 지금 폰 자료와 다릅니다. 최신 사본이 아닙니다.\n다른 탭의 앱을 닫고 이 화면을 새로 연 뒤 다시 내려받으세요(이 파일도 지우지 마세요).\n' + rep.rows.join('\n'); }
       });
     }, function () { fail(vs, '❌ 파일을 열 수 없습니다.'); });
   });
