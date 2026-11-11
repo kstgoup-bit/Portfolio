@@ -19,6 +19,10 @@
     [
       "  risk:    [\"principledash\",\"risk\",\"commandments\",\"news\",\"radar\",\"ledgerdemo\",\"staff\",\"pretrade\"],",
       "  risk:    [\"principledash\",\"advisor\",\"risk\",\"commandments\",\"news\",\"radar\",\"ledgerdemo\",\"staff\",\"pretrade\"],"
+    ],
+    [
+      ".gtab.active{font-weight:900;background:#fff;color:#1565c0;border-color:#1565c0;box-shadow:0 1px 5px #00000018;transition:all 0.2s}",
+      ".gtab.active{font-weight:900;background:#fff;box-shadow:0 1px 5px #00000018;transition:all 0.2s}"
     ]
   ],
   "has/ledger-demo.js": [
