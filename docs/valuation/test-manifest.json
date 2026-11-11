@@ -111,7 +111,8 @@
     "tests/valuation-independent.test.cjs",
     "tests/valuation-ui.test.cjs",
     "tests/vendor-massive.test.cjs",
-    "tests/verification.test.cjs"
+    "tests/verification.test.cjs",
+    "tests/backup-raw-export.test.cjs"
   ],
   "excluded": [
     "network-guard-stage19.test.cjs",
