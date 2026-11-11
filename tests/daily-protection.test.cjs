@@ -41,10 +41,10 @@ test('receipt-only repeated snapshots do not write or announce a new saved versi
   a.match(fn('recordSnap'), /appended\.changed===false/);
   a.match(fn('autoSnapshot'), /!appended\.ok \|\| appended\.changed===false/);
 });
-test('GAS history remains synthetic-only and storage key inventory adds only the reviewed benchmark sidecar', () => {
-  const H = require('../has/benchmark-history-policy.js'); a.equal(H.liveGasEnabled, false);
+test('GAS history configured admission retains synthetic preview isolation and original storage key inventory', () => {
+  const H = require('../has/benchmark-history-policy.js'); a.equal(H.liveGasEnabled, true);
   a.equal(H.parseGasHistory({}, 'KS200', '2026-11-10T00:00:00Z', { mode: 'live' }).ok, false);
-  a.doesNotMatch(html, /[?&]type=history/);
+  a.match(html, /searchParams.set\("type","history"\)/);
   const keys = s => [...new Set(s.match(/\b(v5_[A-Za-z0-9_]+|has_[a-z_0-9]+|kst\.[a-z.A-Z0-9_]+)/g) || [])].sort();
   a.deepEqual(keys(html), [...keys(require('./lib/has-rename.cjs').beforeDailyText('portfolio_v5.html')), 'v5_benchHistV2'].sort());
 });

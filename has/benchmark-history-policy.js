@@ -79,8 +79,9 @@
     return candidate(id,bars,receipt,'yahoo-chart-v8',points,false);
   }
   function parseGasHistory(payload,id,receipt,options){
-    // Preparation only: no live mode, URL builder or activation setting is provided.
-    if(!options||options.mode!=='synthetic')return fail('live-gas-disabled');
+    // Explicit configured-route admission is limited to the existing Korean ETF.
+    var live=!!options&&options.mode==='configured-gas'&&id==='KS200';
+    if(!live&&(!options||options.mode!=='synthetic'))return fail('gas-mode-required');
     var s=specFor(id);if(!s||!obj(payload)||!own(payload,s.ticker))return fail('gas-envelope');
     var r=payload[s.ticker];if(!obj(r)||r.source!=='yahoo-chart-v8'||r.symbol!==s.symbol||r.currency!==s.currency||r.timezone!==s.timezone||r.instrumentType!=='ETF'||r.adjustment!=='unverified'||!barsValid(r.bars,id,receipt,400)||r.barCount!==r.bars.length)return fail('gas-contract');
     if(Date.parse(r.bars[r.bars.length-1].d)-Date.parse(r.bars[0].d)>370*86400000||r.bars.some(function(b){return Object.keys(b).sort().join(',')!=='c,d';}))return fail('gas-date-contract');
@@ -88,12 +89,12 @@
     if(allowed.indexOf(r.exchange)<0)return fail('gas-exchange');
     if(r.regularMarketTime!=null&&(!instant(r.regularMarketTime)||Date.parse(r.regularMarketTime)>Date.parse(receipt)||Q.marketDate(r.regularMarketTime,s.market)<r.bars[r.bars.length-1].d))return fail('gas-quote-time');
     for(var i=0;i<2;i++){var k=['regularMarketPrice','fiftyTwoWeekHigh'][i];if(r[k]!=null&&!price(r[k]))return fail('gas-price-meta');}
-    return candidate(id,r.bars.map(function(b){return {d:b.d,c:b.c};}),receipt,'yahoo-chart-v8-via-gas (synthetic preview)',null,true);
+    return candidate(id,r.bars.map(function(b){return {d:b.d,c:b.c};}),receipt,live?'yahoo-chart-v8-via-gas':'yahoo-chart-v8-via-gas (synthetic preview)',null,!live);
   }
   // Admission is deliberately process-local. Persisted data is validated, not promoted
   // back into a freshly authenticated transport candidate by copying public flags.
   function admitCandidate(c,id,now){
-    var s=specFor(id);if(!s||!obj(c)||!admitted.has(c)||c.id!==id||c.synthetic!==false||c.symbol!==s.symbol||c.market!==s.market||c.currency!==s.currency||c.timezone!==s.timezone||!received(c.receivedAt)||Date.parse(c.receivedAt)>now||!barsValid(c.bars,id,c.receivedAt)||['yahoo-chart-v8','alpha-vantage-daily'].indexOf(c.source)<0)return fail('candidate-not-persistable');
+    var s=specFor(id);if(!s||!obj(c)||!admitted.has(c)||c.id!==id||c.synthetic!==false||c.symbol!==s.symbol||c.market!==s.market||c.currency!==s.currency||c.timezone!==s.timezone||!received(c.receivedAt)||Date.parse(c.receivedAt)>now||!barsValid(c.bars,id,c.receivedAt)||['yahoo-chart-v8','alpha-vantage-daily','yahoo-chart-v8-via-gas'].indexOf(c.source)<0)return fail('candidate-not-persistable');
     return {ok:true,candidate:c};
   }
   function parseAlphaVantage(data,id,receipt){
@@ -153,6 +154,7 @@
     var s=specFor(id);if(!s||!exactKeys(p,['id','d','close','source','receivedAt','providerBarTs','dateKind','adjustment','finality'])||!Q.isValidDate(p.d)||p.d<'2000-01-01'||!price(p.close)||!received(p.receivedAt)||Date.parse(p.receivedAt)>now||p.d>Q.marketDate(p.receivedAt,s.market)||[0,6].indexOf(new Date(p.d+'T00:00:00Z').getUTCDay())>=0||p.dateKind!=='exchange-date-only'||p.adjustment!=='unverified'||['unverified','provisional'].indexOf(p.finality)<0||p.id!==observationId(p))return fail('observation-contract');
     if(p.d===Q.marketDate(p.receivedAt,s.market)&&p.finality!=='provisional'||p.d<Q.marketDate(p.receivedAt,s.market)&&p.finality!=='unverified')return fail('observation-finality');
     if(p.source==='alpha-vantage-daily'){if(s.market!=='US'||p.providerBarTs!==null)return fail('observation-source');}
+    else if(p.source==='yahoo-chart-v8-via-gas'){if(id!=='KS200'||p.providerBarTs!==null)return fail('observation-source');}
     else if(p.source==='yahoo-chart-v8'){if(!Number.isSafeInteger(p.providerBarTs)||p.providerBarTs<MIN_TS||p.providerBarTs>Date.parse(p.receivedAt)||observedDate({ts:p.providerBarTs},id)!==p.d)return fail('observation-source');}
     else return fail('observation-source');
     return {ok:true,point:p,date:p.d,legacy:false};
@@ -289,5 +291,5 @@
     try{return walk(value,0);}catch(e){return false;}
   }
   function boundary(fn){return function(){for(var i=0;i<arguments.length;i++)if(!plainData(arguments[i]))return fail('non-data-input');try{return fn.apply(null,arguments);}catch(e){return fail('invalid-input');}};}
-  return Object.freeze({specs:specs,limits:Object.freeze({bars:MAX_BARS,conflicts:MAX_CONFLICTS,bytes:MAX_BYTES}),readCache:boundary(readCache),parseTransportJSON:boundary(parseTransportJSON),validatePoint:boundary(validatePoint),validateSeries:boundary(series),observedDate:function(p,id){return plainData(p)?observedDate(p,id):null;},fingerprint:fingerprint,readStore:boundary(readStore),validateStore:boundary(validateStore),validateObservation:boundary(validateObservation),mergeHistoryStore:boundary(mergeHistoryStore),selectPointAtOrBefore:boundary(selectPointAtOrBefore),admitCandidate:boundary(admitCandidate),parseYahoo:boundary(parseYahoo),parseAlphaVantage:boundary(parseAlphaVantage),parseGasHistory:boundary(parseGasHistory),mergeSeries:boundary(mergeSeries),describe:boundary(describe),liveGasEnabled:false});
+  return Object.freeze({specs:specs,limits:Object.freeze({bars:MAX_BARS,conflicts:MAX_CONFLICTS,bytes:MAX_BYTES}),readCache:boundary(readCache),parseTransportJSON:boundary(parseTransportJSON),validatePoint:boundary(validatePoint),validateSeries:boundary(series),observedDate:function(p,id){return plainData(p)?observedDate(p,id):null;},fingerprint:fingerprint,readStore:boundary(readStore),validateStore:boundary(validateStore),validateObservation:boundary(validateObservation),mergeHistoryStore:boundary(mergeHistoryStore),selectPointAtOrBefore:boundary(selectPointAtOrBefore),admitCandidate:boundary(admitCandidate),parseYahoo:boundary(parseYahoo),parseAlphaVantage:boundary(parseAlphaVantage),parseGasHistory:boundary(parseGasHistory),mergeSeries:boundary(mergeSeries),describe:boundary(describe),liveGasEnabled:true});
 });

@@ -134,9 +134,10 @@
     try {
       bounded(input);
       if (!plain(input) || !time(input.startTs) || !time(input.endTs) || input.startTs >= input.endTs || !positive(input.startVal) || !finite(input.endVal) || input.endVal < 0) return metric(null, ['invalid-interval']);
-      var checked = validateFlows(own(input, 'flows') ? input.flows : [], input.key, input.flowAccounts);
+      if (!own(input, 'flows')) return metric(null, ['missing-flow-history']);
+      var checked = validateFlows(input.flows, input.key, input.flowAccounts);
       if (!checked.ok) return metric(null, [checked.code]);
-      var net = 0, weighted = 0, warnings = [], uncertain = false;
+      var net = 0, weighted = 0, warnings = ['external-flow-completeness-unverified'], uncertain = false;
       checked.flows.forEach(function (f) {
         if (!f.signedAmount) return;
         if (f.dateBounds && f.dateBounds.end > input.startTs && f.dateBounds.start <= input.endTs) uncertain = true;
@@ -203,7 +204,13 @@
         var change = actual.filter(function (c) { return c.account === account; }), event = eventsByPair.get(account + ':' + previous.ts + ':' + next.ts);
         var explained = !!(event && flowCheck.ok && evidenceMatches(event, change, flowsById));
         events.push({ account: account, fromTs: previous.ts, toTs: next.ts, explained: explained, evidenceId: event ? event.id : null });
-        if (!explained) reasons.push(event && event.kind === 'tracking-change' ? 'tracking-scope-change' : 'unexplained-holdings-change');
+        if (!explained) {
+          // A share-count change is not evidence of an external cash flow. Cash
+          // balances may be updated days later: never infer trades or capital
+          // from quantity/DEP_ offsets, and never certify this estimate.
+          warnings.push('unexplained-holdings-change', 'cash-balance-timing-unverified');
+          if (event) reasons.push(event.kind === 'tracking-change' ? 'tracking-scope-change' : 'transition-evidence-mismatch');
+        }
         else warnings.push('user-declared-transition-unverified', 'cash-completeness-user-declared');
       });
       if (!actual.length) {
@@ -222,7 +229,7 @@
       if (at <= fromTs || at > toTs) return;
       if (mark.types.indexOf('legacy-unknown') >= 0) warnings.push('legacy-scope-unverified');
       if (mark.types.indexOf('cost-basis') >= 0 || mark.types.indexOf('cost-basis-unknown') >= 0) warnings.push('cost-basis-change-only');
-      if (mark.types.indexOf('holdings') >= 0 && !transitionPairs.has(mark.previousTs + ':' + at)) reasons.push('unexplained-scope-marker');
+      if (mark.types.indexOf('holdings') >= 0 && !transitionPairs.has(mark.previousTs + ':' + at)) warnings.push('unexplained-scope-marker', 'cash-balance-timing-unverified');
     });
     return { status: reasons.length ? 'hold' : warnings.length ? 'unverified' : 'unchanged', reasons: unique(reasons), warnings: unique(warnings), transitions: events };
   }
@@ -296,7 +303,8 @@
       var scope = scopeAssessment(selected, start.ts, end.ts, evidence, { rows: flows, key: key, accounts: input.flowAccounts });
       var rawValue = start.val > 0 ? (end.val - start.val) / start.val * 100 : null;
       var raw = metric(rawValue, start.val > 0 ? finite(rawValue) ? [] : ['calculation-overflow'] : ['nonpositive-start-value'], warnings.concat(scope.warnings, scope.reasons.length ? ['scope-uncertain-value-change-only'] : []));
-      var dietzInput = { key: key, startTs: start.ts, endTs: end.ts, startVal: start.val, endVal: end.val, flows: flows };
+      var dietzInput = { key: key, startTs: start.ts, endTs: end.ts, startVal: start.val, endVal: end.val };
+      if (own(input, 'flows')) dietzInput.flows = flows;
       if (own(input, 'flowAccounts')) dietzInput.flowAccounts = input.flowAccounts;
       var dietz = modifiedDietz(dietzInput);
       dietz = Object.assign({}, dietz, metric(dietz.valuePct, dietz.reasons.concat(scope.reasons), dietz.warnings.concat(warnings.filter(function (w) { return w !== 'stored-value-change-not-investment-return'; }), scope.warnings, ['tracked-assets-only-cash-coverage-unverified'])));

@@ -1,5 +1,13 @@
 # Portfolio
 
+## 단일 반영 후보 · 2026-11-11
+
+현재 정리본은 [후보 보고서](docs/release-candidate/REPORT.md)와 [폰 확인 목록](docs/release-candidate/PHONE-CHECKLIST.md)을 따른다. GAS 일일기록·미검증 참고값·v5 FG 호환을 중복 적용 없이 보존한 독립 로컬 후보다. 아래 과거 문서의 이관 보류 기준은 현재 보고서의 범위 구분과 최신 결정 기록을 함께 읽는다. 배포·실자료 이관 완료를 뜻하지 않는다.
+
+## 일일기록 후속 수정 · 2026-11-11
+
+[후속 수정 및 직접 검증 보고서](docs/daily-followup/REPORT.md)를 참조하세요. 코스피200 ETF의 설정 GAS 이력 우선 경로와 보유 변화 시 미검증 참고 수익률 표시를 보완했습니다. 원본 기록·main·운영은 변경하지 않은 독립 로컬 개발본입니다. 아래 문서는 각 작성 시점의 기록입니다.
+
 ## 29단계 판단 보류와 기록 보호 보완 2026년 11월 9일
 
 현재 독립 개발본은 [검증 보고서](docs/stage29-evidence/REPORT.md), [읽기 전용 근거 연결](docs/stage29-evidence/ADAPTER.md), [종가 출처와 확정 근거 계약](docs/close-evidence/CONTRACT.md), [클로 후속 검토 안내](docs/stage29-evidence/REVIEW-HANDOFF.md)를 참조하세요. 아래 항목과 기존 팀 보고서는 이전 시점 기록입니다.

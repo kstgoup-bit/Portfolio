@@ -1,0 +1,41 @@
+{
+  "date": "2026-11-11",
+  "remoteBaseline": "d7c15c5fa876ca7f887a1ac85f81d14d492c6247",
+  "baselineTree": "031b0d5c4d17ddbeecfb4d006f1aaced10b2d627",
+  "main": "fd2599398d2f2ef1816ca9b64ea134ea8811309d",
+  "runtimeFiles": [
+    "backup/core.js",
+    "backup/ui.js"
+  ],
+  "runs": {
+    "UTC": {
+      "tests": 1875,
+      "pass": 1873,
+      "fail": 0,
+      "skipped": 2,
+      "logSha256": "59928f61499fcab10f95db5e33042159f9be9f8c257a52cb661961d73f16694f"
+    },
+    "Seoul": {
+      "tests": 1875,
+      "pass": 1873,
+      "fail": 0,
+      "skipped": 2,
+      "logSha256": "f420140f72ba160b8999b2506801e45b41ec55124bd4e2c56cac40227c6d6aa1"
+    },
+    "New_York": {
+      "tests": 1875,
+      "pass": 1875,
+      "fail": 0,
+      "skipped": 0,
+      "logSha256": "2dbc86a1e31f61a7607b5933a4285becb4ed76b8faef59ba1a109b79381a1d4b"
+    }
+  },
+  "externalAttempts": 0,
+  "secretFindings": 0,
+  "newSyntheticTests": 39,
+  "operationalMigration": "hold: original general-account independent copy and recovery path unverified",
+  "liveDataTouched": false,
+  "liveApiCalls": false,
+  "pushed": false,
+  "deployed": false
+}

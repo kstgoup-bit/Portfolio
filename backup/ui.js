@@ -47,7 +47,7 @@
    for(const w of plan.warnings)box.append(el('p',w));
    box.append(el('p','포함된 계좌·기록 그룹은 교체하며 빠진 그룹은 유지합니다. 새 활동의 중복 ID·손상 데이터는 거절합니다. 구버전 기록은 자동 분류하지 않습니다. 계좌가 빈 배열이면 빈 계좌로 복원합니다.'));
    box.append(el('p','변경 대상 키 '+rows.filter(r=>r.changed).length+'개. 적용 전 사본을 이 기기에 보관합니다. 사본 저장 실패 시 복원하지 않습니다. 다른 탭은 닫고 진행하세요. 여러 저장 키의 완전한 동시 변경은 보장하지 않습니다.'));
-   box.append(btn('복원 적용',()=>{try{if(run!==generation)throw Error('이전 미리보기입니다. 파일을 다시 선택하세요.');if(JSON.stringify(effective())!==liveBefore)throw Error('미리보기 이후 화면 자료가 바뀌었습니다. 파일을 다시 선택하세요.');prepareRuntimeChange();B.apply(localStorage,plan);generation++;box.remove();refresh();msg('전체 백업 복원 완료. 추가 편집 전에는 적용 직전 상태로 되돌릴 수 있습니다.');}catch(e){msg(e.message||'복원 실패');}}),btn('복원 취소',()=>{generation++;box.remove();msg('복원을 취소했습니다. 기존 자료는 그대로입니다.');}));
+   box.append(btn('복원 적용',()=>{try{if(run!==generation)throw Error('이전 미리보기입니다. 파일을 다시 선택하세요.');if(JSON.stringify(effective())!==liveBefore)throw Error('미리보기 이후 화면 자료가 바뀌었습니다. 파일을 다시 선택하세요.');prepareRuntimeChange();B.apply(localStorage,plan);generation++;box.remove();refresh();msg(plan.legacy?'구버전 백업에 포함된 자료만 복원했습니다. 없는 계좌·설정은 복구된 것이 아닙니다. 추가 편집 전에는 적용 직전 상태로 되돌릴 수 있습니다.':'전체 백업 복원 완료. 추가 편집 전에는 적용 직전 상태로 되돌릴 수 있습니다.');}catch(e){msg(e.message||'복원 실패');}}),btn('복원 취소',()=>{generation++;box.remove();msg('복원을 취소했습니다. 기존 자료는 그대로입니다.');}));
    host.append(box);box.scrollIntoView({block:'center'});
   }catch{if(run!==generation)return;msg('복원 파일을 거절했습니다. JSON·버전·필드·용량을 확인하세요. 기존 자료는 변경하지 않았습니다.');}
  };

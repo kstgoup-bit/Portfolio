@@ -55,8 +55,8 @@ test('older and malformed history cannot overwrite; conflicting dates quarantine
 test('compact newer series appends only newer dates and never backfills or truncates history',()=>{
  const old=parsed().points,x=yahoo('QQQ',['2026-11-09','2026-11-10']);x.chart.result[0].indicators.quote[0].close=[102,103];const r=P.mergeSeries(old,P.parseYahoo(x,'QQQ',NOW),'QQQ',MS);a.equal(r.ok,true);a.equal(r.points.length,4);a.deepEqual(r.points.slice(0,3),old);
 });
-test('GAS date-only path is synthetic-only with no live activation or invented timestamp',()=>{
- a.equal(P.liveGasEnabled,false);a.equal(P.parseGasHistory(gas(),'QQQ',NOW).reason,'live-gas-disabled');a.equal(P.parseGasHistory(gas(),'QQQ',NOW,{mode:'live'}).ok,false);
+test('GAS date-only preview is non-persistable and configured admission requires explicit mode',()=>{
+ a.equal(P.liveGasEnabled,true);a.equal(P.parseGasHistory(gas(),'QQQ',NOW).reason,'gas-mode-required');a.equal(P.parseGasHistory(gas(),'QQQ',NOW,{mode:'live'}).ok,false);
  for(const id of ['KS200','QQQ','SPY']){const r=P.parseGasHistory(gas(id),id,NOW,{mode:'synthetic'});a.equal(r.ok,true);a.equal(r.synthetic,true);a.equal(r.points,null);a.equal(r.barTimestampKind,'absent');a.equal(r.finality,'unverified');a.equal(P.mergeSeries([],r,id,MS).ok,false);a.equal(Object.keys(r.bars[0]).sort().join(','),'c,d');}
 });
 test('GAS rejects bad or impossible dates, partial/null bars and identity/metadata contradictions',()=>{
@@ -69,7 +69,7 @@ test('holiday/weekend/date age never produces a latest-confirmed declaration or 
 });
 test('UI keeps bounded strict transport, explicit direct AV fallback, cancellation and readable controls without false freshness',()=>{
  const html=fs.readFileSync(require.resolve('../portfolio_v5.html'),'utf8'),start=html.indexOf('function fetchBenchmarkHistory(force)'),end=html.indexOf('function findBenchAtOrBefore',start),block=html.slice(start,end);
- a.equal((html.match(/src="has\/benchmark-history-policy.js"/g)||[]).length,1);a.doesNotMatch(block,/ageDays\s*>|4\*86400000|type=history|Date.UTC|parseGasHistory|gasUrl/);a.match(block,/function active\(\)/);a.match(block,/_benchRunId===myRun&&!snapshotWriteBlocked\(\)/);a.match(html,/당일 막대·공식 종가·최신성은 미확정입니다/);a.match(block,/당일 미확정 · 최신성 미확인/);a.doesNotMatch(html,/✓ 데이터 최신 확인됨/);a.match(html,/onclick="fetchBenchmarkHistory\(true\)" style="min-height:44px;min-width:44px;font-size:12px;/);
+ a.equal((html.match(/src="has\/benchmark-history-policy.js"/g)||[]).length,1);a.doesNotMatch(block,/ageDays\s*>|4\*86400000|Date.UTC/);a.match(block,/function active\(\)/);a.match(block,/_benchRunId===myRun&&!snapshotWriteBlocked\(\)/);a.match(html,/당일 막대·공식 종가·최신성은 미확정입니다/);a.match(block,/당일 미확정 · 최신성 미확인/);a.doesNotMatch(html,/✓ 데이터 최신 확인됨/);a.match(html,/onclick="fetchBenchmarkHistory\(true\)" style="min-height:44px;min-width:44px;font-size:12px;/);
  a.match(block,/index>=PROXIES\.length\*2/);a.match(block,/index%2===0\?"query1":"query2"/);a.match(block,/size>HASBenchmarkHistory\.limits\.bytes/);a.match(block,/reader\.cancel\(\)/);a.match(block,/redirect:"error"/);a.equal((block.match(/HASBenchmarkHistory\.parseTransportJSON\(/g)||[]).length,2);a.doesNotMatch(block,/JSON\.parse\(/);a.match(block,/localStorage\.getItem\("v5_benchHist"\)!==state\.legacyRaw/);a.match(block,/mergeHistoryStore\(/);a.match(block,/setItem\("v5_benchHistV2"/);a.doesNotMatch(block,/setItem\("v5_benchHist"/);
  const avStart=block.indexOf('function avFallback(item,done)'),avEnd=block.indexOf('function fetchOne(',avStart),avCode=block.slice(avStart,avEnd);
  a.match(avCode,/if\(!force\|\|item\.id==="KS200"\)/);a.match(avCode,/TIME_SERIES_DAILY/);a.match(avCode,/HASBenchmarkHistory\.parseAlphaVantage/);a.doesNotMatch(avCode,/PROXIES|proxy\(/);

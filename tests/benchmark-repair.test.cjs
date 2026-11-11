@@ -57,7 +57,7 @@ test('boundary conflict holds exactly affected benchmark boundary, never silentl
 test('manufactured/cloned candidate flags and mutation cannot launder admission',()=>{
  const c=candidate(),raw=JSON.stringify(legacy());a.equal(Object.isFrozen(c),true);a.equal(Object.isFrozen(c.points[0]),true);a.throws(()=>c.bars[0].c=500,TypeError);
  for(const forged of [clone(c),{...c},Object.assign({},c,{synthetic:false,ok:true})]){a.equal(P.admitCandidate(forged,'QQQ',NOW).ok,false);a.equal(P.mergeHistoryStore(null,raw,forged,'QQQ',NOW).ok,false);}
- a.equal(P.admitCandidate(c,'SPY',NOW).ok,false);a.equal(P.liveGasEnabled,false);
+ a.equal(P.admitCandidate(c,'SPY',NOW).ok,false);a.equal(P.liveGasEnabled,true);
 });
 test('no gap backfill or pruning; bound overflow leaves exact previous store',()=>{
  const raw=JSON.stringify(legacy()),r=P.mergeHistoryStore(null,raw,candidate(['2026-11-04','2026-11-09'],[1,101]),'QQQ',NOW);a.equal(r.failures[0].reason,'gap-backfill-disabled');a.deepEqual(r.acceptedDates,['2026-11-09']);

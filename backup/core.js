@@ -210,10 +210,18 @@
   }
   if(own(b,'pension')&&!own(b,'penStocks')){if(!Array.isArray(b.pension)||b.pension.some(s=>!object(s)))fail('구버전 연금 형식 오류');values.v5_pen=JSON.stringify(b.pension.map(s=>({...s,quantity:s.quantity??0,avgPrice:s.avgPrice??0,currentPrice:s.currentPrice??0})));}
   if(b.snapshots&&own(b.snapshots,'normal')){if(own(b.snapshots,'all')||own(b.snapshots,'dom'))fail('구버전 기록 그룹이 충돌합니다.');const groups={...b.snapshots,all:b.snapshots.normal};delete groups.normal;values.v5_snap=JSON.stringify(groups);}
-  for(const [field,key]of [['usdKrw','v5_fx'],['fg','v5_fg']])if(own(b,field)){if(!finite(b[field]))fail('구버전 숫자 설정 형식 오류');values[key]=String(b[field]);}
+  if(own(b,'usdKrw')){if(!finite(b.usdKrw))fail('구버전 숫자 설정 형식 오류');values.v5_fx=String(b.usdKrw);}
+  // The real v5 exporter reads localStorage directly: fg is a string or null.
+  // Null means no exported setting, never zero or a request to delete a value.
+  // String syntax and the 0..100 range still pass the common stored-value check.
+  if(own(b,'fg')){
+   if(b.fg===null)warnings.push('구버전 FG 설정이 비어 있어 현재 값을 유지합니다. 없는 값을 0으로 만들지 않습니다.');
+   else if(typeof b.fg==='string'||finite(b.fg))values.v5_fg=String(b.fg);
+   else fail('구버전 숫자 설정 형식 오류');
+  }
   if(own(b,'calcData')){if(!object(b.calcData))fail('계산기 자료 오류');for(const[k,v]of Object.entries(b.calcData)){if(!calc(k)||!['string','number'].includes(typeof v))fail('구버전 계산기 키 또는 값 범위 오류');values[k]=String(v);}}
   if(!Object.keys(values).length)fail('복원할 지원 자료가 없습니다.');for(const[k,v]of Object.entries(values))validateValue(k,v,5);
-  if(!own(values,'v5_gen'))warnings.push('일반계좌가 백업에 없습니다. 현재 일반계좌를 유지합니다.');
+  if(!own(values,'v5_gen'))warnings.push('일반계좌가 백업에 없습니다. 현재 일반계좌는 유지하지만 이 파일만으로 새 기기에서 일반계좌를 복구할 수 없는 불완전 백업입니다. 반영·기기 변경 전 일반계좌가 포함된 별도 독립 백업을 확보하세요.');
   warnings.push(...archiveWarnings(values));
   if(['v4',4].includes(b.version))warnings.push('v4 변환은 미리보기 계획입니다. 적용하지 않으면 아무 자료도 바뀌지 않습니다.');
   return parsedPlan(values,true,warnings,b.version);
