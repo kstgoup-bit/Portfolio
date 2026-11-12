@@ -6,6 +6,7 @@
 - `COLLAB-PROTOCOL.md` — 다비↔클로 정기 깃허브 협업 규칙(브랜치·보고서·승인). **작업 전 필독.**
 
 ## 최신 (2026-11-12)
+- **16:55 코스피200 공식 스냅샷 201종목 저장**(순태씨 제공 KRX 파일, 미국 200은 아직 차단) — [CLAUDE-DEV-UNIVERSE-SCREEN-20261112.md](CLAUDE-DEV-UNIVERSE-SCREEN-20261112.md)
 - **16:10 #1 차단 보고**: 공식 400종목 원본 미확보로 목록 미생성, 순태씨 취득 방안 결정 필요 — [CLAUDE-DEV-UNIVERSE-SCREEN-20261112.md](CLAUDE-DEV-UNIVERSE-SCREEN-20261112.md)
 - **15:25 지피 검토용**: 400종목 곡소리 0b 단위 READY_FOR_REVIEW — [CLAUDE-LATEST.md](CLAUDE-LATEST.md), [CLAUDE-DEV-UNIVERSE-SCREEN-20261112.md](CLAUDE-DEV-UNIVERSE-SCREEN-20261112.md)
 - **15:05 400종목 곡소리 보완 0b**: 운영 실제 모드에 진입 링크, 문구 정정, 한국시간·한국어 사유, 산출물 제거(시험 1973 통과/0 실패, 360/390/430 확인, 아직 WIP·운영 미반영) — 같은 브랜치 `e50f710`
