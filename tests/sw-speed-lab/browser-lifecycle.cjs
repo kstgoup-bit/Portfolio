@@ -58,6 +58,8 @@ async function run(){
   assert.equal(await probe(page),'legacy','waiting update must not replace old controller');
   const candidateName=await page.evaluate(async release=>(await caches.keys()).find(k=>k.endsWith(':'+release)),candidate.config.release);
   assert.ok(candidateName);
+  // claude fix: the candidate cache is filled asynchronously; wait for the completion marker before reading keys.
+  await page.waitForFunction(async name=>(await(await caches.open(name)).keys()).some(r=>r.url.includes('__has_generation_complete__')),candidateName,{timeout:15000});
   const keys=await page.evaluate(async name=>(await(await caches.open(name)).keys()).map(r=>r.url),candidateName);
   assert.ok(keys.every(u=>u!==origin+'/app/app.js'&&u!==origin+'/app/portfolio_v5.html'),'only internal candidate keys');
   // Delete only synthetic legacy script entry; ensure global lookup cannot expose waiting candidate.
@@ -72,6 +74,7 @@ async function run(){
   const scriptKey=keys.find(u=>u.includes('__has_generation_asset__')&&u.endsWith('/app.js')); // encoded path is app.js.
   // Resolve by manifest suffix, not by any original-URL lookup.
   const internalKey=scriptKey||keys.find(u=>u.includes('__has_generation_asset__')&&decodeURIComponent(u.split('/').pop())==='app.js');
+  if(!internalKey) console.log('KEYS_AT_MARKER', JSON.stringify(keys.map(u=>u.split('/').slice(-2).join('/'))));
   assert.ok(internalKey);
   const erase=()=>page.evaluate(async({name,key})=>{await(await caches.open(name)).delete(key)},{name:candidateName,key:internalKey});
   const fetchScript=()=>page.evaluate(async()=>{try{const r=await fetch('./app.js');return {ok:r.ok,body:await r.text()}}catch{return {ok:false}}});
