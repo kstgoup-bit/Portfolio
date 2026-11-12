@@ -1,0 +1,17 @@
+✔ installed Playwright polling reproduces async-false premature completion (1.106496ms)
+✔ installed Playwright sync-false actually schedules another poll (0.233675ms)
+✔ reported HTML-only keys reproduced without deletion or reinstall (32.251194ms)
+✔ async false then true does not complete early in corrected helper (1.396032ms)
+✔ marker alone is insufficient; return the exact complete snapshot (0.427118ms)
+✔ corrected helper times out false rather than passing a Promise (0.937346ms)
+✔ async probes never overlap (1.992652ms)
+✔ real errors propagate rather than being swallowed as readiness (0.515578ms)
+✔ unresolved probe is bounded by host deadline (24.047797ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1335.24657

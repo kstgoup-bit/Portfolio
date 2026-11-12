@@ -1,0 +1,35 @@
+✔ manifest deterministic and every asset hash/size matches c816903 working bytes (37.748161ms)
+✔ independent HTML parser confirms current script/stylesheet/image references are pinned (486.527846ms)
+✔ generated candidate does not force activation or claim current clients (10.596812ms)
+✔ production registration still selects original worker and never laboratory candidate (4.274395ms)
+✔ current existing service worker remains exact Git blob from main (0.391501ms)
+✔ complete install serves one generation online/offline without network reads (24.117899ms)
+✔ new HTML + old JS installation is rejected; previous generation remains (6.465113ms)
+✔ install failure network never commits a partial generation (0.973681ms)
+✔ install failure html-mime never commits a partial generation (0.772647ms)
+✔ install failure wrong-body never commits a partial generation (0.84814ms)
+✔ install failure quota never commits a partial generation (1.123857ms)
+✔ install failure partial-206 never commits a partial generation (0.842352ms)
+✔ install failure private never commits a partial generation (0.639215ms)
+✔ completed same-release reinstall verifies and does not fetch/rewrite (5.862653ms)
+✔ corrupt completed cache fails reinstall without deleting active storage (2.686587ms)
+✔ evicted/poisoned app.js fails closed without newer network fallback (2.204529ms)
+✔ evicted/poisoned marker fails closed without newer network fallback (1.535128ms)
+✔ evicted/poisoned poison fails closed without newer network fallback (3.213833ms)
+✔ only exact app-scope generation caches are removed (5.46355ms)
+✔ external market requests, same-origin API queries, other navigation, non-GET are unhandled (0.607207ms)
+✔ query HTML/code and Range on pinned app fail closed and are never cached (4.399794ms)
+✔ unrelated page can fetch shared script without receiving pinned app copy (6.977326ms)
+✔ new unmanifested local code and unresolvable client fail closed (0.361195ms)
+✔ activate refuses missing generation without deleting unrelated cache (0.190077ms)
+✔ draft counterexample: no-cache can mix new HTML with cached old JS (4.312222ms)
+✔ draft counterexamples: wrong MIME and query response enter CacheStorage (1.796243ms)
+✔ current worker deletes other apps caches and substitutes HTML for offline JS (2.470421ms)
+ℹ tests 27
+ℹ suites 0
+ℹ pass 27
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1059.431052

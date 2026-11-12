@@ -1,0 +1,39 @@
+{
+  "previousBase": "90886f96223be5a3dfd229a92d63e3f1692a4441",
+  "newBase": "c7de558f2b134009b5a9ca6bfc2edc6444f4568f",
+  "previousRelease": "78254afc945b7484d729e2085e405d541f2ab0a99c4469f9fa36255a1112dff7",
+  "newRelease": "41e22f32247f88c9d1ad0ece765ff034c217d73dd77046be3f2c6e3e5eafc872",
+  "assetCount": 42,
+  "changes": [
+    {
+      "path": "has/live-price-reference.js",
+      "old": {
+        "path": "has/live-price-reference.js",
+        "kind": "js",
+        "size": 9368,
+        "sha256": "7c4de690b1e85186029b8f4e473b7228dc87ec36e0a055c4300abd396c8930aa"
+      },
+      "new": {
+        "path": "has/live-price-reference.js",
+        "kind": "js",
+        "size": 9841,
+        "sha256": "74ec48bfd7b9fe121eeccb1fe4849289ca2e8dd0cd18f38462c83bded92c2cb1"
+      }
+    },
+    {
+      "path": "has/live-price-panel.js",
+      "old": {
+        "path": "has/live-price-panel.js",
+        "kind": "js",
+        "size": 8723,
+        "sha256": "1645d157dd74cc016afdab0b44c5a95b1e6807a9367a0f4f478068b669889c05"
+      },
+      "new": {
+        "path": "has/live-price-panel.js",
+        "kind": "js",
+        "size": 9047,
+        "sha256": "be25d2c7ecf19b9db69bb0913ddf9a07a0765944870546dc38a922974f72e65d"
+      }
+    }
+  ]
+}
