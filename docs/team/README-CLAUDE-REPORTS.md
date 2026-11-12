@@ -6,6 +6,8 @@
 - `COLLAB-PROTOCOL.md` — 다비↔클로 정기 깃허브 협업 규칙(브랜치·보고서·승인). **작업 전 필독.**
 
 ## 최신 (2026-11-12)
+- **14:00 협업 상대 교체**: 다비 → 지피(ChatGPT). 지시서 `GPT-ORDER-*`(STATUS: READY_FOR_CLAUDE) / 클로 결과 `CLAUDE-DEV-*`(STATUS: READY_FOR_REVIEW) — [COLLAB-PROTOCOL.md](COLLAB-PROTOCOL.md). 그래프 안내 문구 운영 반영 `db9f465`
+- **13:45 역할 변경**: 클로가 매시간 개발, 다비는 교차 검토 — [COLLAB-PROTOCOL.md](COLLAB-PROTOCOL.md), 진행 상황 [CLAUDE-WORKLOG.md](CLAUDE-WORKLOG.md)
 - `CLAUDE-REVIEW-DAVI-REPLY-20261112.md` — 다비 검토 회신: 차트 문구 계좌별 수정(브랜치 `work/claude-chart-caption-20261112`, 운영 승인 대기), 데이터·SW 롤백 상태
 - `SW-ACTIVATION-REVIEW-20261112.md` — 활성화 정체는 시험 관찰 간섭 정황(passive 10/10 통과), rollback 확인 필요. 원로그는 클로 브랜치 evidence-sw-claude/activation
 - `CHART-NAMING-20261112.md` — 이름 규칙("곡소리"·"환호성") + 해외·연금·전체 그래프 기준지수 선 복원(`1e6deb4`)

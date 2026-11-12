@@ -35,6 +35,18 @@
     [
       "  var benchSeries=chartComparison.hold?null:getBenchmarkSeriesForChart(snapKey, pts);\n  var BENCH_NAMES={all:\"KODEX 200 20%+QQQ 80% (달러 기준·환율 미반영)\",dom:\"KODEX 200 ETF\",gen:\"KODEX 200 ETF\",ov:\"QQQ ETF (달러 기준·환율 미반영)\",pen:\"QQQ ETF (달러 기준·환율 미반영)\"};\n  var benchName=BENCH_NAMES[snapKey]||\"기준지수\";\n",
       "  var benchSeries=chartComparison.hold?null:getBenchmarkSeriesForChart(snapKey, pts);\n  var BENCH_NAMES={all:\"KODEX 200 ETF 20%+QQQ ETF 80%\",dom:\"KODEX 200 ETF\",gen:\"KODEX 200 ETF\",ov:\"QQQ ETF\",pen:\"QQQ ETF\"};\n  var benchName=BENCH_NAMES[snapKey]||\"기준지수\";\n"
+    ],
+    [
+      "    var noteText=\"저장 관측만 표시 · 투자손익 확정 아님\"+(chartComparison.hold?\" · \"+(chartAssessment?chartAssessment.dietz.reasons.map(returnReasonText).join(\" · \"):\"계산 모듈 확인 필요\"):\" · \"+chartAssessment.dietz.warnings.map(returnReasonText).filter(function(t,i,a){return a.indexOf(t)===i;}).join(\" · \"))+((snapKey!==\"dom\"&&snapKey!==\"gen\")?\" · 원화/외화 비교선 보류\":\"\");\n    var benchNote={dom:\"비교선: KODEX 200 등락률(원화)\",gen:\"비교선: KODEX 200 등락률(원화)\",ov:\"비교선: QQQ·SPY 달러 기준 등락률(환율 미반영)\",pen:\"비교선: QQQ 달러 기준 등락률(환율 미반영)\",all:\"비교선: KODEX 200 20% + QQQ 80%(해외 부분 환율 미반영)\"}[snapKey]||\"\";\n    noteText=noteText.replace(\" · 원화/외화 비교선 보류\",\"\")+(benchNote?\" · \"+benchNote:\"\");\n    note.style.color=\"#333\";note.textContent=\"\";var nd=document.createElement(\"details\"),ns=document.createElement(\"summary\"),nb=document.createElement(\"div\");\n",
+      "    var noteText=\"저장 관측만 표시 · 투자손익 확정 아님\"+(chartComparison.hold?\" · \"+(chartAssessment?chartAssessment.dietz.reasons.map(returnReasonText).join(\" · \"):\"계산 모듈 확인 필요\"):\" · \"+chartAssessment.dietz.warnings.map(returnReasonText).filter(function(t,i,a){return a.indexOf(t)===i;}).join(\" · \"))+((snapKey!==\"dom\"&&snapKey!==\"gen\")?\" · 원화/외화 비교선 보류\":\"\");\n    noteText=noteText.replace(\" · 원화/외화 비교선 보류\",\" · 지수선은 달러 기준 등락률(환율 미반영)\");\n    note.style.color=\"#333\";note.textContent=\"\";var nd=document.createElement(\"details\"),ns=document.createElement(\"summary\"),nb=document.createElement(\"div\");\n"
+    ],
+    [
+      "    note.style.color=\"#333\";note.textContent=\"\";var nd=document.createElement(\"details\"),ns=document.createElement(\"summary\"),nb=document.createElement(\"div\");\n    ns.textContent=\"ⓘ 그래프 안내\";ns.style.cssText=\"cursor:pointer;min-height:28px;font-size:12px;color:#333\";nb.textContent=noteText;nd.appendChild(ns);nd.appendChild(nb);note.appendChild(nd);\n  }\n",
+      "    note.style.color=\"#333\";note.textContent=\"\";var nd=document.createElement(\"details\"),ns=document.createElement(\"summary\"),nb=document.createElement(\"div\");\n    ns.textContent=\"ⓘ 그래프 안내 (기록 기준 · 지수선은 달러 기준)\";ns.style.cssText=\"cursor:pointer;min-height:28px;font-size:12px;color:#333\";nb.textContent=noteText;nd.appendChild(ns);nd.appendChild(nb);note.appendChild(nd);\n  }\n"
+    ],
+    [
+      "  var benchSeries=chartComparison.hold?null:getBenchmarkSeriesForChart(snapKey, pts);\n  var BENCH_NAMES={all:\"KODEX 200 20%+QQQ 80% (해외 부분 환율 미반영)\",dom:\"KODEX 200 ETF\",gen:\"KODEX 200 ETF\",ov:\"QQQ ETF (달러 기준·환율 미반영)\",pen:\"QQQ ETF (달러 기준·환율 미반영)\"};\n  var benchName=BENCH_NAMES[snapKey]||\"기준지수\";\n",
+      "  var benchSeries=chartComparison.hold?null:getBenchmarkSeriesForChart(snapKey, pts);\n  var BENCH_NAMES={all:\"KODEX 200 20%+QQQ 80% (달러 기준·환율 미반영)\",dom:\"KODEX 200 ETF\",gen:\"KODEX 200 ETF\",ov:\"QQQ ETF (달러 기준·환율 미반영)\",pen:\"QQQ ETF (달러 기준·환율 미반영)\"};\n  var benchName=BENCH_NAMES[snapKey]||\"기준지수\";\n"
     ]
   ],
   "radar/ui.js": [
