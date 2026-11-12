@@ -6,6 +6,8 @@
 - `COLLAB-PROTOCOL.md` — 다비↔클로 정기 깃허브 협업 규칙(브랜치·보고서·승인). **작업 전 필독.**
 
 ## 최신 (2026-11-12)
+- **15:25 지피 검토용**: 400종목 곡소리 0b 단위 READY_FOR_REVIEW — [CLAUDE-LATEST.md](CLAUDE-LATEST.md), [CLAUDE-DEV-UNIVERSE-SCREEN-20261112.md](CLAUDE-DEV-UNIVERSE-SCREEN-20261112.md)
+- **15:05 400종목 곡소리 보완 0b**: 운영 실제 모드에 진입 링크, 문구 정정, 한국시간·한국어 사유, 산출물 제거(시험 1973 통과/0 실패, 360/390/430 확인, 아직 WIP·운영 미반영) — 같은 브랜치 `e50f710`
 - **14:15 400종목 곡소리**: 다비 제출 `719692c` 이어받아 검토(시험 통과, 보완 6건, 공식 목록 미확보) — 브랜치 `work/claude-universe-screen-20261112`의 `CLAUDE-DEV-UNIVERSE-SCREEN-20261112.md`
 - **14:00 협업 상대 교체**: 다비 → 지피(ChatGPT). 지시서 `GPT-ORDER-*`(STATUS: READY_FOR_CLAUDE) / 클로 결과 `CLAUDE-DEV-*`(STATUS: READY_FOR_REVIEW) — [COLLAB-PROTOCOL.md](COLLAB-PROTOCOL.md). 그래프 안내 문구 운영 반영 `db9f465`
 - **13:45 역할 변경**: 클로가 매시간 개발, 다비는 교차 검토 — [COLLAB-PROTOCOL.md](COLLAB-PROTOCOL.md), 진행 상황 [CLAUDE-WORKLOG.md](CLAUDE-WORKLOG.md)
