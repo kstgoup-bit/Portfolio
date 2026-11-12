@@ -68,7 +68,11 @@ async function run(){
   fault=null;revision++;assert.equal(await updateTerminal(first),'installed');const full=await pollAsync(()=>snapshot(first,cfg,origin),{accept:x=>x.ready,label:'all 42 assets plus marker'});assert.equal(full.keys,43);
   assert.equal((await probe(first)).kind,'legacy');assert.equal((await probe(second)).kind,'legacy');
   await first.close();assert.equal((await probe(second)).kind,'legacy');assert.equal((await probe(second,'waiting')).kind,'candidate');
-  await second.close();await pollAsync(()=>probe(keeper,'active'),{accept:x=>x?.kind==='candidate'&&x.workerState==='activated',label:'activation after BOTH old tabs close'});
+  await second.close();const __closedAt=Date.now(),__reqStart=requests.length;
+  const __timer=setInterval(async()=>{try{const a=await probe(keeper,'active').catch(e=>String(e)),w=await probe(keeper,'waiting').catch(e=>String(e)),i=await probe(keeper,'installing').catch(e=>String(e));console.log('TICK',Date.now()-__closedAt,JSON.stringify({a,w,i}),'newReq',JSON.stringify(requests.slice(__reqStart).map(r=>typeof r==='string'?r:JSON.stringify(r)).slice(-6)),'mode',mode,'rev',revision);}catch(e){}},1500);
+  try{ await pollAsync(()=>probe(keeper,'active'),{accept:x=>x?.kind==='candidate'&&x.workerState==='activated',label:'activation after BOTH old tabs close',timeoutMs:Number(process.env.HAS_SW_ACTIVATION_TIMEOUT_MS||15000)});
+  console.log('ACTIVATED_AFTER_CLOSE_MS', Date.now()-__closedAt);
+  } finally { clearInterval(__timer); }
   let app=await context.newPage();await app.goto(origin+'/app/portfolio_v5.html');assert.equal((await probe(app)).kind,'candidate');await app.waitForFunction(()=>typeof switchTab==='function'&&!!document.getElementById('panel-dashboard'));
   assert.deepEqual(await protectedStorage(app),initial);
   // Every pinned response must be exact, not just HTML and one sample script.
