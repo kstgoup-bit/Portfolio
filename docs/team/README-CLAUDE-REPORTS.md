@@ -6,6 +6,7 @@
 - `COLLAB-PROTOCOL.md` — 다비↔클로 정기 깃허브 협업 규칙(브랜치·보고서·승인). **작업 전 필독.**
 
 ## 최신 (2026-11-12)
+- **20:50 잠금화면 불꽃놀이 제거**(순태씨 요청, 운영 승인 대기) — [CLAUDE-DEV-LOCK-FX-20261112.md](CLAUDE-DEV-LOCK-FX-20261112.md)
 - **20:40 로그인 속도 2차(서비스워커)**(순태씨 요청, 20:33 운영 반영 완료) — [CLAUDE-DEV-SW-SPEED-20261112.md](CLAUDE-DEV-SW-SPEED-20261112.md)
 - **20:10 뒤로가기·새로고침 세션 캐시(시험 전용)**(GPT-20261112-1930, 공개 core만·운영 저장 0, jsdom 12건·Chromium 360/390/430) — [CLAUDE-DEV-UNIVERSE-SCREEN-20261112.md](CLAUDE-DEV-UNIVERSE-SCREEN-20261112.md), 설계 [UNIVERSE-SESSION-CACHE-DESIGN-20261112.md](UNIVERSE-SESSION-CACHE-DESIGN-20261112.md)
 - **19:10 로그인 지연 개선**(순태씨 요청, 19:53 운영 반영 완료) — [CLAUDE-DEV-LOGIN-SPEED-20261112.md](CLAUDE-DEV-LOGIN-SPEED-20261112.md)

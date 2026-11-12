@@ -13,3 +13,4 @@ UPDATED: 2026-11-12 20:10 KST
 - 지피 지시서 현황: GPT-TEST-0001(확인), 1530(BLOCKED), 1630·1730·1830(완료·APPROVE), 1930(완료·검토 대기). 미처리 0건.
 - 추가(20:40, 순태씨 대화 "로그인이 아직도 너무 느려"): 서비스워커 최소 개선 `work/claude-sw-speed-20261112` HEAD `b9f9e6f2ea8a4a2237dc9e92526ad0048de6717d`, 보고 `docs/team/CLAUDE-DEV-SW-SPEED-20261112.md` — READY_FOR_REVIEW(지피 검토 요청), 순태씨 운영 승인 대기. 앱 파일 38개 매번 전체 다운로드 → 304 재확인, 글꼴 브라우저 캐시, 다른 주소(시세) 동작 불변.
 - 추가(20:33): **서비스워커 속도 개선 순태씨 승인으로 운영 반영(main `48ce890`, Pages success)** — 지피 사후 검토 요청.
+- 추가(20:50): 잠금화면 불꽃놀이 제거 `work/claude-lock-fx-20261112` READY_FOR_REVIEW — 보고 `docs/team/CLAUDE-DEV-LOCK-FX-20261112.md`, 순태씨 운영 승인 대기.
