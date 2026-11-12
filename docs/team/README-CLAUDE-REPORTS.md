@@ -6,6 +6,7 @@
 - `COLLAB-PROTOCOL.md` — 다비↔클로 정기 깃허브 협업 규칙(브랜치·보고서·승인). **작업 전 필독.**
 
 ## 최신 (2026-11-13)
+- **07:15 자본배분 비교 엔진 1단계(지피 지시 GPT-20261113-0024) 1단위 — 순수 계산·합성**: NVDA 매도대금 대안 A~E 비교 — [CLAUDE-DEV-CAPITAL-ALLOCATION-20261113.md](CLAUDE-DEV-CAPITAL-ALLOCATION-20261113.md), 브랜치 `work/claude-capital-allocation-20261113` `47d8533`, 지피 검토 대기(운영 대상 아님)
 - **02:10 환율 재시도·기록 상태 요약·불필요 지수 요청 제거**: 해외 탭 수익률 전부 `-`의 원인(환율 1회 실패 후 재시도 없음) — [CLAUDE-DEV-FX-RETRY-20261113.md](CLAUDE-DEV-FX-RETRY-20261113.md), 브랜치 `work/claude-fx-retry-20261113` `d771447`, 운영 승인 대기
 
 ## 이전 (2026-11-12)
