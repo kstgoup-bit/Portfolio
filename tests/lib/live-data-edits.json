@@ -1,0 +1,32 @@
+{
+  "portfolio_v5.html": [
+    [
+      "<script defer src=\"radar/verification.js\"></script>\n<script defer src=\"radar/core.js\"></script>\n<script defer src=\"has/live-price-reference.js\"></script>\n<script defer src=\"has/live-price-panel.js\"></script>\n<script defer src=\"radar/ui.js\"></script>\n<script defer src=\"has/snapshot-policy.js\"></script>\n",
+      "<script defer src=\"radar/verification.js\"></script>\n<script defer src=\"radar/core.js\"></script>\n<script defer src=\"radar/ui.js\"></script>\n<script defer src=\"has/snapshot-policy.js\"></script>\n"
+    ],
+    [
+      "  <button class=\"tab\" onclick=\"switchTab('news')\">📰 뉴스</button>\n  <button class=\"tab\" onclick=\"switchTab('radar')\">📡 곡소리 레이더 <small style=\"font-size:12px;color:#333;font-weight:400\">준비 중</small></button>\n  <a class=\"has-risk-shortcut\" href=\"#kst-radar/real/euphoria\" onclick=\"if(window.KSTRadar){window.KSTRadar.openEuphoria();return false;}\" aria-label=\"환호성 레이더 · 가격 참고\">📣 환호성 레이더 <small style=\"font-size:12px;color:#333;font-weight:400\">준비 중</small></a>\n  <button class=\"tab\" onclick=\"switchTab('ledgerdemo')\">🧪 거래 기록·손익 계산 체험 <small style=\"font-size:12px;color:#333;font-weight:400\">체험판</small></button>\n  <button class=\"tab\" onclick=\"switchTab('staff')\">🧭 AI 참모</button>\n",
+      "  <button class=\"tab\" onclick=\"switchTab('news')\">📰 뉴스</button>\n  <button class=\"tab\" onclick=\"switchTab('radar')\">📡 곡소리 레이더 <small style=\"font-size:12px;color:#333;font-weight:400\">준비 중</small></button>\n  <a class=\"has-risk-shortcut\" href=\"./sell/index.html\" aria-label=\"환호성 레이더 · 합성 연구\">📣 환호성 레이더 <small style=\"font-size:12px;color:#333;font-weight:400\">준비 중</small></a>\n  <button class=\"tab\" onclick=\"switchTab('ledgerdemo')\">🧪 거래 기록·손익 계산 체험 <small style=\"font-size:12px;color:#333;font-weight:400\">체험판</small></button>\n  <button class=\"tab\" onclick=\"switchTab('staff')\">🧭 AI 참모</button>\n"
+    ]
+  ],
+  "radar/ui.js": [
+    [
+      "  function onTabChange(tab){\n    if(historySync)return;\n    if(tab==='radar'){route();render();}\n    else if(location.hash.startsWith('#kst-radar/'))history.pushState({kstPortfolioTab:tab},'',location.pathname+location.search);\n  }\n",
+      "  function onTabChange(tab){\n    if(historySync)return;\n    if(tab==='radar')route();\n    else if(location.hash.startsWith('#kst-radar/'))history.pushState({kstPortfolioTab:tab},'',location.pathname+location.search);\n  }\n"
+    ],
+    [
+      "    add(root,section);\n  }\n  function render(){root.replaceChildren();if(mode==='real'&&window.HASLivePricePanel){const title=$('h1',view==='euphoria'?'환호성 레이더':'곡소리 레이더');title.id='kr-title';title.tabIndex=-1;root.append(title);const nav=$('nav',null,'kr-actions');nav.append(button('곡소리 가격 위치',()=>navigate('list')),button('환호성 가격 위치',()=>navigate('euphoria')),button('합성 연구',()=>switchMode('demo')));root.append(nav);const box=$('section');root.append(box);window.HASLivePricePanel.mount(box,view==='euphoria'?'euphoria':'fear');return;}header();if(view==='detail')detail();else if(view==='criteria')criteria();else if(view==='status')status();else list();}\n  function restoreRoute(){\n    const match=location.hash.match(/^#kst-radar\\/(real|demo)\\/(list|detail|criteria|status|euphoria)(?:\\/([A-Z][A-Z0-9.-]{0,14}))?$/);\n    historySync=true;\n    if(match){const changed=mode!==match[1];mode=match[1];view=match[2];selected=match[3]||null;window.switchTab('radar');render();if(changed||(!snapshot&&mode==='demo'))void loadData();}\n",
+      "    add(root,section);\n  }\n  function render(){root.replaceChildren();header();if(view==='detail')detail();else if(view==='criteria')criteria();else if(view==='status')status();else list();}\n  function restoreRoute(){\n    const match=location.hash.match(/^#kst-radar\\/(real|demo)\\/(list|detail|criteria|status)(?:\\/([A-Z][A-Z0-9.-]{0,14}))?$/);\n    historySync=true;\n    if(match){const changed=mode!==match[1];mode=match[1];view=match[2];selected=match[3]||null;window.switchTab('radar');render();if(changed||(!snapshot&&mode==='demo'))void loadData();}\n"
+    ],
+    [
+      "    historySync=false;\n  }\n  window.KSTRadar={onTabChange,openEuphoria:function(){mode='real';view='euphoria';selected=null;window.switchTab('radar');route();render();}};\n  window.addEventListener('popstate',restoreRoute);\n  render();if(mode==='demo')void loadData();\n  if(location.hash.startsWith('#kst-radar/'))restoreRoute();\n})();\n",
+      "    historySync=false;\n  }\n  window.KSTRadar={onTabChange};\n  window.addEventListener('popstate',restoreRoute);\n  render();void loadData();\n  if(location.hash.startsWith('#kst-radar/'))restoreRoute();\n})();\n"
+    ]
+  ],
+  "has/advisor-panel.js": [
+    [
+      "    if (!root) return; root.replaceChildren();\n    root.appendChild(el('h2', '', '🧭 AI 투자참모 (읽기 전용)'));\n    if(mode==='real' && W.HASLivePricePanel){var priceBox=el('section','hs-card');root.appendChild(priceBox);W.HASLivePricePanel.mount(priceBox,'advisor');}\n    var valueLink = el('a', 'hs-kv', '기업 품질·가격 매력도·시장 심리 분석실 열기 (입력 자료 기반)'); valueLink.href = 'has/valuation-lab.html'; valueLink.setAttribute('data-testid', 'hs-valuation-link'); root.appendChild(valueLink);\n    if (!ready()) { var w = el('div', 'hs-warn', 'AI 참모 모듈을 불러오지 못해 이 화면을 사용할 수 없습니다. 기존 투자·백업 기능에는 영향이 없습니다.'); w.setAttribute('role', 'alert'); w.setAttribute('data-testid', 'hs-unavailable'); root.appendChild(w); return; }\n",
+      "    if (!root) return; root.replaceChildren();\n    root.appendChild(el('h2', '', '🧭 AI 투자참모 (읽기 전용)'));\n    var valueLink = el('a', 'hs-kv', '기업 품질·가격 매력도·시장 심리 분석실 열기 (입력 자료 기반)'); valueLink.href = 'has/valuation-lab.html'; valueLink.setAttribute('data-testid', 'hs-valuation-link'); root.appendChild(valueLink);\n    if (!ready()) { var w = el('div', 'hs-warn', 'AI 참모 모듈을 불러오지 못해 이 화면을 사용할 수 없습니다. 기존 투자·백업 기능에는 영향이 없습니다.'); w.setAttribute('role', 'alert'); w.setAttribute('data-testid', 'hs-unavailable'); root.appendChild(w); return; }\n"
+    ]
+  ]
+}

@@ -46,6 +46,7 @@
   function render() {
     if (!root) return; root.replaceChildren();
     root.appendChild(el('h2', '', '🧭 AI 투자참모 (읽기 전용)'));
+    if(mode==='real' && W.HASLivePricePanel){var priceBox=el('section','hs-card');root.appendChild(priceBox);W.HASLivePricePanel.mount(priceBox,'advisor');}
     var valueLink = el('a', 'hs-kv', '기업 품질·가격 매력도·시장 심리 분석실 열기 (입력 자료 기반)'); valueLink.href = 'has/valuation-lab.html'; valueLink.setAttribute('data-testid', 'hs-valuation-link'); root.appendChild(valueLink);
     if (!ready()) { var w = el('div', 'hs-warn', 'AI 참모 모듈을 불러오지 못해 이 화면을 사용할 수 없습니다. 기존 투자·백업 기능에는 영향이 없습니다.'); w.setAttribute('role', 'alert'); w.setAttribute('data-testid', 'hs-unavailable'); root.appendChild(w); return; }
     var c = compute(); cached = c;

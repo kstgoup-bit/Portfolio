@@ -18,7 +18,7 @@ test('risk menu preserves every existing internal destination and adds a separat
  const buttons=[...nav.querySelectorAll('.tab')];a.equal(buttons.length,w.TAB_GROUPS.risk.length);
  a.match(buttons.find(b=>b.getAttribute('onclick').includes('ledgerdemo')).textContent,/거래 기록·손익 계산 체험/);
  a.match(buttons.find(b=>b.getAttribute('onclick').includes('pretrade')).textContent,/매매 점검/);
- const link=nav.querySelector('a.has-risk-shortcut');a.equal(link.getAttribute('href'),'./sell/index.html');a.match(link.textContent,/환호성 레이더/);a.equal(link.matches('.tab'),false);a.equal(link.hasAttribute('target'),false);
+ const link=nav.querySelector('a.has-risk-shortcut');a.equal(link.getAttribute('href'),'#kst-radar/real/euphoria');a.match(link.textContent,/환호성 레이더/);a.equal(link.matches('.tab'),false);a.equal(link.hasAttribute('target'),false);
  a.equal(nav.textContent.includes('가상 검증·실운용 준비'),false);
  }finally{d.window.close();}
 });

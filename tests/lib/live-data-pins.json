@@ -1,0 +1,16 @@
+{
+  "baselineSha256": {
+    "portfolio_v5.html": "0dd5de8bded788c5a8d2c284f3e9f6654f6191b8c0ff1cf45bd844a16886acd4",
+    "radar/ui.js": "71a5a3c181aed3515d4c3021bd90edd0067073c4179264050a87ed0f5fa04f38",
+    "has/advisor-panel.js": "c9d69ae277313b7d0939bc6371e2b190ff8725f6d369417ca4298591a824a2dd"
+  },
+  "currentSha256": {
+    "portfolio_v5.html": "69708265c1263cfa5d7f8bd30c09ceac7d6c01b213f1a7a5d7b9ba7cfe6247f7",
+    "radar/ui.js": "35b8db8b0fc3f32341ec807c165c6b5d8f75ac599bee4edc7b136aa8fa17e539",
+    "has/advisor-panel.js": "2da44530135fe29fc9cd630ddad49ec18c68f3314b53133e94829e1aef1689b7"
+  },
+  "addedRuntimeFiles": {
+    "has/live-price-reference.js": "7c4de690b1e85186029b8f4e473b7228dc87ec36e0a055c4300abd396c8930aa",
+    "has/live-price-panel.js": "1645d157dd74cc016afdab0b44c5a95b1e6807a9367a0f4f478068b669889c05"
+  }
+}

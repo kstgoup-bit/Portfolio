@@ -25,7 +25,7 @@ function assertPortableKisPreservation(){
   const added=[];
   function walk(file){const full=path.join(ROOT,file);if(fs.statSync(full).isDirectory()){for(const name of fs.readdirSync(full))walk(file+'/'+name);}else if(!Object.hasOwn(original.files,file))added.push(file);}
   original.protectedPaths.forEach(walk);
-  const menuAdded=require('./risk-menu-pins.json').addedRuntimeFiles;
+  const menuAdded={...require('./risk-menu-pins.json').addedRuntimeFiles,...require('./live-data-pins.json').addedRuntimeFiles};
   if(JSON.stringify(added.sort())!==JSON.stringify(Object.keys({...pins.addedRuntimeFiles,...menuAdded}).sort()))throw Error('Unreviewed protected source addition');
   for(const[file,hash]of Object.entries(menuAdded))if(sha(fs.readFileSync(path.join(ROOT,file)))!==hash)throw Error('Reviewed menu source differs: '+file);
   for(const[file,hash]of Object.entries(pins.addedRuntimeFiles))if(sha(require('./daily-followup-projection.cjs').beforeFollowupBytes(file))!==hash)throw Error('Reviewed new runtime source differs: '+file);

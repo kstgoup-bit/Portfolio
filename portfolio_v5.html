@@ -10,6 +10,8 @@
 <script defer src="radar/providers.js"></script>
 <script defer src="radar/verification.js"></script>
 <script defer src="radar/core.js"></script>
+<script defer src="has/live-price-reference.js"></script>
+<script defer src="has/live-price-panel.js"></script>
 <script defer src="radar/ui.js"></script>
 <script defer src="has/snapshot-policy.js"></script>
 <script defer src="has/return-assessment.js"></script>
@@ -662,7 +664,7 @@ select { -webkit-user-select: none; user-select: none; touch-action: manipulatio
   <button class="tab" onclick="switchTab('commandments')">📜 15계명</button>
   <button class="tab" onclick="switchTab('news')">📰 뉴스</button>
   <button class="tab" onclick="switchTab('radar')">📡 곡소리 레이더 <small style="font-size:12px;color:#333;font-weight:400">준비 중</small></button>
-  <a class="has-risk-shortcut" href="./sell/index.html" aria-label="환호성 레이더 · 합성 연구">📣 환호성 레이더 <small style="font-size:12px;color:#333;font-weight:400">준비 중</small></a>
+  <a class="has-risk-shortcut" href="#kst-radar/real/euphoria" onclick="if(window.KSTRadar){window.KSTRadar.openEuphoria();return false;}" aria-label="환호성 레이더 · 가격 참고">📣 환호성 레이더 <small style="font-size:12px;color:#333;font-weight:400">준비 중</small></a>
   <button class="tab" onclick="switchTab('ledgerdemo')">🧪 거래 기록·손익 계산 체험 <small style="font-size:12px;color:#333;font-weight:400">체험판</small></button>
   <button class="tab" onclick="switchTab('staff')">🧭 AI 참모</button>
   <button class="tab" onclick="switchTab('pretrade')">📝 매매 점검</button>

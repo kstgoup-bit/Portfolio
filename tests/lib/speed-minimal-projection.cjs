@@ -5,7 +5,7 @@ const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypt
 const root=path.resolve(__dirname,'../..'),edits=require('./speed-minimal-edits.json'),pins=require('./speed-minimal-pins.json');
 const sha=b=>crypto.createHash('sha256').update(b).digest('hex');
 function beforeSpeedBytes(file){
- let b=fs.readFileSync(path.join(root,file));if(!edits[file])return b;
+ let b=require('./live-data-projection.cjs').beforeLiveDataBytes(file);if(!edits[file])return b;
  if(sha(b)!==pins.currentSha256[file])throw Error('Unreviewed speed change: '+file);
  let s=b.toString();for(const[current,previous]of edits[file].slice().reverse()){
   if(!current||s.split(current).length!==2)throw Error('Non-unique speed projection: '+file);

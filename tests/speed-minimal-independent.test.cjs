@@ -50,7 +50,8 @@ test('independent speed: restore hold replaces prior result and unblock/mutation
 });
 test('independent speed: projection restores full baseline and only two scheduling sites differ',()=>{
  const start='function renderAllReturnsTables()',end='function updateHeaderH()';
- let s=html.replace(section(html,start,end),section(baseline,start,end));
+ const preData=require('./lib/live-data-projection.cjs').beforeLiveDataBytes('portfolio_v5.html').toString();
+ let s=preData.replace(section(preData,start,end),section(baseline,start,end));
  const added='  if(typeof renderAllReturnsTables==="function") renderAllReturnsTables();\n';
  a.equal(s.split(added).length,2);s=s.replace(added,'');a.equal(s,baseline);
 });

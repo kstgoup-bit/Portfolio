@@ -30,7 +30,7 @@
   function navigate(next,t=null){view=next;selected=t;route();render();document.getElementById('kr-title').focus({preventScroll:true});window.scrollTo({top:0,left:0,behavior:'instant'});}
   function onTabChange(tab){
     if(historySync)return;
-    if(tab==='radar')route();
+    if(tab==='radar'){route();render();}
     else if(location.hash.startsWith('#kst-radar/'))history.pushState({kstPortfolioTab:tab},'',location.pathname+location.search);
   }
   async function loadData(){
@@ -156,17 +156,17 @@
     add(section,note('기존 PWA 캐시 정책은 변경하지 않았습니다. 오프라인에서는 이전 HTML이 보이거나 레이더 파일 로드가 실패할 수 있습니다. 캐시 삭제 없이 먼저 연결 상태와 데이터 다시 읽기를 확인하세요.'));
     add(root,section);
   }
-  function render(){root.replaceChildren();header();if(view==='detail')detail();else if(view==='criteria')criteria();else if(view==='status')status();else list();}
+  function render(){root.replaceChildren();if(mode==='real'&&window.HASLivePricePanel){const title=$('h1',view==='euphoria'?'환호성 레이더':'곡소리 레이더');title.id='kr-title';title.tabIndex=-1;root.append(title);const nav=$('nav',null,'kr-actions');nav.append(button('곡소리 가격 위치',()=>navigate('list')),button('환호성 가격 위치',()=>navigate('euphoria')),button('합성 연구',()=>switchMode('demo')));root.append(nav);const box=$('section');root.append(box);window.HASLivePricePanel.mount(box,view==='euphoria'?'euphoria':'fear');return;}header();if(view==='detail')detail();else if(view==='criteria')criteria();else if(view==='status')status();else list();}
   function restoreRoute(){
-    const match=location.hash.match(/^#kst-radar\/(real|demo)\/(list|detail|criteria|status)(?:\/([A-Z][A-Z0-9.-]{0,14}))?$/);
+    const match=location.hash.match(/^#kst-radar\/(real|demo)\/(list|detail|criteria|status|euphoria)(?:\/([A-Z][A-Z0-9.-]{0,14}))?$/);
     historySync=true;
     if(match){const changed=mode!==match[1];mode=match[1];view=match[2];selected=match[3]||null;window.switchTab('radar');render();if(changed||(!snapshot&&mode==='demo'))void loadData();}
     else if(location.hash==='' && window.TAB_TO_GROUP?.[history.state?.kstPortfolioTab])window.switchTab(history.state.kstPortfolioTab);
     else if(location.hash==='')window.switchTab('dashboard');
     historySync=false;
   }
-  window.KSTRadar={onTabChange};
+  window.KSTRadar={onTabChange,openEuphoria:function(){mode='real';view='euphoria';selected=null;window.switchTab('radar');route();render();}};
   window.addEventListener('popstate',restoreRoute);
-  render();void loadData();
+  render();if(mode==='demo')void loadData();
   if(location.hash.startsWith('#kst-radar/'))restoreRoute();
 })();
