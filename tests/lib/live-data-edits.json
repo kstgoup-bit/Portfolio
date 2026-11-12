@@ -7,6 +7,14 @@
     [
       "  <button class=\"tab\" onclick=\"switchTab('news')\">📰 뉴스</button>\n  <button class=\"tab\" onclick=\"switchTab('radar')\">📡 곡소리 레이더 <small style=\"font-size:12px;color:#333;font-weight:400\">준비 중</small></button>\n  <a class=\"has-risk-shortcut\" href=\"#kst-radar/real/euphoria\" onclick=\"if(window.KSTRadar){window.KSTRadar.openEuphoria();return false;}\" aria-label=\"환호성 레이더 · 가격 참고\">📣 환호성 레이더 <small style=\"font-size:12px;color:#333;font-weight:400\">준비 중</small></a>\n  <button class=\"tab\" onclick=\"switchTab('ledgerdemo')\">🧪 거래 기록·손익 계산 체험 <small style=\"font-size:12px;color:#333;font-weight:400\">체험판</small></button>\n  <button class=\"tab\" onclick=\"switchTab('staff')\">🧭 AI 참모</button>\n",
       "  <button class=\"tab\" onclick=\"switchTab('news')\">📰 뉴스</button>\n  <button class=\"tab\" onclick=\"switchTab('radar')\">📡 곡소리 레이더 <small style=\"font-size:12px;color:#333;font-weight:400\">준비 중</small></button>\n  <a class=\"has-risk-shortcut\" href=\"./sell/index.html\" aria-label=\"환호성 레이더 · 합성 연구\">📣 환호성 레이더 <small style=\"font-size:12px;color:#333;font-weight:400\">준비 중</small></a>\n  <button class=\"tab\" onclick=\"switchTab('ledgerdemo')\">🧪 거래 기록·손익 계산 체험 <small style=\"font-size:12px;color:#333;font-weight:400\">체험판</small></button>\n  <button class=\"tab\" onclick=\"switchTab('staff')\">🧭 AI 참모</button>\n"
+    ],
+    [
+      "  <button class=\"tab\" onclick=\"switchTab('news')\">📰 뉴스</button>\n  <button class=\"tab\" onclick=\"switchTab('radar')\">📡 곡소리 <small style=\"font-size:12px;color:#333;font-weight:400\">준비 중</small></button>\n  <a class=\"has-risk-shortcut\" href=\"#kst-radar/real/euphoria\" onclick=\"if(window.KSTRadar){window.KSTRadar.openEuphoria();return false;}\" aria-label=\"환호성 · 가격 참고\">📣 환호성 <small style=\"font-size:12px;color:#333;font-weight:400\">준비 중</small></a>\n  <button class=\"tab\" onclick=\"switchTab('ledgerdemo')\">🧪 거래 기록·손익 계산 체험 <small style=\"font-size:12px;color:#333;font-weight:400\">체험판</small></button>\n",
+      "  <button class=\"tab\" onclick=\"switchTab('news')\">📰 뉴스</button>\n  <button class=\"tab\" onclick=\"switchTab('radar')\">📡 곡소리 레이더 <small style=\"font-size:12px;color:#333;font-weight:400\">준비 중</small></button>\n  <a class=\"has-risk-shortcut\" href=\"#kst-radar/real/euphoria\" onclick=\"if(window.KSTRadar){window.KSTRadar.openEuphoria();return false;}\" aria-label=\"환호성 레이더 · 가격 참고\">📣 환호성 레이더 <small style=\"font-size:12px;color:#333;font-weight:400\">준비 중</small></a>\n  <button class=\"tab\" onclick=\"switchTab('ledgerdemo')\">🧪 거래 기록·손익 계산 체험 <small style=\"font-size:12px;color:#333;font-weight:400\">체험판</small></button>\n"
+    ],
+    [
+      "<div class=\"panel\" id=\"panel-pretrade\" aria-label=\"매매 전 점검과 사유 기록\"></div>\n<div class=\"panel\" id=\"panel-radar\" aria-label=\"곡소리\"><p>레이더를 준비하고 있습니다. 불러오지 못하면 기존 포트폴리오 메뉴를 이용하세요.</p></div>\n\n",
+      "<div class=\"panel\" id=\"panel-pretrade\" aria-label=\"매매 전 점검과 사유 기록\"></div>\n<div class=\"panel\" id=\"panel-radar\" aria-label=\"곡소리 레이더\"><p>레이더를 준비하고 있습니다. 불러오지 못하면 기존 포트폴리오 메뉴를 이용하세요.</p></div>\n\n"
     ]
   ],
   "radar/ui.js": [
@@ -21,6 +29,14 @@
     [
       "    historySync=false;\n  }\n  window.KSTRadar={onTabChange,openEuphoria:function(){mode='real';view='euphoria';selected=null;window.switchTab('radar');route();render();}};\n  window.addEventListener('popstate',restoreRoute);\n  render();if(mode==='demo')void loadData();\n  if(location.hash.startsWith('#kst-radar/'))restoreRoute();\n})();\n",
       "    historySync=false;\n  }\n  window.KSTRadar={onTabChange};\n  window.addEventListener('popstate',restoreRoute);\n  render();void loadData();\n  if(location.hash.startsWith('#kst-radar/'))restoreRoute();\n})();\n"
+    ],
+    [
+      "    add(root,$('div','KST · ANALYSIS RADAR','kr-eyebrow'));\n    const title=$('h1','곡소리');title.id='kr-title';title.tabIndex=-1;add(root,title);\n    add(root,note('급락은 분석의 시작입니다. 기업의 체력과 하락 이유를 함께 살펴보세요.'));\n",
+      "    add(root,$('div','KST · ANALYSIS RADAR','kr-eyebrow'));\n    const title=$('h1','곡소리 레이더');title.id='kr-title';title.tabIndex=-1;add(root,title);\n    add(root,note('급락은 분석의 시작입니다. 기업의 체력과 하락 이유를 함께 살펴보세요.'));\n"
+    ],
+    [
+      "  }\n  function render(){root.replaceChildren();if(mode==='real'&&window.HASLivePricePanel){const title=$('h1',view==='euphoria'?'환호성':'곡소리');title.id='kr-title';title.tabIndex=-1;root.append(title);const nav=$('nav',null,'kr-actions');nav.append(button('곡소리 가격 위치',()=>navigate('list')),button('환호성 가격 위치',()=>navigate('euphoria')),button('합성 연구',()=>switchMode('demo')));root.append(nav);const box=$('section');root.append(box);window.HASLivePricePanel.mount(box,view==='euphoria'?'euphoria':'fear');return;}header();if(view==='detail')detail();else if(view==='criteria')criteria();else if(view==='status')status();else list();}\n  function restoreRoute(){\n",
+      "  }\n  function render(){root.replaceChildren();if(mode==='real'&&window.HASLivePricePanel){const title=$('h1',view==='euphoria'?'환호성 레이더':'곡소리 레이더');title.id='kr-title';title.tabIndex=-1;root.append(title);const nav=$('nav',null,'kr-actions');nav.append(button('곡소리 가격 위치',()=>navigate('list')),button('환호성 가격 위치',()=>navigate('euphoria')),button('합성 연구',()=>switchMode('demo')));root.append(nav);const box=$('section');root.append(box);window.HASLivePricePanel.mount(box,view==='euphoria'?'euphoria':'fear');return;}header();if(view==='detail')detail();else if(view==='criteria')criteria();else if(view==='status')status();else list();}\n  function restoreRoute(){\n"
     ]
   ],
   "has/advisor-panel.js": [

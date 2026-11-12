@@ -52,7 +52,7 @@
   }
   function header(){
     add(root,$('div','KST · ANALYSIS RADAR','kr-eyebrow'));
-    const title=$('h1','곡소리 레이더');title.id='kr-title';title.tabIndex=-1;add(root,title);
+    const title=$('h1','곡소리');title.id='kr-title';title.tabIndex=-1;add(root,title);
     add(root,note('급락은 분석의 시작입니다. 기업의 체력과 하락 이유를 함께 살펴보세요.'));
     const banner=$('div',null,'kr-banner');banner.dataset.testid='mode-banner';
     add(banner,$('strong',mode==='demo'?'데모 · 가상 기업 / 고정 데이터':'실제 데이터 · API 미연결'),note(mode==='demo'?'가상 기업 3개를 이용한 기능 시연입니다. 실제 시세·재무·매매 판단에 사용하지 마세요.':'확정 감시 0개 · 실제 시세 조회 0개. 검토 후보는 선정·재무 검증 전이며 추천 목록이 아닙니다.'));
@@ -156,7 +156,7 @@
     add(section,note('기존 PWA 캐시 정책은 변경하지 않았습니다. 오프라인에서는 이전 HTML이 보이거나 레이더 파일 로드가 실패할 수 있습니다. 캐시 삭제 없이 먼저 연결 상태와 데이터 다시 읽기를 확인하세요.'));
     add(root,section);
   }
-  function render(){root.replaceChildren();if(mode==='real'&&window.HASLivePricePanel){const title=$('h1',view==='euphoria'?'환호성 레이더':'곡소리 레이더');title.id='kr-title';title.tabIndex=-1;root.append(title);const nav=$('nav',null,'kr-actions');nav.append(button('곡소리 가격 위치',()=>navigate('list')),button('환호성 가격 위치',()=>navigate('euphoria')),button('합성 연구',()=>switchMode('demo')));root.append(nav);const box=$('section');root.append(box);window.HASLivePricePanel.mount(box,view==='euphoria'?'euphoria':'fear');return;}header();if(view==='detail')detail();else if(view==='criteria')criteria();else if(view==='status')status();else list();}
+  function render(){root.replaceChildren();if(mode==='real'&&window.HASLivePricePanel){const title=$('h1',view==='euphoria'?'환호성':'곡소리');title.id='kr-title';title.tabIndex=-1;root.append(title);const nav=$('nav',null,'kr-actions');nav.append(button('곡소리 가격 위치',()=>navigate('list')),button('환호성 가격 위치',()=>navigate('euphoria')),button('합성 연구',()=>switchMode('demo')));root.append(nav);const box=$('section');root.append(box);window.HASLivePricePanel.mount(box,view==='euphoria'?'euphoria':'fear');return;}header();if(view==='detail')detail();else if(view==='criteria')criteria();else if(view==='status')status();else list();}
   function restoreRoute(){
     const match=location.hash.match(/^#kst-radar\/(real|demo)\/(list|detail|criteria|status|euphoria)(?:\/([A-Z][A-Z0-9.-]{0,14}))?$/);
     historySync=true;
