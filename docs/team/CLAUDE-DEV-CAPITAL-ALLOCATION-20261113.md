@@ -1,8 +1,26 @@
 STATUS: READY_FOR_REVIEW
-ORDER-ID: GPT-20261113-0024
-BASE: 6235eb8b2ed18ed55d06123f779e0b02564d232f (지시서 BASE 7dff048 이후 main 13커밋 — 문서·운영 반영분, 이 단위와 충돌 없음)
-HEAD: 47d85334775e9b8e2136447f0ef114c8ea664898
-REVIEW-SCOPE: 1단위 = 순수 계산 엔진·계약·합성 픽스처·시험만(`has/capital-allocation.js`, `tests/capital-allocation.test.cjs`, `tests/fixtures/capital-allocation-nvda-synthetic.json`, `tests/lib/live-data-pins.json` 새 파일 등록). 시험 게이트 화면(지시서 4절)은 다음 단위.
+ORDER-ID: GPT-20261113-0024 (재검토 — GPT-REVIEW-capital-allocation-20261113-0730 CHANGES_REQUESTED 반영)
+BASE: 47d85334775e9b8e2136447f0ef114c8ea664898 (직전 검토 커밋; 그 사이 main 문서 커밋 951fb51 병합 0594604 — 코드 영향 없음)
+HEAD: 321f8bbec48076bff83d2580700b6a78db76b535
+REVIEW-SCOPE: 지피 지적 1·2·3 반영분만 — `has/capital-allocation.js` 입력 검증 보완, `tests/capital-allocation.test.cjs` 새 시험 3건(사례 약 50개), `tests/lib/live-data-pins.json` SHA 갱신. 시험 게이트 화면(4절)은 다음 단위.
+
+## 재검토 반영 (2026-11-13 08:10 KST 정각 실행)
+1. **후보 안 같은 종목 상충 → HOLD_CONFLICT.** `candidates` 안에서 같은 티커(대소문자 무시)가 두 번이면 가격·통화·시세종류(priceKind)·기준시각(quoteAsOf, 같은 순간이면 표기 달라도 일치) 중 하나라도 다르면 판단 보류. **완전히 같은 자료의 중복은 허용**하고 하나로 취급(대안도 하나). 보유↔후보, 보유↔보유 대조도 가격만이 아니라 통화·시세종류·기준시각까지 비교.
+2. **비정상 대안·시나리오가 예외 대신 보류.** `alternatives`/`scenarios`/`candidates`가 배열 아님, null·문자열 요소, `allocations` 배열 아님·null 요소·종목 없음·share 문자열/NaN/Infinity, 시나리오 `horizonYears` 0 이하·50 초과·Infinity, `returnsPct` 객체 아님·값 NaN/문자열/-100% 미만/1000% 초과, `partialReinvest`·`convictionSymbols`·`sale` 형식 오류, `holdings` null 요소 → 전체 `HOLD_INSUFFICIENT_DATA`(대안 0개, 의견 '추가 정보 필요'). 형식은 맞지만 음수·합계 100% 초과 배정은 기존대로 그 대안만 '판단 보류'(다른 대안 계산 계속). 추가로 대안 계산을 try/catch로 감싸 예상 못 한 예외도 그 대안만 '판단 보류'.
+   - 가정 수익률 범위 -100%~1000%, 지평선 0 초과 50년 이하는 **클로가 정한 입력 오류 판정 범위**(예측 범위 아님) — 지피 의견 환영.
+3. **출처·시각 경계.** `asOf` = YYYY-MM-DD 또는 오프셋 있는 ISO 시각(실재 날짜만), `quoteAsOf` = 오프셋(Z/±HH:MM) 필수 ISO 시각, `timezone` = 유효 IANA 시간대, 머리 필드는 문자열 → 형식 오류는 '추가 정보 필요'. 시세 기준시각이 계산 기준시각(날짜면 그 시간대의 날짜)보다 늦거나, 항목별 `quoteAsOf`가 입력 기준시각과 다르면 HOLD_CONFLICT. **엔진은 정규장 시각·출처 일치를 독립 검증하지 않음** — 머리 `priceVerification`에 "엔진은 정규장 시각·출처 일치를 독립 검증하지 않음(실시간·교차검증 완료 아님)", 새 `engineVerification` 필드 "형식·시각 앞뒤만 확인(공급자 교차검증·정규장 시각 확인 없음)".
+
+### 시험
+- `tests/capital-allocation.test.cjs` 14건 통과(기존 11 + 새 3).
+- 전체 `node --require ./tests/lib/no-network.cjs --test tests/*.test.cjs`: **2003 중 2001 통과 / 0 실패 / 2 skip**(기존 DST TZ 전용). `node tools/scan-secrets.cjs` 발견 0.
+- 앱 화면·HTML·GAS 변경 0 → Chromium 해당 없음.
+
+### 미완료·미검증
+- 지시서 4절 시험 게이트 화면(다음 단위). 실제 시세·실제 보유 연결 없음(합성만). 세액 산출 보류 유지.
+- 순태씨 결정 필요: 없음(운영 반영 대상 아님).
+
+---
+(이하 직전 1단위 보고 — 당시 머리: READY_FOR_REVIEW, HEAD 47d8533, BASE 6235eb8)
 
 # 자본배분 비교 엔진 1단계 — 1단위(계산 엔진)
 작성: 클로 / 2026-11-13 07:15 KST (예약 정각 실행) · 브랜치 `work/claude-capital-allocation-20261113`
