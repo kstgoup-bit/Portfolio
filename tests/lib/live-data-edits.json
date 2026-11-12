@@ -83,6 +83,58 @@
     [
       "  ];\n  // 속도: 보이는 그래프만 바로, 가려진 그래프는 하나씩 나눠서(한 번에 5개를 그리며 폰이 멈추는 것 방지)\n  function visible(m){var el=document.getElementById(m.chartId),panel=el&&el.closest?el.closest(\".panel\"):null;return !panel||panel.classList.contains(\"active\");}\n  function draw(m){var period=currentPeriods[m.btnId]||\"1W\";try { renderLineChart(period, m.btnId, m.chartId, m.snapKey, m.color); } catch(e){}}\n  var epoch=(refreshAllLineCharts.epoch=(refreshAllLineCharts.epoch||0)+1),rest=[];\n  map.forEach(function(m){if(visible(m))draw(m);else rest.push(m);});\n  rest.forEach(function(m,i){setTimeout(function(){if(epoch===refreshAllLineCharts.epoch)draw(m);},60*(i+1));});\n}\n",
       "  ];\n  map.forEach(function(m){\n    var period=currentPeriods[m.btnId]||\"1W\";\n    try { renderLineChart(period, m.btnId, m.chartId, m.snapKey, m.color); } catch(e){}\n  });\n}\n"
+    ],
+    [
+      "    <button class=\"record-btn\" onclick=\"recordSnap('all')\">📸 오늘 전체 자산 기록</button>\n    <div id=\"snapshotSummary-all\" role=\"status\" style=\"font-size:13px;line-height:1.6;margin-top:8px;color:#333;overflow-wrap:anywhere\"></div>\n    <details style=\"margin-top:4px\"><summary style=\"font-size:13px;line-height:1.6;color:#333;cursor:pointer;min-height:32px\">ⓘ 기록 상태 자세히</summary>\n    <div id=\"snapshotStatus-all\" role=\"status\" style=\"font-size:12px;line-height:1.6;white-space:pre-line;margin-top:4px;color:#795000\"></div></details>\n    <div id=\"snapshotHistory-all\" style=\"font-size:12px;line-height:1.6;overflow-wrap:anywhere\"></div>\n",
+      "    <button class=\"record-btn\" onclick=\"recordSnap('all')\">📸 오늘 전체 자산 기록</button>\n    <div id=\"snapshotStatus-all\" role=\"status\" style=\"font-size:12px;line-height:1.6;white-space:pre-line;margin-top:8px;color:#795000\"></div>\n    <div id=\"snapshotHistory-all\" style=\"font-size:12px;line-height:1.6;overflow-wrap:anywhere\"></div>\n"
+    ],
+    [
+      "    </div>\n    <div id=\"snapshotSummary-dom\" role=\"status\" style=\"font-size:13px;line-height:1.6;margin-top:8px;color:#333;overflow-wrap:anywhere\"></div>\n    <details style=\"margin-top:4px\"><summary style=\"font-size:13px;line-height:1.6;color:#333;cursor:pointer;min-height:32px\">ⓘ 기록 상태 자세히</summary>\n    <div id=\"snapshotStatus-dom\" role=\"status\" style=\"font-size:12px;line-height:1.6;white-space:pre-line;margin-top:4px;color:#795000\"></div></details>\n    <div id=\"snapshotHistory-dom\" style=\"font-size:12px;line-height:1.6;overflow-wrap:anywhere\"></div>\n",
+      "    </div>\n    <div id=\"snapshotStatus-dom\" role=\"status\" style=\"font-size:12px;line-height:1.6;white-space:pre-line;margin-top:8px;color:#795000\"></div>\n    <div id=\"snapshotHistory-dom\" style=\"font-size:12px;line-height:1.6;overflow-wrap:anywhere\"></div>\n"
+    ],
+    [
+      "    </div>\n    <div id=\"snapshotSummary-gen\" role=\"status\" style=\"font-size:13px;line-height:1.6;margin-top:8px;color:#333;overflow-wrap:anywhere\"></div>\n    <details style=\"margin-top:4px\"><summary style=\"font-size:13px;line-height:1.6;color:#333;cursor:pointer;min-height:32px\">ⓘ 기록 상태 자세히</summary>\n    <div id=\"snapshotStatus-gen\" role=\"status\" style=\"font-size:12px;line-height:1.6;white-space:pre-line;margin-top:4px;color:#795000\"></div></details>\n    <div id=\"snapshotHistory-gen\" style=\"font-size:12px;line-height:1.6;overflow-wrap:anywhere\"></div>\n",
+      "    </div>\n    <div id=\"snapshotStatus-gen\" role=\"status\" style=\"font-size:12px;line-height:1.6;white-space:pre-line;margin-top:8px;color:#795000\"></div>\n    <div id=\"snapshotHistory-gen\" style=\"font-size:12px;line-height:1.6;overflow-wrap:anywhere\"></div>\n"
+    ],
+    [
+      "    </div>\n    <div id=\"snapshotSummary-ov\" role=\"status\" style=\"font-size:13px;line-height:1.6;margin-top:8px;color:#333;overflow-wrap:anywhere\"></div>\n    <details style=\"margin-top:4px\"><summary style=\"font-size:13px;line-height:1.6;color:#333;cursor:pointer;min-height:32px\">ⓘ 기록 상태 자세히</summary>\n    <div id=\"snapshotStatus-ov\" role=\"status\" style=\"font-size:12px;line-height:1.6;white-space:pre-line;margin-top:4px;color:#795000\"></div></details>\n    <div id=\"snapshotHistory-ov\" style=\"font-size:12px;line-height:1.6;overflow-wrap:anywhere\"></div>\n",
+      "    </div>\n    <div id=\"snapshotStatus-ov\" role=\"status\" style=\"font-size:12px;line-height:1.6;white-space:pre-line;margin-top:8px;color:#795000\"></div>\n    <div id=\"snapshotHistory-ov\" style=\"font-size:12px;line-height:1.6;overflow-wrap:anywhere\"></div>\n"
+    ],
+    [
+      "    </div>\n    <div id=\"snapshotSummary-pen\" role=\"status\" style=\"font-size:13px;line-height:1.6;margin-top:8px;color:#333;overflow-wrap:anywhere\"></div>\n    <details style=\"margin-top:4px\"><summary style=\"font-size:13px;line-height:1.6;color:#333;cursor:pointer;min-height:32px\">ⓘ 기록 상태 자세히</summary>\n    <div id=\"snapshotStatus-pen\" role=\"status\" style=\"font-size:12px;line-height:1.6;white-space:pre-line;margin-top:4px;color:#795000\"></div></details>\n    <div id=\"snapshotHistory-pen\" style=\"font-size:12px;line-height:1.6;overflow-wrap:anywhere\"></div>\n",
+      "    </div>\n    <div id=\"snapshotStatus-pen\" role=\"status\" style=\"font-size:12px;line-height:1.6;white-space:pre-line;margin-top:8px;color:#795000\"></div>\n    <div id=\"snapshotHistory-pen\" style=\"font-size:12px;line-height:1.6;overflow-wrap:anywhere\"></div>\n"
+    ],
+    [
+      "  if(snapshotWriteBlocked()) return;\n  // 속도: 화면에 지수 표시 칸이 없으면 외부 요청을 보내지 않음(그릴 때마다 4건씩 나가던 요청 제거)\n  if(!document.getElementById(\"mkt-KS11\")&&!document.getElementById(\"mkt-KQ11\")&&!document.getElementById(\"mkt-IXIC\")&&!document.getElementById(\"mkt-GSPC\")) return;\n  var indices=[\n",
+      "  if(snapshotWriteBlocked()) return;\n  var indices=[\n"
+    ],
+    [
+      "function renderSnapshotStatuses() {\n  function snapshotWaitSummary(result) {\n    // 같은 사유는 한 번만(종목마다 같은 문장이 반복되던 것을 묶음)\n    var order=[],groups={};\n    result.missing.forEach(function(m){if(!groups[m.reason]){groups[m.reason]=[];order.push(m.reason);}if(m.ticker)groups[m.reason].push(m.ticker);});\n    return \"⚠ 평가 기록 대기 — \"+order.map(function(r){var n=groups[r].length;return r+(n>1?\" (\"+n+\"개 종목 공통)\":n===1?\" (\"+groups[r][0]+\")\":\"\");}).join(\" / \");\n  }\n  [\"all\",\"dom\",\"ov\",\"pen\",\"gen\"].forEach(function(key){\n    var el=document.getElementById(\"snapshotStatus-\"+key); if(!el) return;\n    var result=snapshotEvaluation(key), lines=[], summary=\"\";\n    var rows=Array.isArray(snapshots[key])?snapshots[key]:[];\n",
+      "function renderSnapshotStatuses() {\n  [\"all\",\"dom\",\"ov\",\"pen\",\"gen\"].forEach(function(key){\n    var el=document.getElementById(\"snapshotStatus-\"+key); if(!el) return;\n    var result=snapshotEvaluation(key), lines=[];\n    var rows=Array.isArray(snapshots[key])?snapshots[key]:[];\n"
+    ],
+    [
+      "    }\n    if(!result.ok) {lines.push(\"기록 대기\\n\"+snapshotMissingText(result));summary=snapshotWaitSummary(result);}\n    else {\n",
+      "    }\n    if(!result.ok) lines.push(\"기록 대기\\n\"+snapshotMissingText(result));\n    else {\n"
+    ],
+    [
+      "      var proposed=window.HASSnapshotPolicy.appendDaily(snapshots[key]===undefined?[]:snapshots[key],result.snapshot);\n      if(!proposed.ok) {lines.push(\"저장 보류: \"+proposed.reason);summary=\"⚠ 저장 보류 — \"+proposed.reason;}\n      else if(proposed.changed===false) {lines.push(\"새 평가 내용이 없어 기존 버전을 보존합니다. 수신시각 변경만으로 새 가격이라 판단하지 않습니다.\");summary=\"✓ 새 평가 내용 없음 · 기존 기록 유지\";}\n      else {lines.push(\"평가 기록 저장 가능 · 이전 버전 보존 · 미확정·판단 보류\");summary=\"✓ 평가 기록 저장 가능\";}\n      lines.push(manual.length?\"수동 가격 포함 \"+manual.length+\"개 · 미확정·판단 보류. 실제 기준 일시와 보유수량 단위를 직접 확인해주세요.\":\"시세의 공식성·시장 기준시각을 확인한 것은 아닙니다.\");\n",
+      "      var proposed=window.HASSnapshotPolicy.appendDaily(snapshots[key]===undefined?[]:snapshots[key],result.snapshot);\n      if(!proposed.ok) lines.push(\"저장 보류: \"+proposed.reason);\n      else if(proposed.changed===false) lines.push(\"새 평가 내용이 없어 기존 버전을 보존합니다. 수신시각 변경만으로 새 가격이라 판단하지 않습니다.\");\n      else lines.push(\"평가 기록 저장 가능 · 이전 버전 보존 · 미확정·판단 보류\");\n      lines.push(manual.length?\"수동 가격 포함 \"+manual.length+\"개 · 미확정·판단 보류. 실제 기준 일시와 보유수량 단위를 직접 확인해주세요.\":\"시세의 공식성·시장 기준시각을 확인한 것은 아닙니다.\");\n"
+    ],
+    [
+      "    el.textContent=lines.join(\"\\n\");\n    var summaryEl=document.getElementById(\"snapshotSummary-\"+key); if(summaryEl) summaryEl.textContent=summary;\n    var historyEl=document.getElementById(\"snapshotHistory-\"+key);\n",
+      "    el.textContent=lines.join(\"\\n\");\n    var historyEl=document.getElementById(\"snapshotHistory-\"+key);\n"
+    ],
+    [
+      "\nfunction fetchFX(attempt) {\n  if(snapshotWriteBlocked()) return;\n  if(!gasUrl) return;\n  attempt=(typeof attempt===\"number\")?attempt:0;\n  // 자동갱신 (환율을 못 받으면 해외 평가·수익률이 전부 보류되므로 시세와 같은 방식으로 재시도)\n  var quoteEpoch=snapshotInputEpoch;\n",
+      "\nfunction fetchFX() {\n  if(snapshotWriteBlocked()) return;\n  if(!gasUrl) return;\n  // 자동갱신\n  var quoteEpoch=snapshotInputEpoch;\n"
+    ],
+    [
+      "  script.src=gasUrl+\"?type=exchange&callback=\"+cb;\n  var finished=false;\n  function cleanup(){ delete window[cb]; if(document.body.contains(script))document.body.removeChild(script); }\n  window[cb]=function(data){\n    finished=true;\n    if(quoteEpoch!==snapshotInputEpoch || snapshotWriteBlocked()){cleanup();return;}\n    if(data && typeof data.usdKrw===\"number\" && Number.isFinite(data.usdKrw) && data.usdKrw>0 && data.usdKrw<=1e6){\n",
+      "  script.src=gasUrl+\"?type=exchange&callback=\"+cb;\n  window[cb]=function(data){\n    if(quoteEpoch!==snapshotInputEpoch || snapshotWriteBlocked()){delete window[cb];if(document.body.contains(script))document.body.removeChild(script);return;}\n    if(data && typeof data.usdKrw===\"number\" && Number.isFinite(data.usdKrw) && data.usdKrw>0 && data.usdKrw<=1e6){\n"
+    ],
+    [
+      "      document.getElementById(\"fxTime\").textContent=\"환율 자동갱신: \"+new Date().toLocaleTimeString(\"ko-KR\");\n      cleanup();\n      autoSnapshot(); renderAll();\n      return;\n    }\n    cleanup(); retryFetch(fetchFX, attempt, quoteEpoch);\n  };\n  script.onerror=function(){ if(finished) return; finished=true; cleanup(); retryFetch(fetchFX, attempt, quoteEpoch); };\n  setTimeout(function(){ if(finished) return; finished=true; cleanup(); retryFetch(fetchFX, attempt, quoteEpoch); },15000);\n  document.body.appendChild(script);\n",
+      "      document.getElementById(\"fxTime\").textContent=\"환율 자동갱신: \"+new Date().toLocaleTimeString(\"ko-KR\");\n      autoSnapshot(); renderAll();\n    }\n    \n    delete window[cb]; if(document.body.contains(script))document.body.removeChild(script);\n  };\n  script.onerror=function(){delete window[cb];if(document.body.contains(script))document.body.removeChild(script);};\n  setTimeout(function(){if(window[cb]){delete window[cb];}},10000);\n  document.body.appendChild(script);\n"
     ]
   ],
   "radar/ui.js": [
