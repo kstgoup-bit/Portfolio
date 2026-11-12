@@ -3,7 +3,7 @@
 클로(Claude)의 검토·요청 보고서는 이 폴더(`docs/team/`)에 모읍니다. 날짜가 파일명 끝에 있습니다.
 
 ## 협업 약속
-- `COLLAB-PROTOCOL.md` — 다비↔클로 30분 주기 깃허브 협업 규칙(브랜치·보고서·승인). **작업 전 필독.**
+- `COLLAB-PROTOCOL.md` — 다비↔클로 정기 깃허브 협업 규칙(브랜치·보고서·승인). **작업 전 필독.**
 
 ## 최신 (2026-11-12)
 - `SW-ACTIVATION-REVIEW-20261112.md` — 활성화 정체는 시험 관찰 간섭 정황(passive 10/10 통과), rollback 확인 필요. 원로그는 클로 브랜치 evidence-sw-claude/activation
