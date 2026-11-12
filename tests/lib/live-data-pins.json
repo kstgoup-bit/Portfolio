@@ -3,13 +3,17 @@
     "portfolio_v5.html": "0dd5de8bded788c5a8d2c284f3e9f6654f6191b8c0ff1cf45bd844a16886acd4",
     "radar/ui.js": "71a5a3c181aed3515d4c3021bd90edd0067073c4179264050a87ed0f5fa04f38",
     "has/advisor-panel.js": "c9d69ae277313b7d0939bc6371e2b190ff8725f6d369417ca4298591a824a2dd",
-    "service-worker.js": "77d553efcfc3eb93f65a1f2901de1cf3b6b61b36febd9605053e66db6724dcd8"
+    "service-worker.js": "77d553efcfc3eb93f65a1f2901de1cf3b6b61b36febd9605053e66db6724dcd8",
+    "has/snapshot-policy.js": "9109c84c4f4a8bfdde046646e668dc1c4b9ebf4712f50ff271daadf2f2bc3d1a",
+    "has/return-assessment.js": "1b1c7a54d05443f0cd96f9677338aa9af7c79677fa8f589cbbca1c3d3aedfd51"
   },
   "currentSha256": {
-    "portfolio_v5.html": "0da4362d8a61a60ca81aa936239d003d88a9d6f931678b6c4c0b252e6343bac2",
+    "portfolio_v5.html": "879682cbb6a04099c574cbc2be6ecf8e620d3b7d921807b649e088e2a63aa0ec",
     "radar/ui.js": "57b3d2364a6612f9133190dda68bec4a4acc43bb5979d89823be20edfeaf3052",
     "has/advisor-panel.js": "2da44530135fe29fc9cd630ddad49ec18c68f3314b53133e94829e1aef1689b7",
-    "service-worker.js": "bd7c5a33f7070bf8e4791fedb5cbfc4572741076023efb1090e838d8041c7b72"
+    "service-worker.js": "bd7c5a33f7070bf8e4791fedb5cbfc4572741076023efb1090e838d8041c7b72",
+    "has/snapshot-policy.js": "8d228e107cf61a4cb4a520e0dc0200da1daaa7a0627c9cbb2e9bfcd098fbb3bf",
+    "has/return-assessment.js": "eaf2701dd6ed9224f9e15ff9d97253bd756152120b0625d3dd34e3cc3489a881"
   },
   "addedRuntimeFiles": {
     "has/live-price-reference.js": "74ec48bfd7b9fe121eeccb1fe4849289ca2e8dd0cd18f38462c83bded92c2cb1",

@@ -7840,6 +7840,9 @@ function checkPw() {
 // 글꼴·이미지 다운로드(load)를 기다리지 않고 HTML 해석 직후 시작 — 잠금 확인 버튼이 바로 반응
 function hasStartApp() {
   if(hasStartApp.done) return; hasStartApp.done=true;
+  // 속도: 화면 한 번 그리는 동안 같은 자산기록 검증을 한 번만(기록 수×표 줄 수만큼 반복하던 검증 재사용)
+  // 잠금화면이 떠 있는 동안에는 가려진 화면을 그리지 않음(잠금 해제 시 checkPw의 renderAll이 표·그래프까지 한 번에 그림) — 잠금화면 멈춤 방지
+  ["renderAll","renderAllReturnsTables","renderLineChart"].forEach(function(name){var f=window[name];if(typeof f!=="function")return;window[name]=function(){var ls=document.getElementById("lockScreen");if(ls&&ls.style.display!=="none"){hasStartApp.deferredRender=true;return;}var self=this,args=arguments,P=window.HASSnapshotPolicy;return P&&P.withValidationCache?P.withValidationCache(function(){return f.apply(self,args);}):f.apply(self,args);};});
   // 잠금화면
   if(sessionStorage.getItem("v5_auth")==="1") {
     document.getElementById("lockScreen").style.display="none";

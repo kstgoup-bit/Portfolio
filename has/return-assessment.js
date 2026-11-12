@@ -269,7 +269,7 @@
       if (!plain(input) || Reflect.ownKeys(input).some(function (k) { var d = Object.getOwnPropertyDescriptor(input, k); return typeof k !== 'string' || !d || !own(d, 'value'); })) return unavailable('invalid-input');
       var key = input.key === undefined ? 'all' : input.key;
       if (!P || !keyOK(key) || !time(input.targetTs) || !time(input.endTs) || input.targetTs > input.endTs) return unavailable('invalid-interval');
-      bounded(input.records);
+      if (P && P.passMemo) P.passMemo(input.records, 'return-assessment-bounded', function () { bounded(input.records); return true; }); else bounded(input.records);
       if (!Array.isArray(input.records) || input.records.some(function (s) { return !P.validateRecord(s).ok; }) || new Set(input.records.map(function (s) { return s.ts; })).size !== input.records.length) return unavailable('invalid-history');
       var records = input.records.slice().sort(function (a, b) { return a.ts - b.ts; }), observations = points(records), end = null;
       var isCurrent = own(input, 'currentCandidate');
