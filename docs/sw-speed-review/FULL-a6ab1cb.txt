@@ -1,0 +1,50 @@
+HAS SW 다음 검증 묶음: 42자산·수명주기
+기준: main a6ab1cbaaac4d374787d8041455b51ce38a63a62
+상태: 운영 적용 보류. 실제 42자산 브라우저 시험은 준비됐지만 미실행.
+
+원문 검토 결과
+main의 docs/team/SW-RACE-REVIEW-20261112.md 및 클로 branch cd2e131b6232bae204dcacb3b684d76eb4526db2의 evidence-sw-claude/lifecycle-10runs-3617b43.log를 읽었다. 원시 로그를 JSON으로 분리해 10/10 PASS, 매회 완전 3키, waiting=installed, 동일 byte update 3회, 같은 release 재설치의 정적 다운로드 0을 대조했다. 이전 '완료 후 일부 캐시만 보임' 주장은 클로가 철회했다. 이 결과는 합성 2자산 앱에 대한 클로의 실제 Chromium 실행이며 실제 portfolio 42자산 전체 성공으로 확대하지 않는다.
+
+이번 산출물
+1. tests/sw-speed-lab/full-manifest-model.cjs
+   현재 실제 파일 42개를 모두 읽고 manifest의 size/SHA를 대조하는 Node 메모리 CacheStorage 모형.
+   7/7 통과: 43키(42+marker) 설치/오프라인 모든 hash, 부분 다음세대 실패 시 이전 캐시 보존, 정확한 자산 복구/변경 hash 거절, 순차 재설치 fetch/write 0, 타 앱·타 scope 보호, 전체 소실 fail-closed.
+2. tests/sw-speed-lab/browser-full.cjs
+   실제 앱 HTML과 42개 자산 바이트를 그대로 제공하는 loopback 전용 서버 + 새 임시 Chromium 프로필. 사용자 브라우저·프로필·기록을 사용하지 않는다. 네 계좌는 빈 합성 배열, 합성 메모/보존 sentinel만 넣는다. GAS 설정은 로컬 비활성 경로로 고정한다.
+   응답 CSP(script/connect/font 등 self 한정)와 브라우저 요청 차단을 함께 사용한다. SW가 직접 fetch하더라도 manifest는 loopback 범위뿐이며 서버는 허용 자산만 제공한다. 실제 시세·계좌·외부 API에 접근하지 않는다.
+   노드 구문·순수 self-test와 독립 정적 검토를 마쳤지만 실제 Chromium 통과를 주장하지 않는다.
+
+브라우저 실행 방법(허용된 별도 검증 환경)
+프로젝트 루트에서 기존 설치된 Playwright 1.62.1과 Chromium 사용:
+HAS_CHROMIUM_EXECUTABLE=/usr/bin/chromium node tests/sw-speed-lab/browser-full.cjs
+HAS_SW_SCENARIO=rollback HAS_CHROMIUM_EXECUTABLE=/usr/bin/chromium node tests/sw-speed-lab/browser-full.cjs
+번들 Chromium을 쓰는 환경은 HAS_CHROMIUM_EXECUTABLE을 생략한다. 실패 시 전체 stdout/stderr를 함께 보존한다. 이 명령은 운영 등록/배포가 아니라 localhost 합성 프로필 시험이다.
+
+기본 시나리오가 확인하도록 준비된 항목
+- 실제 legacy SW→42자산 후보 설치 중 JS 하나를 503으로 실패시켜 후보 캐시 완전 삭제, 기존 worker/기본4캐시·다른 캐시 보존.
+- 정상 설치 후 installed+표식+43키+42 hash/size/MIME/redirect 검증.
+- 기존 두 탭 모두 legacy 유지. 첫 탭만 닫아도 후보가 기다리며 마지막 탭을 닫아야 활성화.
+- 실제 앱 로드, 합성 계좌/메모 보존, warm 및 offline 42자산 전체 exact hash. warm 정적 요청 0 확인(시간 측정 아님).
+- 자산 하나 삭제 후 offline/잘못된 bytes 거절, 원래 bytes로만 복구.
+- Chromium 프로세스를 닫고 동일한 임시 프로필을 다시 열어 offline 시작, 등록/캐시/합성 보존 키 확인.
+- 마지막에 합성 marker 소실·전체 cache 소실의 fail-closed 한계를 확인. 자동 복구 구현은 없다.
+
+rollback 시나리오 주의
+기본 흐름 이후 원래 legacy SW로 되돌려 candidate 캐시와 다른 앱의 합성 캐시가 삭제되는 기존 위험을 재현하도록 되어 있다. 이 시나리오가 예상대로 끝나도 rollback 안전성 통과가 아니다. 출력은 SCENARIO_ASSERTIONS_PASS_NOT_RELEASE_APPROVAL이며 한계를 별도 명시한다. 운영에서 그대로 되돌리면 안 된다.
+
+이번 실행 결과와 제한
+- full-manifest Node 모형 7/7.
+- 기존 SW/복구/대기 검증 54/54.
+- 전체 기존 앱 npm test: 1,959 통과 / 2 skip / 실패 0.
+- browser-full 구문·순수 self-test 통과, 비밀 패턴 0건.
+- 실제 browser-full 명령은 Chromium launchPersistentContext에서 socket() failed: Operation not permitted로 실패. 페이지 시험 시작 전이며 실제 브라우저 시나리오 완료 0회. 이후 정적 검토 보완본도 브라우저 미실행. 로그: evidence-sw-full/browser-attempt.log.
+- 원격 파일 683개 해시 일치, 변경 0개(이전 문서용 PNG 34개만 패키지 제외). 후보 커널·generated worker·42자산 소스·등록·운영 main 변경 없음. a6ab1cb는 직전 기준에서 문서만 추가되어 manifest release도 41e22f32247f88c9d1ad0ece765ff034c217d73dd77046be3f2c6e3e5eafc872 그대로.
+- 외부 서비스 차단·빈 합성 계좌이므로 실제 데이터/풍부한 원장/UI 전체 사용성을 검증하지 않는다. 실제 기기 cold/warm 시작시간 수치는 없다.
+
+남은 운영 전 조건
+실제 42자산 하니스 반복 실행, 새 세대(candidate→다른 release) 갱신 및 다양한 실패/저장공간 압박, 업데이트 안내 UX, 전체 캐시/표식 소실 복구, legacy rollback 안전 경로, 실기기 측정이 남는다. 브라우저 통과만으로 운영 승인으로 간주하지 않는다. 400종목 데이터 연결이 우선이며 그 후보를 main에 반영하면 manifest·전체 시험을 새 소스에 재기준화해야 한다.
+
+순수 검증 재현
+node --require ./evidence-speed/strict-network-preload.cjs --test tests/sw-speed-lab/full-manifest-model.cjs
+node tests/sw-speed-lab/browser-full.cjs --self-test
+NODE_OPTIONS='--require ./evidence-speed/strict-network-preload.cjs' npm test

@@ -1,0 +1,5 @@
+Error: Timed out waiting for activation after BOTH old tabs close; last={"kind":"legacy","release":"41e22f32247f88c9d1ad0ece765ff034c217d73dd77046be3f2c6e3e5eafc872","revision":0,"workerState":"activated"}
+    at timeout (/home/claude/portfolio/tests/sw-speed-lab/async-poll.cjs:5:20)
+    at Timeout.<anonymous> (/home/claude/portfolio/tests/sw-speed-lab/async-poll.cjs:12:76)
+    at listOnTimeout (node:internal/timers:585:17)
+    at process.processTimers (node:internal/timers:521:7)

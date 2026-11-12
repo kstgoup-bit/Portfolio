@@ -1,0 +1,46 @@
+HAS SW 연구 후보: c7de558 재기준화 완료
+기준 main: c7de558f2b134009b5a9ca6bfc2edc6444f4568f
+상태: 미등록·미배포 후보. 실제 시작시간 개선 미입증.
+
+이 문서가 최신 상태다. REBASE-90886f9.txt와 REPORT.txt, evidence-sw-rebase/ 및 evidence-sw-speed/는 이전 기준의 역사적 검증 기록이다.
+
+결과
+- 미지원 종목 처리 보완이 반영된 최신 main을 원격 HEAD/recursive tree로 확인했다.
+- has/live-price-reference.js, has/live-price-panel.js 및 관련 문서/시험/보호핀 8파일을 원격 blob SHA로 검증해 반영했다. 다른 담당의 작업을 덮어쓰거나 재작성하지 않았다.
+- SW manifest의 전체 42파일 중 변경은 위 2개 JS의 size/SHA-256뿐이다. 상세: evidence-sw-c7de558/manifest-delta.json.
+- 이 후보에서 원격 소스 675파일은 전부 Git blob SHA 일치, 원격 파일 수정 0개. 이전 문서용 PNG 34개는 패키지에서 제외. 실행 자산 누락 없음.
+- 기존 서비스워커·등록 HTML·계좌 기록·복원·백업·UI 및 계산 로직 변경 없음. SW 커널은 직전 후보와 동일하며, 새로운 서비스워커 동작을 추가하지 않았다.
+
+생성값
+release: 41e22f32247f88c9d1ad0ece765ff034c217d73dd77046be3f2c6e3e5eafc872
+42개 자산, 본문 합계 1,280,168 bytes.
+reference JS SHA-256: 74ec48bfd7b9fe121eeccb1fe4849289ca2e8dd0cd18f38462c83bded92c2cb1
+panel JS SHA-256: be25d2c7ecf19b9db69bb0913ddf9a07a0765944870546dc38a922974f72e65d
+
+합성 검증
+- 전체 npm test: 1,959 통과 / 2 skip / 실패 0.
+- SW 집중 45/45, 독립 검증 12개 시나리오 통과.
+- 브라우저 하니스 구문·순수 helper self-test 통과. 비밀 패턴 검사 0건.
+- generation build 결정성·42자산 hash/size, live-data 두 JS 포함, 외부 GAS query 비캐시 유지.
+- 별도 source-preservation 검증으로 최신 지원 종목 수정이 실제 소스에 보존됨을 확인했다.
+- 실제 사용자 데이터·계좌·실제 GAS/KIS 요청 없음. mock 및 네트워크 차단 preload 사용.
+
+속도 수치의 범위
+42개 정적 자산을 요청하는 모델에서 기존 warm 요청 42회/본문 1,280,168 bytes, 완전 캐시 후보는 0회/0 bytes다. 실제 브라우저나 휴대폰 시작시간 측정이 아니다. 최초 후보 install은 42회/1,280,168 bytes로 기존 install 4회/578,209 bytes보다 커진다. 비제어 첫 로드·SW update·외부 폰트/시세·HTTP 압축·CPU/저장소 시간은 포함하지 않는다.
+
+남은 제한 및 다음 확인
+- 실제 브라우저 lifecycle 시험은 여전히 미실행. 직전 차수에서 Chromium이 페이지 시작 전 socket() Operation not permitted로 실패했고, 이번에는 같은 제한을 우회하거나 반복 실행하지 않았다.
+- 허용 환경에서의 실행용 하니스: HAS_CHROMIUM_EXECUTABLE=/usr/bin/chromium node tests/sw-speed-lab/browser-lifecycle.cjs
+- 하니스는 합성 2자산 앱으로 구 SW→후보 대기/활성화·오프라인·다른 캐시 보존·부분 소실 복구·no-claim을 검사하도록 준비된 것이며, 실제 앱 브라우저 통과 증거가 아니다.
+- 일부 자산 소실은 현재 세대의 정확한 hash/MIME/size 응답만 10초 제한으로 복구. 오프라인/새 세대 응답은 실패. marker·전체 cache 소실 자동 복구 없음.
+- activate 거절은 구 SW로 rollback하지 않는다. legacy cache 전역 삭제와 다중 등록/rollback 상호작용 및 업데이트 안내도 해결 필요.
+- 신규 400종목 선별 요청의 앱 변경은 아직 이 main에 없으며 이 작업 범위에 추가하지 않았다. 이후 런타임 파일이 바뀌면 다시 manifest 생성과 전체 검증이 필요하다.
+- 운영 반영·push·main 병합은 하지 않았다. 실제 전환 및 cold/warm 기기 측정 후 별도 운영 승인 필요.
+
+재현 명령
+node tests/sw-speed-lab/build.cjs
+node --require ./evidence-speed/strict-network-preload.cjs --test tests/sw-speed-lab/run.cjs tests/sw-speed-lab/build-checks.cjs tests/sw-speed-lab/recovery.cjs
+node --require ./evidence-speed/strict-network-preload.cjs tests/sw-speed-lab/independent.cjs
+node --require ./evidence-speed/strict-network-preload.cjs tests/sw-speed-lab/traffic-model.cjs
+node tests/sw-speed-lab/browser-lifecycle.cjs --self-test
+NODE_OPTIONS='--require ./evidence-speed/strict-network-preload.cjs' npm test

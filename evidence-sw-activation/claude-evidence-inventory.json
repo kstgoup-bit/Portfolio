@@ -1,0 +1,23 @@
+{
+  "sourceCommit": "463f1cfc42aa7a394fc66cd81d547ed77103d103",
+  "committedLogs": 8,
+  "completedLifecycle": [
+    "full-90s-run4.log",
+    "full-trace-pass.log"
+  ],
+  "failedAtActivation": [
+    "full-90s-run1.log",
+    "full-90s-run2.log",
+    "full-90s-run3.log",
+    "full-default-15s.log",
+    "full-rollback-15s.log",
+    "full-trace-fail.log"
+  ],
+  "reportClaims": {
+    "runs": 10,
+    "failed": 6,
+    "passed": 4
+  },
+  "unlocatedAdditionalPassLogs": 2,
+  "completedRollbackEvidence": false
+}

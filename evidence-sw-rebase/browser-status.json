@@ -1,0 +1,9 @@
+{
+  "smokeLaunch": "FAILED before page startup",
+  "executable": "/usr/bin/chromium",
+  "reason": "socket() failed: Operation not permitted (1)",
+  "lifecycleBrowserTest": "NOT RUN",
+  "pureHelperTest": "PASS",
+  "realUserData": false,
+  "liveAPIRequests": false
+}

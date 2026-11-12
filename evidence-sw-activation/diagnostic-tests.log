@@ -1,0 +1,19 @@
+✔ passive activation observes exact waiting identity with zero worker messages (3.093901ms)
+✔ same URL/state is not enough when active worker is not remembered candidate (1.160572ms)
+✔ closed probe closes both local ports after reply (2.072258ms)
+✔ old-style A/B control deliberately leaves ports open (1.233492ms)
+✔ probe timeout closes ports and rejects (7.771542ms)
+✔ server observer distinguishes finished, aborted, and pending responses without queries (0.72874ms)
+✔ default diagnostic wrapper does not wrap fetch and has no activation forcing (1.70868ms)
+✔ optional fetch audit records header settlement without consuming response bodies (1.617822ms)
+✔ optional respondWith audit preserves returned value and adds no waitUntil (1.422567ms)
+✔ native respondWith throw does not leave a false pending entry (2.913149ms)
+✔ after-timeout diagnostic returns controlled and uncontrolled lists, closes worker port (2.611166ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 152.145025

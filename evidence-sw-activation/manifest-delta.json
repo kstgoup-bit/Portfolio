@@ -1,0 +1,37 @@
+{
+  "base": "4802b8f03c00f14200e021ab2433cfefec0e890e",
+  "release": "6cce1b0723d250b6e5543743cde46ea748aa914164404cb0ff1d7a8beb42233a",
+  "assetCount": 42,
+  "changes": [
+    {
+      "path": "portfolio_v5.html",
+      "old": {
+        "path": "portfolio_v5.html",
+        "kind": "html",
+        "size": 558695,
+        "sha256": "69708265c1263cfa5d7f8bd30c09ceac7d6c01b213f1a7a5d7b9ba7cfe6247f7"
+      },
+      "new": {
+        "path": "portfolio_v5.html",
+        "kind": "html",
+        "size": 558655,
+        "sha256": "0bf69ce6a2aaedd1a1d94ccca9f9f05724d6a06406a5ed50eebb944e6b364b2a"
+      }
+    },
+    {
+      "path": "radar/ui.js",
+      "old": {
+        "path": "radar/ui.js",
+        "kind": "js",
+        "size": 20855,
+        "sha256": "35b8db8b0fc3f32341ec807c165c6b5d8f75ac599bee4edc7b136aa8fa17e539"
+      },
+      "new": {
+        "path": "radar/ui.js",
+        "kind": "js",
+        "size": 20825,
+        "sha256": "57b3d2364a6612f9133190dda68bec4a4acc43bb5979d89823be20edfeaf3052"
+      }
+    }
+  ]
+}

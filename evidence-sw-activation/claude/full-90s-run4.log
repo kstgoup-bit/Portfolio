@@ -1,0 +1,25 @@
+ACTIVATED_AFTER_CLOSE_MS 1073
+{
+  "status": "SCENARIO_ASSERTIONS_PASS_NOT_RELEASE_APPROVAL",
+  "scenario": "lifecycle",
+  "base": "a6ab1cbaaac4d374787d8041455b51ce38a63a62",
+  "release": "41e22f32247f88c9d1ad0ece765ff034c217d73dd77046be3f2c6e3e5eafc872",
+  "assets": 42,
+  "snapshot": {
+    "ready": true,
+    "name": "has-generation-v1:http%3A%2F%2F127.0.0.1%3A41647%2Fapp%2F:41e22f32247f88c9d1ad0ece765ff034c217d73dd77046be3f2c6e3e5eafc872",
+    "marked": true,
+    "keys": 43,
+    "failures": []
+  },
+  "warmStaticRequests": 0,
+  "syntheticProtectedKeysUnchanged": true,
+  "persistentProfileRestart": true,
+  "externalRequestsBlocked": 0,
+  "pageErrors": [],
+  "limitations": [
+    "marker loss fails closed, no automatic recovery",
+    "whole-cache loss fails closed, no automatic recovery"
+  ],
+  "scope": "actual 42 pinned app bytes with empty synthetic accounts; external APIs blocked; no elapsed performance claim"
+}

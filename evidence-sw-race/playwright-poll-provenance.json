@@ -1,0 +1,6 @@
+{
+  "playwrightVersion": "1.62.1",
+  "sourceSha256": "9393fa79e1c67c74edc26b610d65a4f7ed73d345a762465cc88340a33a2454ac",
+  "injectionSha256": "4029e8c7ff767ef93a9e82b83e55f007929e5c8ece48f220db6f88c94c384ca5",
+  "description": "Executed actual installed Playwright waitForFunction injected callback in Node VM; not a browser test."
+}

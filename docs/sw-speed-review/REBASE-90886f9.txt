@@ -1,0 +1,66 @@
+HAS 서비스워커 속도 후보 재기준화 검토
+기준: kstgoup-bit/Portfolio main 90886f96223be5a3dfd229a92d63e3f1692a4441
+상태: 미등록 실험 후보. 운영 적용·push·main 병합 없음. 실제 시작시간 개선은 미입증.
+
+결론
+최신 main의 신규 live-price-reference.js / live-price-panel.js 및 HTML/radar/advisor 변경을 그대로 보존하고 정적 manifest를 40→42개로 재생성했다. 후보의 부분 자산 소실 복구를 같은 세대의 정확한 해시로 제한해 추가했다. 배포 준비가 끝난 것은 아니다. 실제 구 SW→후보 브라우저 전환, 실제 앱/기기 검증과 전체 저장소 손실 복구는 아직 남아 있다.
+
+원본 및 작업 보존
+- 원격 branches/main과 recursive tree로 전체 SHA를 확인했다.
+- 672개 원격 파일 Git blob SHA 일치, 변경 0개. 기존 문서용 PNG 34개는 로컬 패키지에 없으며 실행 자산 누락은 없다. evidence-sw-rebase/source-preservation.json 참고.
+- 운영 service-worker.js, 등록 HTML, 기록·복원·백업·계산 로직 변경 없음. 새 UI 작업 파일에도 손대지 않았다.
+- 현재 main에는 앞서 검토한 최소 표 계산 스케줄링 변경과 실제 데이터 연결 1단계가 이미 들어 있다. 다시 적용하지 않았다.
+- data 담당 후속 금현물/unsupported 종목 필터 수정 두 파일은 이 기준본에 아직 포함되지 않는다. 해당 후보와 통합 시 manifest를 다시 빌드해야 한다. 이 패키지로 그 작업을 덮어쓰면 안 된다.
+- 이전 c816903 검토는 docs/sw-speed-review/REPORT.txt 및 evidence-sw-speed/에 역사적 근거로 남겼다. 최신 결론은 이 문서와 evidence-sw-rebase/가 우선한다.
+
+현재 세대
+release 78254afc945b7484d729e2085e405d541f2ab0a99c4469f9fa36255a1112dff7
+42개 파일, 본문 1,279,371 bytes. manifest는 자산 내용·크기·MIME 종류뿐 아니라 커널과 wrapper 변경에도 새 release를 생성한다.
+- 전체 hash-validated install 및 완료 표식, 내부 전용 키, 범위별 캐시 이름.
+- skipWaiting/clients.claim 미사용. 기존 탭이 닫혀야 후보가 활성화될 수 있다.
+- 외부 GAS/시세 요청 및 일반 같은 출처 API는 캐시하지 않음. live-data JS 두 개만 정적 코드로 고정.
+- 다른 앱의 캐시 삭제 금지. 기존 legacy 글로벌 캐시 조회에 waiting 후보의 원본 URL이 노출되지 않음.
+
+이번 추가: 일부 자산 복구
+완료 표식이 남아 있고 요청 자산이 없거나 hash 검증에 실패했을 때만 복구한다. credentials:omit, cache:no-store, redirect:error와 10초 abort로 같은 URL을 요청하고, 원래 manifest의 status/MIME/size/SHA-256 및 응답 정책을 모두 통과해야 저장한다. 새 코드가 서버에 올라온 경우 해시가 다르면 복구하지 않는다. 동일 자산 동시 요청은 한 번만 수리하고 응답 본문은 각각 clone한다. 실패 후에는 이후 요청에서 재시도할 수 있다.
+- offline, 새 세대·동일 크기 다른 hash, size/MIME 오류, 206, private/no-store/Vary*/Content-Range 및 quota 오류는 실패 처리.
+- marker 소실·전체 캐시 삭제에는 임의 복구·새 세대 fallback 없음. completed-but-corrupt 동일 세대 reinstall도 기존 저장소를 지우지 않고 거절한다. 따라서 모든 캐시 손상을 자동 복구하는 방안은 아니다.
+- 일부 파일만 새 서버로 교체된 배포 시 오래된 세대 손실 자산은 복구 불가할 수 있다. 이는 버전 혼합 방지와 가용성 사이의 의도적인 제한이다.
+
+검증 결과
+- 전체 기존 npm test: 1,955 통과, 2 skip, 실패 0.
+- SW 집중 시험: 45/45 통과(기존 안전/반례 27 + 복구 18).
+- 독립 synthetic 검증: 12개 시나리오 통과. 동시 8회 요청에서 fetch 1회·각 본문 읽기 확인.
+- 생성 JS 및 브라우저 하니스 구문검사, 순수 helper self-test 통과. 비밀 패턴 검사 0건.
+- 10초 abort는 제어된 테스트 시계로 검증. 실제 벽시계·브라우저 타이밍으로 검증하지 않았다.
+- 신규 live-data 정적 모듈 포함, 외부 GAS query 미개입, 기존 source 불변 확인.
+- 실제 계좌·사용자 저장소·GAS/KIS 등 라이브 API 접속 없음. 합성 mock과 차단 preload 사용.
+
+실제 브라우저 단계: 미실행
+/usr/bin/chromium의 Playwright smoke launch는 페이지 시작 전에 socket() failed: Operation not permitted로 종료됐다. 후보 SW 등록이나 로컬 서버 실험까지 진행하지 못했다. 허용 환경에서 실행할 준비만 했다:
+HAS_CHROMIUM_EXECUTABLE=/usr/bin/chromium node tests/sw-speed-lab/browser-lifecycle.cjs
+이 하니스는 실제 unchanged legacy SW와 후보 커널을 사용하는 합성 2자산 앱이다. 대기 중 구 controller 유지, 내부 키 격리, 탭 닫은 뒤 활성화, offline, 타 앱 캐시 보존, 손실 파일의 정확한 복구, 신규 등록 no-claim을 검사하도록 작성했다. 실제 portfolio UI 시험도 아니고 통과가 확인된 브라우저 로그도 아니다. helper의 asset MIME/cache-policy 및 manifest loopback-only 검사는 통과했다.
+
+성능 근거 범위
+정확한 42개 manifest 항목을 요청하는 합성 trace:
+- 기존 install: 요청 4, 응답 본문 578,209 bytes, 캐시 쓰기 4.
+- 기존 warm trace: 요청 42, 본문 1,279,371 bytes, 쓰기 42.
+- 후보 install: 요청 42, 본문 1,279,371 bytes, 쓰기 43(표식 포함).
+- 이미 활성화+완전캐시 후보 warm trace: 요청 0, 본문 0, 쓰기 0.
+이는 브라우저/휴대폰 실측 트래픽이나 시작시간이 아니다. 최초 비제어 페이지, SW update 다운로드, 외부 폰트/데이터, 압축/헤더/304 및 CPU/저장소 시간은 제외했다. 최초 install 비용은 오히려 늘 수 있다. 매 요청 해시/clone 비용도 실기기에서 측정해야 한다.
+
+운영 적용 전 남은 조건
+1. 실제 허용 브라우저에서 구 SW→후보 전환/실패/다중 탭/재시작 전체 시험.
+2. marker·전체 cache 손실 및 storage eviction 사용자 복구 경로 설계. activate.waitUntil 거절은 구 SW로의 자동 rollback이 아니다.
+3. legacy 재활성화가 타 캐시를 삭제하는 기존 동작과 별도 registration/rollback 충돌 시험.
+4. 대기 업데이트 안내와 버전 일치 배포 절차. 새로운 런타임 파일/동적 import 추가 시 빌더 dependency regex만 믿지 말고 별도 검토.
+5. 최신 data 후속 후보 통합 후 manifest·전체 회귀 재생성. 실제 앱 브라우저 및 폰 cold/warm 성능 측정.
+6. 별도 운영 적용 승인. 이 실험 파일을 서비스워커로 바꾸거나 등록하지 않았다.
+
+재현(프로젝트 루트)
+node tests/sw-speed-lab/build.cjs
+node --require ./evidence-speed/strict-network-preload.cjs --test tests/sw-speed-lab/run.cjs tests/sw-speed-lab/build-checks.cjs tests/sw-speed-lab/recovery.cjs
+node --require ./evidence-speed/strict-network-preload.cjs tests/sw-speed-lab/independent.cjs
+node --require ./evidence-speed/strict-network-preload.cjs tests/sw-speed-lab/traffic-model.cjs
+node tests/sw-speed-lab/browser-lifecycle.cjs --self-test
+NODE_OPTIONS='--require ./evidence-speed/strict-network-preload.cjs' npm test
