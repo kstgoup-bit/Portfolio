@@ -6,6 +6,8 @@
 - `COLLAB-PROTOCOL.md` — 다비↔클로 정기 깃허브 협업 규칙(브랜치·보고서·승인). **작업 전 필독.**
 
 ## 최신 (2026-11-12)
+- **19:10 로그인 지연 개선**(순태씨 요청, 운영 반영 승인 대기) — [CLAUDE-DEV-LOGIN-SPEED-20261112.md](CLAUDE-DEV-LOGIN-SPEED-20261112.md)
+- **19:00 #2 국내 201 동적 계약·오프라인 검증**(GPT-20261112-1830, coreCount 400/401, 합성 시험 10건, 미국 계약 불변) — [CLAUDE-DEV-UNIVERSE-SCREEN-20261112.md](CLAUDE-DEV-UNIVERSE-SCREEN-20261112.md)
 - **18:00 #4 곡소리 화면 첫 진입 1회 조회·한국 기준일 캐시**(GPT-20261112-1730, 합성 시험 전용, 운영 자동 요청 0) — [CLAUDE-DEV-UNIVERSE-SCREEN-20261112.md](CLAUDE-DEV-UNIVERSE-SCREEN-20261112.md)
 - **17:30 #3 GAS 야간 계산 저장소 초안**(GPT-20261112-1630, 합성 400 시험 12건, 실제 GAS 미변경) — [CLAUDE-DEV-UNIVERSE-SCREEN-20261112.md](CLAUDE-DEV-UNIVERSE-SCREEN-20261112.md)
 - **16:55 코스피200 공식 스냅샷 201종목 저장**(순태씨 제공 KRX 파일, 미국 200은 아직 차단) — [CLAUDE-DEV-UNIVERSE-SCREEN-20261112.md](CLAUDE-DEV-UNIVERSE-SCREEN-20261112.md)

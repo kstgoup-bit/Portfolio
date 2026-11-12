@@ -7837,7 +7837,9 @@ function checkPw() {
 // =============================================
 // 실행
 // =============================================
-window.addEventListener("load", function() {
+// 글꼴·이미지 다운로드(load)를 기다리지 않고 HTML 해석 직후 시작 — 잠금 확인 버튼이 바로 반응
+function hasStartApp() {
+  if(hasStartApp.done) return; hasStartApp.done=true;
   // 잠금화면
   if(sessionStorage.getItem("v5_auth")==="1") {
     document.getElementById("lockScreen").style.display="none";
@@ -7879,7 +7881,9 @@ window.addEventListener("load", function() {
   setInterval(resumeCheck, 30*60*1000);
   setTimeout(function(){if(startupEpoch===snapshotInputEpoch && !snapshotWriteBlocked()) fetchRiskData();},7000);
   // 자동 자산기록은 시세 갱신 성공 시(fetchKR/fetchUS → autoSnapshot)에만 수행
-});
+}
+if(document.readyState==="loading") document.addEventListener("DOMContentLoaded", hasStartApp);
+window.addEventListener("load", hasStartApp);
 
 
 

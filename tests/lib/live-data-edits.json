@@ -47,6 +47,14 @@
     [
       "  var benchSeries=chartComparison.hold?null:getBenchmarkSeriesForChart(snapKey, pts);\n  var BENCH_NAMES={all:\"KODEX 200 20%+QQQ 80% (해외 부분 환율 미반영)\",dom:\"KODEX 200 ETF\",gen:\"KODEX 200 ETF\",ov:\"QQQ ETF (달러 기준·환율 미반영)\",pen:\"QQQ ETF (달러 기준·환율 미반영)\"};\n  var benchName=BENCH_NAMES[snapKey]||\"기준지수\";\n",
       "  var benchSeries=chartComparison.hold?null:getBenchmarkSeriesForChart(snapKey, pts);\n  var BENCH_NAMES={all:\"KODEX 200 20%+QQQ 80% (달러 기준·환율 미반영)\",dom:\"KODEX 200 ETF\",gen:\"KODEX 200 ETF\",ov:\"QQQ ETF (달러 기준·환율 미반영)\",pen:\"QQQ ETF (달러 기준·환율 미반영)\"};\n  var benchName=BENCH_NAMES[snapKey]||\"기준지수\";\n"
+    ],
+    [
+      "// =============================================\n// 실행\n// =============================================\n// 글꼴·이미지 다운로드(load)를 기다리지 않고 HTML 해석 직후 시작 — 잠금 확인 버튼이 바로 반응\nfunction hasStartApp() {\n  if(hasStartApp.done) return; hasStartApp.done=true;\n  // 잠금화면\n",
+      "// =============================================\n// 실행\n// =============================================\nwindow.addEventListener(\"load\", function() {\n  // 잠금화면\n"
+    ],
+    [
+      "  // 자동 자산기록은 시세 갱신 성공 시(fetchKR/fetchUS → autoSnapshot)에만 수행\n}\nif(document.readyState===\"loading\") document.addEventListener(\"DOMContentLoaded\", hasStartApp);\nwindow.addEventListener(\"load\", hasStartApp);\n",
+      "  // 자동 자산기록은 시세 갱신 성공 시(fetchKR/fetchUS → autoSnapshot)에만 수행\n});\n"
     ]
   ],
   "radar/ui.js": [
