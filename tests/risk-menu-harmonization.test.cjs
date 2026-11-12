@@ -67,7 +67,7 @@ test('new shortcut is keyboard-accessible, bounded to its class and has declared
 test('exact two edited runtime files reverse to the previous candidate and all old pins are retained',()=>{
  const pins=require('./lib/risk-menu-pins.json'),p=require('./lib/risk-menu-projection.cjs');
  a.equal(pins.baselineCommit,'8005cd0cd2540ad6a94612477cfface6236d7d63');a.deepEqual(Object.keys(pins.currentSha256).sort(),['has/ledger-demo.js','portfolio_v5.html']);
- for(const file of Object.keys(pins.currentSha256)){a.equal(sha(fs.readFileSync(path.join(ROOT,file))),pins.currentSha256[file]);a.equal(sha(p.beforeRiskMenuBytes(file)),pins.baselineSha256[file]);}
+ for(const file of Object.keys(pins.currentSha256)){a.equal(sha(require('./lib/speed-minimal-projection.cjs').beforeSpeedBytes(file)),pins.currentSha256[file]);a.equal(sha(p.beforeRiskMenuBytes(file)),pins.baselineSha256[file]);}
  for(const[file,hash]of Object.entries(pins.addedRuntimeFiles))a.equal(sha(read(file)),hash);
  a.equal(require('./lib/daily-followup-pins.json').currentSha256['portfolio_v5.html'],pins.baselineSha256['portfolio_v5.html']);
 });

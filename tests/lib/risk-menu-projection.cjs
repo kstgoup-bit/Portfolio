@@ -5,7 +5,7 @@ const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypt
 const ROOT=path.resolve(__dirname,'../..'),edits=require('./risk-menu-edits.json'),pins=require('./risk-menu-pins.json');
 const sha=b=>crypto.createHash('sha256').update(b).digest('hex');
 function beforeRiskMenuBytes(file){
- let bytes=fs.readFileSync(path.join(ROOT,file));
+ let bytes=require('./speed-minimal-projection.cjs').beforeSpeedBytes(file);
  if(edits[file]){
   if(sha(bytes)!==pins.currentSha256[file])throw Error('Unreviewed risk-menu change: '+file);
   let text=bytes.toString('utf8');

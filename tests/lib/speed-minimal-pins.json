@@ -1,0 +1,9 @@
+{
+  "baselineCommit": "127bca49456827a0b9cbd0fb3dc26b8787ef0d80",
+  "baselineSha256": {
+    "portfolio_v5.html": "3302094d3234bf8d49cf61a00869e0f7c21d02f797bd04411fa857b705375eb9"
+  },
+  "currentSha256": {
+    "portfolio_v5.html": "0dd5de8bded788c5a8d2c284f3e9f6654f6191b8c0ff1cf45bd844a16886acd4"
+  }
+}

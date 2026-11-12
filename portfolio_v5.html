@@ -3214,11 +3214,11 @@ function renderReturnsTable(key,tableId) {
 }
 
 function renderAllReturnsTables() {
-  renderReturnsTable("all","allReturnsTable");
-  renderReturnsTable("gen","genReturnsTable");
-  renderReturnsTable("dom","domReturnsTable");
-  renderReturnsTable("ov","ovReturnsTable");
-  renderReturnsTable("pen","penReturnsTable");
+  // Recompute only the visible table. Tab entry reads current data again; no persistent result cache.
+  [["dashboard","all"],["general","gen"],["domestic","dom"],["overseas","ov"],["pension","pen"]].forEach(function(entry){
+    var panel=document.getElementById("panel-"+entry[0]);
+    if(panel && panel.classList.contains("active")) renderReturnsTable(entry[1],entry[1]+"ReturnsTable");
+  });
 }
 
 function updateHeaderH(){
@@ -7268,6 +7268,7 @@ function switchTab(tab) {
   }
 
   document.querySelectorAll(".panel").forEach(function(p){p.classList.toggle("active",p.id==="panel-"+tab);});
+  if(typeof renderAllReturnsTables==="function") renderAllReturnsTables();
   if(window.KSTRadar) window.KSTRadar.onTabChange(tab);
   if(window.HASLedgerDemo) window.HASLedgerDemo.onTabChange(tab);
   if(window.HASAdvisorPanel) window.HASAdvisorPanel.onTabChange(tab);

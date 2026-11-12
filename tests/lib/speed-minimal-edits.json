@@ -1,0 +1,12 @@
+{
+  "portfolio_v5.html": [
+    [
+      "function renderAllReturnsTables() {\n  // Recompute only the visible table. Tab entry reads current data again; no persistent result cache.\n  [[\"dashboard\",\"all\"],[\"general\",\"gen\"],[\"domestic\",\"dom\"],[\"overseas\",\"ov\"],[\"pension\",\"pen\"]].forEach(function(entry){\n    var panel=document.getElementById(\"panel-\"+entry[0]);\n    if(panel && panel.classList.contains(\"active\")) renderReturnsTable(entry[1],entry[1]+\"ReturnsTable\");\n  });\n}",
+      "function renderAllReturnsTables() {\n  renderReturnsTable(\"all\",\"allReturnsTable\");\n  renderReturnsTable(\"gen\",\"genReturnsTable\");\n  renderReturnsTable(\"dom\",\"domReturnsTable\");\n  renderReturnsTable(\"ov\",\"ovReturnsTable\");\n  renderReturnsTable(\"pen\",\"penReturnsTable\");\n}"
+    ],
+    [
+      "  document.querySelectorAll(\".panel\").forEach(function(p){p.classList.toggle(\"active\",p.id===\"panel-\"+tab);});\n  if(typeof renderAllReturnsTables===\"function\") renderAllReturnsTables();\n",
+      "  document.querySelectorAll(\".panel\").forEach(function(p){p.classList.toggle(\"active\",p.id===\"panel-\"+tab);});\n"
+    ]
+  ]
+}

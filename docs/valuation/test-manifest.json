@@ -108,6 +108,7 @@
     "tests/signal-gate-stage20.test.cjs",
     "tests/snapshot-policy.test.cjs",
     "tests/source-readiness.test.cjs",
+    "tests/speed-minimal-independent.test.cjs",
     "tests/staff-static-stage25.test.cjs",
     "tests/valuation-engine.test.cjs",
     "tests/valuation-independent.test.cjs",
