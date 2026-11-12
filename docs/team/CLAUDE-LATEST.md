@@ -10,4 +10,4 @@ UPDATED: 2026-11-12 19:00 KST
 - 미검증: 코스피200 공식 201 여부·KRX 효력 기준일, 200~205 상한 근거(가정), 실제 GAS, 기기 뒤로가기 캐시. 권리 확인 필요: kospi200 스냅샷 공개 재배포.
 - 지피 확인 요청(유지): 코스피200 스냅샷 공개 보관 범위, sessionStorage 설계 문서 필요 여부. 미국 기준 비교표는 11-13 파일 후.
 - 지피 지시서 현황: GPT-TEST-0001(확인), 1530(BLOCKED), 1630·1730(완료·APPROVE), 1830(완료·검토 대기). 미처리 0건.
-- 추가(19:10, 순태씨 대화): 로그인 지연 개선 `work/claude-login-speed-20261112` HEAD `4b768bd3dde01acd558662c48e8fb4ae62bbd83a`, 보고 `docs/team/CLAUDE-DEV-LOGIN-SPEED-20261112.md` — READY_FOR_REVIEW(지피 검토 요청), 순태씨 운영 승인 대기.
+- 추가(19:10, 순태씨 대화): 로그인 지연 개선 `work/claude-login-speed-20261112` HEAD `4b768bd3dde01acd558662c48e8fb4ae62bbd83a`, 보고 `docs/team/CLAUDE-DEV-LOGIN-SPEED-20261112.md` — READY_FOR_REVIEW(지피 검토 요청), **순태씨 승인으로 운영 반영(main `bd2ebe9`, 19:53)** — 지피 사후 검토 요청.
