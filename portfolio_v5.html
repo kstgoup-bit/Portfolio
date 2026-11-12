@@ -730,7 +730,9 @@ select { -webkit-user-select: none; user-select: none; touch-action: manipulatio
       <span style="font-size:12px;color:#ef6c00"><span style="display:inline-block;width:14px;height:2px;background:#ef6c00;vertical-align:middle;margin-right:3px;border-top:2px dashed #ef6c00"></span>KODEX 200 ETF 20%+QQQ ETF 80%</span>
     </div>
     <button class="record-btn" onclick="recordSnap('all')">📸 오늘 전체 자산 기록</button>
-    <div id="snapshotStatus-all" role="status" style="font-size:12px;line-height:1.6;white-space:pre-line;margin-top:8px;color:#795000"></div>
+    <div id="snapshotSummary-all" role="status" style="font-size:13px;line-height:1.6;margin-top:8px;color:#333;overflow-wrap:anywhere"></div>
+    <details style="margin-top:4px"><summary style="font-size:13px;line-height:1.6;color:#333;cursor:pointer;min-height:32px">ⓘ 기록 상태 자세히</summary>
+    <div id="snapshotStatus-all" role="status" style="font-size:12px;line-height:1.6;white-space:pre-line;margin-top:4px;color:#795000"></div></details>
     <div id="snapshotHistory-all" style="font-size:12px;line-height:1.6;overflow-wrap:anywhere"></div>
   </div>
   <div class="card" id="allReturnsCard" style="margin-top:14px">
@@ -798,7 +800,9 @@ select { -webkit-user-select: none; user-select: none; touch-action: manipulatio
       <button class="record-btn" style="background:var(--yellow-card);border-color:var(--yellow-border);color:var(--yellow-accent);flex:1" onclick="manageDeposits('dom')">📝 기록 내역</button>
       <button class="record-btn" style="background:var(--yellow-card);border-color:var(--yellow-border);color:var(--yellow-accent);flex:1" onclick="recordSnap('dom')">📸 자산 기록</button>
     </div>
-    <div id="snapshotStatus-dom" role="status" style="font-size:12px;line-height:1.6;white-space:pre-line;margin-top:8px;color:#795000"></div>
+    <div id="snapshotSummary-dom" role="status" style="font-size:13px;line-height:1.6;margin-top:8px;color:#333;overflow-wrap:anywhere"></div>
+    <details style="margin-top:4px"><summary style="font-size:13px;line-height:1.6;color:#333;cursor:pointer;min-height:32px">ⓘ 기록 상태 자세히</summary>
+    <div id="snapshotStatus-dom" role="status" style="font-size:12px;line-height:1.6;white-space:pre-line;margin-top:4px;color:#795000"></div></details>
     <div id="snapshotHistory-dom" style="font-size:12px;line-height:1.6;overflow-wrap:anywhere"></div>
   </div>
   <div class="card" id="domReturnsCard" style="margin-top:14px">
@@ -865,7 +869,9 @@ select { -webkit-user-select: none; user-select: none; touch-action: manipulatio
       <button class="record-btn" style="background:#b2dfdb;border-color:#00897b;color:#00695c;flex:1" onclick="manageDeposits('gen')">📝 기록 내역</button>
       <button class="record-btn" style="background:#b2dfdb;border-color:#00897b;color:#00695c;flex:1" onclick="recordSnap('gen')">📸 자산 기록</button>
     </div>
-    <div id="snapshotStatus-gen" role="status" style="font-size:12px;line-height:1.6;white-space:pre-line;margin-top:8px;color:#795000"></div>
+    <div id="snapshotSummary-gen" role="status" style="font-size:13px;line-height:1.6;margin-top:8px;color:#333;overflow-wrap:anywhere"></div>
+    <details style="margin-top:4px"><summary style="font-size:13px;line-height:1.6;color:#333;cursor:pointer;min-height:32px">ⓘ 기록 상태 자세히</summary>
+    <div id="snapshotStatus-gen" role="status" style="font-size:12px;line-height:1.6;white-space:pre-line;margin-top:4px;color:#795000"></div></details>
     <div id="snapshotHistory-gen" style="font-size:12px;line-height:1.6;overflow-wrap:anywhere"></div>
   </div>
   <div class="card" id="genReturnsCard" style="margin-top:14px">
@@ -949,7 +955,9 @@ select { -webkit-user-select: none; user-select: none; touch-action: manipulatio
       <button class="record-btn" style="background:var(--blue-light);border:1px solid #90caf9;color:var(--blue);flex:1" onclick="manageDeposits('ov')">📝 기록 내역</button>
       <button class="record-btn" style="flex:1" onclick="recordSnap('ov')">📸 자산 기록</button>
     </div>
-    <div id="snapshotStatus-ov" role="status" style="font-size:12px;line-height:1.6;white-space:pre-line;margin-top:8px;color:#795000"></div>
+    <div id="snapshotSummary-ov" role="status" style="font-size:13px;line-height:1.6;margin-top:8px;color:#333;overflow-wrap:anywhere"></div>
+    <details style="margin-top:4px"><summary style="font-size:13px;line-height:1.6;color:#333;cursor:pointer;min-height:32px">ⓘ 기록 상태 자세히</summary>
+    <div id="snapshotStatus-ov" role="status" style="font-size:12px;line-height:1.6;white-space:pre-line;margin-top:4px;color:#795000"></div></details>
     <div id="snapshotHistory-ov" style="font-size:12px;line-height:1.6;overflow-wrap:anywhere"></div>
   </div>
   <div class="card" id="ovReturnsCard" style="margin-top:14px">
@@ -1016,7 +1024,9 @@ select { -webkit-user-select: none; user-select: none; touch-action: manipulatio
       <button class="record-btn" style="background:var(--purple-light);border-color:#ce93d8;color:var(--purple);flex:1" onclick="manageDeposits('pen')">📝 기록 내역</button>
       <button class="record-btn" style="background:var(--purple-light);border-color:#ce93d8;color:var(--purple);flex:1" onclick="recordSnap('pen')">📸 자산 기록</button>
     </div>
-    <div id="snapshotStatus-pen" role="status" style="font-size:12px;line-height:1.6;white-space:pre-line;margin-top:8px;color:#795000"></div>
+    <div id="snapshotSummary-pen" role="status" style="font-size:13px;line-height:1.6;margin-top:8px;color:#333;overflow-wrap:anywhere"></div>
+    <details style="margin-top:4px"><summary style="font-size:13px;line-height:1.6;color:#333;cursor:pointer;min-height:32px">ⓘ 기록 상태 자세히</summary>
+    <div id="snapshotStatus-pen" role="status" style="font-size:12px;line-height:1.6;white-space:pre-line;margin-top:4px;color:#795000"></div></details>
     <div id="snapshotHistory-pen" style="font-size:12px;line-height:1.6;overflow-wrap:anywhere"></div>
   </div>
   <div class="card" id="penReturnsCard" style="margin-top:14px">
@@ -2860,6 +2870,8 @@ function getBenchmarkReturnPct(key,targetTs,now) {
 
 function fetchMarketIndices(){
   if(snapshotWriteBlocked()) return;
+  // 속도: 화면에 지수 표시 칸이 없으면 외부 요청을 보내지 않음(그릴 때마다 4건씩 나가던 요청 제거)
+  if(!document.getElementById("mkt-KS11")&&!document.getElementById("mkt-KQ11")&&!document.getElementById("mkt-IXIC")&&!document.getElementById("mkt-GSPC")) return;
   var indices=[
     {sym:"^KS11",id:"KS11",name:"코스피"},
     {sym:"^KQ11",id:"KQ11",name:"코스닥"},
@@ -4866,9 +4878,15 @@ function snapshotMissingText(result) {
   return result.missing.map(function(m){return (names[m.account]||m.account)+(m.ticker?" / "+m.ticker:"")+": "+m.reason;}).join("\n");
 }
 function renderSnapshotStatuses() {
+  function snapshotWaitSummary(result) {
+    // 같은 사유는 한 번만(종목마다 같은 문장이 반복되던 것을 묶음)
+    var order=[],groups={};
+    result.missing.forEach(function(m){if(!groups[m.reason]){groups[m.reason]=[];order.push(m.reason);}if(m.ticker)groups[m.reason].push(m.ticker);});
+    return "⚠ 평가 기록 대기 — "+order.map(function(r){var n=groups[r].length;return r+(n>1?" ("+n+"개 종목 공통)":n===1?" ("+groups[r][0]+")":"");}).join(" / ");
+  }
   ["all","dom","ov","pen","gen"].forEach(function(key){
     var el=document.getElementById("snapshotStatus-"+key); if(!el) return;
-    var result=snapshotEvaluation(key), lines=[];
+    var result=snapshotEvaluation(key), lines=[], summary="";
     var rows=Array.isArray(snapshots[key])?snapshots[key]:[];
     var today=rows.filter(function(r){return r && new Date(r.ts).toDateString()===new Date().toDateString();});
     if(today.length) {
@@ -4879,18 +4897,19 @@ function renderSnapshotStatuses() {
         else lines.push(r.quality==="unconfirmed"?"저장 기록은 미확정·판단 보류입니다. 수신 시각은 시장 기준시각이 아닙니다.":"기존 기록의 출처·가격 기준시각은 미확인입니다.");
       });
     }
-    if(!result.ok) lines.push("기록 대기\n"+snapshotMissingText(result));
+    if(!result.ok) {lines.push("기록 대기\n"+snapshotMissingText(result));summary=snapshotWaitSummary(result);}
     else {
       var manual=result.snapshot.manualComponents;
       var proposed=window.HASSnapshotPolicy.appendDaily(snapshots[key]===undefined?[]:snapshots[key],result.snapshot);
-      if(!proposed.ok) lines.push("저장 보류: "+proposed.reason);
-      else if(proposed.changed===false) lines.push("새 평가 내용이 없어 기존 버전을 보존합니다. 수신시각 변경만으로 새 가격이라 판단하지 않습니다.");
-      else lines.push("평가 기록 저장 가능 · 이전 버전 보존 · 미확정·판단 보류");
+      if(!proposed.ok) {lines.push("저장 보류: "+proposed.reason);summary="⚠ 저장 보류 — "+proposed.reason;}
+      else if(proposed.changed===false) {lines.push("새 평가 내용이 없어 기존 버전을 보존합니다. 수신시각 변경만으로 새 가격이라 판단하지 않습니다.");summary="✓ 새 평가 내용 없음 · 기존 기록 유지";}
+      else {lines.push("평가 기록 저장 가능 · 이전 버전 보존 · 미확정·판단 보류");summary="✓ 평가 기록 저장 가능";}
       lines.push(manual.length?"수동 가격 포함 "+manual.length+"개 · 미확정·판단 보류. 실제 기준 일시와 보유수량 단위를 직접 확인해주세요.":"시세의 공식성·시장 기준시각을 확인한 것은 아닙니다.");
     }
     if(rows.some(function(r){return r && r.comparisonHold===true;})) lines.push("자산 구성·수량·원가 또는 과거 근거가 달라진 구간은 성과 비교를 보류합니다. 자산 제외는 투자손실로 단정하지 않습니다.");
     lines.push("차트는 저장된 평가 기록만 표시합니다. 현재 화면 값으로 과거 점이나 누락 원가를 만들지 않습니다.");
     el.textContent=lines.join("\n");
+    var summaryEl=document.getElementById("snapshotSummary-"+key); if(summaryEl) summaryEl.textContent=summary;
     var historyEl=document.getElementById("snapshotHistory-"+key);
     if(historyEl) {
       var versions=[],historyDamaged=false;
@@ -7180,26 +7199,31 @@ function fetchKR(attempt) {
   document.body.appendChild(script);
 }
 
-function fetchFX() {
+function fetchFX(attempt) {
   if(snapshotWriteBlocked()) return;
   if(!gasUrl) return;
-  // 자동갱신
+  attempt=(typeof attempt==="number")?attempt:0;
+  // 자동갱신 (환율을 못 받으면 해외 평가·수익률이 전부 보류되므로 시세와 같은 방식으로 재시도)
   var quoteEpoch=snapshotInputEpoch;
   var cb="gas_fx_"+Date.now();
   var script=document.createElement("script");
   script.src=gasUrl+"?type=exchange&callback="+cb;
+  var finished=false;
+  function cleanup(){ delete window[cb]; if(document.body.contains(script))document.body.removeChild(script); }
   window[cb]=function(data){
-    if(quoteEpoch!==snapshotInputEpoch || snapshotWriteBlocked()){delete window[cb];if(document.body.contains(script))document.body.removeChild(script);return;}
+    finished=true;
+    if(quoteEpoch!==snapshotInputEpoch || snapshotWriteBlocked()){cleanup();return;}
     if(data && typeof data.usdKrw==="number" && Number.isFinite(data.usdKrw) && data.usdKrw>0 && data.usdKrw<=1e6){
       document.getElementById("usdKrw").value=data.usdKrw; quoteMeta["FX"]=Date.now(); snapshotQuoteValues.FX=data.usdKrw;
       document.getElementById("fxTime").textContent="환율 자동갱신: "+new Date().toLocaleTimeString("ko-KR");
+      cleanup();
       autoSnapshot(); renderAll();
+      return;
     }
-    
-    delete window[cb]; if(document.body.contains(script))document.body.removeChild(script);
+    cleanup(); retryFetch(fetchFX, attempt, quoteEpoch);
   };
-  script.onerror=function(){delete window[cb];if(document.body.contains(script))document.body.removeChild(script);};
-  setTimeout(function(){if(window[cb]){delete window[cb];}},10000);
+  script.onerror=function(){ if(finished) return; finished=true; cleanup(); retryFetch(fetchFX, attempt, quoteEpoch); };
+  setTimeout(function(){ if(finished) return; finished=true; cleanup(); retryFetch(fetchFX, attempt, quoteEpoch); },15000);
   document.body.appendChild(script);
 }
 
