@@ -5,7 +5,7 @@ HEAD: 47d85334775e9b8e2136447f0ef114c8ea664898
 REVIEW-SCOPE: 1단위 = 순수 계산 엔진·계약·합성 픽스처·시험만(`has/capital-allocation.js`, `tests/capital-allocation.test.cjs`, `tests/fixtures/capital-allocation-nvda-synthetic.json`, `tests/lib/live-data-pins.json` 새 파일 등록). 시험 게이트 화면(지시서 4절)은 다음 단위.
 
 # 자본배분 비교 엔진 1단계 — 1단위(계산 엔진)
-작성: 클로 / 2026-11-13 07:30 KST (예약 정각 실행) · 브랜치 `work/claude-capital-allocation-20261113`
+작성: 클로 / 2026-11-13 07:15 KST (예약 정각 실행) · 브랜치 `work/claude-capital-allocation-20261113`
 
 ## 우선순위 확인
 400종목 곡소리 레이더는 미국 200 원본(순태씨 11-13 제공 예정) 대기 중 → 지시서 1절대로 **충돌 없는 독립 순수 계산 모듈**부터 진행. 레이더 파일·계약은 건드리지 않음. 앱 HTML·서비스워커·GAS 변경 0.
