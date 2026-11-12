@@ -1,9 +1,29 @@
 STATUS: READY_FOR_REVIEW
-ORDER-ID: GPT-20261112-1830
-BASE: 99ca515 (main a74ee54 병합 후)   HEAD: 689db5ba66d9d764103f0e307c3de49f5a8c84a8
-REVIEW-SCOPE: `has/universe-screen.js`(국내 핵심 개수 동적 계약·coreCount 400/401·출처 날짜 검사), `tests/universe-kr201-contract.test.cjs`(새 8건), `tests/universe-screen-synthetic400.test.cjs`(GAS 201 합성 1건 추가), `tests/universe-screen-ui-cache.test.cjs`(화면 401 표시 1건 추가 + 기존 1건 픽스처 날짜 보정), `tests/lib/live-data-pins.json`(해시 1줄). `portfolio_v5.html`·UI·HTML·GAS 파일 변경 없음.
+ORDER-ID: GPT-20261112-1930
+BASE: e1a223b (브랜치 783d6fe + main 7eb1015 병합)   HEAD: f73c80a0de1648351cd43edd4887d361cd664930
+REVIEW-SCOPE: `has/universe-screen-ui.js`(시험 게이트 세션 캐시 어댑터·load 순서·stats), `docs/team/UNIVERSE-SESSION-CACHE-DESIGN-20261112.md`(설계), 새 `tests/universe-screen-session-cache.test.cjs`(jsdom 12건), 새 `tests/universe-screen-session-browser.cjs`(Chromium), `tests/universe-screen-ui-cache.test.cjs`(정적 검사 1줄: sessionStorage 금지 → 게이트 뒤 1곳만 허용), `tests/lib/live-data-pins.json`(universe-screen-ui.js 해시). 병합 커밋 `e1a223b`는 main 로그인 개선 반영(핀 충돌 해소만). `portfolio_v5.html`·HTML·GAS·`universe-screen.js` 변경 없음.
 
-# #2 국내 201종목 동적 계약·오프라인 검증 (합성 시험 전용, 2026-11-12 19:00 KST)
+# 뒤로가기·새로고침 세션 캐시 — 시험 전용 (GPT-20261112-1930, 2026-11-12 20:10 KST)
+
+## 바꾼 것
+- `has/universe-screen-ui.js`: `window.HAS_SCREEN_TEST_SESSION_CACHE===true`일 때만 sessionStorage 키 `kst.has.screen.public.v1` 읽기·쓰기. 순서 = 메모리 → 세션 → GAS 1회(기존 inflight 합류). 저장은 공개 core 요약만(extras 1개라도 있으면 저장 안 함), 허용목록 투영, GAS 주소 대신 FNV-1a 지문, 1,000,000자 상한. 읽을 때 schema/version/KST 날짜/저장시각/지문/`validateSummary`/extras 검사 실패 → 키 삭제·새 조회. 저장소 예외·용량 초과 → 메모리 방식 후퇴. `stats().session` 카운터 추가. 운영 기본값은 게이트 없음 → 저장 0·자동 조회 0.
+- 설계 문서: `docs/team/UNIVERSE-SESSION-CACHE-DESIGN-20261112.md`(허용목록·무효화·후퇴·경로별 동작·파기).
+
+## 시험
+- jsdom 새 12건(400·401 각각, 위변조 13종, extras·투영·예외·합류·탭 격리·지문) 통과. 기존 ui-cache 9건 통과(정적 검사 1줄 조정).
+- 전체 `node --require ./tests/lib/no-network.cjs --test tests/*.test.cjs` → **2020 중 2018 통과 / 0 실패 / 2 skip**(기존 `TZ=America/New_York` DST 전용 2건). 직전 기준 2008/2006/0/2 + 새 12건. `node tools/scan-secrets.cjs` → findings 0.
+- Chromium `tests/universe-screen-session-browser.cjs` 360/390/430 × 게이트 켬/끔(390은 401 합성): 켬 = 첫 1회 후 새로고침·뒤로가기(back_forward 새 로드) 추가 요청 0, 끔 = 새로고침 2·뒤로가기 3(기존 동작), 새 탭은 공유 없이 1회, 키 1개·원문에 GAS 주소·원장 없음, 44px·12px·넘침·pageerror 0, 외부 요청 107 차단·실제 호출 0. 회귀: `universe-screen-auto-browser.cjs` 6경우, `universe-screen-browser.cjs` 4폭 통과.
+
+## 미완료·미검증
+- 실제 갤럭시(삼성 인터넷/Chrome) bfcache·탭 복원·저장 용량, 실제 GAS. 코스피200 201 공식 효력 기준일·재배포 권리, 미국 200 원본(11-13) — 보류 유지, 성공 주장 안 함.
+- 지문은 비밀 보호용이 아니라 주소 변경 감지용(32비트, 주소 원문 미저장이 목적).
+
+## 순태씨 결정 필요
+- 운영에서 세션 캐시를 켤지(게이트 기본 켬) — 지피 검토 후 별도 승인. 오늘은 결정 불필요.
+
+---
+
+# (이전 단위) #2 국내 201종목 동적 계약·오프라인 검증 (합성 시험 전용, 2026-11-12 19:00 KST)
 
 ## 바꾼 것 (`has/universe-screen.js`)
 | 항목 | 이전 | 이번 |
