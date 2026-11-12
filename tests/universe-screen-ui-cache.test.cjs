@@ -8,7 +8,9 @@ const GAS = 'https://script.google.com/macros/s/SYNTHETIC_TEST/exec';
 const T0 = Date.parse('2026-11-12T03:00:00Z'); // 12:00 KST 목요일
 
 function summary(now, opts = {}) {
-  const u = C.buildUniverse(S.input()), end = new Date(now - 86400000).toISOString().slice(0, 10);
+  const inp = S.input(); if (opts.sourceAsOf) for (const g of ['kospi200', 'nasdaq100', 'sp100', 'sp500']) inp[g].source = { ...inp[g].source, asOf: opts.sourceAsOf };
+  if (opts.kr201) inp.kospi200 = { ...inp.kospi200, members: inp.kospi200.members.concat([{ ticker: S.kr(200) }]), expectedConstituents: 201 };
+  const u = C.buildUniverse(inp), end = new Date(now - 86400000).toISOString().slice(0, 10);
   const rows = u.members.slice(0, opts.priced ?? 50).map((t, i) => C.summarize(t, S.record(t.ticker, t.market, end, i), null, new Date(now).toISOString()));
   return C.assemble(u, rows, { generation: 'synthetic-test-only-ui', generatedAt: new Date(now - 3600000).toISOString() });
 }
@@ -117,8 +119,8 @@ test('성공 후 오류: 지난 자료는 오래된 값으로 낮추고, 오류 
 
 test('캐시된 요약이 같은 날 만료되면 재사용하지 않고 새로 조회', async t => {
   let n = 0;
-  const p = page({ testAuto: true, clock: Date.parse('2026-11-12T00:30:00Z'), respond: (u, w) => { n++; w[u.searchParams.get('callback')](summary(n === 1 ? Date.parse('2026-11-10T02:00:00Z') : Date.parse('2026-11-12T03:30:00Z'))); } }); t.after(p.close);
-  await settle(20); // 첫 응답: 생성 46시간 전 → 아직 유효(2일 이내)
+  const p = page({ testAuto: true, clock: Date.parse('2026-11-12T00:30:00Z'), respond: (u, w) => { n++; w[u.searchParams.get('callback')]((n === 1 ? summary(Date.parse('2026-11-10T02:00:00Z'), { sourceAsOf: '2026-11-09' }) : summary(Date.parse('2026-11-12T03:30:00Z')))); } }); t.after(p.close);
+  await settle(20); // 첫 응답: 생성 46시간 전 → 아직 유효(2일 이내). 목록 기준일은 생성 전(11-09)이어야 함(GPT-20261112-1830 날짜 검사)
   assert.equal(p.requests.length, 1); assert.match(p.status(), /^합성 시험 자료/);
   p.tick(3 * 3600000); p.$('#refresh').click(); await settle(20); // 같은 KST 날짜, 2일 경과 → 만료
   assert.equal(p.requests.length, 2);
@@ -130,4 +132,13 @@ test('표시 건수는 응답 total 그대로(401 등 400 고정 주장 없음)'
   assert.doesNotMatch(html.replace(/<title>.*?<\/title>|<h1>.*?<\/h1>/g, ''), /정확히 400|400개 감시/);
   assert.doesNotMatch(ui, /localStorage\.setItem|sessionStorage|indexedDB/);
   assert.doesNotMatch(ui, /new Date\(\)\.toISOString\(\)\.slice\(0,10\)/, 'UTC 날짜 대신 KST 기준일 사용'); assert.match(ui, /function kstDay\(t\)\{return new Date\(t\+32400000\)/);
+});
+
+test('GPT-20261112-1830: 국내 201 합성 응답이면 화면 건수 401(국내 201 · 미국 200)을 응답 그대로 표시', async t => {
+  const p = page({ testAuto: true, respond: (u, w) => w[u.searchParams.get('callback')](summary(T0, { kr201: true })) }); t.after(p.close);
+  await settle(20);
+  assert.equal(p.requests.length, 1);
+  assert.match(p.$('#count').textContent, /감시 대상 401종목 \(국내 201 · 미국 200\) — 요약 응답 기준/);
+  assert.match(p.status(), /^합성 시험 자료.*대상 401.*매수 검토 후보 없음\(판단 보류\)$/);
+  assert.equal(p.writes, 0);
 });

@@ -169,3 +169,13 @@ test('type=screen draft does not collide with existing GAS history code (no doGe
   assert(!/UrlFetchApp|ScriptApp\.newTrigger|setProperty\(\s*['"](?!HAS_SCREEN)/.test(fs.readFileSync('gas/has-universe-screen.gs', 'utf8')));
   assert(!/type\s*===?\s*['"]screen/.test(fs.readFileSync('gas/has-history-request.gs', 'utf8')));
 });
+
+test('GPT-20261112-1830: 국내 201 합성 픽스처(총 401)도 GAS 초안이 34묶음으로 끝까지 계산·공개 검사 통과 (실가동 아님)', () => {
+  const x = S.input(); x.kospi200 = { ...x.kospi200, members: x.kospi200.members.concat([{ ticker: S.kr(200) }]), expectedConstituents: 201 };
+  const u = C.buildUniverse(x), e = gas(); e.c.hasScreenStart_(u); const r = runAll(e);
+  assert.equal(r.status, 'published'); assert.equal(r.done, 401); const stock = e.calls.filter(c => c !== '069500' && c !== 'SPY'); assert(stock.every(c => c.split(',').length <= 12)); assert.equal(stock.length, 34);
+  const s = body(respond(e)); assert.equal(s.coreCount, 401); assert.equal(s.total, 401); assert.equal(s.items.filter(i => i.market === 'KR').length, 201);
+  assert.deepEqual(s.buyCandidates, []); assert(s.items.every(i => i.opinion === '판단 보류' && i.scope === 'core'));
+  // 개인 추가 감시(extras)는 공개 GAS로 보내지 않음(기존 규칙 유지)
+  assert.throws(() => gas().c.hasScreenStart_(C.buildUniverse(x, [{ market: 'US', ticker: 'ZXTRA' }])), /private-extras/);
+});
