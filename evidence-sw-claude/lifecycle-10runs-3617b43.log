@@ -1,0 +1,380 @@
+SYNTHETIC_LIFECYCLE_RUN 1/10
+{
+  "status": "PASS",
+  "scope": "synthetic two-asset lifecycle, not actual app startup",
+  "repeatedIdenticalUpdates": 3,
+  "sameReleaseReinstall": {
+    "inspection": {
+      "revision": 1,
+      "events": [
+        "install-start",
+        "install-resolved-after-verify"
+      ]
+    },
+    "requests": [
+      "/app/service-worker.js"
+    ]
+  },
+  "completeSnapshot": {
+    "ready": true,
+    "name": "has-generation-v1:http%3A%2F%2F127.0.0.1%3A40611%2Fapp%2F:02b320451c54d271675017f2691026f78d7be69238aed9ab0f4c420abb5a9743",
+    "keys": [
+      "http://127.0.0.1:40611/app/__has_generation_asset__/02b320451c54d271675017f2691026f78d7be69238aed9ab0f4c420abb5a9743/portfolio_v5.html",
+      "http://127.0.0.1:40611/app/__has_generation_asset__/02b320451c54d271675017f2691026f78d7be69238aed9ab0f4c420abb5a9743/app.js",
+      "http://127.0.0.1:40611/app/__has_generation_complete__/02b320451c54d271675017f2691026f78d7be69238aed9ab0f4c420abb5a9743"
+    ],
+    "marked": true,
+    "waiting": "installed"
+  },
+  "checks": [
+    "legacy controller retained while waiting",
+    "waiting cache original-URL isolation",
+    "activation after controlled tabs close",
+    "offline pinned assets",
+    "unrelated cache preserved",
+    "partial loss rejects offline/wrong bytes and repairs exact bytes",
+    "no claim on first install"
+  ]
+}
+SYNTHETIC_LIFECYCLE_RUN 2/10
+{
+  "status": "PASS",
+  "scope": "synthetic two-asset lifecycle, not actual app startup",
+  "repeatedIdenticalUpdates": 3,
+  "sameReleaseReinstall": {
+    "inspection": {
+      "revision": 1,
+      "events": [
+        "install-start",
+        "install-resolved-after-verify"
+      ]
+    },
+    "requests": [
+      "/app/service-worker.js"
+    ]
+  },
+  "completeSnapshot": {
+    "ready": true,
+    "name": "has-generation-v1:http%3A%2F%2F127.0.0.1%3A41719%2Fapp%2F:02b320451c54d271675017f2691026f78d7be69238aed9ab0f4c420abb5a9743",
+    "keys": [
+      "http://127.0.0.1:41719/app/__has_generation_asset__/02b320451c54d271675017f2691026f78d7be69238aed9ab0f4c420abb5a9743/portfolio_v5.html",
+      "http://127.0.0.1:41719/app/__has_generation_asset__/02b320451c54d271675017f2691026f78d7be69238aed9ab0f4c420abb5a9743/app.js",
+      "http://127.0.0.1:41719/app/__has_generation_complete__/02b320451c54d271675017f2691026f78d7be69238aed9ab0f4c420abb5a9743"
+    ],
+    "marked": true,
+    "waiting": "installed"
+  },
+  "checks": [
+    "legacy controller retained while waiting",
+    "waiting cache original-URL isolation",
+    "activation after controlled tabs close",
+    "offline pinned assets",
+    "unrelated cache preserved",
+    "partial loss rejects offline/wrong bytes and repairs exact bytes",
+    "no claim on first install"
+  ]
+}
+SYNTHETIC_LIFECYCLE_RUN 3/10
+{
+  "status": "PASS",
+  "scope": "synthetic two-asset lifecycle, not actual app startup",
+  "repeatedIdenticalUpdates": 3,
+  "sameReleaseReinstall": {
+    "inspection": {
+      "revision": 1,
+      "events": [
+        "install-start",
+        "install-resolved-after-verify"
+      ]
+    },
+    "requests": [
+      "/app/service-worker.js"
+    ]
+  },
+  "completeSnapshot": {
+    "ready": true,
+    "name": "has-generation-v1:http%3A%2F%2F127.0.0.1%3A38239%2Fapp%2F:02b320451c54d271675017f2691026f78d7be69238aed9ab0f4c420abb5a9743",
+    "keys": [
+      "http://127.0.0.1:38239/app/__has_generation_asset__/02b320451c54d271675017f2691026f78d7be69238aed9ab0f4c420abb5a9743/portfolio_v5.html",
+      "http://127.0.0.1:38239/app/__has_generation_asset__/02b320451c54d271675017f2691026f78d7be69238aed9ab0f4c420abb5a9743/app.js",
+      "http://127.0.0.1:38239/app/__has_generation_complete__/02b320451c54d271675017f2691026f78d7be69238aed9ab0f4c420abb5a9743"
+    ],
+    "marked": true,
+    "waiting": "installed"
+  },
+  "checks": [
+    "legacy controller retained while waiting",
+    "waiting cache original-URL isolation",
+    "activation after controlled tabs close",
+    "offline pinned assets",
+    "unrelated cache preserved",
+    "partial loss rejects offline/wrong bytes and repairs exact bytes",
+    "no claim on first install"
+  ]
+}
+SYNTHETIC_LIFECYCLE_RUN 4/10
+{
+  "status": "PASS",
+  "scope": "synthetic two-asset lifecycle, not actual app startup",
+  "repeatedIdenticalUpdates": 3,
+  "sameReleaseReinstall": {
+    "inspection": {
+      "revision": 1,
+      "events": [
+        "install-start",
+        "install-resolved-after-verify"
+      ]
+    },
+    "requests": [
+      "/app/service-worker.js"
+    ]
+  },
+  "completeSnapshot": {
+    "ready": true,
+    "name": "has-generation-v1:http%3A%2F%2F127.0.0.1%3A46309%2Fapp%2F:02b320451c54d271675017f2691026f78d7be69238aed9ab0f4c420abb5a9743",
+    "keys": [
+      "http://127.0.0.1:46309/app/__has_generation_asset__/02b320451c54d271675017f2691026f78d7be69238aed9ab0f4c420abb5a9743/portfolio_v5.html",
+      "http://127.0.0.1:46309/app/__has_generation_asset__/02b320451c54d271675017f2691026f78d7be69238aed9ab0f4c420abb5a9743/app.js",
+      "http://127.0.0.1:46309/app/__has_generation_complete__/02b320451c54d271675017f2691026f78d7be69238aed9ab0f4c420abb5a9743"
+    ],
+    "marked": true,
+    "waiting": "installed"
+  },
+  "checks": [
+    "legacy controller retained while waiting",
+    "waiting cache original-URL isolation",
+    "activation after controlled tabs close",
+    "offline pinned assets",
+    "unrelated cache preserved",
+    "partial loss rejects offline/wrong bytes and repairs exact bytes",
+    "no claim on first install"
+  ]
+}
+SYNTHETIC_LIFECYCLE_RUN 5/10
+{
+  "status": "PASS",
+  "scope": "synthetic two-asset lifecycle, not actual app startup",
+  "repeatedIdenticalUpdates": 3,
+  "sameReleaseReinstall": {
+    "inspection": {
+      "revision": 1,
+      "events": [
+        "install-start",
+        "install-resolved-after-verify"
+      ]
+    },
+    "requests": [
+      "/app/service-worker.js"
+    ]
+  },
+  "completeSnapshot": {
+    "ready": true,
+    "name": "has-generation-v1:http%3A%2F%2F127.0.0.1%3A43121%2Fapp%2F:02b320451c54d271675017f2691026f78d7be69238aed9ab0f4c420abb5a9743",
+    "keys": [
+      "http://127.0.0.1:43121/app/__has_generation_asset__/02b320451c54d271675017f2691026f78d7be69238aed9ab0f4c420abb5a9743/portfolio_v5.html",
+      "http://127.0.0.1:43121/app/__has_generation_asset__/02b320451c54d271675017f2691026f78d7be69238aed9ab0f4c420abb5a9743/app.js",
+      "http://127.0.0.1:43121/app/__has_generation_complete__/02b320451c54d271675017f2691026f78d7be69238aed9ab0f4c420abb5a9743"
+    ],
+    "marked": true,
+    "waiting": "installed"
+  },
+  "checks": [
+    "legacy controller retained while waiting",
+    "waiting cache original-URL isolation",
+    "activation after controlled tabs close",
+    "offline pinned assets",
+    "unrelated cache preserved",
+    "partial loss rejects offline/wrong bytes and repairs exact bytes",
+    "no claim on first install"
+  ]
+}
+SYNTHETIC_LIFECYCLE_RUN 6/10
+{
+  "status": "PASS",
+  "scope": "synthetic two-asset lifecycle, not actual app startup",
+  "repeatedIdenticalUpdates": 3,
+  "sameReleaseReinstall": {
+    "inspection": {
+      "revision": 1,
+      "events": [
+        "install-start",
+        "install-resolved-after-verify"
+      ]
+    },
+    "requests": [
+      "/app/service-worker.js"
+    ]
+  },
+  "completeSnapshot": {
+    "ready": true,
+    "name": "has-generation-v1:http%3A%2F%2F127.0.0.1%3A38649%2Fapp%2F:02b320451c54d271675017f2691026f78d7be69238aed9ab0f4c420abb5a9743",
+    "keys": [
+      "http://127.0.0.1:38649/app/__has_generation_asset__/02b320451c54d271675017f2691026f78d7be69238aed9ab0f4c420abb5a9743/portfolio_v5.html",
+      "http://127.0.0.1:38649/app/__has_generation_asset__/02b320451c54d271675017f2691026f78d7be69238aed9ab0f4c420abb5a9743/app.js",
+      "http://127.0.0.1:38649/app/__has_generation_complete__/02b320451c54d271675017f2691026f78d7be69238aed9ab0f4c420abb5a9743"
+    ],
+    "marked": true,
+    "waiting": "installed"
+  },
+  "checks": [
+    "legacy controller retained while waiting",
+    "waiting cache original-URL isolation",
+    "activation after controlled tabs close",
+    "offline pinned assets",
+    "unrelated cache preserved",
+    "partial loss rejects offline/wrong bytes and repairs exact bytes",
+    "no claim on first install"
+  ]
+}
+SYNTHETIC_LIFECYCLE_RUN 7/10
+{
+  "status": "PASS",
+  "scope": "synthetic two-asset lifecycle, not actual app startup",
+  "repeatedIdenticalUpdates": 3,
+  "sameReleaseReinstall": {
+    "inspection": {
+      "revision": 1,
+      "events": [
+        "install-start",
+        "install-resolved-after-verify"
+      ]
+    },
+    "requests": [
+      "/app/service-worker.js"
+    ]
+  },
+  "completeSnapshot": {
+    "ready": true,
+    "name": "has-generation-v1:http%3A%2F%2F127.0.0.1%3A33391%2Fapp%2F:02b320451c54d271675017f2691026f78d7be69238aed9ab0f4c420abb5a9743",
+    "keys": [
+      "http://127.0.0.1:33391/app/__has_generation_asset__/02b320451c54d271675017f2691026f78d7be69238aed9ab0f4c420abb5a9743/portfolio_v5.html",
+      "http://127.0.0.1:33391/app/__has_generation_asset__/02b320451c54d271675017f2691026f78d7be69238aed9ab0f4c420abb5a9743/app.js",
+      "http://127.0.0.1:33391/app/__has_generation_complete__/02b320451c54d271675017f2691026f78d7be69238aed9ab0f4c420abb5a9743"
+    ],
+    "marked": true,
+    "waiting": "installed"
+  },
+  "checks": [
+    "legacy controller retained while waiting",
+    "waiting cache original-URL isolation",
+    "activation after controlled tabs close",
+    "offline pinned assets",
+    "unrelated cache preserved",
+    "partial loss rejects offline/wrong bytes and repairs exact bytes",
+    "no claim on first install"
+  ]
+}
+SYNTHETIC_LIFECYCLE_RUN 8/10
+{
+  "status": "PASS",
+  "scope": "synthetic two-asset lifecycle, not actual app startup",
+  "repeatedIdenticalUpdates": 3,
+  "sameReleaseReinstall": {
+    "inspection": {
+      "revision": 1,
+      "events": [
+        "install-start",
+        "install-resolved-after-verify"
+      ]
+    },
+    "requests": [
+      "/app/service-worker.js"
+    ]
+  },
+  "completeSnapshot": {
+    "ready": true,
+    "name": "has-generation-v1:http%3A%2F%2F127.0.0.1%3A42215%2Fapp%2F:02b320451c54d271675017f2691026f78d7be69238aed9ab0f4c420abb5a9743",
+    "keys": [
+      "http://127.0.0.1:42215/app/__has_generation_asset__/02b320451c54d271675017f2691026f78d7be69238aed9ab0f4c420abb5a9743/portfolio_v5.html",
+      "http://127.0.0.1:42215/app/__has_generation_asset__/02b320451c54d271675017f2691026f78d7be69238aed9ab0f4c420abb5a9743/app.js",
+      "http://127.0.0.1:42215/app/__has_generation_complete__/02b320451c54d271675017f2691026f78d7be69238aed9ab0f4c420abb5a9743"
+    ],
+    "marked": true,
+    "waiting": "installed"
+  },
+  "checks": [
+    "legacy controller retained while waiting",
+    "waiting cache original-URL isolation",
+    "activation after controlled tabs close",
+    "offline pinned assets",
+    "unrelated cache preserved",
+    "partial loss rejects offline/wrong bytes and repairs exact bytes",
+    "no claim on first install"
+  ]
+}
+SYNTHETIC_LIFECYCLE_RUN 9/10
+{
+  "status": "PASS",
+  "scope": "synthetic two-asset lifecycle, not actual app startup",
+  "repeatedIdenticalUpdates": 3,
+  "sameReleaseReinstall": {
+    "inspection": {
+      "revision": 1,
+      "events": [
+        "install-start",
+        "install-resolved-after-verify"
+      ]
+    },
+    "requests": [
+      "/app/service-worker.js"
+    ]
+  },
+  "completeSnapshot": {
+    "ready": true,
+    "name": "has-generation-v1:http%3A%2F%2F127.0.0.1%3A41531%2Fapp%2F:02b320451c54d271675017f2691026f78d7be69238aed9ab0f4c420abb5a9743",
+    "keys": [
+      "http://127.0.0.1:41531/app/__has_generation_asset__/02b320451c54d271675017f2691026f78d7be69238aed9ab0f4c420abb5a9743/portfolio_v5.html",
+      "http://127.0.0.1:41531/app/__has_generation_asset__/02b320451c54d271675017f2691026f78d7be69238aed9ab0f4c420abb5a9743/app.js",
+      "http://127.0.0.1:41531/app/__has_generation_complete__/02b320451c54d271675017f2691026f78d7be69238aed9ab0f4c420abb5a9743"
+    ],
+    "marked": true,
+    "waiting": "installed"
+  },
+  "checks": [
+    "legacy controller retained while waiting",
+    "waiting cache original-URL isolation",
+    "activation after controlled tabs close",
+    "offline pinned assets",
+    "unrelated cache preserved",
+    "partial loss rejects offline/wrong bytes and repairs exact bytes",
+    "no claim on first install"
+  ]
+}
+SYNTHETIC_LIFECYCLE_RUN 10/10
+{
+  "status": "PASS",
+  "scope": "synthetic two-asset lifecycle, not actual app startup",
+  "repeatedIdenticalUpdates": 3,
+  "sameReleaseReinstall": {
+    "inspection": {
+      "revision": 1,
+      "events": [
+        "install-start",
+        "install-resolved-after-verify"
+      ]
+    },
+    "requests": [
+      "/app/service-worker.js"
+    ]
+  },
+  "completeSnapshot": {
+    "ready": true,
+    "name": "has-generation-v1:http%3A%2F%2F127.0.0.1%3A46337%2Fapp%2F:02b320451c54d271675017f2691026f78d7be69238aed9ab0f4c420abb5a9743",
+    "keys": [
+      "http://127.0.0.1:46337/app/__has_generation_asset__/02b320451c54d271675017f2691026f78d7be69238aed9ab0f4c420abb5a9743/portfolio_v5.html",
+      "http://127.0.0.1:46337/app/__has_generation_asset__/02b320451c54d271675017f2691026f78d7be69238aed9ab0f4c420abb5a9743/app.js",
+      "http://127.0.0.1:46337/app/__has_generation_complete__/02b320451c54d271675017f2691026f78d7be69238aed9ab0f4c420abb5a9743"
+    ],
+    "marked": true,
+    "waiting": "installed"
+  },
+  "checks": [
+    "legacy controller retained while waiting",
+    "waiting cache original-URL isolation",
+    "activation after controlled tabs close",
+    "offline pinned assets",
+    "unrelated cache preserved",
+    "partial loss rejects offline/wrong bytes and repairs exact bytes",
+    "no claim on first install"
+  ]
+}
