@@ -1,0 +1,26 @@
+✔ daily repair reverses enumerated reviewed edits to exact remote baseline bytes (127.990315ms)
+✔ portable proof needs neither Git executable nor local commit refs (81.152087ms)
+✔ only approved v2 benchmark sidecar storage key is added, never credentials (45.968565ms)
+✔ endpoint occurrences match exact reviewed changes and no KIS live path is activated (52.889843ms)
+✔ analysis pure modules cannot read storage, call providers or submit orders (0.636871ms)
+✔ main and synthetic rehearsal load policy dependencies before backup exactly once (1.59622ms)
+✔ UI isolated empty and error paths, market navigation, no ledger writes or automatic fetch (68.535727ms)
+✔ summary must not accept malicious periods or malformed source or core composition (1.314965ms)
+✔ compressed chunk store roundtrip and unrelated properties remain unchanged (6.807176ms)
+✔ partial write preserves previous publication; cleanup removes only owned orphans (2.434945ms)
+✔ corrupt missing chunk cannot return partial success (2.522929ms)
+✔ expired partial run restart retains old PUBLIC (3.163796ms)
+✔ 400 core + extras; no duplicates; bounded market-only chunks (9.071484ms)
+✔ incomplete and ambiguous provenance cannot fake a complete list (4.1731ms)
+✔ market-cap fill deterministic and extra duplicates deduplicated (1.731423ms)
+✔ partial is explicit; no financial recommendation; 12m unavailable (21.498354ms)
+✔ future, stale, count tampering, duplicate and buy recommendations rejected (7.766054ms)
+✔ input snapshots not mutated and raw holdings never read (5.573904ms)
+ℹ tests 18
+ℹ suites 0
+ℹ pass 18
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 549.578712

@@ -60,6 +60,7 @@
     add(root,banner,select('데이터 모드',[['real','실제 데이터 · 미연결'],['demo','데모 · 가상 데이터']],mode,switchMode,'kr-mode'));
     const nav=$('nav',null,'kr-actions');nav.setAttribute('aria-label','레이더 화면');
     for(const [v,t] of [['list','후보 목록'],['criteria','감시 기준'],['status','데이터 상태']]){const b=button(t,()=>navigate(v),view===v?'kr-primary':'');b.setAttribute('aria-current',String(view===v));nav.append(b);}
+    const screen=$('a','400종목 가격 선별');screen.href='./has/universe-screen.html';screen.style.minHeight='44px';nav.append(screen);
     const sell=$('a','환호성 매도 레이더 · 합성 연구');sell.href='./sell/index.html';sell.style.minHeight='44px';sell.style.display='inline-flex';sell.style.alignItems='center';nav.append(sell);
     add(root,nav);
     const m=$('div',error,'kr-status');m.id='kr-message';m.setAttribute('role',error?'alert':'status');m.setAttribute('aria-live','polite');if(!error)m.hidden=true;add(root,m);

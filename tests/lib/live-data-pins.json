@@ -6,11 +6,15 @@
   },
   "currentSha256": {
     "portfolio_v5.html": "6cd0a89170db58261fc64979218052428708c6545cac4576bbcd7d42a7922cd8",
-    "radar/ui.js": "57b3d2364a6612f9133190dda68bec4a4acc43bb5979d89823be20edfeaf3052",
+    "radar/ui.js": "6c2b07c2d0c78d6452d1a00ea9e79862df6c84a9d9dc4da65aa8f2bcde12a133",
     "has/advisor-panel.js": "2da44530135fe29fc9cd630ddad49ec18c68f3314b53133e94829e1aef1689b7"
   },
   "addedRuntimeFiles": {
     "has/live-price-reference.js": "74ec48bfd7b9fe121eeccb1fe4849289ca2e8dd0cd18f38462c83bded92c2cb1",
-    "has/live-price-panel.js": "be25d2c7ecf19b9db69bb0913ddf9a07a0765944870546dc38a922974f72e65d"
+    "has/live-price-panel.js": "be25d2c7ecf19b9db69bb0913ddf9a07a0765944870546dc38a922974f72e65d",
+    "has/universe-screen.js": "a8c2d4ae5cd6ea9e6487af562168dfefc297697d11b3bc59fe0e6fb6f3a834e9",
+    "has/universe-screen.html": "b797a245a9341c0254721e9282ab68415f2a019e8d39cd6f2dd7382a671f8889",
+    "has/universe-screen-ui.js": "c03238aeba269797d1c039c0a284b40f03b4e21465b2b96103af206402fe2a8f",
+    "gas/has-universe-screen.gs": "9ee9fa75b6e4c8d151ae466667a75189e59c0d086a1e294830edb3391d100543"
   }
 }

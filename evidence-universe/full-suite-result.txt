@@ -1,0 +1,35 @@
+✔ 위험 우선·금융/고성장 별도 검사 (0.297589ms)
+✔ 수동 검토 배치: 버전 확인·원본 불변·확인된 1개만 변경 (0.882332ms)
+✔ 버전 충돌·중복/목록 밖 변경 거절 (1.365622ms)
+✔ 검증 기록 누락·중복·버전 불일치 및 무근거 활성/제외 차단 (0.889603ms)
+✔ 오래된 시총/상장 원자료를 오늘 확인했다고 활성·제외하지 않음 (1.834219ms)
+ℹ tests 1973
+ℹ suites 0
+ℹ pass 1970
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 2
+ℹ todo 0
+ℹ duration_ms 37874.89401
+
+✖ failing tests:
+
+test at tests/network-guard-stage19.test.cjs:6:1
+✖ 차단 장치: 외부 호스트로의 http·fetch·dns·tls는 예외(NO_EXTERNAL_NETWORK), 기록됨 (7.031635ms)
+  AssertionError [ERR_ASSERTION]: Missing expected exception.
+      at TestContext.<anonymous> (/workspace/scratch/a69a663b2cde/has-universe-20261112/tests/network-guard-stage19.test.cjs:8:5)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    operator: 'throws',
+    diff: 'simple'
+  }
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.2
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.2
+npm notice To update run: npm install -g npm@12.2.2
+npm notice
