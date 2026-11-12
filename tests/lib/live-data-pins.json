@@ -10,7 +10,7 @@
     "has/advisor-panel.js": "2da44530135fe29fc9cd630ddad49ec18c68f3314b53133e94829e1aef1689b7"
   },
   "addedRuntimeFiles": {
-    "has/live-price-reference.js": "7c4de690b1e85186029b8f4e473b7228dc87ec36e0a055c4300abd396c8930aa",
-    "has/live-price-panel.js": "1645d157dd74cc016afdab0b44c5a95b1e6807a9367a0f4f478068b669889c05"
+    "has/live-price-reference.js": "74ec48bfd7b9fe121eeccb1fe4849289ca2e8dd0cd18f38462c83bded92c2cb1",
+    "has/live-price-panel.js": "be25d2c7ecf19b9db69bb0913ddf9a07a0765944870546dc38a922974f72e65d"
   }
 }

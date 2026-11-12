@@ -51,7 +51,7 @@
     service.load(input.targets).then(function(result) {
       if(run!==sequence)return;
       if(inputs().signature!==input.signature || W.gasUrl!==value) {snapshot=null;error='보유종목 또는 GAS 설정이 변경되었습니다. 다시 확인해 주세요.';return;}
-      snapshot=result; if(!result.ok) error=result.error ? '조회 요청 또는 설정을 확인해 주세요 · ' + result.error : '일부 종목 조회 실패 · 지난 성공값 또는 자료 부족 상태를 표시합니다.';
+      snapshot=result; if(!result.ok) error=result.error==='unsupported-symbols'?'일부 항목은 시세 조회 미지원 · 지원 종목 결과는 아래에 표시합니다.':(result.error ? '조회 요청 또는 설정을 확인해 주세요 · ' + result.error : '일부 종목 조회 실패 · 지난 성공값 또는 자료 부족 상태를 표시합니다.');
     }).catch(function(){ if(run===sequence) error='조회 실패 · 마지막 성공값이 있으면 기준일과 함께 표시합니다.'; }).finally(function(){if(run===sequence){busy=false;renderAll();}});
   }
   function render(entry) {
@@ -66,6 +66,7 @@
       var key=t.market+':'+t.ticker, card=node('article'), data=findRecord(snapshot,t), benchmark=findRecord(snapshot,{ticker:t.market==='KR'?'069500':'QQQ',market:t.market}), r=null;
       if(data&&W.HASLivePriceReference) { try {r=W.HASLivePriceReference.analyze(data.record || data,{ticker:t.ticker,market:t.market,now:Date.now(),benchmark:benchmark && {record:benchmark.record,ticker:benchmark.ticker,market:benchmark.market}});} catch(e){} }
       card.appendChild(node('h4',(info.names[key]||t.ticker)+' ('+t.ticker+')'));
+      if(data&&data.status==='unsupported'){card.appendChild(node('p','시세 조회 미지원 항목 · 다른 지원 종목은 계속 조회합니다.'));root.appendChild(card);return;}
       if(!r||!r.ok){card.appendChild(node('p','가격 근거 없음 · 판단 보류'));root.appendChild(card);return;}
       var evidence=node('details');evidence.appendChild(node('summary','기간 수익률·계산 근거'));
       evidence.appendChild(node('p','고점 실제 시각 미확인 · 공급자 최근 거래시각 '+(r.high52MetadataAsOf||'미확인')+' · 직전 관측가격과의 참고 비교')); 
