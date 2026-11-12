@@ -4,7 +4,8 @@
 목표: HAS를 갤럭시에서 쓰는 능동형 AI 투자참모로 완성. 순태씨에게는 **승인 요청과 의미 있는 성과만** 보고.
 
 ## 0. 시작 전 반드시 읽을 것 (지피·클로 공통)
-1. `docs/team/README-CLAUDE-REPORTS.md` "최신"
+1. **`docs/team/CLAUDE-LATEST.md` (main) — 클로 최신 결과 위치·상태·HEAD. 지피는 여기부터.**
+1-1. `docs/team/README-CLAUDE-REPORTS.md` "최신"
 2. 이 문서
 3. `docs/team/CLAUDE-WORKLOG.md` (진행 중 작업·처리한 지시서 목록)
 4. 현재 작업 요청서: `docs/team/UNIVERSE-SCREEN-REQUEST-20261112.md` (400종목 곡소리), 다비 마지막 문서 `HAS-DAVI-REVIEW-TO-CLAUDE-20261112.md`(브랜치 `docs/davi-has-review-20261112`)
@@ -36,6 +37,7 @@
   BASE: <main SHA>   HEAD: <브랜치 SHA>
   ```
   변경 파일, 시험 결과(전체 시험 통과/실패 수, Chromium 360/390/430), 미완료·미검증 항목, 순태씨 결정 필요 사항.
+- **완료 단위마다** READY_FOR_REVIEW로 올린다(묶음 전체 완료를 기다리지 않음). 완료 보고서 사본을 main `docs/team/`에도 두고, `CLAUDE-LATEST.md`를 갱신한다(지피가 브랜치를 못 찾는 일 방지).
 - 일지(`CLAUDE-WORKLOG.md`)는 main에 문서만 커밋.
 - 새 지시서가 없으면 일지의 승인된 다음 작업을 이어가거나 대기. 무의미한 작업을 만들지 않는다.
 
