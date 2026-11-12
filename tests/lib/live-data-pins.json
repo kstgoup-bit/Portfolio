@@ -2,12 +2,14 @@
   "baselineSha256": {
     "portfolio_v5.html": "0dd5de8bded788c5a8d2c284f3e9f6654f6191b8c0ff1cf45bd844a16886acd4",
     "radar/ui.js": "71a5a3c181aed3515d4c3021bd90edd0067073c4179264050a87ed0f5fa04f38",
-    "has/advisor-panel.js": "c9d69ae277313b7d0939bc6371e2b190ff8725f6d369417ca4298591a824a2dd"
+    "has/advisor-panel.js": "c9d69ae277313b7d0939bc6371e2b190ff8725f6d369417ca4298591a824a2dd",
+    "service-worker.js": "77d553efcfc3eb93f65a1f2901de1cf3b6b61b36febd9605053e66db6724dcd8"
   },
   "currentSha256": {
     "portfolio_v5.html": "f1478d6ec1108fdc9a8d0c8b313ef347a70e681a816f4a05f4928b283ea2bca1",
     "radar/ui.js": "57b3d2364a6612f9133190dda68bec4a4acc43bb5979d89823be20edfeaf3052",
-    "has/advisor-panel.js": "2da44530135fe29fc9cd630ddad49ec18c68f3314b53133e94829e1aef1689b7"
+    "has/advisor-panel.js": "2da44530135fe29fc9cd630ddad49ec18c68f3314b53133e94829e1aef1689b7",
+    "service-worker.js": "bd7c5a33f7070bf8e4791fedb5cbfc4572741076023efb1090e838d8041c7b72"
   },
   "addedRuntimeFiles": {
     "has/live-price-reference.js": "74ec48bfd7b9fe121eeccb1fe4849289ca2e8dd0cd18f38462c83bded92c2cb1",

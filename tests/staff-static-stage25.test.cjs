@@ -20,6 +20,6 @@ test('앱 수정은 추가뿐: 24단계 문구로 되돌리면 24단계 커밋 �
 test('매니페스트·서비스워커는 과거 단계와 동일하며 백업 보완은 별도 고정 핀 시험', () => {
   for (const f of ['manifest.json', 'service-worker.js']) {
     let b; try { b = cp.execSync('git show 3b2e65c:' + f, { cwd: ROOT, stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 1 << 28 }); } catch (e) { continue; }
-    a.equal(crypto.createHash('sha256').update(fs.readFileSync(path.join(ROOT, f))).digest('hex'), crypto.createHash('sha256').update(b).digest('hex'), f);
+    a.equal(crypto.createHash('sha256').update(require('./lib/live-data-projection.cjs').beforeLiveDataBytes(f)).digest('hex'), crypto.createHash('sha256').update(b).digest('hex'), f); // 2026-11-12 서비스워커 속도 개선은 검토된 역방향 쌍으로만 허용
   }
 });
