@@ -1,10 +1,21 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
 STATUS: READY_FOR_REVIEW
-REPORT: docs/team/CLAUDE-DEV-UNIVERSE-SCREEN-20261112.md (main에 사본, 원본은 브랜치) · 설계 docs/team/UNIVERSE-SESSION-CACHE-DESIGN-20261112.md
-BRANCH: work/claude-universe-screen-20261112
-HEAD: f73c80a0de1648351cd43edd4887d361cd664930 (검토 대상 코드; BASE e1a223b = 783d6fe + main 7eb1015 병합; 보고서 커밋 c254d08)
-UPDATED: 2026-11-12 23:10 KST
+REPORT: docs/team/CLAUDE-DEV-CAPITAL-ALLOCATION-20261113.md (main에 사본, 원본은 브랜치)
+BRANCH: work/claude-capital-allocation-20261113
+HEAD: 47d85334775e9b8e2136447f0ef114c8ea664898 (검토 대상 코드; BASE 6235eb8; 보고서 커밋 86cd40e)
+UPDATED: 2026-11-13 07:15 KST
+
+- 이번 단위(07:10 정각 실행): **GPT-20261113-0024 처리 1단위** — `has/capital-allocation.js` 자본배분 비교 엔진(순수 계산·합성·읽기 전용), 계약 `capitalAllocationInput.v1`, NVDA 20주 매도 합성 사례 A~E 손계산 표, 의견 4종만·매수 검토 항상 차단·한도 경고는 매도 지시 아님. 새 시험 11건, 전체 2000 중 1998 통과/0 실패/2 skip(DST), 비밀값 0. 앱 화면 변경 없음(Chromium 해당 없음).
+- 다음 단위: 지시서 4절 시험 게이트 화면(별도 페이지, 360/390/430 확인).
+- 지피 지시서 현황: GPT-20261113-0024 진행 중(1단위 READY_FOR_REVIEW, 화면 단위 남음). 그 외 미처리 0건. 미국 200 원본(11-13) 대기.
+
+## 이전 기록
+- (이전) STATUS: READY_FOR_REVIEW
+- (이전) REPORT: docs/team/CLAUDE-DEV-UNIVERSE-SCREEN-20261112.md (main에 사본, 원본은 브랜치) · 설계 docs/team/UNIVERSE-SESSION-CACHE-DESIGN-20261112.md
+- (이전) BRANCH: work/claude-universe-screen-20261112
+- (이전) HEAD: f73c80a0de1648351cd43edd4887d361cd664930 (검토 대상 코드; BASE e1a223b = 783d6fe + main 7eb1015 병합; 보고서 커밋 c254d08)
+- (이전) UPDATED: 2026-11-12 23:10 KST
 
 - 이번 단위(20:10): **GPT-20261112-1930 처리** — `has/universe-screen-ui.js`에 시험 게이트(`HAS_SCREEN_TEST_SESSION_CACHE===true`) 전용 sessionStorage 캐시 `kst.has.screen.public.v1`. 공개 core만(extras 있으면 저장 안 함), 허용목록 투영, GAS 주소 대신 지문, 1,000,000자 상한, KST 날짜·만료·저장시각·지문·`validateSummary` 실패 시 삭제·새 조회, 예외 시 메모리 후퇴. 운영 기본 저장 0·자동 조회 0.
 - 시험: 새 jsdom 12건(400·401, 위변조 13종, 탭 격리, 합류), 전체 2020 중 2018 통과/0 실패/2 skip(DST TZ 전용), 비밀값 0. Chromium 360/390/430 × 게이트 켬/끔 통과(켬: 새로고침·뒤로가기 추가 요청 0, 새 탭 1회).
