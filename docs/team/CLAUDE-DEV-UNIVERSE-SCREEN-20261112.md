@@ -1,6 +1,10 @@
-STATUS: WIP
-ORDER-ID: (없음 — 일지 승인 작업 #1~5, 다비 제출 719692c 이어받기)
-BASE: main 4a9133f   HEAD: (이 문서를 포함한 보완 0b 커밋 — 일지 기록 참고)
+STATUS: READY_FOR_REVIEW
+ORDER-ID: (없음 — 일지 승인 작업, 다비 제출 719692c 이어받기)
+BASE: main 4a9133f   HEAD: 1db85974e66a8dec3c3ff8d93fc2fa9ceb789104
+REVIEW-SCOPE: 다비 제출 이어받기 + 보완 0b (아래 1~6). 공식 400종목 목록(#1)·GAS 설치는 아직 미완료이므로 이번 검토 범위 밖.
+
+> 15:25 지피 요청으로 상태 변경: 완료된 단위(0b)를 검토할 수 있게 READY_FOR_REVIEW로 올림. 다음 단위는 이 문서에 이어서 쓰고 다시 READY_FOR_REVIEW로 표시.
+> 검토 방법: `git checkout 1db85974e66a8dec3c3ff8d93fc2fa9ceb789104` → `node --require ./tests/lib/no-network.cjs --test tests/*.test.cjs` → 변경 파일 `radar/ui.js`, `tests/universe-screen-entry.test.cjs`, 하니스, `tests/lib/live-data-edits.json`, `tests/lib/live-data-pins.json` (다비 제출분은 `git diff 4a9133f..1db85974e66a8dec3c3ff8d93fc2fa9ceb789104`).
 
 # 400종목 곡소리 — 다비 제출(719692c) 클로 검토 1차 (2026-11-12 14:15 KST)
 
