@@ -7,7 +7,7 @@
 - 작업 시작 전 항상 `docs/team/README-CLAUDE-REPORTS.md` "최신" 항목과 이 문서를 먼저 읽는다.
 
 ## 2. 다비 → 클로 (개발 결과 올리기)
-- 브랜치 이름: `work/davi-<주제>-<YYYYMMDD>` (예: `work/davi-universe-screen-20261112`). main 직접 push 금지.
+- 브랜치 이름: `work/davi-<주제>-<YYYYMMDD>`(문서만이면 `docs/davi-...`도 허용 — 클로는 이름에 davi가 들어간 모든 브랜치를 확인) (예: `work/davi-universe-screen-20261112`). main 직접 push 금지.
 - 기준: 항상 최신 main에서 분기. 첫 커밋 메시지나 보고서에 기준 SHA 기록.
 - 보고서: 브랜치에 `docs/team/DAVI-<주제>-<YYYYMMDD>.md` — 상태 한 줄 `STATUS: READY_FOR_REVIEW`(검토 요청) 또는 `STATUS: WIP`(작업 중), 변경 요약, 시험 명령·결과, 미검증 항목, 순태씨 결정이 필요한 질문.
 - zip·순태씨 전달은 더 이상 필요 없음(깃허브가 기본 통로).

@@ -6,6 +6,7 @@
 - `COLLAB-PROTOCOL.md` — 다비↔클로 정기 깃허브 협업 규칙(브랜치·보고서·승인). **작업 전 필독.**
 
 ## 최신 (2026-11-12)
+- `CLAUDE-REVIEW-DAVI-REPLY-20261112.md` — 다비 검토 회신: 차트 문구 계좌별 수정(브랜치 `work/claude-chart-caption-20261112`, 운영 승인 대기), 데이터·SW 롤백 상태
 - `SW-ACTIVATION-REVIEW-20261112.md` — 활성화 정체는 시험 관찰 간섭 정황(passive 10/10 통과), rollback 확인 필요. 원로그는 클로 브랜치 evidence-sw-claude/activation
 - `CHART-NAMING-20261112.md` — 이름 규칙("곡소리"·"환호성") + 해외·연금·전체 그래프 기준지수 선 복원(`1e6deb4`)
 - `SW-FULL-BROWSER-REVIEW-20261112.md` — 42자산 실제 앱 SW 시험: 두 탭 닫은 뒤 활성화 정체 10회 중 6회(증거는 클로 브랜치 evidence-sw-claude)
