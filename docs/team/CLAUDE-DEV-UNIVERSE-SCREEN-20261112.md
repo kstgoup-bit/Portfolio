@@ -1,4 +1,45 @@
 STATUS: READY_FOR_REVIEW
+ORDER-ID: GPT-20261112-1830
+BASE: 99ca515 (main a74ee54 병합 후)   HEAD: 689db5ba66d9d764103f0e307c3de49f5a8c84a8
+REVIEW-SCOPE: `has/universe-screen.js`(국내 핵심 개수 동적 계약·coreCount 400/401·출처 날짜 검사), `tests/universe-kr201-contract.test.cjs`(새 8건), `tests/universe-screen-synthetic400.test.cjs`(GAS 201 합성 1건 추가), `tests/universe-screen-ui-cache.test.cjs`(화면 401 표시 1건 추가 + 기존 1건 픽스처 날짜 보정), `tests/lib/live-data-pins.json`(해시 1줄). `portfolio_v5.html`·UI·HTML·GAS 파일 변경 없음.
+
+# #2 국내 201종목 동적 계약·오프라인 검증 (합성 시험 전용, 2026-11-12 19:00 KST)
+
+## 바꾼 것 (`has/universe-screen.js`)
+| 항목 | 이전 | 이번 |
+|---|---|---|
+| 국내 핵심 개수 | 200 고정(`lists.kospi200.length!==200`) | **kospi200 출처의 `expectedConstituents`** = 실제 행 수 = 고유 코드 수일 때만. 선언 범위 200~205(안전 상한, 공식 지수 규칙 아님) — 199·206·250 거부 |
+| coreCount | 400 고정 | `국내 선언 개수 + 미국 200` (200→400, 201→401). `validateUniverse`가 coreCount = kospi200 선언 + 200, 실제 국내 핵심 = 선언, 미국 핵심 = 200을 서로 검사 |
+| 추가 감시(extras) 상한 | 총 500 | coreCount + 100 (기존과 같은 100개 여유) |
+| 요약 검사 | `coreCount!==400`, items 400~500 | 고정값 제거 → `validateUniverse`로 위임(동일 규칙). `assemble`은 목록의 coreCount를 그대로 씀 |
+| 출처 날짜 | 형식만 | 2000-01-01 이후, 목록 구성 시점(한국 날짜) 이후 거부(`future-source-date`), 요약 생성 한국 날짜 이후 거부 |
+| 미국 | 나스닥100 ∪ S&P100 + S&P500 시총순 → 200 | **변경 없음**(11-13 ETF 기준 변경은 미적용) |
+
+## 시험
+- 새 `tests/universe-kr201-contract.test.cjs` 8건: 기존 400 유지 / 201 픽스처 구성·검증·배치(34묶음, 국내 17)·요약 총 401·extras 402 / 선언 201·실제 200, 선언 200·실제 201, 중복, 빈 코드, 코드 없음, 형식 오류, 선언 누락, complete=false 거부 / 199·206·250 거부, 205 허용 / 선언 400인데 핵심 401, 선언 401인데 출처 200, 핵심 결측, 핵심을 extra로 위장, extras로 401 채우기, 요약 coreCount·total 조작 거부 / 미래·1999·잘못된 날짜, 요약 생성 이후 목록 날짜 거부 / 실제 KRX 스냅샷 모양(201, 코드만)+합성 미국 200 수용(시험 전용) / 미국 계약 불변·universe-400/401.json 없음.
+- GAS 초안(vm, 네트워크 없음): 201 합성으로 34묶음(묶음당 12 이하) 끝까지 계산 → `published` 401, 공개 응답 검사 통과, 매수후보 0, 개인 extras는 공개 GAS 거부 유지.
+- 화면(jsdom): 201 합성 응답 → "감시 대상 401종목 (국내 201 · 미국 200)", 저장소 쓰기 0.
+- 기존 시험 1건 보정: `ui-cache` "같은 날 만료" 시험의 첫 응답이 목록 기준일(11-11)보다 이른 생성시각(11-10)이라 새 날짜 검사에 걸림 → 그 응답만 목록 기준일 11-09로 바꿈(시험 의도 = 만료 후 재조회는 그대로).
+- 전체 `node --require ./tests/lib/no-network.cjs --test tests/*.test.cjs` → **2008 중 2006 통과 / 0 실패 / 2 skip**(기존 `TZ=America/New_York` 전용 DST 2건, 이번과 무관). `node tools/scan-secrets.cjs` → findings 0.
+- Chromium(화면 파일 변경 없음, 회귀 확인): `tests/universe-screen-auto-browser.cjs` 360/390/430 × (운영 기본, 시험 자동) 6경우 통과, 외부 요청 36 차단·실제 호출 0. 이번엔 뒤로가기 추가 요청 0으로 나왔으나 navigation=back_forward(새 로드)이고 route 환경이라 **뒤로가기 캐시 유지는 여전히 미검증**. `tests/universe-screen-browser.cjs` 360/390/430/1280 통과.
+
+## 판정 분리
+- 완료: 동적 국내 개수 계약과 400/401 합성 회귀시험(오프라인).
+- 가정: 200~205 상한(편입·분할 임시 포함 여유로 둔 안전값, 근거 문서 없음).
+- 미검증: 코스피200이 공식적으로 201종목인지·KRX 화면 조회 기준일(파일에 미표기 — 다운로드 시각 16:42 KST만 기록, 효력 기준일과 같다고 주장하지 않음), 실제 GAS·시세, 기기 뒤로가기.
+- 차단: 미국 공식 원본(11-13 순태씨 파일 예정) → 실제 401 목록·`radar/data/universe-*.json` 만들지 않음.
+- **권리 확인 필요**: `radar/data/kospi200-20261112.json`(코드·이름)의 공개 재배포 권한 미확인. 이 파일을 운영 공개 경로(Pages·공개 GAS 응답)로 쓰기 전에 KRX 이용약관 확인 또는 순태씨 판단 필요. 이번에 새 원본·명단·가격 추가 없음.
+
+## 다음 단위 제안
+- 11-13 미국 ETF 파일 도착 후: 현행(나스닥100 ∪ S&P100 + S&P500 시총순) vs 제안(나스닥100 ∪ S&P500 ETF 비중순) 계약 비교표 → 지피 검토 → 순태씨 결정.
+- 그 전: sessionStorage 캐시 설계 문서(독립 키·공개 집계만·TTL·스키마·실패 대책) 초안 — 지피 요청 시.
+
+## 순태씨 결정 필요
+- 없음(이번 단위). 운영 반영·GAS 연결은 미국 목록 확정 후 묶어서 요청 예정.
+
+---
+
+STATUS: READY_FOR_REVIEW
 ORDER-ID: GPT-20261112-1730
 BASE: 1987f43 (main 12c4f86 병합 후)   HEAD: 05c2e7b9ad1bb3652397c10d78d5bbb53aa36a7b
 REVIEW-SCOPE: `has/universe-screen-ui.js`(첫 진입 시험 전용 자동 조회·한국 기준일 메모리 캐시·요청 병합·동적 건수·행 표시), `has/universe-screen.html`(`#count` 1줄, 링크 44px CSS 1줄), `tests/universe-screen-ui-cache.test.cjs`(새 8건), `tests/universe-screen-auto-browser.cjs`(Chromium 360/390/430 수동 실행 스크립트), `tests/lib/live-data-pins.json`(해시 2줄). `portfolio_v5.html`·`has/universe-screen.js`·GAS 변경 없음.
