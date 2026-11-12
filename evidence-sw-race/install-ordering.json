@@ -1,0 +1,38 @@
+{
+  "browserRun": false,
+  "syntheticOnly": true,
+  "results": [
+    {
+      "case": "html-put",
+      "outcome": "PASS actual generated install listener waitUntil stays pending through gate"
+    },
+    {
+      "case": "js-put",
+      "outcome": "PASS actual generated install listener waitUntil stays pending through gate"
+    },
+    {
+      "case": "marker-put",
+      "outcome": "PASS actual generated install listener waitUntil stays pending through gate"
+    },
+    {
+      "case": "final-verify",
+      "outcome": "PASS actual generated install listener waitUntil stays pending through gate"
+    },
+    {
+      "case": "sequential completed same-release reinstall",
+      "outcome": "PASS no fetch, overwrite or deletion"
+    },
+    {
+      "case": "sequential completed but partial same-release reinstall",
+      "outcome": "PASS rejects while preserving cache; install does not perform repair"
+    },
+    {
+      "case": "concurrent same-release installers, one fails after other commits",
+      "outcome": "COUNTEREXAMPLE: failure deletes already-completed shared cache. Synthetic simultaneous create/install only; reachability under one real SW registration NOT proven."
+    },
+    {
+      "case": "concurrent successful same-release installers",
+      "outcome": "PASS consistent final cache in this schedule; duplicate network/work possible, not a concurrency guarantee"
+    }
+  ]
+}

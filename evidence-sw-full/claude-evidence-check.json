@@ -1,0 +1,6 @@
+{
+  "sourceCommit": "cd2e131b6232bae204dcacb3b684d76eb4526db2",
+  "verifiedRawLogRuns": 10,
+  "allPass": true,
+  "scope": "reported Chromium synthetic 2 assets only; not our execution"
+}

@@ -1,0 +1,15 @@
+✔ 42 exact local assets install, activate and serve offline with pinned hashes (125.114118ms)
+✔ failure after partial next-generation install removes only incomplete next cache (69.811941ms)
+✔ missing full-manifest script repairs only same hash then serves offline (43.799977ms)
+✔ same-size changed script bytes rejected without caching, exact retry succeeds (33.771147ms)
+✔ completed same-generation sequential reinstall performs no fetch or writes (54.775758ms)
+✔ activation protects unrelated and other-scope caches; internal keys hide real URLs (23.983479ms)
+✔ whole full-manifest cache loss fails closed without downloading or rebuilding (20.488954ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 512.669652

@@ -1,0 +1,68 @@
+HAS 시작 속도·서비스워커 독립 검토
+기준: kstgoup-bit/Portfolio main c8169036bb0bba5b1a0fb810c3d8fdbf8ca356d5
+상태: 미등록 연구 후보. 운영 앱·실자료·실제 API·배포 변경 없음.
+
+결론
+현재 main의 이전 속도 개선과 클로 변경은 모두 보존했습니다. 운영 파일 변경은 0개입니다. 앱 시작 때마다 정적 파일을 다시 받는 기존 서비스워커는 개선 여지가 있지만, no-store를 no-cache로 바꾸는 초안을 그대로 운영에 넣는 것은 권하지 않습니다. 세대가 검증된 묶음을 사용하는 후보를 만들고 반례를 보완했지만, 실제 브라우저 전환시험과 1순위 데이터 연결 변경 통합 전에는 운영 적용 준비 완료가 아닙니다.
+
+1. 현재 상태와 이미 확보된 근거
+- c816903은 127bca49 이후 이전 최소 속도 패치와 클로 검토·Chromium 결과를 포함합니다. 표를 현재 패널에서만 계산하는 변경은 유지됩니다.
+- 저장소의 클로 Chromium 153 측정은 가상 41종목·170일, CPU 4배 감속, 표 묶음 처리 중앙값 1417.8→688.95ms입니다. 앱 전체 시작이나 실폰 측정이 아닙니다.
+- 같은 보고서의 시세 없는 보조 시작시험은 긴 작업 합계 397→407ms로 개선이 관측되지 않았습니다. 실제 사용자 자료의 시작이 빨라졌다고 단정하지 않습니다.
+- 현재 service-worker.js는 모든 요청을 no-store로 받고, 200 응답을 폭넓게 캐시에 넣고, 실패 시 origin 전체 캐시를 검색한 다음 HTML을 대체합니다. 활성화 시 자기 캐시를 제외한 다른 캐시도 지웁니다.
+
+2. 재현한 반례
+- 클로의 no-cache 초안: 새 HTML B와 네트워크 실패로 되돌아온 옛 JS A가 함께 나옵니다. 파일별 재검증은 묶음 버전 보장이 아닙니다.
+- 같은 초안은 JS 주소에 반환된 HTML과 같은 origin의 query JSON도 CacheStorage에 저장합니다.
+- 현 운영 워커는 다른 앱 캐시를 삭제하고, 오프라인 JS 요청에 HTML을 줄 수 있습니다.
+- 초기 후보의 캐시를 실제 파일 주소로 저장하면, 후보가 아직 설치 대기 중이어도 운영 워커의 global caches.match가 그 파일을 가져갈 수 있었습니다. 옛 HTML+새 후보 JS를 독립 합성시험에서 재현했습니다.
+- 최종 후보는 저장 키를 전용 내부 주소로 바꿨습니다. 기존 워커의 원래 URL 검색으로 대기 중 후보 파일이 새어나오는 반례는 막았습니다. 원래 반례도 양성 대조군으로 남겼습니다.
+
+3. 미등록 후보의 동작
+- HTML을 포함한 40개 파일(HTML+39개 자산)을 경로·크기·SHA-256·정확한 MIME으로 고정합니다.
+- 전체 설치 검증과 저장 검증이 끝나야 완성 표시를 남깁니다. 잘못된 세대, 일부 실패, 잘못된 MIME, 부분 206, private/no-store 응답, 저장 실패는 새 설치를 실패시킵니다.
+- 기존 완성된 같은 세대는 재설치 때 덮어쓰거나 삭제하지 않습니다. release ID에는 정적 파일뿐 아니라 워커 코드와 연결 코드도 반영합니다.
+- 요청 시 해당 세대의 검증된 파일만 제공합니다. 유실·오염된 항목을 최신 네트워크 파일로 몰래 대체하지 않습니다.
+- 앱 메인 문서가 요청한 자산만 묶음으로 처리합니다. 다른 페이지가 같은 JS를 사용하는 경우 그 페이지의 네트워크 동작을 유지합니다.
+- 외부 시세·GAS JSONP·같은 origin의 일반 API/query 응답·비GET 요청은 저장하지 않습니다. 고정 앱 코드의 query/Range, 알 수 없는 로컬 실행 코드는 오류로 끝냅니다.
+- 캐시 삭제 범위는 정확한 앱 scope 전용 세대 prefix입니다. 다른 앱·기존 portfolio-v5 캐시는 손대지 않습니다.
+- skipWaiting/clients.claim은 사용하지 않습니다. 기존 문서를 강제로 새 워커에 붙이지 않습니다.
+- production service-worker.js와 앱의 register('./service-worker.js')는 그대로입니다. 후보는 tests/sw-speed-lab/generated/service-worker.candidate.js에만 있습니다.
+
+4. 합성 트래픽 모델: 실제 시작시간 아님
+c816903의 같은 정적 파일 40개, 본문 1,260,250바이트를 모두 요청하는 합성 순회입니다. 실제 페이지가 매번 40개를 모두 요청한다는 관측값은 아닙니다. 아이콘 등은 설치 때만 쓰일 수 있습니다.
+- 현 워커 설치: 4요청, 578,014본문 바이트, 4캐시 쓰기.
+- 현 워커로 같은 파일 묶음 재요청: 40요청, 1,260,250본문 바이트, 40캐시 쓰기.
+- 후보 최초 묶음 설치: 40요청, 1,260,250본문 바이트, 41캐시 쓰기(완성 표식 포함).
+- 후보가 활성화되고 온전한 캐시를 가진 뒤 같은 묶음 요청: 0네트워크 요청, 0본문 바이트, 0캐시 쓰기.
+시간 개선 수치는 없습니다. 첫 미제어 문서 로드, 워커 업데이트 확인/다운로드, 외부 글꼴·데이터, 압축·304·헤더, 실제 저장소 I/O·해시 CPU 비용은 제외합니다. 최초 설치는 이미 페이지가 받은 파일을 다시 받을 수 있어 오히려 총 전송량이 늘 수 있습니다.
+
+5. 아직 남은 운영 전 조건
+- 최초 미제어 로드와 기존 운영 워커→새 워커의 실제 수명주기·다중 탭 전환을 브라우저에서 검증해야 합니다. 이번 시험은 메모리 Cache API/이벤트 모델이며 실제 Service Worker 수명주기 시험이 아닙니다.
+- 옛 워커가 다른 등록/롤백 상황에서 활성화되면 여전히 모든 캐시를 지울 수 있습니다. 후보는 이를 막지 못하며, 소실 후 응답은 실패합니다.
+- activate.waitUntil의 거절은 install 실패와 다릅니다. 이전 워커로 자동 복귀하는 보장이 아닙니다. 후보의 보장은 잘못된 응답을 내주지 않는 것이며, 새 활성 워커가 사용 불가 상태가 될 가능성은 남습니다.
+- 설치 후 한 자산이 없어지면 HTML은 나오고 해당 JS만 실패할 수 있습니다. 부분 UI/가용성 문제와 자동 복구·사용자 안내를 검증해야 합니다.
+- 모든 기존 탭이 닫힐 때까지 업데이트가 대기할 수 있습니다. 최신 버전 전환 안내가 현재 앱에 구현된 것은 아닙니다.
+- 현재 HTML의 정적 src/href는 별도 HTML 파서로 모두 대조했습니다. 생성기는 미래의 동적 import, srcset, 동적으로 만든 주소 등을 완전하게 분석하는 도구는 아닙니다. 새 의존성은 매번 검토해야 합니다.
+- 1순위 데이터 연결 작업에서 has/live-price-reference.js, has/live-price-panel.js가 추가될 예정입니다. portfolio_v5.html, radar/ui.js, has/advisor-panel.js 변경과 함께 manifest를 다시 생성하고 검증해야 합니다. 지금 생성된 세대는 그 후보를 포함하지 않습니다.
+
+6. 검증 및 보존
+- 현재 main 기존 파일의 Git blob 대조: 변경 0개. 이전 문서용 PNG 34개만 원본 패키지와 동일하게 생략, 실행 자산은 보존.
+- 기존 전체 회귀: 1935 통과 +2 생략, 실패 0. Node 24 환경용 기존 시험 전용 strict-network-preload를 사용했습니다.
+- 워커/생성기 합성시험: 27/27 통과.
+- 별도 독립 검토: 5개 확인 통과. 원래 실패 반례, 보완 후 차단, 기존 워커 전역 삭제, 소실 시 동작, query/다른 페이지 경계를 포함합니다.
+- 비밀값 스캔 발견 0, 생성 코드 구문 검사·git diff 검사 통과.
+- 실계좌·저장된 사용자 기록·실제 시세/GAS 호출·운영 배포·main 병합·원격 push 없음.
+
+재현 명령(source 폴더에서 개발 의존성 준비 후)
+node tests/sw-speed-lab/build.cjs
+node --require ./evidence-speed/strict-network-preload.cjs --test tests/sw-speed-lab/run.cjs tests/sw-speed-lab/build-checks.cjs
+node --require ./evidence-speed/strict-network-preload.cjs tests/sw-speed-lab/independent.cjs
+node --require ./evidence-speed/strict-network-preload.cjs tests/sw-speed-lab/traffic-model.cjs
+npm_config_update_notifier=false NODE_OPTIONS="--require ./evidence-speed/strict-network-preload.cjs" npm test
+
+근거
+https://github.com/kstgoup-bit/Portfolio/tree/c8169036bb0bba5b1a0fb810c3d8fdbf8ca356d5
+https://github.com/kstgoup-bit/Portfolio/blob/c8169036bb0bba5b1a0fb810c3d8fdbf8ca356d5/docs/team/SPEED-MINIMAL-REVIEW-20261112.md
+https://github.com/kstgoup-bit/Portfolio/blob/c8169036bb0bba5b1a0fb810c3d8fdbf8ca356d5/evidence-speed/benchmark.json
+https://github.com/kstgoup-bit/Portfolio/blob/6e8e4b025feebc6ad978fdba3d6faa431df3cf49/docs/team/drafts/service-worker.speed-draft.js

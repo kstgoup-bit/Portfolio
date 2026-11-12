@@ -1,0 +1,34 @@
+{
+  "scope": "Synthetic, controlled request trace over the exact manifest. NOT observed browser/phone traffic or elapsed time.",
+  "base": "c7de558f2b134009b5a9ca6bfc2edc6444f4568f",
+  "release": "41e22f32247f88c9d1ad0ece765ff034c217d73dd77046be3f2c6e3e5eafc872",
+  "manifestAssets": 42,
+  "manifestBodyBytes": 1280168,
+  "oldInstall": {
+    "requests": 4,
+    "responseBodyBytes": 578209,
+    "cacheWrites": 4
+  },
+  "oldWarm": {
+    "requests": 42,
+    "responseBodyBytes": 1280168,
+    "cacheWrites": 42
+  },
+  "candidateInstall": {
+    "requests": 42,
+    "responseBodyBytes": 1280168,
+    "cacheWrites": 43
+  },
+  "candidateWarm": {
+    "requests": 0,
+    "responseBodyBytes": 0,
+    "cacheWrites": 0
+  },
+  "excludes": [
+    "Initial uncontrolled navigation",
+    "Service-worker update checks/download",
+    "External fonts and market/data requests",
+    "HTTP compression/headers/304 behavior",
+    "Install/activation lifecycle and device CPU time"
+  ]
+}
