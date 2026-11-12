@@ -150,3 +150,61 @@ test('합성 사례 손계산 표 회귀(보고서 표와 동일)', () => {
   a.equal(alt(r, 'C3').weights.sectors[0].sector, '반도체'); a.equal(alt(r, 'C3').weights.sectors[0].weightPct, 96.35);
   a.equal(alt(r, 'D').weights.positions.find(p => p.symbol === 'NVDA').weightPct, 58.15);
 });
+
+/* ── 지피 검토 GPT-REVIEW-capital-allocation-20261113-0730 반영 ── */
+test('후보 안 같은 종목: 가격·통화·시세종류·기준시각이 다르면 HOLD_CONFLICT, 모두 같으면 중복 하나로 처리', () => {
+  const p = fx(); p.candidates.push({ symbol: 'googl', priceUSD: 101, currency: 'USD' });
+  const rp = C.compareAlternatives(p); a.equal(rp.status, 'HOLD_CONFLICT'); a.equal(rp.alternatives.length, 0); a.ok(rp.issues.some(x => /GOOGL 후보가 두 번.*가격 100 \/ 101/.test(x)));
+  const cu = fx(); cu.candidates.push({ symbol: 'GOOGL', priceUSD: 100, currency: 'KRW' }); a.equal(C.compareAlternatives(cu).status, 'HOLD_CONFLICT');
+  const k = fx(); k.candidates[0].priceKind = 'regular'; k.candidates.push({ symbol: 'GOOGL', priceUSD: 100, priceKind: 'extended' });
+  a.ok(C.compareAlternatives(k).issues.some(x => /시세종류 regular \/ extended/.test(x)));
+  const t = fx(); t.candidates[0].quoteAsOf = '2026-11-13T00:00:00+09:00'; t.candidates.push({ symbol: 'GOOGL', priceUSD: 100, quoteAsOf: '2026-11-12T00:00:00+09:00' });
+  a.equal(C.compareAlternatives(t).status, 'HOLD_CONFLICT');
+  const same = fx(); same.candidates.push(Object.assign({}, same.candidates[0]));
+  const rs = C.compareAlternatives(same); a.equal(rs.status, 'OK', '완전히 같은 중복은 허용');
+  a.equal(rs.alternatives.filter(x => /GOOGL 전액/.test(x.label)).length, 1, '중복 후보는 대안 하나');
+  const hc = fx(); hc.holdings[0].priceKind = 'regular'; hc.candidates.push({ symbol: 'NVDA', priceUSD: 140, priceKind: 'extended' });
+  a.equal(C.compareAlternatives(hc).status, 'HOLD_CONFLICT', '보유·후보 시세종류 다름');
+});
+
+test('비정상 대안·시나리오·부가 입력은 예외 없이 보류(HOLD_INSUFFICIENT_DATA)', () => {
+  const bads = [
+    i => { i.alternatives = [null]; }, i => { i.alternatives = ['x']; }, i => { i.alternatives = 'A'; },
+    i => { i.alternatives = [{ id: 'X' }]; }, i => { i.alternatives = [{ id: 'X', allocations: 'NVDA' }]; },
+    i => { i.alternatives = [{ id: 'X', allocations: [null] }]; }, i => { i.alternatives = [{ id: 'X', allocations: [{ share: 1 }] }]; },
+    i => { i.alternatives = [{ id: 'X', allocations: [{ symbol: 'NVDA', share: '1' }] }]; },
+    i => { i.alternatives = [{ id: 'X', allocations: [{ symbol: 'NVDA', share: NaN }] }]; },
+    i => { i.alternatives = [{ id: 'X', allocations: [{ symbol: 'NVDA', share: Infinity }] }]; },
+    i => { i.scenarios = [null]; }, i => { i.scenarios = ['1y']; }, i => { i.scenarios = { horizonYears: 1 }; },
+    i => { i.scenarios = [{ horizonYears: -1, returnsPct: { NVDA: 5 } }]; }, i => { i.scenarios = [{ horizonYears: 0, returnsPct: { NVDA: 5 } }]; },
+    i => { i.scenarios = [{ horizonYears: Infinity, returnsPct: { NVDA: 5 } }]; }, i => { i.scenarios = [{ horizonYears: 1, returnsPct: null }]; },
+    i => { i.scenarios = [{ horizonYears: 1, returnsPct: { NVDA: NaN } }]; }, i => { i.scenarios = [{ horizonYears: 1, returnsPct: { NVDA: -150 } }]; },
+    i => { i.scenarios = [{ horizonYears: 1, returnsPct: { NVDA: 5000 } }]; }, i => { i.scenarios = [{ horizonYears: 1, returnsPct: { NVDA: '10' } }]; },
+    i => { i.holdings.push(null); }, i => { i.candidates.push(null); }, i => { i.candidates = 'GOOGL'; },
+    i => { i.partialReinvest = { share: 0.5, symbols: 'NVDA' }; }, i => { i.partialReinvest = { share: 2 }; }, i => { i.partialReinvest = 'half'; },
+    i => { i.convictionSymbols = 'MSFT'; }, i => { i.sale = 'NVDA'; }
+  ];
+  bads.forEach((mut, n) => {
+    const i = fx(); mut(i); let r;
+    a.doesNotThrow(() => { r = C.compareAlternatives(i); }, 'case ' + n);
+    a.notEqual(r.status, 'OK', 'case ' + n); a.equal(r.alternatives.length, 0, 'case ' + n);
+    a.ok(['추가 정보 필요', '판단 보류'].includes(r.opinion), 'case ' + n);
+  });
+  const ok = fx(); ok.scenarios = [{ horizonYears: 50, returnsPct: { NVDA: -100, MSFT: 1000 } }]; a.equal(C.compareAlternatives(ok).status, 'OK', '경계값 -100%·1000%·50년 허용');
+  const neg = fx(); neg.alternatives = [{ id: 'N', label: 'N', allocations: [{ symbol: 'NVDA', share: -0.1 }] }, { id: 'P', label: 'P', allocations: [{ symbol: 'NVDA', share: 0.5 }] }];
+  const rn = C.compareAlternatives(neg); a.equal(rn.status, 'OK'); a.equal(rn.alternatives[0].ok, false); a.equal(rn.alternatives[0].opinion, '판단 보류'); a.equal(rn.alternatives[1].ok, true, '다른 대안은 계속 계산');
+});
+
+test('출처·시각 계약 경계: 형식 오류는 추가 정보 필요, 시각 모순·항목 기준시각 불일치는 판단 보류, 검증 주장도 교차검증 완료로 표기 안 함', () => {
+  for (const [k, v] of [['asOf', '2026/11/13'], ['asOf', '2026-02-30'], ['quoteAsOf', '2026-11-13'], ['quoteAsOf', '2026-11-13T00:00:00'], ['quoteAsOf', 'yesterday'], ['timezone', 'Mars/Base'], ['source', 42], ['timezone', '  ']]) {
+    const i = fx(); i[k] = v; const r = C.compareAlternatives(i); a.equal(r.status, 'HOLD_INSUFFICIENT_DATA', k + '=' + v); a.equal(r.opinion, '추가 정보 필요');
+  }
+  const late = fx(); late.quoteAsOf = '2026-11-14T09:00:00+09:00'; a.equal(C.compareAlternatives(late).status, 'HOLD_CONFLICT', '시세일이 기준일보다 늦음');
+  const lateT = fx(); lateT.asOf = '2026-11-13T08:00:00+09:00'; lateT.quoteAsOf = '2026-11-13T09:00:00+09:00'; a.equal(C.compareAlternatives(lateT).status, 'HOLD_CONFLICT');
+  const okT = fx(); okT.asOf = '2026-11-13T08:00:00+09:00'; okT.quoteAsOf = '2026-11-12T16:00:00-05:00'; a.equal(C.compareAlternatives(okT).status, 'OK', '뉴욕 16:00 = 서울 06:00, 앞뒤 정상');
+  const item = fx(); item.holdings[0].quoteAsOf = '2026-11-12T00:00:00+09:00'; a.equal(C.compareAlternatives(item).status, 'HOLD_CONFLICT', '항목 기준시각이 입력 기준시각과 다름');
+  const same = fx(); same.holdings[0].quoteAsOf = '2026-11-12T15:00:00Z'; a.equal(C.compareAlternatives(same).status, 'OK', '같은 순간의 다른 표기는 일치');
+  const v = fx(); v.dataMode = 'verified'; v.freshnessStatus = 'fresh'; const rv = C.compareAlternatives(v);
+  a.equal(rv.status, 'OK'); a.match(rv.header.priceVerification, /독립 검증하지 않음.*실시간·교차검증 완료 아님/); a.match(rv.header.engineVerification, /교차검증.*없음/);
+  a.doesNotMatch(JSON.stringify(rv.header), /교차검증 완료(?! 아님)|실시간 시세(?! 아님)/);
+});
