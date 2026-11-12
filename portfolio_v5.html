@@ -539,6 +539,13 @@ select { -webkit-user-select: none; user-select: none; touch-action: manipulatio
 .cdd-opt+.cdd-opt{margin-top:1px}
 .cdd-opt.cdd-selected{color:#1565c0;font-weight:800;background:linear-gradient(90deg,#eef6ff,#f7fbff)}
 .cdd-opt.cdd-selected::after{content:'✓';font-size:12px;color:#1e88e5;font-weight:900}
+/* 2026-11-13 순태씨 요청("줄이고"): 상단 '가격 신뢰도'·'오늘의 투자 브리핑' 띠를 한 줄 높이로. 문구·자세히 기능은 그대로 */
+body #hasPriceTrust.hpt{display:flex;flex-wrap:wrap;align-items:center;gap:0 8px;margin:4px 10px;padding:0 10px;border-width:1px;line-height:1.4}
+body #hasPriceTrust .hpt-head{flex:1 1 0;min-width:0;padding:6px 0;overflow-wrap:anywhere}
+body #hasPriceTrust details{flex:0 0 auto}body #hasPriceTrust details[open]{flex:1 1 100%;padding-bottom:6px}
+body #hasBriefStrip{flex-wrap:nowrap;margin:4px 10px;padding:2px 10px;border-width:1px;font-size:13px;line-height:1.4}
+body #hasBriefStrip span{flex:1 1 0;min-width:0;overflow-wrap:anywhere}
+body #hasBriefStrip button{flex:0 0 auto;padding:4px 12px;border-width:1px;font-size:13px}
 </style>
 
 <body style="background:#1a3a8f">
