@@ -299,7 +299,7 @@ test('repair independent UI: one missing required cash-flow price prevents a par
     const pts=[{ts:NOW-20*DAY,val:100},{ts:NOW,val:150}],flows=[{ts:pts[0].ts,amount:100},{ts:NOW-10*DAY,amount:50}];
     h.w.priceAtTs=(_hist,ts)=>ts===NOW-10*DAY?null:100;
     const series=h.w.computeCashFlowSeries(pts,flows,[],'QQQ');a.ok(series===null||series[1]===null,'missing flow price must not leave a plausible 100 instead of 150');
-    h.w.deposits={gen:[{ts:NOW-10*DAY,amount:50}],dom:[],ov:[],pen:[]};
+    h.w.deposits={gen:[{ts:NOW-10*DAY,amount:50}],dom:[],ov:[],pen:[]};h.storage.setItem('v5_deposits',JSON.stringify(h.w.deposits)); // 2026-11-12: 'all' chart line restored, so the flow must actually be readable
     const all=h.w.getBenchmarkSeriesForChart('all',pts);a.ok(all===null||all[1]===null);a.equal(h.network.length,0);
   }finally{h.close();}
 });
