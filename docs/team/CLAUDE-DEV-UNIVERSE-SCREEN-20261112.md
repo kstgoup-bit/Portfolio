@@ -1,10 +1,42 @@
 STATUS: READY_FOR_REVIEW
-ORDER-ID: (없음 — 일지 승인 작업, 다비 제출 719692c 이어받기)
-BASE: main 4a9133f   HEAD: 1db85974e66a8dec3c3ff8d93fc2fa9ceb789104
-REVIEW-SCOPE: 다비 제출 이어받기 + 보완 0b (아래 1~6). 공식 400종목 목록(#1)·GAS 설치는 아직 미완료이므로 이번 검토 범위 밖.
+ORDER-ID: GPT-20261112-1530 (결과: BLOCKED — 공식 원본 미확보, 400종목 파일 만들지 않음)
+BASE: main 4edfd15   HEAD: 1db85974e66a8dec3c3ff8d93fc2fa9ceb789104 (코드 변경 없음, 이번 단위는 문서만)
+REVIEW-SCOPE: 일지 #1 차단 보고(아래 "#1 차단 보고")만. 0b는 지피 APPROVE 완료 — 재검토 불필요.
 
-> 15:25 지피 요청으로 상태 변경: 완료된 단위(0b)를 검토할 수 있게 READY_FOR_REVIEW로 올림. 다음 단위는 이 문서에 이어서 쓰고 다시 READY_FOR_REVIEW로 표시.
-> 검토 방법: `git checkout 1db85974e66a8dec3c3ff8d93fc2fa9ceb789104` → `node --require ./tests/lib/no-network.cjs --test tests/*.test.cjs` → 변경 파일 `radar/ui.js`, `tests/universe-screen-entry.test.cjs`, 하니스, `tests/lib/live-data-edits.json`, `tests/lib/live-data-pins.json` (다비 제출분은 `git diff 4a9133f..1db85974e66a8dec3c3ff8d93fc2fa9ceb789104`).
+# #1 공식 400종목 감시목록 — 차단 보고 (2026-11-12 16:10 KST)
+
+지시서 GPT-20261112-1530 완료 조건 4("공식 목록·비교 가능한 시가총액을 확보 못 하면 임의로 400개를 만들지 말고 보고")에 따라 **`radar/data/universe-400.json`을 만들지 않았다.** 앱·GAS·시험 코드 변경 없음.
+
+## 확인한 사실 (기준 2026-11-12 16:00~16:10 KST)
+| 원본 | 시도 | 결과 |
+|---|---|---|
+| KRX 정보데이터시스템 지수구성종목 `https://data.krx.co.kr/contents/MDC/MDI/mdiLoader/index.cmd?menuId=MDC0201010106` | 클라우드 셸 직접 접속, 웹 읽기 도구 | 셸: 연결 불가(응답 코드 000). 웹 읽기: 무인 실행이라 접근 허가 대기 중 차단. **로그인 필요 여부·재배포 조건 미검증** |
+| Nasdaq 공식 `https://indexes.nasdaq.com/Index/Weighting/NDX`, `https://api.nasdaq.com/api/quote/list-type/nasdaq100` | 같음 | 셸 000, 웹 읽기 차단. **구성 증권 수·기준일 미검증** |
+| S&P DJI `https://www.spglobal.com/spdji/en/indices/equity/sp-100/` (S&P 500 동일) | 같음 | 셸 000, 웹 읽기 차단. **미검증** |
+| 대학 도서관 안내 `https://ask.lib.uiowa.edu/biz/faq/368583`(갱신 2025-05-12), `https://www.library.hbs.edu/services/help-center/index-constituents`(날짜 없음) | 웹 읽기 성공 | S&P 500 구성목록 취득 경로로 Net Advantage·Bloomberg·Morningstar Direct·Eikon/Datastream·Capital IQ 등 **유료·라이선스 데이터베이스만** 안내. S&P 공식 사이트 무료 전체 다운로드 언급 없음(이것은 두 안내문의 내용일 뿐, S&P 사이트를 직접 확인한 것은 아님) |
+
+검색에 나온 위키백과·datahub·tradingview·종목정보 사이트 목록은 공식 발행자 원본이 아니므로 사용하지 않음(지시서 범위). S&P 500 **동일 기준일 USD 시가총액**(전체 vs 유통주식 기준 포함)도 확보 못 함 → 보충 순위 만들지 않음.
+
+## 차단 사유
+1. 이 예약 실행 환경에서는 공식 발행자 사이트에 접속할 수 없음(셸 네트워크 허용 목록 밖, 웹 읽기는 사람 허가가 필요한데 무인 실행).
+2. S&P 100/500 전체 구성목록과 지수 기준 시가총액은 S&P DJI 라이선스 자료일 가능성이 큼(도서관 안내 근거, S&P 약관 직접 확인은 미검증). 공개 저장소(GitHub Pages) 재배포는 권리 확인 전 불가.
+3. KRX 자료의 재배포 조건 미확인.
+
+## 합법적 취득 방안 (순태씨 결정 필요)
+- **A. 순태씨 직접 다운로드(무료, 권장 시작점)**: KRX 정보데이터시스템 [지수 → 지수구성종목, 코스피200] CSV, Nasdaq-100 공식 구성 페이지. 받은 파일을 클로 대화창에 첨부 → 클로가 변환·검증. 공개 저장소에는 **종목코드·기준일·출처만** 두고 원본 파일·가중치·시가총액은 올리지 않는 방식(재배포 범위는 각 약관 확인 후 확정).
+- **B. 미국 보충 기준 변경**: S&P 500 시총순 대신 공개 확인 가능한 기준(예: 나스닥100 ∪ S&P100 + 보유·확신 종목)으로 미국 core 수를 200 미만 허용 — 현재 `buildUniverse` 계약(정확히 200)과 지시서 변경 필요(지피 지시서 + 순태씨 승인).
+- **C. 유료 자료(S&P 라이선스·데이터 업체)**: 비용 발생 → 사전 승인 필수. 현재 권하지 않음.
+- 클로 의견: A로 코스피200·나스닥100을 먼저 확보하고, S&P 100/500은 B 또는 순태씨 판단 후 진행이 비용 없이 가장 빠름. 단, 최종 결정은 순태씨.
+
+## 이번 실행 시험
+- 코드 변경 없어 전체 회귀시험 재실행 안 함(직전 기록 1975 중 1973 통과/0 실패/2 skip, HEAD 1db8597 기준). 2 skip 원인은 다음 코드 단위 보고 때 명시 예정(미기록).
+- `node tools/scan-secrets.cjs`: 아래 일지에 결과 기록.
+
+## 그 외 처리
+- GPT-TEST-0001(GPT-ORDER-20261112-1430.md): 브랜치 `docs/gpt-universe-screen-20261112`에 실제 존재, STATUS/ORDER-ID/BASE 3줄 확인. 지피가 15:24 이후 **수동 대화로 작성**한 시험 — 예약 무인 실행 성공 증거 아님.
+- GPT-REVIEW-universe-screen-20261112-1530: 0b(1db8597) **APPROVE**(운영 승인 아님). 0b만으로는 운영 반영 가치가 낮아(목록·GAS 없이 빈 화면 링크) #1~#4 완료 후 묶어서 순태씨 승인 요청 예정.
+
+---
 
 # 400종목 곡소리 — 다비 제출(719692c) 클로 검토 1차 (2026-11-12 14:15 KST)
 
