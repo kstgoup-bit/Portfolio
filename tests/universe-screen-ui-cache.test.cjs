@@ -130,7 +130,9 @@ test('표시 건수는 응답 total 그대로(401 등 400 고정 주장 없음)'
   const ui = read('has/universe-screen-ui.js'), html = read('has/universe-screen.html');
   assert.match(ui, /'감시 대상 '\+v\.total\+'종목/);
   assert.doesNotMatch(html.replace(/<title>.*?<\/title>|<h1>.*?<\/h1>/g, ''), /정확히 400|400개 감시/);
-  assert.doesNotMatch(ui, /localStorage\.setItem|sessionStorage|indexedDB/);
+  assert.doesNotMatch(ui, /localStorage\.setItem|indexedDB/);
+  // GPT-20261112-1930: sessionStorage는 시험 게이트(HAS_SCREEN_TEST_SESSION_CACHE===true) 뒤 store() 한 곳에서만 접근
+  assert.equal((ui.match(/sessionStorage/g) || []).length, 2); assert.match(ui, /SC_ON=W\.HAS_SCREEN_TEST_SESSION_CACHE===true/); assert.match(ui, /function store\(\)\{try\{return W\.sessionStorage\|\|null;/);
   assert.doesNotMatch(ui, /new Date\(\)\.toISOString\(\)\.slice\(0,10\)/, 'UTC 날짜 대신 KST 기준일 사용'); assert.match(ui, /function kstDay\(t\)\{return new Date\(t\+32400000\)/);
 });
 
