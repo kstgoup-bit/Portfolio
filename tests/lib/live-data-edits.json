@@ -135,6 +135,10 @@
     [
       "      document.getElementById(\"fxTime\").textContent=\"환율 자동갱신: \"+new Date().toLocaleTimeString(\"ko-KR\");\n      cleanup();\n      autoSnapshot(); renderAll();\n      return;\n    }\n    cleanup(); retryFetch(fetchFX, attempt, quoteEpoch);\n  };\n  script.onerror=function(){ if(finished) return; finished=true; cleanup(); retryFetch(fetchFX, attempt, quoteEpoch); };\n  setTimeout(function(){ if(finished) return; finished=true; cleanup(); retryFetch(fetchFX, attempt, quoteEpoch); },15000);\n  document.body.appendChild(script);\n",
       "      document.getElementById(\"fxTime\").textContent=\"환율 자동갱신: \"+new Date().toLocaleTimeString(\"ko-KR\");\n      autoSnapshot(); renderAll();\n    }\n    \n    delete window[cb]; if(document.body.contains(script))document.body.removeChild(script);\n  };\n  script.onerror=function(){delete window[cb];if(document.body.contains(script))document.body.removeChild(script);};\n  setTimeout(function(){if(window[cb]){delete window[cb];}},10000);\n  document.body.appendChild(script);\n"
+    ],
+    [
+      ".cdd-opt.cdd-selected::after{content:'✓';font-size:12px;color:#1e88e5;font-weight:900}\n/* 2026-11-13 순태씨 요청(\"줄이고\"): 상단 '가격 신뢰도'·'오늘의 투자 브리핑' 띠를 한 줄 높이로. 문구·자세히 기능은 그대로 */\nbody #hasPriceTrust.hpt{display:flex;flex-wrap:wrap;align-items:center;gap:0 8px;margin:4px 10px;padding:0 10px;border-width:1px;line-height:1.4}\nbody #hasPriceTrust .hpt-head{flex:1 1 0;min-width:0;padding:6px 0;overflow-wrap:anywhere}\nbody #hasPriceTrust details{flex:0 0 auto}body #hasPriceTrust details[open]{flex:1 1 100%;padding-bottom:6px}\nbody #hasBriefStrip{flex-wrap:nowrap;margin:4px 10px;padding:2px 10px;border-width:1px;font-size:13px;line-height:1.4}\nbody #hasBriefStrip span{flex:1 1 0;min-width:0;overflow-wrap:anywhere}\nbody #hasBriefStrip button{flex:0 0 auto;padding:4px 12px;border-width:1px;font-size:13px}\n</style>\n",
+      ".cdd-opt.cdd-selected::after{content:'✓';font-size:12px;color:#1e88e5;font-weight:900}\n</style>\n"
     ]
   ],
   "radar/ui.js": [
