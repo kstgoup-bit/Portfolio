@@ -1,7 +1,57 @@
 STATUS: READY_FOR_REVIEW
-ORDER-ID: GPT-20261112-1530 (부분 진행: 국내 코스피200 확보, 미국 200 미확보로 universe-400.json 아직 없음)
-BASE: 1db85974e66a8dec3c3ff8d93fc2fa9ceb789104   HEAD: 659914ce72ebebd2b0307bdbec0537d96c498b56
-REVIEW-SCOPE: `radar/data/kospi200-20261112.json`, `tests/kospi200-snapshot.test.cjs`, `tests/lib/live-data-pins.json`(addedRuntimeFiles 1줄). 앱·GAS 코드 변경 없음.
+ORDER-ID: GPT-20261112-1630
+BASE: 2f6772f   HEAD: 7fd93f11f88d35ba65e8dbdb5f10c4ebf7451f7d
+REVIEW-SCOPE: `gas/has-universe-screen.gs`(초안 보완), `tests/universe-screen-synthetic400.test.cjs`(새 12건), `tests/lib/synthetic-universe-400.test-only.cjs`(합성 픽스처), `tests/universe-screen-gas.test.cjs`(가짜 Utilities에 SHA-256 추가 1줄), `tests/lib/live-data-pins.json`(gs 해시 1줄). 앱(portfolio_v5.html)·`has/universe-screen.js`·실제 GAS 변경 없음. 중간의 `fd3eb3d`는 main 문서 병합.
+
+# #3 GAS 야간 계산 — 저장소 전용 합성 시험 초안 (2026-11-12 17:30 KST)
+
+## 이름 정리
+일지의 `gas/has-screen.gs`는 계획 단계 이름이고, 실제 코드는 다비가 만든 **`gas/has-universe-screen.gs`**(GAS 쪽) + **`has/universe-screen.js`**(계산·검증, 앱·GAS 공용)다. 새 파일을 만들지 않고 기존 `.gs`만 보완했다. 일지 #3 이름도 이 기준으로 고침.
+
+## 바꾼 것 (기존 대비)
+| 항목 | 이전(다비 초안) | 이번 |
+|---|---|---|
+| 저장 무결성 | 조각 존재·개수만 확인 | HEAD에 `len`·`sha256` 기록, 읽을 때 길이·SHA-256 불일치면 `screen-integrity`로 거부(같은 길이 변조도 차단) |
+| 6분 한계 | 트리거 1회 = 1묶음 | `hasScreenRun_(budget)` 추가: 예산 4.5분(최대) 안에서 묶음 반복, "지금까지 가장 느린 묶음 시간"을 더하면 예산 초과일 때 멈추고 다음 트리거에서 재개 |
+| 공개 응답 | 저장된 PUBLIC을 그대로 반환 | 반환 전 `validateSummary`(형식·만료 2일·매수후보 0·판단 보류) + **extra(개인 보유·확신) 행 있으면 거부**, 60만 자 초과면 `screen-too-large`, 만료면 `screen-expired`, 손상이면 `screen-unavailable` |
+| 기존 GAS와 충돌 | — | `doGet`/`hasHistory*` 변경 없음. 새 전역 이름이 기존 `has-history-request.gs`와 겹치지 않음을 시험으로 고정. `type=screen` 연결(doGet 분기)은 **여전히 순태씨 승인 후** |
+
+## 합성 시험 근거 (`tests/universe-screen-synthetic400.test.cjs`, 12건 모두 통과)
+- 픽스처: `synthetic/testOnly/notForProduction` 표시, 코드 `9ZZ###`(KR)·`ZSYN###`(US), 출처 `https://example.invalid/synthetic-test-only`. KR 200·US 200(나스닥 100 ∪ S&P100 100, 겹침 20 → 180 + S&P500 시총순 20 보충), 중복 0, 형식 검사, 실제 코스피200 스냅샷과 겹침 0, `radar/data/universe-400.json` 없음 확인.
+- 묶음: 34묶음 모두 12종목 이하·한 시장만, GAS 단계별 종목 호출도 12개 이하.
+- 전체 실행(가짜 GAS 환경, 실제 `live-price-reference.js`·`universe-screen.js`·`has-history-request.gs` 로드, 네트워크 차단): 400/400 reference, `complete:true`, 매수후보 0, 전 행 `판단 보류`, 12개월 수익률 null, 무관한 속성 보존, 조각 ≤8000자, 이전 세대 조각 삭제.
+- 진행 중 새 세대(10묶음)는 응답에 안 나오고 이전 완료 세대 유지 → 끝나면 교체.
+- 한 묶음 조회 실패 → 12행 missing, `complete:false`, 400행 유지.
+- 저장 중 실패(할당량 가정) → 다음 단계에서 중복 없이 재개.
+- 시간 예산: 묶음당 40초 가정 시 1회 실행 ≤300초에서 멈추고 이어서 완료, 완료 후 `finished`.
+- 변조: 같은 길이 1글자 변경·HEAD 해시 변경 → 거부, 해시 없는 HEAD → `screen-invalid-pointer`.
+- callback: 안전한 이름만 JSONP, `alert(1);x`·`a.b`·`__proto__`·`constructor`·81자·`</script>`·U+2028·빈값·숫자 → JSON으로만, 입력 반사 없음, 응답에 `<>` 없음.
+- 만료(3일 후)·extra 행·매수후보·초과 크기·미발행 → 데이터 대신 오류. extra 포함 매니페스트는 시작 거부.
+- 기준 불일치(통화·거래소·심볼 접미사·시간대·조정기준) → missing·판단 보류·가격 없음. 비교지수 통화 다름(KR 종목 vs SPY) → 초과수익 null. 22일 지난 관측 → stale.
+
+## 계산상 가정과 측정(합성 자료, 실제 아님)
+- 합성 400행 측정: PUBLIC 압축 10,148자(2조각), WORK 12,616자(2조각), 전체 속성 23,371자, JSONP 응답 411,719자. **합성 가격은 규칙적이라 압축이 실제보다 잘 될 수 있음 — 실제 크기 미검증.** 응답은 압축 전 기준 약 1,030자/행 → 500행이면 약 52만 자로 상한 60만 자에 가까움(필요 시 응답 필드 축소 검토).
+- GAS 한계 가정: 실행 6분, 속성 값 9KB, 전체 속성 500KB, 트리거 최소 1분 간격 — **공식 문서로 이번에 재확인하지 않음(미검증)**. 묶음당 실제 Yahoo 조회 시간 미측정.
+- 34묶음 + 비교지수 조회(묶음마다 1회) = 하루 약 68회 UrlFetch 가정 — 실제 할당량 대비 미검증.
+
+## 시험 결과
+- 전체: `node --require ./tests/lib/no-network.cjs --test tests/*.test.cjs` → **1990 중 1988 통과 / 0 실패 / 2 skip**(skip 2건은 이전과 동일).
+- 처음 실행 시 2건 실패: `gas/has-universe-screen.gs`가 live-data 고정 해시 대상 → `live-data-pins.json` 해시 갱신 후 통과.
+- `node tools/scan-secrets.cjs` → 0건. 앱 화면 변경 없음 → Chromium 360/390/430 해당 없음.
+
+## 남은 차단·미검증
+- #1 미국 200 공식 원본 없음(순태씨가 11-13 ETF 보유종목 파일 제공 예정) → 실데이터 가동 불가, #1 미완료.
+- KR "정확히 200" 계약: 순태씨 결정은 "발표 201개 그대로" — **코드 계약은 아직 200 그대로**(지시서의 임의 변경 금지에 따라 지피 확인 전 미변경). 지피 동의 요청.
+- 미국 기준 변경(나스닥100 ∪ S&P100 → 나스닥100 ∪ 국내상장 S&P500 ETF 비중 상위) 역시 계약 변경 → 지피 확인 요청, 순태씨 파일 확인 후 진행.
+- 지피 1630 검토의 "라이선스 미확인 원본·종목 목록을 공개 저장소에 올리지 말 것"과 16:55 `radar/data/kospi200-20261112.json`(코드·이름만, 순태씨 지시로 브랜치에 커밋, main 미병합) 관계 — **저장소 공개 여부·KRX 재배포 조건 미확인**. 순태씨·지피 판단 필요.
+- 실제 Apps Script 작동·트리거·할당량·실제 종가는 전혀 검증 안 됨. 시험 통과 ≠ 실제 작동.
+
+## 순태씨 결정 필요
+- 없음(이번 단위). 운영·GAS 반영은 #4 이후 묶어서 승인 요청 예정.
+
+---
+
+(이전 단위 머리말: STATUS: READY_FOR_REVIEW / ORDER-ID: GPT-20261112-1530 (부분 진행: 국내 코스피200 확보, 미국 200 미확보로 universe-400.json 아직 없음) / BASE: 1db85974e66a8dec3c3ff8d93fc2fa9ceb789104   HEAD: 659914ce72ebebd2b0307bdbec0537d96c498b56 / REVIEW-SCOPE: `radar/data/kospi200-20261112.json`, `tests/kospi200-snapshot.test.cjs`, `tests/lib/live-data-pins.json`(addedRuntimeFiles 1줄). 앱·GAS 코드 변경 없음.)
 
 # #1-KR 코스피200 공식 스냅샷 (2026-11-12 16:55 KST)
 
