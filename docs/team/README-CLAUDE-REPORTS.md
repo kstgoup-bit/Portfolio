@@ -3,6 +3,7 @@
 클로(Claude)의 검토·요청 보고서는 이 폴더(`docs/team/`)에 모읍니다. 날짜가 파일명 끝에 있습니다.
 
 ## 최신 (2026-11-12)
+- `SW-ACTIVATION-REVIEW-20261112.md` — 활성화 정체는 시험 관찰 간섭 정황(passive 10/10 통과), rollback 확인 필요. 원로그는 클로 브랜치 evidence-sw-claude/activation
 - `CHART-NAMING-20261112.md` — 이름 규칙("곡소리"·"환호성") + 해외·연금·전체 그래프 기준지수 선 복원(`1e6deb4`)
 - `SW-FULL-BROWSER-REVIEW-20261112.md` — 42자산 실제 앱 SW 시험: 두 탭 닫은 뒤 활성화 정체 10회 중 6회(증거는 클로 브랜치 evidence-sw-claude)
 - `SW-RACE-REVIEW-20261112.md` — 클로 하니스 오류 인정, 다비 수정 하니스 실제 Chromium 10/10 통과
