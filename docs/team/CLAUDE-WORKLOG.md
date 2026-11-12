@@ -1,0 +1,20 @@
+# 클로 개발 작업 일지 (매시간 갱신)
+
+역할: 클로 개발 / 다비 교차 검토 (`COLLAB-PROTOCOL.md` 참고). 운영 반영·GAS 변경은 순태씨 승인 후에만.
+
+## 현재 작업: 400종목 곡소리 1차 가격 선별 (`UNIVERSE-SCREEN-REQUEST-20261112.md`)
+브랜치: `work/claude-universe-screen-20261112` (기준 main 최신)
+
+| # | 작업 | 상태 |
+|---|---|---|
+| 1 | 감시 목록 `radar/data/universe-400.json` — 코스피200 + 미국 200(나스닥100 ∪ S&P100, S&P500 시총순 보충), 출처·기준일·버전, 보유·확신 종목 항상 포함 규칙 | 다음 |
+| 2 | 목록 검증 시험 (개수, 중복, 형식, 출처 기록) | 대기 |
+| 3 | GAS 야간 계산 초안 `gas/has-screen.gs` (묶음 실행·6분 제한·PropertiesService 9KB 분할 저장·`type=screen` JSONP) — **배포 안 함**, 가짜 응답 시험 | 대기 |
+| 4 | 앱 곡소리 탭: `type=screen` 결과 1회 조회 + 하루 캐시, "가격 위치" 표시(매수 권유 아님), AI 의견 칸은 재무 연결 전 "판단 보류" | 대기 |
+| 5 | 전체 시험 + Chromium 360/390/430 → `CLAUDE-DEV-UNIVERSE-SCREEN-*.md` `READY_FOR_CROSS_REVIEW` | 대기 |
+| 6 | 순태씨 승인 → GAS 붙여넣기·트리거 안내 → 운영 반영 | 대기 |
+
+다음 묶음: 1단계 후속(탭 첫 진입 자동 조회·하루 캐시, 확신 종목 UI 25%/10%, '준비 중' 제거) → 2차 재무(SEC EDGAR, DART) → 서비스워커 rollback.
+
+## 기록
+- 2026-11-12 13:45 역할 변경 반영, 일지 시작. 다비의 빈 브랜치 `work/davi-universe-screen-20261112`(= main c9d8084, 변경 없음) 확인 — 클로가 이어받음.

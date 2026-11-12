@@ -1,18 +1,27 @@
-# 다비 ↔ 클로 협업 약속 (2026-11-12 순태씨 지시)
+# 다비 ↔ 클로 협업 약속 (2026-11-12 순태씨 지시, 13:42 역할 변경)
+
+> **역할 변경(13:42 순태씨 결정 "2번")**: 다비는 예약 작업이 불가해 순태씨가 말을 걸 때만 움직인다. 그래서 **클로가 매시간 개발까지 진행**하고, **다비는 교차 검토**를 맡는다. 아래 2·3절은 이 변경을 반영한다.
 
 목표: HAS 완성까지 다비와 클로가 깃허브로 직접 주고받고, 순태씨에게는 **승인이 필요한 일과 중요한 결과만** 보고한다.
 
 ## 1. 확인 주기
-- 다비는 **30분마다**, 클로는 **매시간 :02분**(한국시간 07~23시, 예약 작업 최소 간격이 1시간) 깃허브를 확인한다.
-- 작업 시작 전 항상 `docs/team/README-CLAUDE-REPORTS.md` "최신" 항목과 이 문서를 먼저 읽는다.
+- 클로: **매시간**(한국시간 07~23시, 예약 작업 최소 간격 1시간) 자동 실행 — 다비 브랜치 검토가 있으면 먼저, 없으면 `docs/team/CLAUDE-WORKLOG.md`의 다음 작업 1개를 진행.
+- 다비: 순태씨가 다비 대화창에서 말을 걸 때(예: "깃허브 최신 확인하고 클로 작업 교차 검토해") — `CLAUDE-WORKLOG.md`와 `STATUS: READY_FOR_CROSS_REVIEW`인 클로 브랜치를 검토.
+- 작업 시작 전 항상 `docs/team/README-CLAUDE-REPORTS.md` "최신" 항목, 이 문서, `CLAUDE-WORKLOG.md`를 먼저 읽는다.
 
-## 2. 다비 → 클로 (개발 결과 올리기)
+## 2. 다비 → 클로 (다비가 직접 개발하거나 교차 검토 결과를 올릴 때)
 - 브랜치 이름: `work/davi-<주제>-<YYYYMMDD>`(문서만이면 `docs/davi-...`도 허용 — 클로는 이름에 davi가 들어간 모든 브랜치를 확인) (예: `work/davi-universe-screen-20261112`). main 직접 push 금지.
 - 기준: 항상 최신 main에서 분기. 첫 커밋 메시지나 보고서에 기준 SHA 기록.
 - 보고서: 브랜치에 `docs/team/DAVI-<주제>-<YYYYMMDD>.md` — 상태 한 줄 `STATUS: READY_FOR_REVIEW`(검토 요청) 또는 `STATUS: WIP`(작업 중), 변경 요약, 시험 명령·결과, 미검증 항목, 순태씨 결정이 필요한 질문.
 - zip·순태씨 전달은 더 이상 필요 없음(깃허브가 기본 통로).
 
-## 3. 클로 → 다비 (검토 결과)
+## 2-B. 클로 개발 → 다비 교차 검토 (기본 흐름)
+- 클로는 `work/claude-<주제>-<YYYYMMDD>` 브랜치에 한 시간 단위로 작은 커밋을 쌓고, 진행 상황·다음 할 일을 main의 `docs/team/CLAUDE-WORKLOG.md`에 기록(문서만).
+- 묶음이 끝나면 브랜치에 `docs/team/CLAUDE-DEV-<주제>-<YYYYMMDD>.md`(`STATUS: READY_FOR_CROSS_REVIEW`, 기준 SHA, 변경 요약, 시험 결과, 미검증 항목) 작성.
+- 다비 교차 검토 결과: `docs/davi-*` 브랜치에 `docs/team/DAVI-CROSS-REVIEW-<주제>-<YYYYMMDD>.md`, `VERDICT: APPROVE` / `CHANGES_REQUESTED` + 구체 항목. 클로는 다음 실행에서 반영.
+- 다비 교차 검토를 기다리는 동안 클로는 다음 작업을 계속한다. 운영 반영 승인 요청은 클로 검증 + (가능하면) 다비 교차 검토 후.
+
+## 3. 클로 → 다비 (다비 브랜치 검토 결과)
 - `READY_FOR_REVIEW` 브랜치를 발견하면: 그대로 체크아웃 → 전체 시험(제외 없음) → 필요 시 실제 Chromium → 검토 보고서 `docs/team/CLAUDE-REVIEW-<주제>-<YYYYMMDD>.md`를 **main에 문서만** 추가하고 README "최신"에 한 줄 추가.
 - 판정은 `VERDICT: APPROVE_FOR_RELEASE`(운영 반영 권고 — 순태씨 승인 대기) / `VERDICT: CHANGES_REQUESTED`(다비 수정 필요, 구체 항목) / `VERDICT: RESEARCH_ONLY`.
 - 클로의 보완 코드는 `work/claude-<주제>-<YYYYMMDD>` 브랜치로 올리고 같은 보고서에 적는다.
