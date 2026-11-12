@@ -1,4 +1,43 @@
 STATUS: READY_FOR_REVIEW
+ORDER-ID: GPT-20261112-1730
+BASE: 1987f43 (main 12c4f86 병합 후)   HEAD: 05c2e7b9ad1bb3652397c10d78d5bbb53aa36a7b
+REVIEW-SCOPE: `has/universe-screen-ui.js`(첫 진입 시험 전용 자동 조회·한국 기준일 메모리 캐시·요청 병합·동적 건수·행 표시), `has/universe-screen.html`(`#count` 1줄, 링크 44px CSS 1줄), `tests/universe-screen-ui-cache.test.cjs`(새 8건), `tests/universe-screen-auto-browser.cjs`(Chromium 360/390/430 수동 실행 스크립트), `tests/lib/live-data-pins.json`(해시 2줄). `portfolio_v5.html`·`has/universe-screen.js`·GAS 변경 없음.
+
+# #4 곡소리 화면 — 첫 진입 1회 조회·하루 캐시 (합성 시험 전용, 2026-11-12 18:00 KST)
+
+## 바꾼 것
+| 항목 | 이전 | 이번 |
+|---|---|---|
+| 자동 조회 | 없음(버튼만) | `window.HAS_SCREEN_TEST_AUTO===true`(시험이 페이지 로드 전 주입)일 때만 첫 진입 1회. **운영 페이지는 이 값을 설정하지 않음 → 운영 자동 요청 0**. GAS 주소 없음/형식 불일치면 시험 모드여도 요청 0, "GAS 미연결 · 판단 보류" |
+| 캐시 기준일 | UTC 날짜(`new Date().toISOString().slice(0,10)`) | **한국시간 날짜**(UTC+9). 같은 GAS 주소·같은 KST 날짜면 메모리 캐시 재사용, 재사용 시에도 `validateSummary` 재검사 → 같은 날이라도 2일 만료되면 새 조회 |
+| 중복 요청 | `busy`면 무시 | 진행 중 요청 1개를 공유(동시 클릭·자동+버튼 → 1건) |
+| 저장 | 메모리 | 메모리만(localStorage·sessionStorage·IndexedDB 쓰기 없음, 시험으로 고정). 투자기록·백업 키 불변 |
+| 건수 표시 | 정적 "코스피200 + 미국 200" | `#count`: "감시 대상 {total}종목 (국내 a · 미국 b · 추가 감시 c) — 요약 응답 기준". 401로 바뀌어도 응답 그대로 표시. 계약(`coreCount 400`)은 이번에 안 바꿈 |
+| 행 표시 | 고점 대비·기준일 | + "가격 참고값 {가격} {통화} · 종가 확정·조정기준 미검증", 1/3/6개월 기간(시작~끝), 12개월은 "이력·조정기준 확인 전 비움", 누락행 "자료 부족" |
+| 합성 표시 | 없음 | generation/출처에 synthetic·test-only·example.invalid면 상태줄 맨 앞 "합성 시험 자료(실제 시세 아님)" |
+| 상태줄 | — | 끝에 "매수 검토 후보 없음(판단 보류)" 항상 |
+| JSONP | 콜백 삭제 | 콜백 1회만 처리(두 번째 호출 무시), URL에 `_=` 시각 추가(브라우저 HTTP 캐시 재사용 방지), 실패·시간초과 시 지난 성공 자료는 '오래된 값'으로 낮춤 |
+| 접근성 | "곡소리로 돌아가기" 링크 높이 20px | 44px(인라인 링크에 min-height가 안 먹던 기존 문제) |
+
+## 시험
+- 새 jsdom 8건(`tests/universe-screen-ui-cache.test.cjs`, JSONP `<script>` 가로채 합성 응답, 실제 네트워크 0): 운영 기본 요청 0·쓰기 0 / 시험 모드 첫 진입 1회→pageshow 재진입·버튼 재조회 0추가 / KST 23:59까지 캐시, 00:01 KST 새 조회(1→2) / 동시 5클릭+2호출 = 1건 / 주소 없음·타 도메인·`javascript:` → 요청 0 / 만료·매수후보·'매수 검토' 의견·미래 생성시각·문자열(`<img onerror>`)·다른 콜백·로드 실패 → 표시 0·캐시 0·판단 보류·img 주입 0 / 성공 후 실패 → 지난 자료 '오래된'·재시도 새 요청 / 같은 날 만료 → 재조회 / 건수 동적·저장 API 미사용.
+- 전체: `node --require ./tests/lib/no-network.cjs --test tests/*.test.cjs` → **1998 중 1996 통과 / 0 실패 / 2 skip**. skip 2건 = `TZ=America/New_York`에서만 도는 DST 시험(기존, 이번과 무관).
+- `node tools/scan-secrets.cjs` → findings 0.
+- Chromium(`node tests/universe-screen-auto-browser.cjs`, 외부 요청 전부 차단, GAS는 `type=screen`만 가짜 JSONP): 360/390/430 × (운영 기본, 시험 자동) 6경우 모두 통과 — 운영 기본 자동 요청 0(버튼 1회), 시험 자동 첫 진입 1회·버튼 재사용 0추가, 가로 넘침 없음, 버튼·링크·summary 44px 이상, 12px 미만 글자 0, `v5_gen` 원장 표지값 불변, pageerror 0. 기존 `tests/universe-screen-browser.cjs`도 360/390/430/1280 통과.
+
+## 미완료·미검증
+- **뒤로가기 캐시 유지 미검증**: headless Chromium+route에서 곡소리→뒤로가기가 bfcache 복원이 아닌 새 로드(back_forward)로 처리되어 메모리 캐시가 사라짐. 새 로드면 (시험 모드에서) 1회 재조회 또는 시간초과 후 판단 보류. 페이지 새로고침도 1회 재조회(메모리만 쓰는 지시서 조건의 한계). 대안: 별도 sessionStorage 키(투자기록 키 아님) — 지피·순태씨 판단 필요.
+- 휴장일·주말 정책 없음: 한국 날짜가 바뀌면 새 조회(가격 기준일은 응답 asOf로 표시). 한국·미국 휴장 달력 근거 미확보.
+- 실제 GAS `type=screen` 응답·실제 기기(갤럭시) 미검증. 운영 자동 조회 활성 방법(게이트를 무엇으로 켤지)은 GAS 연결 승인 때 결정.
+- 화면 제목 "400종목"은 프로젝트 이름으로 유지(지시서 5).
+
+## 순태씨 결정 필요
+- 없음(이번 단위는 합성 전용). 운영 자동 조회 켜기·GAS 연결은 이후 승인 사항.
+
+---
+(이전 단위 보고: GPT-20261112-1630, HEAD 7fd93f1 — 아래)
+
+STATUS: READY_FOR_REVIEW
 ORDER-ID: GPT-20261112-1630
 BASE: 2f6772f   HEAD: 7fd93f11f88d35ba65e8dbdb5f10c4ebf7451f7d
 REVIEW-SCOPE: `gas/has-universe-screen.gs`(초안 보완), `tests/universe-screen-synthetic400.test.cjs`(새 12건), `tests/lib/synthetic-universe-400.test-only.cjs`(합성 픽스처), `tests/universe-screen-gas.test.cjs`(가짜 Utilities에 SHA-256 추가 1줄), `tests/lib/live-data-pins.json`(gs 해시 1줄). 앱(portfolio_v5.html)·`has/universe-screen.js`·실제 GAS 변경 없음. 중간의 `fd3eb3d`는 main 문서 병합.
