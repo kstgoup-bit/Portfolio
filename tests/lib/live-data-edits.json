@@ -73,6 +73,10 @@
     [
       "    const screen=$('a','400종목 가격 선별');screen.href='./has/universe-screen.html';screen.style.minHeight='44px';nav.append(screen);\n    const sell=$('a','환호성 매도 레이더 · 합성 연구');",
       "    const sell=$('a','환호성 매도 레이더 · 합성 연구');"
+    ],
+    [
+      "  function render(){root.replaceChildren();if(mode==='real'&&window.HASLivePricePanel){const title=$('h1',view==='euphoria'?'환호성':'곡소리');title.id='kr-title';title.tabIndex=-1;root.append(title);const nav=$('nav',null,'kr-actions');nav.append(button('곡소리 가격 위치',()=>navigate('list')),button('환호성 가격 위치',()=>navigate('euphoria')),button('합성 연구',()=>switchMode('demo')));const screen=$('a','400종목 가격 선별');screen.href='./has/universe-screen.html';screen.style.minHeight='44px';screen.style.display='inline-flex';screen.style.alignItems='center';nav.append(screen);root.append(nav);const box=$('section');root.append(box);window.HASLivePricePanel.mount(box,view==='euphoria'?'euphoria':'fear');return;}header();if(view==='detail')detail();else if(view==='criteria')criteria();else if(view==='status')status();else list();}\n  function restoreRoute(){\n",
+      "  function render(){root.replaceChildren();if(mode==='real'&&window.HASLivePricePanel){const title=$('h1',view==='euphoria'?'환호성':'곡소리');title.id='kr-title';title.tabIndex=-1;root.append(title);const nav=$('nav',null,'kr-actions');nav.append(button('곡소리 가격 위치',()=>navigate('list')),button('환호성 가격 위치',()=>navigate('euphoria')),button('합성 연구',()=>switchMode('demo')));root.append(nav);const box=$('section');root.append(box);window.HASLivePricePanel.mount(box,view==='euphoria'?'euphoria':'fear');return;}header();if(view==='detail')detail();else if(view==='criteria')criteria();else if(view==='status')status();else list();}\n  function restoreRoute(){\n"
     ]
   ],
   "has/advisor-panel.js": [

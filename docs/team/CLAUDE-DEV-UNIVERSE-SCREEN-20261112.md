@@ -1,6 +1,6 @@
 STATUS: WIP
 ORDER-ID: (없음 — 일지 승인 작업 #1~5, 다비 제출 719692c 이어받기)
-BASE: main ffd07f8   HEAD: 26ad6db (다비 719692c + main 병합) + 이 문서 커밋
+BASE: main 4a9133f   HEAD: (이 문서를 포함한 보완 0b 커밋 — 일지 기록 참고)
 
 # 400종목 곡소리 — 다비 제출(719692c) 클로 검토 1차 (2026-11-12 14:15 KST)
 
@@ -26,3 +26,15 @@ BASE: main ffd07f8   HEAD: 26ad6db (다비 719692c + main 병합) + 이 문서 �
 
 ## 순태씨 결정 필요
 지금 없음.
+
+## 보완 0b (2026-11-12 15:00 KST 실행)
+1. 완료 — 실제 모드(운영 기본, HASLivePricePanel) 곡소리/환호성 nav에 '400종목 가격 선별' 링크 추가(radar/ui.js, edits 역방향 쌍 + pins 갱신). Chromium 360/390/430: 링크 1개 표시, 16px, 높이 44px, 가로 넘침 없음, 클릭 대상 페이지 정상 도착. 변경 전 main은 0개.
+2. 완료 — 문구 '보유·확신 종목 별도 포함' → '보유·확신 종목은 기존 곡소리 화면에서 확인'.
+3. 완료 — 상태 줄 시각을 'YYYY-MM-DD HH:MM (한국시간)'으로, 실패 사유를 한국어로(GAS 주소 없음은 브라우저의 'Invalid URL'도 'GAS 주소가 없거나 형식이 맞지 않음'으로). 미등록 코드는 '자료 확인 필요 (코드)'.
+4. 완료 — evidence-universe/ 삭제, 하니스 출력은 임시 폴더(또는 HAS_EVIDENCE_DIR).
+5. 완료 — 하니스 executablePath 제거(기본 chromium.launch).
+6. 확인 — 'Unexpected token <' pageerror는 정상 404 처리 서버에서 재현 안 됨(이전 임시 서버가 폴더 경로에 HTML을 돌려준 탓으로 판단). 변경 전/후 모두 pageerror 0.
+- 새 시험 `tests/universe-screen-entry.test.cjs` 2건(실제 모드 링크 1개·요청 0, 문구·한국어 사유). 하니스에 한국시간 표시 검사 추가.
+- 전체 시험 1975 중 1973 통과 / 0 실패 / 2 skip. scan-secrets findings 0. 하니스 360/390/430/1280 통과, 실제 외부 호출 0.
+
+다음: 작업 #1 공식 400종목 구성목록 출처 확인(코스피200·나스닥100·S&P100·S&P500) — 확보 못 하면 미검증으로 남기고 가짜 목록 금지.
