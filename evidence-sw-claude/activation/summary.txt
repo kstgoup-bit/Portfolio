@@ -1,0 +1,16 @@
+run 1 exit=0 1 
+run 2 exit=0 1 
+run 3 exit=0 1 
+run 4 exit=0 1 
+run 5 exit=0 1 
+run 6 exit=0 1 
+run 7 exit=0 1 
+run 8 exit=0 1 
+run 9 exit=0 1 
+run 10 exit=0 1 
+legacy-probe run 1 exit=1 0 Error: Timed out waiting for legacy-probe activation control; last={"kind":"legacy","release":"6c
+legacy-probe run 2 exit=1 0 Error: Timed out waiting for legacy-probe activation control; last={"kind":"legacy","release":"6c
+legacy-probe run 3 exit=1 0 Error: lab probe timed out
+closed-probe run 1 exit=1 0 Error: Timed out waiting for closed-probe activation control; last={"kind":"legacy","release":"6c
+closed-probe run 2 exit=0 1 
+closed-probe run 3 exit=1 0 Error: Timed out waiting for closed-probe activation control; last={"kind":"legacy","release":"6c
