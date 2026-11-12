@@ -22,9 +22,10 @@ function server(old) { return http.createServer((q, r) => { const p = decodeURIC
         await p.clock.install({ time: FIXED }); await ctx.addInitScript(seed => { for (const k in seed) localStorage.setItem(k, seed[k]); }, SEED);
         await p.goto('http://127.0.0.1:' + s.address().port + '/portfolio_v5.html'); await p.waitForFunction(() => window.hasStartApp && hasStartApp.done);
         await p.fill('#lockInput', 'synthetic-pw-1234'); await p.click('#lockBtn'); await p.clock.runFor(4000); await p.waitForTimeout(300);
-        out[old ? 'before' : 'after'] = { text: await p.evaluate(() => document.body.innerText + '\n@@HTML@@\n' + [...document.querySelectorAll('[id$="ReturnsTable"],[id$="LineChart"],[id^="panel-"]')].map(e => e.id + '=' + e.textContent).join('\n')), lock: await p.evaluate(() => document.getElementById('lockScreen').style.display), overflow: await p.evaluate(() => document.documentElement.scrollWidth > innerWidth), errors };
+        out[old ? 'before' : 'after'] = { text: await p.evaluate(() => { /* 2026-11-12 의도된 변경(관측일·수신·출처 접힌 안내로 이동, 상태 문구 위치) 요소는 양쪽 모두 제거 후 비교 */ document.querySelectorAll('.benchStatusMsg,details').forEach(e => { if (e.classList.contains('benchStatusMsg') || /수익률 계산 안내/.test(e.textContent.slice(0, 40))) e.remove(); }); document.querySelectorAll('div').forEach(e => { if (!e.querySelector('div') && /^관측일: /.test(e.textContent)) e.remove(); }); return document.body.innerText + '\n@@HTML@@\n' + [...document.querySelectorAll('[id$="ReturnsTable"],[id$="LineChart"],[id^="panel-"]')].map(e => e.id + '=' + e.textContent).join('\n'); }), lock: await p.evaluate(() => document.getElementById('lockScreen').style.display), overflow: await p.evaluate(() => document.documentElement.scrollWidth > innerWidth), errors };
         await ctx.close(); s.close();
       }
+      const norm = t => t;
       const same = out.before.text === out.after.text;
       if (!same) { const A = out.before.text.split('\n'), B = out.after.text.split('\n'); const d = []; for (let i = 0; i < Math.max(A.length, B.length) && d.length < 10; i++) if (A[i] !== B[i]) d.push([i, A[i], B[i]]); console.log('DIFF', width, JSON.stringify(d)); }
       assert.equal(out.after.lock, 'none'); assert.equal(out.after.overflow, false); assert.deepEqual(out.after.errors, out.before.errors);
