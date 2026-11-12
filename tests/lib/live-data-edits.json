@@ -67,6 +67,22 @@
     [
       "  if(hasStartApp.done) return; hasStartApp.done=true;\n  // 속도: 화면 한 번 그리는 동안 같은 자산기록 검증을 한 번만(기록 수×표 줄 수만큼 반복하던 검증 재사용)\n  // 잠금화면이 떠 있는 동안에는 가려진 화면을 그리지 않음(잠금 해제 시 checkPw의 renderAll이 표·그래프까지 한 번에 그림) — 잠금화면 멈춤 방지\n  [\"renderAll\",\"renderAllReturnsTables\",\"renderLineChart\"].forEach(function(name){var f=window[name];if(typeof f!==\"function\")return;window[name]=function(){var ls=document.getElementById(\"lockScreen\");if(ls&&ls.style.display!==\"none\"){hasStartApp.deferredRender=true;return;}var self=this,args=arguments,P=window.HASSnapshotPolicy;return P&&P.withValidationCache?P.withValidationCache(function(){return f.apply(self,args);}):f.apply(self,args);};});\n  // 잠금화면\n",
       "  if(hasStartApp.done) return; hasStartApp.done=true;\n  // 잠금화면\n"
+    ],
+    [
+      "  var rows=getBenchDescription(key).rows;\n  return {text:rows.length?rows.map(function(r){return r.symbol+\" [\"+r.currency+\"]: \"+(r.latestDate||\"미확인\")+(r.readOnly?\" · 원본 확인 필요\":\"\")+(r.conflictDates.length?\" · 충돌 격리 \"+r.conflictDates.length+\"일(기준 확인 전 제외)\":\"\");}).join(\" · \"):\"미확인\",stale:true,name:\"ETF 대용치\",source:rows.length?rows.map(function(r){return r.symbol+\": \"+r.source;}).join(\" · \"):\"출처 미확인\"};\n}\n",
+      "  var rows=getBenchDescription(key).rows;\n  return {text:rows.length?rows.map(function(r){return r.symbol+\" [\"+r.currency+\"]: \"+(r.latestDate||\"미확인\")+(r.readOnly?\" · 원본 확인 필요\":\"\")+(r.conflictDates.length?\" · 충돌 격리 \"+r.conflictDates.join(\", \"):\"\");}).join(\" · \"):\"미확인\",stale:true,name:\"ETF 대용치\",source:rows.length?rows.map(function(r){return r.symbol+\": \"+r.source;}).join(\" · \"):\"출처 미확인\"};\n}\n"
+    ],
+    [
+      "    '<p style=\"font-size:12px;line-height:1.6;color:#333\">ETF 대용치이며 배당·보수·환율 차이가 있습니다. 원화 평가와 USD/혼합 지수의 알파 및 원화 비교선은 환율 근거가 없어 보류합니다. 당일 막대·공식 종가·최신성은 미확정입니다.</p>'+\n    '<div style=\"font-size:12px;line-height:1.6;overflow-wrap:anywhere;margin-top:6px\">관측일: '+snapshotEscape(getBenchDataLatestLabel(key).text)+'<br>수신: '+snapshotEscape(getBenchFetchTimeLabel(key).text)+'<br>출처: '+snapshotEscape(getBenchDataLatestLabel(key).source)+'</div>'+\n    '</details>'+\n",
+      "    '<p style=\"font-size:12px;line-height:1.6;color:#333\">ETF 대용치이며 배당·보수·환율 차이가 있습니다. 원화 평가와 USD/혼합 지수의 알파 및 원화 비교선은 환율 근거가 없어 보류합니다. 당일 막대·공식 종가·최신성은 미확정입니다.</p>'+\n    '</details>'+\n"
+    ],
+    [
+      "    '</details>'+\n    '<div class=\"benchStatusMsg\" role=\"status\" style=\"font-size:12px;line-height:1.6;color:#333\">'+snapshotEscape(_benchStatusMsg)+'</div>'+\n",
+      "    '</details>'+\n    '<div style=\"font-size:12px;line-height:1.6;overflow-wrap:anywhere\">관측일: '+snapshotEscape(getBenchDataLatestLabel(key).text)+'<br>수신: '+snapshotEscape(getBenchFetchTimeLabel(key).text)+'<br>출처: '+snapshotEscape(getBenchDataLatestLabel(key).source)+'</div>'+\n    '<div class=\"benchStatusMsg\" role=\"status\" style=\"font-size:12px;line-height:1.6;color:#333\">'+snapshotEscape(_benchStatusMsg)+'</div>'+\n"
+    ],
+    [
+      "  ];\n  // 속도: 보이는 그래프만 바로, 가려진 그래프는 하나씩 나눠서(한 번에 5개를 그리며 폰이 멈추는 것 방지)\n  function visible(m){var el=document.getElementById(m.chartId),panel=el&&el.closest?el.closest(\".panel\"):null;return !panel||panel.classList.contains(\"active\");}\n  function draw(m){var period=currentPeriods[m.btnId]||\"1W\";try { renderLineChart(period, m.btnId, m.chartId, m.snapKey, m.color); } catch(e){}}\n  var epoch=(refreshAllLineCharts.epoch=(refreshAllLineCharts.epoch||0)+1),rest=[];\n  map.forEach(function(m){if(visible(m))draw(m);else rest.push(m);});\n  rest.forEach(function(m,i){setTimeout(function(){if(epoch===refreshAllLineCharts.epoch)draw(m);},60*(i+1));});\n}\n",
+      "  ];\n  map.forEach(function(m){\n    var period=currentPeriods[m.btnId]||\"1W\";\n    try { renderLineChart(period, m.btnId, m.chartId, m.snapKey, m.color); } catch(e){}\n  });\n}\n"
     ]
   ],
   "radar/ui.js": [
