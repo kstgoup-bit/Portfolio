@@ -17,6 +17,7 @@
   },
   "addedRuntimeFiles": {
     "has/live-price-reference.js": "74ec48bfd7b9fe121eeccb1fe4849289ca2e8dd0cd18f38462c83bded92c2cb1",
-    "has/live-price-panel.js": "be25d2c7ecf19b9db69bb0913ddf9a07a0765944870546dc38a922974f72e65d"
+    "has/live-price-panel.js": "be25d2c7ecf19b9db69bb0913ddf9a07a0765944870546dc38a922974f72e65d",
+    "has/capital-allocation.js": "b146f24e70e2e396bfa07ba9a562f741e33496f0212e4796fc7fc5ee32b57a07"
   }
 }
