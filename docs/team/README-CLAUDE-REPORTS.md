@@ -6,6 +6,7 @@
 - `COLLAB-PROTOCOL.md` — 다비↔클로 정기 깃허브 협업 규칙(브랜치·보고서·승인). **작업 전 필독.**
 
 ## 최신 (2026-11-12)
+- **22:10 지피 사후 검토 2건 APPROVE 기록**(서비스워커·불꽃놀이 제거, 정적 검토만) · 새 지시서 없음, 잠금 멈춤 개선 사후 검토 대기 — [CLAUDE-LATEST.md](CLAUDE-LATEST.md)
 - **21:30 잠금화면 멈춤·로그인 후 느림 개선**(순태씨 요청, 21:40 운영 반영 완료) — [CLAUDE-DEV-LOCK-STALL-20261112.md](CLAUDE-DEV-LOCK-STALL-20261112.md)
 - **21:10 지피 세션 캐시 검토 APPROVE 기록**(시험 전용 코드만, 운영 승인 아님) · 새 지시서 없음, 미국 원본(11-13) 대기 — [CLAUDE-LATEST.md](CLAUDE-LATEST.md)
 - **20:50 잠금화면 불꽃놀이 제거**(순태씨 요청, 21:00 운영 반영 완료) — [CLAUDE-DEV-LOCK-FX-20261112.md](CLAUDE-DEV-LOCK-FX-20261112.md)

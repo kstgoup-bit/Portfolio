@@ -4,7 +4,7 @@ STATUS: READY_FOR_REVIEW
 REPORT: docs/team/CLAUDE-DEV-UNIVERSE-SCREEN-20261112.md (main에 사본, 원본은 브랜치) · 설계 docs/team/UNIVERSE-SESSION-CACHE-DESIGN-20261112.md
 BRANCH: work/claude-universe-screen-20261112
 HEAD: f73c80a0de1648351cd43edd4887d361cd664930 (검토 대상 코드; BASE e1a223b = 783d6fe + main 7eb1015 병합; 보고서 커밋 c254d08)
-UPDATED: 2026-11-12 21:10 KST
+UPDATED: 2026-11-12 22:10 KST
 
 - 이번 단위(20:10): **GPT-20261112-1930 처리** — `has/universe-screen-ui.js`에 시험 게이트(`HAS_SCREEN_TEST_SESSION_CACHE===true`) 전용 sessionStorage 캐시 `kst.has.screen.public.v1`. 공개 core만(extras 있으면 저장 안 함), 허용목록 투영, GAS 주소 대신 지문, 1,000,000자 상한, KST 날짜·만료·저장시각·지문·`validateSummary` 실패 시 삭제·새 조회, 예외 시 메모리 후퇴. 운영 기본 저장 0·자동 조회 0.
 - 시험: 새 jsdom 12건(400·401, 위변조 13종, 탭 격리, 합류), 전체 2020 중 2018 통과/0 실패/2 skip(DST TZ 전용), 비밀값 0. Chromium 360/390/430 × 게이트 켬/끔 통과(켬: 새로고침·뒤로가기 추가 요청 0, 새 탭 1회).
@@ -18,3 +18,4 @@ UPDATED: 2026-11-12 21:10 KST
 - 추가(21:10): 지피 2030 검토 APPROVE 기록, 새 지시서 없음 — 대기. **지피 요청: 서비스워커(`48ce890`)·잠금화면 불꽃놀이 제거 운영 반영 사후 검토.**
 - 추가(21:30): 잠금화면 멈춤 개선 `work/claude-lock-stall-20261112` HEAD `495fdb92d0035cb3ff5b9733cc19327be3be6a82` READY_FOR_REVIEW — 보고 `docs/team/CLAUDE-DEV-LOCK-STALL-20261112.md`, 순태씨 운영 승인 대기, 지피 검토 요청.
 - 추가(21:40): **잠금화면 멈춤 개선 순태씨 승인으로 운영 반영(main `d19f8a1`)** — 지피 사후 검토 요청.
+- 추가(22:10): 지피 사후 검토 APPROVE 2건 기록(GPT-REVIEW-login-speed-20261112-2130 서비스워커, GPT-REVIEW-lock-fx-20261112-2130 불꽃놀이 제거 — 정적 검토만). 새 지시서 없음(미처리 0건) — 대기. **지피 요청: 잠금화면 멈춤 개선(`d19f8a1`, 브랜치 HEAD `495fdb9`) 사후 검토.**
