@@ -1,0 +1,53 @@
+{
+  "synthetic": true,
+  "results": [
+    {
+      "case": "positive control: unnamespaced waiting-generation cache",
+      "outcome": "REPRODUCED mixed legacy old HTML and new candidate JS; original counterexample retained"
+    },
+    {
+      "case": "namespaced waiting-generation cache",
+      "outcome": "PASS candidate hidden from legacy original-URL lookup; candidate serving remains intact. Legacy own HTML fallback is not repaired."
+    },
+    {
+      "case": "legacy global activate cleanup",
+      "outcome": "REPRODUCED candidate cache removal and fail-closed navigation; cross-registration/rollback lifecycle precondition not browser-proven"
+    },
+    {
+      "case": "partial loss with offline",
+      "outcome": "PASS failed recovery writes nothing; later exact-generation recovery succeeds"
+    },
+    {
+      "case": "partial loss with hash",
+      "outcome": "PASS failed recovery writes nothing; later exact-generation recovery succeeds"
+    },
+    {
+      "case": "partial loss with size",
+      "outcome": "PASS failed recovery writes nothing; later exact-generation recovery succeeds"
+    },
+    {
+      "case": "partial loss with mime",
+      "outcome": "PASS failed recovery writes nothing; later exact-generation recovery succeeds"
+    },
+    {
+      "case": "partial loss with status",
+      "outcome": "PASS failed recovery writes nothing; later exact-generation recovery succeeds"
+    },
+    {
+      "case": "concurrent corrupt-asset recovery",
+      "outcome": "PASS one fetch shared across eight responses with independently readable bodies"
+    },
+    {
+      "case": "marker lost",
+      "outcome": "PASS fail closed without recovery attempt"
+    },
+    {
+      "case": "whole cache lost",
+      "outcome": "PASS fail closed without recovery attempt"
+    },
+    {
+      "case": "query shell, unknown routes and unrelated-page scripts",
+      "outcome": "PASS expected isolation/fail-closed behavior"
+    }
+  ]
+}

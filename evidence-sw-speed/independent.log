@@ -1,0 +1,25 @@
+{
+  "synthetic": true,
+  "results": [
+    {
+      "case": "positive control: unnamespaced waiting-generation cache",
+      "outcome": "REPRODUCED mixed legacy old HTML and new candidate JS; original counterexample retained"
+    },
+    {
+      "case": "namespaced waiting-generation cache",
+      "outcome": "PASS candidate hidden from legacy original-URL lookup; candidate serving remains intact. Legacy own HTML fallback is not repaired."
+    },
+    {
+      "case": "legacy global activate cleanup",
+      "outcome": "REPRODUCED candidate cache removal and fail-closed navigation; cross-registration/rollback lifecycle precondition not browser-proven"
+    },
+    {
+      "case": "one static asset disappears after activation",
+      "outcome": "REPRODUCED HTML still serves but missing script fails closed; no self-repair, availability limitation"
+    },
+    {
+      "case": "query shell, unknown routes and unrelated-page scripts",
+      "outcome": "PASS expected isolation/fail-closed behavior"
+    }
+  ]
+}
