@@ -3,8 +3,9 @@
 클로(Claude)의 검토·요청 보고서는 이 폴더(`docs/team/`)에 모읍니다. 날짜가 파일명 끝에 있습니다.
 
 ## 최신 (2026-11-12)
+- `SW-RACE-REVIEW-20261112.md` — 클로 하니스 오류 인정, 다비 수정 하니스 실제 Chromium 10/10 통과
 - `UNIVERSE-SCREEN-REQUEST-20261112.md` — **다음 작업 1순위**: 400종목(코스피200 + 미국 200) 곡소리 레이더, GAS 야간 계산, AI 의견 표시 위치
-- `SW-LAB-BROWSER-REVIEW-20261112.md` — SW 후보 실제 Chromium 수명주기 시험(8회 중 7회 실패, 운영 불가)
+- `SW-LAB-BROWSER-REVIEW-20261112.md` — (철회됨: 하니스 오류 — SW-RACE-REVIEW 참고)
 - `SUPPORTED-SYMBOLS-REVIEW-20261112.md` — 미지원 종목 격리 검토·운영 반영(`c7de558`)
 - `LIVE-DATA-SW-REVIEW-20261112.md` — 실제 데이터 1단계 검토·운영 반영(`90886f9`), 후속 요청
 - `SPEED-MINIMAL-REVIEW-20261112.md` — 표 계산 최소안 검토·운영 반영(`c816903`)
