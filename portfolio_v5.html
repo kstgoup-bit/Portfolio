@@ -2778,9 +2778,9 @@ function fetchBenchmarkHistory(force) {
     };
     script.onerror=function(){finish(null);};
     timer=setTimeout(function(){finish(null);},8000);
-    url.hash="";url.searchParams.set("type","history");url.searchParams.set("tickers","069500");url.searchParams.set("market","KR");url.searchParams.set("callback",cb);
+    var isKR=item.id==="KS200";url.hash="";url.searchParams.set("type","history");url.searchParams.set("tickers",isKR?"069500":item.sym);url.searchParams.set("market",isKR?"KR":"US");url.searchParams.set("callback",cb);
     script.referrerPolicy="no-referrer";script.src=url.href;
-    setBenchStatus("069500 GAS ETF 이력 확인 · 날짜만 제공 · 최신성·종가 미확정");
+    setBenchStatus((isKR?"069500":item.sym)+" GAS ETF 이력 확인 · 날짜만 제공 · 최신성·종가 미확정");
     try{document.head.appendChild(script);}catch(e){finish(null);}
   }
   function avFallback(item,done){
@@ -2825,10 +2825,9 @@ function fetchBenchmarkHistory(force) {
     }catch(e){setBenchStatus("이력 검사·저장 실패 · 원본 보존 · 결과 재확인 필요");}
     finally{clearTimeout(timeout);if(_benchRunId===myRun)_benchFetchInFlight=false;}
   }
-  gasFirst(syms[2],function(result){
-    function otherSymbols(){fetchOne(syms[0],0,function(){fetchOne(syms[1],0,finish);});}
-    if(result){candidates.KS200=result;otherSymbols();}else fetchOne(syms[2],0,otherSymbols);
-  });
+  // 세 지수 모두 설정된 GAS를 먼저 쓰고, 실패하면 기존 공개 경로로 넘어간다(미국 지수가 공개 중계 불안정으로 비던 문제).
+  function viaGas(item,next){gasFirst(item,function(result){if(result){candidates[item.id]=result;next();}else fetchOne(item,0,next);});}
+  viaGas(syms[2],function(){viaGas(syms[0],function(){viaGas(syms[1],finish);});});
 }
 
 function getBenchDescription(key) {
@@ -2861,9 +2860,9 @@ function findBenchAtOrBefore(hist,targetTs,id) {
   var ck=id+"|"+targetTs;
   // 같은 거래소 날짜의 조회는 결과가 같다(선택 규칙이 날짜 단위). 하루에 여러 번 기록한 점도 한 번만 계산한다.
   try{var sp=HASBenchmarkHistory.specs&&HASBenchmarkHistory.specs[id],Qm=window.HASQuoteModel;
-    if(sp&&Qm&&typeof targetTs==="number"&&Number.isSafeInteger(targetTs)&&targetTs>0&&targetTs<=8640000000000000){var dk=Qm.marketDate(new Date(targetTs).toISOString(),sp.market);if(dk)ck=id+"@"+dk;}}catch(e){}
+    if(sp&&Qm&&typeof targetTs==="number"&&Number.isSafeInteger(targetTs)&&targetTs>0&&targetTs<=8640000000000000){var dk=Qm.marketDate(new Date(targetTs).toISOString(),sp.market);if(dk)ck=id+"@"+dk+(targetTs>=HASBenchmarkHistory.closeTimeMs(dk,sp.market)?"c":"o");}}catch(e){}
   if(ck in c.map)return c.map[ck];
-  var r=HASBenchmarkHistory.selectPointAtOrBefore(hist,id,targetTs,{now:nowMs,conflicts:g?g.pendingConflicts||[]:[]});
+  var r=HASBenchmarkHistory.selectPointAtOrBefore(hist,id,targetTs,{now:nowMs,sameDayAfterClose:true,conflicts:g?g.pendingConflicts||[]:[]});
   return (c.map[ck]=r.ok?r.point:null);
 }
 var _benchSelCache={hist:null,len:-1,state:null,at:0,map:null};

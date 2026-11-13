@@ -5,15 +5,17 @@
     "has/advisor-panel.js": "c9d69ae277313b7d0939bc6371e2b190ff8725f6d369417ca4298591a824a2dd",
     "service-worker.js": "77d553efcfc3eb93f65a1f2901de1cf3b6b61b36febd9605053e66db6724dcd8",
     "has/snapshot-policy.js": "9109c84c4f4a8bfdde046646e668dc1c4b9ebf4712f50ff271daadf2f2bc3d1a",
-    "has/return-assessment.js": "1b1c7a54d05443f0cd96f9677338aa9af7c79677fa8f589cbbca1c3d3aedfd51"
+    "has/return-assessment.js": "1b1c7a54d05443f0cd96f9677338aa9af7c79677fa8f589cbbca1c3d3aedfd51",
+    "has/benchmark-history-policy.js": "8d64e852feb00050449f3b66b51e0188059a77accc10dcff9e8880a3969893f9"
   },
   "currentSha256": {
-    "portfolio_v5.html": "91b3d8f611743e865cc3e76276f5426c9fea19fba64767e3169a58d3aa51f4b5",
+    "portfolio_v5.html": "dad173c468958f68e8e157c978f6c47f5a265b99828a0f5f4717e94c4f2ed7e5",
     "radar/ui.js": "57b3d2364a6612f9133190dda68bec4a4acc43bb5979d89823be20edfeaf3052",
     "has/advisor-panel.js": "2da44530135fe29fc9cd630ddad49ec18c68f3314b53133e94829e1aef1689b7",
     "service-worker.js": "bd7c5a33f7070bf8e4791fedb5cbfc4572741076023efb1090e838d8041c7b72",
     "has/snapshot-policy.js": "8d228e107cf61a4cb4a520e0dc0200da1daaa7a0627c9cbb2e9bfcd098fbb3bf",
-    "has/return-assessment.js": "eaf2701dd6ed9224f9e15ff9d97253bd756152120b0625d3dd34e3cc3489a881"
+    "has/return-assessment.js": "eaf2701dd6ed9224f9e15ff9d97253bd756152120b0625d3dd34e3cc3489a881",
+    "has/benchmark-history-policy.js": "e9bdf34629de9b21931f8e77e0576aff6c6fe863e77a3b4a0f2ad4c866a10cd4"
   },
   "addedRuntimeFiles": {
     "has/live-price-reference.js": "74ec48bfd7b9fe121eeccb1fe4849289ca2e8dd0cd18f38462c83bded92c2cb1",
