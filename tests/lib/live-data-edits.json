@@ -251,6 +251,14 @@
     [
       "<script defer src=\"has/live-price-panel.js\"></script>\n<script defer src=\"has/universe-screen.js\"></script>\n<script defer src=\"has/fear-top.js\"></script>\n<script defer src=\"radar/ui.js\"></script>",
       "<script defer src=\"has/live-price-panel.js\"></script>\n<script defer src=\"radar/ui.js\"></script>"
+    ],
+    [
+      "/* 기준지수 자료 진단: 지수별 사용 가능 여부·개수·마지막 관측일·보류 충돌·불가 사유(원인 확인용, 저장값 변경 없음). */\nfunction hist0(id){return id===\"KS200\"?benchmarkHistory.KS200:id===\"QQQ\"?benchmarkHistory.NDX:benchmarkHistory.SPY;}\nfunction benchDiagText(){\n",
+      "/* 기준지수 자료 진단: 지수별 사용 가능 여부·개수·마지막 관측일·보류 충돌·불가 사유(원인 확인용, 저장값 변경 없음). */\nfunction benchDiagText(){\n"
+    ],
+    [
+      "      var pc=g.pendingConflicts||[],tail=pc.slice(-2).map(function(c){return c.d+\" \"+c.existing.close+\"→\"+c.alternative.close;}).join(\", \");\n      var cdates=[],seen={};pc.forEach(function(c){if(!seen[c.d]){seen[c.d]=1;cdates.push(c.d);}});\n      var sel=function(opt){try{var nw=Date.now(),r=HASBenchmarkHistory.selectPointAtOrBefore(hist0(id),id,nw,Object.assign({now:nw,conflicts:benchChartConflicts(g)},opt));return r.ok?r.date+(r.sameDayClose?\"(당일)\":\"\"):\"실패:\"+r.reason;}catch(e){return \"오류\";}};\n      return names[id]+\" \"+pts.length+\"개 · 마지막 \"+d+\" · 보류충돌 \"+pc.length+(tail?\" (최근 \"+tail+\")\":\"\")+\" · 충돌날짜 \"+cdates.slice(-5).join(\",\")+\" · 지금 선택: 당일허용 \"+sel({sameDayAfterClose:true})+\" / 전날 \"+sel({});\n    }).join(\" / \");\n",
+      "      var pc=g.pendingConflicts||[],tail=pc.slice(-2).map(function(c){return c.d+\" \"+c.existing.close+\"→\"+c.alternative.close;}).join(\", \");\n      return names[id]+\" \"+pts.length+\"개 · 마지막 \"+d+\" · 보류충돌 \"+pc.length+(tail?\" (최근 \"+tail+\")\":\"\");\n    }).join(\" / \");\n"
     ]
   ],
   "radar/ui.js": [
