@@ -42,3 +42,21 @@ test('그리기 중 오류가 나도 그래프 밝기는 원래대로', () => {
   a.throws(flush, /draw/);
   a.equal(svg.style.opacity, '');
 });
+
+test('ETF 이력 새로고침: 누르는 즉시 버튼이 확인 중으로 바뀌고, 끝나면 원래 글자(모든 종료 경로에서 버튼 동기화)', () => {
+  const pick = re => { const m = html.match(re); a.ok(m, String(re)); return m[0]; };
+  const src2 = 'var _benchFetchInFlight=false,_benchStatusMsg="";\n' + pick(/function setBenchStatus\(msg\)\{[\s\S]*?\n\}\n/) + pick(/function benchBtnLabel\(\)[^\n]*\n/) + pick(/function benchBtnSync\(\)[^\n]*\n/);
+  const btn = { textContent: '', attrs: {}, setAttribute(k, v) { this.attrs[k] = v; } }, msg = { textContent: '' };
+  const ctx = { document: { querySelectorAll: s => (s === 'button[onclick="fetchBenchmarkHistory(true)"]' ? [btn] : s === '.benchStatusMsg' ? [msg] : []) } };
+  vm.createContext(ctx); vm.runInContext(src2, ctx);
+  vm.runInContext('_benchFetchInFlight=true;setBenchStatus("ETF 이력 확인 중…")', ctx);
+  a.match(btn.textContent, /확인 중/); a.equal(btn.attrs['aria-busy'], 'true'); a.match(msg.textContent, /^ETF 이력 확인 중…/);
+  vm.runInContext('_benchFetchInFlight=false;benchBtnSync()', ctx);
+  a.equal(btn.textContent, '↻ ETF 이력 새로고침'); a.equal(btn.attrs['aria-busy'], 'false');
+  // 앱 연결: 시작 시 상태 표시, finally·취소·잠금 보류에서 버튼 동기화, 버튼은 상태에 맞는 글자로 그려짐
+  a.match(html, /_benchFetchInFlight=true;\n  if\(force\)setBenchStatus\("ETF 이력 확인 중…"\);else benchBtnSync\(\);/);
+  a.match(html, /finally\{clearTimeout\(timeout\);if\(_benchRunId===myRun\)_benchFetchInFlight=false;benchBtnSync\(\);\}/);
+  a.match(html, /_benchFetchInFlight=false; cancelBenchmarkGas\(\); benchBtnSync\(\);/);
+  a.match(html, /if\(snapshotWriteBlocked\(\)\)\{if\(force\)setBenchStatus\("백업 복원·저장 잠금 중이라 조회 보류"\);return;\}/);
+  a.match(html, /onclick="fetchBenchmarkHistory\(true\)"[^>]*>'\+\(typeof benchBtnLabel==="function"\?benchBtnLabel\(\):"↻ ETF 이력 새로고침"\)\+'<\/button>/);
+});

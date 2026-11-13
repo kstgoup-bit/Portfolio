@@ -1,4 +1,4 @@
-STATUS: READY_FOR_REVIEW
+STATUS: DEPLOYED (2026-11-13 순태씨 승인, main 병합)
 ORDER-ID: 순태씨 대화 2026-11-13 22:20 (ETF 이력 새로고침 버튼 눌러도 움직임이 없음)
 BASE: 261fbe2 (main)
 HEAD: ae90ded3b5e37c4ab1f619313f1da5b573ffdd9c
