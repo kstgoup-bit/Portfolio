@@ -203,6 +203,10 @@
     [
       "  if(ck in c.map)return c.map[ck];\n  var r=HASBenchmarkHistory.selectPointAtOrBefore(hist,id,targetTs,{now:nowMs,sameDayAfterClose:true,conflicts:benchChartConflicts(g)});\n  return (c.map[ck]=r.ok?r.point:null);\n",
       "  if(ck in c.map)return c.map[ck];\n  var r=HASBenchmarkHistory.selectPointAtOrBefore(hist,id,targetTs,{now:nowMs,sameDayAfterClose:true,conflicts:g?g.pendingConflicts||[]:[]});\n  return (c.map[ck]=r.ok?r.point:null);\n"
+    ],
+    [
+      "      var pts=g.points||[],last=pts.length?pts[pts.length-1]:null,d=last?(last.d||(typeof last.ts===\"number\"?new Date(last.ts).toISOString().slice(0,10):\"?\")):\"-\";\n      var pc=g.pendingConflicts||[],tail=pc.slice(-2).map(function(c){return c.d+\" \"+c.existing.close+\"→\"+c.alternative.close;}).join(\", \");\n      return names[id]+\" \"+pts.length+\"개 · 마지막 \"+d+\" · 보류충돌 \"+pc.length+(tail?\" (최근 \"+tail+\")\":\"\");\n    }).join(\" / \");\n",
+      "      var pts=g.points||[],last=pts.length?pts[pts.length-1]:null,d=last?(last.d||(typeof last.ts===\"number\"?new Date(last.ts).toISOString().slice(0,10):\"?\")):\"-\";\n      return names[id]+\" \"+pts.length+\"개 · 마지막 \"+d+\" · 보류충돌 \"+((g.pendingConflicts||[]).length);\n    }).join(\" / \");\n"
     ]
   ],
   "radar/ui.js": [
