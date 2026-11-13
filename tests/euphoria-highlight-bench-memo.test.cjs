@@ -30,5 +30,8 @@ test('그래프 전용 충돌 필터: 반올림 수준만 제외, 실제 차이�
   const mk=(a,b,st='pending-review')=>({d:'2026-11-12',status:st,existing:{close:a},alternative:{close:b}});
   const g={pendingConflicts:[mk(456.7799987792969,456.78),mk(457.1,470.5),mk(100,100.4),mk(5,5.004,'provisional-successor')]};
   const out=f(g);assert.equal(out.length,3);assert.ok(!out.includes(g.pendingConflicts[0]));assert.deepEqual(f(null),[]);
-  assert.match(html,/conflicts:benchChartConflicts\(g\)/);
+  assert.match(html,/dis=benchChartConflicts\(g\)/);
+});
+test('당일 종가가 보류 충돌이면 이전 거래일로 되돌아간다(기준지수선 끊김 방지)',()=>{
+  assert.match(html,/r\.reason==="benchmark-date-conflict"\)r=HASBenchmarkHistory\.selectPointAtOrBefore\(hist,id,targetTs,\{now:nowMs,conflicts:dis\}\)/);
 });

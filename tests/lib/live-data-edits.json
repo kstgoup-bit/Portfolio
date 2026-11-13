@@ -207,6 +207,10 @@
     [
       "      var pts=g.points||[],last=pts.length?pts[pts.length-1]:null,d=last?(last.d||(typeof last.ts===\"number\"?new Date(last.ts).toISOString().slice(0,10):\"?\")):\"-\";\n      var pc=g.pendingConflicts||[],tail=pc.slice(-2).map(function(c){return c.d+\" \"+c.existing.close+\"→\"+c.alternative.close;}).join(\", \");\n      return names[id]+\" \"+pts.length+\"개 · 마지막 \"+d+\" · 보류충돌 \"+pc.length+(tail?\" (최근 \"+tail+\")\":\"\");\n    }).join(\" / \");\n",
       "      var pts=g.points||[],last=pts.length?pts[pts.length-1]:null,d=last?(last.d||(typeof last.ts===\"number\"?new Date(last.ts).toISOString().slice(0,10):\"?\")):\"-\";\n      return names[id]+\" \"+pts.length+\"개 · 마지막 \"+d+\" · 보류충돌 \"+((g.pendingConflicts||[]).length);\n    }).join(\" / \");\n"
+    ],
+    [
+      "  if(ck in c.map)return c.map[ck];\n  var dis=benchChartConflicts(g),r=HASBenchmarkHistory.selectPointAtOrBefore(hist,id,targetTs,{now:nowMs,sameDayAfterClose:true,conflicts:dis});\n  // 당일 종가가 보류 충돌이면 그 값을 쓰지 않고 이전 거래일 종가로 되돌아간다(선이 끊기지 않게). 이전 날짜도 충돌이면 기존처럼 비운다.\n  if(!r.ok&&r.reason===\"benchmark-date-conflict\")r=HASBenchmarkHistory.selectPointAtOrBefore(hist,id,targetTs,{now:nowMs,conflicts:dis});\n  return (c.map[ck]=r.ok?r.point:null);\n",
+      "  if(ck in c.map)return c.map[ck];\n  var r=HASBenchmarkHistory.selectPointAtOrBefore(hist,id,targetTs,{now:nowMs,sameDayAfterClose:true,conflicts:benchChartConflicts(g)});\n  return (c.map[ck]=r.ok?r.point:null);\n"
     ]
   ],
   "radar/ui.js": [
