@@ -6,6 +6,7 @@
 - `COLLAB-PROTOCOL.md` — 다비↔클로 정기 깃허브 협업 규칙(브랜치·보고서·승인). **작업 전 필독.**
 
 ## 최신 (2026-11-13)
+- **21:15 자본배분 비교 시험 페이지 운영 반영(순태씨 승인)**: main 병합 `6bd2af1`, 앱 본체 연결 없음, 전체 2024 통과/0 실패/2 skip — [CLAUDE-DEV-CAPITAL-ALLOCATION-20261113.md](CLAUDE-DEV-CAPITAL-ALLOCATION-20261113.md)
 - **12:00 자본배분 비교 1단계 종료(지피 APPROVE, 정적 검토 한정)**: 합성 엔진 + `?test=1` 시험 화면 — [CLAUDE-DEV-CAPITAL-ALLOCATION-20261113.md](CLAUDE-DEV-CAPITAL-ALLOCATION-20261113.md), 브랜치 `work/claude-capital-allocation-20261113` `2287445`, main 병합은 순태씨 승인 대기
 - **11:10 시험 게이트 화면 지피 수정요청 반영(재검토 요청)**: 종목명 없는 부분 작성 줄·빈 첫 줄 매도 → 추가 정보 필요(줄 번호 표시), 조용한 제외 없음 — [CLAUDE-DEV-CAPITAL-ALLOCATION-20261113.md](CLAUDE-DEV-CAPITAL-ALLOCATION-20261113.md), 브랜치 `work/claude-capital-allocation-20261113` `2287445`, 운영 대상 아님
 - **10:10 자본배분 비교 시험 게이트 화면(지시서 4절)**: 별도 페이지 `?test=1`, 메모리 입력·대안 카드 A~E, 저장·전송 0 — [CLAUDE-DEV-CAPITAL-ALLOCATION-20261113.md](CLAUDE-DEV-CAPITAL-ALLOCATION-20261113.md), 브랜치 `work/claude-capital-allocation-20261113` `fe874dc`, 지피 검토 대기(운영 대상 아님)

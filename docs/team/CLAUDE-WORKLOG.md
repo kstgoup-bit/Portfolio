@@ -38,7 +38,7 @@
 - GPT-REVIEW-capital-allocation-20261113-0830 — CHANGES_REQUESTED(한쪽만 있는 시세종류·기준시각, sale 형식) 반영 `8516d5b`, 재검토 요청 2026-11-13 09:15
 - GPT-REVIEW-capital-allocation-20261113-0930 — APPROVE(엔진 입력 검증 보완 `8516d5b` 정적 검토 한정, 운영 승인 아님), 기록 2026-11-13 10:25 · 4절 시험 게이트 화면 `fe874dc` READY_FOR_REVIEW
 - GPT-REVIEW-capital-allocation-20261113-1030 — CHANGES_REQUESTED(부분 작성 줄 조용한 제외·빈 첫 줄 매도 자동 전환) 반영 `2287445`, 재검토 요청 2026-11-13 11:20
-- GPT-REVIEW-capital-allocation-20261113-1130 — APPROVE(시험 게이트 화면 `2287445` 정적 검토 한정, 운영 승인 아님), 기록 2026-11-13 12:15 · GPT-20261113-0024 1단계 종료
+- GPT-REVIEW-capital-allocation-20261113-1130 — APPROVE(시험 게이트 화면 `2287445` 정적 검토 한정, 운영 승인 아님), 기록 2026-11-13 12:15 · GPT-20261113-0024 1단계 종료 · 2026-11-13 21:15 순태씨 승인으로 main 병합 `6bd2af1`
 
 ## 기록
 - 2026-11-12 13:45 역할 변경 반영, 일지 시작. 다비의 빈 브랜치 `work/davi-universe-screen-20261112`(= main c9d8084, 변경 없음) 확인 — 클로가 이어받음.
@@ -76,3 +76,4 @@
 - 2026-11-13 10:25 정각 실행: 지피 GPT-REVIEW-capital-allocation-20261113-0930 APPROVE(엔진, 정적 검토 한정) 기록. 같은 지시서 4절 시험 게이트 화면 — `has/capital-allocation-lab.html/.js/.css`(별도 페이지, `?test=1` 게이트, 메모리 입력만, 저장소·네트워크 0, 앱 링크 0), 새 시험 6건, live-data-pins addedRuntimeFiles 3개. `fe874dc`(main 문서 병합 `d9b6a16`), 보고 `d3d019a` READY_FOR_REVIEW. 전체 2011 중 2009 통과/0 실패/2 skip(DST), 비밀값 0, Chromium 360/390/430/1280 넘침 0·최소 글자 12px·오류 0·외부 요청 0. 새 GPT-ORDER 없음, 다비 브랜치 새 문서 없음. 다음: 지피 검토 → APPROVE 시 GPT-20261113-0024 1단계 종료.
 - 2026-11-13 11:20 정각 실행: 지피 GPT-REVIEW-capital-allocation-20261113-1030 CHANGES_REQUESTED 반영 — `has/capital-allocation-lab.js` 완전히 빈 줄만 건너뜀·부분 작성 줄은 엔진 전달+`rowIssues` 줄 번호·빠진 항목 표시·`compare` fail-closed, 매도 종목 1번 줄 고정, 안내 문구 2곳, 새 시험 5건, live-data-pins SHA 갱신. `2287445`(main 문서 병합 `032a5ab`), 보고 `92b3444` READY_FOR_REVIEW. 전체 2016 중 2014 통과/0 실패/2 skip(DST), 비밀값 0, Chromium 360/390/430 넘침 0·최소 12px·오류 0·외부 요청 0. 새 GPT-ORDER 없음, 다비 브랜치 새 문서 없음. 참고: 다른 클로 대화 세션의 `work/claude-lazy-invest-split-20261113` 분리 검토 보고(`b7b2a8d`)는 이 실행 범위 밖. 다음: 지피 재검토 → APPROVE 시 GPT-20261113-0024 1단계 종료.
 - 2026-11-13 12:15 정각 실행: 지피 GPT-REVIEW-capital-allocation-20261113-1130 APPROVE 기록 → GPT-20261113-0024 1단계 종료. 브랜치 `2287445` + 최신 main `4d5b4b0` 임시 병합(충돌 없음, 커밋 안 함) 전체 2017 중 2015 통과/0 실패/2 skip(DST), 비밀값 0. 코드 변경 없음. 새 GPT-ORDER 없음, 다비 브랜치 새 문서 없음. 순태씨에게 시험 페이지 main 병합 여부 승인 요청. 다음: 새 지시서 대기(2단계는 새 지시 필요).
+- 2026-11-13 21:15 (순태씨 대화) '일단 된 것은 올려' 승인 → 자본배분 비교 시험 페이지(`work/claude-capital-allocation-20261113` `2287445`) main 병합 `6bd2af1`(시험 게이트 별도 페이지, 앱 연결 없음). 병합 후 전체 2026 중 2024 통과/0 실패/2 skip(DST), 비밀값 0. 지피 사후 검토 요청. 다른 세션 브랜치 `work/claude-bench-diag2-20261113`(21:29 진단 문구, 진행 중)은 이번 승인 범위 밖이라 병합 안 함. 다음: 새 지피 지시서·미국 200 원본 대기.
