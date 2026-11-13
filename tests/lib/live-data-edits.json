@@ -215,6 +215,26 @@
     [
       "function selectPeriod(btnId, chartId, period, snapKey, color) {\n  currentPeriods[btnId]=period;\n  renderPeriodBtns(btnId,chartId,snapKey,color);\n  // 반응: 눌린 버튼 색·흐린 그래프를 먼저 화면에 보이고, 무거운 그래프 그리기는 그 다음에(연속으로 누르면 마지막 것만)\n  var svg=document.getElementById(chartId),tokens=selectPeriod.tokens||(selectPeriod.tokens={}),token=tokens[btnId]=(tokens[btnId]||0)+1;\n  if(svg)svg.style.opacity=\"0.45\";\n  function run(){if(tokens[btnId]!==token)return;try{renderLineChart(currentPeriods[btnId],btnId,chartId,snapKey,color);}finally{if(svg)svg.style.opacity=\"\";}}\n  if(typeof requestAnimationFrame===\"function\")requestAnimationFrame(function(){setTimeout(run,0);});else setTimeout(run,0);\n}\n\n",
       "function selectPeriod(btnId, chartId, period, snapKey, color) {\n  currentPeriods[btnId]=period;\n  renderPeriodBtns(btnId,chartId,snapKey,color);\n  renderLineChart(period,btnId,chartId,snapKey,color);\n}\n\n"
+    ],
+    [
+      "    for (var i=0;i<els.length;i++) els[i].textContent=_benchStatusMsg;\n  } catch(e){}\n  benchBtnSync();\n}\n// 새로고침 버튼: 누르면 바로 '확인 중'으로 바뀌고 끝나면 원래 글자로(눌렸는지 알 수 있게)\nfunction benchBtnLabel(){return _benchFetchInFlight?\"⏳ ETF 이력 확인 중… (1~2분)\":\"↻ ETF 이력 새로고침\";}\nfunction benchBtnSync(){try{var b=document.querySelectorAll('button[onclick=\"fetchBenchmarkHistory(true)\"]');for(var i=0;i<b.length;i++){b[i].textContent=benchBtnLabel();b[i].setAttribute(\"aria-busy\",_benchFetchInFlight?\"true\":\"false\");}}catch(e){}}\nfunction invalidateBackupRuntime() {",
+      "    for (var i=0;i<els.length;i++) els[i].textContent=_benchStatusMsg;\n  } catch(e){}\n}\nfunction invalidateBackupRuntime() {"
+    ],
+    [
+      "  _benchRunId++; _benchFetchInFlight=false; cancelBenchmarkGas(); benchBtnSync();\n}\nfunction fetchBenchmarkHistory(force) {\n  if(snapshotWriteBlocked()){if(force)setBenchStatus(\"백업 복원·저장 잠금 중이라 조회 보류\");return;}\n",
+      "  _benchRunId++; _benchFetchInFlight=false; cancelBenchmarkGas();\n}\nfunction fetchBenchmarkHistory(force) {\n  if(snapshotWriteBlocked())return;\n"
+    ],
+    [
+      "  _benchFetchStartedAt=Date.now();_benchFetchInFlight=true;\n  if(force)setBenchStatus(\"ETF 이력 확인 중…\");else benchBtnSync();\n  var timeout=",
+      "  _benchFetchStartedAt=Date.now();_benchFetchInFlight=true;\n  var timeout="
+    ],
+    [
+      "    finally{clearTimeout(timeout);if(_benchRunId===myRun)_benchFetchInFlight=false;benchBtnSync();}\n",
+      "    finally{clearTimeout(timeout);if(_benchRunId===myRun)_benchFetchInFlight=false;}\n"
+    ],
+    [
+      "    '<button onclick=\"fetchBenchmarkHistory(true)\" style=\"min-height:44px;min-width:44px;font-size:12px;padding:8px 16px;margin-top:8px\">'+(typeof benchBtnLabel===\"function\"?benchBtnLabel():\"↻ ETF 이력 새로고침\")+'</button>';",
+      "    '<button onclick=\"fetchBenchmarkHistory(true)\" style=\"min-height:44px;min-width:44px;font-size:12px;padding:8px 16px;margin-top:8px\">↻ ETF 이력 새로고침</button>';"
     ]
   ],
   "radar/ui.js": [
