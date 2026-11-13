@@ -1,4 +1,4 @@
-STATUS: READY_FOR_REVIEW
+STATUS: DEPLOYED (2026-11-13 순태씨 승인, main 병합)
 ORDER-ID: 순태씨 대화 2026-11-13 22:50 ("지수 진단 글, 평소엔 볼 필요 없고 공간만 차지")
 BASE: de2a16d (main)
 HEAD: b846ec65f2c00b180b0396ba99cddd4a24d0e295

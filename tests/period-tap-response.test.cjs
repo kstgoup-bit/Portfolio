@@ -60,3 +60,15 @@ test('ETF 이력 새로고침: 누르는 즉시 버튼이 확인 중으로 바�
   a.match(html, /if\(snapshotWriteBlocked\(\)\)\{if\(force\)setBenchStatus\("백업 복원·저장 잠금 중이라 조회 보류"\);return;\}/);
   a.match(html, /onclick="fetchBenchmarkHistory\(true\)"[^>]*>'\+\(typeof benchBtnLabel==="function"\?benchBtnLabel\(\):"↻ ETF 이력 새로고침"\)\+'<\/button>/);
 });
+
+test('지수 진단: 평소엔 한 줄 요약, 긴 진단·충돌 사례는 접힌 안쪽(정상·일부 부족·읽기 실패)', () => {
+  const fn = html.match(/function benchDiagSummary\(\)\{[\s\S]*?\n\}\n/)[0];
+  const ctx = { _benchState: null }; vm.createContext(ctx); vm.runInContext(fn, ctx);
+  const sum = st => { ctx._benchState = st; return vm.runInContext('benchDiagSummary()', ctx); };
+  const ok = d => ({ ok: true, points: [{ d }] });
+  a.match(sum({ ok: true, series: { KS200: ok('2026-11-12'), QQQ: ok('2026-11-13'), SPY: ok('2026-11-13') } }), /정상 · 마지막 관측 11-13/);
+  a.match(sum({ ok: true, series: { KS200: ok('2026-11-12'), QQQ: { ok: false }, SPY: ok('2026-11-13') } }), /일부 부족: QQQ/);
+  a.match(sum({ ok: false }), /확인 필요/); a.match(sum(null), /확인 필요/);
+  a.doesNotMatch(sum({ ok: true, series: { KS200: ok('2026-11-12'), QQQ: ok('2026-11-13'), SPY: ok('2026-11-13') } }), /충돌|→/);
+  a.match(html, /<details class="benchStatusBox"[^>]*><summary class="benchStatusSum"[\s\S]*?<div class="benchStatusMsg"[\s\S]*?<\/details>/);
+});

@@ -37,8 +37,9 @@ test('independent speed: default dashboard, every tab mapping, same-tab refresh 
 test('independent speed: hidden tables defer work but next entry and each visible refresh read latest state',t=>{
  const f=setup(t);f.w.switchTab('general');const old=f.table('gen');f.w.switchTab('settings');f.advance();f.w.renderAllReturnsTables();a.equal(f.table('gen'),old);f.w.switchTab('general');a.notEqual(f.table('gen'),old);f.advance();f.w.renderAllReturnsTables();a.equal(f.table('gen'),'2');
 });
+// 2026-11-13 의도된 변경 추가: 상태·진단 문구를 접힌 상자(benchStatusBox)로 감쌈.
 // 2026-11-12 의도된 변경: 관측일·수신·출처 줄을 접힌 안내 안으로 이동, 상태 문구 위치 이동 — 이 세 덩어리만 제외하고 표·계산 근거는 동일해야 한다.
-const normNotes=h=>h.replace(/<details style="margin-top:10px">[\s\S]*?<\/details>/g,'').replace(/<div style="font-size:12px;line-height:1.6;overflow-wrap:anywhere[^"]*">관측일: [\s\S]*?<\/div>/g,'').replace(/<div class="benchStatusMsg"[\s\S]*?<\/div>/g,'');
+const normNotes=h=>h.replace(/<details style="margin-top:10px">[\s\S]*?<\/details>/g,'').replace(/<div style="font-size:12px;line-height:1.6;overflow-wrap:anywhere[^"]*">관측일: [\s\S]*?<\/div>/g,'').replace(/<details class="benchStatusBox"[\s\S]*?<\/details>/g,'').replace(/<div class="benchStatusMsg"[\s\S]*?<\/div>/g,'');
 test('independent speed: actual calculations and generated table UI equal historical renderer',t=>{
  const f=setup(t,html,true),b=setup(t,baseline,true);
  for(const [tab,key]of pairs){f.w.switchTab(tab);b.w.renderReturnsTable(key,key+'ReturnsTable');a.equal(normNotes(f.table(key)),normNotes(b.table(key)),key);}

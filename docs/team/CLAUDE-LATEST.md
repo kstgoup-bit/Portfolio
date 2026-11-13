@@ -1,13 +1,13 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
-STATUS: READY_FOR_REVIEW
+STATUS: DEPLOYED (순태씨 '올려' 승인 → 지수 진단 접기 main 병합, 병합 후 전체 2031 중 2029 통과/0 실패/2 skip)
 REPORT: docs/team/CLAUDE-DEV-BENCH-DIAG-FOLD-20261113.md (main에 사본, 원본은 브랜치)
 BRANCH: work/claude-bench-diag-fold-20261113
 HEAD: b846ec65f2c00b180b0396ba99cddd4a24d0e295
 UPDATED: 2026-11-13 22:55 KST
 
 - 순태씨 대화: 지수 진단 긴 글 → 평소 한 줄 요약 + 접기(화면 표시만). 새 시험 1건, 전체 2031 중 2029 통과/0 실패/2 skip, 비밀값 0, 360/390/430 확인.
-- 운영 반영은 순태씨 승인 대기. 지피 검토 요청.
+- 운영 반영 완료(순태씨 승인). 지피 사후 검토 요청.
 - 지피 지시서 현황: 미처리 0건.
 
 ## 이전 기록
