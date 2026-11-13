@@ -1,8 +1,27 @@
 STATUS: READY_FOR_REVIEW
-ORDER-ID: GPT-20261113-0024 (재검토 — GPT-REVIEW-capital-allocation-20261113-0730 CHANGES_REQUESTED 반영)
-BASE: 47d85334775e9b8e2136447f0ef114c8ea664898 (직전 검토 커밋; 그 사이 main 문서 커밋 951fb51 병합 0594604 — 코드 영향 없음)
-HEAD: 321f8bbec48076bff83d2580700b6a78db76b535
-REVIEW-SCOPE: 지피 지적 1·2·3 반영분만 — `has/capital-allocation.js` 입력 검증 보완, `tests/capital-allocation.test.cjs` 새 시험 3건(사례 약 50개), `tests/lib/live-data-pins.json` SHA 갱신. 시험 게이트 화면(4절)은 다음 단위.
+ORDER-ID: GPT-20261113-0024 (재검토 2차 — GPT-REVIEW-capital-allocation-20261113-0830 CHANGES_REQUESTED 반영)
+BASE: 321f8bbec48076bff83d2580700b6a78db76b535 (직전 검토 커밋; 그 사이 main 문서 커밋 eab0e50 병합 2233df4 — 코드 영향 없음)
+HEAD: 8516d5b1e1756d3bc48def0bfd0b19ba4ad5abde
+REVIEW-SCOPE: 지피 08:30 남은 지적 1·2·3 반영분만 — `has/capital-allocation.js` validateInput(한쪽만 있는 시세종류·기준시각, sale 형식 결함), `tests/capital-allocation.test.cjs` 새 시험 2건, `tests/lib/live-data-pins.json` SHA 갱신. 시험 게이트 화면(4절)은 다음 단위.
+
+## 재검토 2차 반영 (2026-11-13 09:10 KST 정각 실행)
+1. **한쪽 기록에만 시세종류(priceKind) 또는 기준시각(quoteAsOf)이 있으면 중복으로 합치지 않음 → HOLD_INSUFFICIENT_DATA**("한쪽 기록에만 … 있음 — 같은 자료인지 확인 불가"). 후보↔후보, 보유↔보유, 보유↔후보 같은 종목 대조 모두 같은 규칙(`pairCheck`). 둘 다 있고 값이 다르면 기존대로 HOLD_CONFLICT(충돌이 우선). 같은 순간 다른 ISO 오프셋(`+09:00` vs `Z`)은 동일 취급(시험 고정). 통화는 계약상 생략 = USD 그대로. 선택 필드 없는 단일 후보 기존 합성 계약은 OK 유지.
+   - 재현 고정: 지피 예시 `{GOOGL,100}` + `{GOOGL,100,priceKind:'extended'}` → HOLD_INSUFFICIENT_DATA, 대안 0개.
+   - 영향 메모: 보유 NVDA(`priceKind:'user-input'`)와 같은 종목을 후보에 시세종류 없이 넣으면 이제 보류됨 — 실제 연결 시 후보에도 시세종류를 함께 넘겨야 함.
+2. **sale 형식 결함 → 일관되게 HOLD_INSUFFICIENT_DATA.** `sale:{}`, 종목 없음/문자열 아님, qty·priceUSD 없음/문자열/NaN/0 이하 → 보유 여부 확인 전에 '추가 정보 필요'. 형식이 정상인데 보유에 없는 종목(예: TSLA 1주 100)만 HOLD_CONFLICT. (08:15 보고서의 "sale 형식 오류 → HOLD_INSUFFICIENT_DATA" 서술이 이제 코드와 일치.)
+3. 재현 9가지 sale 입력·5가지 중복 입력을 단위시험에 고정. 입력 불변·예외 없음·`buyReview.allowed=false` 확인. 손계산 표 회귀 시험 그대로 통과.
+
+### 시험
+- `tests/capital-allocation.test.cjs` 16건 통과(기존 14 + 새 2).
+- 전체 `node --require ./tests/lib/no-network.cjs --test tests/*.test.cjs`: **2005 중 2003 통과 / 0 실패 / 2 skip**(기존 DST TZ 전용). `node tools/scan-secrets.cjs` 발견 0.
+- 앱 화면·HTML·GAS 변경 0 → Chromium 해당 없음.
+
+### 미완료·미검증
+- 지시서 4절 시험 게이트 화면(다음 단위, 지피 한정 APPROVE 후). 실제 시세·보유 연결 없음(합성만). 세액 산출 보류 유지.
+- 순태씨 결정 필요: 없음(운영 반영 대상 아님).
+
+---
+(이하 직전 재검토 1차 보고 — 당시 머리: READY_FOR_REVIEW, HEAD 321f8bb, BASE 47d8533)
 
 ## 재검토 반영 (2026-11-13 08:10 KST 정각 실행)
 1. **후보 안 같은 종목 상충 → HOLD_CONFLICT.** `candidates` 안에서 같은 티커(대소문자 무시)가 두 번이면 가격·통화·시세종류(priceKind)·기준시각(quoteAsOf, 같은 순간이면 표기 달라도 일치) 중 하나라도 다르면 판단 보류. **완전히 같은 자료의 중복은 허용**하고 하나로 취급(대안도 하나). 보유↔후보, 보유↔보유 대조도 가격만이 아니라 통화·시세종류·기준시각까지 비교.
