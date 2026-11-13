@@ -139,6 +139,18 @@
     [
       ".cdd-opt.cdd-selected::after{content:'✓';font-size:12px;color:#1e88e5;font-weight:900}\n/* 2026-11-13 순태씨 요청(\"줄이고\"): 상단 '가격 신뢰도'·'오늘의 투자 브리핑' 띠를 한 줄 높이로. 문구·자세히 기능은 그대로 */\nbody #hasPriceTrust.hpt{display:flex;flex-wrap:wrap;align-items:center;gap:0 8px;margin:4px 10px;padding:0 10px;border-width:1px;line-height:1.4}\nbody #hasPriceTrust .hpt-head{flex:1 1 0;min-width:0;padding:6px 0;overflow-wrap:anywhere}\nbody #hasPriceTrust details{flex:0 0 auto}body #hasPriceTrust details[open]{flex:1 1 100%;padding-bottom:6px}\nbody #hasBriefStrip{flex-wrap:nowrap;margin:4px 10px;padding:2px 10px;border-width:1px;font-size:13px;line-height:1.4}\nbody #hasBriefStrip span{flex:1 1 0;min-width:0;overflow-wrap:anywhere}\nbody #hasBriefStrip button{flex:0 0 auto;padding:4px 12px;border-width:1px;font-size:13px}\n</style>\n",
       ".cdd-opt.cdd-selected::after{content:'✓';font-size:12px;color:#1e88e5;font-weight:900}\n</style>\n"
+    ],
+    [
+      "\nvar LAZY_PANEL_RENDER={general:\"renderGeneral\",domestic:\"renderDomestic\",overseas:\"renderOverseas\",pension:\"renderPension\",dividend:\"renderDividend\",commandments:\"renderCommandments\",ledger:\"renderLedger\"};\nvar lazyPanelDirty={};\nfunction renderPanelIfDirty(tab){\n  var name=LAZY_PANEL_RENDER[tab];\n  if(!name||!lazyPanelDirty[tab]) return;\n  lazyPanelDirty[tab]=false;\n  window[name]();\n}\nfunction renderPanelsLazy(){\n  var active=document.querySelector(\".panel.active\");\n  var activeTab=active?active.id.replace(/^panel-/,\"\"):\"\";\n  Object.keys(LAZY_PANEL_RENDER).forEach(function(tab){\n    lazyPanelDirty[tab]=true;\n    if(tab===activeTab) renderPanelIfDirty(tab);\n  });\n}\nfunction renderAll() {\n",
+      "\nfunction renderAll() {\n"
+    ],
+    [
+      "  renderDashboard(); renderBalancePie(); updateBrief(); fetchMarketIndices();\n  renderPanelsLazy();\n  renderAllCashSummary();\n  renderAllReturnsTables();\n",
+      "  renderDashboard(); renderBalancePie(); updateBrief(); fetchMarketIndices();\n  renderGeneral();\n  renderDomestic();\n  renderOverseas();\n  renderPension();\n  renderAllCashSummary();\n  renderDividend();\n  renderCommandments();\n  renderLedger();\n  renderAllReturnsTables();\n"
+    ],
+    [
+      "  document.querySelectorAll(\".panel\").forEach(function(p){p.classList.toggle(\"active\",p.id===\"panel-\"+tab);});\n  if(typeof renderPanelIfDirty===\"function\") renderPanelIfDirty(tab);\n  if(typeof renderAllReturnsTables===\"function\") renderAllReturnsTables();\n",
+      "  document.querySelectorAll(\".panel\").forEach(function(p){p.classList.toggle(\"active\",p.id===\"panel-\"+tab);});\n  if(typeof renderAllReturnsTables===\"function\") renderAllReturnsTables();\n"
     ]
   ],
   "radar/ui.js": [
