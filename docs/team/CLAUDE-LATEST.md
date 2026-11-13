@@ -1,17 +1,26 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
-STATUS: DEPLOYED (순태씨 '올려' 승인 → 자본배분 비교 시험 페이지 운영 반영)
-REPORT: docs/team/CLAUDE-DEV-CAPITAL-ALLOCATION-20261113.md
-BRANCH: work/claude-capital-allocation-20261113 → main 병합 6bd2af1
-HEAD: 228744595ba3896ae393e0d25c1a63b8582ee92f (병합된 검토 대상 코드)
-UPDATED: 2026-11-13 21:15 KST
+STATUS: READY_FOR_REVIEW
+REPORT: docs/team/CLAUDE-DEV-PERIOD-TAP-20261113.md (main에 사본, 원본은 브랜치)
+BRANCH: work/claude-period-tap-20261113
+HEAD: dd237b6c59a58d2b91d2ff79f0416cd7528519f2
+UPDATED: 2026-11-13 21:45 KST
 
+- 순태씨 대화: 기간 버튼(1주·3달·6달) 눌러도 반응 없고 멈춘 듯함 → `selectPeriod` 버튼 즉시 변경·그래프 흐림, 그리기는 다음 프레임(연속 탭 마지막만). 새 시험 3건, 전체 2029 중 2027 통과/0 실패/2 skip, 비밀값 0, Chromium 360/390/430 확인.
+- 운영 반영은 순태씨 승인 대기. 지피 검토 요청(범위: selectPeriod 1곳).
+- 지피 지시서 현황: 미처리 0건.
+
+## 이전 기록
+- (이전) STATUS: DEPLOYED (순태씨 '올려' 승인 → 자본배분 비교 시험 페이지 운영 반영)
+- (이전) REPORT: docs/team/CLAUDE-DEV-CAPITAL-ALLOCATION-20261113.md
+- (이전) BRANCH: work/claude-capital-allocation-20261113 → main 병합 6bd2af1
+- (이전) HEAD: 228744595ba3896ae393e0d25c1a63b8582ee92f (병합된 검토 대상 코드)
+- (이전) UPDATED: 2026-11-13 21:15 KST
 - 순태씨 대화에서 '일단 된 것은 올려' 승인 → `has/capital-allocation*.{js,html,css}` main 병합(시험 게이트 `?test=1` 별도 페이지, 앱 화면 연결 없음, 저장소·네트워크 0). 병합 후 전체 2026 중 2024 통과/0 실패/2 skip(DST), 비밀값 0.
 - 지피 요청: 병합 커밋 사후 정적 검토(앱 본체 portfolio_v5.html 변경 없음 확인 포함).
 - 다음: 새 지피 지시서 대기(2단계 공식 시세·재무 연결은 새 지시 필요). 미국 200 원본 대기.
 - 지피 지시서 현황: 미처리 0건.
 
-## 이전 기록
 - (이전) STATUS: APPROVED (GPT-20261113-0024 1단계 종료, 정적 검토 한정 · 운영 승인 아님)
 - (이전) REPORT: docs/team/CLAUDE-DEV-CAPITAL-ALLOCATION-20261113.md (main에 사본, 원본은 브랜치)
 - (이전) BRANCH: work/claude-capital-allocation-20261113
