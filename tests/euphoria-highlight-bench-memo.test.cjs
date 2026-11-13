@@ -24,3 +24,11 @@ test('기준지수 자료 진단 문구는 상태 문구 끝에 붙고 저장값
   assert.match(html,/function benchDiagText\(\)/);assert.match(html,/" ▶ 자료 진단: "\+benchDiagText\(\)/);
   const fn=/function benchDiagText\(\)\{[\s\S]*?\n\}\n/.exec(html)[0];assert.doesNotMatch(fn,/localStorage|setItem/);
 });
+test('그래프 전용 충돌 필터: 반올림 수준만 제외, 실제 차이·다른 상태는 유지, 저장 규칙 무변경',()=>{
+  const src=/function benchChartConflicts\(g\)\{[\s\S]*?\n\}\n/.exec(html)[0];
+  const f=new Function(src+';return benchChartConflicts;')();
+  const mk=(a,b,st='pending-review')=>({d:'2026-11-12',status:st,existing:{close:a},alternative:{close:b}});
+  const g={pendingConflicts:[mk(456.7799987792969,456.78),mk(457.1,470.5),mk(100,100.4),mk(5,5.004,'provisional-successor')]};
+  const out=f(g);assert.equal(out.length,3);assert.ok(!out.includes(g.pendingConflicts[0]));assert.deepEqual(f(null),[]);
+  assert.match(html,/conflicts:benchChartConflicts\(g\)/);
+});

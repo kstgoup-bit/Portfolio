@@ -2849,6 +2849,14 @@ function getBenchDataLatestLabel(key) {
   return {text:rows.length?rows.map(function(r){return r.symbol+" ["+r.currency+"]: "+(r.latestDate||"미확인")+(r.readOnly?" · 원본 확인 필요":"")+(r.conflictDates.length?" · 충돌 격리 "+r.conflictDates.length+"일(기준 확인 전 제외)":"");}).join(" · "):"미확인",stale:true,name:"ETF 대용치",source:rows.length?rows.map(function(r){return r.symbol+": "+r.source;}).join(" · "):"출처 미확인"};
 }
 
+/* 그래프 비교선 전용: 제공처 반올림 수준(0.5센트·0.01% 이내) 차이의 보류 충돌은 선 선택을 막지 않는다. 충돌 기록과 저장값은 그대로 유지(수익률 평가·백업은 영점 허용 규칙 유지). */
+function benchChartConflicts(g){
+  var pc=g&&g.pendingConflicts||[];
+  return pc.filter(function(c){
+    try{var a=c.existing.close,b=c.alternative.close,d=Math.abs(a-b);
+      return !(c.status==="pending-review"&&isFinite(d)&&d<=0.0051&&d<=1e-4*Math.max(Math.abs(a),Math.abs(b)));}catch(e){return true;}
+  });
+}
 function findBenchAtOrBefore(hist,targetTs,id) {
   if(!window.HASBenchmarkHistory||_benchState&&_benchState.readOnly)return null;
   id=id||(hist===benchmarkHistory.KS200?"KS200":hist===benchmarkHistory.NDX?"QQQ":hist===benchmarkHistory.SPY?"SPY":null);
@@ -2863,7 +2871,7 @@ function findBenchAtOrBefore(hist,targetTs,id) {
   try{var sp=HASBenchmarkHistory.specs&&HASBenchmarkHistory.specs[id],Qm=window.HASQuoteModel;
     if(sp&&Qm&&typeof targetTs==="number"&&Number.isSafeInteger(targetTs)&&targetTs>0&&targetTs<=8640000000000000){var dk=Qm.marketDate(new Date(targetTs).toISOString(),sp.market);if(dk)ck=id+"@"+dk+(targetTs>=HASBenchmarkHistory.closeTimeMs(dk,sp.market)?"c":"o");}}catch(e){}
   if(ck in c.map)return c.map[ck];
-  var r=HASBenchmarkHistory.selectPointAtOrBefore(hist,id,targetTs,{now:nowMs,sameDayAfterClose:true,conflicts:g?g.pendingConflicts||[]:[]});
+  var r=HASBenchmarkHistory.selectPointAtOrBefore(hist,id,targetTs,{now:nowMs,sameDayAfterClose:true,conflicts:benchChartConflicts(g)});
   return (c.map[ck]=r.ok?r.point:null);
 }
 var _benchSelCache={hist:null,len:-1,state:null,at:0,map:null};
@@ -2953,7 +2961,8 @@ function benchDiagText(){
       if(!g)return names[id]+" 없음";
       if(!g.ok)return names[id]+" 사용 불가("+(g.reason||"?")+")"+(g.readOnly?" 읽기전용":"");
       var pts=g.points||[],last=pts.length?pts[pts.length-1]:null,d=last?(last.d||(typeof last.ts==="number"?new Date(last.ts).toISOString().slice(0,10):"?")):"-";
-      return names[id]+" "+pts.length+"개 · 마지막 "+d+" · 보류충돌 "+((g.pendingConflicts||[]).length);
+      var pc=g.pendingConflicts||[],tail=pc.slice(-2).map(function(c){return c.d+" "+c.existing.close+"→"+c.alternative.close;}).join(", ");
+      return names[id]+" "+pts.length+"개 · 마지막 "+d+" · 보류충돌 "+pc.length+(tail?" (최근 "+tail+")":"");
     }).join(" / ");
   }catch(e){return "진단 오류";}
 }
