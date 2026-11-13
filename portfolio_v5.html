@@ -4651,7 +4651,11 @@ function datePickerChange(input, btnId, chartId, snapKey, color) {
 function selectPeriod(btnId, chartId, period, snapKey, color) {
   currentPeriods[btnId]=period;
   renderPeriodBtns(btnId,chartId,snapKey,color);
-  renderLineChart(period,btnId,chartId,snapKey,color);
+  // 반응: 눌린 버튼 색·흐린 그래프를 먼저 화면에 보이고, 무거운 그래프 그리기는 그 다음에(연속으로 누르면 마지막 것만)
+  var svg=document.getElementById(chartId),tokens=selectPeriod.tokens||(selectPeriod.tokens={}),token=tokens[btnId]=(tokens[btnId]||0)+1;
+  if(svg)svg.style.opacity="0.45";
+  function run(){if(tokens[btnId]!==token)return;try{renderLineChart(currentPeriods[btnId],btnId,chartId,snapKey,color);}finally{if(svg)svg.style.opacity="";}}
+  if(typeof requestAnimationFrame==="function")requestAnimationFrame(function(){setTimeout(run,0);});else setTimeout(run,0);
 }
 
 function renderLineChartFromDate(pickerId, chartId, snapKey, color) {
