@@ -183,6 +183,18 @@
     [
       "  try{var sp=HASBenchmarkHistory.specs&&HASBenchmarkHistory.specs[id],Qm=window.HASQuoteModel;\n    if(sp&&Qm&&typeof targetTs===\"number\"&&Number.isSafeInteger(targetTs)&&targetTs>0&&targetTs<=8640000000000000){var dk=Qm.marketDate(new Date(targetTs).toISOString(),sp.market);if(dk)ck=id+\"@\"+dk+(targetTs>=HASBenchmarkHistory.closeTimeMs(dk,sp.market)?\"c\":\"o\");}}catch(e){}\n  if(ck in c.map)return c.map[ck];\n  var r=HASBenchmarkHistory.selectPointAtOrBefore(hist,id,targetTs,{now:nowMs,sameDayAfterClose:true,conflicts:g?g.pendingConflicts||[]:[]});\n  return (c.map[ck]=r.ok?r.point:null);\n",
       "  try{var sp=HASBenchmarkHistory.specs&&HASBenchmarkHistory.specs[id],Qm=window.HASQuoteModel;\n    if(sp&&Qm&&typeof targetTs===\"number\"&&Number.isSafeInteger(targetTs)&&targetTs>0&&targetTs<=8640000000000000){var dk=Qm.marketDate(new Date(targetTs).toISOString(),sp.market);if(dk)ck=id+\"@\"+dk;}}catch(e){}\n  if(ck in c.map)return c.map[ck];\n  var r=HASBenchmarkHistory.selectPointAtOrBefore(hist,id,targetTs,{now:nowMs,conflicts:g?g.pendingConflicts||[]:[]});\n  return (c.map[ck]=r.ok?r.point:null);\n"
+    ],
+    [
+      "  if(!_benchState.ok)return;\n  if(!_benchStatusMsg&&typeof setBenchStatus===\"function\")setBenchStatus(\"저장된 지수 자료 확인\");\n  [\"KS200\",\"QQQ\",\"SPY\"].forEach(function(id){\n",
+      "  if(!_benchState.ok)return;\n  [\"KS200\",\"QQQ\",\"SPY\"].forEach(function(id){\n"
+    ],
+    [
+      "function setBenchStatus(msg){\n  _benchStatusMsg=(msg||\"\")+(typeof benchDiagText===\"function\"?\" ▶ 자료 진단: \"+benchDiagText():\"\");\n  try {\n",
+      "function setBenchStatus(msg){\n  _benchStatusMsg=msg||\"\";\n  try {\n"
+    ],
+    [
+      "  });\n}\n/* 기준지수 자료 진단: 지수별 사용 가능 여부·개수·마지막 관측일·보류 충돌·불가 사유(원인 확인용, 저장값 변경 없음). */\nfunction benchDiagText(){\n  try{\n    if(!_benchState)return \"자료 없음\";\n    if(!_benchState.ok)return \"전체 읽기 실패(\"+(_benchState.reason||\"?\")+\")\";\n    var names={KS200:\"KODEX 200\",QQQ:\"QQQ\",SPY:\"SPY\"};\n    return [\"KS200\",\"QQQ\",\"SPY\"].map(function(id){\n      var g=_benchState.series&&_benchState.series[id];\n      if(!g)return names[id]+\" 없음\";\n      if(!g.ok)return names[id]+\" 사용 불가(\"+(g.reason||\"?\")+\")\"+(g.readOnly?\" 읽기전용\":\"\");\n      var pts=g.points||[],last=pts.length?pts[pts.length-1]:null,d=last?(last.d||(typeof last.ts===\"number\"?new Date(last.ts).toISOString().slice(0,10):\"?\")):\"-\";\n      return names[id]+\" \"+pts.length+\"개 · 마지막 \"+d+\" · 보류충돌 \"+((g.pendingConflicts||[]).length);\n    }).join(\" / \");\n  }catch(e){return \"진단 오류\";}\n}\n",
+      "  });\n}\n"
     ]
   ],
   "radar/ui.js": [
