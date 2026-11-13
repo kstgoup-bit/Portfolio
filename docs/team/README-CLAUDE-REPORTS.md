@@ -6,6 +6,7 @@
 - `COLLAB-PROTOCOL.md` — 다비↔클로 정기 깃허브 협업 규칙(브랜치·보고서·승인). **작업 전 필독.**
 
 ## 최신 (2026-11-13)
+- **22:25 ETF 새로고침 버튼 반응(검토 요청)**: 누르면 즉시 '확인 중' 표시 — [CLAUDE-DEV-BENCH-REFRESH-FEEDBACK-20261113.md](CLAUDE-DEV-BENCH-REFRESH-FEEDBACK-20261113.md)
 - **21:45 기간 버튼 반응 개선(검토 요청)**: 누르면 즉시 색 변경·그래프 흐림, 그리기는 다음 프레임 — [CLAUDE-DEV-PERIOD-TAP-20261113.md](CLAUDE-DEV-PERIOD-TAP-20261113.md)
 - **21:15 자본배분 비교 시험 페이지 운영 반영(순태씨 승인)**: main 병합 `6bd2af1`, 앱 본체 연결 없음, 전체 2024 통과/0 실패/2 skip — [CLAUDE-DEV-CAPITAL-ALLOCATION-20261113.md](CLAUDE-DEV-CAPITAL-ALLOCATION-20261113.md)
 - **12:00 자본배분 비교 1단계 종료(지피 APPROVE, 정적 검토 한정)**: 합성 엔진 + `?test=1` 시험 화면 — [CLAUDE-DEV-CAPITAL-ALLOCATION-20261113.md](CLAUDE-DEV-CAPITAL-ALLOCATION-20261113.md), 브랜치 `work/claude-capital-allocation-20261113` `2287445`, main 병합은 순태씨 승인 대기
