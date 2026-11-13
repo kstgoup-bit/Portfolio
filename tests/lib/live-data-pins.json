@@ -19,6 +19,10 @@
   },
   "addedRuntimeFiles": {
     "has/live-price-reference.js": "74ec48bfd7b9fe121eeccb1fe4849289ca2e8dd0cd18f38462c83bded92c2cb1",
-    "has/live-price-panel.js": "be25d2c7ecf19b9db69bb0913ddf9a07a0765944870546dc38a922974f72e65d"
+    "has/live-price-panel.js": "be25d2c7ecf19b9db69bb0913ddf9a07a0765944870546dc38a922974f72e65d",
+    "has/capital-allocation.js": "984fbd0574c2b7d1d1a13c45248800f7bc2eb15d2e980bbe59fc18df276bd05c",
+    "has/capital-allocation-lab.js": "18b532bb6bdbae7e3284a8b3c929840c5484a88c3861a39a3d6e5314eae92382",
+    "has/capital-allocation-lab.html": "9954811f994b04537dec5674553995820fa00eb9abe23da8780013c8e3336140",
+    "has/capital-allocation-lab.css": "beb3c222a4f5584c61b3a73d0ba7076a4157f45bd8a41268d11a3d287f3cea75"
   }
 }
