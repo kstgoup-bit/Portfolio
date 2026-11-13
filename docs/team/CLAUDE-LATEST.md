@@ -3,14 +3,24 @@
 STATUS: READY_FOR_REVIEW
 REPORT: docs/team/CLAUDE-DEV-CAPITAL-ALLOCATION-20261113.md (main에 사본, 원본은 브랜치)
 BRANCH: work/claude-capital-allocation-20261113
-HEAD: 47d85334775e9b8e2136447f0ef114c8ea664898 (검토 대상 코드; BASE 6235eb8; 보고서 커밋 86cd40e)
-UPDATED: 2026-11-13 07:15 KST
+HEAD: 321f8bbec48076bff83d2580700b6a78db76b535 (검토 대상 코드; BASE 47d8533 직전 검토 커밋, main 문서 병합 0594604; 보고서 커밋 e2428ae)
+UPDATED: 2026-11-13 08:15 KST
+
+- 이번 단위(08:10 정각 실행): **GPT-REVIEW-capital-allocation-20261113-0730 CHANGES_REQUESTED 반영(재검토 요청)** — ① 후보 안 같은 종목의 가격·통화·시세종류·기준시각 상충 → HOLD_CONFLICT(완전 동일 중복은 하나로), ② 비정상 대안·시나리오·부가 입력 → 예외 없이 HOLD_INSUFFICIENT_DATA(수익률 -100~1000%, 지평선 0~50년), ③ asOf·quoteAsOf·timezone 형식, 시세시각>기준시각·항목 기준시각 불일치 → HOLD_CONFLICT, '엔진은 정규장 시각·출처 일치 독립 검증 안 함' 표기. 새 시험 3건, 전체 2003 중 2001 통과/0 실패/2 skip(DST), 비밀값 0. 앱 화면 변경 없음.
+- 다음 단위: 재검토 APPROVE 후 지시서 4절 시험 게이트 화면(별도 페이지, 360/390/430).
+- 지피 지시서 현황: GPT-20261113-0024 진행 중(엔진 재검토 대기, 화면 단위 남음). 그 외 미처리 0건. 미국 200 원본(11-13) 대기.
+
+## 이전 기록
+- (이전) STATUS: READY_FOR_REVIEW
+- (이전) REPORT: docs/team/CLAUDE-DEV-CAPITAL-ALLOCATION-20261113.md (main에 사본, 원본은 브랜치)
+- (이전) BRANCH: work/claude-capital-allocation-20261113
+- (이전) HEAD: 47d85334775e9b8e2136447f0ef114c8ea664898 (검토 대상 코드; BASE 6235eb8; 보고서 커밋 86cd40e)
+- (이전) UPDATED: 2026-11-13 07:15 KST
 
 - 이번 단위(07:10 정각 실행): **GPT-20261113-0024 처리 1단위** — `has/capital-allocation.js` 자본배분 비교 엔진(순수 계산·합성·읽기 전용), 계약 `capitalAllocationInput.v1`, NVDA 20주 매도 합성 사례 A~E 손계산 표, 의견 4종만·매수 검토 항상 차단·한도 경고는 매도 지시 아님. 새 시험 11건, 전체 2000 중 1998 통과/0 실패/2 skip(DST), 비밀값 0. 앱 화면 변경 없음(Chromium 해당 없음).
 - 다음 단위: 지시서 4절 시험 게이트 화면(별도 페이지, 360/390/430 확인).
 - 지피 지시서 현황: GPT-20261113-0024 진행 중(1단위 READY_FOR_REVIEW, 화면 단위 남음). 그 외 미처리 0건. 미국 200 원본(11-13) 대기.
 
-## 이전 기록
 - (이전) STATUS: READY_FOR_REVIEW
 - (이전) REPORT: docs/team/CLAUDE-DEV-UNIVERSE-SCREEN-20261112.md (main에 사본, 원본은 브랜치) · 설계 docs/team/UNIVERSE-SESSION-CACHE-DESIGN-20261112.md
 - (이전) BRANCH: work/claude-universe-screen-20261112
