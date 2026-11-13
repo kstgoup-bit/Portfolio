@@ -3,14 +3,24 @@
 STATUS: READY_FOR_REVIEW
 REPORT: docs/team/CLAUDE-DEV-CAPITAL-ALLOCATION-20261113.md (main에 사본, 원본은 브랜치)
 BRANCH: work/claude-capital-allocation-20261113
-HEAD: fe874dc3b7db9758bd2903e86acd6292a4908786 (검토 대상 코드; BASE 8516d5b 지피 APPROVE 엔진, main 문서 병합 d9b6a16; 보고서 커밋 d3d019a)
-UPDATED: 2026-11-13 10:25 KST
+HEAD: 228744595ba3896ae393e0d25c1a63b8582ee92f (검토 대상 코드; BASE fe874dc 직전 검토 커밋, main 문서 병합 032a5ab; 보고서 커밋 92b3444)
+UPDATED: 2026-11-13 11:20 KST
+
+- 이번 단위(11:10 정각 실행): **GPT-REVIEW-capital-allocation-20261113-1030 CHANGES_REQUESTED 반영(재검토 요청)** — ① 완전히 빈 줄만 건너뛰고, 종목명 없이 일부 채운 보유·후보 줄은 엔진에 넘겨 HOLD_INSUFFICIENT_DATA + 화면 줄 번호·빠진 항목 표시(대안 0개), ② 매도 종목 = 화면 1번 줄 고정, 빈 1번 줄+매도 입력 → 보류(다른 줄로 자동 전환 없음). 새 시험 5건, 전체 2016 중 2014 통과/0 실패/2 skip(DST), 비밀값 0, Chromium 360/390/430 넘침 0·12px·오류 0·외부 요청 0.
+- 다음: 지피 재검토 → APPROVE 시 GPT-20261113-0024 1단계 종료. 앱 연결은 범위 밖(순태씨 승인 필요).
+- 지피 지시서 현황: GPT-20261113-0024 진행 중(엔진 APPROVE, 화면 재검토 대기). 그 외 미처리 0건. 미국 200 원본(11-13) 대기.
+
+## 이전 기록
+- (이전) STATUS: READY_FOR_REVIEW
+- (이전) REPORT: docs/team/CLAUDE-DEV-CAPITAL-ALLOCATION-20261113.md (main에 사본, 원본은 브랜치)
+- (이전) BRANCH: work/claude-capital-allocation-20261113
+- (이전) HEAD: fe874dc3b7db9758bd2903e86acd6292a4908786 (검토 대상 코드; BASE 8516d5b 지피 APPROVE 엔진, main 문서 병합 d9b6a16; 보고서 커밋 d3d019a)
+- (이전) UPDATED: 2026-11-13 10:25 KST
 
 - 이번 단위(10:10 정각 실행): 지피 GPT-REVIEW-capital-allocation-20261113-0930 **APPROVE(엔진 입력 검증 보완, 정적 검토 한정)** 기록 → **지시서 4절 시험 게이트 화면** 개발: 별도 페이지 `has/capital-allocation-lab.html`(`?test=1`일 때만 입력 화면, 앱·서비스워커에서 링크 0), 메모리 입력만·저장소/네트워크 0·CSP connect-src none, 대안 카드 A~E·미반영·보류 사유·'매수 검토: 표시하지 않음'. 새 시험 6건, 전체 2011 중 2009 통과/0 실패/2 skip(DST), 비밀값 0, Chromium 360/390/430/1280 넘침 0·글자 12px 이상·오류 0.
 - 다음: 지피 검토 → APPROVE 시 GPT-20261113-0024 1단계 종료. 앱 연결은 범위 밖(순태씨 승인 필요).
 - 지피 지시서 현황: GPT-20261113-0024 진행 중(엔진 APPROVE, 화면 단위 검토 대기). 그 외 미처리 0건. 미국 200 원본(11-13) 대기.
 
-## 이전 기록
 - (이전) STATUS: READY_FOR_REVIEW
 - (이전) REPORT: docs/team/CLAUDE-DEV-CAPITAL-ALLOCATION-20261113.md (main에 사본, 원본은 브랜치)
 - (이전) BRANCH: work/claude-capital-allocation-20261113

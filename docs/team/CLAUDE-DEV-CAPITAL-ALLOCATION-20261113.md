@@ -1,8 +1,25 @@
 STATUS: READY_FOR_REVIEW
-ORDER-ID: GPT-20261113-0024 (4절 시험 게이트 화면 단위 — 엔진은 GPT-REVIEW-capital-allocation-20261113-0930 APPROVE)
-BASE: 8516d5b1e1756d3bc48def0bfd0b19ba4ad5abde (지피 APPROVE 엔진 커밋; 그 사이 main 문서 병합 d9b6a16 — 코드 영향 없음)
-HEAD: fe874dc3b7db9758bd2903e86acd6292a4908786
-REVIEW-SCOPE: 시험 게이트 화면만 — 새 파일 `has/capital-allocation-lab.html`·`.js`·`.css`, `tests/capital-allocation-lab.test.cjs`(6건), `tests/lib/live-data-pins.json` addedRuntimeFiles 3개 등록. 엔진(`has/capital-allocation.js`)·앱(portfolio_v5.html)·서비스워커·GAS 변경 0.
+ORDER-ID: GPT-20261113-0024 (4절 시험 게이트 화면 — GPT-REVIEW-capital-allocation-20261113-1030 CHANGES_REQUESTED 반영, 재검토 요청)
+BASE: fe874dc3b7db9758bd2903e86acd6292a4908786 (직전 검토 커밋; 그 사이 main 문서 병합 032a5ab — 코드 영향 없음)
+HEAD: 228744595ba3896ae393e0d25c1a63b8582ee92f
+REVIEW-SCOPE: `has/capital-allocation-lab.js`(부분 작성 줄 fail-closed·매도 종목 첫 줄 고정·`rowIssues`/`compare` 추가, 안내 문구 2곳), `tests/capital-allocation-lab.test.cjs`(새 5건), `tests/lib/live-data-pins.json`(lab.js SHA). 엔진·html·css·앱·서비스워커·GAS 변경 0.
+
+## 재검토 반영 (2026-11-13 11:10 KST 정각 실행)
+- **문제 A 반영:** `buildInput`이 완전히 빈 줄(모든 글자칸 공백, 확신 체크 해제)만 건너뜀. 종목명 없이 수량·가격·평균단가·업종·확신 중 하나라도 있으면 줄을 그대로 엔진에 넘겨 엔진이 `holdings[i] 종목 없음`/후보 종목 없음으로 HOLD_INSUFFICIENT_DATA(엔진만 직접 써도 fail-closed). 추가로 화면 `rowIssues`가 **화면 줄 번호와 빠진 항목**을 표시("보유 2번 줄: 다른 칸은 입력됐지만 종목 없음", "보유 3번 줄: … 종목·평가가격 없음", "후보 1번 줄: … 종목·매수 가격 없음"). `compare`는 줄 문제가 있으면 엔진 결과가 성공이어도 **대안 0개·추가 정보 필요**로 바꿈.
+- **문제 B 반영:** 매도 종목 = 화면 원래 1번 줄 고정. 1번 줄이 비었는데 매도 수량/가격이 있으면 `sale.symbol=''`(다른 줄로 바꾸지 않음) → 엔진 보류 + "보유 1번 줄(매도할 종목)이 비어 있음 — 다른 줄 종목으로 바꾸지 않습니다".
+- 안내 문구: "빈 줄은 무시합니다" → "완전히 빈 줄만 무시하고, 종목명 없이 일부만 채운 줄은 계산을 멈춥니다"(보유·후보 2곳).
+
+### 시험
+- 새 5건(지피 요구 1~4 + 화면): ① 보유 2번 줄 종목만 빈칸·수량 10·가격 100 → 대안 0, HOLD_INSUFFICIENT_DATA, '보유 2번 줄', 엔진 직접도 보류, 확신 체크만 해도 보류 ② 후보 3번 줄 종목 빈칸·가격·업종 → 보류·'후보 3번 줄' ③ 빈 1번 줄+2번 줄 NVDA+매도 → sale.symbol '' ·보류 ④ 완전히 빈 줄 허용·기본 합성 결과=픽스처·대안 7개, 공백만 칸=빈칸 ⑤ jsdom 부분 줄 → 카드 0·줄 번호 안내, 되돌리기 후 7개, 저장소·네트워크 0.
+- 전체 `node --require ./tests/lib/no-network.cjs --test tests/*.test.cjs`: **2016 중 2014 통과 / 0 실패 / 2 skip**(기존 DST TZ 전용). `node tools/scan-secrets.cjs` 발견 0.
+- Chromium(Playwright, file://, 외부 요청 차단) 360/390/430: 부분 줄 → 카드 0·'보유 2번 줄' 표시, 되돌리기 후 7개, 가로 넘침 0, 최소 글자 12px, 페이지 오류 0, 외부 요청 0.
+
+### 미완료·미검증
+- 실제 갤럭시 미검증. 합성·사용자 입력만, 세액 산출 보류 유지. 지피 APPROVE 시 GPT-20261113-0024 1단계 종료 처리.
+- 순태씨 결정 필요: 없음(운영 반영 대상 아님).
+
+---
+(이하 직전 화면 단위 보고 — 당시 머리: READY_FOR_REVIEW, BASE 8516d5b, HEAD fe874dc)
 
 ## 시험 게이트 화면 (2026-11-13 10:10 KST 정각 실행)
 - **위치·게이트:** 별도 페이지 `has/capital-allocation-lab.html`. 주소에 `?test=1`이 있을 때만 입력 화면을 그림(없으면 "시험 게이트가 꺼져 있습니다" 문구만, 입력 0개). 기존 앱(portfolio_v5.html·portfolio.html)·서비스워커·manifest·다른 has 화면 어디에서도 링크·호출하지 않음(시험으로 고정) → 게이트 OFF = 기존 앱 동작 불변.
