@@ -1,16 +1,25 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
-STATUS: DEPLOYED (순태씨 '올려' 승인 → ETF 새로고침 버튼 반응 main 병합, 병합 후 전체 2030 중 2028 통과/0 실패/2 skip)
-REPORT: docs/team/CLAUDE-DEV-BENCH-REFRESH-FEEDBACK-20261113.md (main에 사본, 원본은 브랜치)
-BRANCH: work/claude-bench-refresh-feedback-20261113
-HEAD: ae90ded3b5e37c4ab1f619313f1da5b573ffdd9c
-UPDATED: 2026-11-13 22:25 KST
+STATUS: READY_FOR_REVIEW
+REPORT: docs/team/CLAUDE-DEV-BENCH-DIAG-FOLD-20261113.md (main에 사본, 원본은 브랜치)
+BRANCH: work/claude-bench-diag-fold-20261113
+HEAD: b846ec65f2c00b180b0396ba99cddd4a24d0e295
+UPDATED: 2026-11-13 22:55 KST
 
+- 순태씨 대화: 지수 진단 긴 글 → 평소 한 줄 요약 + 접기(화면 표시만). 새 시험 1건, 전체 2031 중 2029 통과/0 실패/2 skip, 비밀값 0, 360/390/430 확인.
+- 운영 반영은 순태씨 승인 대기. 지피 검토 요청.
+- 지피 지시서 현황: 미처리 0건.
+
+## 이전 기록
+- (이전) STATUS: DEPLOYED (순태씨 '올려' 승인 → ETF 새로고침 버튼 반응 main 병합, 병합 후 전체 2030 중 2028 통과/0 실패/2 skip)
+- (이전) REPORT: docs/team/CLAUDE-DEV-BENCH-REFRESH-FEEDBACK-20261113.md (main에 사본, 원본은 브랜치)
+- (이전) BRANCH: work/claude-bench-refresh-feedback-20261113
+- (이전) HEAD: ae90ded3b5e37c4ab1f619313f1da5b573ffdd9c
+- (이전) UPDATED: 2026-11-13 22:25 KST
 - 순태씨 대화: 'ETF 이력 새로고침' 버튼 눌러도 반응 없음 → 누르는 즉시 "확인 중…"+aria-busy, 종료 시 복귀(성공·실패·취소·시간초과·잠금 모든 경로 동기화). 새 시험 1건, 전체 2030 중 2028 통과/0 실패/2 skip, 비밀값 0, Chromium 360/390/430 확인.
 - 운영 반영 완료(순태씨 승인). 지피 사후 검토 요청(범위: 버튼 피드백 5곳).
 - 지피 지시서 현황: 미처리 0건.
 
-## 이전 기록
 - (이전) STATUS: DEPLOYED (순태씨 '올려' 승인 → 기간 버튼 반응 개선 main 병합, 병합 후 전체 2029 중 2027 통과/0 실패/2 skip, 비밀값 0)
 - (이전) REPORT: docs/team/CLAUDE-DEV-PERIOD-TAP-20261113.md (main에 사본, 원본은 브랜치)
 - (이전) BRANCH: work/claude-period-tap-20261113
