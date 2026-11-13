@@ -151,6 +151,10 @@
     [
       "  document.querySelectorAll(\".panel\").forEach(function(p){p.classList.toggle(\"active\",p.id===\"panel-\"+tab);});\n  if(typeof renderPanelIfDirty===\"function\") renderPanelIfDirty(tab);\n  if(typeof renderAllReturnsTables===\"function\") renderAllReturnsTables();\n",
       "  document.querySelectorAll(\".panel\").forEach(function(p){p.classList.toggle(\"active\",p.id===\"panel-\"+tab);});\n  if(typeof renderAllReturnsTables===\"function\") renderAllReturnsTables();\n"
+    ],
+    [
+      "<link rel=\"stylesheet\" href=\"radar/radar.css\">\n<script>\n/* 속도: Intl.DateTimeFormat 생성이 호출마다 수 ms 걸려 기간 버튼(6달 등)이 점 수만큼 느려졌다. 같은 설정이면 만든 객체를 재사용한다(결과는 동일, 객체는 상태가 없다). */\n(function(){try{var Orig=Intl.DateTimeFormat,cache=Object.create(null),n=0;\nfunction F(l,o){var k;try{k=(typeof l===\"string\"||l===undefined?String(l):null);if(k===null||(o!==undefined&&(o===null||typeof o!==\"object\")))return new Orig(l,o);k+=\"|\"+(o===undefined?\"\":JSON.stringify(o));}catch(e){return new Orig(l,o);}\nvar hit=cache[k];if(hit)return hit;hit=new Orig(l,o);if(n<40){cache[k]=hit;n++;}return hit;}\nF.prototype=Orig.prototype;F.supportedLocalesOf=Orig.supportedLocalesOf;Intl.DateTimeFormat=F;}catch(e){}})();\n</script>\n<script defer src=\"radar/providers.js\"></script>\n",
+      "<link rel=\"stylesheet\" href=\"radar/radar.css\">\n<script defer src=\"radar/providers.js\"></script>\n"
     ]
   ],
   "radar/ui.js": [
