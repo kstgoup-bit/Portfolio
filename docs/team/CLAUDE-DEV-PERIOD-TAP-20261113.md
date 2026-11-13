@@ -1,4 +1,4 @@
-STATUS: READY_FOR_REVIEW
+STATUS: DEPLOYED (2026-11-13 순태씨 승인, main 병합)
 ORDER-ID: 순태씨 대화 2026-11-13 21:30 (기간 버튼 눌러도 반응 없고 화면이 멈춘 듯함)
 BASE: a1e0d8d (main)
 HEAD: dd237b6c59a58d2b91d2ff79f0416cd7528519f2

@@ -1,13 +1,13 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
-STATUS: READY_FOR_REVIEW
+STATUS: DEPLOYED (순태씨 '올려' 승인 → 기간 버튼 반응 개선 main 병합, 병합 후 전체 2029 중 2027 통과/0 실패/2 skip, 비밀값 0)
 REPORT: docs/team/CLAUDE-DEV-PERIOD-TAP-20261113.md (main에 사본, 원본은 브랜치)
 BRANCH: work/claude-period-tap-20261113
 HEAD: dd237b6c59a58d2b91d2ff79f0416cd7528519f2
 UPDATED: 2026-11-13 21:45 KST
 
 - 순태씨 대화: 기간 버튼(1주·3달·6달) 눌러도 반응 없고 멈춘 듯함 → `selectPeriod` 버튼 즉시 변경·그래프 흐림, 그리기는 다음 프레임(연속 탭 마지막만). 새 시험 3건, 전체 2029 중 2027 통과/0 실패/2 skip, 비밀값 0, Chromium 360/390/430 확인.
-- 운영 반영은 순태씨 승인 대기. 지피 검토 요청(범위: selectPeriod 1곳).
+- 운영 반영 완료(순태씨 승인). 지피 사후 검토 요청(범위: selectPeriod 1곳).
 - 지피 지시서 현황: 미처리 0건.
 
 ## 이전 기록
