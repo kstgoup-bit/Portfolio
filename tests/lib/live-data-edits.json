@@ -195,6 +195,18 @@
     [
       "  });\n}\n/* 기준지수 자료 진단: 지수별 사용 가능 여부·개수·마지막 관측일·보류 충돌·불가 사유(원인 확인용, 저장값 변경 없음). */\nfunction benchDiagText(){\n  try{\n    if(!_benchState)return \"자료 없음\";\n    if(!_benchState.ok)return \"전체 읽기 실패(\"+(_benchState.reason||\"?\")+\")\";\n    var names={KS200:\"KODEX 200\",QQQ:\"QQQ\",SPY:\"SPY\"};\n    return [\"KS200\",\"QQQ\",\"SPY\"].map(function(id){\n      var g=_benchState.series&&_benchState.series[id];\n      if(!g)return names[id]+\" 없음\";\n      if(!g.ok)return names[id]+\" 사용 불가(\"+(g.reason||\"?\")+\")\"+(g.readOnly?\" 읽기전용\":\"\");\n      var pts=g.points||[],last=pts.length?pts[pts.length-1]:null,d=last?(last.d||(typeof last.ts===\"number\"?new Date(last.ts).toISOString().slice(0,10):\"?\")):\"-\";\n      return names[id]+\" \"+pts.length+\"개 · 마지막 \"+d+\" · 보류충돌 \"+((g.pendingConflicts||[]).length);\n    }).join(\" / \");\n  }catch(e){return \"진단 오류\";}\n}\n",
       "  });\n}\n"
+    ],
+    [
+      "\n/* 그래프 비교선 전용: 제공처 반올림 수준(0.5센트·0.01% 이내) 차이의 보류 충돌은 선 선택을 막지 않는다. 충돌 기록과 저장값은 그대로 유지(수익률 평가·백업은 영점 허용 규칙 유지). */\nfunction benchChartConflicts(g){\n  var pc=g&&g.pendingConflicts||[];\n  return pc.filter(function(c){\n    try{var a=c.existing.close,b=c.alternative.close,d=Math.abs(a-b);\n      return !(c.status===\"pending-review\"&&isFinite(d)&&d<=0.0051&&d<=1e-4*Math.max(Math.abs(a),Math.abs(b)));}catch(e){return true;}\n  });\n}\nfunction findBenchAtOrBefore(hist,targetTs,id) {\n",
+      "\nfunction findBenchAtOrBefore(hist,targetTs,id) {\n"
+    ],
+    [
+      "  if(ck in c.map)return c.map[ck];\n  var r=HASBenchmarkHistory.selectPointAtOrBefore(hist,id,targetTs,{now:nowMs,sameDayAfterClose:true,conflicts:benchChartConflicts(g)});\n  return (c.map[ck]=r.ok?r.point:null);\n",
+      "  if(ck in c.map)return c.map[ck];\n  var r=HASBenchmarkHistory.selectPointAtOrBefore(hist,id,targetTs,{now:nowMs,sameDayAfterClose:true,conflicts:g?g.pendingConflicts||[]:[]});\n  return (c.map[ck]=r.ok?r.point:null);\n"
+    ],
+    [
+      "      var pts=g.points||[],last=pts.length?pts[pts.length-1]:null,d=last?(last.d||(typeof last.ts===\"number\"?new Date(last.ts).toISOString().slice(0,10):\"?\")):\"-\";\n      var pc=g.pendingConflicts||[],tail=pc.slice(-2).map(function(c){return c.d+\" \"+c.existing.close+\"→\"+c.alternative.close;}).join(\", \");\n      return names[id]+\" \"+pts.length+\"개 · 마지막 \"+d+\" · 보류충돌 \"+pc.length+(tail?\" (최근 \"+tail+\")\":\"\");\n    }).join(\" / \");\n",
+      "      var pts=g.points||[],last=pts.length?pts[pts.length-1]:null,d=last?(last.d||(typeof last.ts===\"number\"?new Date(last.ts).toISOString().slice(0,10):\"?\")):\"-\";\n      return names[id]+\" \"+pts.length+\"개 · 마지막 \"+d+\" · 보류충돌 \"+((g.pendingConflicts||[]).length);\n    }).join(\" / \");\n"
     ]
   ],
   "radar/ui.js": [
