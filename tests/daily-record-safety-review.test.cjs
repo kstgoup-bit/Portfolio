@@ -27,12 +27,12 @@ test('explicit mismatched transition evidence still holds instead of being upgra
  const e={version:1,id:'synthetic-event',account:'gen',kind:'internal-trade',fromTs:first.ts,toTs:last.ts,effectiveTs:last.ts,recordedAt:last.recordedAt,timeCertainty:'instant',source:'user-entered',changes:[],flowIds:[],externalAmount:0,cashIncluded:true};
  const r=R.assess(h.input({records:[first],currentCandidate:last,evidence:[e]}));a.equal(r.dietz.status,'hold');a.ok(r.dietz.reasons.includes('transition-evidence-mismatch'));
 });
-const g=loadHelpers('benchmark-gas-link.test.cjs',s=>s.slice(0,s.indexOf("test('configured Korean"))+s.slice(s.indexOf('function harness('),s.indexOf("test('configured GAS is first")),'({harness,fixture,drain})');
+const g=loadHelpers('benchmark-gas-link.test.cjs',s=>s.slice(0,s.indexOf("test('configured Korean"))+s.slice(s.indexOf('function harness('),s.indexOf("test('configured GAS is first")),'({harness,fixture,drain,settleUS})');
 test('synchronous JSONP append callback plus onerror and duplicate invocation settle exactly once',async()=>{
  const x=g.harness(),original=x.w.document.head.appendChild;let callback;
  x.w.document.head.appendChild=function(s){original(s);callback=x.w[new URL(s.src).searchParams.get('callback')];callback(g.fixture());callback(g.fixture());};
  x.w.fetchBenchmarkHistory(true);await g.drain();a.equal(x.writes.length,1);a.equal(x.scripts[0].parentNode,null);a.equal(x.w._benchGasCleanup,null);a.equal(x.w._benchFetchInFlight,false);
 });
 test('retained error handler after successful callback cannot trigger Korean fallback or double-save',async()=>{
- const x=g.harness();x.w.fetchBenchmarkHistory(true);const err=x.scripts[0].onerror,late=x.w[x.callback()];late(g.fixture());err();late(g.fixture());await g.drain();a.equal(x.writes.length,1);a.equal(x.fetches.some(u=>u.includes('069500')),false);
+ const x=g.harness();x.w.fetchBenchmarkHistory(true);const err=x.scripts[0].onerror,late=x.w[x.callback()];late(g.fixture());err();late(g.fixture());await g.settleUS(x);a.equal(x.writes.length,1);a.equal(x.fetches.some(u=>u.includes('069500')),false);
 });

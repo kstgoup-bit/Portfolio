@@ -41,10 +41,12 @@ function harness({url='https://script.google.com/macros/s/SYNTHETIC_DEPLOYMENT/e
  return {w,timers,scripts,fetches,writes,storage,callback:()=>new URL(scripts.at(-1).src).searchParams.get('callback')};
 }
 async function drain(){for(let i=0;i<150;i++)await Promise.resolve();}
+// QQQ와 SPY도 설정된 GAS를 먼저 조회한다(market=US). 시험에서는 두 응답을 비워 기존 경로(오프라인)로 넘기고 끝까지 흘려보낸다.
+async function settleUS(h){for(const sym of ['QQQ','SPY']){await drain();const sc=h.scripts.at(-1),u=new URL(sc.src);a.equal(u.searchParams.get('tickers'),sym);a.equal(u.searchParams.get('market'),'US');h.w[u.searchParams.get('callback')]({[sym]:null});}for(let i=0;i<6;i++)await drain();}
 test('configured GAS is first, sends exact bounded request, succeeds without Korean Yahoo fallback and preserves legacy bytes',async()=>{
  const raw=' { "KS200": [] } ',h=harness({legacy:raw});h.w.fetchBenchmarkHistory(true);a.equal(h.fetches.length,0);a.equal(h.scripts.length,1);
  const s=h.scripts[0],u=new URL(s.src),cb=h.callback();a.deepEqual([...u.searchParams.keys()],['type','tickers','market','callback']);a.equal(u.searchParams.get('type'),'history');a.equal(u.searchParams.get('tickers'),'069500');a.equal(u.searchParams.get('market'),'KR');a.match(cb,/^[A-Za-z_][A-Za-z0-9_]{0,60}$/);
- h.w[cb](fixture());await drain();a.equal(s.parentNode,null);a.equal(h.w[cb],undefined);a.equal(h.fetches.some(x=>x.includes('069500')),false);a.equal(h.storage.getItem('v5_benchHist'),raw);a.deepEqual(h.writes,['v5_benchHistV2']);a.equal(h.w._benchFetchInFlight,false);
+ h.w[cb](fixture());await settleUS(h);a.equal(s.parentNode,null);a.equal(h.w[cb],undefined);a.equal(h.fetches.some(x=>x.includes('069500')),false);a.equal(h.storage.getItem('v5_benchHist'),raw);a.deepEqual(h.writes,['v5_benchHistV2']);a.equal(h.w._benchFetchInFlight,false);
 });
 test('invalid GAS falls back to existing Korean route without leaking configured GAS address',async()=>{
  const h=harness();h.w.fetchBenchmarkHistory(true);h.w[h.callback()]({'069500':null});await drain();a.match(h.fetches[0],/069500/);a.equal(h.fetches.some(x=>x.includes('SYNTHETIC_DEPLOYMENT')),false);a.equal(h.writes.length,0);
@@ -66,5 +68,5 @@ test('missing or untrusted route never executes JSONP and uses existing fallback
 });
 test('script error and quota failure preserve original legacy and no false success',async()=>{
  const h=harness();h.w.fetchBenchmarkHistory(true);const cb=h.callback();h.scripts[0].onerror();await drain();a.equal(h.w[cb],undefined);a.equal(h.writes.length,0);
- const q=harness({quota:true,legacy:'{}'});q.w.fetchBenchmarkHistory(true);q.w[q.callback()](fixture());await drain();a.equal(q.storage.getItem('v5_benchHist'),'{}');a.equal(q.storage.getItem('v5_benchHistV2'),null);a.match(q.w._benchStatusMsg,/실패/);
+ const q=harness({quota:true,legacy:'{}'});q.w.fetchBenchmarkHistory(true);q.w[q.callback()](fixture());await settleUS(q);a.equal(q.storage.getItem('v5_benchHist'),'{}');a.equal(q.storage.getItem('v5_benchHistV2'),null);a.match(q.w._benchStatusMsg,/실패/);
 });
