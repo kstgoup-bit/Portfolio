@@ -208,3 +208,30 @@ test('출처·시각 계약 경계: 형식 오류는 추가 정보 필요, 시�
   a.equal(rv.status, 'OK'); a.match(rv.header.priceVerification, /독립 검증하지 않음.*실시간·교차검증 완료 아님/); a.match(rv.header.engineVerification, /교차검증.*없음/);
   a.doesNotMatch(JSON.stringify(rv.header), /교차검증 완료(?! 아님)|실시간 시세(?! 아님)/);
 });
+
+test('같은 종목 두 기록 중 한쪽에만 시세종류·기준시각이 있으면 중복으로 합치지 않고 HOLD_INSUFFICIENT_DATA (GPT-REVIEW 0830 #1)', () => {
+  const k = fx(); k.candidates.push({ symbol: 'GOOGL', priceUSD: 100, priceKind: 'extended' });
+  const rk = C.compareAlternatives(k); a.equal(rk.status, 'HOLD_INSUFFICIENT_DATA'); a.equal(rk.alternatives.length, 0);
+  a.ok(rk.issues.some(x => /GOOGL 후보가 두 번.*한쪽 기록에만 시세종류/.test(x)));
+  const t = fx(); t.candidates.push({ symbol: 'GOOGL', priceUSD: 100, quoteAsOf: '2026-11-13T00:00:00+09:00' });
+  const rt = C.compareAlternatives(t); a.equal(rt.status, 'HOLD_INSUFFICIENT_DATA'); a.ok(rt.issues.some(x => /한쪽 기록에만 기준시각/.test(x)));
+  const h = fx(); h.holdings.push({ symbol: 'NVDA', qty: 1, averageCost: 139.68, price: 140, currency: 'USD' });
+  a.equal(C.compareAlternatives(h).status, 'HOLD_INSUFFICIENT_DATA', '보유 중복도 같은 규칙');
+  const hc = fx(); hc.candidates.push({ symbol: 'NVDA', priceUSD: 140 });
+  a.equal(C.compareAlternatives(hc).status, 'HOLD_INSUFFICIENT_DATA', '보유(user-input)·후보(없음) 한쪽만');
+  const off = fx(); off.candidates[0].quoteAsOf = '2026-11-13T00:00:00+09:00'; off.candidates.push(Object.assign({}, off.candidates[0], { quoteAsOf: '2026-11-12T15:00:00Z' }));
+  const ro = C.compareAlternatives(off); a.equal(ro.status, 'OK', '같은 순간 다른 오프셋은 동일'); a.equal(ro.alternatives.filter(x => /GOOGL 전액/.test(x.label)).length, 1);
+  a.equal(C.compareAlternatives(fx()).status, 'OK', '선택 필드 없는 단일 후보 기존 계약 유지');
+});
+
+test('sale 형식 결함은 HOLD_INSUFFICIENT_DATA, 형식 정상인 미보유 종목만 HOLD_CONFLICT (GPT-REVIEW 0830 #2)', () => {
+  const cases = [{}, { qty: 20, priceUSD: 161 }, { symbol: 'NVDA' }, { symbol: 'NVDA', qty: 20 }, { symbol: 'NVDA', priceUSD: 161 }, { symbol: 'NVDA', qty: '20', priceUSD: 161 }, { symbol: 'NVDA', qty: 20, priceUSD: NaN }, { symbol: 12, qty: 20, priceUSD: 161 }, { symbol: 'TSLA', qty: 0, priceUSD: 161 }];
+  for (const sale of cases) {
+    const i = fx(); i.sale = sale; const before = JSON.stringify(i);
+    let r; a.doesNotThrow(() => { r = C.compareAlternatives(i); });
+    a.equal(r.status, 'HOLD_INSUFFICIENT_DATA', JSON.stringify(sale)); a.equal(r.buyReview.allowed, false); a.equal(JSON.stringify(i), before, '입력 불변');
+  }
+  const nh = fx(); nh.sale = { symbol: 'TSLA', qty: 1, priceUSD: 100 };
+  a.equal(C.compareAlternatives(nh).status, 'HOLD_CONFLICT', '형식 정상·미보유는 판단 보류');
+  const ok = C.compareAlternatives(fx()); a.equal(ok.status, 'OK'); a.equal(ok.buyReview.allowed, false);
+});

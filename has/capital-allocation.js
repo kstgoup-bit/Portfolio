@@ -105,7 +105,8 @@
     if (typeof input.fractionalAllowed !== 'boolean') miss('소수점 거래 가능 여부(fractionalAllowed) 없음');
     /* 보유 — 같은 종목이 두 번이면 가격이 같을 때만 합친다 */
     var seen = {}, mixedKinds = {};
-    /* 같은 종목의 두 기록이 통화·시세종류·기준시각에서 서로 다르면 충돌(둘 다 값이 있을 때만 비교) */
+    /* 같은 종목의 두 기록이 통화·시세종류·기준시각에서 서로 다르면 충돌. 시세종류·기준시각이 한쪽에만 있으면 같은 자료인지 알 수 없으므로 추가 정보 필요(missing)로 돌려준다.
+       기준시각은 같은 순간이면 오프셋 표기가 달라도 같다고 본다. 통화는 계약상 생략 = USD. */
     function factClash(a, b, aPrice, bPrice) {
       var d = [];
       if (isNum(aPrice) && isNum(bPrice) && Math.abs(aPrice - bPrice) > 1e-9) d.push('가격 ' + aPrice + ' / ' + bPrice);
@@ -113,6 +114,18 @@
       if (a.priceKind != null && b.priceKind != null && a.priceKind !== b.priceKind) d.push('시세종류 ' + a.priceKind + ' / ' + b.priceKind);
       if (a.quoteAsOf != null && b.quoteAsOf != null && a.quoteAsOf !== b.quoteAsOf && !(isIsoTz(a.quoteAsOf) && isIsoTz(b.quoteAsOf) && Date.parse(a.quoteAsOf) === Date.parse(b.quoteAsOf))) d.push('기준시각 ' + a.quoteAsOf + ' / ' + b.quoteAsOf);
       return d;
+    }
+    function oneSided(a, b) {
+      var m = [];
+      if ((a.priceKind == null) !== (b.priceKind == null)) m.push('시세종류');
+      if ((a.quoteAsOf == null) !== (b.quoteAsOf == null)) m.push('기준시각');
+      return m;
+    }
+    function pairCheck(a, b, aPrice, bPrice, label) {
+      var d = factClash(a, b, aPrice, bPrice);
+      if (d.length) { conf(label + ' 자료가 다름(' + d.join(', ') + ')'); return; }
+      var m = oneSided(a, b);
+      if (m.length) miss(label + ' 한쪽 기록에만 ' + m.join('·') + ' 있음 — 같은 자료인지 확인 불가');
     }
     function itemQuoteAsOf(x, label) {
       if (x.quoteAsOf == null) return;
@@ -129,7 +142,7 @@
       if (!isNum(h.price) || h.price <= 0) miss(s + ' 현재 평가가격 없음 또는 0 이하');
       if (h.averageCost != null && (!isNum(h.averageCost) || h.averageCost <= 0)) miss(s + ' 평균단가가 0 이하이거나 숫자가 아님');
       if (h.priceKind) mixedKinds[h.priceKind] = 1;
-      if (seen[s]) { var hd = factClash(seen[s], h, seen[s].price, h.price); if (hd.length) conf(s + ' 가 두 번 입력됐고 자료가 다름(' + hd.join(', ') + ')'); }
+      if (seen[s]) pairCheck(seen[s], h, seen[s].price, h.price, s + ' 가 두 번 입력됐고');
       else seen[s] = h;
     });
     if (!Array.isArray(input.holdings)) miss('holdings 없음');
@@ -144,8 +157,8 @@
       itemQuoteAsOf(c, s + ' 후보');
       if ((c.currency || 'USD') !== 'USD') conf(s + ' 후보 통화가 USD 가 아님(' + c.currency + ')');
       if (!isNum(c.priceUSD) || c.priceUSD <= 0) miss(s + ' 후보 매수 가격 없음 또는 0 이하');
-      else if (seen[s]) { var hc = factClash(seen[s], c, seen[s].price, c.priceUSD); if (hc.length) conf(s + ' 보유 기록과 후보 자료가 다름(' + hc.join(', ') + ') — 같은 기준시각 가격이어야 함'); }
-      if (candSeen[s]) { var cc = factClash(candSeen[s], c, candSeen[s].priceUSD, c.priceUSD); if (cc.length) conf(s + ' 후보가 두 번 입력됐고 자료가 다름(' + cc.join(', ') + ')'); }
+      else if (seen[s]) pairCheck(seen[s], c, seen[s].price, c.priceUSD, s + ' 보유 기록과 후보(같은 기준시각 가격이어야 함)');
+      if (candSeen[s]) pairCheck(candSeen[s], c, candSeen[s].priceUSD, c.priceUSD, s + ' 후보가 두 번 입력됐고');
       else candSeen[s] = c;
     });
     if (input.convictionSymbols != null && !(Array.isArray(input.convictionSymbols) && input.convictionSymbols.every(isStr))) miss('convictionSymbols 가 문자열 배열이 아님');
@@ -162,8 +175,13 @@
     var sale = input.sale;
     if (sale != null && !isObj(sale)) { miss('sale 이 객체가 아님'); sale = null; }
     if (sale) {
-      var ss = sym(sale.symbol), held = seen[ss];
-      if (!held) conf('매도 종목 ' + (ss || '(없음)') + ' 이 보유 목록에 없음');
+      /* 매도 입력 형식 결함(종목·수량·가격 누락/비숫자)은 보유 여부와 관계없이 추가 정보 필요 */
+      var ss = sym(sale.symbol), held = ss ? seen[ss] : null, saleBad = [];
+      if (!isStr(sale.symbol) || !ss) saleBad.push('sale.symbol 없음 또는 문자열이 아님');
+      if (!isNum(sale.qty) || sale.qty <= 0) saleBad.push('sale.qty 가 0 이하이거나 숫자가 아님');
+      if (!isNum(sale.priceUSD) || sale.priceUSD <= 0) saleBad.push('sale.priceUSD 가 0 이하이거나 숫자가 아님');
+      if (saleBad.length) miss(saleBad.join('; '));
+      else if (!held) conf('매도 종목 ' + (ss || '(없음)') + ' 이 보유 목록에 없음');
       else {
         var r = computeSale({ soldQty: sale.qty, sellPriceUSD: sale.priceUSD, averageCostUSD: held.averageCost, heldQty: totalQty(input.holdings, ss), sellingFeesUSD: fees.sellingFeesUSD });
         if (!r.ok) (r.code === 'HOLD_CONFLICT' ? conf : miss)(r.issues.join('; '));
