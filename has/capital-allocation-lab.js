@@ -42,6 +42,37 @@
     return out;
   }
 
+  var HOLDING_FIELDS = ['symbol', 'qty', 'averageCost', 'price', 'sector', 'conviction'];
+  var CANDIDATE_FIELDS = ['symbol', 'price', 'sector', 'conviction'];
+  function filled(x) { return x === true || (x !== false && !blank(x)); }
+  function emptyRow(r, keys) { return !r || keys.every(function (k) { return !filled(r[k]); }); }
+  /* 화면 줄 번호 기준 검사: 부분 작성 줄·빈 첫 줄 매도 → 문제 줄 번호와 빠진 항목 (빈 배열 = 문제 없음) */
+  function rowIssues(v) {
+    var out = [];
+    (v.holdings || []).forEach(function (h, i) {
+      if (emptyRow(h, HOLDING_FIELDS) || !blank(h.symbol)) return;
+      var m = ['종목'];
+      if (blank(h.qty)) m.push('수량');
+      if (blank(h.price)) m.push('평가가격');
+      out.push('보유 ' + (i + 1) + '번 줄: 다른 칸은 입력됐지만 ' + m.join('·') + ' 없음 — 채우거나 줄 전체를 비우세요');
+    });
+    var first = (v.holdings || [])[0];
+    if ((!blank(v.saleQty) || !blank(v.salePrice)) && (!first || blank(first.symbol))) out.push('보유 1번 줄(매도할 종목)이 비어 있음 — 다른 줄 종목으로 바꾸지 않습니다. 1번 줄에 매도 종목을 넣으세요');
+    (v.candidates || []).forEach(function (c, i) {
+      if (emptyRow(c, CANDIDATE_FIELDS) || !blank(c.symbol)) return;
+      var m = ['종목'];
+      if (blank(c.price)) m.push('매수 가격');
+      out.push('후보 ' + (i + 1) + '번 줄: 다른 칸은 입력됐지만 ' + m.join('·') + ' 없음 — 채우거나 줄 전체를 비우세요');
+    });
+    return out;
+  }
+  /* 화면 계산: 줄 검사에 걸리면 엔진 결과가 성공이어도 대안을 보여주지 않는다(fail-closed) */
+  function compare(v, engine) {
+    var r = engine.compareAlternatives(buildInput(v)), rows = rowIssues(v);
+    if (!rows.length) return r;
+    return { ok: false, status: 'HOLD_INSUFFICIENT_DATA', opinion: '추가 정보 필요', issues: rows.concat(r.ok ? [] : (r.issues || [])), header: r.header, alternatives: [], buyReview: { allowed: false, reason: '판단 보류 상태' } };
+  }
+
   /* 화면 입력값(문자열) → 엔진 계약 capitalAllocationInput.v1 (순수 함수) */
   function buildInput(v) {
     var asOf = String(v.asOf || '').trim();
@@ -55,20 +86,22 @@
       fees: { sellingFeesUSD: num(v.sellFee), buyingFeesUSD: num(v.buyFee), buyingFeeRate: blank(v.buyFeeRatePct) ? null : num(v.buyFeeRatePct) / 100 },
       fx: { usdkrw: num(v.usdkrw) },
       convictionSymbols: list(v.conviction),
-      holdings: (v.holdings || []).filter(function (h) { return !blank(h.symbol); }).map(function (h) {
+      /* 완전히 빈 줄만 건너뛴다. 종목명 없이 다른 칸이 채워진 줄은 그대로 넘겨 엔진이 '추가 정보 필요'로 멈춘다(조용히 빼지 않음). */
+      holdings: (v.holdings || []).filter(function (h) { return !emptyRow(h, HOLDING_FIELDS); }).map(function (h) {
         var o = { symbol: String(h.symbol).trim().toUpperCase(), qty: num(h.qty), price: num(h.price), priceKind: 'user-input', currency: 'USD', sector: String(h.sector || '').trim() || '미분류', conviction: !!h.conviction };
         if (!blank(h.averageCost)) o.averageCost = num(h.averageCost);
         return o;
       }),
-      candidates: (v.candidates || []).filter(function (c) { return !blank(c.symbol); }).map(function (c) {
+      candidates: (v.candidates || []).filter(function (c) { return !emptyRow(c, CANDIDATE_FIELDS); }).map(function (c) {
         return { symbol: String(c.symbol).trim().toUpperCase(), priceUSD: num(c.price), currency: 'USD', sector: String(c.sector || '').trim() || '미분류', conviction: !!c.conviction };
       })
     };
     var fxAcq = num(v.fxAcq), fxSale = num(v.fxSale);
     if (fxAcq != null) input.fx.acquisitionUsdKrw = fxAcq;
     if (fxSale != null) input.fx.saleUsdKrw = fxSale;
-    var main = input.holdings[0];
-    if (!blank(v.saleQty) || !blank(v.salePrice)) input.sale = { symbol: main ? main.symbol : '', qty: num(v.saleQty), priceUSD: num(v.salePrice) };
+    /* 매도 종목 = 화면의 원래 첫 줄로 고정(빈 첫 줄이면 다른 줄로 바꾸지 않고 빈 종목으로 넘겨 보류) */
+    var first = (v.holdings || [])[0];
+    if (!blank(v.saleQty) || !blank(v.salePrice)) input.sale = { symbol: first && !blank(first.symbol) ? String(first.symbol).trim().toUpperCase() : '', qty: num(v.saleQty), priceUSD: num(v.salePrice) };
     if (!blank(v.partialPct)) {
       var share = num(v.partialPct);
       input.partialReinvest = { share: share == null ? share : share / 100 };
@@ -115,7 +148,7 @@
     g0.grid.appendChild(input('fractional', '소수점 매수 가능', DEFAULTS.fractional, { type: 'checkbox' }));
     form.appendChild(g0.el);
 
-    var g1 = group('보유 종목', '첫 줄이 매도할 종목입니다. 빈 줄은 무시합니다.');
+    var g1 = group('보유 종목', '첫 줄이 매도할 종목입니다. 완전히 빈 줄만 무시하고, 종목명 없이 일부만 채운 줄은 계산을 멈춥니다.');
     DEFAULTS.holdings.forEach(function (h, i) {
       var p = 'h' + i + '-';
       g1.grid.appendChild(input(p + 'symbol', (i + 1) + ' 종목', h.symbol, { ph: i ? '선택' : '' }));
@@ -132,7 +165,7 @@
     g2.grid.appendChild(input('salePrice', '매도 가격(USD, 가정)', DEFAULTS.salePrice, { mode: 'decimal' }));
     form.appendChild(g2.el);
 
-    var g3 = group('재투자 후보', '가격은 손계산용 가정 값입니다. 빈 줄은 무시합니다.');
+    var g3 = group('재투자 후보', '가격은 손계산용 가정 값입니다. 완전히 빈 줄만 무시하고, 종목명 없이 일부만 채운 줄은 계산을 멈춥니다.');
     DEFAULTS.candidates.forEach(function (c, i) {
       var p = 'c' + i + '-';
       g3.grid.appendChild(input(p + 'symbol', '후보 ' + (i + 1) + ' 종목', c.symbol));
@@ -274,7 +307,7 @@
     }
     form.addEventListener('submit', function (ev) {
       ev.preventDefault();
-      var r = Engine.compareAlternatives(buildInput(values()));
+      var r = compare(values(), Engine);
       render(r);
       status.textContent = r.ok ? '계산 완료 · 대안 ' + r.alternatives.length + '개 · 저장하지 않음' : r.opinion + ' · 입력을 확인하세요';
     });
@@ -282,7 +315,7 @@
     return { gate: true, values: values, render: render };
   }
 
-  var api = Object.freeze({ DEFAULTS: DEFAULTS, gateOn: gateOn, num: num, parseReturns: parseReturns, buildInput: buildInput, mount: mount });
+  var api = Object.freeze({ DEFAULTS: DEFAULTS, gateOn: gateOn, num: num, parseReturns: parseReturns, buildInput: buildInput, rowIssues: rowIssues, compare: compare, mount: mount });
   if (typeof document !== 'undefined' && typeof window !== 'undefined' && document.getElementById) {
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { mount(document, window); });
     else mount(document, window);

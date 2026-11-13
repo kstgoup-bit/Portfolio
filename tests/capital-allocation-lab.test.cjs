@@ -94,3 +94,55 @@ test('화면(jsdom) 게이트 ON: 계산·대안 카드·미반영·매수 검�
   a.equal(d.querySelector('form').getAttribute('action'), null);
   void w;
 });
+
+/* GPT-REVIEW-capital-allocation-20261113-1030 회귀: 부분 작성 줄을 조용히 빼지 않음(fail-closed) */
+test('부분 작성 보유 줄(종목명만 빈칸): 성공 대안 0개, 추가 정보 필요 + 줄 번호·빠진 항목', () => {
+  const v = vals(); v.holdings[1] = { symbol: '', qty: '10', averageCost: '', price: '100', sector: '', conviction: false };
+  const r = L.compare(v, C);
+  a.equal(r.ok, false); a.equal(r.status, 'HOLD_INSUFFICIENT_DATA'); a.equal(r.alternatives.length, 0); a.equal(r.buyReview.allowed, false);
+  a.ok(r.issues.some(t => /보유 2번 줄/.test(t) && /종목/.test(t)), r.issues.join('|'));
+  const e = C.compareAlternatives(L.buildInput(v));
+  a.equal(e.ok, false, '엔진만 써도 부분 줄을 넘겨 보류'); a.equal(e.status, 'HOLD_INSUFFICIENT_DATA');
+  const v2 = vals(); v2.holdings[2].qty = '5';
+  const r2 = L.compare(v2, C); a.equal(r2.ok, false); a.ok(r2.issues.some(t => /보유 3번 줄.*종목·평가가격 없음/.test(t)), r2.issues.join('|'));
+  const v3 = vals(); v3.holdings[1].conviction = true; a.equal(L.compare(v3, C).ok, false, '확신 체크만 해도 부분 줄');
+});
+
+test('부분 작성 후보 줄(종목명 빈칸, 가격·업종 입력): 조용한 제외 없이 추가 정보 필요', () => {
+  const v = vals(); v.candidates[2] = { symbol: '', price: '300', sector: '반도체', conviction: false };
+  const r = L.compare(v, C);
+  a.equal(r.ok, false); a.equal(r.status, 'HOLD_INSUFFICIENT_DATA'); a.equal(r.alternatives.length, 0);
+  a.ok(r.issues.some(t => /후보 3번 줄/.test(t)), r.issues.join('|'));
+  a.equal(C.compareAlternatives(L.buildInput(v)).ok, false, '엔진만 써도 보류');
+  const v2 = vals(); v2.candidates[0] = { symbol: '', price: '', sector: '인터넷', conviction: false };
+  a.ok(L.compare(v2, C).issues.some(t => /후보 1번 줄.*종목·매수 가격 없음/.test(t)));
+});
+
+test('빈 첫 보유 줄 + 둘째 줄 종목 + 매도 입력: 매도 종목 자동 전환 없이 보류', () => {
+  const v = vals(); v.holdings[1] = Object.assign({}, v.holdings[0]); v.holdings[0] = { symbol: '', qty: '', averageCost: '', price: '', sector: '', conviction: false };
+  const inp = L.buildInput(v);
+  a.equal(inp.sale.symbol, '', '둘째 줄 NVDA 로 바뀌지 않음');
+  const r = L.compare(v, C);
+  a.equal(r.ok, false); a.equal(r.status, 'HOLD_INSUFFICIENT_DATA'); a.equal(r.alternatives.length, 0);
+  a.ok(r.issues.some(t => /보유 1번 줄\(매도할 종목\)이 비어 있음/.test(t)), r.issues.join('|'));
+  a.equal(C.compareAlternatives(inp).ok, false, '엔진만 써도 보류');
+});
+
+test('완전히 빈 줄은 기존처럼 허용: 기본 합성 결과·대안 7개 그대로, 줄 검사 문제 0', () => {
+  const v = vals(); a.deepEqual(L.rowIssues(v), []);
+  const r = L.compare(v, C), fx = C.compareAlternatives(FIX);
+  a.equal(r.ok, true); a.deepEqual(r.alternatives, fx.alternatives); a.deepEqual(r.alternatives.map(x => x.id), ['A', 'B', 'C1', 'C2', 'C3', 'D', 'E']);
+  const v2 = vals(); v2.holdings[1].sector = '   '; a.equal(L.compare(v2, C).ok, true, '공백만 = 빈 칸');
+});
+
+test('화면(jsdom): 부분 작성 줄 → 대안 카드 0, 줄 번호 안내, 되돌리면 정상', async () => {
+  const { d, log } = await page('?test=1');
+  d.getElementById('f-h1-qty').value = '10'; d.getElementById('f-h1-price').value = '100'; d.getElementById('run').click();
+  a.equal(d.querySelectorAll('article.alt').length, 0);
+  const t = d.getElementById('result-body').textContent;
+  a.match(t, /추가 정보 필요 \(HOLD_INSUFFICIENT_DATA\)/); a.match(t, /보유 2번 줄/); a.doesNotMatch(t, /매수 검토(?!: 표시하지 않음)/);
+  a.match(d.getElementById('status').textContent, /추가 정보 필요/);
+  d.getElementById('reset').click(); d.getElementById('run').click();
+  a.equal(d.querySelectorAll('article.alt').length, 7);
+  a.equal(log.storage, 0); a.equal(log.net, 0);
+});
