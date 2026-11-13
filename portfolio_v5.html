@@ -2855,9 +2855,18 @@ function findBenchAtOrBefore(hist,targetTs,id) {
   if(!id)return null;
   var g=_benchState&&_benchState.ok?_benchState.series[id]:null;
   if(g&&!g.ok)return null;
-  var r=HASBenchmarkHistory.selectPointAtOrBefore(hist,id,targetTs,{now:Date.now(),conflicts:g?g.pendingConflicts||[]:[]});
-  return r.ok?r.point:null;
+  // 속도: 같은 (지수, 시각) 조회는 매번 전체 기록 검증을 되풀이하므로 같은 입력 상태에서는 결과를 재사용한다.
+  var nowMs=Date.now(),c=_benchSelCache;
+  if(c.hist!==hist||c.len!==hist.length||c.state!==_benchState||nowMs-c.at>30000){c={hist:hist,len:hist.length,state:_benchState,at:nowMs,map:Object.create(null)};_benchSelCache=c;}
+  var ck=id+"|"+targetTs;
+  // 같은 거래소 날짜의 조회는 결과가 같다(선택 규칙이 날짜 단위). 하루에 여러 번 기록한 점도 한 번만 계산한다.
+  try{var sp=HASBenchmarkHistory.specs&&HASBenchmarkHistory.specs[id],Qm=window.HASQuoteModel;
+    if(sp&&Qm&&typeof targetTs==="number"&&Number.isSafeInteger(targetTs)&&targetTs>0&&targetTs<=8640000000000000){var dk=Qm.marketDate(new Date(targetTs).toISOString(),sp.market);if(dk)ck=id+"@"+dk;}}catch(e){}
+  if(ck in c.map)return c.map[ck];
+  var r=HASBenchmarkHistory.selectPointAtOrBefore(hist,id,targetTs,{now:nowMs,conflicts:g?g.pendingConflicts||[]:[]});
+  return (c.map[ck]=r.ok?r.point:null);
 }
+var _benchSelCache={hist:null,len:-1,state:null,at:0,map:null};
 function benchmarkAssessmentForInterval(key,fromTs,toTs) {
   var currency=key==="dom"||key==="gen"?"KRW":key==="all"?"mixed":"USD";
   var ids=key==="dom"||key==="gen"?["KS200"]:key==="all"?["KS200","QQQ"]:["QQQ"],details=[],values=[];
@@ -7307,6 +7316,24 @@ function switchGroup(group){
   switchTab(target);
 }
 
+/* 환호성 화면이면 강조 테두리를 곡소리 탭이 아니라 환호성 바로가기에 둔다(주소 #kst-radar/…/euphoria 기준). */
+function hasSyncRiskTabHighlight(){
+  var bar=document.getElementById("subtabs-risk");if(!bar)return;
+  var link=bar.querySelector(".has-risk-shortcut");if(!link)return;
+  var radarPanel=document.getElementById("panel-radar");
+  var euph=!!(radarPanel&&radarPanel.classList.contains("active")&&/^#kst-radar\/(real|demo)\/euphoria/.test(location.hash));
+  var idx=TAB_GROUPS.risk.indexOf("radar"),btn=bar.querySelectorAll(".tab")[idx];
+  var c=tabColors.radar||"#1565c0";
+  link.classList.toggle("active",euph);
+  if(euph){
+    link.style.color=c;link.style.borderColor=c;link.style.background="#fff";link.style.fontWeight="800";
+    if(btn){btn.classList.remove("active");btn.style.color="";btn.style.borderColor="";btn.style.background="";}
+  }else{
+    link.style.color="";link.style.borderColor="";link.style.background="";link.style.fontWeight="";
+  }
+}
+["popstate","hashchange"].forEach(function(ev){window.addEventListener(ev,function(){setTimeout(hasSyncRiskTabHighlight,0);});});
+document.addEventListener("click",function(){setTimeout(hasSyncRiskTabHighlight,0);},true);
 function switchTab(tab) {
   var group=TAB_TO_GROUP[tab];
   if(!group) return;
@@ -7351,6 +7378,7 @@ function switchTab(tab) {
   if(window.HASPretradePanel) window.HASPretradePanel.onTabChange(tab);
   if(window.HASPriceTrustUI) window.HASPriceTrustUI.refresh();
   if(window.HASAdvisorPanel) window.HASAdvisorPanel.refresh();
+  if(typeof hasSyncRiskTabHighlight==="function") hasSyncRiskTabHighlight();
   if(tab==="memo") renderMemo();
   if(tab==="retirement"){ renderRetirement(); renderNotouch(); }
   if(tab==="debt") renderDebt();
