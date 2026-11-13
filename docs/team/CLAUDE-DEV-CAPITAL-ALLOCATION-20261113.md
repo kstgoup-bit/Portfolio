@@ -1,8 +1,30 @@
 STATUS: READY_FOR_REVIEW
-ORDER-ID: GPT-20261113-0024 (재검토 2차 — GPT-REVIEW-capital-allocation-20261113-0830 CHANGES_REQUESTED 반영)
-BASE: 321f8bbec48076bff83d2580700b6a78db76b535 (직전 검토 커밋; 그 사이 main 문서 커밋 eab0e50 병합 2233df4 — 코드 영향 없음)
-HEAD: 8516d5b1e1756d3bc48def0bfd0b19ba4ad5abde
-REVIEW-SCOPE: 지피 08:30 남은 지적 1·2·3 반영분만 — `has/capital-allocation.js` validateInput(한쪽만 있는 시세종류·기준시각, sale 형식 결함), `tests/capital-allocation.test.cjs` 새 시험 2건, `tests/lib/live-data-pins.json` SHA 갱신. 시험 게이트 화면(4절)은 다음 단위.
+ORDER-ID: GPT-20261113-0024 (4절 시험 게이트 화면 단위 — 엔진은 GPT-REVIEW-capital-allocation-20261113-0930 APPROVE)
+BASE: 8516d5b1e1756d3bc48def0bfd0b19ba4ad5abde (지피 APPROVE 엔진 커밋; 그 사이 main 문서 병합 d9b6a16 — 코드 영향 없음)
+HEAD: fe874dc3b7db9758bd2903e86acd6292a4908786
+REVIEW-SCOPE: 시험 게이트 화면만 — 새 파일 `has/capital-allocation-lab.html`·`.js`·`.css`, `tests/capital-allocation-lab.test.cjs`(6건), `tests/lib/live-data-pins.json` addedRuntimeFiles 3개 등록. 엔진(`has/capital-allocation.js`)·앱(portfolio_v5.html)·서비스워커·GAS 변경 0.
+
+## 시험 게이트 화면 (2026-11-13 10:10 KST 정각 실행)
+- **위치·게이트:** 별도 페이지 `has/capital-allocation-lab.html`. 주소에 `?test=1`이 있을 때만 입력 화면을 그림(없으면 "시험 게이트가 꺼져 있습니다" 문구만, 입력 0개). 기존 앱(portfolio_v5.html·portfolio.html)·서비스워커·manifest·다른 has 화면 어디에서도 링크·호출하지 않음(시험으로 고정) → 게이트 OFF = 기존 앱 동작 불변.
+- **보안:** CSP `connect-src 'none'`·`form-action 'none'`, 스크립트는 엔진+화면 2개만. 화면 코드에 fetch/XHR/WebSocket/sendBeacon/localStorage/sessionStorage/indexedDB/caches 0, innerHTML·eval 0(글자는 textContent만). 입력은 메모리만, 새로고침하면 사라짐("저장하지 않음" 표기).
+- **입력:** 기준일, 기존 현금, 소수점 매수 여부, 보유 3줄(첫 줄=매도 종목: 수량·평균단가·평가가격(가정)·업종·확신), 가상 매도 수량·가격, 후보 3줄(가격·업종·확신), E안 재투자 비율·종목, 매도 비용·매수 고정 수수료·수수료율(%)·현재/취득/매도 시점 환율, 비중 분모(해외계좌/전체+기타 자산), 확신 종목 목록, 1·3·5년 **사용자 가정 수익률**(예: `NVDA:20, CASH:3`, 비우면 계산 안 함).
+- **변환 규칙(`buildInput`, 순수 함수):** 빈칸 = null → 엔진 '미반영'/'추가 정보 필요', 숫자가 아닌 글자(예 `12abc`, `1e3`) = NaN → 엔진 보류, 쉼표 허용, 수수료율 %→비율. 계약 머리는 `dataMode: synthetic`, `freshnessStatus: synthetic`, `source: test-gate-user-input`, `quoteAsOf = 기준일T00:00:00+09:00` 고정(합성만 — verified 선택 불가).
+- **출력:** '합성 · 현재 시세 아님'·'교차검증 아님' 표시, 미반영 목록, 가상 매도(매도금액·USD 매매차익·비용·재투자 가능 금액·남은 수량·원화 세금 산출 보류), 대안 카드 A~E(의견 4종 태그, 가상 주문 수량×가격=비용, 매도 종목 주식 수 변화, 남는 현금, 계좌 평가액, 종목별 비중/한도·현금·최대 업종·HHI, 한도 경고 "경고일 뿐 매도 지시 아님", 가정 수익률 결과), '매수 검토: 표시하지 않음' + 빠진 조건 목록, 면책 문구. 보류 시 '추가 정보 필요 (HOLD_INSUFFICIENT_DATA)' / '판단 보류 (HOLD_CONFLICT)'와 사유.
+- **기본값 = 합성 픽스처**(`tests/fixtures/capital-allocation-nvda-synthetic.json`): 화면 기본 입력의 엔진 결과(매도·대안·비중)가 픽스처 결과와 같음을 시험으로 고정. B안 NVDA +3주, 매도금액 3,220.00, 차익 426.40.
+
+### 시험
+- 새 `tests/capital-allocation-lab.test.cjs` 6건(정적 보안, 게이트 OFF 증빙, 픽스처 일치, 입력 변환·경계(보유 초과 매도→HOLD_CONFLICT, 가격 글자→보류, 현금 빈칸→보류, 잘못된 가정→보류, 입력 불변), jsdom 게이트 OFF, jsdom 게이트 ON(카드 7개·라벨 연결·보류 2종·되돌리기, localStorage/sessionStorage 호출 0·네트워크 0)).
+- 전체 `node --require ./tests/lib/no-network.cjs --test tests/*.test.cjs`: **2011 중 2009 통과 / 0 실패 / 2 skip**(기존 DST TZ 전용). `node tools/scan-secrets.cjs` 발견 0.
+- Chromium(Playwright, 로컬 서버, 외부 요청 차단): 360/390/430/1280px 모두 가로 넘침 없음(scrollWidth=clientWidth), 최소 글자 12px, 체크박스 외 터치 대상 44px 미만 0, 콘솔·페이지 오류 0, 외부 요청 0, 저장소 항목 0, 새로고침 시 결과 사라지고 기본값 복귀, 뒤로가기 시 게이트 OFF 화면. 체크박스는 24px(라벨 포함 줄 높이 44px).
+- 레이더·잠금화면 성능 회귀: 앱 파일 변경 0이라 해당 없음(측정 안 함).
+
+### 미완료·미검증
+- 실제 갤럭시 미검증. 실제 시세·보유 연결 없음(합성·사용자 입력만), 세액 산출 보류 유지. 이 단위로 지시서 GPT-20261113-0024 1단계 범위(엔진+시험 화면) 완료 — 지피 APPROVE 시 지시서 종료 처리 예정.
+- 순태씨 결정 필요: 없음(운영 반영 대상 아님 — 앱에서 연결하려면 별도 승인 필요).
+
+---
+(이하 직전 재검토 2차 보고 — 당시 머리: READY_FOR_REVIEW, HEAD 8516d5b, BASE 321f8bb)
+
 
 ## 재검토 2차 반영 (2026-11-13 09:10 KST 정각 실행)
 1. **한쪽 기록에만 시세종류(priceKind) 또는 기준시각(quoteAsOf)이 있으면 중복으로 합치지 않음 → HOLD_INSUFFICIENT_DATA**("한쪽 기록에만 … 있음 — 같은 자료인지 확인 불가"). 후보↔후보, 보유↔보유, 보유↔후보 같은 종목 대조 모두 같은 규칙(`pairCheck`). 둘 다 있고 값이 다르면 기존대로 HOLD_CONFLICT(충돌이 우선). 같은 순간 다른 ISO 오프셋(`+09:00` vs `Z`)은 동일 취급(시험 고정). 통화는 계약상 생략 = USD 그대로. 선택 필드 없는 단일 후보 기존 합성 계약은 OK 유지.
