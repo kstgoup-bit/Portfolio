@@ -2420,6 +2420,7 @@ function loadBenchmarkCacheSync() {
   _benchReceipts={}; benchmarkHistory={KS200:[],NDX:[],SPY:[]};
   _benchState=readBenchmarkState();
   if(!_benchState.ok)return;
+  if(!_benchStatusMsg&&typeof setBenchStatus==="function")setBenchStatus("저장된 지수 자료 확인");
   ["KS200","QQQ","SPY"].forEach(function(id){
     var group=_benchState.series[id];
     if(group&&group.ok)benchmarkHistory[id==="QQQ"?"NDX":id]=group.points;
@@ -2705,7 +2706,7 @@ var _benchRunId=0, _benchFetchStartedAt=0, _benchStatusMsg="";
 var _benchGasCleanup=null, _benchGasSequence=0;
 function cancelBenchmarkGas(){if(_benchGasCleanup){var cancel=_benchGasCleanup;_benchGasCleanup=null;cancel();}}
 function setBenchStatus(msg){
-  _benchStatusMsg=msg||"";
+  _benchStatusMsg=(msg||"")+(typeof benchDiagText==="function"?" ▶ 자료 진단: "+benchDiagText():"");
   try {
     var els=document.querySelectorAll(".benchStatusMsg");
     for (var i=0;i<els.length;i++) els[i].textContent=_benchStatusMsg;
@@ -2940,6 +2941,21 @@ function renderPanelsLazy(){
     lazyPanelDirty[tab]=true;
     if(tab===activeTab) renderPanelIfDirty(tab);
   });
+}
+/* 기준지수 자료 진단: 지수별 사용 가능 여부·개수·마지막 관측일·보류 충돌·불가 사유(원인 확인용, 저장값 변경 없음). */
+function benchDiagText(){
+  try{
+    if(!_benchState)return "자료 없음";
+    if(!_benchState.ok)return "전체 읽기 실패("+(_benchState.reason||"?")+")";
+    var names={KS200:"KODEX 200",QQQ:"QQQ",SPY:"SPY"};
+    return ["KS200","QQQ","SPY"].map(function(id){
+      var g=_benchState.series&&_benchState.series[id];
+      if(!g)return names[id]+" 없음";
+      if(!g.ok)return names[id]+" 사용 불가("+(g.reason||"?")+")"+(g.readOnly?" 읽기전용":"");
+      var pts=g.points||[],last=pts.length?pts[pts.length-1]:null,d=last?(last.d||(typeof last.ts==="number"?new Date(last.ts).toISOString().slice(0,10):"?")):"-";
+      return names[id]+" "+pts.length+"개 · 마지막 "+d+" · 보류충돌 "+((g.pendingConflicts||[]).length);
+    }).join(" / ");
+  }catch(e){return "진단 오류";}
 }
 function renderAll() {
   if(snapshotWriteBlocked()){renderSnapshotStatuses();return;}
