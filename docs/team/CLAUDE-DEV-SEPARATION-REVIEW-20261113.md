@@ -36,3 +36,10 @@ STATUS: READY_FOR_REVIEW
 1. 분리 대신 **555KB HTML의 숨은 탭 렌더 지연**(최초에 보이는 탭만 renderAll)과 폰트 @import 3개 정리를 먼저 측정·시험. 파싱·레이아웃이 병목이기 때문.
 2. 실기기 측정(갤럭시)으로 CPU 배율 확정 후 재판단.
 재현: scratchpad/sep/harness.cjs <ROOT> <label> <cpu> <runs>
+
+## 추가: 숨은 탭 렌더 지연 시제품 (같은 브랜치, 11:40)
+renderAll이 항상 7개 패널(general·domestic·overseas·pension·dividend·commandments·ledger)을 전부 그리던 것을, 지금 보이는 탭만 그리고 나머지는 dirty 표시 후 탭 진입 시 그리도록 변경(renderPanelsLazy/renderPanelIfDirty, 저장 형식·계산 무변경).
+- 시험: 전체 1989건 중 1987 통과·0 실패·2 건너뜀, 비밀 검사 0건. 탭 7+대시보드 화면 글자 현행과 동일(교차 비교 SAME).
+- 측정(9회 중앙값, 합성자료, 실기기 미검증): 잠금해제→화면 CPU4x 512→235ms(-277, -54%), CPU6x 812→379ms(-433, -53%). 시작(ready)은 753→743 / 1076→1002로 오차 수준.
+- 대가: 해당 탭 첫 진입이 +30~80ms (CPU4x general 76→129, overseas 100→181; dividend/commandments/ledger는 같거나 빠름).
+- 한계: 로컬 측정, 네트워크 0 지연. 갤럭시 실기기 확인 후 배포 판단.

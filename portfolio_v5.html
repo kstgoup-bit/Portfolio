@@ -2910,17 +2910,27 @@ function fetchMarketIndices(){
   if(t){var n=new Date();t.textContent=n.getHours()+":"+String(n.getMinutes()).padStart(2,"0")+" 갱신";}
 }
 
+var LAZY_PANEL_RENDER={general:"renderGeneral",domestic:"renderDomestic",overseas:"renderOverseas",pension:"renderPension",dividend:"renderDividend",commandments:"renderCommandments",ledger:"renderLedger"};
+var lazyPanelDirty={};
+function renderPanelIfDirty(tab){
+  var name=LAZY_PANEL_RENDER[tab];
+  if(!name||!lazyPanelDirty[tab]) return;
+  lazyPanelDirty[tab]=false;
+  window[name]();
+}
+function renderPanelsLazy(){
+  var active=document.querySelector(".panel.active");
+  var activeTab=active?active.id.replace(/^panel-/,""):"";
+  Object.keys(LAZY_PANEL_RENDER).forEach(function(tab){
+    lazyPanelDirty[tab]=true;
+    if(tab===activeTab) renderPanelIfDirty(tab);
+  });
+}
 function renderAll() {
   if(snapshotWriteBlocked()){renderSnapshotStatuses();return;}
   renderDashboard(); renderBalancePie(); updateBrief(); fetchMarketIndices();
-  renderGeneral();
-  renderDomestic();
-  renderOverseas();
-  renderPension();
+  renderPanelsLazy();
   renderAllCashSummary();
-  renderDividend();
-  renderCommandments();
-  renderLedger();
   renderAllReturnsTables();
   renderSnapshotStatuses();
   if(window.HASPriceTrustUI) window.HASPriceTrustUI.refresh();
@@ -7326,6 +7336,7 @@ function switchTab(tab) {
   }
 
   document.querySelectorAll(".panel").forEach(function(p){p.classList.toggle("active",p.id==="panel-"+tab);});
+  if(typeof renderPanelIfDirty==="function") renderPanelIfDirty(tab);
   if(typeof renderAllReturnsTables==="function") renderAllReturnsTables();
   if(window.KSTRadar) window.KSTRadar.onTabChange(tab);
   if(window.HASLedgerDemo) window.HASLedgerDemo.onTabChange(tab);
