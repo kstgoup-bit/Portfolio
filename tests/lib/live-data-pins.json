@@ -9,8 +9,8 @@
     "has/benchmark-history-policy.js": "8d64e852feb00050449f3b66b51e0188059a77accc10dcff9e8880a3969893f9"
   },
   "currentSha256": {
-    "portfolio_v5.html": "c6f3821a1341cf0cdb267b0442f87b5f1876b97291960cdf5896d31f91d60254",
-    "radar/ui.js": "57b3d2364a6612f9133190dda68bec4a4acc43bb5979d89823be20edfeaf3052",
+    "portfolio_v5.html": "aef2907e39693887021394a9a92299b7927b6bdbddbd7dcfe68f96b01b67a732",
+    "radar/ui.js": "30cf84406bf9e6d7156b44f19c955c103f32fdd5d9095811512806f5350686e5",
     "has/advisor-panel.js": "2da44530135fe29fc9cd630ddad49ec18c68f3314b53133e94829e1aef1689b7",
     "service-worker.js": "bd7c5a33f7070bf8e4791fedb5cbfc4572741076023efb1090e838d8041c7b72",
     "has/snapshot-policy.js": "8d228e107cf61a4cb4a520e0dc0200da1daaa7a0627c9cbb2e9bfcd098fbb3bf",
@@ -19,7 +19,14 @@
   },
   "addedRuntimeFiles": {
     "has/live-price-reference.js": "74ec48bfd7b9fe121eeccb1fe4849289ca2e8dd0cd18f38462c83bded92c2cb1",
-    "has/live-price-panel.js": "be25d2c7ecf19b9db69bb0913ddf9a07a0765944870546dc38a922974f72e65d",
+    "has/live-price-panel.js": "dbc6cf1b1a18ed806f50ec39f3df9f4cb784175eb86617fbadd8869dbef0faa5",
+    "has/universe-screen.js": "fcfd8129de6b7aa29ff5f6c06afe01b2921b8d3d44be1d7690904daafba2d873",
+    "has/universe-screen.html": "1950ca2a10f0ea145d954e638cb41daf7980b229c281f51da992d55326f3a663",
+    "has/universe-screen-ui.js": "206023690c9a33be4cdfc63d5b21cdeaccc802cbfac73f9dc83354c6150e2cf3",
+    "gas/has-universe-screen.gs": "c4c8bc056bcb5f31397b0aa0b0d5fd8395470ddedea242153c00c6fd38a8fbf0",
+    "radar/data/kospi200-20261112.json": "27d11d585b9c4b2de052bfa16e583fade517f40d565cd233a9687c69811fbd05",
+    "radar/data/us200-20261112.json": "4ec662322dcf2ed3d2e30592cd6ca7966c268d445c7758d110da2d211229d26a",
+    "has/fear-top.js": "32aebd82350dd38f79711f8d8aefe8d686ee796398ee33e2a0a2b5989122f5a1",
     "has/capital-allocation.js": "984fbd0574c2b7d1d1a13c45248800f7bc2eb15d2e980bbe59fc18df276bd05c",
     "has/capital-allocation-lab.js": "18b532bb6bdbae7e3284a8b3c929840c5484a88c3861a39a3d6e5314eae92382",
     "has/capital-allocation-lab.html": "9954811f994b04537dec5674553995820fa00eb9abe23da8780013c8e3336140",

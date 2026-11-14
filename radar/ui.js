@@ -60,6 +60,7 @@
     add(root,banner,select('데이터 모드',[['real','실제 데이터 · 미연결'],['demo','데모 · 가상 데이터']],mode,switchMode,'kr-mode'));
     const nav=$('nav',null,'kr-actions');nav.setAttribute('aria-label','레이더 화면');
     for(const [v,t] of [['list','후보 목록'],['criteria','감시 기준'],['status','데이터 상태']]){const b=button(t,()=>navigate(v),view===v?'kr-primary':'');b.setAttribute('aria-current',String(view===v));nav.append(b);}
+    const screen=$('a','400종목 가격 선별');screen.href='./has/universe-screen.html';screen.style.minHeight='44px';nav.append(screen);
     const sell=$('a','환호성 매도 레이더 · 합성 연구');sell.href='./sell/index.html';sell.style.minHeight='44px';sell.style.display='inline-flex';sell.style.alignItems='center';nav.append(sell);
     add(root,nav);
     const m=$('div',error,'kr-status');m.id='kr-message';m.setAttribute('role',error?'alert':'status');m.setAttribute('aria-live','polite');if(!error)m.hidden=true;add(root,m);
@@ -156,7 +157,7 @@
     add(section,note('기존 PWA 캐시 정책은 변경하지 않았습니다. 오프라인에서는 이전 HTML이 보이거나 레이더 파일 로드가 실패할 수 있습니다. 캐시 삭제 없이 먼저 연결 상태와 데이터 다시 읽기를 확인하세요.'));
     add(root,section);
   }
-  function render(){root.replaceChildren();if(mode==='real'&&window.HASLivePricePanel){const title=$('h1',view==='euphoria'?'환호성':'곡소리');title.id='kr-title';title.tabIndex=-1;root.append(title);const nav=$('nav',null,'kr-actions');nav.append(button('곡소리 가격 위치',()=>navigate('list')),button('환호성 가격 위치',()=>navigate('euphoria')),button('합성 연구',()=>switchMode('demo')));root.append(nav);const box=$('section');root.append(box);window.HASLivePricePanel.mount(box,view==='euphoria'?'euphoria':'fear');return;}header();if(view==='detail')detail();else if(view==='criteria')criteria();else if(view==='status')status();else list();}
+  function render(){root.replaceChildren();if(mode==='real'&&window.HASLivePricePanel){const title=$('h1',view==='euphoria'?'환호성':'곡소리');title.id='kr-title';title.tabIndex=-1;root.append(title);const nav=$('nav',null,'kr-actions');nav.append(button('곡소리 가격 위치',()=>navigate('list')),button('환호성 가격 위치',()=>navigate('euphoria')),button('합성 연구',()=>switchMode('demo')));const screen=$('a','400종목 가격 선별');screen.href='./has/universe-screen.html';screen.style.minHeight='44px';screen.style.display='inline-flex';screen.style.alignItems='center';nav.append(screen);root.append(nav);const box=$('section');root.append(box);if(view!=='euphoria'&&window.HASFearTop)window.HASFearTop.mount(box);else window.HASLivePricePanel.mount(box,view==='euphoria'?'euphoria':'fear');return;}header();if(view==='detail')detail();else if(view==='criteria')criteria();else if(view==='status')status();else list();}
   function restoreRoute(){
     const match=location.hash.match(/^#kst-radar\/(real|demo)\/(list|detail|criteria|status|euphoria)(?:\/([A-Z][A-Z0-9.-]{0,14}))?$/);
     historySync=true;
