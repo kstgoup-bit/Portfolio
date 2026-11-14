@@ -69,6 +69,7 @@
       if(data&&W.HASLivePriceReference) { try {r=W.HASLivePriceReference.analyze(data.record || data,{ticker:t.ticker,market:t.market,now:Date.now(),benchmark:benchmark && {record:benchmark.record,ticker:benchmark.ticker,market:benchmark.market}});} catch(e){} }
       card.appendChild(node('h4',(info.names[key]||t.ticker)+' ('+t.ticker+')'));
       if(data&&data.status==='unsupported'){card.appendChild(node('p','시세 조회 미지원 항목 · 다른 지원 종목은 계속 조회합니다.'));root.appendChild(card);return;}
+      if(!snapshot&&!busy){card.appendChild(node('p','아직 조회 전 · 위 \'가격 근거 새로고침\'을 눌러 주세요'));root.appendChild(card);return;}
       if(!r||!r.ok){card.appendChild(node('p','가격 근거 없음 · 판단 보류'));root.appendChild(card);return;}
       var evidence=node('details');evidence.appendChild(node('summary','기간 수익률·계산 근거'));
       evidence.appendChild(node('p','고점 실제 시각 미확인 · 공급자 최근 거래시각 '+(r.high52MetadataAsOf||'미확인')+' · 직전 관측가격과의 참고 비교')); 

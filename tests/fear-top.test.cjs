@@ -46,3 +46,9 @@ test('fear-top.js pinned and wired before radar/ui.js',()=>{
   const html=fs.readFileSync(path.join(__dirname,'..','portfolio_v5.html'),'utf8');
   assert.ok(html.indexOf('has/universe-screen.js')<html.indexOf('has/fear-top.js')&&html.indexOf('has/fear-top.js')<html.indexOf('radar/ui.js'));
 });
+
+test('mount: GAS without screen route (plain non-summary reply) → clear not-installed hold message, no cards',async()=>{
+  const {box,api}=dom({endpoint:()=>'https://script.google.com/macros/s/x/exec',screen:{rank:Screen.rank,validateSummary:Screen.validateSummary},transport:async()=>({MSFT:{price:1},ok:true})});
+  await api.refresh();const t=box.textContent;
+  assert.match(t,/곡소리 계산\(200종목\)이 아직 설치되지 않았습니다/);assert.match(t,/순태씨 승인/);assert.ok(!/invalid-summary/.test(t));assert.equal(box.querySelectorAll('article').length,0);
+});

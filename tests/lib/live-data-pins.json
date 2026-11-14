@@ -19,7 +19,7 @@
   },
   "addedRuntimeFiles": {
     "has/live-price-reference.js": "74ec48bfd7b9fe121eeccb1fe4849289ca2e8dd0cd18f38462c83bded92c2cb1",
-    "has/live-price-panel.js": "dbc6cf1b1a18ed806f50ec39f3df9f4cb784175eb86617fbadd8869dbef0faa5",
+    "has/live-price-panel.js": "fced5ef52732a2430cb79c01741fa861f4c37313af3e1ccb7cb561e671d135b0",
     "has/universe-screen.js": "7675b49f5be479bb0382f34bc718368262a4240a9f53bcd18c9a0b8ece5e12da",
     "has/universe-screen.html": "1950ca2a10f0ea145d954e638cb41daf7980b229c281f51da992d55326f3a663",
     "has/universe-screen-ui.js": "206023690c9a33be4cdfc63d5b21cdeaccc802cbfac73f9dc83354c6150e2cf3",
@@ -27,7 +27,7 @@
     "radar/data/kospi200-20261112.json": "27d11d585b9c4b2de052bfa16e583fade517f40d565cd233a9687c69811fbd05",
     "radar/data/us200-20261112.json": "4ec662322dcf2ed3d2e30592cd6ca7966c268d445c7758d110da2d211229d26a",
     "radar/data/universe-manifest-20261112.json": "f372ea97d54902c6a89476b077384f2f3e604b694f6285fc9c7313510c254edf",
-    "has/fear-top.js": "32aebd82350dd38f79711f8d8aefe8d686ee796398ee33e2a0a2b5989122f5a1",
+    "has/fear-top.js": "f52e73db7b1edfdb04b5d1208231a62a47b58c8ad3aa268120f23352ee63c6a8",
     "has/capital-allocation.js": "984fbd0574c2b7d1d1a13c45248800f7bc2eb15d2e980bbe59fc18df276bd05c",
     "has/capital-allocation-lab.js": "18b532bb6bdbae7e3284a8b3c929840c5484a88c3861a39a3d6e5314eae92382",
     "has/capital-allocation-lab.html": "9954811f994b04537dec5674553995820fa00eb9abe23da8780013c8e3336140",

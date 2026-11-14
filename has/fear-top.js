@@ -44,6 +44,7 @@
     }
     function reason(e) {
       var m = e && e.message || '';
+      if (m === 'screen-not-installed') return 'GAS에 곡소리 계산(200종목)이 아직 설치되지 않았습니다 · 설치는 순태씨 승인 후 진행';
       if (/^Invalid URL/.test(m) || /GAS/.test(m) || m === 'invalid-gas-endpoint') return 'GAS가 연결되지 않았거나 주소 확인이 필요합니다';
       return /^[a-z0-9-]+$/.test(m) ? '자료 확인 필요 (' + m + ')' : (m || '조회 실패');
     }
@@ -85,7 +86,7 @@
         container.appendChild(tg); container.appendChild(more);
       }
     }
-    function accept(s) { state.summary = screen.validateSummary(s, now()); state.error = ''; }
+    function accept(s) { if (s && typeof s === 'object' && !Array.isArray(s) && s.schema === undefined && !Array.isArray(s.items)) throw Error('screen-not-installed'); state.summary = screen.validateSummary(s, now()); state.error = ''; }
     function refresh() {
       if (state.busy) return Promise.resolve();
       var ep;
