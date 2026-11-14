@@ -79,8 +79,8 @@
     return candidate(id,bars,receipt,'yahoo-chart-v8',points,false);
   }
   function parseGasHistory(payload,id,receipt,options){
-    // Explicit configured-route admission is limited to the existing Korean ETF.
-    var live=!!options&&options.mode==='configured-gas'&&id==='KS200';
+    // Explicit configured-route admission is limited to the three benchmark ETFs (KS200, QQQ, SPY).
+    var live=!!options&&options.mode==='configured-gas'&&(id==='KS200'||id==='QQQ'||id==='SPY');
     if(!live&&(!options||options.mode!=='synthetic'))return fail('gas-mode-required');
     var s=specFor(id);if(!s||!obj(payload)||!own(payload,s.ticker))return fail('gas-envelope');
     var r=payload[s.ticker];if(!obj(r)||r.source!=='yahoo-chart-v8'||r.symbol!==s.symbol||r.currency!==s.currency||r.timezone!==s.timezone||r.instrumentType!=='ETF'||r.adjustment!=='unverified'||!barsValid(r.bars,id,receipt,400)||r.barCount!==r.bars.length)return fail('gas-contract');
@@ -154,7 +154,7 @@
     var s=specFor(id);if(!s||!exactKeys(p,['id','d','close','source','receivedAt','providerBarTs','dateKind','adjustment','finality'])||!Q.isValidDate(p.d)||p.d<'2000-01-01'||!price(p.close)||!received(p.receivedAt)||Date.parse(p.receivedAt)>now||p.d>Q.marketDate(p.receivedAt,s.market)||[0,6].indexOf(new Date(p.d+'T00:00:00Z').getUTCDay())>=0||p.dateKind!=='exchange-date-only'||p.adjustment!=='unverified'||['unverified','provisional'].indexOf(p.finality)<0||p.id!==observationId(p))return fail('observation-contract');
     if(p.d===Q.marketDate(p.receivedAt,s.market)&&p.finality!=='provisional'||p.d<Q.marketDate(p.receivedAt,s.market)&&p.finality!=='unverified')return fail('observation-finality');
     if(p.source==='alpha-vantage-daily'){if(s.market!=='US'||p.providerBarTs!==null)return fail('observation-source');}
-    else if(p.source==='yahoo-chart-v8-via-gas'){if(id!=='KS200'||p.providerBarTs!==null)return fail('observation-source');}
+    else if(p.source==='yahoo-chart-v8-via-gas'){if(p.providerBarTs!==null)return fail('observation-source');}
     else if(p.source==='yahoo-chart-v8'){if(!Number.isSafeInteger(p.providerBarTs)||p.providerBarTs<MIN_TS||p.providerBarTs>Date.parse(p.receivedAt)||observedDate({ts:p.providerBarTs},id)!==p.d)return fail('observation-source');}
     else return fail('observation-source');
     return {ok:true,point:p,date:p.d,legacy:false};
@@ -248,15 +248,20 @@
     if(JSON.stringify(next).length>MAX_BYTES)return fail('store-bound');
     return {ok:true,changed:true,store:next,acceptedDates:accepted,unchangedDates:unchanged,pendingConflicts:pending,failures:failures};
   }
+  function closeTimeMs(day,market){return Date.parse(day+(market==='KR'?'T15:30:00+09:00':'T16:00:00-05:00'));}
+  function sameDayCloseOk(p,id,targetTs,day){var close=closeTimeMs(day,specFor(id).market);return typeof p.receivedAt==='string'&&Number.isFinite(close)&&targetTs>=close&&Date.parse(p.receivedAt)>=close;}
   function selectPointAtOrBefore(rows,id,targetTs,options){
     options=options||{};var now=options.now===undefined?targetTs:options.now;
     if(typeof targetTs!=='number'||!Number.isSafeInteger(targetTs)||targetTs<MIN_TS||targetTs>now)return fail('selection-bound');
     var r=series(rows,id,now);if(!r.ok)return r;
-    var day=Q.marketDate(new Date(targetTs).toISOString(),specFor(id).market),selected=null,selectedDate=null,excluded=false;
+    var day=Q.marketDate(new Date(targetTs).toISOString(),specFor(id).market),selected=null,selectedDate=null,excluded=false,sameDayClose=false;
     for(var i=0;i<r.points.length;i++){var p=r.points[i],d=observedDate(p,id);
       // Neither a provider bar start nor a legacy timestamp proves that the daily
       // value was available intraday. A prior-date retrospective view is explicit.
-      if(d===day)excluded=true;if(d>=day)continue;
+      if(d===day)excluded=true;
+      // Opt-in: a snapshot taken after the exchange close may use a same-day bar that was itself received after the close (still unconfirmed, never final).
+      if(d===day&&options.sameDayAfterClose===true&&own(p,'d')&&sameDayCloseOk(p,id,targetTs,day)){selected=p;selectedDate=d;sameDayClose=true;continue;}
+      if(d>=day)continue;
       if(p.ts!==undefined&&p.ts>targetTs)continue;
       selected=p;selectedDate=d;
     }
@@ -265,7 +270,7 @@
     if(!Array.isArray(disputes)||!validateGroup(Object.assign(emptyGroup(id),{conflicts:disputes}),id,now).ok)return fail('selection-conflicts');
     if(disputes.some(function(c){var point=r.byDate[c.d];return !point||JSON.stringify(point)!==JSON.stringify(c.existing)&&(c.status!=='provisional-successor'||JSON.stringify(point)!==JSON.stringify(c.alternative));}))return fail('selection-conflict-target');
     if(disputes.some(function(c){return c&&c.d===selectedDate&&c.status!=='provisional-successor';}))return fail('benchmark-date-conflict');
-    return {ok:true,point:selected,date:selectedDate,lagged:true,excludedSameDay:excluded,quality:'unconfirmed',signalHold:true,finality:own(selected,'d')?selected.finality:'unverified',latestness:'unconfirmed',availability:'retrospective-prior-exchange-date',source:own(selected,'d')?selected.source:'legacy-unknown',receivedAt:own(selected,'d')?selected.receivedAt:null};
+    return {ok:true,point:selected,date:selectedDate,lagged:!sameDayClose,excludedSameDay:excluded&&!sameDayClose,sameDayClose:sameDayClose,quality:'unconfirmed',signalHold:true,finality:own(selected,'d')?selected.finality:'unverified',latestness:'unconfirmed',availability:sameDayClose?'same-day-close-after-market-unconfirmed':'retrospective-prior-exchange-date',source:own(selected,'d')?selected.source:'legacy-unknown',receivedAt:own(selected,'d')?selected.receivedAt:null};
   }
   function idsFor(key){return key==='dom'||key==='gen'?['KS200']:key==='pen'?['QQQ']:key==='ov'?['QQQ','SPY']:['KS200','QQQ'];}
   function describe(raw,key,receipts,now){
@@ -291,5 +296,5 @@
     try{return walk(value,0);}catch(e){return false;}
   }
   function boundary(fn){return function(){for(var i=0;i<arguments.length;i++)if(!plainData(arguments[i]))return fail('non-data-input');try{return fn.apply(null,arguments);}catch(e){return fail('invalid-input');}};}
-  return Object.freeze({specs:specs,limits:Object.freeze({bars:MAX_BARS,conflicts:MAX_CONFLICTS,bytes:MAX_BYTES}),readCache:boundary(readCache),parseTransportJSON:boundary(parseTransportJSON),validatePoint:boundary(validatePoint),validateSeries:boundary(series),observedDate:function(p,id){return plainData(p)?observedDate(p,id):null;},fingerprint:fingerprint,readStore:boundary(readStore),validateStore:boundary(validateStore),validateObservation:boundary(validateObservation),mergeHistoryStore:boundary(mergeHistoryStore),selectPointAtOrBefore:boundary(selectPointAtOrBefore),admitCandidate:boundary(admitCandidate),parseYahoo:boundary(parseYahoo),parseAlphaVantage:boundary(parseAlphaVantage),parseGasHistory:boundary(parseGasHistory),mergeSeries:boundary(mergeSeries),describe:boundary(describe),liveGasEnabled:true});
+  return Object.freeze({specs:specs,closeTimeMs:closeTimeMs,limits:Object.freeze({bars:MAX_BARS,conflicts:MAX_CONFLICTS,bytes:MAX_BYTES}),readCache:boundary(readCache),parseTransportJSON:boundary(parseTransportJSON),validatePoint:boundary(validatePoint),validateSeries:boundary(series),observedDate:function(p,id){return plainData(p)?observedDate(p,id):null;},fingerprint:fingerprint,readStore:boundary(readStore),validateStore:boundary(validateStore),validateObservation:boundary(validateObservation),mergeHistoryStore:boundary(mergeHistoryStore),selectPointAtOrBefore:boundary(selectPointAtOrBefore),admitCandidate:boundary(admitCandidate),parseYahoo:boundary(parseYahoo),parseAlphaVantage:boundary(parseAlphaVantage),parseGasHistory:boundary(parseGasHistory),mergeSeries:boundary(mergeSeries),describe:boundary(describe),liveGasEnabled:true});
 });

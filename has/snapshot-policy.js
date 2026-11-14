@@ -229,8 +229,28 @@
     }
     return equal(withoutHistory(s), last);
   }
+  // 화면 한 번 그리는 동안(동기 구간)만 같은 기록 객체의 검증 결과를 재사용 — 끝나면 즉시 폐기. 판정 규칙은 그대로.
+  var passCache = null;
   function validateRecord(s) {
-    try { jsonBounded(s); return { ok: validRecord(s) }; } catch (e) { return { ok: false, code: e.message === 'resource-limit' ? 'resource-limit' : 'invalid-record' }; }
+    var cacheable = passCache !== null && s !== null && typeof s === 'object', hit = cacheable ? passCache.get(s) : undefined;
+    if (hit) return hit.code ? { ok: hit.ok, code: hit.code } : { ok: hit.ok };
+    var r;
+    try { jsonBounded(s); r = { ok: validRecord(s) }; } catch (e) { r = { ok: false, code: e.message === 'resource-limit' ? 'resource-limit' : 'invalid-record' }; }
+    if (cacheable) passCache.set(s, r.code ? { ok: r.ok, code: r.code } : { ok: r.ok });
+    return r;
+  }
+  var passMemoCache = null;
+  // 같은 화면 그리기 구간에서 같은 객체·같은 이름의 읽기 전용 검사를 한 번만 실행(예외도 그대로 다시 던짐). 구간 밖에서는 매번 실행.
+  function passMemo(obj, tag, fn) {
+    if (passMemoCache === null || obj === null || typeof obj !== 'object') return fn();
+    var byTag = passMemoCache.get(obj); if (!byTag) { byTag = {}; passMemoCache.set(obj, byTag); }
+    if (Object.prototype.hasOwnProperty.call(byTag, tag)) { if (byTag[tag].error) throw byTag[tag].error; return byTag[tag].value; }
+    try { var value = fn(); byTag[tag] = { value: value }; return value; } catch (e) { byTag[tag] = { error: e }; throw e; }
+  }
+  function withValidationCache(fn) {
+    if (passCache !== null || typeof WeakMap !== 'function') return fn();
+    passCache = new WeakMap(); passMemoCache = new WeakMap();
+    try { return fn(); } finally { passCache = null; passMemoCache = null; }
   }
   function scope(s) {
     return s.components.map(function (c) { return [id(c), c.ticker, c.quantity, c.currency, c.unit]; }).sort(function (a, b) { return a[0].localeCompare(b[0]); });
@@ -328,5 +348,5 @@
     } catch (e) { hold('invalid-history'); }
     return { hold: reasons.length > 0, reasons: reasons };
   }
-  return { evaluate: evaluate, appendDaily: appendDaily, comparisonStatus: comparisonStatus, validateRecord: validateRecord, validateManual: validateManual, isoTime: isoTime, localDay: localDay, MAX_NUMBER: MAX_NUMBER, MAX_TOTAL: MAX_TOTAL, MAX_MANUAL_DAYS: 4, MAX_ROWS: MAX_ROWS, MAX_RECORDS: MAX_RECORDS, MAX_REVISIONS: MAX_REVISIONS, MAX_BYTES: MAX_BYTES, MAX_NODES: MAX_NODES };
+  return { evaluate: evaluate, appendDaily: appendDaily, comparisonStatus: comparisonStatus, validateRecord: validateRecord, withValidationCache: withValidationCache, passMemo: passMemo, validateManual: validateManual, isoTime: isoTime, localDay: localDay, MAX_NUMBER: MAX_NUMBER, MAX_TOTAL: MAX_TOTAL, MAX_MANUAL_DAYS: 4, MAX_ROWS: MAX_ROWS, MAX_RECORDS: MAX_RECORDS, MAX_REVISIONS: MAX_REVISIONS, MAX_BYTES: MAX_BYTES, MAX_NODES: MAX_NODES };
 });

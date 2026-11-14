@@ -1,0 +1,29 @@
+{
+  "_note": "합성 입력(지시서 GPT-20261113-0024 3절 사례). 실제 체결원장·현재 시세가 아님. 후보 가격(GOOGL 100, MSFT 400, AVGO 300, NVDA 140)은 손계산용 둥근 숫자이며 실제 주가와 무관.",
+  "contract": "capitalAllocationInput.v1",
+  "asOf": "2026-11-13",
+  "quoteAsOf": "2026-11-13T00:00:00+09:00",
+  "timezone": "Asia/Seoul",
+  "market": "US",
+  "currency": "USD",
+  "source": "synthetic-user-facts",
+  "dataMode": "synthetic",
+  "freshnessStatus": "synthetic",
+  "portfolioScope": { "kind": "overseas-account" },
+  "cashUSD": 0,
+  "fractionalAllowed": false,
+  "fees": { "sellingFeesUSD": null, "buyingFeesUSD": null, "buyingFeeRate": null },
+  "fx": { "usdkrw": null },
+  "convictionSymbols": ["QTOP", "MSFT", "AVGO"],
+  "holdings": [
+    { "symbol": "NVDA", "qty": 40.01002, "averageCost": 139.68, "price": 140, "priceKind": "user-input", "currency": "USD", "sector": "반도체", "conviction": false,
+      "valuationAssessment": { "status": "unverified" } }
+  ],
+  "sale": { "symbol": "NVDA", "qty": 20, "priceUSD": 161 },
+  "candidates": [
+    { "symbol": "GOOGL", "priceUSD": 100, "currency": "USD", "sector": "인터넷·광고" },
+    { "symbol": "MSFT", "priceUSD": 400, "currency": "USD", "sector": "소프트웨어", "conviction": true },
+    { "symbol": "AVGO", "priceUSD": 300, "currency": "USD", "sector": "반도체", "conviction": true }
+  ],
+  "partialReinvest": { "share": 0.5, "symbols": ["NVDA"] }
+}

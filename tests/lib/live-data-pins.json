@@ -2,12 +2,20 @@
   "baselineSha256": {
     "portfolio_v5.html": "0dd5de8bded788c5a8d2c284f3e9f6654f6191b8c0ff1cf45bd844a16886acd4",
     "radar/ui.js": "71a5a3c181aed3515d4c3021bd90edd0067073c4179264050a87ed0f5fa04f38",
-    "has/advisor-panel.js": "c9d69ae277313b7d0939bc6371e2b190ff8725f6d369417ca4298591a824a2dd"
+    "has/advisor-panel.js": "c9d69ae277313b7d0939bc6371e2b190ff8725f6d369417ca4298591a824a2dd",
+    "service-worker.js": "77d553efcfc3eb93f65a1f2901de1cf3b6b61b36febd9605053e66db6724dcd8",
+    "has/snapshot-policy.js": "9109c84c4f4a8bfdde046646e668dc1c4b9ebf4712f50ff271daadf2f2bc3d1a",
+    "has/return-assessment.js": "1b1c7a54d05443f0cd96f9677338aa9af7c79677fa8f589cbbca1c3d3aedfd51",
+    "has/benchmark-history-policy.js": "8d64e852feb00050449f3b66b51e0188059a77accc10dcff9e8880a3969893f9"
   },
   "currentSha256": {
-    "portfolio_v5.html": "f1478d6ec1108fdc9a8d0c8b313ef347a70e681a816f4a05f4928b283ea2bca1",
-    "radar/ui.js": "895bc51de50dac70c7ece0dff60d89a5a712cfb5e57c0b3dd68f25349852af1f",
-    "has/advisor-panel.js": "2da44530135fe29fc9cd630ddad49ec18c68f3314b53133e94829e1aef1689b7"
+    "portfolio_v5.html": "c6f3821a1341cf0cdb267b0442f87b5f1876b97291960cdf5896d31f91d60254",
+    "radar/ui.js": "57b3d2364a6612f9133190dda68bec4a4acc43bb5979d89823be20edfeaf3052",
+    "has/advisor-panel.js": "2da44530135fe29fc9cd630ddad49ec18c68f3314b53133e94829e1aef1689b7",
+    "service-worker.js": "bd7c5a33f7070bf8e4791fedb5cbfc4572741076023efb1090e838d8041c7b72",
+    "has/snapshot-policy.js": "8d228e107cf61a4cb4a520e0dc0200da1daaa7a0627c9cbb2e9bfcd098fbb3bf",
+    "has/return-assessment.js": "eaf2701dd6ed9224f9e15ff9d97253bd756152120b0625d3dd34e3cc3489a881",
+    "has/benchmark-history-policy.js": "e9bdf34629de9b21931f8e77e0576aff6c6fe863e77a3b4a0f2ad4c866a10cd4"
   },
   "addedRuntimeFiles": {
     "has/live-price-reference.js": "74ec48bfd7b9fe121eeccb1fe4849289ca2e8dd0cd18f38462c83bded92c2cb1",
@@ -17,6 +25,10 @@
     "has/universe-screen-ui.js": "206023690c9a33be4cdfc63d5b21cdeaccc802cbfac73f9dc83354c6150e2cf3",
     "gas/has-universe-screen.gs": "c4c8bc056bcb5f31397b0aa0b0d5fd8395470ddedea242153c00c6fd38a8fbf0",
     "radar/data/kospi200-20261112.json": "27d11d585b9c4b2de052bfa16e583fade517f40d565cd233a9687c69811fbd05",
-    "radar/data/us200-20261112.json": "4ec662322dcf2ed3d2e30592cd6ca7966c268d445c7758d110da2d211229d26a"
+    "radar/data/us200-20261112.json": "4ec662322dcf2ed3d2e30592cd6ca7966c268d445c7758d110da2d211229d26a",
+    "has/capital-allocation.js": "984fbd0574c2b7d1d1a13c45248800f7bc2eb15d2e980bbe59fc18df276bd05c",
+    "has/capital-allocation-lab.js": "18b532bb6bdbae7e3284a8b3c929840c5484a88c3861a39a3d6e5314eae92382",
+    "has/capital-allocation-lab.html": "9954811f994b04537dec5674553995820fa00eb9abe23da8780013c8e3336140",
+    "has/capital-allocation-lab.css": "beb3c222a4f5584c61b3a73d0ba7076a4157f45bd8a41268d11a3d287f3cea75"
   }
 }

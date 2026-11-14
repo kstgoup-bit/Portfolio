@@ -7,6 +7,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <link rel="manifest" href="manifest.json">
 <link rel="stylesheet" href="radar/radar.css">
+<script>
+/* 속도: Intl.DateTimeFormat 생성이 호출마다 수 ms 걸려 기간 버튼(6달 등)이 점 수만큼 느려졌다. 같은 설정이면 만든 객체를 재사용한다(결과는 동일, 객체는 상태가 없다). */
+(function(){try{var Orig=Intl.DateTimeFormat,cache=Object.create(null),n=0;
+function F(l,o){var k;try{k=(typeof l==="string"||l===undefined?String(l):null);if(k===null||(o!==undefined&&(o===null||typeof o!=="object")))return new Orig(l,o);k+="|"+(o===undefined?"":JSON.stringify(o));}catch(e){return new Orig(l,o);}
+var hit=cache[k];if(hit)return hit;hit=new Orig(l,o);if(n<40){cache[k]=hit;n++;}return hit;}
+F.prototype=Orig.prototype;F.supportedLocalesOf=Orig.supportedLocalesOf;Intl.DateTimeFormat=F;}catch(e){}})();
+</script>
 <script defer src="radar/providers.js"></script>
 <script defer src="radar/verification.js"></script>
 <script defer src="radar/core.js"></script>
@@ -539,6 +546,13 @@ select { -webkit-user-select: none; user-select: none; touch-action: manipulatio
 .cdd-opt+.cdd-opt{margin-top:1px}
 .cdd-opt.cdd-selected{color:#1565c0;font-weight:800;background:linear-gradient(90deg,#eef6ff,#f7fbff)}
 .cdd-opt.cdd-selected::after{content:'✓';font-size:12px;color:#1e88e5;font-weight:900}
+/* 2026-11-13 순태씨 요청("줄이고"): 상단 '가격 신뢰도'·'오늘의 투자 브리핑' 띠를 한 줄 높이로. 문구·자세히 기능은 그대로 */
+body #hasPriceTrust.hpt{display:flex;flex-wrap:wrap;align-items:center;gap:0 8px;margin:4px 10px;padding:0 10px;border-width:1px;line-height:1.4}
+body #hasPriceTrust .hpt-head{flex:1 1 0;min-width:0;padding:6px 0;overflow-wrap:anywhere}
+body #hasPriceTrust details{flex:0 0 auto}body #hasPriceTrust details[open]{flex:1 1 100%;padding-bottom:6px}
+body #hasBriefStrip{flex-wrap:nowrap;margin:4px 10px;padding:2px 10px;border-width:1px;font-size:13px;line-height:1.4}
+body #hasBriefStrip span{flex:1 1 0;min-width:0;overflow-wrap:anywhere}
+body #hasBriefStrip button{flex:0 0 auto;padding:4px 12px;border-width:1px;font-size:13px}
 </style>
 
 <body style="background:#1a3a8f">
@@ -547,7 +561,7 @@ select { -webkit-user-select: none; user-select: none; touch-action: manipulatio
 
 <!-- 잠금화면 -->
 <div class="lock" id="lockScreen">
-  <canvas id="confettiCanvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0"></canvas>
+  <!-- 2026-11-12 순태씨 요청: 불꽃놀이 캔버스 제거(로그인 속도) -->
 
   <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;flex:1;padding-top:60px">
 
@@ -730,7 +744,9 @@ select { -webkit-user-select: none; user-select: none; touch-action: manipulatio
       <span style="font-size:12px;color:#ef6c00"><span style="display:inline-block;width:14px;height:2px;background:#ef6c00;vertical-align:middle;margin-right:3px;border-top:2px dashed #ef6c00"></span>KODEX 200 ETF 20%+QQQ ETF 80%</span>
     </div>
     <button class="record-btn" onclick="recordSnap('all')">📸 오늘 전체 자산 기록</button>
-    <div id="snapshotStatus-all" role="status" style="font-size:12px;line-height:1.6;white-space:pre-line;margin-top:8px;color:#795000"></div>
+    <div id="snapshotSummary-all" role="status" style="font-size:13px;line-height:1.6;margin-top:8px;color:#333;overflow-wrap:anywhere"></div>
+    <details style="margin-top:4px"><summary style="font-size:13px;line-height:1.6;color:#333;cursor:pointer;min-height:32px">ⓘ 기록 상태 자세히</summary>
+    <div id="snapshotStatus-all" role="status" style="font-size:12px;line-height:1.6;white-space:pre-line;margin-top:4px;color:#795000"></div></details>
     <div id="snapshotHistory-all" style="font-size:12px;line-height:1.6;overflow-wrap:anywhere"></div>
   </div>
   <div class="card" id="allReturnsCard" style="margin-top:14px">
@@ -798,7 +814,9 @@ select { -webkit-user-select: none; user-select: none; touch-action: manipulatio
       <button class="record-btn" style="background:var(--yellow-card);border-color:var(--yellow-border);color:var(--yellow-accent);flex:1" onclick="manageDeposits('dom')">📝 기록 내역</button>
       <button class="record-btn" style="background:var(--yellow-card);border-color:var(--yellow-border);color:var(--yellow-accent);flex:1" onclick="recordSnap('dom')">📸 자산 기록</button>
     </div>
-    <div id="snapshotStatus-dom" role="status" style="font-size:12px;line-height:1.6;white-space:pre-line;margin-top:8px;color:#795000"></div>
+    <div id="snapshotSummary-dom" role="status" style="font-size:13px;line-height:1.6;margin-top:8px;color:#333;overflow-wrap:anywhere"></div>
+    <details style="margin-top:4px"><summary style="font-size:13px;line-height:1.6;color:#333;cursor:pointer;min-height:32px">ⓘ 기록 상태 자세히</summary>
+    <div id="snapshotStatus-dom" role="status" style="font-size:12px;line-height:1.6;white-space:pre-line;margin-top:4px;color:#795000"></div></details>
     <div id="snapshotHistory-dom" style="font-size:12px;line-height:1.6;overflow-wrap:anywhere"></div>
   </div>
   <div class="card" id="domReturnsCard" style="margin-top:14px">
@@ -865,7 +883,9 @@ select { -webkit-user-select: none; user-select: none; touch-action: manipulatio
       <button class="record-btn" style="background:#b2dfdb;border-color:#00897b;color:#00695c;flex:1" onclick="manageDeposits('gen')">📝 기록 내역</button>
       <button class="record-btn" style="background:#b2dfdb;border-color:#00897b;color:#00695c;flex:1" onclick="recordSnap('gen')">📸 자산 기록</button>
     </div>
-    <div id="snapshotStatus-gen" role="status" style="font-size:12px;line-height:1.6;white-space:pre-line;margin-top:8px;color:#795000"></div>
+    <div id="snapshotSummary-gen" role="status" style="font-size:13px;line-height:1.6;margin-top:8px;color:#333;overflow-wrap:anywhere"></div>
+    <details style="margin-top:4px"><summary style="font-size:13px;line-height:1.6;color:#333;cursor:pointer;min-height:32px">ⓘ 기록 상태 자세히</summary>
+    <div id="snapshotStatus-gen" role="status" style="font-size:12px;line-height:1.6;white-space:pre-line;margin-top:4px;color:#795000"></div></details>
     <div id="snapshotHistory-gen" style="font-size:12px;line-height:1.6;overflow-wrap:anywhere"></div>
   </div>
   <div class="card" id="genReturnsCard" style="margin-top:14px">
@@ -949,7 +969,9 @@ select { -webkit-user-select: none; user-select: none; touch-action: manipulatio
       <button class="record-btn" style="background:var(--blue-light);border:1px solid #90caf9;color:var(--blue);flex:1" onclick="manageDeposits('ov')">📝 기록 내역</button>
       <button class="record-btn" style="flex:1" onclick="recordSnap('ov')">📸 자산 기록</button>
     </div>
-    <div id="snapshotStatus-ov" role="status" style="font-size:12px;line-height:1.6;white-space:pre-line;margin-top:8px;color:#795000"></div>
+    <div id="snapshotSummary-ov" role="status" style="font-size:13px;line-height:1.6;margin-top:8px;color:#333;overflow-wrap:anywhere"></div>
+    <details style="margin-top:4px"><summary style="font-size:13px;line-height:1.6;color:#333;cursor:pointer;min-height:32px">ⓘ 기록 상태 자세히</summary>
+    <div id="snapshotStatus-ov" role="status" style="font-size:12px;line-height:1.6;white-space:pre-line;margin-top:4px;color:#795000"></div></details>
     <div id="snapshotHistory-ov" style="font-size:12px;line-height:1.6;overflow-wrap:anywhere"></div>
   </div>
   <div class="card" id="ovReturnsCard" style="margin-top:14px">
@@ -1016,7 +1038,9 @@ select { -webkit-user-select: none; user-select: none; touch-action: manipulatio
       <button class="record-btn" style="background:var(--purple-light);border-color:#ce93d8;color:var(--purple);flex:1" onclick="manageDeposits('pen')">📝 기록 내역</button>
       <button class="record-btn" style="background:var(--purple-light);border-color:#ce93d8;color:var(--purple);flex:1" onclick="recordSnap('pen')">📸 자산 기록</button>
     </div>
-    <div id="snapshotStatus-pen" role="status" style="font-size:12px;line-height:1.6;white-space:pre-line;margin-top:8px;color:#795000"></div>
+    <div id="snapshotSummary-pen" role="status" style="font-size:13px;line-height:1.6;margin-top:8px;color:#333;overflow-wrap:anywhere"></div>
+    <details style="margin-top:4px"><summary style="font-size:13px;line-height:1.6;color:#333;cursor:pointer;min-height:32px">ⓘ 기록 상태 자세히</summary>
+    <div id="snapshotStatus-pen" role="status" style="font-size:12px;line-height:1.6;white-space:pre-line;margin-top:4px;color:#795000"></div></details>
     <div id="snapshotHistory-pen" style="font-size:12px;line-height:1.6;overflow-wrap:anywhere"></div>
   </div>
   <div class="card" id="penReturnsCard" style="margin-top:14px">
@@ -2396,6 +2420,7 @@ function loadBenchmarkCacheSync() {
   _benchReceipts={}; benchmarkHistory={KS200:[],NDX:[],SPY:[]};
   _benchState=readBenchmarkState();
   if(!_benchState.ok)return;
+  if(!_benchStatusMsg&&typeof setBenchStatus==="function")setBenchStatus("저장된 지수 자료 확인");
   ["KS200","QQQ","SPY"].forEach(function(id){
     var group=_benchState.series[id];
     if(group&&group.ok)benchmarkHistory[id==="QQQ"?"NDX":id]=group.points;
@@ -2681,18 +2706,24 @@ var _benchRunId=0, _benchFetchStartedAt=0, _benchStatusMsg="";
 var _benchGasCleanup=null, _benchGasSequence=0;
 function cancelBenchmarkGas(){if(_benchGasCleanup){var cancel=_benchGasCleanup;_benchGasCleanup=null;cancel();}}
 function setBenchStatus(msg){
-  _benchStatusMsg=msg||"";
+  _benchStatusMsg=(msg||"")+(typeof benchDiagText==="function"?" ▶ 자료 진단: "+benchDiagText():"");
   try {
     var els=document.querySelectorAll(".benchStatusMsg");
     for (var i=0;i<els.length;i++) els[i].textContent=_benchStatusMsg;
+    var sums=document.querySelectorAll(".benchStatusSum"),t=typeof benchDiagSummary==="function"?benchDiagSummary():"ⓘ 지수 자료 상태";
+    for (var j=0;j<sums.length;j++) sums[j].textContent=t;
   } catch(e){}
+  benchBtnSync();
 }
+// 새로고침 버튼: 누르면 바로 '확인 중'으로 바뀌고 끝나면 원래 글자로(눌렸는지 알 수 있게)
+function benchBtnLabel(){return _benchFetchInFlight?"⏳ ETF 이력 확인 중… (1~2분)":"↻ ETF 이력 새로고침";}
+function benchBtnSync(){try{var b=document.querySelectorAll('button[onclick="fetchBenchmarkHistory(true)"]');for(var i=0;i<b.length;i++){b[i].textContent=benchBtnLabel();b[i].setAttribute("aria-busy",_benchFetchInFlight?"true":"false");}}catch(e){}}
 function invalidateBackupRuntime() {
   invalidateSnapshotEvidence();
-  _benchRunId++; _benchFetchInFlight=false; cancelBenchmarkGas();
+  _benchRunId++; _benchFetchInFlight=false; cancelBenchmarkGas(); benchBtnSync();
 }
 function fetchBenchmarkHistory(force) {
-  if(snapshotWriteBlocked())return;
+  if(snapshotWriteBlocked()){if(force)setBenchStatus("백업 복원·저장 잠금 중이라 조회 보류");return;}
   if(!window.HASBenchmarkHistory){setBenchStatus("이력 검사 모듈 없음 · 원본 유지");return;}
   var initial=readBenchmarkState();
   if(!initial.ok||initial.readOnly){setBenchStatus("기존 지수 확장 자료의 기준·형식 확인 필요 · 조회·저장 보류");return;}
@@ -2703,6 +2734,7 @@ function fetchBenchmarkHistory(force) {
   var myRun=++_benchRunId;
   function active(){return _benchRunId===myRun&&!snapshotWriteBlocked();}
   _benchFetchStartedAt=Date.now();_benchFetchInFlight=true;
+  if(force)setBenchStatus("ETF 이력 확인 중…");else benchBtnSync();
   var timeout=setTimeout(function(){if(active()){_benchRunId++;_benchFetchInFlight=false;cancelBenchmarkGas();setBenchStatus("응답 시간 초과 · 원본 유지");}},240000);
   var candidates={},outcomes={},syms=[{sym:"QQQ",id:"QQQ"},{sym:"SPY",id:"SPY"},{sym:"069500.KS",id:"KS200"}];
   var PROXIES=[function(u){return u;},function(u){return "https://api.allorigins.win/raw?url="+encodeURIComponent(u);},function(u){return "https://corsproxy.io/?url="+encodeURIComponent(u);},function(u){return "https://api.codetabs.com/v1/proxy?quest="+encodeURIComponent(u);},function(u){return "https://api.allorigins.win/get?url="+encodeURIComponent(u);},function(u){return "https://corsproxy.org/?"+encodeURIComponent(u);}];
@@ -2754,9 +2786,9 @@ function fetchBenchmarkHistory(force) {
     };
     script.onerror=function(){finish(null);};
     timer=setTimeout(function(){finish(null);},8000);
-    url.hash="";url.searchParams.set("type","history");url.searchParams.set("tickers","069500");url.searchParams.set("market","KR");url.searchParams.set("callback",cb);
+    var isKR=item.id==="KS200";url.hash="";url.searchParams.set("type","history");url.searchParams.set("tickers",isKR?"069500":item.sym);url.searchParams.set("market",isKR?"KR":"US");url.searchParams.set("callback",cb);
     script.referrerPolicy="no-referrer";script.src=url.href;
-    setBenchStatus("069500 GAS ETF 이력 확인 · 날짜만 제공 · 최신성·종가 미확정");
+    setBenchStatus((isKR?"069500":item.sym)+" GAS ETF 이력 확인 · 날짜만 제공 · 최신성·종가 미확정");
     try{document.head.appendChild(script);}catch(e){finish(null);}
   }
   function avFallback(item,done){
@@ -2799,12 +2831,11 @@ function fetchBenchmarkHistory(force) {
       setBenchStatus(["KS200","QQQ","SPY"].map(function(id){return (id==="KS200"?"069500":id)+": "+(outcomes[id]||"원본 유지");}).join(" · ")+" · 당일 미확정 · 최신성 미확인");
       renderAllReturnsTables();refreshAllLineCharts();
     }catch(e){setBenchStatus("이력 검사·저장 실패 · 원본 보존 · 결과 재확인 필요");}
-    finally{clearTimeout(timeout);if(_benchRunId===myRun)_benchFetchInFlight=false;}
+    finally{clearTimeout(timeout);if(_benchRunId===myRun)_benchFetchInFlight=false;benchBtnSync();}
   }
-  gasFirst(syms[2],function(result){
-    function otherSymbols(){fetchOne(syms[0],0,function(){fetchOne(syms[1],0,finish);});}
-    if(result){candidates.KS200=result;otherSymbols();}else fetchOne(syms[2],0,otherSymbols);
-  });
+  // 세 지수 모두 설정된 GAS를 먼저 쓰고, 실패하면 기존 공개 경로로 넘어간다(미국 지수가 공개 중계 불안정으로 비던 문제).
+  function viaGas(item,next){gasFirst(item,function(result){if(result){candidates[item.id]=result;next();}else fetchOne(item,0,next);});}
+  viaGas(syms[2],function(){viaGas(syms[0],function(){viaGas(syms[1],finish);});});
 }
 
 function getBenchDescription(key) {
@@ -2822,18 +2853,37 @@ function getBenchFetchTimeLabel(key) {
 }
 function getBenchDataLatestLabel(key) {
   var rows=getBenchDescription(key).rows;
-  return {text:rows.length?rows.map(function(r){return r.symbol+" ["+r.currency+"]: "+(r.latestDate||"미확인")+(r.readOnly?" · 원본 확인 필요":"")+(r.conflictDates.length?" · 충돌 격리 "+r.conflictDates.join(", "):"");}).join(" · "):"미확인",stale:true,name:"ETF 대용치",source:rows.length?rows.map(function(r){return r.symbol+": "+r.source;}).join(" · "):"출처 미확인"};
+  return {text:rows.length?rows.map(function(r){return r.symbol+" ["+r.currency+"]: "+(r.latestDate||"미확인")+(r.readOnly?" · 원본 확인 필요":"")+(r.conflictDates.length?" · 충돌 격리 "+r.conflictDates.length+"일(기준 확인 전 제외)":"");}).join(" · "):"미확인",stale:true,name:"ETF 대용치",source:rows.length?rows.map(function(r){return r.symbol+": "+r.source;}).join(" · "):"출처 미확인"};
 }
 
+/* 그래프 비교선 전용: 제공처 반올림 수준(0.5센트·0.01% 이내) 차이의 보류 충돌은 선 선택을 막지 않는다. 충돌 기록과 저장값은 그대로 유지(수익률 평가·백업은 영점 허용 규칙 유지). */
+function benchChartConflicts(g){
+  var pc=g&&g.pendingConflicts||[];
+  return pc.filter(function(c){
+    try{var a=c.existing.close,b=c.alternative.close,d=Math.abs(a-b);
+      return !(c.status==="pending-review"&&isFinite(d)&&d<=0.0051&&d<=1e-4*Math.max(Math.abs(a),Math.abs(b)));}catch(e){return true;}
+  });
+}
 function findBenchAtOrBefore(hist,targetTs,id) {
   if(!window.HASBenchmarkHistory||_benchState&&_benchState.readOnly)return null;
   id=id||(hist===benchmarkHistory.KS200?"KS200":hist===benchmarkHistory.NDX?"QQQ":hist===benchmarkHistory.SPY?"SPY":null);
   if(!id)return null;
   var g=_benchState&&_benchState.ok?_benchState.series[id]:null;
   if(g&&!g.ok)return null;
-  var r=HASBenchmarkHistory.selectPointAtOrBefore(hist,id,targetTs,{now:Date.now(),conflicts:g?g.pendingConflicts||[]:[]});
-  return r.ok?r.point:null;
+  // 속도: 같은 (지수, 시각) 조회는 매번 전체 기록 검증을 되풀이하므로 같은 입력 상태에서는 결과를 재사용한다.
+  var nowMs=Date.now(),c=_benchSelCache;
+  if(c.hist!==hist||c.len!==hist.length||c.state!==_benchState||nowMs-c.at>30000){c={hist:hist,len:hist.length,state:_benchState,at:nowMs,map:Object.create(null)};_benchSelCache=c;}
+  var ck=id+"|"+targetTs;
+  // 같은 거래소 날짜의 조회는 결과가 같다(선택 규칙이 날짜 단위). 하루에 여러 번 기록한 점도 한 번만 계산한다.
+  try{var sp=HASBenchmarkHistory.specs&&HASBenchmarkHistory.specs[id],Qm=window.HASQuoteModel;
+    if(sp&&Qm&&typeof targetTs==="number"&&Number.isSafeInteger(targetTs)&&targetTs>0&&targetTs<=8640000000000000){var dk=Qm.marketDate(new Date(targetTs).toISOString(),sp.market);if(dk)ck=id+"@"+dk+(targetTs>=HASBenchmarkHistory.closeTimeMs(dk,sp.market)?"c":"o");}}catch(e){}
+  if(ck in c.map)return c.map[ck];
+  var dis=benchChartConflicts(g),r=HASBenchmarkHistory.selectPointAtOrBefore(hist,id,targetTs,{now:nowMs,sameDayAfterClose:true,conflicts:dis});
+  // 당일 종가가 보류 충돌이면 그 값을 쓰지 않고 이전 거래일 종가로 되돌아간다(선이 끊기지 않게). 이전 날짜도 충돌이면 기존처럼 비운다.
+  if(!r.ok&&r.reason==="benchmark-date-conflict")r=HASBenchmarkHistory.selectPointAtOrBefore(hist,id,targetTs,{now:nowMs,conflicts:dis});
+  return (c.map[ck]=r.ok?r.point:null);
 }
+var _benchSelCache={hist:null,len:-1,state:null,at:0,map:null};
 function benchmarkAssessmentForInterval(key,fromTs,toTs) {
   var currency=key==="dom"||key==="gen"?"KRW":key==="all"?"mixed":"USD";
   var ids=key==="dom"||key==="gen"?["KS200"]:key==="all"?["KS200","QQQ"]:["QQQ"],details=[],values=[];
@@ -2860,6 +2910,8 @@ function getBenchmarkReturnPct(key,targetTs,now) {
 
 function fetchMarketIndices(){
   if(snapshotWriteBlocked()) return;
+  // 속도: 화면에 지수 표시 칸이 없으면 외부 요청을 보내지 않음(그릴 때마다 4건씩 나가던 요청 제거)
+  if(!document.getElementById("mkt-KS11")&&!document.getElementById("mkt-KQ11")&&!document.getElementById("mkt-IXIC")&&!document.getElementById("mkt-GSPC")) return;
   var indices=[
     {sym:"^KS11",id:"KS11",name:"코스피"},
     {sym:"^KQ11",id:"KQ11",name:"코스닥"},
@@ -2891,17 +2943,57 @@ function fetchMarketIndices(){
   if(t){var n=new Date();t.textContent=n.getHours()+":"+String(n.getMinutes()).padStart(2,"0")+" 갱신";}
 }
 
+var LAZY_PANEL_RENDER={general:"renderGeneral",domestic:"renderDomestic",overseas:"renderOverseas",pension:"renderPension",dividend:"renderDividend",commandments:"renderCommandments",ledger:"renderLedger"};
+var lazyPanelDirty={};
+function renderPanelIfDirty(tab){
+  var name=LAZY_PANEL_RENDER[tab];
+  if(!name||!lazyPanelDirty[tab]) return;
+  lazyPanelDirty[tab]=false;
+  window[name]();
+}
+function renderPanelsLazy(){
+  var active=document.querySelector(".panel.active");
+  var activeTab=active?active.id.replace(/^panel-/,""):"";
+  Object.keys(LAZY_PANEL_RENDER).forEach(function(tab){
+    lazyPanelDirty[tab]=true;
+    if(tab===activeTab) renderPanelIfDirty(tab);
+  });
+}
+/* 기준지수 자료 진단: 지수별 사용 가능 여부·개수·마지막 관측일·보류 충돌·불가 사유(원인 확인용, 저장값 변경 없음). */
+function benchDiagText(){
+  try{
+    if(!_benchState)return "자료 없음";
+    if(!_benchState.ok)return "전체 읽기 실패("+(_benchState.reason||"?")+")";
+    var names={KS200:"KODEX 200",QQQ:"QQQ",SPY:"SPY"};
+    return ["KS200","QQQ","SPY"].map(function(id){
+      var g=_benchState.series&&_benchState.series[id];
+      if(!g)return names[id]+" 없음";
+      if(!g.ok)return names[id]+" 사용 불가("+(g.reason||"?")+")"+(g.readOnly?" 읽기전용":"");
+      var pts=g.points||[],last=pts.length?pts[pts.length-1]:null,d=last?(last.d||(typeof last.ts==="number"?new Date(last.ts).toISOString().slice(0,10):"?")):"-";
+      var pc=g.pendingConflicts||[],tail=pc.slice(-2).map(function(c){return c.d+" "+c.existing.close+"→"+c.alternative.close;}).join(", ");
+      return names[id]+" "+pts.length+"개 · 마지막 "+d+" · 보류충돌 "+pc.length+(tail?" (최근 "+tail+")":"");
+    }).join(" / ");
+  }catch(e){return "진단 오류";}
+}
+// 평소엔 이 한 줄만 보이고, 긴 진단·충돌 사례는 접어 둔다.
+function benchDiagSummary(){
+  try{
+    if(!_benchState||!_benchState.ok)return "ⓘ 지수 자료 확인 필요 (펼쳐서 보기)";
+    var names={KS200:"KODEX 200",QQQ:"QQQ",SPY:"SPY"},bad=[],last="";
+    ["KS200","QQQ","SPY"].forEach(function(id){
+      var g=_benchState.series&&_benchState.series[id],pts=g&&g.ok?(g.points||[]):[];
+      if(!pts.length){bad.push(names[id]);return;}
+      var l=pts[pts.length-1],d=l.d||(typeof l.ts==="number"?new Date(l.ts).toISOString().slice(0,10):"");
+      if(d>last)last=d;
+    });
+    return bad.length?"ⓘ 지수 자료 일부 부족: "+bad.join("·")+" (펼쳐서 보기)":"ⓘ 지수 자료 정상 · 마지막 관측 "+(last?last.slice(5):"-")+" (펼쳐서 보기)";
+  }catch(e){return "ⓘ 지수 자료 확인 필요 (펼쳐서 보기)";}
+}
 function renderAll() {
   if(snapshotWriteBlocked()){renderSnapshotStatuses();return;}
   renderDashboard(); renderBalancePie(); updateBrief(); fetchMarketIndices();
-  renderGeneral();
-  renderDomestic();
-  renderOverseas();
-  renderPension();
+  renderPanelsLazy();
   renderAllCashSummary();
-  renderDividend();
-  renderCommandments();
-  renderLedger();
   renderAllReturnsTables();
   renderSnapshotStatuses();
   if(window.HASPriceTrustUI) window.HASPriceTrustUI.refresh();
@@ -3209,10 +3301,10 @@ function renderReturnsTable(key,tableId) {
     '<details style="margin-top:10px"><summary style="font-size:13px;color:#333;cursor:pointer;min-height:32px">ⓘ 수익률 계산 안내·지수 출처</summary>'+
     '<p style="font-size:12px;line-height:1.6;color:#333">기존 입금은 소급 분류하지 않습니다. 계좌 내 매매는 외부 자금 유입이 아닙니다. 보유 수량이 바뀌면 보유 변화 미검증 경고와 함께 기록된 외부 입출금만 반영한 참고값을 표시합니다. 예수금 지연 수정·누락 입출금·추적 자산 제외가 있으면 수익률과 알파가 실제 성과와 다를 수 있습니다. 외부 입출금은 빠짐없이 기록하고 예수금도 맞춰 주세요. 입출금 자료 누락·시각 불명확·손상 자료는 계산을 보류합니다. 각 행의 실제 계산 기간은 기기 현지 시각입니다.</p>'+
     '<p style="font-size:12px;line-height:1.6;color:#333">ETF 대용치이며 배당·보수·환율 차이가 있습니다. 원화 평가와 USD/혼합 지수의 알파 및 원화 비교선은 환율 근거가 없어 보류합니다. 당일 막대·공식 종가·최신성은 미확정입니다.</p>'+
+    '<div style="font-size:12px;line-height:1.6;overflow-wrap:anywhere;margin-top:6px">관측일: '+snapshotEscape(getBenchDataLatestLabel(key).text)+'<br>수신: '+snapshotEscape(getBenchFetchTimeLabel(key).text)+'<br>출처: '+snapshotEscape(getBenchDataLatestLabel(key).source)+'</div>'+
     '</details>'+
-    '<div style="font-size:12px;line-height:1.6;overflow-wrap:anywhere">관측일: '+snapshotEscape(getBenchDataLatestLabel(key).text)+'<br>수신: '+snapshotEscape(getBenchFetchTimeLabel(key).text)+'<br>출처: '+snapshotEscape(getBenchDataLatestLabel(key).source)+'</div>'+
-    '<div class="benchStatusMsg" role="status" style="font-size:12px;line-height:1.6;color:#333">'+snapshotEscape(_benchStatusMsg)+'</div>'+
-    '<button onclick="fetchBenchmarkHistory(true)" style="min-height:44px;min-width:44px;font-size:12px;padding:8px 16px;margin-top:8px">↻ ETF 이력 새로고침</button>';
+    '<details class="benchStatusBox" style="margin-top:8px"><summary class="benchStatusSum" style="font-size:13px;color:#333;cursor:pointer;min-height:32px">'+snapshotEscape(typeof benchDiagSummary==="function"?benchDiagSummary():"ⓘ 지수 자료 상태")+'</summary><div class="benchStatusMsg" role="status" style="font-size:12px;line-height:1.6;color:#333;overflow-wrap:anywhere">'+snapshotEscape(_benchStatusMsg)+'</div></details>'+
+    '<button onclick="fetchBenchmarkHistory(true)" style="min-height:44px;min-width:44px;font-size:12px;padding:8px 16px;margin-top:8px">'+(typeof benchBtnLabel==="function"?benchBtnLabel():"↻ ETF 이력 새로고침")+'</button>';
 }
 
 function renderAllReturnsTables() {
@@ -4580,7 +4672,11 @@ function datePickerChange(input, btnId, chartId, snapKey, color) {
 function selectPeriod(btnId, chartId, period, snapKey, color) {
   currentPeriods[btnId]=period;
   renderPeriodBtns(btnId,chartId,snapKey,color);
-  renderLineChart(period,btnId,chartId,snapKey,color);
+  // 반응: 눌린 버튼 색·흐린 그래프를 먼저 화면에 보이고, 무거운 그래프 그리기는 그 다음에(연속으로 누르면 마지막 것만)
+  var svg=document.getElementById(chartId),tokens=selectPeriod.tokens||(selectPeriod.tokens={}),token=tokens[btnId]=(tokens[btnId]||0)+1;
+  if(svg)svg.style.opacity="0.45";
+  function run(){if(tokens[btnId]!==token)return;try{renderLineChart(currentPeriods[btnId],btnId,chartId,snapKey,color);}finally{if(svg)svg.style.opacity="";}}
+  if(typeof requestAnimationFrame==="function")requestAnimationFrame(function(){setTimeout(run,0);});else setTimeout(run,0);
 }
 
 function renderLineChartFromDate(pickerId, chartId, snapKey, color) {
@@ -4603,10 +4699,12 @@ function refreshAllLineCharts() {
     {btnId:"ovPeriodBtns", chartId:"ovLineChart", snapKey:"ov", color:"#1565c0"},
     {btnId:"penPeriodBtns", chartId:"penLineChart", snapKey:"pen", color:"#6a1b9a"}
   ];
-  map.forEach(function(m){
-    var period=currentPeriods[m.btnId]||"1W";
-    try { renderLineChart(period, m.btnId, m.chartId, m.snapKey, m.color); } catch(e){}
-  });
+  // 속도: 보이는 그래프만 바로, 가려진 그래프는 하나씩 나눠서(한 번에 5개를 그리며 폰이 멈추는 것 방지)
+  function visible(m){var el=document.getElementById(m.chartId),panel=el&&el.closest?el.closest(".panel"):null;return !panel||panel.classList.contains("active");}
+  function draw(m){var period=currentPeriods[m.btnId]||"1W";try { renderLineChart(period, m.btnId, m.chartId, m.snapKey, m.color); } catch(e){}}
+  var epoch=(refreshAllLineCharts.epoch=(refreshAllLineCharts.epoch||0)+1),rest=[];
+  map.forEach(function(m){if(visible(m))draw(m);else rest.push(m);});
+  rest.forEach(function(m,i){setTimeout(function(){if(epoch===refreshAllLineCharts.epoch)draw(m);},60*(i+1));});
 }
 
 function priceAtTs(hist,ts,id) {
@@ -4722,6 +4820,14 @@ function renderLineChart(period, btnId, chartId, snapKey, color) {
   var BENCH_NAMES={all:"KODEX 200 20%+QQQ 80% (해외 부분 환율 미반영)",dom:"KODEX 200 ETF",gen:"KODEX 200 ETF",ov:"QQQ ETF (달러 기준·환율 미반영)",pen:"QQQ ETF (달러 기준·환율 미반영)"};
   var benchName=BENCH_NAMES[snapKey]||"기준지수";
   var spySeries = snapKey==="ov" && !chartComparison.hold ? getSP500SeriesForChart(pts) : null;
+  if(!benchSeries&&!chartComparison.hold){
+    // 기준지수선이 없을 때 이유를 그래프 안내에 적는다(추측하지 않고 확인 가능한 상태만).
+    var bWhy=!window.HASBenchmarkHistory?"기준지수 모듈 없음":(_benchState&&_benchState.readOnly)?"기준지수 기록 원본 확인 필요(읽기 전용)":
+      (!(benchmarkHistory.KS200&&benchmarkHistory.KS200.length)&&!(benchmarkHistory.NDX&&benchmarkHistory.NDX.length))?"기준지수 기록 없음(시세 조회 대기 또는 실패)":
+      (!Array.isArray(buildCashFlows(snapKey,pts)))?"입금·출금 기록 확인 필요(날짜만 있는 기록 등)":"그래프 시작일 이전 기준지수 기록이 없어 비교선을 만들 수 없음";
+    var wnote=document.getElementById(chartId+"Assessment"),wbody=wnote&&wnote.querySelector("details>div");
+    if(wbody)wbody.textContent+=" · 기준지수선 없음: "+bWhy;
+  }
   var allVals=hasCost?vals.concat(costs):vals;
   if (benchSeries) allVals=allVals.concat(benchSeries.filter(function(v){return v!=null;}));
   if (spySeries) allVals=allVals.concat(spySeries.filter(function(v){return v!=null;}));
@@ -4864,9 +4970,15 @@ function snapshotMissingText(result) {
   return result.missing.map(function(m){return (names[m.account]||m.account)+(m.ticker?" / "+m.ticker:"")+": "+m.reason;}).join("\n");
 }
 function renderSnapshotStatuses() {
+  function snapshotWaitSummary(result) {
+    // 같은 사유는 한 번만(종목마다 같은 문장이 반복되던 것을 묶음)
+    var order=[],groups={};
+    result.missing.forEach(function(m){if(!groups[m.reason]){groups[m.reason]=[];order.push(m.reason);}if(m.ticker)groups[m.reason].push(m.ticker);});
+    return "⚠ 평가 기록 대기 — "+order.map(function(r){var n=groups[r].length;return r+(n>1?" ("+n+"개 종목 공통)":n===1?" ("+groups[r][0]+")":"");}).join(" / ");
+  }
   ["all","dom","ov","pen","gen"].forEach(function(key){
     var el=document.getElementById("snapshotStatus-"+key); if(!el) return;
-    var result=snapshotEvaluation(key), lines=[];
+    var result=snapshotEvaluation(key), lines=[], summary="";
     var rows=Array.isArray(snapshots[key])?snapshots[key]:[];
     var today=rows.filter(function(r){return r && new Date(r.ts).toDateString()===new Date().toDateString();});
     if(today.length) {
@@ -4877,18 +4989,19 @@ function renderSnapshotStatuses() {
         else lines.push(r.quality==="unconfirmed"?"저장 기록은 미확정·판단 보류입니다. 수신 시각은 시장 기준시각이 아닙니다.":"기존 기록의 출처·가격 기준시각은 미확인입니다.");
       });
     }
-    if(!result.ok) lines.push("기록 대기\n"+snapshotMissingText(result));
+    if(!result.ok) {lines.push("기록 대기\n"+snapshotMissingText(result));summary=snapshotWaitSummary(result);}
     else {
       var manual=result.snapshot.manualComponents;
       var proposed=window.HASSnapshotPolicy.appendDaily(snapshots[key]===undefined?[]:snapshots[key],result.snapshot);
-      if(!proposed.ok) lines.push("저장 보류: "+proposed.reason);
-      else if(proposed.changed===false) lines.push("새 평가 내용이 없어 기존 버전을 보존합니다. 수신시각 변경만으로 새 가격이라 판단하지 않습니다.");
-      else lines.push("평가 기록 저장 가능 · 이전 버전 보존 · 미확정·판단 보류");
+      if(!proposed.ok) {lines.push("저장 보류: "+proposed.reason);summary="⚠ 저장 보류 — "+proposed.reason;}
+      else if(proposed.changed===false) {lines.push("새 평가 내용이 없어 기존 버전을 보존합니다. 수신시각 변경만으로 새 가격이라 판단하지 않습니다.");summary="✓ 새 평가 내용 없음 · 기존 기록 유지";}
+      else {lines.push("평가 기록 저장 가능 · 이전 버전 보존 · 미확정·판단 보류");summary="✓ 평가 기록 저장 가능";}
       lines.push(manual.length?"수동 가격 포함 "+manual.length+"개 · 미확정·판단 보류. 실제 기준 일시와 보유수량 단위를 직접 확인해주세요.":"시세의 공식성·시장 기준시각을 확인한 것은 아닙니다.");
     }
     if(rows.some(function(r){return r && r.comparisonHold===true;})) lines.push("자산 구성·수량·원가 또는 과거 근거가 달라진 구간은 성과 비교를 보류합니다. 자산 제외는 투자손실로 단정하지 않습니다.");
     lines.push("차트는 저장된 평가 기록만 표시합니다. 현재 화면 값으로 과거 점이나 누락 원가를 만들지 않습니다.");
     el.textContent=lines.join("\n");
+    var summaryEl=document.getElementById("snapshotSummary-"+key); if(summaryEl) summaryEl.textContent=summary;
     var historyEl=document.getElementById("snapshotHistory-"+key);
     if(historyEl) {
       var versions=[],historyDamaged=false;
@@ -7178,26 +7291,31 @@ function fetchKR(attempt) {
   document.body.appendChild(script);
 }
 
-function fetchFX() {
+function fetchFX(attempt) {
   if(snapshotWriteBlocked()) return;
   if(!gasUrl) return;
-  // 자동갱신
+  attempt=(typeof attempt==="number")?attempt:0;
+  // 자동갱신 (환율을 못 받으면 해외 평가·수익률이 전부 보류되므로 시세와 같은 방식으로 재시도)
   var quoteEpoch=snapshotInputEpoch;
   var cb="gas_fx_"+Date.now();
   var script=document.createElement("script");
   script.src=gasUrl+"?type=exchange&callback="+cb;
+  var finished=false;
+  function cleanup(){ delete window[cb]; if(document.body.contains(script))document.body.removeChild(script); }
   window[cb]=function(data){
-    if(quoteEpoch!==snapshotInputEpoch || snapshotWriteBlocked()){delete window[cb];if(document.body.contains(script))document.body.removeChild(script);return;}
+    finished=true;
+    if(quoteEpoch!==snapshotInputEpoch || snapshotWriteBlocked()){cleanup();return;}
     if(data && typeof data.usdKrw==="number" && Number.isFinite(data.usdKrw) && data.usdKrw>0 && data.usdKrw<=1e6){
       document.getElementById("usdKrw").value=data.usdKrw; quoteMeta["FX"]=Date.now(); snapshotQuoteValues.FX=data.usdKrw;
       document.getElementById("fxTime").textContent="환율 자동갱신: "+new Date().toLocaleTimeString("ko-KR");
+      cleanup();
       autoSnapshot(); renderAll();
+      return;
     }
-    
-    delete window[cb]; if(document.body.contains(script))document.body.removeChild(script);
+    cleanup(); retryFetch(fetchFX, attempt, quoteEpoch);
   };
-  script.onerror=function(){delete window[cb];if(document.body.contains(script))document.body.removeChild(script);};
-  setTimeout(function(){if(window[cb]){delete window[cb];}},10000);
+  script.onerror=function(){ if(finished) return; finished=true; cleanup(); retryFetch(fetchFX, attempt, quoteEpoch); };
+  setTimeout(function(){ if(finished) return; finished=true; cleanup(); retryFetch(fetchFX, attempt, quoteEpoch); },15000);
   document.body.appendChild(script);
 }
 
@@ -7257,6 +7375,24 @@ function switchGroup(group){
   switchTab(target);
 }
 
+/* 환호성 화면이면 강조 테두리를 곡소리 탭이 아니라 환호성 바로가기에 둔다(주소 #kst-radar/…/euphoria 기준). */
+function hasSyncRiskTabHighlight(){
+  var bar=document.getElementById("subtabs-risk");if(!bar)return;
+  var link=bar.querySelector(".has-risk-shortcut");if(!link)return;
+  var radarPanel=document.getElementById("panel-radar");
+  var euph=!!(radarPanel&&radarPanel.classList.contains("active")&&/^#kst-radar\/(real|demo)\/euphoria/.test(location.hash));
+  var idx=TAB_GROUPS.risk.indexOf("radar"),btn=bar.querySelectorAll(".tab")[idx];
+  var c=tabColors.radar||"#1565c0";
+  link.classList.toggle("active",euph);
+  if(euph){
+    link.style.color=c;link.style.borderColor=c;link.style.background="#fff";link.style.fontWeight="800";
+    if(btn){btn.classList.remove("active");btn.style.color="";btn.style.borderColor="";btn.style.background="";}
+  }else{
+    link.style.color="";link.style.borderColor="";link.style.background="";link.style.fontWeight="";
+  }
+}
+["popstate","hashchange"].forEach(function(ev){window.addEventListener(ev,function(){setTimeout(hasSyncRiskTabHighlight,0);});});
+document.addEventListener("click",function(){setTimeout(hasSyncRiskTabHighlight,0);},true);
 function switchTab(tab) {
   var group=TAB_TO_GROUP[tab];
   if(!group) return;
@@ -7293,6 +7429,7 @@ function switchTab(tab) {
   }
 
   document.querySelectorAll(".panel").forEach(function(p){p.classList.toggle("active",p.id==="panel-"+tab);});
+  if(typeof renderPanelIfDirty==="function") renderPanelIfDirty(tab);
   if(typeof renderAllReturnsTables==="function") renderAllReturnsTables();
   if(window.KSTRadar) window.KSTRadar.onTabChange(tab);
   if(window.HASLedgerDemo) window.HASLedgerDemo.onTabChange(tab);
@@ -7300,6 +7437,7 @@ function switchTab(tab) {
   if(window.HASPretradePanel) window.HASPretradePanel.onTabChange(tab);
   if(window.HASPriceTrustUI) window.HASPriceTrustUI.refresh();
   if(window.HASAdvisorPanel) window.HASAdvisorPanel.refresh();
+  if(typeof hasSyncRiskTabHighlight==="function") hasSyncRiskTabHighlight();
   if(tab==="memo") renderMemo();
   if(tab==="retirement"){ renderRetirement(); renderNotouch(); }
   if(tab==="debt") renderDebt();
@@ -7840,6 +7978,9 @@ function checkPw() {
 // 글꼴·이미지 다운로드(load)를 기다리지 않고 HTML 해석 직후 시작 — 잠금 확인 버튼이 바로 반응
 function hasStartApp() {
   if(hasStartApp.done) return; hasStartApp.done=true;
+  // 속도: 화면 한 번 그리는 동안 같은 자산기록 검증을 한 번만(기록 수×표 줄 수만큼 반복하던 검증 재사용)
+  // 잠금화면이 떠 있는 동안에는 가려진 화면을 그리지 않음(잠금 해제 시 checkPw의 renderAll이 표·그래프까지 한 번에 그림) — 잠금화면 멈춤 방지
+  ["renderAll","renderAllReturnsTables","renderLineChart"].forEach(function(name){var f=window[name];if(typeof f!=="function")return;window[name]=function(){var ls=document.getElementById("lockScreen");if(ls&&ls.style.display!=="none"){hasStartApp.deferredRender=true;return;}var self=this,args=arguments,P=window.HASSnapshotPolicy;return P&&P.withValidationCache?P.withValidationCache(function(){return f.apply(self,args);}):f.apply(self,args);};});
   // 잠금화면
   if(sessionStorage.getItem("v5_auth")==="1") {
     document.getElementById("lockScreen").style.display="none";
@@ -7891,303 +8032,7 @@ window.addEventListener("load", hasStartApp);
 
 // ═══════════════════════════════════════
 // ═══════════════════════════════
-// 🎆 세계불꽃축제 애니메이션
-// ═══════════════════════════════════════
-(function(){
-  var canvas=document.getElementById("confettiCanvas");
-  if(!canvas) return;
-  var ctx=canvas.getContext("2d");
-  var W=0,H=0,animId=null,launchInterval=null;
-  var rockets=[],particles=[];
-  var GRAV=0.13;
-  // 달 위치 (화면 상단 중앙, 달 SVG 기준)
-  var MOON_X_RATIO=0.5, MOON_Y=160;
-
-  function resize(){
-    var dpr=window.devicePixelRatio||1;
-    W=window.innerWidth;
-    H=window.innerHeight;
-    canvas.width=W*dpr;
-    canvas.height=H*dpr;
-    canvas.style.width=W+"px";
-    canvas.style.height=H+"px";
-    ctx.setTransform(1,0,0,1,0,0);
-    ctx.scale(dpr,dpr);
-  }
-
-  var palettes={
-    gold:   ["#FFD700","#FFA500","#FFEC6E","#FF8C00","#FFFDE7"],
-    red:    ["#FF4444","#FF6B6B","#FF0000","#FFCCCC","#FF8A80"],
-    blue:   ["#4FC3F7","#1E90FF","#00BFFF","#B3E5FC","#82B1FF"],
-    green:  ["#69F0AE","#00E676","#B9F6CA","#00C853","#CCFF90"],
-    purple: ["#CE93D8","#AB47BC","#EA80FC","#E040FB","#F3E5F5"],
-    white:  ["#FFFFFF","#FFF9C4","#FFFDE7","#E3F2FD","#FCE4EC"],
-    pink:   ["#F48FB1","#FF4081","#FCE4EC","#FF80AB","#FF6090"],
-    cyan:   ["#80DEEA","#00BCD4","#A7FFEB","#1DE9B6","#E0F7FA"],
-    multi:  ["#FFD700","#FF4444","#4FC3F7","#69F0AE","#CE93D8","#FF80AB","#FFF"],
-  };
-  var paletteKeys=Object.keys(palettes);
-
-  function randPalette(){ return palettes[paletteKeys[Math.floor(Math.random()*paletteKeys.length)]]; }
-
-  // ── 로켓 타입별 폭발 형태 ──
-  var types=["classic","willow","ring","chrysanthemum","palm","strobe","multicolor","crossette"];
-
-  function Rocket(x, targetY, type){
-    this.x=x; this.y=H;
-    this.vx=(Math.random()-0.5)*1.8;
-    this.targetY=targetY || (H*(0.08+Math.random()*0.3));
-    this.vy=-Math.sqrt(2*GRAV*(H-this.targetY))*1.04;
-    this.palette=randPalette();
-    this.type=type||types[Math.floor(Math.random()*types.length)];
-    this.trail=[]; this.done=false;
-  }
-  Rocket.prototype.update=function(){
-    if(this.done) return;
-    this.trail.push({x:this.x,y:this.y,a:1});
-    if(this.trail.length>24) this.trail.shift();
-    this.trail.forEach(function(t){t.a-=0.04;});
-    this.vy+=GRAV; this.x+=this.vx; this.y+=this.vy;
-    if(this.y<=this.targetY||this.vy>=0){
-      this.done=true;
-      explode(this.x,this.y,this.palette,this.type);
-    }
-  };
-  Rocket.prototype.draw=function(){
-    for(var i=1;i<this.trail.length;i++){
-      var t=this.trail[i],tp=this.trail[i-1];
-      ctx.save();
-      ctx.globalAlpha=Math.max(0,t.a*0.9);
-      ctx.strokeStyle="#ffcc44"; ctx.shadowColor="#ff7700"; ctx.shadowBlur=10;
-      ctx.lineWidth=2.2*(i/this.trail.length)+0.3;
-      ctx.lineCap="round";
-      ctx.beginPath(); ctx.moveTo(tp.x,tp.y); ctx.lineTo(t.x,t.y); ctx.stroke();
-      ctx.restore();
-    }
-    if(!this.done){
-      ctx.save(); ctx.fillStyle="#fff"; ctx.shadowColor="#ffee88"; ctx.shadowBlur=14;
-      ctx.beginPath(); ctx.arc(this.x,this.y,3,0,Math.PI*2); ctx.fill(); ctx.restore();
-    }
-  };
-  Rocket.prototype.alive=function(){ return !this.done; };
-
-  // ── 폭발 종류 ──
-  function explode(x,y,palette,type){
-    particles.push(new Flash(x,y,palette[0]));
-    if(type==="classic")      classicBurst(x,y,palette);
-    else if(type==="willow")  willowBurst(x,y,palette);
-    else if(type==="ring")    ringBurst(x,y,palette);
-    else if(type==="chrysanthemum") chrysBurst(x,y,palette);
-    else if(type==="palm")    palmBurst(x,y,palette);
-    else if(type==="strobe")  strobeBurst(x,y,palette);
-    else if(type==="multicolor") multicolorBurst(x,y);
-    else if(type==="crossette") crossetteBurst(x,y,palette);
-    else classicBurst(x,y,palette);
-  }
-
-  // 클래식: 균등 방사
-  function classicBurst(x,y,pal){
-    var n=100+Math.floor(Math.random()*30);
-    for(var i=0;i<n;i++){
-      var a=(i/n)*Math.PI*2, s=Math.random()*5+2;
-      particles.push(new Spark(x,y,Math.cos(a)*s,Math.sin(a)*s,pal,0.013,0.09,true));
-    }
-  }
-  // 버드나무: 위로 퍼진 뒤 중력에 축 늘어짐
-  function willowBurst(x,y,pal){
-    var n=80;
-    for(var i=0;i<n;i++){
-      var a=(i/n)*Math.PI*2, s=Math.random()*4+1.5;
-      var p=new Spark(x,y,Math.cos(a)*s,Math.sin(a)*s-1,pal,0.008,0.18,true);
-      p.friction=0.96; particles.push(p);
-    }
-  }
-  // 링: 완벽한 원형
-  function ringBurst(x,y,pal){
-    var n=70, s=5;
-    for(var i=0;i<n;i++){
-      var a=(i/n)*Math.PI*2;
-      particles.push(new Spark(x,y,Math.cos(a)*s,Math.sin(a)*s,pal,0.012,0.07,false));
-    }
-  }
-  // 국화: 매우 조밀한 구형
-  function chrysBurst(x,y,pal){
-    var n=120;
-    for(var i=0;i<n;i++){
-      var a=(i/n)*Math.PI*2, s=Math.random()*6+2;
-      var p=new Spark(x,y,Math.cos(a)*s,Math.sin(a)*s,pal,0.011,0.06,true);
-      p.r=Math.random()*1.2+0.5; particles.push(p);
-    }
-  }
-  // 야자수: 위로 솟았다 떨어짐
-  function palmBurst(x,y,pal){
-    var n=60;
-    for(var i=0;i<n;i++){
-      var a=(i/n)*Math.PI*2, s=Math.random()*4+2;
-      var p=new Spark(x,y,Math.cos(a)*s,Math.sin(a)*s-3,pal,0.01,0.14,true);
-      p.friction=0.97; particles.push(p);
-    }
-  }
-  // 스트로브: 깜빡이는 별빛
-  function strobeBurst(x,y,pal){
-    var n=60;
-    for(var i=0;i<n;i++){
-      var a=Math.random()*Math.PI*2, s=Math.random()*5+1;
-      particles.push(new StrobeSpark(x,y,Math.cos(a)*s,Math.sin(a)*s,pal));
-    }
-  }
-  // 멀티컬러: 여러 색이 섞인 화려한 버스트
-  function multicolorBurst(x,y){
-    var n=110;
-    for(var i=0;i<n;i++){
-      var pal=palettes[paletteKeys[i%paletteKeys.length]];
-      var a=(i/n)*Math.PI*2, s=Math.random()*5+2;
-      particles.push(new Spark(x,y,Math.cos(a)*s,Math.sin(a)*s,pal,0.013,0.09,true));
-    }
-  }
-  // 크로세트: 분열 폭죽
-  function crossetteBurst(x,y,pal){
-    var n=20;
-    for(var i=0;i<n;i++){
-      var a=(i/n)*Math.PI*2, s=Math.random()*4+2;
-      particles.push(new CrossetteSpark(x,y,Math.cos(a)*s,Math.sin(a)*s,pal));
-    }
-  }
-
-  // ── 파티클 종류 ──
-  function Spark(x,y,vx,vy,palette,fade,grav,hasTrail){
-    this.x=x; this.y=y; this.vx=vx; this.vy=vy;
-    this.color=palette[Math.floor(Math.random()*palette.length)];
-    this.alpha=1; this.fade=fade||0.013; this.grav=grav||0.09;
-    this.friction=0.97; this.r=Math.random()*1.8+0.8;
-    this.px=x; this.py=y; this.hasTrail=hasTrail;
-  }
-  Spark.prototype.update=function(){
-    this.px=this.x; this.py=this.y;
-    this.vy+=this.grav; this.vx*=this.friction; this.vy*=this.friction;
-    this.x+=this.vx; this.y+=this.vy; this.alpha-=this.fade;
-  };
-  Spark.prototype.draw=function(){
-    ctx.save(); ctx.globalAlpha=Math.max(0,this.alpha);
-    if(this.hasTrail){
-      ctx.strokeStyle=this.color; ctx.shadowColor=this.color; ctx.shadowBlur=6;
-      ctx.lineWidth=this.r; ctx.lineCap="round";
-      ctx.beginPath(); ctx.moveTo(this.px,this.py); ctx.lineTo(this.x,this.y); ctx.stroke();
-    } else {
-      ctx.fillStyle=this.color; ctx.shadowColor=this.color; ctx.shadowBlur=8;
-      ctx.beginPath(); ctx.arc(this.x,this.y,this.r,0,Math.PI*2); ctx.fill();
-    }
-    ctx.restore();
-  };
-
-  // 스트로브 파티클
-  function StrobeSpark(x,y,vx,vy,palette){
-    this.x=x; this.y=y; this.vx=vx; this.vy=vy;
-    this.color=palette[Math.floor(Math.random()*palette.length)];
-    this.alpha=1; this.grav=0.08; this.friction=0.97;
-    this.r=Math.random()*2.5+1; this.twinkle=Math.random()*Math.PI*2;
-  }
-  StrobeSpark.prototype.update=function(){
-    this.vy+=this.grav; this.vx*=this.friction; this.vy*=this.friction;
-    this.x+=this.vx; this.y+=this.vy;
-    this.twinkle+=0.5; this.alpha-=0.012;
-  };
-  StrobeSpark.prototype.draw=function(){
-    var a=Math.max(0,this.alpha)*Math.abs(Math.sin(this.twinkle));
-    ctx.save(); ctx.globalAlpha=a;
-    ctx.fillStyle=this.color; ctx.shadowColor="#fff"; ctx.shadowBlur=14;
-    ctx.beginPath(); ctx.arc(this.x,this.y,this.r,0,Math.PI*2); ctx.fill();
-    ctx.restore();
-  };
-
-  // 분열 파티클 (2차 폭발)
-  function CrossetteSpark(x,y,vx,vy,palette){
-    this.x=x; this.y=y; this.vx=vx; this.vy=vy;
-    this.color=palette[Math.floor(Math.random()*palette.length)];
-    this.alpha=1; this.grav=0.08; this.friction=0.97;
-    this.r=1.5; this.life=0; this.exploded=false; this.palette=palette;
-  }
-  CrossetteSpark.prototype.update=function(){
-    this.vy+=this.grav; this.vx*=this.friction; this.vy*=this.friction;
-    this.x+=this.vx; this.y+=this.vy;
-    this.life++; this.alpha-=0.025;
-    if(this.life===22&&!this.exploded){
-      this.exploded=true;
-      var pal=this.palette;
-      for(var i=0;i<12;i++){
-        var a=Math.random()*Math.PI*2, s=Math.random()*2+1;
-        particles.push(new Spark(this.x,this.y,Math.cos(a)*s,Math.sin(a)*s,pal,0.02,0.1,false));
-      }
-    }
-  };
-  CrossetteSpark.prototype.draw=function(){
-    ctx.save(); ctx.globalAlpha=Math.max(0,this.alpha);
-    ctx.fillStyle=this.color; ctx.shadowColor=this.color; ctx.shadowBlur=8;
-    ctx.beginPath(); ctx.arc(this.x,this.y,this.r,0,Math.PI*2); ctx.fill();
-    ctx.restore();
-  };
-
-  // 플래시
-  function Flash(x,y,color){
-    this.x=x; this.y=y; this.color=color; this.r=10; this.alpha=0.9;
-  }
-  Flash.prototype.update=function(){ this.r+=8; this.alpha-=0.13; };
-  Flash.prototype.draw=function(){
-    if(this.r<=0||this.alpha<=0) return;
-    ctx.save(); ctx.globalAlpha=Math.max(0,this.alpha);
-    var g=ctx.createRadialGradient(this.x,this.y,0,this.x,this.y,this.r);
-    g.addColorStop(0,"rgba(255,255,255,1)");
-    g.addColorStop(0.3,this.color+"cc");
-    g.addColorStop(1,"rgba(0,0,0,0)");
-    ctx.fillStyle=g;
-    ctx.beginPath(); ctx.arc(this.x,this.y,this.r,0,Math.PI*2); ctx.fill();
-    ctx.restore();
-  };
-
-  // ── 자유분방한 랜덤 발사 ──
-  function launch(){
-    if(!W||!H) resize();
-    // 화면 전체에서 랜덤하게 발사
-    var x=W*0.05+Math.random()*W*0.9;
-    var ty=H*(0.06+Math.random()*0.35);
-    rockets.push(new Rocket(x, ty));
-  }
-
-  // 연속 일제 발사
-  function salvo(n, interval){
-    for(var i=0;i<n;i++){
-      (function(i){ setTimeout(function(){ launch(); }, i*interval); })(i);
-    }
-  }
-
-  function startFireworks(){
-    resize();
-    salvo(4, 280);
-    setTimeout(function(){ salvo(3,250); }, 2200);
-
-    launchInterval=setInterval(function(){
-      if(document.getElementById("lockScreen").style.display==="none"){
-        clearInterval(launchInterval); cancelAnimationFrame(animId); return;
-      }
-      var r=Math.random();
-      if(r<0.25) salvo(3,200);
-      else if(r<0.5) salvo(2,300);
-      else launch();
-      if(Math.random()<0.35) setTimeout(launch, 180);
-    }, 1500);
-    loop();
-  }
-
-  function loop(){
-    ctx.clearRect(0,0,W,H);
-    rockets=rockets.filter(function(r){ r.update(); r.draw(); return r.alive(); });
-    particles=particles.filter(function(p){ p.update(); p.draw(); return p.alpha>0; });
-    animId=requestAnimationFrame(loop);
-  }
-
-  window.addEventListener("resize",resize);
-  window.addEventListener("load",function(){ setTimeout(startFireworks,400); });
-})();
+// 🎆 잠금화면 불꽃놀이 애니메이션 — 2026-11-12 순태씨 요청으로 제거(입력·잠금해제 지연 원인). 달·축하 문구는 정지 화면으로 유지
 
 
 
