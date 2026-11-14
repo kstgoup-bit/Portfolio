@@ -6,6 +6,7 @@
 - `COLLAB-PROTOCOL.md` — 다비↔클로 정기 깃허브 협업 규칙(브랜치·보고서·승인). **작업 전 필독.**
 
 ## 최신 (2026-11-15)
+- 2026-11-15 07:06 재무 필터 1단계(계산 모듈·시험 11건) `work/claude-fundamental-filter-20261115` — 보고 CLAUDE-DEV-FUNDAMENTAL-FILTER-20261115.md, 지피 검토 요청.
 - 2026-11-15 06:30 곡소리 GAS 미설치 안내·환호성 조회 전 안내 문구 `work/claude-radar-msg-20261114` — 보고 CLAUDE-DEV-RADAR-MSG-20261114.md, 운영 승인 대기.
 - 2026-11-14 15:10 운영 반영: 곡소리 Top10·환호성 보유종목 전용·미국 200·v2 manifest — 보고 CLAUDE-DEV-DEPLOYED-20261114.md, GAS 배포는 순태씨 직접(안내서 GAS-UNIVERSE-DEPLOY-GUIDE-20261114.md).
 - 2026-11-14 14:00 곡소리 Top10(3+펼치기)·환호성 보유종목 전용 `work/claude-us200-20261114` — 보고 CLAUDE-DEV-US200-20261114.md 6절, 운영 승인 대기.
