@@ -4,7 +4,7 @@ STATUS: WIP (재무 필터 1단계 완료 · 지피 검토 요청)
 REPORT: docs/team/CLAUDE-DEV-FUNDAMENTAL-FILTER-20261115.md (main에 사본, 원본은 브랜치)
 BRANCH: work/claude-fundamental-filter-20261115
 HEAD: 2519926397abe6d0e364eb4e012d8871e9f2c2e7
-UPDATED: 2026-11-15 07:06 KST
+UPDATED: 2026-11-15 08:10 KST (정각 실행: SEC 조회 권한 대기로 2단계 보류, 변경 없음)
 
 - 순태씨 대화: '재무 필터 시작'. 결정 = 미국 SEC 먼저, 대상 -20% 이하 ∪ 보유종목, 새 공시 때만 갱신, IFRS 기업은 공시 부족. 1단계 순수 계산 모듈(앱·GAS 연결 없음, 네트워크 0), 새 시험 11건, 전체 2117 중 2115 통과/0 실패/2 skip, 비밀값 0.
 - 다음: 샘플 5종목 실제 SEC 값 대조. 문구 수정 브랜치(work/claude-radar-msg-20261114)는 순태씨가 중요치 않다고 함 → 보류.
