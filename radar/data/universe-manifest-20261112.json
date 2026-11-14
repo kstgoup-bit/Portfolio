@@ -1,0 +1,2042 @@
+{
+ "schema": "has-price-screen-v1",
+ "coreCount": 402,
+ "members": [
+  {
+   "market": "KR",
+   "ticker": "005930",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "000660",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "402340",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "373220",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "207940",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "009150",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "005380",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "105560",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "032830",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "068270",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "028260",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "055550",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "006400",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "000270",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "034730",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "012450",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "086790",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "012330",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "034020",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "329180",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "035420",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "000810",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "316140",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "066570",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "005490",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "015760",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "011200",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "138040",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "010120",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "010130",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "096770",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "033780",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "018260",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "042700",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "017670",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "298040",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "051910",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "009540",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "003670",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "086280",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "267260",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "024110",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "010140",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "042660",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "035720",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "003550",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "180640",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "030200",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "028050",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "006800",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "003490",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "010950",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "272210",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "047810",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "005830",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "323410",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "267250",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "000150",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "003230",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "000720",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "278470",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "259960",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "0126Z0",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "047050",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "064350",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "005940",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "079550",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "443060",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "307950",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "161390",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "078930",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "064400",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "021240",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "090430",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "326030",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "011070",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "071050",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "352820",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "016360",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "032640",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "007660",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "128940",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "006260",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "000100",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "009830",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "029780",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "039490",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "241560",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "175330",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "047040",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "377300",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "271560",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "267270",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "036570",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "000880",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "138930",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "062040",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "034220",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "036460",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "000990",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "001440",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "012750",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "008930",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "010060",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "011790",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "004020",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "454910",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "051900",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "066970",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "088350",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "111770",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "022100",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "302440",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "001040",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "001450",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "002380",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "192820",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "035250",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "052690",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "251270",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "028670",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "018880",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "026960",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "009420",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "383220",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "457190",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "097950",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "139130",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "161890",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "017800",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "004170",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "004370",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "007340",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "011780",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "282330",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "375500",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "023530",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "030000",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "081660",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "082740",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "112610",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "000240",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "002790",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "004990",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "005850",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "007070",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "009970",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "011170",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "014680",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "450080",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "000120",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "006040",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "006280",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "051600",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "069960",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "073240",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "103140",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "139480",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "204320",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "483650",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "298020",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "008770",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "011210",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "007310",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "069620",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "001800",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "071970",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "192080",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "120110",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "000080",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "361610",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "300720",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "001430",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "280360",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "009240",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "005300",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "004000",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "003240",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "003090",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "000210",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "298050",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "285130",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "268280",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "185750",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "137310",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "093370",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "071320",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "034230",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "0220W0",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "017960",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "003030",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "002030",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "005420",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "456040",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "006650",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "008730",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "002840",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "001680",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "000670",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "014820",
+   "scope": "core"
+  },
+  {
+   "market": "KR",
+   "ticker": "069260",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "AAPL",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "NVDA",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "MSFT",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "AMZN",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "AMD",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "MU",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "TSLA",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "META",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "GOOGL",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "AVGO",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "WMT",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "SPCX",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "GOOG",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "COST",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "CSCO",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "PLTR",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "INTC",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "AMAT",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "LRCX",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "TXN",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "PANW",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "NFLX",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "AMGN",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "LIN",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "CRWD",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "GILD",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "KLAC",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "ADI",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "PEP",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "QCOM",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "TMUS",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "SHOP",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "ISRG",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "MRVL",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "ASML",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "VRTX",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "SNDK",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "STX",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "ADP",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "SBUX",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "BKNG",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "APP",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "WDC",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "MAR",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "CEG",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "CSX",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "REGN",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "FTNT",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "ADBE",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "INTU",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "MRNA",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "CDNS",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "CTAS",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "MNST",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "SNPS",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "CMCSA",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "ARM",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "MDLZ",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "ROST",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "ABNB",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "MELI",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "ORLY",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "MPWR",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "HON",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "AEP",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "DASH",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "NXPI",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "FAST",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "DDOG",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "PCAR",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "LITE",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "IDXX",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "ADSK",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "HONA",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "PDD",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "FANG",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "XEL",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "CCEP",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "PYPL",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "BKR",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "KDP",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "ROP",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "EXC",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "FER",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "TTWO",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "MSTR",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "PAYX",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "TER",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "TRI",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "ALAB",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "RKLB",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "WDAY",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "GEHC",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "ODFL",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "MCHP",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "DXCM",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "NBIS",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "CPRT",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "CRWV",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "AXON",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "ALNY",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "LLY",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "BRK.B",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "JPM",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "V",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "XOM",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "JNJ",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "MA",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "ABBV",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "CVX",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "PG",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "KO",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "UNH",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "MRK",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "HD",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "GE",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "BAC",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "PM",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "CAT",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "RTX",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "GS",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "WFC",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "TMO",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "ORCL",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "IBM",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "MS",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "GEV",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "ANET",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "C",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "DIS",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "APH",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "MCD",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "VZ",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "ABT",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "UNP",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "CRM",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "NEE",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "WELL",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "BLK",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "DE",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "COP",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "AXP",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "PFE",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "ACN",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "T",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "TJX",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "SCHW",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "DHR",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "SPGI",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "UBER",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "ETN",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "PGR",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "BA",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "CB",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "MO",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "LOW",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "BMY",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "MCK",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "MDT",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "LMT",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "PLD",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "PH",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "COF",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "NEM",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "MPC",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "CVS",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "CME",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "DELL",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "SYK",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "VLO",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "SO",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "EQIX",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "PSX",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "NOW",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "BNY",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "ICE",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "DUK",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "MRSH",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "MMM",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "GLW",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "USB",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "TT",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "ELV",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "EMR",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "PNC",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "GD",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "PWR",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "WM",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "BX",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "HWM",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "AMT",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "MSI",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "FCX",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "JCI",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "WMB",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "TRV",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "HLT",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "UPS",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "EOG",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "VRT",
+   "scope": "core"
+  },
+  {
+   "market": "US",
+   "ticker": "RCL",
+   "scope": "core"
+  }
+ ],
+ "sources": [
+  {
+   "group": "kospi200",
+   "source": {
+    "url": "https://data.krx.co.kr/contents/MDC/MDI/mdiLoader/index.cmd?menuId=MDC0201010106",
+    "publisher": "한국거래소(KRX) 정보데이터시스템 지수구성종목",
+    "asOf": "2026-11-12",
+    "version": "KRX 다운로드 2026-11-12 16:42 KST (파일 생성시각; 화면 조회 기준일은 파일에 미표기)",
+    "fileSha256": "6105eafd5a9ec60b072421f5e3f2fa321faf0386d7f98cc5504ffc0f93e2ffdc",
+    "retrievedBy": "순태씨 직접 다운로드 후 클로 대화창 첨부"
+   },
+   "expectedConstituents": 201,
+   "complete": true
+  },
+  {
+   "group": "us200",
+   "source": {
+    "url": "https://www.ssga.com/us/en/individual/etfs/funds/spdr-sp-500-etf-trust-spy",
+    "asOf": "2026-11-12",
+    "version": "QQQ(Invesco 보유종목 화면 11-12)+SPY(State Street xlsx sha256 ed54e8453c6f 11-12), 순태씨 승인 2026-11-14"
+   },
+   "expectedConstituents": 201,
+   "complete": true
+  }
+ ],
+ "provenance": "declared-snapshot-not-independently-verified"
+}
