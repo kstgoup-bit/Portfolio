@@ -62,7 +62,9 @@
     var status=node('p',error || (snapshot?'마지막 조회 결과 · 아래 기준일 확인':'설정된 GAS에서 보유종목·지수 가격 이력을 조회합니다.'));status.setAttribute('role','status');root.appendChild(status);
     var info=inputs();
     if(!info.held.length){root.appendChild(node('p','보유종목 없음'));return;}
-    info.held.forEach(function(t){
+    var heldList=info.held.slice();
+    if(entry.kind==='euphoria') heldList.sort(function(a,b){return (info.weights[b.market+':'+b.ticker]||0)-(info.weights[a.market+':'+a.ticker]||0);});
+    heldList.forEach(function(t){
       var key=t.market+':'+t.ticker, card=node('article'), data=findRecord(snapshot,t), benchmark=findRecord(snapshot,{ticker:t.market==='KR'?'069500':'QQQ',market:t.market}), r=null;
       if(data&&W.HASLivePriceReference) { try {r=W.HASLivePriceReference.analyze(data.record || data,{ticker:t.ticker,market:t.market,now:Date.now(),benchmark:benchmark && {record:benchmark.record,ticker:benchmark.ticker,market:benchmark.market}});} catch(e){} }
       card.appendChild(node('h4',(info.names[key]||t.ticker)+' ('+t.ticker+')'));
@@ -74,10 +76,16 @@
       if(data.status==='stale' || snapshot.stale || data.error || (data.receiptDay && data.receiptDay !== new Date().toISOString().slice(0,10))) card.appendChild(node('p','지난 성공 자료 · 최신 조회 실패 또는 갱신 필요'));
       card.appendChild(node('p','52주 고점 대비 '+pct(r.drawdownPct)+' · '+r.asOf));
       [1,3,6].forEach(function(month){var ret=r.returns&&r.returns[month];evidence.appendChild(node('p',month+'개월 '+pct(ret&&ret.value)+(ret&&ret.startDate?' · '+ret.startDate+' ~ '+ret.endDate:'')+(ret&&Number.isFinite(ret.excessPct)?' · '+(t.market==='KR'?'069500':'QQQ')+' 대비 '+ret.excessPct.toFixed(1)+'%p':' · 지수 비교 보류')));});
+      if(entry.kind==='euphoria') euphoriaNotes(card,r,info.weights[key]);
       if(entry.kind==='euphoria') evidence.appendChild(node('p','보유 비중 '+pct(info.weights[key])+' · 앱 입력 평가액 기준, 확신 종목 지정과 한도 적용은 미연결'));
       card.appendChild(evidence);root.appendChild(card);
     });
     var detail=node('details');detail.appendChild(node('summary','자료 한계'));detail.appendChild(node('p','당일 막대는 확정 종가로 쓰지 않습니다. 배당·분할 조정 및 기업가치가 검증되지 않아 가격 상승·하락만으로 매매를 권하지 않습니다. 조회 자료는 이 화면 세션에서만 공유하며 앱 재실행 후에는 다시 조회합니다.'));root.appendChild(detail);
+  }
+  function euphoriaNotes(card,r,weight) {
+    var near=Number.isFinite(r.drawdownPct)&&r.drawdownPct>=-5;
+    card.appendChild(node('p',near?'환호성 참고: 52주 고점권 · 고점 대비 '+pct(r.drawdownPct)+' (가격 위치만, 기업가치 대비 과열 여부는 재무 연결 전 판단 보류)':'환호성 참고: 52주 고점권 아님 · 고점 대비 '+pct(r.drawdownPct)));
+    if(Number.isFinite(weight)&&weight>10) card.appendChild(node('p','보유 비중 '+pct(weight)+' · 그 외 종목 한도 10% 초과 · 확신 종목이면 한도 25% (확신 지정 미연결, 판단은 순태씨)'));
   }
   function findRecord(s,t) { if(!s)return null;var rows=s.items||[];if(Array.isArray(rows))return rows.find(function(r){return r.ticker===t.ticker&&r.market===t.market;})||null;return rows[t.market+':'+t.ticker]||rows[t.ticker]||null; }
   function renderAll(){mounts=mounts.filter(function(e){return e.container.isConnected;});mounts.forEach(render);}
