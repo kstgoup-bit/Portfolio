@@ -1,16 +1,26 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
-STATUS: READY_FOR_REVIEW (운영 승인 대기)
-REPORT: docs/team/CLAUDE-DEV-RADAR-MSG-20261114.md (main에 사본, 원본은 브랜치)
-BRANCH: work/claude-radar-msg-20261114
-HEAD: db22a493e7f05262c614a3442b6b9fa7730683df
-UPDATED: 2026-11-15 06:30 KST
+STATUS: WIP (재무 필터 1단계 완료 · 지피 검토 요청)
+REPORT: docs/team/CLAUDE-DEV-FUNDAMENTAL-FILTER-20261115.md (main에 사본, 원본은 브랜치)
+BRANCH: work/claude-fundamental-filter-20261115
+HEAD: 2519926397abe6d0e364eb4e012d8871e9f2c2e7
+UPDATED: 2026-11-15 07:06 KST
+
+- 순태씨 대화: '재무 필터 시작'. 결정 = 미국 SEC 먼저, 대상 -20% 이하 ∪ 보유종목, 새 공시 때만 갱신, IFRS 기업은 공시 부족. 1단계 순수 계산 모듈(앱·GAS 연결 없음, 네트워크 0), 새 시험 11건, 전체 2117 중 2115 통과/0 실패/2 skip, 비밀값 0.
+- 다음: 샘플 5종목 실제 SEC 값 대조. 문구 수정 브랜치(work/claude-radar-msg-20261114)는 순태씨가 중요치 않다고 함 → 보류.
+- 지피 지시서 현황: 미처리 0건.
+
+## 이전 기록
+- (이전) STATUS: READY_FOR_REVIEW (운영 승인 대기)
+- (이전) REPORT: docs/team/CLAUDE-DEV-RADAR-MSG-20261114.md (main에 사본, 원본은 브랜치)
+- (이전) BRANCH: work/claude-radar-msg-20261114
+- (이전) HEAD: db22a493e7f05262c614a3442b6b9fa7730683df
+- (이전) UPDATED: 2026-11-15 06:30 KST
 
 - 순태씨 대화: 곡소리·환호성 작동 안 함 → 곡소리 = GAS 200종목 계산 미설치(서버), 환호성 = 조회 전 상태를 '근거 없음'으로 표시. 안내 문구 2곳 수정, 새 시험 2건, 전체 2108 중 2106 통과/0 실패/2 skip, 비밀값 0, 360/390/430 확인.
 - 지피 검토 요청. GAS 계산 설치 여부는 순태씨 결정.
 - 지피 지시서 현황: 미처리 0건.
 
-## 이전 기록
 - (이전) STATUS: DEPLOYED (순태씨 '올리고, 모두 승인' → 곡소리 Top10·환호성 보유종목 전용·미국 200·v2 manifest main 병합, 병합 후 전체 2106 중 2104 통과/0 실패/2 skip)
 - (이전) REPORT: docs/team/CLAUDE-DEV-DEPLOYED-20261114.md (+ CLAUDE-DEV-US200-20261114.md)
 - (이전) BRANCH: work/claude-us200-20261114, work/claude-universe-manifest-20261114 (main 병합 완료)
