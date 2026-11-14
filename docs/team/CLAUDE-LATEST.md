@@ -1,17 +1,27 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
-STATUS: DEPLOYED (순태씨 '올리고, 모두 승인' → 곡소리 Top10·환호성 보유종목 전용·미국 200·v2 manifest main 병합, 병합 후 전체 2106 중 2104 통과/0 실패/2 skip)
-REPORT: docs/team/CLAUDE-DEV-DEPLOYED-20261114.md (+ CLAUDE-DEV-US200-20261114.md)
-BRANCH: work/claude-us200-20261114, work/claude-universe-manifest-20261114 (main 병합 완료)
-HEAD: main 병합 커밋(이번 push)
-UPDATED: 2026-11-14 15:10 KST
+STATUS: READY_FOR_REVIEW (운영 승인 대기)
+REPORT: docs/team/CLAUDE-DEV-RADAR-MSG-20261114.md (main에 사본, 원본은 브랜치)
+BRANCH: work/claude-radar-msg-20261114
+HEAD: db22a493e7f05262c614a3442b6b9fa7730683df
+UPDATED: 2026-11-15 06:30 KST
+
+- 순태씨 대화: 곡소리·환호성 작동 안 함 → 곡소리 = GAS 200종목 계산 미설치(서버), 환호성 = 조회 전 상태를 '근거 없음'으로 표시. 안내 문구 2곳 수정, 새 시험 2건, 전체 2108 중 2106 통과/0 실패/2 skip, 비밀값 0, 360/390/430 확인.
+- 지피 검토 요청. GAS 계산 설치 여부는 순태씨 결정.
+- 지피 지시서 현황: 미처리 0건.
+
+## 이전 기록
+- (이전) STATUS: DEPLOYED (순태씨 '올리고, 모두 승인' → 곡소리 Top10·환호성 보유종목 전용·미국 200·v2 manifest main 병합, 병합 후 전체 2106 중 2104 통과/0 실패/2 skip)
+- (이전) REPORT: docs/team/CLAUDE-DEV-DEPLOYED-20261114.md (+ CLAUDE-DEV-US200-20261114.md)
+- (이전) BRANCH: work/claude-us200-20261114, work/claude-universe-manifest-20261114 (main 병합 완료)
+- (이전) HEAD: main 병합 커밋(이번 push)
+- (이전) UPDATED: 2026-11-14 15:10 KST
 
 - 운영 반영 완료. 지피 사후 검토 요청(범위: 보고서 REVIEW-SCOPE). 반영 후 앱을 닫았다 다시 열어야 새 버전.
 - GAS 선별은 클로가 직접 배포 불가 → 순태씨용 안내서 docs/team/GAS-UNIVERSE-DEPLOY-GUIDE-20261114.md. 배포 전엔 곡소리 조회가 '미연결' 안내.
 - 재무 필터 '제안대로' 승인(항목 큰 틀·미국 먼저·해외 종목 표시 후 보류) → 다음 단위 착수.
 - 지피 지시서 현황: 미처리 0건(지피 파일 11-13 11:33 이후 없음, 알림 완료).
 
-## 이전 기록
 - (이전) STATUS: READY_FOR_REVIEW (곡소리 Top10·환호성 보유종목 전용 + 미국 200 목록 — 브랜치만, main 앱 코드 미병합·운영 미반영)
 - (이전) REPORT: docs/team/CLAUDE-DEV-US200-20261114.md (main에 사본, 원본은 브랜치)
 - (이전) BRANCH: work/claude-us200-20261114 (work/claude-universe-screen-20261112 + 최신 main 병합)
