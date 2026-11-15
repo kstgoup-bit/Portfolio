@@ -1,17 +1,22 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
-STATUS: APPROVED_BY_GPT — 순태씨 운영 반영 승인 대기 (지피 GPT-REVIEW-great-companies-20261115-2330 APPROVE, 정적 검토 한정. 브랜치 한정, 운영 미반영) · 운영 최신 = main `b362933` · 지피 사후 검토 요청 유지: 뉴스 코드 완전 삭제 `d3f5fcc`
+STATUS: RELEASED — 위대한 기업 운영 탭 연결 운영 반영 (순태씨 2026-11-16 '올려', 지피 2330 APPROVE) · 운영 최신 = main `4b46fea` · 지피 사후 검토 요청 유지: 뉴스 코드 완전 삭제 `d3f5fcc`
 REPORT: docs/team/CLAUDE-DEV-GREAT-COMPANIES-20261115.md(0-j절)
-BRANCH: work/claude-great-companies-20261115
-HEAD: 09d39c5b63ac4d8fc0bb64b1cb4a9011053cb4af (승인 대상, 변경 없음) · 검토 BASE 46d05f728a3bf969b1d1ded178c6cfbb6f03829f
-UPDATED: 2026-11-16 07:10 KST (정각 실행)
+BRANCH: work/claude-great-companies-20261115 → main 병합 `4b46fea4b6c8ec6c19a7a1f516fc73d1dcb5ada6`
+HEAD: 09d39c5b63ac4d8fc0bb64b1cb4a9011053cb4af (승인 HEAD와 앱 코드 동일, 병합 후 차이는 docs만)
+UPDATED: 2026-11-16 08:10 KST (순태씨 대화 '올려')
 
-- 지피 2330 APPROVE: 22:30 CR 2건(원칙 원문 비교·상품 유형 승격 금지/상충) 정적 승인. 지피 미검증: 독립 시험 실행·갤럭시 실기기·SEC/DART 정확도.
-- 승인 범위 밖: main 병합·운영 배포는 순태씨가 클로 대화창에서 '올려'한 뒤에만.
-- 후속 과제(지피 지적): 갤럭시 실기기 점검, 종목 유형 공식 출처 연동, universe-400 공식 출처·기준일 확인.
-- 지피 지시서 현황: 새 GPT-ORDER 없음, 다비 새 문서 없음.
+- 병합 후 전체 시험 2199 중 2197 통과/0 실패/2 skip(DST), 비밀값 0. GitHub Pages 배포 실행.
+- 남은 확인: 순태씨 갤럭시 실기기 점검(위험관리 → 위대한 기업). 후속: 종목 유형 공식 출처, universe-400 출처·기준일, 뉴스 삭제 사후 검토.
+- 지피 지시서 현황: 새 GPT-ORDER 없음.
 
 ## 이전 기록
+
+- (이전) STATUS: APPROVED_BY_GPT — 순태씨 운영 반영 승인 대기 (지피 GPT-REVIEW-great-companies-20261115-2330 APPROVE, 정적 검토 한정. 브랜치 한정, 운영 미반영) · 운영 최신 = main `b362933` · 지피 사후 검토 요청 유지: 뉴스 코드 완전 삭제 `d3f5fcc`
+- (이전) REPORT: docs/team/CLAUDE-DEV-GREAT-COMPANIES-20261115.md(0-j절)
+- (이전) BRANCH: work/claude-great-companies-20261115
+- (이전) HEAD: 09d39c5b63ac4d8fc0bb64b1cb4a9011053cb4af (승인 대상, 변경 없음) · 검토 BASE 46d05f728a3bf969b1d1ded178c6cfbb6f03829f
+- (이전) UPDATED: 2026-11-16 07:10 KST (정각 실행)
 
 - (이전) STATUS: READY_FOR_REVIEW (지피 GPT-REVIEW-great-companies-20261115-2230 CHANGES_REQUESTED 2건 반영 — 다계좌 투자원칙 원문 내용 비교, 상품 유형 productType 승격 금지·상충 보류. 브랜치 한정, 운영 미반영) · 운영 최신 = main `b362933` · 지피 사후 검토 요청 유지: 뉴스 코드 완전 삭제 `d3f5fcc`
 - (이전) REPORT: docs/team/CLAUDE-DEV-GREAT-COMPANIES-20261115.md(0-j절) (main 사본 = 브랜치 HEAD 보고서와 동일)
