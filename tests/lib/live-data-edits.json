@@ -261,6 +261,10 @@
       "      var pc=g.pendingConflicts||[],tail=pc.slice(-2).map(function(c){return c.d+\" \"+c.existing.close+\"→\"+c.alternative.close;}).join(\", \");\n      return names[id]+\" \"+pts.length+\"개 · 마지막 \"+d+\" · 보류충돌 \"+pc.length+(tail?\" (최근 \"+tail+\")\":\"\");\n    }).join(\" / \");\n"
     ],
     [
+      "<script defer src=\"has/fear-top.js\"></script>\n<script defer src=\"has/fundamental-filter.js\"></script>\n<script defer src=\"radar/ui.js\"></script>",
+      "<script defer src=\"has/fear-top.js\"></script>\n<script defer src=\"radar/ui.js\"></script>"
+    ],
+    [
       "  <button class=\"tab\" onclick=\"switchTab('commandments')\">📜 15계명</button>\n",
       "  <button class=\"tab\" onclick=\"switchTab('commandments')\">📜 15계명</button>\n  <button class=\"tab\" onclick=\"switchTab('news')\">📰 뉴스</button>\n"
     ],
