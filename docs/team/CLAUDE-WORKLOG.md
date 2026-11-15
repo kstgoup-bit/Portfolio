@@ -43,6 +43,9 @@
 - GPT-REVIEW-fundamental-filter-20261115-1030 — CHANGES_REQUESTED(지정 HEAD 보고서 정합성) 반영 `488cd55`(보고서만, 코드 `e7f8ad0` 동일), 재검토 요청 2026-11-15 11:10
 - GPT-REVIEW-fundamental-filter-20261115-1130 — APPROVE(재무 필터 2단계 `488cd55`/코드 `e7f8ad0` 정적 검토 한정, 운영·데이터 정확성 승인 아님), 기록 2026-11-15 12:10 · **순태씨 결정 대상: 3단계(곡소리·환호성 화면 재무 라벨) 진행 여부**
 - GPT-20261115-1326 — 진행 중: 엔진 단위 완료 `d2af13c`(보고 `72e12cd`, READY_FOR_REVIEW) 2026-11-15 14:15 · 다음 시험 전용 UI 단위
+- GPT-REVIEW-fundamental-filter-20261115-1430 — CHANGES_REQUESTED(환호성 fundamental 전달 경로·종목 정합성·미연결/실패 경로) 반영 `7d4e2ff`, 재검토 요청 2026-11-15 15:15
+- GPT-REVIEW-great-companies-design-20261115-1430 — APPROVE(설계 방향만, 범위 한정), 기록 2026-11-15 15:15
+- GPT-REVIEW-great-companies-20261115-1431 — CHANGES_REQUESTED(매수 검토 게이트·종목/기준시각·자본배분 기간·캐시 서술) 반영 `f3c25ac`, 재검토 요청 2026-11-15 15:15
 
 ## 기록
 - 2026-11-12 13:45 역할 변경 반영, 일지 시작. 다비의 빈 브랜치 `work/davi-universe-screen-20261112`(= main c9d8084, 변경 없음) 확인 — 클로가 이어받음.
@@ -102,3 +105,4 @@
 - 2026-11-15 13:06 정각 실행: 새 GPT-ORDER/TEST/REVIEW 없음(지피 마지막 파일 11:30 APPROVE, 12:10에 기록 완료), 다비 새 문서 없음. 처리할 지시서·승인된 다음 작업 없음(재무 필터 3단계는 순태씨 승인 대기) → 코드 변경 없음, 대기. 참고: main e33f833(진단 문구, 순태씨 대화 세션)·work/claude-kis-gas-draft-20261115(대화 세션) 확인만, 손대지 않음. 다음: 지피 새 파일 또는 순태씨 결정 대기.
 - 2026-11-15 13:50 (순태씨 대화 '승인') 재무 필터 3단계: 곡소리 카드·환호성 보유종목 재무 라벨(validNormalized·display, 자료 없으면 '미연결', KR 미지원, 의견 항상 판단 보류) `work/claude-fundamental-filter-20261115` 코드 `45beaa4` 보고 `eb98f24`, 새 시험 6건, 전체 2137 중 2135 통과/0 실패/2 skip, 비밀값 0, 360/390/430 넘침 0. 같은 대화 순태씨 지시서 '위대한 기업 탭 신설' 접수 → 1단계(설계·데이터 계약 문서) `work/claude-great-companies-20261115` `19d3f23`, 코드 0. 다음: 지피 검토 2건 대기 → 위대한 기업 2단계(합성 평가 엔진).
 - 2026-11-15 14:15 정각 실행: 지피 GPT-ORDER-20261115-1326(위대한 기업 1단계 — 설계·합성 엔진·격리 UI 승인 범위) 처리 시작. 13:50 대화 세션 설계 문서 위에 재무 필터 브랜치(eb98f24) 병합 후 has/great-companies.js(순수 엔진) + 합성 시험 16건 `work/claude-great-companies-20261115` 코드 `d2af13c` 보고 `72e12cd`. 전체 2153 중 2151 통과/0 실패/2 skip, 비밀값 0. 다비 새 문서 없음. 다음: 시험 전용 UI 프로토타입(has/great-companies-lab.html) + Chromium 360/390/430.
+- 2026-11-15 15:15 정각 실행: 지피 1430(재무 필터 3단계 CR)·1431(위대한 기업 엔진 CR)·설계 1430(APPROVE 범위 한정) 처리. ① `work/claude-fundamental-filter-20261115` 코드 `7d4e2ff` 보고 `ca5da5f`: live-price-reference 캐시에 fundamental 복사→스냅샷→환호성 카드, display 티커 일치·날짜 충돌 보류, 가격 근거 없으면 재무 줄 숨김·stale은 경고와 함께 표시, 새 시험 4건(실제 서비스 JSONP 합성 전 구간 포함). ② `work/claude-great-companies-20261115` (재무 필터 병합 `7c152cc`) 코드 `f3c25ac` 보고 `4bdea47`: '분할매수 검토 대상' 출력 제거(buyGate 닫힘·scenario 분리), 재무/밸류에이션 티커·미래 기준시각·오래된 밸류에이션 보류, 환원/FCF 같은 결산 연도 교집합, 캐시 서술 정정, 새 시험 4건. 전체 2161 중 2159 통과/0 실패/2 skip(DST), 비밀값 0. portfolio_v5.html·GAS·운영 변경 0. 다비 새 문서 없음. 다음: 지피 재검토 2건 → 위대한 기업 시험 전용 UI.

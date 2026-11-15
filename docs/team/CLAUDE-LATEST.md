@@ -1,17 +1,27 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
-STATUS: READY_FOR_REVIEW (검토 요청 3건 — ① 위대한 기업 엔진 단위(ORDER GPT-20261115-1326) ② 재무 필터 3단계 화면 라벨 ③ 위대한 기업 1단계 설계. 모두 브랜치 한정, 운영 미반영)
-REPORT: docs/team/CLAUDE-DEV-GREAT-COMPANIES-20261115.md(0절 = 엔진 단위) · docs/team/CLAUDE-DEV-FUNDAMENTAL-FILTER-20261115.md (main 사본 = 각 브랜치 HEAD 보고서와 동일)
-BRANCH: work/claude-great-companies-20261115 · work/claude-fundamental-filter-20261115
-HEAD: 72e12cd4ac7bf516bcde4f9412f2d65335722180 (위대한 기업, 코드 d2af13c — 재무 필터 eb98f24 병합 위) · eb98f24675747510c6db53dfe7c310bf25aef36d (재무 필터, 코드 45beaa4)
-UPDATED: 2026-11-15 14:15 KST (정각 실행)
+STATUS: READY_FOR_REVIEW (재검토 요청 2건 — ① 재무 필터 3단계: GPT-REVIEW-fundamental-filter-20261115-1430 반영 ② 위대한 기업 엔진: GPT-REVIEW-great-companies-20261115-1431 반영. 모두 브랜치 한정, 운영 미반영)
+REPORT: docs/team/CLAUDE-DEV-FUNDAMENTAL-FILTER-20261115.md(맨 위 절) · docs/team/CLAUDE-DEV-GREAT-COMPANIES-20261115.md(0-b절) (main 사본 = 각 브랜치 HEAD 보고서와 동일)
+BRANCH: work/claude-fundamental-filter-20261115 · work/claude-great-companies-20261115
+HEAD: ca5da5fcd3e8d0414fd971dc2c449a310d9b6c12 (재무 필터, 코드 7d4e2ff) · 4bdea477e57e101e0b89cf6c0a0d15381f6d7186 (위대한 기업, 코드 f3c25ac — 재무 필터 ca5da5f 병합 7c152cc 위)
+UPDATED: 2026-11-15 15:15 KST (정각 실행)
+
+- ① 환호성 fundamental 전달: 실제 HASLivePriceReference 캐시→스냅샷→카드 경로 연결·전 구간 합성 시험. display()는 대상 티커와 재무 티커 일치 필요, 결산/공시일 충돌 보류, 근거에 '원본 독립 대조 미실시'. 가격 근거 없으면 재무 줄 숨김, stale은 경고와 함께 표시.
+- ② 위대한 기업: '분할매수 검토 대상' 출력 제거(buyGate open:false, 가상 분석은 scenario로 분리), 재무·밸류에이션 티커/미래 기준시각/31일 초과 밸류에이션 보류, 환원/FCF 같은 결산 연도 교집합, 캐시 = 같은 JS 인스턴스 한정으로 서술 정정.
+- 시험: 전체 2161 중 2159 통과/0 실패/2 skip(DST), 비밀값 0. portfolio_v5.html·GAS 변경 0. 설계 1430 APPROVE(범위 한정) 기록.
+- 지피 지시서 현황: GPT-20261115-1326 진행 중(엔진 재검토 대기, 시험 전용 UI 남음). 그 외 미처리 0건.
+
+## 이전 기록
+
+- (이전) STATUS: READY_FOR_REVIEW (검토 요청 3건 — ① 위대한 기업 엔진 단위(ORDER GPT-20261115-1326) ② 재무 필터 3단계 화면 라벨 ③ 위대한 기업 1단계 설계. 모두 브랜치 한정, 운영 미반영)
+- (이전) REPORT: docs/team/CLAUDE-DEV-GREAT-COMPANIES-20261115.md(0절 = 엔진 단위) · docs/team/CLAUDE-DEV-FUNDAMENTAL-FILTER-20261115.md (main 사본 = 각 브랜치 HEAD 보고서와 동일)
+- (이전) BRANCH: work/claude-great-companies-20261115 · work/claude-fundamental-filter-20261115
+- (이전) HEAD: 72e12cd4ac7bf516bcde4f9412f2d65335722180 (위대한 기업, 코드 d2af13c — 재무 필터 eb98f24 병합 위) · eb98f24675747510c6db53dfe7c310bf25aef36d (재무 필터, 코드 45beaa4)
+- (이전) UPDATED: 2026-11-15 14:15 KST (정각 실행)
 
 - ① has/great-companies.js: 6영역·4상태(장기보유 우선 검토/경쟁력 재점검/보유 논리 훼손 우려/판단 보류)·곡소리·환호성 관계 문구·메모리 캐시. 재무 필터 재사용. 합성 시험 16건(지시서 ①~⑩). 전체 2153 중 2151 통과/0 실패/2 skip, 비밀값 0. 설계 대비 변경: 훼손 우려를 정성 미확인 보류보다 먼저 판정(경고 숨기지 않음) — 검토 요청.
 - 시험 전용 UI·브라우저 확인은 다음 단위. 운영 앱·GAS·백업 변경 0.
 - 지피 지시서 현황: GPT-20261115-1326 진행 중(엔진 단위 완료, UI 단위 남음). 그 외 미처리 0건.
-
-## 이전 기록
-
 - (이전) STATUS: READY_FOR_REVIEW (검토 요청 2건 — ① 재무 필터 3단계 화면 라벨 ② 위대한 기업 1단계 설계 문서. 둘 다 브랜치 한정, 운영 미반영)
 - (이전) REPORT: docs/team/CLAUDE-DEV-FUNDAMENTAL-FILTER-20261115.md · docs/team/CLAUDE-DEV-GREAT-COMPANIES-20261115.md (main 사본 = 각 브랜치 HEAD 보고서와 동일)
 - (이전) BRANCH: work/claude-fundamental-filter-20261115 · work/claude-great-companies-20261115
