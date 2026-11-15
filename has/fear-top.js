@@ -53,7 +53,7 @@
     function fund(r) {
       var F = deps.fundamental || W.HASFundamentalFilter;
       if (!F || typeof F.display !== 'function') return null;
-      try { return F.display(r.fundamental, { now: now(), market: r.market, context: 'fear' }); } catch (e) { return { text: '재무: 판정 오류 · 판단 보류', note: '', lines: [] }; }
+      try { return F.display(r.fundamental, { now: now(), market: r.market, ticker: r.ticker, context: 'fear' }); } catch (e) { return { text: '재무: 판정 오류 · 판단 보류', note: '', lines: [] }; }
     }
     function card(r, i, aged) {
       var a = node('article');

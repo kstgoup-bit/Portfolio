@@ -60,7 +60,7 @@
     var o = options || {};
     if (!plain(raw) || !plain(raw.facts)) return { ok: false, reason: 'invalid-companyfacts' };
     var gaap = raw.facts['us-gaap'];
-    if (!plain(gaap)) return { ok: false, reason: plain(raw.facts['ifrs-full']) ? 'ifrs-filer' : 'no-us-gaap' };
+    if (!plain(gaap)) return { ok: false, reason: plain(raw.facts['ifrs-full']) ? 'ifrs-filer' : 'no-us-gaap', ticker: typeof o.ticker === 'string' ? o.ticker : null };
     var series = {}, ends = {};
     Object.keys(TAGS).forEach(function (k) { series[k] = pick(gaap, k); });
     Object.keys(series.netIncome).forEach(function (e) { ends[e] = 1; });
@@ -175,13 +175,17 @@
     function hold(state, text) { return { state: state, label: null, text: '재무: ' + text + ' · 판단 보류', note: '', lines: [], signalHold: true, opinion: '판단 보류' }; }
     if (o.market && o.market !== 'US') return hold('unsupported', '국내·해외 기업 재무 확인 미연결(미국 SEC만 1단계)');
     if (raw === undefined || raw === null) return hold('none', '미연결(재무 자료 수집 전)');
+    var want = typeof o.ticker === 'string' && o.ticker ? o.ticker : null;
+    if (plain(raw) && (!want || raw.ticker !== want)) return hold('mismatch', want ? '종목 불일치(' + (typeof raw.ticker === 'string' ? raw.ticker.slice(0, 15) : '식별자 없음') + ' ≠ ' + want + ')' : '대상 종목 미지정');
     if (plain(raw) && raw.ok === false && raw.reason === 'ifrs-filer') { var ia = assess(raw, o); return { state: 'assessed', label: ia.label, text: '재무: ' + ia.labelKo + ' · ' + ia.reason + ' · 판단 보류', note: '', lines: [], signalHold: true, opinion: '판단 보류' }; }
     if (!validNormalized(raw)) return hold('invalid', '자료 형식 확인 필요');
+    var today = new Date(o.now == null ? Date.now() : +new Date(o.now)).toISOString().slice(0, 10);
+    if (!raw.years.every(function (r) { return r.end <= today && (r.filed === '' || (r.filed >= r.end && r.filed <= today)); })) return hold('invalid', '결산일·공시일 충돌(미래 또는 결산 전 공시)');
     var a = assess(raw, o), note = '';
     if (a.label === 'weak') note = ctx === 'euphoria' ? '보유종목 재무 취약 — 탈출 신호 여부 점검 필요(매도 판단은 순태씨)' : '가격 하락이 기업가치 훼손일 수 있음 — 곡소리로 보지 않음';
     else if (a.label === 'strong') note = ctx === 'euphoria' ? '재무 근거 충분 — 과열 여부는 밸류에이션 연결 전 판단 보류' : '재무 근거 충분 — 밸류에이션 확인 전이라 매수 검토 아님';
     var lines = a.checks.map(function (c) { return c.name + ': ' + STATUS_KO[c.status] + ' — ' + c.evidence + (c.status === 'na' ? '' : ' · 반론: ' + c.counter); });
-    lines.push('기준: 최근 연간 결산 ' + (a.asOf || '없음') + ' · 공시일 ' + (a.filed || '미상') + ' · SEC 공시(XBRL) · 임계값 미검증 제안값');
+    lines.push('기준: 최근 연간 결산 ' + (a.asOf || '없음') + ' · 공시일 ' + (a.filed || '미상') + ' · ' + want + ' SEC 공시(XBRL) · 원본 독립 대조 미실시 · 임계값 미검증 제안값');
     return { state: 'assessed', label: a.label, text: '재무: ' + a.labelKo + (a.reason ? ' · ' + a.reason : '') + ' · 판단 보류', note: note, lines: lines, signalHold: true, opinion: '판단 보류' };
   }
   return Object.freeze({ VERSION: VERSION, LABELS: LABELS, STALE_DAYS: STALE_DAYS, FALLBACK_GAP_DAYS: FALLBACK_GAP_DAYS, TARGET_DRAWDOWN: TARGET_DRAWDOWN, DEEP_DRAWDOWN: DEEP_DRAWDOWN, normalize: normalize, assess: assess, targets: targets, needsRefresh: needsRefresh, validNormalized: validNormalized, display: display });
