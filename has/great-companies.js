@@ -32,7 +32,7 @@
   /* 매수 검토 게이트: 실제 검증된 밸류에이션 + 4단계 사전 조사(뉴스·실적/공시·컨센서스·커뮤니티) 계약이 연결되기 전까지 항상 닫힘.
    * 이 단계 엔진은 '분할매수 검토 대상'을 만들지 않는다(합성 입력이어도). 가격·가치 관계는 scenario(설명용 가상 분석)로만 보여 준다. */
   var BUY_GATE_MISSING = ['실제 검증된 밸류에이션 출처·기준일', '4단계 사전 조사(뉴스·실적/공시·컨센서스·커뮤니티) 출처·기준일'];
-  /* 매도·축소 검토 게이트: 같은 이유로 항상 닫힘. 비중 초과·고평가·고점권은 위험 신호(signals·riskWarning)로만 표시하고
+  /* 매도·축소 검토 게이트: 같은 이유로 항상 닫힘. 고점권은 가격 위치 신호(signal·signals)일 뿐이고, 비중 초과·고평가(입력 미검증)만 위험 근거(riskBasis·riskWarning)로 표시하며
    * 화면용 opinion은 '점검 필요'/'판단 보류'/'보유 지속 검토'에 머문다. 축소 관계 설명은 scenario에서만. */
   /* priceRelation 경고 소비 계약(GPT-REVIEW-great-companies-20261115-1630):
    *  - signal/signals: 가격 위치(곡소리 'fear'·환호성 'euphoria'·'stale')와 표시 라벨. 가격 위치만으로는 경고가 아니다
@@ -261,7 +261,10 @@
       return res;
     }
     if (val.band === 'high') { res.opinion = '보유 지속 검토'; res.text = '위험 신호: 밸류에이션 높은 편(입력 미검증) — 경쟁력 유지, 일률 매도 아님(매도 검토 게이트 닫힘, 최종 결정 순태씨)' + lim; return res; }
-    res.text = res.signal === 'euphoria' ? '고점권이지만 경쟁력·기업가치 유지 — 보유 지속 검토(매도 근거 부족)' + lim : '보유 지속 검토 — 가격 신호 없음' + lim;
+    // GPT-REVIEW-great-companies-20261115-1730: 경쟁력 지표 평가와 본질가치 평가를 분리. 밸류에이션이 없거나(unknown)
+    // 입력이 있어도(low/mid) 미검증이므로 본질가치를 확정하는 문구(시험 VALUE_CONFIRM 목록)를 쓰지 않는다.
+    res.valuationPending = val.band === 'unknown' ? '현재 본질가치 대비 평가 미완료(밸류에이션 미연결)' : '현재 본질가치 대비 평가 미완료(밸류에이션 입력 미검증)';
+    res.text = (res.signal === 'euphoria' ? '고점권(가격 위치 신호) · 경쟁력 지표 유지 근거' : '가격 신호 없음 · 경쟁력 지표 유지 근거') + ' — ' + res.valuationPending + ' · 보유 지속 검토(제한된 자료 기준 검토 의견, 매수·매도 판단 아님)' + lim;
     return res;
   }
 

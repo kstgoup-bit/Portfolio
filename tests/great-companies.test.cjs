@@ -4,6 +4,7 @@ const test=require('node:test');const assert=require('node:assert/strict');
 const fs=require('fs');const path=require('path');
 const F=require('../has/fundamental-filter.js');const G=require('../has/great-companies.js');
 const NOW=Date.parse('2026-11-15T00:00:00Z');
+const VALUE_CONFIRM=/기업가치 유지|저평가 확인|고평가 확인|매도 근거 부족|적정 주가|가치 확인됨|본질가치 유지/;
 function facts(years){const g={};
   function put(tag,end,val,flow){if(val===null||val===undefined)return;g[tag]=g[tag]||{units:{USD:[]}};const y=+end.slice(0,4);const e={end,val,form:'10-K',fp:'FY',fy:y,filed:(y+1)+'-02-15',accn:'0000000000-'+y};if(flow)e.start=y+'-01-01';g[tag].units.USD.push(e);}
   years.forEach((r,i)=>{const end=(2025-i)+'-12-31';
@@ -52,7 +53,7 @@ test('② 경쟁력 훼손·주가 급락 → 보유 논리 훼손 우려, 곡�
 });
 test('③ 기업가치 상승을 수반한 급등(고점권·한도 이내) → 보유 지속 검토, 일률 매도 아님',()=>{
   const a=A(input({price:{asOf:'2026-11-14T07:00:00Z',drawdownPct:-1,weightPct:8}}));
-  assert.equal(a.state,'priority');assert.equal(a.priceRelation.signal,'euphoria');assert.equal(a.opinion,'보유 지속 검토');assert.match(a.priceRelation.text,/매도 근거 부족/);
+  assert.equal(a.state,'priority');assert.equal(a.priceRelation.signal,'euphoria');assert.equal(a.opinion,'보유 지속 검토');assert.match(a.priceRelation.text,/본질가치 대비 평가 미완료/);assert.doesNotMatch(a.priceRelation.text,VALUE_CONFIRM);
   assert.equal(a.domains.find(d=>d.id==='growth').status,'pass');
 });
 test('④ 고평가·집중위험 동시 → 위험 신호 + 점검 필요(매도 게이트 닫힘, 축소는 scenario만), 확신 종목은 25% 한도',()=>{
@@ -220,4 +221,40 @@ test('1630-③ erosion 경고 소비 계약: warning·businessWarning=true, risk
 test('1630 출력 계약: 모든 출력에 riskBasis 배열·warning/businessWarning 일치, riskWarning ⇔ riskBasis 비어 있지 않음',()=>{
   const outs=[A(input()),A(input({price:{asOf:'2026-11-14T07:00:00Z',drawdownPct:-1,weightPct:40}})),A(input({price:{asOf:'2026-11-14T07:00:00Z',drawdownPct:-1,weightPct:5}})),A(input({fundamental:null})),G.assess(null,{now:NOW}),A(input({price:{asOf:'2026-10-01T07:00:00Z',drawdownPct:-1,weightPct:18}}))];
   for(const o of outs){const r=o.priceRelation;assert.ok(Array.isArray(r.riskBasis));assert.equal(r.warning,r.businessWarning);assert.equal(r.riskWarning,r.riskBasis.length>0);}
+});
+
+// GPT-REVIEW-great-companies-20261115-1730: 밸류에이션 미연결·미검증일 때 본질가치 확정 문구 금지
+function allText(o){return JSON.stringify(o);}
+test('1730-① 고점권·한도 이내·밸류에이션 없음 → euphoria 유지, 경고 없음, sellGate 닫힘, 가치 확정 문구 없음·평가 미완료 표시',()=>{
+  const a=A(input({valuation:null,price:{asOf:'2026-11-14T07:00:00Z',drawdownPct:-2,weightPct:6,conviction:false}}));
+  const r=a.priceRelation;
+  assert.equal(r.signal,'euphoria');assert.equal(r.warning,false);assert.equal(r.riskWarning,false);assert.equal(r.sellGate.open,false);assert.equal(r.buyGate.open,false);
+  assert.doesNotMatch(allText(a),VALUE_CONFIRM);
+  assert.match(r.text,/현재 본질가치 대비 평가 미완료\(밸류에이션 미연결\)/);assert.match(r.text,/경쟁력 지표 유지 근거/);assert.match(r.text,/매수·매도 판단 아님/);
+  assert.equal(r.valuationPending,'현재 본질가치 대비 평가 미완료(밸류에이션 미연결)');assert.equal(a.opinion,'보유 지속 검토');
+});
+test('1730-② 밸류에이션 low·mid 입력(미검증)도 긍정 확정 문구 없음 — 입력 미검증 표시',()=>{
+  for(const cur of [15,22]){ // 15 → low, 22 → mid (history 14~30)
+    const v={ticker:'SYN',metric:'P/FCF',current:cur,history:[14,18,22,26,30,34,38,42,46,50],asOf:'2026-11-14',source:'가상 밸류에이션 입력(합성)'};
+    for(const dd of [-2,-8]){
+      const a=A(input({valuation:v,price:{asOf:'2026-11-14T07:00:00Z',drawdownPct:dd,weightPct:6,conviction:false}}));
+      assert.ok(['low','mid'].includes(a.priceRelation.valuation.band));
+      assert.doesNotMatch(allText(a),VALUE_CONFIRM);
+      if(a.state==='priority'&&a.priceRelation.signal!=='fear')assert.match(a.priceRelation.text,/평가 미완료\(밸류에이션 입력 미검증\)/);
+      assert.equal(a.priceRelation.sellGate.open,false);assert.equal(a.priceRelation.buyGate.open,false);
+    }
+  }
+});
+test('1730-③ 고점권+비중 초과·경쟁력 훼손에서도 경고 계약 유지, 가치 확정 문구 없음',()=>{
+  const over=A(input({valuation:null,price:{asOf:'2026-11-14T07:00:00Z',drawdownPct:-2,weightPct:18,conviction:false}}));
+  assert.equal(over.priceRelation.riskWarning,true);assert.deepEqual(over.priceRelation.riskBasis.map(b=>b.kind),['concentration']);assert.equal(over.opinion,'점검 필요');
+  const ero=A(input({fundamental:norm(erodingYears),thesis:Object.assign({},input().thesis,{logicState:'weakened'}),valuation:null,price:{asOf:'2026-11-14T07:00:00Z',drawdownPct:-2,weightPct:6,conviction:false}}));
+  assert.equal(ero.priceRelation.warning,true);assert.equal(ero.priceRelation.businessWarning,true);assert.equal(ero.priceRelation.riskWarning,false);
+  for(const o of [over,ero]){assert.doesNotMatch(allText(o),VALUE_CONFIRM);assert.equal(o.priceRelation.sellGate.open,false);}
+});
+test('1730-④ 엔진 원본에 가치 확정 문구·구형 고점권 위험 주석 없음',()=>{
+  const src=require('fs').readFileSync(require('path').join(__dirname,'..','has','great-companies.js'),'utf8');
+  assert.doesNotMatch(src,/기업가치 유지|매도 근거 부족|저평가 확인/);
+  assert.doesNotMatch(src,/비중 초과·고평가·고점권은 위험 신호/);
+  assert.match(src,/고점권은 가격 위치 신호/);
 });
