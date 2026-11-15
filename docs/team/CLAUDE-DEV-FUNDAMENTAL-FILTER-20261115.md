@@ -1,10 +1,27 @@
+STATUS: READY_FOR_REVIEW (2단계 지피 수정 요청 반영 · 재검토 요청, 앱·GAS 연결 없음)
+ORDER-ID: GPT-REVIEW-fundamental-filter-20261115-0930 (CHANGES_REQUESTED 1~3항)
+BASE: e83bc9c94cdf6c6a3e0bce73b31881b51f81b1c0
+HEAD: a29dc4392e44baa46e49f93d4726904280360864
+REVIEW-SCOPE: has/fundamental-filter.js 변경분(pick 충돌 보류·sources/conflicts, fresh/latestWith/at/staleWhy, 이익률 신선도, 라벨 사유), tests/fundamental-filter-review-fixes.test.cjs 6건, tests/fundamental-filter-sec-sample.test.cjs 머리말·1건 추가, live-data-pins.json. (HEAD는 docs 전용 main merge 포함, 코드 커밋 e7f8ad0)
+
+## 지피 검토 반영 (2026-11-15 10시대 정각 실행)
+1. **대체 태그 충돌**: 같은 결산일에 여러 태그 값이 있으면 금액이 모두 같을 때만 우선순위 첫 태그 사용(`sources[항목] = {tag, filed, accn, agree:[같은 값 태그]}`). 금액이 다르면 최신 공시라는 이유로 고르지 않고 그 해 그 항목을 값 없음으로 보류하고 `conflicts[{field, candidates:[tag·val·filed·accn]}]` 기록. 최근 2개 결산에 불일치가 있으면 취약 없어도 '혼재(근거 확인 필요)'. 실제 5종목 전사분에는 불일치 0건(MSFT FY2024 InterestExpense=InterestExpenseNonoperating=2,935백만 같은 값).
+2. **직전 결산 신선도 한도**: 부채·이자·이익률이 최신 결산에 없을 때 바로 전 결산만, 그리고 ① 최신 결산과 간격 400일 이내 ② 그 항목 결산일 자체가 기준시각에서 550일(18개월) 이내일 때만 허용. 넘으면 n/a + '직전 결산 허용 한도 초과: 결산일'. 사용 시 근거에 '[결산일 기준 · 최신 결산엔 값 없음]', `fallback[{id, end, latest}]`, 라벨 사유에 '일부 항목(…) 직전 결산 기준'. 이익률 '최근' 값이 3년 전 것이던 문제도 같은 규칙으로 막음. 지피 예시(2026-11 시점 2024-12 항목, 684일) → n/a 시험. AAPL(2025-09-27, 414일)은 허용 유지.
+3. **증빙 범위**: 2단계 이름을 '수기 전사 기반 계산 검증'으로 좁힘. 픽스처는 SEC companyconcept에서 10-K·FY·연간 항목을 골라 7열로 옮긴 요약이며(각 줄 accn·filed, 첫 줄 CIK·URL), 시험이 fp:'FY'를 주입하므로 **원본에서 연간 값만 고르는지와 전사 오류 유무는 검증하지 않음**. 원본 전체 응답 보관은 하지 않았음(예약 실행에서 SEC 조회는 권한 대기로 막힘 — 우회 안 함).
+
+시험: 새 7건(검토 반영 6 + 5종목 충돌 0·fallback 기록 1), 전체 2130 중 2128 통과/0 실패/2 skip(DST), 비밀값 0. 화면 변경 없음.
+
+미검증·결정 필요: 임계값 400일·550일은 제안값(미검증). 직전 결산 대체 항목이 있어도 다른 조건 충족 시 '우량 근거 충분' 유지(사유에 명시) — 더 보수적으로 '혼재'로 낮출지는 지피·순태씨 의견 필요. 원본 응답 보관 검증은 순태씨 대화 세션(조회 승인 가능)에서.
+
+---
+# (이전) 2단계 보고
 STATUS: READY_FOR_REVIEW (2단계 완료 · 지피 검토 요청, 앱·GAS 연결 없음)
 ORDER-ID: 순태씨 대화 2026-11-15 '재무 필터 시작' + 'SEC 조회 승인'
 BASE: 2519926397abe6d0e364eb4e012d8871e9f2c2e7
 HEAD: e83bc9c94cdf6c6a3e0bce73b31881b51f81b1c0
 REVIEW-SCOPE: has/fundamental-filter.js 변경분(태그 대체·latestWith·금융업·혼재 조건), tests/fundamental-filter-sec-sample.test.cjs 6건, tests/fixtures/sec-sample-20261115/*.txt(실제 SEC 값)
 
-## 2단계 — 실제 SEC 5종목 대조 (2026-11-15)
+## 2단계 — SEC 5종목 수기 전사 기반 계산 검증 (2026-11-15, 이름 정정: 지피 검토 3항)
 출처: https://data.sec.gov/api/xbrl/companyconcept/CIK##########/us-gaap/<TAG>.json (SEC EDGAR XBRL, 조회 2026-11-15 KST, 순태씨 조회 승인). 10-K·FY·결산일 2021-06 이후, 태그·결산일별 최신 공시. 값은 조회 도구가 옮긴 숫자이며 아래 계산은 손으로 다시 확인함.
 
 | 종목 | 결과 | 주요 수치(손계산 대조) | 발견·조치 |

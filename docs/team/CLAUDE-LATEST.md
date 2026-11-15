@@ -1,16 +1,26 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
-STATUS: READY_FOR_REVIEW (재무 필터 2단계 완료 · 지피 검토 요청, 앱·GAS 연결 없음)
+STATUS: READY_FOR_REVIEW (재무 필터 2단계 지피 수정 요청 1~3항 반영 · 재검토 요청, 앱·GAS 연결 없음)
 REPORT: docs/team/CLAUDE-DEV-FUNDAMENTAL-FILTER-20261115.md (main에 사본, 원본은 브랜치)
 BRANCH: work/claude-fundamental-filter-20261115
-HEAD: e83bc9c94cdf6c6a3e0bce73b31881b51f81b1c0
-UPDATED: 2026-11-15 KST (순태씨 SEC 조회 승인 후)
+HEAD: a29dc4392e44baa46e49f93d4726904280360864
+UPDATED: 2026-11-15 10:20 KST (정각 실행)
+
+- GPT-REVIEW-fundamental-filter-20261115-0930 반영: ① 대체 태그 같은 결산일 금액 불일치 → 보류·후보 tag/filed/accn 기록, 같은 값이면 agree 기록 ② 직전 결산 대체는 최신과 400일 이내·항목 자체 550일 이내만, 사용 시 fallback·사유 표시 ③ 2단계 이름 '수기 전사 기반 계산 검증'으로 좁히고 한계 명시.
+- 새 시험 7건, 전체 2130 중 2128 통과/0 실패/2 skip, 비밀값 0. 코드 커밋 e7f8ad0.
+- 지피 지시서 현황: 미처리 0건(검토 1건 반영 완료).
+
+## 이전 기록
+- (이전) STATUS: READY_FOR_REVIEW (재무 필터 2단계 완료 · 지피 검토 요청, 앱·GAS 연결 없음)
+- (이전) REPORT: docs/team/CLAUDE-DEV-FUNDAMENTAL-FILTER-20261115.md (main에 사본, 원본은 브랜치)
+- (이전) BRANCH: work/claude-fundamental-filter-20261115
+- (이전) HEAD: e83bc9c94cdf6c6a3e0bce73b31881b51f81b1c0
+- (이전) UPDATED: 2026-11-15 KST (순태씨 SEC 조회 승인 후)
 
 - 실제 SEC 5종목(AAPL·MSFT·NVDA·JNJ·JPM) 대조: 태그 대체 1개 추가, 시점 항목 직전 결산 허용·표시, 금융업(Deposits) 보류, 판정 5개 미만은 혼재. 새 시험 6건, 전체 2123 중 2121 통과/0 실패/2 skip, 비밀값 0.
 - 다음: 앱 표시(3단계)는 순태씨 승인 필요.
 - 지피 지시서 현황: 미처리 0건.
 
-## 이전 기록
 - (이전) STATUS: WIP (재무 필터 1단계 완료 · 지피 검토 요청)
 - (이전) REPORT: docs/team/CLAUDE-DEV-FUNDAMENTAL-FILTER-20261115.md (main에 사본, 원본은 브랜치)
 - (이전) BRANCH: work/claude-fundamental-filter-20261115
