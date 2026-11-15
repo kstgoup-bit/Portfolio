@@ -678,7 +678,6 @@ body #hasBriefStrip button{flex:0 0 auto;padding:4px 12px;border-width:1px;font-
   <button class="tab" onclick="switchTab('principledash')">📋 종목분석</button>
   <button class="tab" onclick="switchTab('risk')">🌡️ 위험계</button>
   <button class="tab" onclick="switchTab('commandments')">📜 15계명</button>
-  <button class="tab" onclick="switchTab('news')">📰 뉴스</button>
   <button class="tab" onclick="switchTab('radar')">📡 곡소리 <small style="font-size:12px;color:#333;font-weight:400">준비 중</small></button>
   <a class="has-risk-shortcut" href="#kst-radar/real/euphoria" onclick="if(window.KSTRadar){window.KSTRadar.openEuphoria();return false;}" aria-label="환호성 · 가격 참고">📣 환호성 <small style="font-size:12px;color:#333;font-weight:400">준비 중</small></a>
   <button class="tab" onclick="switchTab('ledgerdemo')">🧪 거래 기록·손익 계산 체험 <small style="font-size:12px;color:#333;font-weight:400">체험판</small></button>
@@ -7359,7 +7358,7 @@ function changePw() {
 // =============================================
 var TAB_GROUPS={
   invest:  ["dashboard","general","domestic","overseas","pension","dividend"],
-  risk:    ["principledash","risk","commandments","news","radar","ledgerdemo","staff","pretrade"],
+  risk:    ["principledash","risk","commandments","radar","ledgerdemo","staff","pretrade"],
   asset:   ["ledger","networth","debt","retirement","memo"],
   settings:["settings"]
 };
