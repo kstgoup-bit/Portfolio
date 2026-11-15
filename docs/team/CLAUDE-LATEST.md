@@ -1,16 +1,35 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
-STATUS: READY_FOR_REVIEW (재무 필터 2단계 지피 수정 요청 1~3항 반영 · 재검토 요청, 앱·GAS 연결 없음)
-REPORT: docs/team/CLAUDE-DEV-FUNDAMENTAL-FILTER-20261115.md (main에 사본, 원본은 브랜치)
+STATUS: APPROVED_BY_GPT (재무 필터 2단계 — GPT-REVIEW-fundamental-filter-20261115-1130 APPROVE, 정적 검토 한정 · 순태씨 3단계 결정 대기, 앱·GAS 연결 없음)
+REPORT: docs/team/CLAUDE-DEV-FUNDAMENTAL-FILTER-20261115.md (main 사본 = 브랜치 HEAD 보고서와 동일)
 BRANCH: work/claude-fundamental-filter-20261115
-HEAD: a29dc4392e44baa46e49f93d4726904280360864
-UPDATED: 2026-11-15 10:20 KST (정각 실행)
+HEAD: 488cd55a29784febe5634268ceeeefd1bd52ccfb
+UPDATED: 2026-11-15 12:10 KST (정각 실행)
+
+- 지피 1130 APPROVE 기록. 코드·앱 변경 없음, 새 클로 커밋은 main 문서뿐.
+- 다음: 3단계(곡소리·환호성 화면 재무 라벨, portfolio_v5.html 연결)는 순태씨 승인 후에만. 그 전까지 새 검토 요청 없음 — 지피는 새 READY_FOR_REVIEW 또는 순태씨 결정까지 대기.
+- 지피 지시서 현황: 미처리 0건.
+
+## 이전 기록
+- (이전) STATUS: READY_FOR_REVIEW (재무 필터 2단계 — 지피 재검토 1030 반영: 지정 HEAD 보고서 정합성 복원 · 재검토 요청, 앱·GAS 연결 없음)
+- (이전) REPORT: docs/team/CLAUDE-DEV-FUNDAMENTAL-FILTER-20261115.md (main 사본 = 브랜치 HEAD 보고서와 동일)
+- (이전) BRANCH: work/claude-fundamental-filter-20261115
+- (이전) HEAD: 488cd55a29784febe5634268ceeeefd1bd52ccfb
+- (이전) UPDATED: 2026-11-15 11:10 KST (정각 실행)
+- GPT-REVIEW-fundamental-filter-20261115-1030 반영: 지정 HEAD에서 보고서가 이전 판이던 문제(보고서 커밋이 지정 HEAD 뒤에 있었음) → 최신 main 병합 후 보고서 머리말 갱신, 이 HEAD에서 보고서 = main 사본 확인. 코드 커밋 e7f8ad0 그대로(이후 커밋은 문서·main 문서 병합만).
+- 시험 재실행: 전체 2130 중 2128 통과/0 실패/2 skip, 비밀값 0.
+- 지피 지시서 현황: 미처리 0건(검토 1030 반영 완료).
+
+- (이전) STATUS: READY_FOR_REVIEW (재무 필터 2단계 지피 수정 요청 1~3항 반영 · 재검토 요청, 앱·GAS 연결 없음)
+- (이전) REPORT: docs/team/CLAUDE-DEV-FUNDAMENTAL-FILTER-20261115.md (main에 사본, 원본은 브랜치)
+- (이전) BRANCH: work/claude-fundamental-filter-20261115
+- (이전) HEAD: a29dc4392e44baa46e49f93d4726904280360864
+- (이전) UPDATED: 2026-11-15 10:20 KST (정각 실행)
 
 - GPT-REVIEW-fundamental-filter-20261115-0930 반영: ① 대체 태그 같은 결산일 금액 불일치 → 보류·후보 tag/filed/accn 기록, 같은 값이면 agree 기록 ② 직전 결산 대체는 최신과 400일 이내·항목 자체 550일 이내만, 사용 시 fallback·사유 표시 ③ 2단계 이름 '수기 전사 기반 계산 검증'으로 좁히고 한계 명시.
 - 새 시험 7건, 전체 2130 중 2128 통과/0 실패/2 skip, 비밀값 0. 코드 커밋 e7f8ad0.
 - 지피 지시서 현황: 미처리 0건(검토 1건 반영 완료).
 
-## 이전 기록
 - (이전) STATUS: READY_FOR_REVIEW (재무 필터 2단계 완료 · 지피 검토 요청, 앱·GAS 연결 없음)
 - (이전) REPORT: docs/team/CLAUDE-DEV-FUNDAMENTAL-FILTER-20261115.md (main에 사본, 원본은 브랜치)
 - (이전) BRANCH: work/claude-fundamental-filter-20261115

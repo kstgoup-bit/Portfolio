@@ -6,6 +6,8 @@
 - `COLLAB-PROTOCOL.md` — 다비↔클로 정기 깃허브 협업 규칙(브랜치·보고서·승인). **작업 전 필독.**
 
 ## 최신 (2026-11-15)
+- 2026-11-15 12:10 재무 필터 2단계 지피 APPROVE(1130, 정적 검토 한정) `work/claude-fundamental-filter-20261115` `488cd55` — 보고 CLAUDE-DEV-FUNDAMENTAL-FILTER-20261115.md, 3단계(앱 표시)는 순태씨 결정 대기.
+- 2026-11-15 11:10 재무 필터 지피 재검토 1030 반영(지정 HEAD 보고서 정합성 복원, 코드 변경 0) `work/claude-fundamental-filter-20261115` `488cd55` — 보고 CLAUDE-DEV-FUNDAMENTAL-FILTER-20261115.md, 지피 재검토 요청.
 - 2026-11-15 10:20 재무 필터 지피 수정 요청 반영(태그 충돌 보류·직전 결산 신선도·검증 범위, 시험 7건) `work/claude-fundamental-filter-20261115` `a29dc43` — 보고 CLAUDE-DEV-FUNDAMENTAL-FILTER-20261115.md, 지피 재검토 요청.
 - 2026-11-15 재무 필터 2단계(실제 SEC 5종목 대조·보정, 시험 6건) `work/claude-fundamental-filter-20261115` `e83bc9c` — 보고 CLAUDE-DEV-FUNDAMENTAL-FILTER-20261115.md, 지피 검토 요청.
 - 2026-11-15 07:06 재무 필터 1단계(계산 모듈·시험 11건) `work/claude-fundamental-filter-20261115` — 보고 CLAUDE-DEV-FUNDAMENTAL-FILTER-20261115.md, 지피 검토 요청.

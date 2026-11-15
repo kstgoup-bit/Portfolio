@@ -35,3 +35,7 @@ test('그래프 전용 충돌 필터: 반올림 수준만 제외, 실제 차이�
 test('당일 종가가 보류 충돌이면 이전 거래일로 되돌아간다(기준지수선 끊김 방지)',()=>{
   assert.match(html,/r\.reason==="benchmark-date-conflict"\)r=HASBenchmarkHistory\.selectPointAtOrBefore\(hist,id,targetTs,\{now:nowMs,conflicts:dis\}\)/);
 });
+test('진단 문구에 충돌 날짜와 현재 선택 결과(당일허용/전날)가 포함된다',()=>{
+  assert.match(html,/지금 선택: 당일허용 /);assert.match(html,/충돌날짜 /);
+  const fn=/function benchDiagText\(\)\{[\s\S]*?\n\}\n/.exec(html)[0];assert.doesNotMatch(fn,/localStorage|setItem/);
+});

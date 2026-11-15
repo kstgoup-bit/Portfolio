@@ -40,6 +40,8 @@
 - GPT-REVIEW-capital-allocation-20261113-1030 — CHANGES_REQUESTED(부분 작성 줄 조용한 제외·빈 첫 줄 매도 자동 전환) 반영 `2287445`, 재검토 요청 2026-11-13 11:20
 - GPT-REVIEW-capital-allocation-20261113-1130 — APPROVE(시험 게이트 화면 `2287445` 정적 검토 한정, 운영 승인 아님), 기록 2026-11-13 12:15 · GPT-20261113-0024 1단계 종료 · 2026-11-13 21:15 순태씨 승인으로 main 병합 `6bd2af1`
 - GPT-REVIEW-fundamental-filter-20261115-0930 — CHANGES_REQUESTED(태그 충돌·직전 결산 신선도·증빙 범위) 반영 `e7f8ad0`(검토 HEAD `a29dc43`), 재검토 요청 2026-11-15 10:20
+- GPT-REVIEW-fundamental-filter-20261115-1030 — CHANGES_REQUESTED(지정 HEAD 보고서 정합성) 반영 `488cd55`(보고서만, 코드 `e7f8ad0` 동일), 재검토 요청 2026-11-15 11:10
+- GPT-REVIEW-fundamental-filter-20261115-1130 — APPROVE(재무 필터 2단계 `488cd55`/코드 `e7f8ad0` 정적 검토 한정, 운영·데이터 정확성 승인 아님), 기록 2026-11-15 12:10 · **순태씨 결정 대상: 3단계(곡소리·환호성 화면 재무 라벨) 진행 여부**
 
 ## 기록
 - 2026-11-12 13:45 역할 변경 반영, 일지 시작. 다비의 빈 브랜치 `work/davi-universe-screen-20261112`(= main c9d8084, 변경 없음) 확인 — 클로가 이어받음.
@@ -94,3 +96,6 @@
 - 2026-11-15 08:10 정각 실행: 새 GPT-ORDER/TEST/REVIEW 없음(지피 마지막 파일 11-13 11:33, 알림 완료 — 재알림 안 함), 다비 새 문서 없음. 재무 필터 2단계(샘플 5종목 AAPL·MSFT·JNJ·NVDA·JPM SEC 값 대조) 재시도 → 시험 조회 1건(AAPL `Revenues`, 이미 승인된 주소)만 성공(FY2018까지만 있음 = 애플은 이후 `RevenueFromContractWithCustomerExcludingAssessedTax`로 바뀜, 모듈 태그 대체 목록에 포함 확인), 나머지 61건은 예약 실행 권한 승인 대기(PROVENANCE_REQUIRED)로 미수신. 우회 조회 안 함, 코드 변경 0, 시험 재실행 안 함. 다음: 순태씨 대화 세션에서 data.sec.gov 조회 승인 후 2단계 진행.
 - 2026-11-15 (순태씨 대화 '승인' = SEC 조회 승인) 재무 필터 2단계: 실제 SEC companyconcept 5종목 대조 → NVDA 설비투자 태그 대체(PaymentsToAcquireProductiveAssets), AAPL 최신 10-K 일부 태그 미반영 → 시점 항목 직전 결산 허용·표시, JPM 음수 영업현금흐름 오판 → Deposits 공시 시 금융업 보류, 판정 4개뿐인 경우 혼재. `work/claude-fundamental-filter-20261115` `e83bc9c`, 새 시험 6건, 전체 2123 중 2121 통과/0 실패/2 skip, 비밀값 0. 지피 검토 요청. 다음: 앱 표시(3단계)는 순태씨 승인 후.
 - 2026-11-15 10:20 정각 실행: 지피 새 파일 GPT-REVIEW-fundamental-filter-20261115-0930(CHANGES_REQUESTED) 확인(지피 자동 실행 재개 확인). 1~3항 반영 `work/claude-fundamental-filter-20261115` `e7f8ad0`(merge `a29dc43`): 대체 태그 금액 불일치 보류+근거 기록, 직전 결산 한도(400일·550일)+fallback 표시, 2단계 이름 '수기 전사 기반 계산 검증'. 새 시험 7건, 전체 2130 중 2128 통과/0 실패/2 skip, 비밀값 0. 다비 새 문서 없음. 다음: 지피 재검토 대기, 3단계(앱 표시)는 순태씨 승인 후.
+- 2026-11-15 11:10 정각 실행: 지피 GPT-REVIEW-fundamental-filter-20261115-1030(CHANGES_REQUESTED — 지정 HEAD a29dc43의 보고서가 이전 판) 확인. 원인 = 보고서를 a29dc43 뒤 772efe5에 커밋하고 LATEST HEAD를 a29dc43으로 적음. 최신 main 병합 후 보고서 머리말 갱신(CODE-COMMIT e7f8ad0, 시험 기존 6+새 7, 수기 전사 한계·앱/GAS 미연결·SEC 독립 검증 미실시 명시) `488cd55`, 브랜치 HEAD 보고서 = main 사본 동일 확인. 전체 2130 중 2128 통과/0 실패/2 skip, 비밀값 0. 코드 변경 0. 다비 새 문서 없음. 다음: 지피 재검토 대기, 3단계(앱 표시)는 순태씨 승인 후.
+- 2026-11-15 12:10 정각 실행: 지피 GPT-REVIEW-fundamental-filter-20261115-1130 = APPROVE(정적 검토 한정) 기록. 새 GPT-ORDER/TEST 없음, 다비 새 문서 없음. 앱·코드 변경 없음(커밋 문서만), 시험 재실행 안 함(코드 변경 0, 직전 2130 중 2128 통과/0 실패/2 skip). 다음 할 일: 3단계(앱 표시)는 순태씨 승인 필요 → 승인 전까지 대기.
+- 2026-11-15 13:06 정각 실행: 새 GPT-ORDER/TEST/REVIEW 없음(지피 마지막 파일 11:30 APPROVE, 12:10에 기록 완료), 다비 새 문서 없음. 처리할 지시서·승인된 다음 작업 없음(재무 필터 3단계는 순태씨 승인 대기) → 코드 변경 없음, 대기. 참고: main e33f833(진단 문구, 순태씨 대화 세션)·work/claude-kis-gas-draft-20261115(대화 세션) 확인만, 손대지 않음. 다음: 지피 새 파일 또는 순태씨 결정 대기.
