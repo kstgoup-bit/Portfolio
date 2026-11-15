@@ -52,6 +52,7 @@
 - GPT-REVIEW-remove-news-tab-20261115-1631 — APPROVE(뉴스 메뉴 진입 제거 `e763fee`/보고 `368e77c` 정적 검토 한정, 패널·함수 삭제·운영 승인 아님), 기록 2026-11-15 17:10 · **순태씨 운영 반영 승인 요청 대상**
 - GPT-REVIEW-great-companies-20261115-1730 — CHANGES_REQUESTED(priority 문구 '기업가치 유지·매도 근거 부족' 본질가치 확정 암시) 반영 `b453445`, 재검토 요청 `e0ee68e` 2026-11-15 18:15
 - GPT-REVIEW-great-companies-20261115-1830 — CHANGES_REQUESTED(오래된 밸류에이션을 '미연결'로 표시) 반영 `ddd4fd7`, 재검토 요청 2026-11-15 19:10
+- GPT-REVIEW-great-companies-20261115-1927 — APPROVE(엔진 정적 검토 한정, 운영 승인 아님) 기록, 후속(전 분기 밸류에이션 사유 표시)은 시험 UI `95af5fb`에 반영 2026-11-15 20:25
 
 ## 기록
 - 2026-11-12 13:45 역할 변경 반영, 일지 시작. 다비의 빈 브랜치 `work/davi-universe-screen-20261112`(= main c9d8084, 변경 없음) 확인 — 클로가 이어받음.
@@ -119,3 +120,4 @@
 - 2026-11-15 17:20 (순태씨 대화 '올리고 뉴스 코드 아예 빼') 운영 반영: 뉴스 패널·함수 3개·CSS·탭 색 완전 삭제 `d3f5fcc` + 재무 필터 3단계 병합 `704dd9d` → main `b362933`(Pages run 43693516024). 병합 main 2141 중 2139 통과/0 실패/2 skip, 비밀값 0, Chromium 360/390/430 통과. 뉴스 코드 완전 삭제분은 지피 1631 범위 밖 → 사후 검토 요청. 다음: 지피 사후 검토 · 위대한 기업 재검토 → 시험 전용 UI.
 - 2026-11-15 18:15 정각 실행: 지피 GPT-REVIEW-great-companies-20261115-1730(CHANGES_REQUESTED) 처리. 최신 main 병합 `c3cd28f` 후 `work/claude-great-companies-20261115` 코드 `b453445` 보고 `e0ee68e`: priority·한도 이내 분기 문구를 '경쟁력 지표 유지 근거 — 현재 본질가치 대비 평가 미완료(밸류에이션 미연결|입력 미검증) · 보유 지속 검토(검토 의견, 매수·매도 판단 아님)'로 교체, valuationPending 필드, 게이트 주석 정정, 새 시험 4건. 전체 2175 중 2173 통과/0 실패/2 skip, 비밀값 0. 다비 새 문서 없음, 새 GPT-ORDER 없음. 다음: 지피 재검토 → 시험 전용 UI · 뉴스 코드 삭제 사후 검토 대기.
 - 2026-11-15 19:10 정각 실행: 지피 GPT-REVIEW-great-companies-20261115-1830(CHANGES_REQUESTED) 처리. `work/claude-great-companies-20261115` `ddd4fd7`(코드·시험·보고 한 커밋): valuationBand() reason(missing/stale/unverified), priority·곡소리 분기에서 오래된 밸류에이션을 '기준일 YYYY-MM-DD 오래됨 — 확인 전 판단 보류'로 표시(미연결·미검증 오표시 제거), 새 시험 3건. 전체 2178 중 2176 통과/0 실패/2 skip, 비밀값 0. 새 GPT-ORDER 없음, 다비 새 문서 없음. 다음: 지피 재검토 → 시험 전용 UI · 뉴스 코드 삭제 사후 검토 대기.
+- 2026-11-15 20:25 정각 실행: 지피 GPT-REVIEW-great-companies-20261115-1927 APPROVE(엔진 정적, 범위 한정) 기록. ORDER 1326 다음 단위 진행: `work/claude-great-companies-20261115` `95af5fb`(main 5e65e7c 병합 후): 시험 전용 UI has/great-companies-lab.html(?test=1)·가상 자료 10개·밸류에이션 사유 전 분기 표시(1927 후속)·지연 평가, 새 시험 9건. 전체 2187 중 2185 통과/0 실패/2 skip, 비밀값 0, Chromium 360/390/430 통과. 다비 새 문서 없음. 다음: 지피 UI 검토 → 운영 탭 연결은 순태씨 승인 필요.

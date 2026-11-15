@@ -1,10 +1,15 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
-STATUS: READY_FOR_REVIEW (재검토 요청 1건 — 위대한 기업 엔진: GPT-REVIEW-great-companies-20261115-1830 밸류에이션 보류 사유 구분 반영. 브랜치 한정, 운영 미반영) · 운영 최신 = main `b362933`(순태씨 승인) · **지피 사후 검토 요청 유지: 뉴스 코드 완전 삭제 `d3f5fcc`**
-REPORT: docs/team/CLAUDE-DEV-GREAT-COMPANIES-20261115.md(0-f절) (main 사본 = 브랜치 HEAD 보고서와 동일) · docs/team/CLAUDE-DEV-REMOVE-NEWS-TAB-20261115.md(사후 검토)
+STATUS: READY_FOR_REVIEW (검토 요청 1건 — 위대한 기업 시험 전용 UI: ORDER GPT-20261115-1326 3절 5)·6), 엔진은 지피 1927 APPROVE. 브랜치 한정, 운영 미반영) · 운영 최신 = main `b362933` · **지피 사후 검토 요청 유지: 뉴스 코드 완전 삭제 `d3f5fcc`**
+REPORT: docs/team/CLAUDE-DEV-GREAT-COMPANIES-20261115.md(0-g절) (main 사본 = 브랜치 HEAD 보고서와 동일)
 BRANCH: work/claude-great-companies-20261115
-HEAD: ddd4fd77260357e7c9537b5d39007e4ee342a086 (위대한 기업, 코드·시험·보고서 같은 커밋) · 운영 b362933a1ec89efbd0ba7cd9fe47828dfd81c837
-UPDATED: 2026-11-15 19:10 KST (정각 실행)
+HEAD: 95af5fb5632564fb72bd3996c980415685f12286 (코드·시험·보고서 같은 커밋) · 운영 b362933a1ec89efbd0ba7cd9fe47828dfd81c837
+UPDATED: 2026-11-15 20:25 KST (정각 실행)
+
+- 시험 화면 `has/great-companies-lab.html?test=1`: 가상 기업 10개 목록→상세(6영역·근거·반론·출처·기준일·게이트 닫힘), 밸류에이션 사유를 모든 분기에서 표시(1927 후속), 지연 평가·재진입 재계산 없음.
+- 시험(클로 실행): 새 9건, 전체 2187 중 2185 통과/0 실패/2 skip(DST), 비밀값 0, Chromium 360/390/430 통과(넘침 0·12px·외부 요청 0·오류 0). 갤럭시 실기기 미검증. 앱·GAS·운영 변경 0.
+- 지피 지시서 현황: GPT-20261115-1326 진행 중(UI 검토 대기). 새 GPT-ORDER 없음.
+
 
 - 1830 반영: valuationBand() reason(missing/stale/unverified). 31일 초과 밸류에이션은 '기준일 YYYY-MM-DD 오래됨 — 확인 전 판단 보류'(priority·곡소리 분기), 없음은 '미연결', 최신은 '입력 미검증'. 새 시험 3건.
 - 시험(클로 실행): 전체 2178 중 2176 통과/0 실패/2 skip(DST), 비밀값 0. 앱·GAS·운영 변경 0.
@@ -12,6 +17,11 @@ UPDATED: 2026-11-15 19:10 KST (정각 실행)
 
 ## 이전 기록
 
+- (이전) STATUS: READY_FOR_REVIEW (재검토 요청 1건 — 위대한 기업 엔진: GPT-REVIEW-great-companies-20261115-1830 밸류에이션 보류 사유 구분 반영. 브랜치 한정, 운영 미반영) · 운영 최신 = main `b362933`(순태씨 승인) · **지피 사후 검토 요청 유지: 뉴스 코드 완전 삭제 `d3f5fcc`**
+- (이전) REPORT: docs/team/CLAUDE-DEV-GREAT-COMPANIES-20261115.md(0-f절) (main 사본 = 브랜치 HEAD 보고서와 동일) · docs/team/CLAUDE-DEV-REMOVE-NEWS-TAB-20261115.md(사후 검토)
+- (이전) BRANCH: work/claude-great-companies-20261115
+- (이전) HEAD: ddd4fd77260357e7c9537b5d39007e4ee342a086 (위대한 기업, 코드·시험·보고서 같은 커밋) · 운영 b362933a1ec89efbd0ba7cd9fe47828dfd81c837
+- (이전) UPDATED: 2026-11-15 19:10 KST (정각 실행)
 - (이전) STATUS: READY_FOR_REVIEW (재검토 요청 1건 — 위대한 기업 엔진: GPT-REVIEW-great-companies-20261115-1730 문구 CR 반영. 브랜치 한정, 운영 미반영) · 운영 최신 = main `b362933`(재무 필터 3단계 + 뉴스 코드 제거, 순태씨 승인) · **지피 사후 검토 요청 유지: 뉴스 코드 완전 삭제 `d3f5fcc`**
 - (이전) REPORT: docs/team/CLAUDE-DEV-GREAT-COMPANIES-20261115.md(0-e절) (main 사본 = 브랜치 HEAD 보고서와 동일) · docs/team/CLAUDE-DEV-REMOVE-NEWS-TAB-20261115.md(사후 검토)
 - (이전) BRANCH: work/claude-great-companies-20261115
