@@ -1,17 +1,28 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
-STATUS: READY_FOR_REVIEW (지피 GPT-REVIEW-great-companies-20261115-2130 CHANGES_REQUESTED 2건 반영 — 상품 유형 미확인 보류, 다계좌 투자원칙 기록 선택·상충 표시. 브랜치 한정, 운영 미반영) · 운영 최신 = main `b362933` · 지피 사후 검토 요청 유지: 뉴스 코드 완전 삭제 `d3f5fcc`
-REPORT: docs/team/CLAUDE-DEV-GREAT-COMPANIES-20261115.md(0-i절) (main 사본 = 브랜치 HEAD 보고서와 동일)
+STATUS: READY_FOR_REVIEW (지피 GPT-REVIEW-great-companies-20261115-2230 CHANGES_REQUESTED 2건 반영 — 다계좌 투자원칙 원문 내용 비교, 상품 유형 productType 승격 금지·상충 보류. 브랜치 한정, 운영 미반영) · 운영 최신 = main `b362933` · 지피 사후 검토 요청 유지: 뉴스 코드 완전 삭제 `d3f5fcc`
+REPORT: docs/team/CLAUDE-DEV-GREAT-COMPANIES-20261115.md(0-j절) (main 사본 = 브랜치 HEAD 보고서와 동일)
 BRANCH: work/claude-great-companies-20261115
-HEAD: 46d05f728a3bf969b1d1ded178c6cfbb6f03829f (코드·시험·보고서 같은 커밋) · 검토 BASE dad6ac509cf02c73d451ef07f93610a03909b31f
-UPDATED: 2026-11-15 22:20 KST (정각 실행)
+HEAD: 09d39c5b63ac4d8fc0bb64b1cb4a9011053cb4af (코드·시험·보고서 같은 커밋) · 검토 BASE 46d05f728a3bf969b1d1ded178c6cfbb6f03829f
+UPDATED: 2026-11-15 23:10 KST (정각 실행)
+
+- CR1: 원칙 기록을 축약값이 아닌 원문 내용(NFC·공백 정규화)으로 비교. 다르면 상충·thesis null, 다른 항목 이름만 표시(원문 비노출). 공백만 다르면 같은 기록.
+- CR2: productType 'company' 단독으로 확정 안 함(unknown·출처 미검증 표시), company 기록+ETF 신호·같은 티커 상반 유형 = 계좌 순서 무관 '상품 유형 상충 — 확인 필요'. 엔진·portfolio_v5.html 변경 없음.
+- 시험(클로 실행): 신규 3건, 전체 2199 중 2197 통과/0 실패/2 skip(DST), 비밀값 0, Chromium 360/390/430 통과. 갤럭시 미검증.
+- 지피 지시서 현황: 새 GPT-ORDER 없음. 지피 재검토 요청(REVIEW-SCOPE 보고서 머리말) → APPROVE 후 순태씨 '올려'.
+
+## 이전 기록
+
+- (이전) STATUS: READY_FOR_REVIEW (지피 GPT-REVIEW-great-companies-20261115-2130 CHANGES_REQUESTED 2건 반영 — 상품 유형 미확인 보류, 다계좌 투자원칙 기록 선택·상충 표시. 브랜치 한정, 운영 미반영) · 운영 최신 = main `b362933` · 지피 사후 검토 요청 유지: 뉴스 코드 완전 삭제 `d3f5fcc`
+- (이전) REPORT: docs/team/CLAUDE-DEV-GREAT-COMPANIES-20261115.md(0-i절) (main 사본 = 브랜치 HEAD 보고서와 동일)
+- (이전) BRANCH: work/claude-great-companies-20261115
+- (이전) HEAD: 46d05f728a3bf969b1d1ded178c6cfbb6f03829f (코드·시험·보고서 같은 커밋) · 검토 BASE dad6ac509cf02c73d451ef07f93610a03909b31f
+- (이전) UPDATED: 2026-11-15 22:20 KST (정각 실행)
 
 - CR1: 유형 칸 없는 종목은 일반기업으로 단정하지 않고 '상품 유형 미확인 — 기업 평가 보류'. 국내 ETF 상표 뒤 공백 없는 이름(KODEX미국S&P500TR 등)·이름의 'ETF' 낱말은 ETF 추정. 엔진에 kind 'unknown' 1줄.
 - CR2: 빈 원칙 기록이 실제 기록을 가리지 않음, 계좌별 실제 기록이 다르면 '원칙 기록 상충 — 확인 필요'(고르거나 합치지 않음).
 - 시험(클로 실행): 신규 3건, 전체 2196 중 2194 통과/0 실패/2 skip(DST), 비밀값 0, Chromium 360/390/430 통과. portfolio_v5.html 변경 없음. 갤럭시 미검증.
 - 지피 지시서 현황: 새 GPT-ORDER 없음. 지피 재검토 요청(REVIEW-SCOPE 보고서 0-i) → APPROVE 후 순태씨 '올려'.
-
-## 이전 기록
 
 - (이전) STATUS: READY_FOR_REVIEW (운영 앱 '위대한 기업' 탭 연결 — 순태씨 '진행' 결정. 읽기 전용·지연 로딩, 현재 전 종목 판단 보류(재무 미연결). 브랜치 한정, 운영 미반영) · 운영 최신 = main `b362933` · 지피 사후 검토 요청 유지: 뉴스 코드 완전 삭제 `d3f5fcc`
 - (이전) REPORT: docs/team/CLAUDE-DEV-GREAT-COMPANIES-20261115.md(0-h절) (main 사본 = 브랜치 HEAD 보고서와 동일)
