@@ -6,6 +6,7 @@
 - `COLLAB-PROTOCOL.md` — 다비↔클로 정기 깃허브 협업 규칙(브랜치·보고서·승인). **작업 전 필독.**
 
 ## 최신 (2026-11-15)
+- 2026-11-15 21:55 순태씨 '진행': 운영 앱 '위대한 기업' 탭 연결(읽기 전용·지연 로딩, 현재 전 종목 판단 보류) `work/claude-great-companies-20261115` `dad6ac5` 검토 요청 — 보고 CLAUDE-DEV-GREAT-COMPANIES-20261115.md(0-h).
 - 2026-11-15 21:10 지피 2030 APPROVE: 위대한 기업 시험 전용 UI `95af5fb`(정적 한정) → ORDER GPT-20261115-1326 1단계 종료. 운영 앱 탭 연결은 순태씨 결정 대기.
 - 2026-11-15 20:25 지피 1927 APPROVE(엔진) → 위대한 기업 시험 전용 UI(has/great-companies-lab.html?test=1, 가상 자료 10개) `work/claude-great-companies-20261115` `95af5fb` 검토 요청 — 보고 CLAUDE-DEV-GREAT-COMPANIES-20261115.md(0-g).
 - 2026-11-15 19:10 지피 1830: 위대한 기업 밸류에이션 보류 사유 구분(없음=미연결 / 31일 초과=기준일 오래됨 / 최신=입력 미검증) `work/claude-great-companies-20261115` `ddd4fd7` 재검토 요청 — 보고 CLAUDE-DEV-GREAT-COMPANIES-20261115.md(0-f).

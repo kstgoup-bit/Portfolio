@@ -1,9 +1,26 @@
-STATUS: READY_FOR_REVIEW (시험 전용 UI 단위 — ORDER 3절 5)·6) 격리 화면. 엔진은 지피 GPT-REVIEW-great-companies-20261115-1927 APPROVE(정적, 엔진 한정))
-ORDER-ID: GPT-20261115-1326 · GPT-REVIEW-great-companies-20261115-1927(APPROVE, 후속 UI 검증 항목: 모든 분기에서 valuation.reason 표시)
-BASE: ddd4fd77260357e7c9537b5d39007e4ee342a086 (지피 1927 APPROVE HEAD) · main 5e65e7c 병합(f4fc6e7, 문서만)
+STATUS: READY_FOR_REVIEW (운영 앱 '위대한 기업' 탭 연결 — 2026-11-15 21시대 순태씨 '진행' 결정. 브랜치 한정, main 병합·운영 반영은 지피 검토 + 순태씨 '올려' 후)
+ORDER-ID: 순태씨 직접 결정(2026-11-15 클로 대화 '진행') · 선행 GPT-20261115-1326 1단계(지피 2030 APPROVE)
+BASE: 95af5fb5632564fb72bd3996c980415685f12286 (지피 2030 APPROVE HEAD) · main 812f9bc 병합(052c5db, 문서만)
 HEAD: main CLAUDE-LATEST.md의 HEAD(이 보고서가 든 브랜치 최신 커밋) · 코드·시험·보고서 같은 커밋
 BRANCH: work/claude-great-companies-20261115
-REVIEW-SCOPE: ddd4fd7...HEAD — 새 파일 has/great-companies-fixtures.js · has/great-companies-lab.html · has/great-companies-lab.js · has/great-companies-lab.css · tests/great-companies-lab.test.cjs, tests/lib/live-data-pins.json(addedRuntimeFiles 4줄), 이 보고서. (병합 커밋 f4fc6e7의 docs/team 변경은 main 문서라 범위 밖)
+REVIEW-SCOPE: 95af5fb...HEAD 중 앱 연결분 — portfolio_v5.html(+16줄: 위험관리 메뉴 버튼·패널·TAB_GROUPS·tabColors·지연 로더·switchTab 1줄), 새 has/great-companies-panel.js·.css, tests/great-companies-panel.test.cjs(신규 6건), tests/great-companies-lab.test.cjs·great-companies.test.cjs·risk-menu-harmonization.test.cjs(연결 반영 단언 변경), tests/lib/live-data-edits.json(역방향 6쌍)·live-data-pins.json, 이 보고서. (병합 커밋의 docs/team 변경은 범위 밖)
+
+# 0-h. 운영 앱 '위대한 기업' 탭 연결 (2026-11-15 순태씨 '진행')
+## 바뀌는 것
+- 위험관리 하위 메뉴: 곡소리·환호성 다음에 '🏛️ 위대한 기업 (판단 보조)' 버튼, `#panel-greatco` 패널.
+- **지연 로딩**: 앱 시작 시 위대한 기업 코드 0바이트(defer 태그 없음). 탭을 처음 누를 때 `has/great-companies-panel.js` 1회 주입 → 패널이 엔진 `great-companies.js`·화면 도우미 `great-companies-lab.js`(#lab 없으면 그리지 않음)·CSS를 이어서 1회 불러옴. 재진입은 결과 재사용(엔진 메모리 캐시, 계산 0회). 불러오기 실패 시 안내 + 다음 진입에 재시도.
+- **읽기 전용**: 보유 목록(genStocks·domStocks·ovStocks·penStocks 사본)과 투자원칙 기록(`v5_investPrinciples` getItem만), 비중은 HASPortfolioReader(앱 입력 평가액, 미검증). 저장·삭제·전송·AI 호출·주문 없음(시험 + 브라우저에서 localStorage 전후 동일 확인).
+- 카드: 종목·티커·시장·계좌·비중 / 상태·의견 / 판단 보류 사유 / 순태씨 투자원칙 기록(투자논리 상태·점검 항목 확인 수, 기록 그대로) / 자세히(밸류에이션 사유·미확인·검토 게이트 닫힘). 엔진 영역 결과가 생기면 6영역·보유 이유·위험·출처도 같은 카드에 표시.
+- **현재 실제 결과는 전 종목 '판단 보류'**: 미국 SEC 재무·DART·밸류에이션·52주 위치가 앱에 연결되지 않음(GAS에 재무 응답 없음 — 저장소 gas/에 fundamental 처리 0건 확인). 화면 맨 위 '자료 연결 상태'에 그대로 표시. ETF는 이름·티커 기준 추정으로 'ETF — 기업 평가 대상 아님'.
+## 시험(클로 실행)
+- 새 `tests/great-companies-panel.test.cjs` 6건: 입력 변환(계좌 합치기·예수금/수량 0 제외·ETF 추정·원본 불변), 전 종목 판단 보류·게이트 닫힘, 화면 문구·금지어·재진입 재사용(계산 4→4, 재사용 4), 모듈 없음/실패 → 안내·재시도, 저장·네트워크·innerHTML 없음·CSS 12px 이상·#panel-greatco 한정, 메뉴 버튼·처음 진입 때만 1회 주입·중복 주입 없음·실패 후 재시도.
+- 기존 단언 변경: 메뉴 목록에 greatco 추가, '앱이 great-companies를 참조하지 않음' → '앱은 great-companies-panel.js만 지연 주입, 스크립트 태그·엔진 직접 참조·가상 자료/시험 화면 참조 없음'.
+- 전체: 2193 중 2191 통과 / 0 실패 / 2 skip(DST). jsdom 31.0.1. 비밀값 findings []. live-data 역방향 6쌍 역적용으로 이전 파일 재현 확인.
+- Chromium(Playwright, 실제 portfolio_v5.html + 가상 보유 3종목·가상 원칙 1건, 외부 요청 차단) 360/390/430: 가로 넘침 0, 12px 미만 0, #333보다 옅은 글자 0, '자세히' 44px, 페이지 오류 0, 로그인 시 great-companies 파일 요청 0 → 탭 진입 시 4개 1회, localStorage 전후 동일, 재진입 계산 0. 탭 첫 표시 127~198ms, 재진입 49~64ms(이 컨테이너 참고치, 갤럭시 미검증).
+## 미검증·순태씨 결정 필요
+- 갤럭시 실기기 미확인. 운영 반영 후 순태씨 갤럭시에서 탭 열림·뒤로가기 확인 필요.
+- 실제 가치를 담으려면 다음 단계가 필요: GAS에 SEC 재무(companyfacts) 응답 추가(= GAS 변경, 순태씨 승인 필요) → 미국 종목부터 6영역 평가. 정성 확인일(경쟁우위·자본배분) 입력 칸은 아직 없음(저장 추가는 별도 승인).
+- ETF 추정은 이름·티커 목록 기준(미검증).
 
 # 0-g. 시험 전용 UI (2026-11-15 20시 정각 실행)
 ## 변경 파일
