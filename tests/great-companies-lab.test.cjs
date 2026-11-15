@@ -27,7 +27,10 @@ test('독립 화면: 오프라인 CSP, 재무 필터·엔진·가상 자료·화
 });
 
 test('게이트 OFF 증빙: 운영 앱·서비스워커·다른 화면이 시험 화면·가상 자료를 부르거나 링크하지 않음', () => {
-  for (const f of ['portfolio_v5.html', 'portfolio.html', 'service-worker.js', 'manifest.json']) if (fs.existsSync(path.join(ROOT, f))) a.doesNotMatch(read(f), /great-companies/, f);
+  for (const f of ['portfolio.html', 'service-worker.js', 'manifest.json']) if (fs.existsSync(path.join(ROOT, f))) a.doesNotMatch(read(f), /great-companies/, f);
+  // 2026-11-15 순태씨 '진행': 운영 앱은 탭 진입 시 has/great-companies-panel.js만 지연 주입한다(시험 화면·가상 자료는 부르지 않음).
+  const app = read('portfolio_v5.html'); a.deepEqual([...new Set(app.match(/great-companies[\w.\-]*/g))], ['great-companies-panel.js']); a.doesNotMatch(app, /<script[^>]+great-companies/);
+  a.doesNotMatch(read('has/great-companies-panel.js'), /great-companies-fixtures|great-companies-lab\.html|HASGreatCompaniesFixtures/);
   for (const f of fs.readdirSync(path.join(ROOT, 'has')).filter(n => /\.(html|js)$/.test(n) && !/^great-companies/.test(n))) a.doesNotMatch(read('has/' + f), /great-companies/, f);
   a.equal(L.gateOn(''), false); a.equal(L.gateOn('?test=0'), false); a.equal(L.gateOn('?x=1'), false); a.equal(L.gateOn('?test=1'), true);
   const off = dom('');

@@ -287,6 +287,30 @@
     [
       "#panel-memo{background:var(--sky-bg);min-height:100vh}\n",
       "#panel-memo{background:var(--sky-bg);min-height:100vh}\n#panel-news{background:var(--sky-bg);min-height:100vh}\n"
+    ],
+    [
+      "<a class=\"has-risk-shortcut\" href=\"#kst-radar/real/euphoria\" onclick=\"if(window.KSTRadar){window.KSTRadar.openEuphoria();return false;}\" aria-label=\"환호성 · 가격 참고\">📣 환호성 <small style=\"font-size:12px;color:#333;font-weight:400\">준비 중</small></a>\n  <button class=\"tab\" onclick=\"switchTab('greatco')\">🏛️ 위대한 기업 <small style=\"font-size:12px;color:#333;font-weight:400\">판단 보조</small></button>\n  <button class=\"tab\" onclick=\"switchTab('ledgerdemo')\">",
+      "<a class=\"has-risk-shortcut\" href=\"#kst-radar/real/euphoria\" onclick=\"if(window.KSTRadar){window.KSTRadar.openEuphoria();return false;}\" aria-label=\"환호성 · 가격 참고\">📣 환호성 <small style=\"font-size:12px;color:#333;font-weight:400\">준비 중</small></a>\n  <button class=\"tab\" onclick=\"switchTab('ledgerdemo')\">"
+    ],
+    [
+      "<div class=\"panel\" id=\"panel-staff\" aria-label=\"AI 투자참모(읽기 전용)\"></div>\n<div class=\"panel\" id=\"panel-greatco\" aria-label=\"위대한 기업(읽기 전용 판단 보조)\"></div>\n",
+      "<div class=\"panel\" id=\"panel-staff\" aria-label=\"AI 투자참모(읽기 전용)\"></div>\n"
+    ],
+    [
+      "  risk:    [\"principledash\",\"risk\",\"commandments\",\"radar\",\"greatco\",\"ledgerdemo\",\"staff\",\"pretrade\"],",
+      "  risk:    [\"principledash\",\"risk\",\"commandments\",\"radar\",\"ledgerdemo\",\"staff\",\"pretrade\"],"
+    ],
+    [
+      "principledash:\"#5e35b1\", greatco:\"#2e5d4b\", ledgerdemo:\"#8a5a00\", staff:\"#0d47a1\"",
+      "principledash:\"#5e35b1\", ledgerdemo:\"#8a5a00\", staff:\"#0d47a1\""
+    ],
+    [
+      "/* 위대한 기업 탭: 처음 누를 때만 has/great-companies-panel.js를 불러온다(로그인 초기 로딩에 넣지 않음). 실패하면 다음 진입에 다시 시도. */\nfunction hasLoadGreatCompanies(){\n  if(window.HASGreatCompaniesPanel){window.HASGreatCompaniesPanel.show();return;}\n  if(hasLoadGreatCompanies.busy)return; hasLoadGreatCompanies.busy=true;\n  var el=document.getElementById(\"panel-greatco\"); if(el) el.textContent=\"위대한 기업 화면을 불러오는 중…\";\n  var s=document.createElement(\"script\"); s.src=\"has/great-companies-panel.js\";\n  s.onload=function(){hasLoadGreatCompanies.busy=false; if(window.HASGreatCompaniesPanel) window.HASGreatCompaniesPanel.show();};\n  s.onerror=function(){hasLoadGreatCompanies.busy=false; var e=document.getElementById(\"panel-greatco\"); if(e) e.textContent=\"위대한 기업 화면을 불러오지 못했습니다. 탭을 다시 누르면 다시 시도합니다.\";};\n  document.head.appendChild(s);\n}\nfunction switchTab(tab) {\n  var group=TAB_TO_GROUP[tab];",
+      "function switchTab(tab) {\n  var group=TAB_TO_GROUP[tab];"
+    ],
+    [
+      "  if(tab===\"principledash\") renderPrincipleDash();\n  if(tab===\"greatco\") hasLoadGreatCompanies();\n",
+      "  if(tab===\"principledash\") renderPrincipleDash();\n"
     ]
   ],
   "radar/ui.js": [

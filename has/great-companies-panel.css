@@ -1,0 +1,22 @@
+/* HAS 위대한 기업 탭 — #panel-greatco 안에서만 적용. 글자 12px 이상·#333 이상 진하기. */
+#panel-greatco .hgc{max-width:960px;margin:8px auto;padding:12px 12px 24px;background:#f4f7f6;border-radius:12px;color:#1b2a30;font-size:15px;line-height:1.6;overflow-wrap:anywhere}
+#panel-greatco .hgc h2{font-size:19px;margin:4px 0 10px;color:#123}
+#panel-greatco .hgc h3{font-size:16px;margin:0 0 4px;color:#123}
+#panel-greatco .hgc h4{font-size:14px;margin:10px 0 4px;color:#123}
+#panel-greatco .hgc p{margin:4px 0}
+#panel-greatco .hgc ul{margin:4px 0;padding-left:20px}
+#panel-greatco .hgc li{margin:2px 0;font-size:14px}
+#panel-greatco .hgc-notice{border-left:4px solid #2e5d4b;background:#e6f0ec;padding:8px 12px;margin:0 0 10px;font-size:14px}
+#panel-greatco .hgc-status{border:1px solid #b7c7c0;background:#fff;border-radius:8px;padding:8px 12px;margin:0 0 10px;font-size:14px}
+#panel-greatco .hgc-sum{font-weight:700;margin:8px 0}
+#panel-greatco .hgc-card{background:#fff;border:1px solid #c4d2cc;border-radius:10px;padding:10px 12px;margin:0 0 10px}
+#panel-greatco .hgc-sub{font-size:13px;color:#333}
+#panel-greatco .hgc-tags{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+#panel-greatco .hgc-tag{display:inline-block;border-radius:6px;padding:2px 8px;font-size:13px;font-weight:700;border:1px solid #8a9a94;color:#333;background:#f3f5f4}
+#panel-greatco .hgc-tag.ok{color:#145a32;border-color:#145a32;background:#e4f2e8}
+#panel-greatco .hgc-tag.warn{color:#7a4300;border-color:#7a4300;background:#fbefdc}
+#panel-greatco .hgc-tag.bad{color:#8a1c1c;border-color:#8a1c1c;background:#f8e3e3}
+#panel-greatco .hgc-tag.hold{color:#333;border-color:#555;background:#eceeef}
+#panel-greatco details{margin-top:6px}
+#panel-greatco summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-weight:700;color:#0a3d55;font-size:14px}
+#panel-greatco .hgc-perf,#panel-greatco .hgc-empty{font-size:13px;color:#333}

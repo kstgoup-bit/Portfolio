@@ -9,7 +9,7 @@
     "has/benchmark-history-policy.js": "8d64e852feb00050449f3b66b51e0188059a77accc10dcff9e8880a3969893f9"
   },
   "currentSha256": {
-    "portfolio_v5.html": "e3e86a4959b10622bac93782a3ae3ca35e45460879ce41ca5be9578b0afeaf9e",
+    "portfolio_v5.html": "fb494559729f45bec2eb1514beacf1f2f36459416b36c7fcc79adf42fd933dc0",
     "radar/ui.js": "30cf84406bf9e6d7156b44f19c955c103f32fdd5d9095811512806f5350686e5",
     "has/advisor-panel.js": "2da44530135fe29fc9cd630ddad49ec18c68f3314b53133e94829e1aef1689b7",
     "service-worker.js": "bd7c5a33f7070bf8e4791fedb5cbfc4572741076023efb1090e838d8041c7b72",
@@ -37,6 +37,8 @@
     "has/great-companies-fixtures.js": "5765a293b356d799359635d821ee105b6f178ac0b598121ca9336507a3ca0b5e",
     "has/great-companies-lab.js": "dff3b8ae0da5e6f0b36f203cd787b257695f4afa0fc694dff1d40dee7c08db5a",
     "has/great-companies-lab.html": "d0854db37484b24614f5178d661caff0ea3022b8446cee22802cdbb0e29f8ff5",
-    "has/great-companies-lab.css": "b7632ed39cda96f621e3a1de337f8b68234b501e2db0584a23ee7b637a737e37"
+    "has/great-companies-lab.css": "b7632ed39cda96f621e3a1de337f8b68234b501e2db0584a23ee7b637a737e37",
+    "has/great-companies-panel.js": "6f55abebd39c6d1c32ad65e1f281de8655f2ce8230779de73bb93ff72c6d0f7d",
+    "has/great-companies-panel.css": "2273c33a1618da5b5d0c2560c2bf1bf7729561733e6517ca4b6ec61b477c26ce"
   }
 }

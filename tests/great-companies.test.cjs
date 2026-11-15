@@ -124,7 +124,7 @@ test('금지어 검사: 출력에 확정·주문 표현이 섞이면 표시 차�
 test('순수 모듈: 네트워크·저장소·DOM·운영 앱 참조 없음, 운영 portfolio_v5.html 미연결',()=>{
   const src=fs.readFileSync(path.join(__dirname,'../has/great-companies.js'),'utf8');
   assert.doesNotMatch(src,/fetch\(|XMLHttpRequest|localStorage|sessionStorage|indexedDB|document\.|navigator\.|setTimeout|script\.google/);
-  const app=fs.readFileSync(path.join(__dirname,'../portfolio_v5.html'),'utf8');assert.doesNotMatch(app,/great-companies/);
+  const app=fs.readFileSync(path.join(__dirname,'../portfolio_v5.html'),'utf8');assert.doesNotMatch(app,/<script[^>]+great-companies|great-companies\.js/); // 운영 앱은 탭 진입 시 패널만 지연 주입(엔진은 패널이 불러옴)
 });
 // GPT-REVIEW-great-companies-20261115-1431 반영 시험
 test('1431-② 종목 정합성: 재무·밸류에이션 티커 불일치 → 판단 보류',()=>{
