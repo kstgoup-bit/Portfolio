@@ -1,3 +1,14 @@
+STATUS: RELEASED (2026-11-15 17:20 KST, 순태씨 대화 승인 '올리고 뉴스 코드 아예 빼') · 뉴스 코드 완전 삭제분 지피 사후 검토 요청
+ORDER-ID: 순태씨 직접 지시 · GPT-REVIEW-remove-news-tab-1631(APPROVE, 메뉴 2줄 범위)
+BASE: 2a0af56e3c1db11ab44b8a0d9a26afa1fc325e71
+HEAD: b362933a1ec89efbd0ba7cd9fe47828dfd81c837 (main 운영 병합) · 브랜치 704dd9d
+REVIEW-SCOPE(사후): 368e77c...d3f5fcc — portfolio_v5.html 뉴스 패널·loadPortfolioNews/translateAndRender/renderNews·#panel-news CSS·tabColors.news 삭제, tests/lib/live-data-edits.json(+4쌍), live-data-pins, daily-repair-pins(removedExternalURLOccurrences +3), security-stage20(키 쿼리 5→4), risk-menu 단언. 병합 704dd9d = 재무 필터 ca5da5f(지피 1531 APPROVE) + edits/pins 충돌 해결.
+
+# 운영 반영 (2026-11-15 17:20 KST)
+- 순태씨 결정: 운영 반영 + 뉴스 코드 완전 삭제. 외부 호출 3곳 사라짐(news.google RSS, corsproxy.io, Gemini 번역 key 쿼리 1곳).
+- 병합 main 전체 2141 중 2139 통과/0 실패/2 skip(DST), 비밀값 0. Chromium 360/390/430: 하위 탭 5개 이동 정상, 뉴스 흔적 0, HASFundamentalFilter 로드, 넘침 0, pageerror 0. Pages run 43693516024.
+- 미검증: 실제 갤럭시.
+
 STATUS: READY_FOR_REVIEW (뉴스 메뉴 제거 — 순태씨 2026-11-15 15:20 대화 지시, 진행 승인됨. 운영 반영은 순태씨 '올려' 후)
 ORDER-ID: 순태씨 직접 지시(2026-11-15 15:20 "다음에 작업할 때 뉴스 메뉴 지우자")
 BASE: 2a0af56e3c1db11ab44b8a0d9a26afa1fc325e71 (main)
