@@ -1,9 +1,30 @@
-STATUS: READY_FOR_REVIEW (위대한 기업 엔진 단위 — 지피 GPT-REVIEW-great-companies-20261115-1830 CHANGES_REQUESTED 반영 · 재검토 요청. 시험 전용 UI는 다음 단위)
-ORDER-ID: GPT-20261115-1326 · GPT-REVIEW-great-companies-20261115-1830 (오래된 밸류에이션 '미연결' 오표시 CHANGES_REQUESTED) · 이전 1431·1531·1630·1730 반영분 포함
-BASE: e0ee68ef528a315a5b4e08d07dd1e1d6f083bc53 (지피 1830 검토 HEAD)
-HEAD: main CLAUDE-LATEST.md의 HEAD(이 보고서가 든 브랜치 최신 커밋) · CODE-COMMIT은 같은 커밋(코드·시험·보고서 한 커밋)
+STATUS: READY_FOR_REVIEW (시험 전용 UI 단위 — ORDER 3절 5)·6) 격리 화면. 엔진은 지피 GPT-REVIEW-great-companies-20261115-1927 APPROVE(정적, 엔진 한정))
+ORDER-ID: GPT-20261115-1326 · GPT-REVIEW-great-companies-20261115-1927(APPROVE, 후속 UI 검증 항목: 모든 분기에서 valuation.reason 표시)
+BASE: ddd4fd77260357e7c9537b5d39007e4ee342a086 (지피 1927 APPROVE HEAD) · main 5e65e7c 병합(f4fc6e7, 문서만)
+HEAD: main CLAUDE-LATEST.md의 HEAD(이 보고서가 든 브랜치 최신 커밋) · 코드·시험·보고서 같은 커밋
 BRANCH: work/claude-great-companies-20261115
-REVIEW-SCOPE: e0ee68e...HEAD — has/great-companies.js(valuationBand() reason 필드, relate() fear·priority 분기 보류 사유 구분), tests/great-companies.test.cjs(새 3건), tests/lib/live-data-pins.json(SHA 1개), 이 보고서.
+REVIEW-SCOPE: ddd4fd7...HEAD — 새 파일 has/great-companies-fixtures.js · has/great-companies-lab.html · has/great-companies-lab.js · has/great-companies-lab.css · tests/great-companies-lab.test.cjs, tests/lib/live-data-pins.json(addedRuntimeFiles 4줄), 이 보고서. (병합 커밋 f4fc6e7의 docs/team 변경은 main 문서라 범위 밖)
+
+# 0-g. 시험 전용 UI (2026-11-15 20시 정각 실행)
+## 변경 파일
+- `has/great-companies-fixtures.js`(신규, 순수 UMD): 가상 기업 10개(SYNA~SYNJ, 이름 '가상 기업 A~J', synthetic:true). SEC companyfacts 모양 가상 숫자 → 재무 필터 normalize → hasGreatCompanyInput.v1. 평가 기준시각은 가상 고정 2026-11-15(실제 날짜로 평가하면 가상 기준일이 오래돼 결과가 바뀜 — 화면에 표시).
+  사례: ① 경쟁력 유지·급락 ② 훼손·급락 ③ 고점권·한도 이내 ④ 고평가+집중 ⑤ 일시 실적 악화+직전 평가 대비 하락 ⑥ 재무 공시 없음 ⑥ 밸류에이션 기준일 오래됨 ⑦ 훼손인데 상승 ⑧ 신호 상충 + 가격 기준일 오래됨·밸류에이션 미연결.
+- `has/great-companies-lab.html/.js/.css`(신규): 독립 경로, `?test=1` 게이트(닫히면 안내만), CSP connect-src 'none'. 목록 카드(가상 자료 표시·상태·의견·가격 위치·밸류에이션 사유·주의 표시) → '자세히 보기'(#d=티커, 브라우저 뒤로가기 지원) → 판정 이유·주의 근거(경쟁력 경고/위험 근거(미검증) 분리)·관련 가격 신호·6개 영역(근거·반론·미확인)·보유할 이유·위험·변경사항·출처·기준일·미확인·매수/매도 게이트 닫힘·참고 점수.
+- **1927 후속 반영**: 밸류에이션 줄은 모든 분기(priority·recheck·erosion·가격 stale·판단 보류)에서 `priceRelation.valuation.reason/text`를 따로 표시 — '미연결' / '기준일 오래됨 — 확인 전 판단 보류' / '입력 미검증(가상 입력)' / 판단 보류 출력은 '평가하지 않음(판단 보류 상태)'. 오래됨을 미연결로 표시하지 않음(시험).
+- 지연 평가·재사용: 게이트 열리고 목록을 처음 그릴 때 createEvaluator로 1회 평가, 목록↔상세 전환은 결과 재사용(계산 10회·재사용 0회 유지). 새로고침은 새 인스턴스라 재계산. 저장소 사용 없음.
+- `tests/lib/live-data-pins.json`: addedRuntimeFiles에 새 파일 4개 sha256. currentSha256(portfolio_v5.html)·live-data-edits 변경 없음(앱 미수정).
+- portfolio_v5.html·서비스워커·manifest·GAS·투자기록·백업·localStorage 변경 0. 운영 앱·다른 has 화면이 great-companies를 참조하지 않음(시험).
+
+## 시험(클로 실행)
+- 새 `tests/great-companies-lab.test.cjs` 9건: CSP·스크립트 목록·네트워크/저장소/HTML 주입 없음, 게이트 OFF·운영 미연결, 가상 사례 10개 상태, 목록 카드 주의 표시 ⇔ warning||riskWarning, 밸류에이션 사유 4종 구분, 클릭 흐름(상세 섹션 7종·6영역·게이트 닫힘·목록 복귀·10개 재진입 후 계산 10회 그대로), 주의 근거 분리·판단 보류 상세·잘못된 해시, 화면 전체 금지어·가치 확정 문구·'검토 대상/가능' 없음·undefined/null/NaN 없음, 핀 일치.
+- 전체: 2187 중 2185 통과 / 0 실패 / 2 skip(DST). jsdom 31.0.1(별도 폴더 NODE_PATH). 참고: jsdom 24에서는 기존 universe-screen-dom 시험 1건이 비동기 오류로 실패(이번 변경과 무관, 최신 jsdom에서 통과). 비밀값 scan-secrets findings [].
+- Chromium(Playwright) 360/390/430: 가로 넘침 없음(목록·상세), 최소 글자 12px, 본문 글자색 #333 이상 진하기, 외부 요청 0, 콘솔·페이지 오류 0, 클릭→상세→뒤로가기→목록→상세→'목록으로' 흐름 통과, 게이트 OFF 안내, 새로고침 시 재계산(화면 전환 1회로 초기화).
+- 측정(이 컨테이너 Chromium, 로컬 서버, 참고치): 첫 화면 137~303ms, 상세 전환 54~88ms, 뒤로가기 15~21ms, 엔진 첫 평가 6~26ms. 목표치(첫 화면 2초·재전환 0.3초)와 같은 조건의 기존 화면 비교·갤럭시 실기기 측정은 **미검증**.
+
+## 미완료·미검증·순태씨 결정 필요
+- 전부 가상 자료. 실제 SEC·밸류에이션·4단계 조사 연결 없음, 매수·매도 게이트 닫힘 유지.
+- 갤럭시 실기기 확인 미수행(미검증).
+- **운영 앱 '위대한 기업' 탭 연결은 이 ORDER 범위 밖** — 지피 검토 후 순태씨 승인 필요(연결 방식: 지연 로딩 설계 1절 제안 그대로).
 
 # 0-f. 지피 1830 검토 반영 (2026-11-15 19시 정각 실행)
 1. **보류 사유 구분**: `valuationBand()` 출력에 `reason` 추가 — `missing`(입력 없음) / `stale`(입력 있음, 기준일 31일 초과) / `unverified`(최신 입력 low·mid·high, 원본 미검증). band 값과 기존 `text`는 그대로.
