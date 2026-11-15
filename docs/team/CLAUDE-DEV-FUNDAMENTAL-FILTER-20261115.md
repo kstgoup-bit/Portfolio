@@ -1,3 +1,20 @@
+STATUS: READY_FOR_REVIEW (재무 필터 3단계 — 지피 1430 CHANGES_REQUESTED 3항 반영 · 재검토 요청, 브랜치 한정, 운영 미반영)
+ORDER-ID: GPT-REVIEW-fundamental-filter-20261115-1430 (CHANGES_REQUESTED 1~3항) · 순태씨 대화 2026-11-15 '승인'(3단계)
+BASE: eb98f24675747510c6db53dfe7c310bf25aef36d
+HEAD: main CLAUDE-LATEST.md의 HEAD(이 보고서가 든 브랜치 최신 커밋)
+CODE-COMMIT: 7d4e2ff056403079c9e3e2126b0b43e7d07a6f77
+REVIEW-SCOPE: eb98f24...7d4e2ff — has/live-price-reference.js(캐시 항목에 fundamental 복사 1곳), has/fundamental-filter.js(display 종목 일치·날짜 충돌 보류, ifrs-filer 결과에 ticker, 근거 줄 '원본 독립 대조 미실시'), has/fear-top.js·has/live-price-panel.js(display에 ticker 전달), tests/fundamental-display.test.cjs(기존 6건 수정 + 새 4건), tests/lib/live-data-pins.json(SHA 4개)
+
+## 지피 1430 검토 반영 (2026-11-15 15시 정각 실행)
+1. 환호성 전달 경로: `createService` 수집 성공 시 캐시 항목에 `fundamental`(원본 응답 `raw.fundamental`의 깊은 복사, 일반 객체가 아니면 null)을 저장 → `snapshot()`·`peek()`로 패널까지 전달. 실패·이전 응답 시엔 기존 항목(이전 fundamental 포함)을 그대로 유지하고 '지난 성공 자료' 표시. 시험: 실제 `HASLivePriceReference` + 실제 패널 + JSONP 합성 응답(스크립트 콜백 직접 호출, 네트워크 0) 전 구간, 서비스 단위 복사·null 처리.
+2. 종목 정합성: `display()`는 `options.ticker`가 없거나 `raw.ticker`와 다르면 '재무: 종목 불일치(A ≠ B) · 판단 보류'/'대상 종목 미지정' — 라벨 없음. ifrs-filer 결과도 ticker 일치 필요. 결산일이 오늘 이후, 공시일이 결산일 이전·오늘 이후면 '결산일·공시일 충돌' 보류. 근거 줄은 '<티커> SEC 공시(XBRL) · 원본 독립 대조 미실시 · 임계값 미검증 제안값'.
+3. 미연결·실패 경로(정책 명시): 가격 근거 없음(missing/분석 실패) → 카드는 '가격 근거 없음 · 판단 보류'만, 재무 줄 표시 안 함. stale → '지난 성공 자료' 경고와 함께 재무 줄 표시(재무 자체 신선도는 assess가 별도 판정). fundamental 미전송(현재 운영 GAS) → '재무: 미연결 · 판단 보류'. 시험으로 보유종목 배열 불변·localStorage 쓰기 0 확인. 가격 조회·보유 정보·투자기록 변경 없음.
+- 시험: 전체 2141 중 2139 통과/0 실패/2 skip(DST), 비밀값 0. portfolio_v5.html 변경 0.
+- 미검증: 화면 레이아웃 변경 없음(문구만)이라 이번엔 Chromium 360/390/430 재확인 미실시. 실제 GAS `fundamental` 수집 미구현, 갤럭시 미확인.
+- 순태씨 결정 필요: 운영 반영 여부(지피 재검토 후), 4단계 GAS 수집 시점.
+
+---
+# (이전) 3단계 최초 보고
 STATUS: READY_FOR_REVIEW (재무 필터 3단계 — 곡소리·환호성 화면 재무 라벨, 합성 자료 · 브랜치 한정, 운영 미반영)
 ORDER-ID: 순태씨 대화 2026-11-15 13시대 '승인'(3단계 진행 승인) · 이전 GPT-REVIEW-fundamental-filter-20261115-1130 APPROVE(2단계)
 BASE: 488cd55a29784febe5634268ceeeefd1bd52ccfb (+ main 6741702 병합)
