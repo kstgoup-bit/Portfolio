@@ -1,17 +1,25 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
-STATUS: READY_FOR_REVIEW (검토 요청 2건 — ① 재무 필터 3단계 화면 라벨 ② 위대한 기업 1단계 설계 문서. 둘 다 브랜치 한정, 운영 미반영)
-REPORT: docs/team/CLAUDE-DEV-FUNDAMENTAL-FILTER-20261115.md · docs/team/CLAUDE-DEV-GREAT-COMPANIES-20261115.md (main 사본 = 각 브랜치 HEAD 보고서와 동일)
-BRANCH: work/claude-fundamental-filter-20261115 · work/claude-great-companies-20261115
-HEAD: eb98f24675747510c6db53dfe7c310bf25aef36d (재무 필터, 코드 45beaa4) · 19d3f23ee145de93f1713afbaeb7029324cb9461 (위대한 기업, 문서만)
-UPDATED: 2026-11-15 13:50 KST (순태씨 대화)
+STATUS: READY_FOR_REVIEW (검토 요청 3건 — ① 위대한 기업 엔진 단위(ORDER GPT-20261115-1326) ② 재무 필터 3단계 화면 라벨 ③ 위대한 기업 1단계 설계. 모두 브랜치 한정, 운영 미반영)
+REPORT: docs/team/CLAUDE-DEV-GREAT-COMPANIES-20261115.md(0절 = 엔진 단위) · docs/team/CLAUDE-DEV-FUNDAMENTAL-FILTER-20261115.md (main 사본 = 각 브랜치 HEAD 보고서와 동일)
+BRANCH: work/claude-great-companies-20261115 · work/claude-fundamental-filter-20261115
+HEAD: 72e12cd4ac7bf516bcde4f9412f2d65335722180 (위대한 기업, 코드 d2af13c — 재무 필터 eb98f24 병합 위) · eb98f24675747510c6db53dfe7c310bf25aef36d (재무 필터, 코드 45beaa4)
+UPDATED: 2026-11-15 14:15 KST (정각 실행)
 
-- ① 순태씨 '승인'으로 재무 필터 3단계: 곡소리 카드·환호성 보유종목에 재무 라벨(합성 자료, 운영 GAS는 fundamental 미전송 → '재무: 미연결'만 보임). 새 시험 6건, 전체 2137 중 2135 통과/0 실패/2 skip, 비밀값 0, 360/390/430 가로 넘침 0.
-- ② 순태씨 지시서 '위대한 기업 탭 신설'(대화 붙여넣기) 1단계: 기존 자산 조사·6영역·판단 상태 규칙·통합 매트릭스·데이터 계약·지연 로딩 계획. 코드 변경 0. 2단계는 지피 검토 뒤.
-- 지피 지시서 현황: 미처리 0건.
+- ① has/great-companies.js: 6영역·4상태(장기보유 우선 검토/경쟁력 재점검/보유 논리 훼손 우려/판단 보류)·곡소리·환호성 관계 문구·메모리 캐시. 재무 필터 재사용. 합성 시험 16건(지시서 ①~⑩). 전체 2153 중 2151 통과/0 실패/2 skip, 비밀값 0. 설계 대비 변경: 훼손 우려를 정성 미확인 보류보다 먼저 판정(경고 숨기지 않음) — 검토 요청.
+- 시험 전용 UI·브라우저 확인은 다음 단위. 운영 앱·GAS·백업 변경 0.
+- 지피 지시서 현황: GPT-20261115-1326 진행 중(엔진 단위 완료, UI 단위 남음). 그 외 미처리 0건.
 
 ## 이전 기록
 
+- (이전) STATUS: READY_FOR_REVIEW (검토 요청 2건 — ① 재무 필터 3단계 화면 라벨 ② 위대한 기업 1단계 설계 문서. 둘 다 브랜치 한정, 운영 미반영)
+- (이전) REPORT: docs/team/CLAUDE-DEV-FUNDAMENTAL-FILTER-20261115.md · docs/team/CLAUDE-DEV-GREAT-COMPANIES-20261115.md (main 사본 = 각 브랜치 HEAD 보고서와 동일)
+- (이전) BRANCH: work/claude-fundamental-filter-20261115 · work/claude-great-companies-20261115
+- (이전) HEAD: eb98f24675747510c6db53dfe7c310bf25aef36d (재무 필터, 코드 45beaa4) · 19d3f23ee145de93f1713afbaeb7029324cb9461 (위대한 기업, 문서만)
+- (이전) UPDATED: 2026-11-15 13:50 KST (순태씨 대화)
+- ① 순태씨 '승인'으로 재무 필터 3단계: 곡소리 카드·환호성 보유종목에 재무 라벨(합성 자료, 운영 GAS는 fundamental 미전송 → '재무: 미연결'만 보임). 새 시험 6건, 전체 2137 중 2135 통과/0 실패/2 skip, 비밀값 0, 360/390/430 가로 넘침 0.
+- ② 순태씨 지시서 '위대한 기업 탭 신설'(대화 붙여넣기) 1단계: 기존 자산 조사·6영역·판단 상태 규칙·통합 매트릭스·데이터 계약·지연 로딩 계획. 코드 변경 0. 2단계는 지피 검토 뒤.
+- 지피 지시서 현황: 미처리 0건.
 - (이전) STATUS: APPROVED_BY_GPT (재무 필터 2단계 — GPT-REVIEW-fundamental-filter-20261115-1130 APPROVE, 정적 검토 한정 · 순태씨 3단계 결정 대기, 앱·GAS 연결 없음)
 - (이전) REPORT: docs/team/CLAUDE-DEV-FUNDAMENTAL-FILTER-20261115.md (main 사본 = 브랜치 HEAD 보고서와 동일)
 - (이전) BRANCH: work/claude-fundamental-filter-20261115
