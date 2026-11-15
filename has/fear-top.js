@@ -1,6 +1,6 @@
 /* 곡소리 후보 Top 10 (3개 먼저, 나머지는 펼치기). 가격 위치만 본 임시 순위이며 매수 의견을 만들지 않는다.
  * 네트워크: 사용자가 '곡소리 후보 조회'를 누를 때만 GAS 요약 1회(JSONP, type=screen). 자동 조회 없음.
- * 저장: 메모리 캐시만(한국시간 날짜 기준), localStorage·백업 쓰기 없음. 재무 확인(2차) 연결 전이라 모든 항목 '판단 보류'. */
+ * 저장: 메모리 캐시만(한국시간 날짜 기준), localStorage·백업 쓰기 없음. 재무 확인(2차): 요약 항목의 fundamental(normalize 결과)이 있을 때만 재무 라벨, 없으면 '미연결'. 어떤 경우든 의견은 '판단 보류'. */
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory(); else root.HASFearTop = factory();
 })(typeof window !== 'undefined' ? window : this, function () {
@@ -50,12 +50,19 @@
     function synthetic(s) {
       return /synthetic|test-only/i.test(String(s.generation)) || (s.sources || []).some(function (x) { var v = x && x.source || {}; return /synthetic|test-only|example\.invalid/i.test(String(v.version) + ' ' + String(v.url)); });
     }
+    function fund(r) {
+      var F = deps.fundamental || W.HASFundamentalFilter;
+      if (!F || typeof F.display !== 'function') return null;
+      try { return F.display(r.fundamental, { now: now(), market: r.market, context: 'fear' }); } catch (e) { return { text: '재무: 판정 오류 · 판단 보류', note: '', lines: [] }; }
+    }
     function card(r, i, aged) {
       var a = node('article');
       a.appendChild(node('strong', (i + 1) + '. ' + r.ticker + ' · ' + r.market));
       a.appendChild(node('p', (aged ? '지난 요약 · ' : '') + '52주 고점 대비 ' + pct(r.drawdownPct) + ' · 자료 기준일 ' + (r.asOf || '없음')));
       a.appendChild(node('p', '가격 참고값 ' + (Number.isFinite(r.price) ? r.price.toLocaleString('ko-KR', { maximumFractionDigits: 2 }) + ' ' + (r.currency || '통화 미상') : '없음') + ' · 종가 확정·조정기준 미검증'));
-      a.appendChild(node('p', 'AI 의견: 판단 보류 · 기업 확인(재무) 전'));
+      var fd = fund(r);
+      a.appendChild(node('p', fd ? fd.text : 'AI 의견: 판단 보류 · 기업 확인(재무) 전'));
+      if (fd && fd.note) a.appendChild(node('p', fd.note));
       var d = node('details'); d.appendChild(node('summary', '근거·반론 보기'));
       d.appendChild(node('p', '근거: 고점 대비 하락폭이 후보 200종목 중 큰 편입니다. 반론: 가격 하락은 기업가치 훼손일 수도 있습니다. 재무·실적·공시 확인 전에는 매수를 권하지 않습니다.'));
       [1, 3, 6].forEach(function (n) {
@@ -63,12 +70,13 @@
         d.appendChild(node('p', n + '개월 ' + pct(x && x.value) + (ok && x.startDate ? ' (' + x.startDate + '~' + x.endDate + ')' : '') + ' · 지수 초과 ' + (x && Number.isFinite(x.excessPct) ? x.excessPct.toFixed(1) + '%p' : '자료 부족')));
       });
       d.appendChild(node('p', (r.source || '출처 없음') + ' · ' + (r.currency || '통화 미상') + ' · 조정/종가확정 미검증'));
+      if (fd) fd.lines.forEach(function (t) { d.appendChild(node('p', t)); });
       a.appendChild(d); return a;
     }
     function render() {
       container.replaceChildren(); container.dataset.testid = 'fear-top'; container.style.overflowWrap = 'anywhere';
       container.appendChild(node('h3', '곡소리 후보 Top 10'));
-      container.appendChild(node('p', '200종목 중 가격 하락폭만 본 임시 순위입니다. 기업 확인(재무) 전이며 매수 권유가 아닙니다. 최종 결정은 순태씨가 합니다.'));
+      container.appendChild(node('p', '200종목 중 가격 하락폭만 본 임시 순위입니다. 재무 라벨은 미국 SEC 연간 공시 참고(밸류에이션 연결 전)이며 매수 권유가 아닙니다. 최종 결정은 순태씨가 합니다.'));
       var btn = node('button', state.busy ? '조회 중…' : '곡소리 후보 조회'); btn.type = 'button'; btn.disabled = state.busy; btn.style.minHeight = '44px'; btn.addEventListener('click', refresh); container.appendChild(btn);
       var st = node('p', state.error || (state.summary ? '' : '버튼을 누르면 설정된 GAS에서 오늘의 요약을 1회 조회합니다.')); st.setAttribute('role', 'status'); container.appendChild(st);
       if (!state.summary) return;
