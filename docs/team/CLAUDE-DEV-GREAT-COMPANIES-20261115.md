@@ -1,9 +1,29 @@
-STATUS: READY_FOR_REVIEW (지피 GPT-REVIEW-great-companies-20261115-2130 CHANGES_REQUESTED 2건 반영 — 상품 유형 미확인 보류·다계좌 투자원칙 기록 선택/상충. 브랜치 한정, main 병합·운영 반영은 지피 APPROVE + 순태씨 '올려' 후)
-ORDER-ID: 순태씨 직접 결정(2026-11-15 '진행') · 선행 GPT-20261115-1326 · 지피 검토 GPT-REVIEW-great-companies-20261115-2130
-BASE: dad6ac509cf02c73d451ef07f93610a03909b31f (지피 2130 검토 HEAD) · main b340371 병합(bd2b949, 문서만)
+STATUS: READY_FOR_REVIEW (지피 GPT-REVIEW-great-companies-20261115-2230 CHANGES_REQUESTED 2건 반영 — 다계좌 투자원칙 원문 내용 비교·상품 유형 출처 미검증/상충 보류. 브랜치 한정, main 병합·운영 반영은 지피 APPROVE + 순태씨 '올려' 후)
+ORDER-ID: 순태씨 직접 결정(2026-11-15 '진행') · 선행 GPT-20261115-1326 · 지피 검토 GPT-REVIEW-great-companies-20261115-2230
+BASE: 46d05f728a3bf969b1d1ded178c6cfbb6f03829f (지피 2230 검토 HEAD) · main 0a184dd 병합(문서만)
 HEAD: main CLAUDE-LATEST.md의 HEAD(이 보고서가 든 브랜치 최신 커밋) · 코드·시험·보고서 같은 커밋
 BRANCH: work/claude-great-companies-20261115
-REVIEW-SCOPE: dad6ac5...HEAD 중 has/great-companies-panel.js(상품 유형·투자원칙 기록 선택), has/great-companies.js(kind 'unknown' 허용·보류 1줄), tests/great-companies-panel.test.cjs(기존 단언 3곳 변경 + 신규 3건), tests/lib/live-data-pins.json(2개 해시), 이 보고서 0-i절. portfolio_v5.html 변경 없음. (병합 커밋의 docs/team 변경은 범위 밖)
+REVIEW-SCOPE: 46d05f7...HEAD 중 has/great-companies-panel.js(원문 비교·상품 유형 해석), tests/great-companies-panel.test.cjs(기존 단언 2곳 변경 + 신규 3건), tests/lib/live-data-pins.json(패널 해시 1개), 이 보고서 0-j절. has/great-companies.js·portfolio_v5.html 변경 없음. (병합 커밋의 docs/team 변경은 범위 밖)
+
+# 0-j. 지피 2230 CHANGES_REQUESTED 반영 (2026-11-15 23시 정각 실행)
+## 1. 다계좌 투자원칙 — 원문 내용으로 비교
+- `thesisOf()`가 비교 전용 값 `_cmp`(투자 이유·논리 상태·점검 항목 [문구, 확인 여부]·논리 붕괴 조건)를 만든다. 문자열은 NFC 정규화 + 연속 공백 1칸 + 앞뒤 공백 제거. `_cmp`는 열거 불가 속성이라 결과 행·JSON·화면에 나오지 않고, 저장·전송도 없음(시험으로 확인).
+- 실제 기록이 2개 이상이면 `_cmp` 항목별로 비교 → 하나라도 다르면 `recordConflict=true`, `input.thesis=null`, `record={conflict, accounts, diffs}`. `diffs`는 다른 **항목 이름만**(투자 이유/논리 상태/점검 항목/논리 붕괴 조건) — 원문은 노출하지 않음. 화면: '…계좌 기록이 서로 다름: 투자 이유, 어느 쪽도 평가에 쓰지 않음'.
+- 같은 내용(공백·유니코드 표기만 다름)이면 기존처럼 선택. 빈→유효·유효→빈 처리 유지. 의미 판단은 하지 않고 글자가 다르면 상충으로 보수 처리(한 글자 차이도 확인 필요).
+## 2. 상품 유형 — productType 단독으로 company 확정 금지, 상충 보류
+- 보유 기록 `productType`은 출처·기준일 검증 수단이 없으므로 'company'로 승격하지 않음 → `unknown`, 태그 '상품 유형 미확인(기록상 일반기업 — 출처 미검증)'. `productType:'etf'`는 'ETF 추정'으로만(확정 'ETF' 라벨 제거).
+- 계좌별 신호(기록 유형·ETF 추정)를 모은 뒤 순서와 무관하게 해석(`resolveKind`): 'company' 기록 + ('etf' 기록 또는 ETF 추정 신호) → `unknown` + `typeConflict` + 태그 '상품 유형 상충 — 확인 필요'. 첫 계좌 값 유지 방식 삭제.
+- 현재 앱 보유 기록엔 productType 칸이 없어 운영 화면 결과는 0-i와 같음(전 종목 판단 보류). 신뢰할 상품 유형 출처(KRX 상품 구분·SEC 공시 등) 연결은 후속 설계.
+## 시험(클로 실행)
+- 기존 단언 변경 2곳: MSFT productType 'company' → 'unknown', 상충 record에 diffs 추가.
+- 신규 3건: ① 지피 반례(투자 이유 원문만 상반 → 상충, 원문 비노출), 공백만 다름·NFC/NFD 차이 → 같은 기록, 의미 다른 원문, 다른 logicBreak, 점검 항목 문구/확인 여부 차이, 빈↔유효 유지, `_cmp` 결과 미포함, 원본 동결(freeze)·게이트 닫힘 ② QQQ·KODEX미국S&P500TR·TIGER미국S&P500 + productType 'company' → 상충, 같은 티커 company/etf 계좌 순서 바꿔도 상충, QLD·GLDM(유형 없음/ company 기록), 삼성전자·AAPL 보통주, 한 계좌만 ETF 이름, etf 단독 — 모두 입력 검증 통과·판단 보류·buy/sell 게이트 닫힘 ③ 화면 태그(출처 미검증·상품 유형 상충·투자 이유 상충, 원문 비노출, 게이트 열림 문구 없음)·원본 불변.
+- 전체: 2199 중 2197 통과 / 0 실패 / 2 skip(DST). 비밀값 findings []. 
+- Chromium(Playwright, 패널 단독 시험 페이지 + 가상 보유 4종목, 외부 요청 차단) 360/390/430: 가로 넘침 0, 12px 미만 0, 페이지 오류 0, 새 태그 3종 표시, 원문 비노출, localStorage 전후 동일. 갤럭시 실기기 미검증.
+## 미검증·한계
+- 원문 비교는 글자 기준(의미 동일성 판단 안 함) → 표현만 바꾼 같은 뜻도 '상충'으로 보일 수 있음(안전 방향, 순태씨가 기록 하나로 맞추면 해소).
+- 상품 유형의 신뢰 출처는 아직 없음 → 재무 연결 단계에서 설계 필요.
+## 순태씨 결정 필요
+- 없음(지피 재검토 APPROVE 후 운영 반영 여부만 '올려'로 결정).
 
 # 0-i. 지피 2130 CHANGES_REQUESTED 반영 (2026-11-15 22시 정각 실행)
 ## 1. 상품 유형 — 일반기업으로 단정하지 않음

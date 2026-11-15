@@ -12,7 +12,9 @@
   var STATE_CLS = { priority: 'ok', recheck: 'warn', erosion: 'bad', hold: 'hold' };
   /* 상품 유형(2130 지피 CR 1): 앱 보유 기록에는 믿을 만한 상품 유형 칸이 없다. 그래서 일반기업으로 단정하지 않는다.
      - 'etf' = ETF 표시가 뚜렷할 때만(국내: 운용사 상표로 시작하고 바로 뒤가 영문자가 아님, 또는 'ETF' 낱말 / 미국: 아래 고정 목록 또는 이름의 'ETF' 낱말) — 추정·미검증
-     - 그 밖은 모두 'unknown' → '상품 유형 미확인 — 기업 평가 보류'. 'company'는 신뢰할 수 있는 유형 칸(s.productType)이 있을 때만. */
+     - 그 밖은 모두 'unknown' → '상품 유형 미확인 — 기업 평가 보류'.
+     2230 지피 CR 2: 기록의 productType 칸은 출처·기준일이 검증되지 않은 값이다 → 'company'로 승격하지 않는다(기록상 일반기업이어도 unknown, '출처 미검증' 표시).
+     productType 'etf'는 ETF 추정으로만 쓴다. 같은 종목(여러 계좌 포함)에서 'company' 기록과 ETF 신호가 함께 있으면 계좌 순서와 무관하게 unknown + '상품 유형 상충'. */
   var KR_ETF = /^(KODEX|TIGER|KBSTAR|HANARO|ARIRANG|KOSEF|TIMEFOLIO|KIWOOM|ACE|RISE|SOL|PLUS)(?![A-Za-z])|(^|[^A-Za-z])ETF([^A-Za-z]|$)/i; // 국내: 상표 시작 또는 'ETF' 낱말
   var US_ETF = { SPY: 1, VOO: 1, IVV: 1, SPLG: 1, VTI: 1, VT: 1, QQQ: 1, QQQM: 1, TQQQ: 1, SCHD: 1, SCHG: 1, VUG: 1, VIG: 1, VYM: 1, DIA: 1, IWM: 1, VEA: 1, VWO: 1, JEPI: 1, JEPQ: 1, SOXX: 1, SMH: 1, SOXL: 1, XLK: 1, ARKK: 1, GLD: 1, IAU: 1, SLV: 1, TLT: 1, TMF: 1, IEF: 1, SHY: 1, SGOV: 1, BIL: 1, BND: 1, AGG: 1, UPRO: 1 };
   var TYPE_OK = { company: 1, etf: 1 };
@@ -22,13 +24,21 @@
   function fin(x) { return typeof x === 'number' && isFinite(x); }
   var ETF_WORD = /(^|[^A-Za-z])ETF([^A-Za-z]|$)/i;
   function guessEtf(market, ticker, name) { var n = String(name || ''); return market === 'US' ? (!!US_ETF[ticker] || ETF_WORD.test(n)) : KR_ETF.test(n); }
-  function kindOf(s, market, ticker, name) {
-    if (plain(s) && TYPE_OK[s.productType]) return { kind: s.productType, basis: 'record' };
-    if (guessEtf(market, ticker, name)) return { kind: 'etf', basis: 'guess' };
-    return { kind: 'unknown', basis: 'none' };
+  function kindSignal(s, market, ticker, name) { return { claim: plain(s) && TYPE_OK[s.productType] ? s.productType : null, guess: guessEtf(market, ticker, name) }; }
+  /* 신호 목록(계좌별) → { kind, basis: 'guess'|'claimed'|'none'|'conflict', conflict } — 순서 무관 */
+  function resolveKind(sigs) {
+    var co = false, et = false, gu = false;
+    sigs.forEach(function (g) { if (g.claim === 'company') co = true; if (g.claim === 'etf') et = true; if (g.guess) gu = true; });
+    if (co && (et || gu)) return { kind: 'unknown', basis: 'conflict', conflict: true };
+    if (gu || et) return { kind: 'etf', basis: gu ? 'guess' : 'claimed', conflict: false };
+    return { kind: 'unknown', basis: co ? 'claimed' : 'none', conflict: false };
   }
+  function kindOf(s, market, ticker, name) { return resolveKind([kindSignal(s, market, ticker, name)]); }
   function substantive(th) { var r = th && th.record; return !!r && (r.hasThesis || !!r.logicState || r.checkpoints > 0 || !!th.thesis.logicBreak); }
-  function sameThesis(x, y) { return JSON.stringify(x.thesis) === JSON.stringify(y.thesis) && JSON.stringify(x.record) === JSON.stringify(y.record); }
+  /* 2230 지피 CR 1: 축약값이 아니라 원문 내용(공백·유니코드 정규화)으로 비교한다. 비교용 값(_cmp)은 메모리 안에서만 쓰고 결과·화면·저장에 넣지 않는다. */
+  function norm(x) { return typeof x === 'string' ? x.normalize('NFC').replace(/\s+/g, ' ').trim() : ''; }
+  var CMP_KO = [['reason', '투자 이유'], ['logicState', '논리 상태'], ['checkpoints', '점검 항목'], ['logicBreak', '논리 붕괴 조건']];
+  function diffFields(x, y) { return CMP_KO.filter(function (f) { return JSON.stringify(x._cmp[f[0]]) !== JSON.stringify(y._cmp[f[0]]); }).map(function (f) { return f[1]; }); }
 
   /* 순태씨 투자원칙 기록 → 엔진 thesis(읽기 전용 매핑). 정성 확인일(moat·capital)은 기록 칸이 없어 넣지 않는다(엔진이 '미확인'으로 처리). */
   function thesisOf(p) {
@@ -36,7 +46,9 @@
     var cps = Array.isArray(p.checkpoints) ? p.checkpoints.filter(function (c) { return plain(c) && typeof c.text === 'string' && c.text.trim() && c.text.length <= 300; }) : [];
     var t = { logicState: LOGIC_KO[p.logicState] ? p.logicState : null, checkpoints: cps.map(function (c) { return c.text.trim(); }) };
     if (typeof p.logicBreak === 'string' && p.logicBreak.trim() && p.logicBreak.length <= 500) t.logicBreak = p.logicBreak.trim();
-    return { thesis: t, record: { hasThesis: typeof p.thesis === 'string' && !!p.thesis.trim(), logicState: t.logicState, checkpoints: cps.length, done: cps.filter(function (c) { return c.done === true; }).length } };
+    var out = { thesis: t, record: { hasThesis: typeof p.thesis === 'string' && !!p.thesis.trim(), logicState: t.logicState, checkpoints: cps.length, done: cps.filter(function (c) { return c.done === true; }).length } };
+    Object.defineProperty(out, '_cmp', { value: { reason: norm(p.thesis), logicState: t.logicState, checkpoints: cps.map(function (c) { return [norm(c.text), c.done === true]; }), logicBreak: norm(t.logicBreak) }, enumerable: false });
+    return out;
   }
 
   /* 순수: 보유 목록 사본 → 엔진 입력. lists = {gen,dom,ov,pen: 배열}, principles = {'gen-<id>': 기록}, weights = {'KR:005930': 비중%} */
@@ -47,22 +59,25 @@
       list.forEach(function (s) {
         if (!plain(s) || typeof s.ticker !== 'string' || /^DEP_/.test(s.ticker) || !fin(s.quantity) || s.quantity <= 0) return;
         var t = s.ticker.trim().toUpperCase(), m = a[2], k = m + ':' + t, name = typeof s.name === 'string' && s.name.trim() ? s.name.trim().slice(0, 120) : null;
-        var th = thesisOf(pr[a[0] + '-' + s.id]), ko = kindOf(s, m, t, name);
+        var th = thesisOf(pr[a[0] + '-' + s.id]), ks = kindSignal(s, m, t, name);
         if (th) th.account = a[1];
-        if (seen[k]) { var r0 = seen[k]; if (r0.accounts.indexOf(a[1]) < 0) r0.accounts.push(a[1]); if (th) r0._th.push(th); if (r0.input.company.kind === 'unknown' && ko.kind !== 'unknown') { r0.input.company.kind = ko.kind; r0.kindBasis = ko.basis; } return; }
-        var row = { key: k, accounts: [a[1]], weightPct: fin(w[k]) ? w[k] : null, record: null, recordFrom: [], recordConflict: false, validTicker: TICKER.test(t), kindBasis: ko.basis, _th: th ? [th] : [],
-          input: { schema: 'hasGreatCompanyInput.v1', generatedAt: day, company: { ticker: t, market: m, name: name, listType: 'holding', kind: ko.kind }, fundamental: null, thesis: null, price: null } };
+        if (seen[k]) { var r0 = seen[k]; if (r0.accounts.indexOf(a[1]) < 0) r0.accounts.push(a[1]); if (th) r0._th.push(th); r0._ks.push(ks); return; }
+        var row = { key: k, accounts: [a[1]], weightPct: fin(w[k]) ? w[k] : null, record: null, recordFrom: [], recordConflict: false, validTicker: TICKER.test(t), kindBasis: 'none', typeConflict: false, _th: th ? [th] : [], _ks: [ks],
+          input: { schema: 'hasGreatCompanyInput.v1', generatedAt: day, company: { ticker: t, market: m, name: name, listType: 'holding', kind: 'unknown' }, fundamental: null, thesis: null, price: null } };
         seen[k] = row; rows.push(row);
       });
     });
     /* 투자원칙 기록 고르기(2130 지피 CR 2): 빈 기록이 실제 기록을 가리지 않게, 실제 기록이 계좌마다 다르면 고르거나 합치지 않고 '상충'으로 표시. */
     rows.forEach(function (r) {
+      var ko = resolveKind(r._ks); r.input.company.kind = ko.kind; r.kindBasis = ko.basis; r.typeConflict = ko.conflict; delete r._ks;
       var all = r._th, real = all.filter(substantive), pick = null;
       delete r._th;
       if (real.length) {
-        var diff = real.some(function (x) { return !sameThesis(x, real[0]); });
+        var diffs = [];
+        real.forEach(function (x) { diffFields(x, real[0]).forEach(function (f) { if (diffs.indexOf(f) < 0) diffs.push(f); }); });
+        diffs = CMP_KO.map(function (f) { return f[1]; }).filter(function (f) { return diffs.indexOf(f) >= 0; });
         r.recordFrom = real.map(function (x) { return x.account; });
-        if (diff) { r.recordConflict = true; r.record = { conflict: true, accounts: r.recordFrom.slice() }; return; }
+        if (diffs.length) { r.recordConflict = true; r.record = { conflict: true, accounts: r.recordFrom.slice(), diffs: diffs }; return; }
         pick = real[0];
       } else if (all.length) { pick = all[0]; r.recordFrom = [pick.account]; }
       if (pick) { r.input.thesis = pick.thesis; r.record = pick.record; }
@@ -72,7 +87,7 @@
 
   function recordLine(r) {
     if (!r) return '순태씨 투자원칙 기록: 없음';
-    if (r.conflict) return '순태씨 투자원칙 기록: 원칙 기록 상충 — 확인 필요(' + r.accounts.join('·') + ' 계좌 기록이 서로 다름, 어느 쪽도 평가에 쓰지 않음)';
+    if (r.conflict) return '순태씨 투자원칙 기록: 원칙 기록 상충 — 확인 필요(' + r.accounts.join('·') + ' 계좌 기록이 서로 다름' + (r.diffs && r.diffs.length ? ': ' + r.diffs.join('·') : '') + ', 어느 쪽도 평가에 쓰지 않음)';
     return '순태씨 투자원칙 기록: 투자논리 ' + (r.logicState ? LOGIC_KO[r.logicState] : '상태 미기록') + ' · 점검 항목 ' + r.checkpoints + '개 중 확인 ' + r.done + '개' + (r.hasThesis ? '' : ' · 투자 이유 미작성');
   }
 
@@ -102,8 +117,9 @@
       c.appendChild(E('h3', null, (a.name || r.input.company.name || '이름 없음') + ' · ' + r.input.company.ticker));
       c.appendChild(E('p', 'hgc-sub', (r.input.company.market === 'US' ? '미국' : '국내') + ' · ' + r.accounts.join('·') + ' 계좌 · 비중 ' + (r.weightPct == null ? '미확인' : r.weightPct + '%') + ' (앱 입력 평가액 기준, 미검증)'));
       var tags = E('div', 'hgc-tags'); tags.appendChild(tag(a.stateKo, STATE_CLS[a.state] || 'hold')); tags.appendChild(tag('의견: ' + a.opinion, 'plain'));
-      if (r.input.company.kind === 'etf') tags.appendChild(tag(r.kindBasis === 'record' ? 'ETF' : 'ETF 추정', 'plain'));
-      if (r.input.company.kind === 'unknown') tags.appendChild(tag('상품 유형 미확인', 'plain'));
+      if (r.input.company.kind === 'etf') tags.appendChild(tag('ETF 추정', 'plain'));
+      if (r.typeConflict) tags.appendChild(tag('상품 유형 상충 — 확인 필요', 'warn'));
+      else if (r.input.company.kind === 'unknown') tags.appendChild(tag(r.kindBasis === 'claimed' ? '상품 유형 미확인(기록상 일반기업 — 출처 미검증)' : '상품 유형 미확인', 'plain'));
       if (r.recordConflict) tags.appendChild(tag('원칙 기록 상충', 'warn'));
       if (L.caution(a)) tags.appendChild(tag('주의', 'bad'));
       c.appendChild(tags);
@@ -180,7 +196,7 @@
     };
   }
 
-  var api = { buildInputs: buildInputs, thesisOf: thesisOf, recordLine: recordLine, guessEtf: guessEtf, kindOf: kindOf, create: create };
+  var api = { buildInputs: buildInputs, thesisOf: thesisOf, recordLine: recordLine, guessEtf: guessEtf, kindOf: kindOf, resolveKind: resolveKind, create: create };
   if (typeof window !== 'undefined' && typeof document !== 'undefined' && !(typeof module === 'object' && module.exports)) {
     var inst = create({ win: window, doc: document, now: function () { return Date.now(); }, source: appSource(window) });
     api.show = inst.show; api.onTabChange = inst.onTabChange; api.stats = inst.stats;
