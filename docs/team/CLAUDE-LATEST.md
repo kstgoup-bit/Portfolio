@@ -1,16 +1,25 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
-STATUS: RELEASED (순태씨 2026-11-15 대화 '올리고 뉴스 코드 아예 빼' 승인 → main `b362933` 운영 반영: 재무 필터 3단계 + 뉴스 메뉴·코드 전부 제거) · READY_FOR_REVIEW 유지: 위대한 기업 엔진(1630 반영, 브랜치 한정) · **지피 사후 검토 요청: 뉴스 코드 완전 삭제 `d3f5fcc`(1631 APPROVE는 메뉴 2줄만이었음)**
-REPORT: docs/team/CLAUDE-DEV-REMOVE-NEWS-TAB-20261115.md(맨 위 '운영 반영' 절) · docs/team/CLAUDE-DEV-GREAT-COMPANIES-20261115.md(0-d절)
-BRANCH: main(운영) ← work/claude-remove-news-tab-20261115 `704dd9d`(재무 필터 `ca5da5f` 병합 포함) · work/claude-great-companies-20261115
-HEAD: b362933a1ec89efbd0ba7cd9fe47828dfd81c837 (운영 반영 병합) · ebe80acc558b4b9a55489cdab1755bbd0a215d50 (위대한 기업, 코드 cf88269)
-UPDATED: 2026-11-15 17:20 KST (순태씨 대화 세션)
+STATUS: READY_FOR_REVIEW (재검토 요청 1건 — 위대한 기업 엔진: GPT-REVIEW-great-companies-20261115-1730 문구 CR 반영. 브랜치 한정, 운영 미반영) · 운영 최신 = main `b362933`(재무 필터 3단계 + 뉴스 코드 제거, 순태씨 승인) · **지피 사후 검토 요청 유지: 뉴스 코드 완전 삭제 `d3f5fcc`**
+REPORT: docs/team/CLAUDE-DEV-GREAT-COMPANIES-20261115.md(0-e절) (main 사본 = 브랜치 HEAD 보고서와 동일) · docs/team/CLAUDE-DEV-REMOVE-NEWS-TAB-20261115.md(사후 검토)
+BRANCH: work/claude-great-companies-20261115
+HEAD: e0ee68ef528a315a5b4e08d07dd1e1d6f083bc53 (위대한 기업, 코드 b453445) · 운영 b362933a1ec89efbd0ba7cd9fe47828dfd81c837
+UPDATED: 2026-11-15 18:15 KST (정각 실행)
 
-- 운영 반영: ① 재무 필터 3단계(곡소리·환호성 재무 라벨, has/fundamental-filter.js 로드 — GAS가 fundamental을 아직 보내지 않아 운영 화면은 '미연결 · 판단 보류') ② 위험관리 '📰 뉴스' 버튼·TAB_GROUPS·#panel-news 패널·CSS·탭 색·loadPortfolioNews/translateAndRender/renderNews 삭제(외부 주소 3곳: news.google RSS·corsproxy.io·Gemini 번역 호출 제거).
-- 시험: 병합 main 전체 2141 중 2139 통과/0 실패/2 skip(DST), 비밀값 0. 갱신: live-data-edits 역방향 쌍(뉴스 6 + 재무 필터 1, 역적용 원본 재현), live-data-pins, daily-repair-pins removedExternalURLOccurrences +3, security-stage20 키 쿼리 5→4, risk-menu 단언. Chromium 360/390/430: 하위 탭 이동·재무 필터 로드·넘침 0·pageerror 0. Pages 배포 run 43693516024.
-- 미검증: 실제 갤럭시 화면. GAS·키·투자기록 변경 0.
+- 1730 반영: priority·한도 이내 분기에서 '기업가치 유지·매도 근거 부족' 문구 삭제 → '경쟁력 지표 유지 근거 — 현재 본질가치 대비 평가 미완료(밸류에이션 미연결|입력 미검증) · 보유 지속 검토(검토 의견, 매수·매도 판단 아님)', 새 필드 valuationPending, 주석 정정, 새 시험 4건(가치 확정 문구 금지 단언).
+- 시험(클로 실행): 전체 2175 중 2173 통과/0 실패/2 skip(DST), 비밀값 0. 앱·GAS·운영 변경 0.
+- 지피 지시서 현황: GPT-20261115-1326 진행 중(엔진 재검토 대기 → 시험 전용 UI). 새 GPT-ORDER 없음.
 
 ## 이전 기록
+
+- (이전) STATUS: RELEASED (순태씨 2026-11-15 대화 '올리고 뉴스 코드 아예 빼' 승인 → main `b362933` 운영 반영: 재무 필터 3단계 + 뉴스 메뉴·코드 전부 제거) · READY_FOR_REVIEW 유지: 위대한 기업 엔진(1630 반영, 브랜치 한정) · **지피 사후 검토 요청: 뉴스 코드 완전 삭제 `d3f5fcc`(1631 APPROVE는 메뉴 2줄만이었음)**
+- (이전) REPORT: docs/team/CLAUDE-DEV-REMOVE-NEWS-TAB-20261115.md(맨 위 '운영 반영' 절) · docs/team/CLAUDE-DEV-GREAT-COMPANIES-20261115.md(0-d절)
+- (이전) BRANCH: main(운영) ← work/claude-remove-news-tab-20261115 `704dd9d`(재무 필터 `ca5da5f` 병합 포함) · work/claude-great-companies-20261115
+- (이전) HEAD: b362933a1ec89efbd0ba7cd9fe47828dfd81c837 (운영 반영 병합) · ebe80acc558b4b9a55489cdab1755bbd0a215d50 (위대한 기업, 코드 cf88269)
+- (이전) UPDATED: 2026-11-15 17:20 KST (순태씨 대화 세션)
+  - 운영 반영: ① 재무 필터 3단계(곡소리·환호성 재무 라벨, has/fundamental-filter.js 로드 — GAS가 fundamental을 아직 보내지 않아 운영 화면은 '미연결 · 판단 보류') ② 위험관리 '📰 뉴스' 버튼·TAB_GROUPS·#panel-news 패널·CSS·탭 색·loadPortfolioNews/translateAndRender/renderNews 삭제(외부 주소 3곳: news.google RSS·corsproxy.io·Gemini 번역 호출 제거).
+  - 시험: 병합 main 전체 2141 중 2139 통과/0 실패/2 skip(DST), 비밀값 0. 갱신: live-data-edits 역방향 쌍(뉴스 6 + 재무 필터 1, 역적용 원본 재현), live-data-pins, daily-repair-pins removedExternalURLOccurrences +3, security-stage20 키 쿼리 5→4, risk-menu 단언. Chromium 360/390/430: 하위 탭 이동·재무 필터 로드·넘침 0·pageerror 0. Pages 배포 run 43693516024.
+  - 미검증: 실제 갤럭시 화면. GAS·키·투자기록 변경 0.
 
 - (이전) STATUS: READY_FOR_REVIEW (재검토 요청 1건 — 위대한 기업 엔진: GPT-REVIEW-great-companies-20261115-1630 반영. 브랜치 한정, 운영 미반영) · 순태씨 운영 승인 대기 2건: 재무 필터 3단계(지피 1531 APPROVE), 뉴스 메뉴 제거(지피 1631 APPROVE)
 - (이전) REPORT: docs/team/CLAUDE-DEV-GREAT-COMPANIES-20261115.md(0-d절) (main 사본 = 브랜치 HEAD 보고서와 동일)

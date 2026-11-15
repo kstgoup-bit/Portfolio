@@ -50,6 +50,7 @@
 - GPT-REVIEW-great-companies-20261115-1531 — CHANGES_REQUESTED(미검증 입력만으로 축소 행동 의견 → sellGate·위험 신호 분리) 반영 `09d1832`, 재검토 요청 2026-11-15 16:20
 - GPT-REVIEW-great-companies-20261115-1630 — CHANGES_REQUESTED(고점권만으로 riskWarning → riskBasis 분리·훼손 경고 계약) 반영 `cf88269`(보고 `ebe80ac`), 재검토 요청 2026-11-15 17:10
 - GPT-REVIEW-remove-news-tab-20261115-1631 — APPROVE(뉴스 메뉴 진입 제거 `e763fee`/보고 `368e77c` 정적 검토 한정, 패널·함수 삭제·운영 승인 아님), 기록 2026-11-15 17:10 · **순태씨 운영 반영 승인 요청 대상**
+- GPT-REVIEW-great-companies-20261115-1730 — CHANGES_REQUESTED(priority 문구 '기업가치 유지·매도 근거 부족' 본질가치 확정 암시) 반영 `b453445`, 재검토 요청 `e0ee68e` 2026-11-15 18:15
 
 ## 기록
 - 2026-11-12 13:45 역할 변경 반영, 일지 시작. 다비의 빈 브랜치 `work/davi-universe-screen-20261112`(= main c9d8084, 변경 없음) 확인 — 클로가 이어받음.
@@ -115,3 +116,4 @@
 - 2026-11-15 17:10 정각 실행: 지피 1630·1631 처리. ① 위대한 기업 CR 반영 `work/claude-great-companies-20261115` 코드 `cf88269` 보고 `ebe80ac`: euphoria만으로 riskWarning 금지, riskBasis[](concentration/valuation verified:false), warning=businessWarning+warningText 독립 계약, 새 시험 5건. 전체 2171 중 2169 통과/0 실패/2 skip, 비밀값 0. ② 뉴스 메뉴 제거 APPROVE 기록. 다비 새 문서 없음. 다음: 순태씨 '올려'(재무 필터 3단계·뉴스 메뉴 — 지피 권고: 갤럭시 하위 탭·새로고침·뒤로가기 확인) · 지피 위대한 기업 재검토 → 시험 전용 UI.
 - 2026-11-15 17:20 (순태씨 '올려') 확인: 재무 필터 3단계·뉴스 메뉴(+패널·함수 코드까지) 제거는 다른 클로 세션이 이미 main `b362933`로 운영 반영함(17:12 KST). 이 세션의 중복 병합은 push 거부되어 폐기, 앱 코드 변경 0. 다음: 지피 위대한 기업 재검토 → 시험 전용 UI.
 - 2026-11-15 17:20 (순태씨 대화 '올리고 뉴스 코드 아예 빼') 운영 반영: 뉴스 패널·함수 3개·CSS·탭 색 완전 삭제 `d3f5fcc` + 재무 필터 3단계 병합 `704dd9d` → main `b362933`(Pages run 43693516024). 병합 main 2141 중 2139 통과/0 실패/2 skip, 비밀값 0, Chromium 360/390/430 통과. 뉴스 코드 완전 삭제분은 지피 1631 범위 밖 → 사후 검토 요청. 다음: 지피 사후 검토 · 위대한 기업 재검토 → 시험 전용 UI.
+- 2026-11-15 18:15 정각 실행: 지피 GPT-REVIEW-great-companies-20261115-1730(CHANGES_REQUESTED) 처리. 최신 main 병합 `c3cd28f` 후 `work/claude-great-companies-20261115` 코드 `b453445` 보고 `e0ee68e`: priority·한도 이내 분기 문구를 '경쟁력 지표 유지 근거 — 현재 본질가치 대비 평가 미완료(밸류에이션 미연결|입력 미검증) · 보유 지속 검토(검토 의견, 매수·매도 판단 아님)'로 교체, valuationPending 필드, 게이트 주석 정정, 새 시험 4건. 전체 2175 중 2173 통과/0 실패/2 skip, 비밀값 0. 다비 새 문서 없음, 새 GPT-ORDER 없음. 다음: 지피 재검토 → 시험 전용 UI · 뉴스 코드 삭제 사후 검토 대기.
