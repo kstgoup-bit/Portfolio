@@ -1,9 +1,18 @@
-STATUS: READY_FOR_REVIEW (위대한 기업 엔진 단위 — 지피 GPT-REVIEW-great-companies-20261115-1431 CHANGES_REQUESTED 1~4항 반영 · 재검토 요청. 시험 전용 UI는 다음 단위)
-ORDER-ID: GPT-20261115-1326 · GPT-REVIEW-great-companies-20261115-1431 (엔진 CHANGES_REQUESTED) · GPT-REVIEW-great-companies-design-20261115-1430 (설계 APPROVE, 범위 한정)
-BASE: 72e12cd4ac7bf516bcde4f9412f2d65335722180 (+ work/claude-fundamental-filter-20261115 ca5da5f 병합 7c152cc — 재무 필터 1430 수정 포함)
-HEAD: main CLAUDE-LATEST.md의 HEAD(이 보고서가 든 브랜치 최신 커밋) · CODE-COMMIT f3c25ac96cfaa9b116de2f9dc8f7e7a4ce600813
+STATUS: READY_FOR_REVIEW (위대한 기업 엔진 단위 — 지피 GPT-REVIEW-great-companies-20261115-1531 CHANGES_REQUESTED 반영 · 재검토 요청. 시험 전용 UI는 다음 단위)
+ORDER-ID: GPT-20261115-1326 · GPT-REVIEW-great-companies-20261115-1531 (엔진 CHANGES_REQUESTED) · 이전 1431 반영분 포함
+BASE: 4bdea477e57e101e0b89cf6c0a0d15381f6d7186 (지피 1531 검토 HEAD)
+HEAD: main CLAUDE-LATEST.md의 HEAD(이 보고서가 든 브랜치 최신 커밋) · CODE-COMMIT 09d18327fd968adab5e93755dd1212238aaef6b6
 BRANCH: work/claude-great-companies-20261115
-REVIEW-SCOPE: 7c152cc...f3c25ac — has/great-companies.js, tests/great-companies.test.cjs(기존 16건 중 ①·⑥·⑩·valuation 입력 수정 + 새 4건), tests/lib/live-data-pins.json(SHA 1개). 병합분(재무 필터)은 그 브랜치 보고서 범위.
+REVIEW-SCOPE: 4bdea47...09d1832 — has/great-companies.js(relate·holdOut·게이트 상수), tests/great-companies.test.cjs(④ 기대값 수정 + 새 5건), tests/lib/live-data-pins.json(SHA 1개).
+
+# 0-c. 지피 1531 검토 반영 (2026-11-15 16시 정각 실행)
+1. **매도·축소 게이트 닫힘**: 모든 출력에 `priceRelation.sellGate = {open:false, missing:[실제 검증된 밸류에이션 출처·기준일, 매도 전 4단계 조사 출처·기준일, 비용·세금·재진입 분석]}` (holdOut 포함). '일부 축소 검토 가능' 출력 제거.
+2. **신호와 의견 분리**: 비중 한도 초과·밸류에이션 높은 편·고점권은 `signals[]`와 `riskWarning:true`로만 표시. 비중 초과 시 화면용 `opinion`은 '점검 필요', 문구 '위험 신호: 집중위험(비중 한도 초과)… — 점검 필요. 매도 검토 게이트 닫힘(…미연결), 행동 의견 아님'. 축소 관계 설명은 `scenario`('가상 분석(설명용, 입력 미검증): …')에만.
+3. **경고 유지**: 가격 기준일이 오래돼도(stale) 비중 초과면 신호·riskWarning 유지, opinion '점검 필요'. 가격 미연결이어도 고평가 입력이면 riskWarning 유지. 한도 경고 자체는 없애지 않음. 고평가만(확신 종목 한도 이내) → '보유 지속 검토' 유지, 문구 '위험 신호: 밸류에이션 높은 편 — 경쟁력 유지, 일률 매도 아님(매도 검토 게이트 닫힘…)'.
+- 반례 시험(지피 요청 가~라 + 출력 계약): (가) valuation=null·고점권 아님·12% (나) 가상 고평가·18%·고점권 → 신호 3개 (다) 확신 종목 26% (라) stale 가격 / 31일 초과 밸류에이션 — 모두 sellGate 닫힘, scenario 외 출력에 '축소 검토 가능·매도 검토 가능·분할매도 검토 대상' 없음, 위험 경고 유지.
+- 시험: great-companies 25건 통과, 전체 2166 중 2164 통과/0 실패/2 skip(DST), 비밀값 0. portfolio_v5.html·GAS·운영 변경 0(UI 없음, 브라우저 확인 대상 없음).
+- 미검증: 전부 합성 입력. 4단계 조사·비용/세금 분석 계약은 만들지 않음(게이트 열기는 새 지시·순태씨 결정 필요).
+- 다음 단위: 시험 전용 UI(`has/great-companies-lab.html`) + Chromium 360/390/430 — 지피 재검토 후.
 
 # 0-b. 지피 1431 검토 반영 (2026-11-15 15시 정각 실행)
 1. **매수 검토 게이트 닫힘**: 엔진은 어떤 입력(합성 포함)에서도 '분할매수 검토 대상'을 만들지 않음. 곡소리+장기보유 우선 검토+밸류에이션 중간/낮음 → opinion '판단 보류', 문구 '실제 밸류에이션 검증·4단계 사전 조사 연결 전이라 판단 보류(매수 검토 아님)'. 관계 설명은 `priceRelation.scenario`('가상 분석(설명용, 입력 미검증): …')로만 분리. 모든 출력에 `priceRelation.buyGate = {open:false, missing:[실제 검증된 밸류에이션 출처·기준일, 4단계 사전 조사 출처·기준일]}`. 시험 ① 기대값 수정. 4단계 조사 계약은 이번 단위에서 만들지 않음(게이트 열기는 새 지시·순태씨 결정 필요).
