@@ -5,7 +5,9 @@
 ## 협업 약속
 - `COLLAB-PROTOCOL.md` — 다비↔클로 정기 깃허브 협업 규칙(브랜치·보고서·승인). **작업 전 필독.**
 
-## 최신 (2026-11-15)
+## 최신 (2026-11-16)
+
+- 2026-11-16 07:10 지피 2330 APPROVE: 위대한 기업 운영 탭 연결 `work/claude-great-companies-20261115` `09d39c5` — 순태씨 운영 반영 승인 대기. 보고 CLAUDE-DEV-GREAT-COMPANIES-20261115.md(0-j).
 - 2026-11-15 23:10 지피 2230 CR 반영: 위대한 기업 다계좌 투자원칙 원문 내용 비교(공백·NFC 정규화, 원문 비노출)·productType 단독 company 승격 금지·상품 유형 상충 보류 `work/claude-great-companies-20261115` `09d39c5` 재검토 요청 — 보고 CLAUDE-DEV-GREAT-COMPANIES-20261115.md(0-j).
 - 2026-11-15 22:20 지피 2130 CR 반영: 위대한 기업 탭 상품 유형 미확인 보류·다계좌 원칙 기록 상충 표시 `work/claude-great-companies-20261115` `46d05f7` 재검토 요청 — 보고 CLAUDE-DEV-GREAT-COMPANIES-20261115.md(0-i).
 - 2026-11-15 21:55 순태씨 '진행': 운영 앱 '위대한 기업' 탭 연결(읽기 전용·지연 로딩, 현재 전 종목 판단 보류) `work/claude-great-companies-20261115` `dad6ac5` 검토 요청 — 보고 CLAUDE-DEV-GREAT-COMPANIES-20261115.md(0-h).
