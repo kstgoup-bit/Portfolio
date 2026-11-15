@@ -10,14 +10,25 @@
   var ACCOUNTS = [['gen', '일반', 'KR'], ['dom', 'ISA', 'KR'], ['ov', '해외', 'US'], ['pen', '연금', 'KR']];
   var LOGIC_KO = { maintained: '유지', weakened: '일부 약화', broken: '붕괴' };
   var STATE_CLS = { priority: 'ok', recheck: 'warn', erosion: 'bad', hold: 'hold' };
-  /* ETF 추정(이름·티커 기준, 미검증): 기업 평가 대상이 아니므로 '판단 보류(ETF)'로 따로 표시한다. */
-  var KR_ETF = /(^|\s)(KODEX|TIGER|KBSTAR|HANARO|ARIRANG|KOSEF|TIMEFOLIO|KIWOOM|ACE|RISE|SOL|PLUS)(\s|$)|ETF/i;
+  /* 상품 유형(2130 지피 CR 1): 앱 보유 기록에는 믿을 만한 상품 유형 칸이 없다. 그래서 일반기업으로 단정하지 않는다.
+     - 'etf' = ETF 표시가 뚜렷할 때만(국내: 운용사 상표로 시작하고 바로 뒤가 영문자가 아님, 또는 'ETF' 낱말 / 미국: 아래 고정 목록 또는 이름의 'ETF' 낱말) — 추정·미검증
+     - 그 밖은 모두 'unknown' → '상품 유형 미확인 — 기업 평가 보류'. 'company'는 신뢰할 수 있는 유형 칸(s.productType)이 있을 때만. */
+  var KR_ETF = /^(KODEX|TIGER|KBSTAR|HANARO|ARIRANG|KOSEF|TIMEFOLIO|KIWOOM|ACE|RISE|SOL|PLUS)(?![A-Za-z])|(^|[^A-Za-z])ETF([^A-Za-z]|$)/i; // 국내: 상표 시작 또는 'ETF' 낱말
   var US_ETF = { SPY: 1, VOO: 1, IVV: 1, SPLG: 1, VTI: 1, VT: 1, QQQ: 1, QQQM: 1, TQQQ: 1, SCHD: 1, SCHG: 1, VUG: 1, VIG: 1, VYM: 1, DIA: 1, IWM: 1, VEA: 1, VWO: 1, JEPI: 1, JEPQ: 1, SOXX: 1, SMH: 1, SOXL: 1, XLK: 1, ARKK: 1, GLD: 1, IAU: 1, SLV: 1, TLT: 1, TMF: 1, IEF: 1, SHY: 1, SGOV: 1, BIL: 1, BND: 1, AGG: 1, UPRO: 1 };
+  var TYPE_OK = { company: 1, etf: 1 };
   var TICKER = /^[A-Z0-9][A-Z0-9.\-]{0,11}$/;
 
   function plain(o) { return !!o && typeof o === 'object' && !Array.isArray(o); }
   function fin(x) { return typeof x === 'number' && isFinite(x); }
-  function guessEtf(market, ticker, name) { return market === 'US' ? !!US_ETF[ticker] : KR_ETF.test(String(name || '')); }
+  var ETF_WORD = /(^|[^A-Za-z])ETF([^A-Za-z]|$)/i;
+  function guessEtf(market, ticker, name) { var n = String(name || ''); return market === 'US' ? (!!US_ETF[ticker] || ETF_WORD.test(n)) : KR_ETF.test(n); }
+  function kindOf(s, market, ticker, name) {
+    if (plain(s) && TYPE_OK[s.productType]) return { kind: s.productType, basis: 'record' };
+    if (guessEtf(market, ticker, name)) return { kind: 'etf', basis: 'guess' };
+    return { kind: 'unknown', basis: 'none' };
+  }
+  function substantive(th) { var r = th && th.record; return !!r && (r.hasThesis || !!r.logicState || r.checkpoints > 0 || !!th.thesis.logicBreak); }
+  function sameThesis(x, y) { return JSON.stringify(x.thesis) === JSON.stringify(y.thesis) && JSON.stringify(x.record) === JSON.stringify(y.record); }
 
   /* 순태씨 투자원칙 기록 → 엔진 thesis(읽기 전용 매핑). 정성 확인일(moat·capital)은 기록 칸이 없어 넣지 않는다(엔진이 '미확인'으로 처리). */
   function thesisOf(p) {
@@ -36,18 +47,32 @@
       list.forEach(function (s) {
         if (!plain(s) || typeof s.ticker !== 'string' || /^DEP_/.test(s.ticker) || !fin(s.quantity) || s.quantity <= 0) return;
         var t = s.ticker.trim().toUpperCase(), m = a[2], k = m + ':' + t, name = typeof s.name === 'string' && s.name.trim() ? s.name.trim().slice(0, 120) : null;
-        var th = thesisOf(pr[a[0] + '-' + s.id]);
-        if (seen[k]) { var r0 = seen[k]; if (r0.accounts.indexOf(a[1]) < 0) r0.accounts.push(a[1]); if (!r0.input.thesis && th) { r0.input.thesis = th.thesis; r0.record = th.record; } return; }
-        var row = { key: k, accounts: [a[1]], weightPct: fin(w[k]) ? w[k] : null, record: th ? th.record : null, validTicker: TICKER.test(t),
-          input: { schema: 'hasGreatCompanyInput.v1', generatedAt: day, company: { ticker: t, market: m, name: name, listType: 'holding', kind: guessEtf(m, t, name) ? 'etf' : 'company' }, fundamental: null, thesis: th ? th.thesis : null, price: null } };
+        var th = thesisOf(pr[a[0] + '-' + s.id]), ko = kindOf(s, m, t, name);
+        if (th) th.account = a[1];
+        if (seen[k]) { var r0 = seen[k]; if (r0.accounts.indexOf(a[1]) < 0) r0.accounts.push(a[1]); if (th) r0._th.push(th); if (r0.input.company.kind === 'unknown' && ko.kind !== 'unknown') { r0.input.company.kind = ko.kind; r0.kindBasis = ko.basis; } return; }
+        var row = { key: k, accounts: [a[1]], weightPct: fin(w[k]) ? w[k] : null, record: null, recordFrom: [], recordConflict: false, validTicker: TICKER.test(t), kindBasis: ko.basis, _th: th ? [th] : [],
+          input: { schema: 'hasGreatCompanyInput.v1', generatedAt: day, company: { ticker: t, market: m, name: name, listType: 'holding', kind: ko.kind }, fundamental: null, thesis: null, price: null } };
         seen[k] = row; rows.push(row);
       });
+    });
+    /* 투자원칙 기록 고르기(2130 지피 CR 2): 빈 기록이 실제 기록을 가리지 않게, 실제 기록이 계좌마다 다르면 고르거나 합치지 않고 '상충'으로 표시. */
+    rows.forEach(function (r) {
+      var all = r._th, real = all.filter(substantive), pick = null;
+      delete r._th;
+      if (real.length) {
+        var diff = real.some(function (x) { return !sameThesis(x, real[0]); });
+        r.recordFrom = real.map(function (x) { return x.account; });
+        if (diff) { r.recordConflict = true; r.record = { conflict: true, accounts: r.recordFrom.slice() }; return; }
+        pick = real[0];
+      } else if (all.length) { pick = all[0]; r.recordFrom = [pick.account]; }
+      if (pick) { r.input.thesis = pick.thesis; r.record = pick.record; }
     });
     return rows;
   }
 
   function recordLine(r) {
     if (!r) return '순태씨 투자원칙 기록: 없음';
+    if (r.conflict) return '순태씨 투자원칙 기록: 원칙 기록 상충 — 확인 필요(' + r.accounts.join('·') + ' 계좌 기록이 서로 다름, 어느 쪽도 평가에 쓰지 않음)';
     return '순태씨 투자원칙 기록: 투자논리 ' + (r.logicState ? LOGIC_KO[r.logicState] : '상태 미기록') + ' · 점검 항목 ' + r.checkpoints + '개 중 확인 ' + r.done + '개' + (r.hasThesis ? '' : ' · 투자 이유 미작성');
   }
 
@@ -77,7 +102,9 @@
       c.appendChild(E('h3', null, (a.name || r.input.company.name || '이름 없음') + ' · ' + r.input.company.ticker));
       c.appendChild(E('p', 'hgc-sub', (r.input.company.market === 'US' ? '미국' : '국내') + ' · ' + r.accounts.join('·') + ' 계좌 · 비중 ' + (r.weightPct == null ? '미확인' : r.weightPct + '%') + ' (앱 입력 평가액 기준, 미검증)'));
       var tags = E('div', 'hgc-tags'); tags.appendChild(tag(a.stateKo, STATE_CLS[a.state] || 'hold')); tags.appendChild(tag('의견: ' + a.opinion, 'plain'));
-      if (r.input.company.kind === 'etf') tags.appendChild(tag('ETF 추정', 'plain'));
+      if (r.input.company.kind === 'etf') tags.appendChild(tag(r.kindBasis === 'record' ? 'ETF' : 'ETF 추정', 'plain'));
+      if (r.input.company.kind === 'unknown') tags.appendChild(tag('상품 유형 미확인', 'plain'));
+      if (r.recordConflict) tags.appendChild(tag('원칙 기록 상충', 'warn'));
       if (L.caution(a)) tags.appendChild(tag('주의', 'bad'));
       c.appendChild(tags);
       c.appendChild(E('p', null, (a.state === 'hold' ? '판단 보류 사유: ' : '판정 이유: ') + a.reason));
@@ -153,7 +180,7 @@
     };
   }
 
-  var api = { buildInputs: buildInputs, thesisOf: thesisOf, recordLine: recordLine, guessEtf: guessEtf, create: create };
+  var api = { buildInputs: buildInputs, thesisOf: thesisOf, recordLine: recordLine, guessEtf: guessEtf, kindOf: kindOf, create: create };
   if (typeof window !== 'undefined' && typeof document !== 'undefined' && !(typeof module === 'object' && module.exports)) {
     var inst = create({ win: window, doc: document, now: function () { return Date.now(); }, source: appSource(window) });
     api.show = inst.show; api.onTabChange = inst.onTabChange; api.stats = inst.stats;

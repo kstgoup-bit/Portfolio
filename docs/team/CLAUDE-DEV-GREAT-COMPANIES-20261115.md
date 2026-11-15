@@ -1,9 +1,34 @@
-STATUS: READY_FOR_REVIEW (운영 앱 '위대한 기업' 탭 연결 — 2026-11-15 21시대 순태씨 '진행' 결정. 브랜치 한정, main 병합·운영 반영은 지피 검토 + 순태씨 '올려' 후)
-ORDER-ID: 순태씨 직접 결정(2026-11-15 클로 대화 '진행') · 선행 GPT-20261115-1326 1단계(지피 2030 APPROVE)
-BASE: 95af5fb5632564fb72bd3996c980415685f12286 (지피 2030 APPROVE HEAD) · main 812f9bc 병합(052c5db, 문서만)
+STATUS: READY_FOR_REVIEW (지피 GPT-REVIEW-great-companies-20261115-2130 CHANGES_REQUESTED 2건 반영 — 상품 유형 미확인 보류·다계좌 투자원칙 기록 선택/상충. 브랜치 한정, main 병합·운영 반영은 지피 APPROVE + 순태씨 '올려' 후)
+ORDER-ID: 순태씨 직접 결정(2026-11-15 '진행') · 선행 GPT-20261115-1326 · 지피 검토 GPT-REVIEW-great-companies-20261115-2130
+BASE: dad6ac509cf02c73d451ef07f93610a03909b31f (지피 2130 검토 HEAD) · main b340371 병합(bd2b949, 문서만)
 HEAD: main CLAUDE-LATEST.md의 HEAD(이 보고서가 든 브랜치 최신 커밋) · 코드·시험·보고서 같은 커밋
 BRANCH: work/claude-great-companies-20261115
-REVIEW-SCOPE: 95af5fb...HEAD 중 앱 연결분 — portfolio_v5.html(+16줄: 위험관리 메뉴 버튼·패널·TAB_GROUPS·tabColors·지연 로더·switchTab 1줄), 새 has/great-companies-panel.js·.css, tests/great-companies-panel.test.cjs(신규 6건), tests/great-companies-lab.test.cjs·great-companies.test.cjs·risk-menu-harmonization.test.cjs(연결 반영 단언 변경), tests/lib/live-data-edits.json(역방향 6쌍)·live-data-pins.json, 이 보고서. (병합 커밋의 docs/team 변경은 범위 밖)
+REVIEW-SCOPE: dad6ac5...HEAD 중 has/great-companies-panel.js(상품 유형·투자원칙 기록 선택), has/great-companies.js(kind 'unknown' 허용·보류 1줄), tests/great-companies-panel.test.cjs(기존 단언 3곳 변경 + 신규 3건), tests/lib/live-data-pins.json(2개 해시), 이 보고서 0-i절. portfolio_v5.html 변경 없음. (병합 커밋의 docs/team 변경은 범위 밖)
+
+# 0-i. 지피 2130 CHANGES_REQUESTED 반영 (2026-11-15 22시 정각 실행)
+## 1. 상품 유형 — 일반기업으로 단정하지 않음
+- 앱 보유 기록(genStocks 등)에 믿을 만한 상품 유형 칸이 없음(portfolio_v5.html에 assetType·productType 등 0건 확인). 그래서 새 `kindOf()`:
+  - `s.productType`이 'company'/'etf'이면 그 값 우선(현재 앱 기록엔 없음 — 향후 검증된 유형 출처 연결용. 다른 값은 무시).
+  - ETF 표시가 뚜렷할 때만 'etf'(추정, 'ETF 추정' 태그): 국내 = 운용사 상표로 시작하고 바로 뒤가 영문자가 아님(`KODEX미국S&P500TR`·`TIGER미국S&P500` 포함, `SOLUM테크` 같은 영문 이어짐은 제외) 또는 이름에 'ETF' 낱말 / 미국 = 기존 고정 목록 또는 이름의 'ETF' 낱말. 티커 추정 규칙을 넓히지 않음.
+  - 그 밖은 전부 'unknown' → 엔진이 **'상품 유형 미확인 — 기업 평가 보류'**(새 태그 '상품 유형 미확인'). `US:QLD`·`US:GLDM`·보통주(삼성전자·AAPL 등)·이름 없는 종목 모두 여기.
+- 엔진 `has/great-companies.js`: 입력 검증 kind에 'unknown' 추가, ETF 분기 바로 다음 보류 1줄. 'company' 경로는 변경 없음(현재 패널에서는 쓰이지 않음 — 재무 연결 시 SEC/DART 공시 확인을 유형 근거로 쓰는 안은 후속, 미구현).
+- 영향: 국내 보통주의 보류 사유가 'DART 미연결' → '상품 유형 미확인'으로 바뀜(둘 다 판단 보류, 게이트 닫힘). 화면 맨 위 '자료 연결 상태'(SEC·DART 미연결)는 그대로.
+## 2. 같은 종목 여러 계좌의 투자원칙 기록
+- 계좌별 기록을 모두 모은 뒤 고름. '실제 기록' = 투자 이유 작성, 투자논리 상태, 점검 항목 1개 이상, 또는 논리 붕괴 조건 중 하나.
+  - 실제 기록 1개(또는 여러 개가 완전히 같음) → 그 기록 사용, `recordFrom`에 출처 계좌.
+  - 실제 기록이 서로 다름 → 고르거나 합치지 않음: `input.thesis=null`, 카드에 '원칙 기록 상충' 태그와 '원칙 기록 상충 — 확인 필요(일반·ISA 계좌 기록이 서로 다름, 어느 쪽도 평가에 쓰지 않음)'.
+  - 모두 빈 기록 → 예전처럼 첫 기록(‘상태 미기록’) 표시. 기록 없음 → '없음'.
+- 원본 불변: 시험에서 보유 목록·원칙 기록을 깊게 얼린(freeze) 채로 실행해 통과. 저장·전송 없음 그대로.
+## 시험(클로 실행)
+- 기존 단언 변경 3곳: NVDA·삼성전자 kind 'company' → 'unknown', 보류 사유 DART/재무 자료 없음 → '상품 유형 미확인 — 기업 평가 보류'.
+- 신규 3건: ① 지피 반례 4개(QLD·GLDM → unknown, KODEX미국S&P500TR·TIGER미국S&P500 → etf) + 'ETF' 낱말 + 보통주 반례 5개 + 이름 없음 2개 + productType 우선/이상값 무시 + 엔진 보류 사유·게이트 닫힘 + 잘못된 kind 거부 ② 빈→유효(지피 재현 입력), 유효→빈, 같은 내용 2계좌, 상충, 모두 빈 기록, 기록 없음 ③ 화면 태그(상충·유형 미확인)·원본 불변.
+- 전체: 2196 중 2194 통과 / 0 실패 / 2 skip(DST). jsdom(별도 폴더 설치). 비밀값 findings [].
+- Chromium(Playwright, 패널 단독 시험 페이지 + 가상 보유 3종목·상충 원칙 기록, 외부 요청 차단) 360/390/430: 가로 넘침 0, 12px 미만 0, 페이지 오류 0, 태그 '상품 유형 미확인'·'원칙 기록 상충'·'ETF 추정' 표시, localStorage 전후 동일. 갤럭시 실기기 미검증.
+## 미검증·한계
+- ETF 추정은 이름·티커 기준(미검증). 국내 상표 뒤 한글이 바로 오는 일반기업 이름이 있으면 'ETF 추정'으로 잘못 보일 수 있음(둘 다 판단 보류라 투자 판단 영향 없음).
+- 신뢰할 수 있는 상품 유형 자료(KRX 상품 구분, SEC 공시 존재 여부 등)는 아직 연결 안 됨 → 재무 연결 단계에서 함께 설계 필요.
+## 순태씨 결정 필요
+- 없음(지피 재검토 APPROVE 후 운영 반영 여부만 '올려'로 결정).
 
 # 0-h. 운영 앱 '위대한 기업' 탭 연결 (2026-11-15 순태씨 '진행')
 ## 바뀌는 것

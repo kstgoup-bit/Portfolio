@@ -81,7 +81,7 @@
       if (typeof c.ticker !== 'string' || !/^[A-Z0-9][A-Z0-9.\-]{0,11}$/.test(c.ticker)) e.push('ticker 형식');
       if (c.market !== 'US' && c.market !== 'KR') e.push('market은 US/KR');
       if (c.listType !== 'holding' && c.listType !== 'watch') e.push('listType은 holding/watch');
-      if (c.kind !== undefined && c.kind !== 'company' && c.kind !== 'etf') e.push('kind는 company/etf');
+      if (c.kind !== undefined && c.kind !== 'company' && c.kind !== 'etf' && c.kind !== 'unknown') e.push('kind는 company/etf/unknown');
       if (c.name !== undefined && c.name !== null && !str(c.name, 120)) e.push('name 형식');
     }
     if (x.thesis !== undefined && x.thesis !== null) {
@@ -286,6 +286,7 @@
     if (!v.ok) return finalize(holdOut(x, '입력 형식 오류: ' + v.errors.join(', '), { errors: v.errors }));
     var c = x.company;
     if (c.kind === 'etf') return finalize(holdOut(x, 'ETF — 기업 평가 대상 아님(구성 종목 평가 별도)'));
+    if (c.kind === 'unknown') return finalize(holdOut(x, '상품 유형 미확인 — 기업 평가 보류'));
     if (c.market === 'KR') return finalize(holdOut(x, '국내 기업 재무(DART) 미연결'));
     if (!F) return finalize(holdOut(x, '재무 필터 모듈 없음'));
     if (!x.fundamental) return finalize(holdOut(x, '재무 자료 없음(미연결)'));

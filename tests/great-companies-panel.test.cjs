@@ -22,7 +22,7 @@ test('buildInputs: 계좌 중복 합치기·예수금/수량 0 제외·ETF 추�
   const sam = rows[0]; a.deepEqual(sam.accounts, ['일반', 'ISA']); a.equal(sam.weightPct, 12.3);
   a.deepEqual(sam.input.thesis, { logicState: 'weakened', checkpoints: ['HBM 점유율', '재고'] });
   a.deepEqual(sam.record, { hasThesis: true, logicState: 'weakened', checkpoints: 2, done: 1 });
-  a.equal(rows[1].input.company.kind, 'etf'); a.equal(rows[3].input.company.kind, 'etf'); a.equal(rows[2].input.company.kind, 'company');
+  a.equal(rows[1].input.company.kind, 'etf'); a.equal(rows[3].input.company.kind, 'etf'); a.equal(rows[2].input.company.kind, 'unknown'); a.equal(rows[0].input.company.kind, 'unknown'); // 2130 CR1: 유형 칸 없으면 일반기업으로 단정하지 않음
   a.equal(rows[2].input.company.ticker, 'NVDA'); a.equal(rows[2].input.thesis.logicState, null); a.deepEqual(rows[2].input.thesis.checkpoints, []);
   a.equal(rows[1].weightPct, null); a.equal(rows[1].record, null);
   for (const r of rows) { a.equal(r.input.fundamental, null); a.equal(r.input.price, null); a.equal(r.input.company.listType, 'holding'); a.equal(G.validateInput(r.input).ok, true, r.key); }
@@ -34,7 +34,7 @@ test('엔진 결과: 재무·밸류에이션·가격 미연결이라 모든 종�
   const rows = P.buildInputs(lists(), principles, {}, '2026-11-15');
   const out = G.createEvaluator().evaluate(rows.map(r => r.input), { now: NOW });
   a.deepEqual(out.map(o => o.state), ['hold', 'hold', 'hold', 'hold']);
-  a.match(out[0].reason, /DART/); a.match(out[1].reason, /ETF/); a.match(out[2].reason, /재무 자료 없음/); a.match(out[3].reason, /ETF/);
+  a.match(out[0].reason, /상품 유형 미확인 — 기업 평가 보류/); a.match(out[1].reason, /ETF/); a.match(out[2].reason, /상품 유형 미확인 — 기업 평가 보류/); a.match(out[3].reason, /ETF/);
   for (const o of out) { a.equal(o.priceRelation.buyGate.open, false); a.equal(o.priceRelation.sellGate.open, false); a.equal(o.opinion, '판단 보류'); }
 });
 
@@ -57,7 +57,7 @@ test('탭 화면: 자료 연결 상태·판단 보류 사유·순태씨 기록·
     const root = w.document.querySelector('[data-testid=hgc-root]'); a.ok(root);
     a.match(w.document.querySelector('[data-testid=hgc-data-status]').textContent, /SEC\): 미연결.*DART\): 미연결.*밸류에이션.*미연결.*모든 종목이 ‘판단 보류’/s);
     const cards = w.document.querySelectorAll('[data-testid=hgc-card]'); a.equal(cards.length, 4);
-    a.match(cards[0].textContent, /삼성전자 · 005930/); a.match(cards[0].textContent, /일반·ISA 계좌/); a.match(cards[0].textContent, /판단 보류 사유: 국내 기업 재무\(DART\) 미연결/);
+    a.match(cards[0].textContent, /삼성전자 · 005930/); a.match(cards[0].textContent, /일반·ISA 계좌/); a.match(cards[0].textContent, /판단 보류 사유: 상품 유형 미확인 — 기업 평가 보류/); a.match(cards[0].textContent, /상품 유형 미확인/);
     a.match(cards[0].textContent, /순태씨 투자원칙 기록: 투자논리 일부 약화 · 점검 항목 2개 중 확인 1개/);
     a.match(cards[2].textContent, /NVIDIA · NVDA/); a.match(cards[2].textContent, /투자논리 상태 미기록 · 점검 항목 0개 중 확인 0개 · 투자 이유 미작성/);
     a.match(cards[1].textContent, /ETF 추정/); a.match(text(), /보유 4종목 · 판단 보류 4/);
@@ -112,4 +112,74 @@ test('운영 앱 연결: 위험관리 메뉴 버튼·패널·처음 진입 때�
     let shown = 0; w.HASGreatCompaniesPanel = { show: () => shown++ }; w.switchTab('greatco'); a.equal(shown, 1); a.equal(scripts().length, 2); // 로드 후엔 재사용
   } finally { d.window.close(); }
   a.ok(html.indexOf('id="panel-greatco"') > 0);
+});
+
+/* ---- 2130 지피 CR 1: 상품 유형 오분류 반례 ---- */
+test('상품 유형: 목록 밖 ETF·공백 없는 국내 ETF는 일반기업으로 확정하지 않음, 보통주·출처 미확인은 유형 미확인 보류', () => {
+  const mk = (m, t, n, extra) => Object.assign({ id: 1, ticker: t, name: n, quantity: 1, currentPrice: 1 }, extra || {});
+  const kinds = (acct, items) => P.buildInputs({ [acct]: items }, {}, {}, '2026-11-15').map(r => r.input.company.kind);
+  // 지피 반례 4개: 목록 밖 미국 ETF는 'company'가 아니라 'unknown', 공백 없는 국내 ETF 이름은 'etf'
+  a.deepEqual(kinds('ov', [mk('US', 'QLD', 'ProShares Ultra QQQ'), mk('US', 'GLDM', 'SPDR Gold MiniShares')]), ['unknown', 'unknown']);
+  a.deepEqual(kinds('gen', [mk('KR', '379800', 'KODEX미국S&P500TR'), mk('KR', '360750', 'TIGER미국S&P500')]), ['etf', 'etf']);
+  // 이름에 ETF 낱말이 있으면 etf (미국 목록 밖이어도)
+  a.deepEqual(kinds('ov', [mk('US', 'ZZZE', 'Some Fund ETF')]), ['etf']);
+  // 일반 보통주 반례: ETF로 오인하지 않고, 유형 칸이 없으니 일반기업으로 단정하지도 않음
+  a.deepEqual(kinds('gen', [mk('KR', '005930', '삼성전자'), mk('KR', '011070', 'LG이노텍'), mk('KR', '000000', 'SOLUM테크')]), ['unknown', 'unknown', 'unknown']);
+  a.deepEqual(kinds('ov', [mk('US', 'AAPL', 'Apple Inc.'), mk('US', 'NVDA', 'NVIDIA')]), ['unknown', 'unknown']);
+  // 출처 미확인(이름 없음) 반례
+  a.deepEqual(kinds('ov', [{ id: 9, ticker: 'XYZ', quantity: 1 }]), ['unknown']);
+  a.deepEqual(kinds('gen', [{ id: 9, ticker: '123456', quantity: 1 }]), ['unknown']);
+  // 신뢰할 수 있는 유형 칸이 있을 때만 그 값을 우선(잘못된 값은 무시)
+  a.deepEqual(kinds('ov', [mk('US', 'QLD', 'x', { productType: 'etf' }), mk('US', 'MSFT', 'Microsoft', { productType: 'company' }), mk('US', 'QQQ', 'Invesco QQQ', { productType: '이상값' })]), ['etf', 'company', 'etf']);
+  // 엔진: unknown은 입력 검증 통과 + '상품 유형 미확인 — 기업 평가 보류', 게이트 닫힘
+  const rows = P.buildInputs({ ov: [mk('US', 'QLD', 'ProShares Ultra QQQ')] }, {}, {}, '2026-11-15');
+  a.equal(G.validateInput(rows[0].input).ok, true);
+  const o = G.createEvaluator().evaluate([rows[0].input], { now: NOW })[0];
+  a.equal(o.state, 'hold'); a.equal(o.reason, '상품 유형 미확인 — 기업 평가 보류'); a.equal(o.priceRelation.buyGate.open, false); a.equal(o.priceRelation.sellGate.open, false);
+  a.equal(G.validateInput({ schema: 'hasGreatCompanyInput.v1', company: { ticker: 'A', market: 'US', listType: 'holding', kind: 'fund' } }).ok, false);
+});
+
+/* ---- 2130 지피 CR 2: 같은 종목 여러 계좌의 투자원칙 기록 ---- */
+test('투자원칙 기록: 빈 기록이 실제 기록을 가리지 않음, 상충은 고르거나 합치지 않고 확인 필요 표시, 원본 불변', () => {
+  const deep = o => { Object.freeze(o); Object.values(o).forEach(v => v && typeof v === 'object' && deep(v)); return o; };
+  const L2 = deep({ gen: [{ id: 1, ticker: '005930', name: '삼성전자', quantity: 1 }], dom: [{ id: 2, ticker: '005930', name: '삼성전자', quantity: 1 }] });
+  const good = { logicState: 'maintained', checkpoints: [{ text: '매출 추세', done: true }], thesis: '장기 경쟁우위' };
+  const one = pr => P.buildInputs(L2, deep(pr), {}, '2026-11-15')[0];
+  // 빈 기록 → 유효 기록 (지피 재현 입력)
+  let r = one({ 'gen-1': {}, 'dom-2': good });
+  a.deepEqual(r.input.thesis, { logicState: 'maintained', checkpoints: ['매출 추세'] });
+  a.deepEqual(r.record, { hasThesis: true, logicState: 'maintained', checkpoints: 1, done: 1 }); a.deepEqual(r.recordFrom, ['ISA']); a.equal(r.recordConflict, false);
+  // 유효 기록 → 빈 기록
+  r = one({ 'gen-1': good, 'dom-2': { thesis: '  ', checkpoints: [] } });
+  a.deepEqual(r.input.thesis.checkpoints, ['매출 추세']); a.deepEqual(r.recordFrom, ['일반']);
+  // 같은 내용 두 계좌 → 상충 아님
+  r = one({ 'gen-1': good, 'dom-2': JSON.parse(JSON.stringify(good)) });
+  a.equal(r.recordConflict, false); a.deepEqual(r.recordFrom, ['일반', 'ISA']); a.equal(r.input.thesis.logicState, 'maintained');
+  // 상충: 임의 선택·합치기 금지 → thesis null, 상충 표시
+  r = one({ 'gen-1': good, 'dom-2': { logicState: 'broken', checkpoints: [{ text: '점유율 하락', done: false }], thesis: '이유' } });
+  a.equal(r.recordConflict, true); a.equal(r.input.thesis, null); a.deepEqual(r.record, { conflict: true, accounts: ['일반', 'ISA'] });
+  a.match(P.recordLine(r.record), /원칙 기록 상충 — 확인 필요\(일반·ISA/);
+  // 둘 다 빈 기록 → 예전처럼 첫 기록(상태 미기록) 표시, 상충 아님
+  r = one({ 'gen-1': {}, 'dom-2': {} });
+  a.equal(r.recordConflict, false); a.equal(r.record.checkpoints, 0); a.match(P.recordLine(r.record), /상태 미기록/);
+  // 기록 없음
+  r = one({}); a.equal(r.record, null); a.equal(r.input.thesis, null); a.match(P.recordLine(r.record), /없음/);
+  a.ok(!('_th' in r));
+});
+
+test('탭 화면: 원칙 기록 상충·상품 유형 미확인 태그 표시(저장 없음)', async () => {
+  const d = new JSDOM('<!doctype html><head></head><body><div id="panel-greatco"></div></body>', { url: 'https://synthetic.invalid/portfolio_v5.html' }), w = d.window;
+  try {
+    w.fetch = () => { throw Error('Forbidden network'); };
+    w.HASFundamentalFilter = require('../has/fundamental-filter.js'); w.HASGreatCompanies = G; w.HASGreatCompaniesLab = L;
+    const l = { gen: [{ id: 1, ticker: '005930', name: '삼성전자', quantity: 1 }], dom: [{ id: 2, ticker: '005930', name: '삼성전자', quantity: 1 }], ov: [{ id: 3, ticker: 'QLD', name: 'ProShares Ultra QQQ', quantity: 1 }], pen: [] };
+    const pr = { 'gen-1': { logicState: 'maintained', checkpoints: [], thesis: 'a' }, 'dom-2': { logicState: 'weakened', checkpoints: [], thesis: 'b' } };
+    const before = JSON.stringify([l, pr]);
+    const ui = P.create({ win: w, doc: w.document, now: () => NOW, source: () => ({ lists: l, principles: pr, getter: () => null }) });
+    await ui.onTabChange('greatco');
+    const cards = w.document.querySelectorAll('[data-testid=hgc-card]'); a.equal(cards.length, 2);
+    a.match(cards[0].textContent, /원칙 기록 상충/); a.match(cards[0].textContent, /원칙 기록 상충 — 확인 필요\(일반·ISA/);
+    a.match(cards[1].textContent, /상품 유형 미확인/); a.doesNotMatch(cards[1].textContent, /재무 자료 없음/);
+    a.equal(JSON.stringify([l, pr]), before);
+  } finally { d.window.close(); }
 });
