@@ -1,5 +1,5 @@
 /* 위대한 기업(장기보유 판단) — 순수 평가 엔진. 네트워크·저장소·주문·계좌 기록 접근 없음.
- * ORDER GPT-20261115-1326 2단계. 입력 계약 hasGreatCompanyInput.v1 → 출력 hasGreatCompanyAssessment.v1.
+ * ORDER GPT-20261115-1326 2단계(GPT-REVIEW-great-companies-20261115-1431 반영: 매수 검토 게이트 닫힘·종목/기준시각 정합성·자본배분 같은 기간). 입력 계약 hasGreatCompanyInput.v1 → 출력 hasGreatCompanyAssessment.v1.
  * 목적: '보유할 이유'와 '보유 논리 훼손 신호'를 근거·반론·출처·기준일과 함께 보여 준다. 매수·매도 권유를 만들지 않는다.
  * 상태: priority(장기보유 우선 검토) / recheck(경쟁력 재점검) / erosion(보유 논리 훼손 우려) / hold(판단 보류).
  * 상태는 총점이 아니라 규칙으로 정한다. 참고 점수는 표시만 하며 결정에 쓰지 않는다.
@@ -24,8 +24,14 @@
     dilutionWarn: 0.03, dilutionFail: 0.10,
     payoutOverFcf: 1.5,           // 자사주+배당이 FCF 합계의 1.5배 초과 → 차입 환원 의심(주의)
     valHighPct: 0.8, valLowPct: 0.2,
-    weightLimit: 10, convictionLimit: 25
+    weightLimit: 10, convictionLimit: 25,
+    futureSkewMs: 10 * 60000,     // 평가 시각보다 미래인 기준시각 허용 오차(시계 차이 10분)
+    valMaxAgeDays: 31             // 밸류에이션 기준일이 이보다 오래되면 밸류에이션 판단 보류
   });
+  var VAL_METRICS = { 'PER': 1, 'PBR': 1, 'PSR': 1, 'P/FCF': 1, 'EV/EBIT': 1, 'EV/EBITDA': 1 };
+  /* 매수 검토 게이트: 실제 검증된 밸류에이션 + 4단계 사전 조사(뉴스·실적/공시·컨센서스·커뮤니티) 계약이 연결되기 전까지 항상 닫힘.
+   * 이 단계 엔진은 '분할매수 검토 대상'을 만들지 않는다(합성 입력이어도). 가격·가치 관계는 scenario(설명용 가상 분석)로만 보여 준다. */
+  var BUY_GATE_MISSING = ['실제 검증된 밸류에이션 출처·기준일', '4단계 사전 조사(뉴스·실적/공시·컨센서스·커뮤니티) 출처·기준일'];
   var STATE_KO = { priority: '장기보유 우선 검토', recheck: '경쟁력 재점검', erosion: '보유 논리 훼손 우려', hold: '판단 보류' };
   var STATE_RANK = { priority: 3, recheck: 2, hold: 1, erosion: 0 };
   var DOMAINS = [
@@ -91,7 +97,7 @@
     }
     if (x.valuation !== undefined && x.valuation !== null) {
       var v = x.valuation;
-      if (!plain(v) || !str(v.metric, 20) || !num(v.current) || !day(v.asOf) || !Array.isArray(v.history) || v.history.length < 3 || !v.history.every(num)) e.push('valuation 형식(metric·current·asOf·history 3개 이상)');
+      if (!plain(v) || !VAL_METRICS[v.metric] || !num(v.current) || !day(v.asOf) || !Array.isArray(v.history) || v.history.length < 3 || !v.history.every(num) || typeof v.ticker !== 'string' || !str(v.source, 300)) e.push('valuation 형식(ticker·metric 허용 목록·current·asOf·source·history 3개 이상)');
     }
     if (x.capitalAllocation !== undefined && x.capitalAllocation !== null) {
       var ca = x.capitalAllocation, prev = null;
@@ -167,10 +173,14 @@
         ev.push('희석주식수 ' + (sh.length - 1) + '년 변화 ' + (dil >= 0 ? '+' : '') + pct(dil) + '%');
         if (dil > T.dilutionFail) st = 'fail'; else if (dil > T.dilutionWarn) st = 'warn';
       } else un.push('주식 수 3년 자료 없음');
-      var fcfSum = years.filter(function (r) { return num(r.ocf) && num(r.capex); }).reduce(function (s, r) { return s + r.ocf - r.capex; }, 0);
-      var payout = ca.reduce(function (s, r) { return s + (num(r.buybacks) ? r.buybacks : 0) + (num(r.dividends) ? r.dividends : 0); }, 0);
-      if (ca.length >= 3 && fcfSum > 0) { ev.push('자사주+배당 = FCF 합계의 ' + r1(payout / fcfSum) + '배'); if (payout / fcfSum > T.payoutOverFcf && st !== 'fail') st = 'warn'; }
-      else if (ca.length >= 3 && fcfSum <= 0 && payout > 0) { ev.push('FCF 합계 0 이하인데 주주환원 지출'); if (st !== 'fail') st = 'warn'; }
+      // 분자(환원)·분모(FCF)는 같은 결산일(교집합) 연도만 합산한다. 환원 항목이 빈 연도도 제외.
+      var fy = {}; years.forEach(function (r) { if (num(r.ocf) && num(r.capex)) fy[r.end] = r.ocf - r.capex; });
+      var both = ca.filter(function (r) { return Object.prototype.hasOwnProperty.call(fy, r.end) && (num(r.buybacks) || num(r.dividends)); });
+      var fcfSum = both.reduce(function (s, r) { return s + fy[r.end]; }, 0);
+      var payout = both.reduce(function (s, r) { return s + (num(r.buybacks) ? r.buybacks : 0) + (num(r.dividends) ? r.dividends : 0); }, 0);
+      if (both.length >= 3 && fcfSum > 0) { ev.push('자사주+배당 = FCF 합계의 ' + r1(payout / fcfSum) + '배(같은 결산 ' + both.length + '년 ' + both[both.length - 1].end.slice(0, 4) + '~' + both[0].end.slice(0, 4) + ')'); if (payout / fcfSum > T.payoutOverFcf && st !== 'fail') st = 'warn'; }
+      else if (both.length >= 3 && fcfSum <= 0 && payout > 0) { ev.push('FCF 합계 0 이하인데 주주환원 지출(같은 결산 ' + both.length + '년)'); if (st !== 'fail') st = 'warn'; }
+      else if (ca.length) un.push('환원·FCF 같은 결산 연도 3년 미만(' + both.length + '년) — 환원 비율 판단 보류');
       var csrc = ca.length ? [{ kind: '자본배분 합성/공시 입력', ref: 'capitalAllocation ' + ca.length + '년', asOf: ca[0].end }] : [];
       if (st === 'fail') return out.push(domain(d, 'fail', ev.join(' / ') + ' — 주주가치 희석 큼(제안 기준 10% 초과)', '스톡옵션·인수 대가일 수 있어 사업상 정당성 확인이 필요합니다.', csrc, un, true));
       if (!qualFresh(q, now)) { un.push(q ? '자본배분 정성 확인 12개월 경과 또는 출처 없음' : '경영진·자본배분 정성 확인(출처·확인일) 없음'); return out.push(domain(d, 'unverified', (ev.join(' / ') || '수치 자료 없음') + ' — 정성 확인 전', '경영진 판단의 질은 수치만으로 알 수 없습니다.', csrc, un)); }
@@ -190,15 +200,16 @@
     return out;
   }
 
-  function valuationBand(v) {
+  function valuationBand(v, now) {
     if (!plain(v)) return { band: 'unknown', text: '고평가 판단 보류(밸류에이션 미연결)' };
+    if (num(now) && now - ms(v.asOf) > T.valMaxAgeDays * DAY) return { band: 'unknown', text: v.metric + ' 기준일 ' + v.asOf + ' — ' + T.valMaxAgeDays + '일 초과로 밸류에이션 판단 보류' };
     var all = v.history.slice().sort(function (a, b) { return a - b; }), below = all.filter(function (h) { return h < v.current; }).length, p = below / all.length;
     var band = p >= T.valHighPct ? 'high' : p <= T.valLowPct ? 'low' : 'mid';
     return { band: band, pctRank: Math.round(p * 100), text: v.metric + ' ' + v.current + ' — 자기 과거 ' + all.length + '개 값 중 하위 ' + Math.round(p * 100) + '% 위치(' + { high: '높은 편', low: '낮은 편', mid: '중간' }[band] + ', ' + v.asOf + ')' };
   }
 
   function relate(state, x, fa, val, now) {
-    var p = plain(x.price) ? x.price : null, res = { signal: 'none', signals: [], text: '', opinion: state === 'priority' ? '보유 지속 검토' : state === 'recheck' || state === 'erosion' ? '점검 필요' : '판단 보류', warning: state === 'erosion', conflicts: [], valuation: val };
+    var p = plain(x.price) ? x.price : null, res = { signal: 'none', signals: [], text: '', opinion: state === 'priority' ? '보유 지속 검토' : state === 'recheck' || state === 'erosion' ? '점검 필요' : '판단 보류', warning: state === 'erosion', conflicts: [], valuation: val, scenario: null, buyGate: { open: false, missing: BUY_GATE_MISSING.slice() } };
     if (!p) { res.text = '가격 신호 없음(가격 미연결)'; return res; }
     if (now - ms(p.asOf) > T.priceStaleDays * DAY) { res.text = '가격 기준일 ' + p.asOf.slice(0, 10) + ' — 오래되어 가격 신호 판단 보류'; res.signal = 'stale'; return res; }
     var limit = p.conviction === true ? T.convictionLimit : T.weightLimit, over = num(p.weightPct) && p.weightPct > limit;
@@ -218,8 +229,11 @@
       res.opinion = '판단 보류'; res.text = '신호 상충 — ' + res.conflicts.join(' · ') + ' — 판단 보류(근거 각각 확인)' + lim; return res;
     }
     if (res.signal === 'fear') {
-      if (val.band === 'unknown') { res.opinion = '판단 보류'; res.text = '가격 하락·경쟁력 유지 근거 — 밸류에이션 확인 전이라 판단 보류' + lim; return res; }
-      res.opinion = '분할매수 검토 대상'; res.text = '가격 하락·경쟁력 유지 근거·밸류에이션 ' + { low: '낮은 편', mid: '중간' }[val.band] + ' — 분할매수 검토 대상(최종 결정 순태씨)' + lim; return res;
+      res.opinion = '판단 보류';
+      if (val.band === 'unknown') { res.text = '가격 하락·경쟁력 유지 근거 — 밸류에이션 확인 전이라 판단 보류' + lim; return res; }
+      res.text = '가격 하락·경쟁력 유지 근거 — 실제 밸류에이션 검증·4단계 사전 조사 연결 전이라 판단 보류(매수 검토 아님)' + lim;
+      res.scenario = '가상 분석(설명용, 입력 미검증): 밸류에이션 ' + { low: '낮은 편', mid: '중간' }[val.band] + ' 입력 기준 — 검증·조사 후에만 곡소리 분할매수 검토 후보가 될 수 있음';
+      return res;
     }
     if (over) { res.opinion = '일부 축소 검토 가능'; res.text = '집중위험' + (val.band === 'high' ? '·밸류에이션 높은 편' : '') + ' — 일부 축소 검토 가능(세금·비용·재진입 위험 비교, 최종 결정 순태씨)' + lim; return res; }
     if (val.band === 'high') { res.opinion = '보유 지속 검토'; res.text = '밸류에이션 높은 편이나 경쟁력 유지 — 일률 매도 아님, 분할매도 여부는 순태씨 판단' + lim; return res; }
@@ -231,7 +245,7 @@
     var c = plain(x) && plain(x.company) ? x.company : {};
     return Object.assign({ schema: OUT_SCHEMA, version: VERSION, ticker: typeof c.ticker === 'string' ? c.ticker.slice(0, 12) : null, market: c.market === 'US' || c.market === 'KR' ? c.market : null, name: typeof c.name === 'string' ? c.name.slice(0, 120) : null,
       state: 'hold', stateKo: STATE_KO.hold, reason: reason, domains: [], reasonsToHold: [], risks: [], changes: [], sources: [], asOf: null, unknowns: [reason], auxScore: { value: null, coveredDomains: 0 },
-      priceRelation: { signal: 'none', signals: [], text: '판단 보류 — ' + reason, opinion: '판단 보류', warning: false, conflicts: [] }, signalHold: true, opinion: '판단 보류', synthetic: !!(plain(x) && x.synthetic) }, extra || {});
+      priceRelation: { signal: 'none', signals: [], text: '판단 보류 — ' + reason, opinion: '판단 보류', warning: false, conflicts: [], scenario: null, buyGate: { open: false, missing: BUY_GATE_MISSING.slice() } }, signalHold: true, opinion: '판단 보류', synthetic: !!(plain(x) && x.synthetic) }, extra || {});
   }
 
   /* ── 단일 종목 평가 ── */
@@ -244,6 +258,13 @@
     if (c.market === 'KR') return finalize(holdOut(x, '국내 기업 재무(DART) 미연결'));
     if (!F) return finalize(holdOut(x, '재무 필터 모듈 없음'));
     if (!x.fundamental) return finalize(holdOut(x, '재무 자료 없음(미연결)'));
+    if (!plain(x.fundamental) || x.fundamental.ticker !== c.ticker) return finalize(holdOut(x, '재무 자료 종목 불일치(' + (plain(x.fundamental) && typeof x.fundamental.ticker === 'string' ? x.fundamental.ticker.slice(0, 12) : '식별자 없음') + ' ≠ ' + c.ticker + ')'));
+    if (plain(x.valuation) && x.valuation.ticker !== c.ticker) return finalize(holdOut(x, '밸류에이션 자료 종목 불일치'));
+    var today = new Date(now).toISOString().slice(0, 10);
+    if (plain(x.price) && ms(x.price.asOf) > now + T.futureSkewMs) return finalize(holdOut(x, '가격 기준시각이 평가 시각보다 미래'));
+    if (plain(x.valuation) && x.valuation.asOf > today) return finalize(holdOut(x, '밸류에이션 기준일이 평가일보다 미래'));
+    if (x.fundamental.ok && !x.fundamental.years.every(function (r) { return r.end <= today && (r.filed === '' || (r.filed >= r.end && r.filed <= today)); })) return finalize(holdOut(x, '재무 결산일·공시일 충돌(미래 또는 결산 전 공시)'));
+    if (Array.isArray(x.capitalAllocation) && x.capitalAllocation.some(function (r) { return r.end > today; })) return finalize(holdOut(x, '자본배분 결산일이 평가일보다 미래'));
     var fa = F.assess(x.fundamental, { now: now });
     if (fa.label === 'insufficient') return finalize(holdOut(x, '재무 판정 불가 — ' + (fa.reason || '공시 부족')));
     if (fa.conflicts && fa.conflicts.length) return finalize(holdOut(x, '최근 결산 출처(태그) 값 충돌 ' + fa.conflicts.length + '건 — 근거 확인 전 판단 보류', { conflicts: fa.conflicts }));
@@ -282,7 +303,7 @@
     if (state === 'priority' && (!reasons.length || !risks.length || !sources.length)) { state = 'hold'; why = '근거·반론·출처 중 빠진 것이 있어 판단 보류'; }
     var unknowns = []; doms.forEach(function (d) { d.unknowns.forEach(function (u) { unknowns.push('영역 ' + d.no + ': ' + u); }); });
     var sc = covered.map(function (d) { return d.status === 'pass' ? 100 : d.status === 'warn' ? 50 : 0; });
-    var val = valuationBand(x.valuation), rel = relate(state, x, fa, val, now);
+    var val = valuationBand(x.valuation, now), rel = relate(state, x, fa, val, now);
     if (plain(x.previous) && x.previous.state !== state) changes.unshift('상태: ' + STATE_KO[x.previous.state] + ' → ' + STATE_KO[state] + ' (직전 ' + x.previous.evaluatedAt.slice(0, 10) + ')');
     return finalize({ schema: OUT_SCHEMA, version: VERSION, ticker: c.ticker, market: c.market, name: c.name || fa.name || null, listType: c.listType,
       state: state, stateKo: STATE_KO[state], reason: why, domains: doms.map(function (d) { return { id: d.id, no: d.no, name: d.name, status: d.status, statusKo: d.statusKo, evidence: d.evidence, counter: d.counter, sources: d.sources, unknowns: d.unknowns }; }),
@@ -297,7 +318,8 @@
     return Object.freeze(a);
   }
 
-  /* ── 여러 종목 + 메모리 캐시(탭 재진입·새로고침 시 같은 입력은 다시 계산하지 않음). 저장소 사용 없음. ── */
+  /* ── 여러 종목 + 메모리 캐시: 같은 JS 인스턴스(페이지가 살아 있는 동안) 안에서만 같은 입력·같은 날짜 재계산 생략.
+   * 브라우저 새로고침·앱 재실행은 새 인스턴스라 다시 계산한다. 브라우저 저장소·백업 사용 없음. ── */
   function createEvaluator(opts) {
     var cache = new Map(), max = opts && num(opts.max) ? opts.max : 200, stats = { computed: 0, cacheHits: 0 };
     function evaluate(inputs, options) {
