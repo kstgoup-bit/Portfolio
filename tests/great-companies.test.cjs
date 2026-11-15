@@ -55,10 +55,11 @@ test('③ 기업가치 상승을 수반한 급등(고점권·한도 이내) → 
   assert.equal(a.state,'priority');assert.equal(a.priceRelation.signal,'euphoria');assert.equal(a.opinion,'보유 지속 검토');assert.match(a.priceRelation.text,/매도 근거 부족/);
   assert.equal(a.domains.find(d=>d.id==='growth').status,'pass');
 });
-test('④ 고평가·집중위험 동시 → 일부 축소 검토 가능(세금·비용·재진입 비교), 확신 종목은 25% 한도',()=>{
+test('④ 고평가·집중위험 동시 → 위험 신호 + 점검 필요(매도 게이트 닫힘, 축소는 scenario만), 확신 종목은 25% 한도',()=>{
   const hi={ticker:'SYN',metric:'P/FCF',current:40,history:[14,18,22,26,30],asOf:'2026-11-14',source:'가상 밸류에이션 입력(합성)'};
   const a=A(input({valuation:hi,price:{asOf:'2026-11-14T07:00:00Z',drawdownPct:-2,weightPct:18,conviction:false}}));
-  assert.equal(a.opinion,'일부 축소 검토 가능');assert.match(a.priceRelation.text,/집중위험·밸류에이션 높은 편/);assert.match(a.priceRelation.text,/세금·비용·재진입/);
+  assert.equal(a.opinion,'점검 필요');assert.match(a.priceRelation.text,/집중위험\(비중 한도 초과\)·밸류에이션 높은 편/);assert.match(a.priceRelation.text,/세금\/재진입/);
+  assert.equal(a.priceRelation.riskWarning,true);assert.equal(a.priceRelation.sellGate.open,false);assert.match(a.priceRelation.scenario,/^가상 분석\(설명용, 입력 미검증\)/);
   const b=A(input({valuation:hi,price:{asOf:'2026-11-14T07:00:00Z',drawdownPct:-2,weightPct:18,conviction:true}}));
   assert.equal(b.opinion,'보유 지속 검토');assert.match(b.priceRelation.text,/일률 매도 아님/);assert.match(b.priceRelation.text,/한도 25%/);
 });
@@ -156,4 +157,34 @@ test('1431-③ 자본배분 비율은 같은 결산 연도 교집합만: 자본�
 test('1431-④ 출력 계약: 모든 출력에 buyGate 닫힘·분할매수 검토 대상 없음',()=>{
   const outs=[A(input()),A(input({price:{asOf:'2026-11-14T07:00:00Z',drawdownPct:-30,weightPct:6}})),A(input({fundamental:null})),G.assess(null,{now:NOW})];
   for(const o of outs){assert.equal(o.priceRelation.buyGate.open,false);assert.notEqual(o.opinion,'분할매수 검토 대상');}
+});
+
+// GPT-REVIEW-great-companies-20261115-1531: 미검증 입력만으로 매도·축소 행동 의견 금지, 위험 경고는 유지
+const SELL_ACTION=/축소 검토 가능|매도 검토 가능|분할매도 검토 대상|일부 축소 검토/;
+function noSellAction(a){assert.equal(a.priceRelation.sellGate.open,false);assert.equal(a.priceRelation.sellGate.missing.length,3);
+  assert.ok(['점검 필요','판단 보류','보유 지속 검토'].includes(a.opinion),a.opinion);
+  const shown=JSON.stringify(Object.assign({},a,{priceRelation:Object.assign({},a.priceRelation,{scenario:null})}));assert.doesNotMatch(shown,SELL_ACTION);}
+test('1531-가 밸류에이션 없음·고점권 아님·비중 12% → 위험 경고 유지, 매도 행동 의견 없음',()=>{
+  const a=A(input({valuation:null,price:{asOf:'2026-11-14T07:00:00Z',drawdownPct:-8,weightPct:12,conviction:false}}));
+  noSellAction(a);assert.equal(a.opinion,'점검 필요');assert.equal(a.priceRelation.riskWarning,true);assert.ok(a.priceRelation.signals.some(x=>/비중 12% > 한도 10%/.test(x)));
+});
+test('1531-나 가상 출처 고평가·비중 18%·고점권 → 위험 신호 3개, 매도 행동 의견 없음',()=>{
+  const hi={ticker:'SYN',metric:'P/FCF',current:40,history:[14,18,22,26,30],asOf:'2026-11-14',source:'가상 밸류에이션 입력(합성)'};
+  const a=A(input({valuation:hi,price:{asOf:'2026-11-14T07:00:00Z',drawdownPct:-1,weightPct:18,conviction:false}}));
+  noSellAction(a);assert.equal(a.priceRelation.signal,'euphoria');assert.equal(a.priceRelation.signals.length,3);assert.match(a.priceRelation.text,/고점권/);assert.equal(a.priceRelation.riskWarning,true);
+});
+test('1531-다 확신 종목 비중 26% → 25% 한도 초과 경고, 매도 행동 의견 없음',()=>{
+  const a=A(input({price:{asOf:'2026-11-14T07:00:00Z',drawdownPct:-8,weightPct:26,conviction:true}}));
+  noSellAction(a);assert.equal(a.opinion,'점검 필요');assert.match(a.priceRelation.text,/한도 25%/);assert.ok(a.priceRelation.signals.some(x=>/확신 종목/.test(x)));
+});
+test('1531-라 stale 가격·오래된 밸류에이션 + 비중 초과 → 위험 경고 유지, 매도 행동 의견 없음',()=>{
+  const st=A(input({price:{asOf:'2026-10-01T07:00:00Z',drawdownPct:-1,weightPct:18,conviction:false}}));
+  noSellAction(st);assert.equal(st.priceRelation.signal,'stale');assert.equal(st.priceRelation.riskWarning,true);assert.equal(st.opinion,'점검 필요');assert.ok(st.priceRelation.signals.some(x=>/가격 기준일 오래됨/.test(x)));
+  const old={ticker:'SYN',metric:'P/FCF',current:40,history:[14,18,22,26,30],asOf:'2026-09-01',source:'가상 밸류에이션 입력(합성)'};
+  const ov=A(input({valuation:old,price:{asOf:'2026-11-14T07:00:00Z',drawdownPct:-1,weightPct:18,conviction:false}}));
+  noSellAction(ov);assert.equal(ov.priceRelation.valuation.band,'unknown');assert.equal(ov.priceRelation.riskWarning,true);
+});
+test('1531 출력 계약: 모든 출력에 sellGate 닫힘',()=>{
+  const outs=[A(input()),A(input({price:{asOf:'2026-11-14T07:00:00Z',drawdownPct:-1,weightPct:40}})),A(input({fundamental:null})),G.assess(null,{now:NOW})];
+  for(const o of outs){assert.equal(o.priceRelation.sellGate.open,false);assert.doesNotMatch(o.opinion,SELL_ACTION);}
 });

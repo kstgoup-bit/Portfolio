@@ -32,6 +32,10 @@
   /* 매수 검토 게이트: 실제 검증된 밸류에이션 + 4단계 사전 조사(뉴스·실적/공시·컨센서스·커뮤니티) 계약이 연결되기 전까지 항상 닫힘.
    * 이 단계 엔진은 '분할매수 검토 대상'을 만들지 않는다(합성 입력이어도). 가격·가치 관계는 scenario(설명용 가상 분석)로만 보여 준다. */
   var BUY_GATE_MISSING = ['실제 검증된 밸류에이션 출처·기준일', '4단계 사전 조사(뉴스·실적/공시·컨센서스·커뮤니티) 출처·기준일'];
+  /* 매도·축소 검토 게이트: 같은 이유로 항상 닫힘. 비중 초과·고평가·고점권은 위험 신호(signals·riskWarning)로만 표시하고
+   * 화면용 opinion은 '점검 필요'/'판단 보류'/'보유 지속 검토'에 머문다. 축소 관계 설명은 scenario에서만. */
+  var SELL_GATE_MISSING = ['실제 검증된 밸류에이션 출처·기준일', '매도 전 4단계 조사(뉴스·실적/공시·컨센서스·커뮤니티) 출처·기준일', '비용·세금·재진입 분석'];
+  function gates() { return { buyGate: { open: false, missing: BUY_GATE_MISSING.slice() }, sellGate: { open: false, missing: SELL_GATE_MISSING.slice() } }; }
   var STATE_KO = { priority: '장기보유 우선 검토', recheck: '경쟁력 재점검', erosion: '보유 논리 훼손 우려', hold: '판단 보류' };
   var STATE_RANK = { priority: 3, recheck: 2, hold: 1, erosion: 0 };
   var DOMAINS = [
@@ -209,11 +213,20 @@
   }
 
   function relate(state, x, fa, val, now) {
-    var p = plain(x.price) ? x.price : null, res = { signal: 'none', signals: [], text: '', opinion: state === 'priority' ? '보유 지속 검토' : state === 'recheck' || state === 'erosion' ? '점검 필요' : '판단 보류', warning: state === 'erosion', conflicts: [], valuation: val, scenario: null, buyGate: { open: false, missing: BUY_GATE_MISSING.slice() } };
-    if (!p) { res.text = '가격 신호 없음(가격 미연결)'; return res; }
-    if (now - ms(p.asOf) > T.priceStaleDays * DAY) { res.text = '가격 기준일 ' + p.asOf.slice(0, 10) + ' — 오래되어 가격 신호 판단 보류'; res.signal = 'stale'; return res; }
+    var p = plain(x.price) ? x.price : null, res = { signal: 'none', signals: [], text: '', opinion: state === 'priority' ? '보유 지속 검토' : state === 'recheck' || state === 'erosion' ? '점검 필요' : '판단 보류', warning: state === 'erosion', riskWarning: false, conflicts: [], valuation: val, scenario: null }, g = gates();
+    res.buyGate = g.buyGate; res.sellGate = g.sellGate;
+    if (val.band === 'high') res.riskWarning = true;
+    if (!p) { res.text = '가격 신호 없음(가격 미연결)'; if (val.band === 'high') res.signals.push('밸류에이션 높은 편'); return res; }
     var limit = p.conviction === true ? T.convictionLimit : T.weightLimit, over = num(p.weightPct) && p.weightPct > limit;
+    if (over) res.riskWarning = true;
+    if (now - ms(p.asOf) > T.priceStaleDays * DAY) {
+      res.text = '가격 기준일 ' + p.asOf.slice(0, 10) + ' — 오래되어 가격 신호 판단 보류'; res.signal = 'stale';
+      if (val.band === 'high') res.signals.push('밸류에이션 높은 편');
+      if (over) { res.signals.push('비중 ' + r1(p.weightPct) + '% > 한도 ' + limit + '%' + (p.conviction ? '(확신 종목)' : '') + ' (가격 기준일 오래됨)'); res.text += ' · 위험 신호: 비중 한도 초과 — 점검 필요(매도 검토 아님)'; if (res.opinion === '보유 지속 검토') res.opinion = '점검 필요'; }
+      return res;
+    }
     res.signal = p.drawdownPct <= T.fearDrawdown ? 'fear' : p.drawdownPct >= T.euphoriaDrawdown ? 'euphoria' : 'none';
+    if (res.signal === 'euphoria') res.riskWarning = true;
     if (res.signal !== 'none') res.signals.push(res.signal === 'fear' ? '가격 하락(52주 고점 대비 ' + r1(p.drawdownPct) + '%)' : '고점권(52주 고점 대비 ' + r1(p.drawdownPct) + '%)');
     if (val.band === 'high') res.signals.push('밸류에이션 높은 편');
     if (over) res.signals.push('비중 ' + r1(p.weightPct) + '% > 한도 ' + limit + '%' + (p.conviction ? '(확신 종목)' : ''));
@@ -235,8 +248,13 @@
       res.scenario = '가상 분석(설명용, 입력 미검증): 밸류에이션 ' + { low: '낮은 편', mid: '중간' }[val.band] + ' 입력 기준 — 검증·조사 후에만 곡소리 분할매수 검토 후보가 될 수 있음';
       return res;
     }
-    if (over) { res.opinion = '일부 축소 검토 가능'; res.text = '집중위험' + (val.band === 'high' ? '·밸류에이션 높은 편' : '') + ' — 일부 축소 검토 가능(세금·비용·재진입 위험 비교, 최종 결정 순태씨)' + lim; return res; }
-    if (val.band === 'high') { res.opinion = '보유 지속 검토'; res.text = '밸류에이션 높은 편이나 경쟁력 유지 — 일률 매도 아님, 분할매도 여부는 순태씨 판단' + lim; return res; }
+    if (over) {
+      res.opinion = '점검 필요';
+      res.text = '위험 신호: 집중위험(비중 한도 초과)' + (val.band === 'high' ? '·밸류에이션 높은 편' : '') + (res.signal === 'euphoria' ? '·고점권' : '') + ' — 점검 필요. 매도 검토 게이트 닫힘(검증 밸류에이션·매도 전 4단계 조사·비용/세금/재진입 분석 미연결), 행동 의견 아님' + lim;
+      res.scenario = '가상 분석(설명용, 입력 미검증): 한도 초과분은 검증·조사·세금/비용/재진입 비교 후에만 분할 축소 검토 후보가 될 수 있음(최종 결정 순태씨)';
+      return res;
+    }
+    if (val.band === 'high') { res.opinion = '보유 지속 검토'; res.text = '위험 신호: 밸류에이션 높은 편 — 경쟁력 유지, 일률 매도 아님(매도 검토 게이트 닫힘, 최종 결정 순태씨)' + lim; return res; }
     res.text = res.signal === 'euphoria' ? '고점권이지만 경쟁력·기업가치 유지 — 보유 지속 검토(매도 근거 부족)' + lim : '보유 지속 검토 — 가격 신호 없음' + lim;
     return res;
   }
@@ -245,7 +263,7 @@
     var c = plain(x) && plain(x.company) ? x.company : {};
     return Object.assign({ schema: OUT_SCHEMA, version: VERSION, ticker: typeof c.ticker === 'string' ? c.ticker.slice(0, 12) : null, market: c.market === 'US' || c.market === 'KR' ? c.market : null, name: typeof c.name === 'string' ? c.name.slice(0, 120) : null,
       state: 'hold', stateKo: STATE_KO.hold, reason: reason, domains: [], reasonsToHold: [], risks: [], changes: [], sources: [], asOf: null, unknowns: [reason], auxScore: { value: null, coveredDomains: 0 },
-      priceRelation: { signal: 'none', signals: [], text: '판단 보류 — ' + reason, opinion: '판단 보류', warning: false, conflicts: [], scenario: null, buyGate: { open: false, missing: BUY_GATE_MISSING.slice() } }, signalHold: true, opinion: '판단 보류', synthetic: !!(plain(x) && x.synthetic) }, extra || {});
+      priceRelation: { signal: 'none', signals: [], text: '판단 보류 — ' + reason, opinion: '판단 보류', warning: false, riskWarning: false, conflicts: [], scenario: null, buyGate: gates().buyGate, sellGate: gates().sellGate }, signalHold: true, opinion: '판단 보류', synthetic: !!(plain(x) && x.synthetic) }, extra || {});
   }
 
   /* ── 단일 종목 평가 ── */
