@@ -1,18 +1,22 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
-STATUS: READY_FOR_REVIEW (검토 요청 2건 — ① 위대한 기업 엔진: GPT-REVIEW-great-companies-20261115-1531 반영(재검토) ② 뉴스 메뉴 제거: 순태씨 직접 지시. 모두 브랜치 한정, 운영 미반영) · 재무 필터 3단계는 지피 1531 APPROVE → 순태씨 운영 승인 대기
-REPORT: docs/team/CLAUDE-DEV-GREAT-COMPANIES-20261115.md(0-c절) · docs/team/CLAUDE-DEV-REMOVE-NEWS-TAB-20261115.md (main 사본 = 각 브랜치 HEAD 보고서와 동일)
-BRANCH: work/claude-great-companies-20261115 · work/claude-remove-news-tab-20261115
-HEAD: 7a18a498b23196487a49945647ee6d961d3044b2 (위대한 기업, 코드 09d1832) · 368e77c563c36bef89cb6ffda03b653047602685 (뉴스 메뉴 제거, 코드 e763fee)
-UPDATED: 2026-11-15 16:20 KST (정각 실행)
+STATUS: READY_FOR_REVIEW (재검토 요청 1건 — 위대한 기업 엔진: GPT-REVIEW-great-companies-20261115-1630 반영. 브랜치 한정, 운영 미반영) · 순태씨 운영 승인 대기 2건: 재무 필터 3단계(지피 1531 APPROVE), 뉴스 메뉴 제거(지피 1631 APPROVE)
+REPORT: docs/team/CLAUDE-DEV-GREAT-COMPANIES-20261115.md(0-d절) (main 사본 = 브랜치 HEAD 보고서와 동일)
+BRANCH: work/claude-great-companies-20261115
+HEAD: ebe80acc558b4b9a55489cdab1755bbd0a215d50 (위대한 기업, 코드 cf88269)
+UPDATED: 2026-11-15 17:10 KST (정각 실행)
 
-- ① 위대한 기업: 모든 출력에 sellGate {open:false, missing 3개}. 비중 초과·고평가·고점권은 signals·riskWarning(위험 신호)으로만, opinion은 '점검 필요'/'보유 지속 검토'/'판단 보류'. '일부 축소 검토 가능' 제거, 축소 설명은 scenario에만. stale 가격·오래된 밸류에이션에서도 경고 유지. 반례 시험 가~라 + 출력 계약 5건.
-- ② 뉴스 메뉴: portfolio_v5.html 2줄(버튼·TAB_GROUPS) 삭제, 패널·loadPortfolioNews는 보존(진입 경로 0). live-data 역방향 쌍 2개·pin 갱신. Chromium 360/390/430 확인.
-- 시험: 위대한 기업 브랜치 2166 중 2164 통과/0 실패/2 skip · 뉴스 브랜치 2107 중 2105 통과/0 실패/2 skip, 비밀값 0. GAS·운영 변경 0.
-- 지피 지시서 현황: GPT-20261115-1326 진행 중(엔진 재검토 대기, 시험 전용 UI 남음). 재무 필터 1531 APPROVE 기록. 그 외 미처리 0건.
+- 위대한 기업: 고점권(euphoria)만으로 riskWarning 금지. 위험 근거는 riskBasis[](concentration / valuation, 모두 verified:false — 밸류에이션은 '입력 미검증 — 검증된 고평가 아님'), riskWarning ⇔ riskBasis 비어 있지 않음. warning(=businessWarning)+warningText = 경쟁력 훼손(erosion), riskWarning과 독립. 소비 계약은 엔진 주석에 문서화. 반례 시험 5건(1630-①~③ + 출력 계약).
+- 시험: 2171 중 2169 통과/0 실패/2 skip(DST), 비밀값 0. portfolio_v5.html·GAS·운영 변경 0.
+- 지피 지시서 현황: GPT-20261115-1326 진행 중(엔진 재검토 대기, 시험 전용 UI 남음). 뉴스 메뉴 1631 APPROVE 기록(운영 승인 아님). 그 외 미처리 0건.
 
 ## 이전 기록
 
+- (이전) STATUS: READY_FOR_REVIEW (검토 요청 2건 — ① 위대한 기업 엔진: GPT-REVIEW-great-companies-20261115-1531 반영(재검토) ② 뉴스 메뉴 제거: 순태씨 직접 지시. 모두 브랜치 한정, 운영 미반영) · 재무 필터 3단계는 지피 1531 APPROVE → 순태씨 운영 승인 대기
+- (이전) REPORT: docs/team/CLAUDE-DEV-GREAT-COMPANIES-20261115.md(0-c절) · docs/team/CLAUDE-DEV-REMOVE-NEWS-TAB-20261115.md (main 사본 = 각 브랜치 HEAD 보고서와 동일)
+- (이전) BRANCH: work/claude-great-companies-20261115 · work/claude-remove-news-tab-20261115
+- (이전) HEAD: 7a18a498b23196487a49945647ee6d961d3044b2 (위대한 기업, 코드 09d1832) · 368e77c563c36bef89cb6ffda03b653047602685 (뉴스 메뉴 제거, 코드 e763fee)
+- (이전) UPDATED: 2026-11-15 16:20 KST (정각 실행)
 - (이전) STATUS: READY_FOR_REVIEW (재검토 요청 2건 — ① 재무 필터 3단계: GPT-REVIEW-fundamental-filter-20261115-1430 반영 ② 위대한 기업 엔진: GPT-REVIEW-great-companies-20261115-1431 반영. 모두 브랜치 한정, 운영 미반영)
 - (이전) REPORT: docs/team/CLAUDE-DEV-FUNDAMENTAL-FILTER-20261115.md(맨 위 절) · docs/team/CLAUDE-DEV-GREAT-COMPANIES-20261115.md(0-b절) (main 사본 = 각 브랜치 HEAD 보고서와 동일)
 - (이전) BRANCH: work/claude-fundamental-filter-20261115 · work/claude-great-companies-20261115

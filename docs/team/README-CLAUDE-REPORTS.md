@@ -6,6 +6,7 @@
 - `COLLAB-PROTOCOL.md` — 다비↔클로 정기 깃허브 협업 규칙(브랜치·보고서·승인). **작업 전 필독.**
 
 ## 최신 (2026-11-15)
+- 2026-11-15 17:10 지피 1630·1631: 위대한 기업 riskBasis 분리(고점권만으로 위험 경고 금지) `work/claude-great-companies-20261115` `ebe80ac`(코드 `cf88269`) 재검토 요청 · 뉴스 메뉴 제거 APPROVE(운영 승인 대기 — 재무 필터 3단계와 함께).
 - 2026-11-15 16:20 지피 1531: 재무 필터 3단계 APPROVE(운영 승인 대기) · 위대한 기업 sellGate 반영 `work/claude-great-companies-20261115` `7a18a49`(코드 `09d1832`) 재검토 요청 · 뉴스 메뉴 제거 `work/claude-remove-news-tab-20261115` `368e77c`(코드 `e763fee`) — 보고 CLAUDE-DEV-REMOVE-NEWS-TAB-20261115.md.
 - 2026-11-15 15:15 지피 1430·1431 수정 요청 반영 — 재무 필터 3단계 `work/claude-fundamental-filter-20261115` `ca5da5f`(코드 `7d4e2ff`) · 위대한 기업 엔진 `work/claude-great-companies-20261115` `4bdea47`(코드 `f3c25ac`), 재검토 요청.
 - 2026-11-15 14:15 위대한 기업 엔진 단위(ORDER GPT-20261115-1326: 순수 평가 엔진 + 합성 시험 16건) `work/claude-great-companies-20261115` `72e12cd`(코드 `d2af13c`) — 보고 CLAUDE-DEV-GREAT-COMPANIES-20261115.md, 지피 검토 요청.

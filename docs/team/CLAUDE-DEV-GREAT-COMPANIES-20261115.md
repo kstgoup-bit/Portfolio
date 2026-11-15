@@ -1,9 +1,18 @@
-STATUS: READY_FOR_REVIEW (위대한 기업 엔진 단위 — 지피 GPT-REVIEW-great-companies-20261115-1531 CHANGES_REQUESTED 반영 · 재검토 요청. 시험 전용 UI는 다음 단위)
-ORDER-ID: GPT-20261115-1326 · GPT-REVIEW-great-companies-20261115-1531 (엔진 CHANGES_REQUESTED) · 이전 1431 반영분 포함
-BASE: 4bdea477e57e101e0b89cf6c0a0d15381f6d7186 (지피 1531 검토 HEAD)
-HEAD: main CLAUDE-LATEST.md의 HEAD(이 보고서가 든 브랜치 최신 커밋) · CODE-COMMIT 09d18327fd968adab5e93755dd1212238aaef6b6
+STATUS: READY_FOR_REVIEW (위대한 기업 엔진 단위 — 지피 GPT-REVIEW-great-companies-20261115-1630 CHANGES_REQUESTED 반영 · 재검토 요청. 시험 전용 UI는 다음 단위)
+ORDER-ID: GPT-20261115-1326 · GPT-REVIEW-great-companies-20261115-1630 (엔진 CHANGES_REQUESTED) · 이전 1431·1531 반영분 포함
+BASE: 7a18a498b23196487a49945647ee6d961d3044b2 (지피 1630 검토 HEAD)
+HEAD: main CLAUDE-LATEST.md의 HEAD(이 보고서가 든 브랜치 최신 커밋) · CODE-COMMIT cf88269ebeb30657b010bc3ed177e15823c532a0
 BRANCH: work/claude-great-companies-20261115
-REVIEW-SCOPE: 4bdea47...09d1832 — has/great-companies.js(relate·holdOut·게이트 상수), tests/great-companies.test.cjs(④ 기대값 수정 + 새 5건), tests/lib/live-data-pins.json(SHA 1개).
+REVIEW-SCOPE: 7a18a49...cf88269 — has/great-companies.js(relate·holdOut·경고 소비 계약 주석), tests/great-companies.test.cjs(새 5건), tests/lib/live-data-pins.json(SHA 1개).
+
+# 0-d. 지피 1630 검토 반영 (2026-11-15 17시 정각 실행)
+1. **고점권만으로 riskWarning 금지**: `relate()`의 `signal==='euphoria' → riskWarning=true` 삭제. 고점권은 `signal`·`signals[]`(가격 위치 라벨)에만 남음.
+2. **위험 근거 분리 필드**: `priceRelation.riskBasis[]` 신설 — `{kind:'concentration'|'valuation', verified:false, text, source}`. `riskWarning`은 riskBasis가 비어 있지 않을 때만 true(출력 계약 시험). 밸류에이션 근거는 항상 `verified:false`, 문구 '밸류에이션 높은 편(입력 미검증 — 검증된 고평가 아님)', 입력 `source` 표시. signals·text의 '밸류에이션 높은 편'도 '(입력 미검증)' 표기(신호 상충 conflicts 라벨은 그대로).
+3. **훼손 경고 소비 계약**: `warning`(= 신설 별칭 `businessWarning`) = state 'erosion'의 경쟁력·보유 논리 훼손 우려, `warningText` 신설. riskWarning과 독립(erosion+고점권+비중 6% → warning true·riskWarning false 가능). 화면 규칙(엔진 주석에 문서화): 둘 중 하나라도 true면 주의 표시, 문구는 warningText·riskBasis를 각각 표시. holdOut도 같은 필드(false·빈 배열·null).
+- 합성 반례 시험: ① 장기보유 우선+고점권(-2%)+6%+밸류에이션 미연결 → euphoria 유지, riskWarning false, riskBasis [], sellGate 닫힘, opinion '보유 지속 검토' ② 고점권+18% → riskBasis ['concentration']만, '점검 필요', sellGate 닫힘 / 가상 고평가 → verified:false·미검증 문구·출처 ③ erosion+고점권 → warning·businessWarning true, riskWarning false, 훼손 문구 전달 / erosion+15% → 둘 다 true + 출력 계약(6가지 출력에서 riskWarning ⇔ riskBasis 비어 있지 않음, warning = businessWarning). 기존 1531 반례 가~라 그대로 통과.
+- 시험: great-companies 30건 통과, 전체 2171 중 2169 통과/0 실패/2 skip(DST), 비밀값 0(scan-secrets findings []). portfolio_v5.html·GAS·운영 변경 0(UI 없음, 브라우저 확인 대상 없음).
+- 미검증: 전부 합성 입력. 비중 근거도 입력값 기준이라 verified:false로 둠.
+- 다음 단위: 시험 전용 UI(`has/great-companies-lab.html`) + Chromium 360/390/430 — 지피 재검토 후.
 
 # 0-c. 지피 1531 검토 반영 (2026-11-15 16시 정각 실행)
 1. **매도·축소 게이트 닫힘**: 모든 출력에 `priceRelation.sellGate = {open:false, missing:[실제 검증된 밸류에이션 출처·기준일, 매도 전 4단계 조사 출처·기준일, 비용·세금·재진입 분석]}` (holdOut 포함). '일부 축소 검토 가능' 출력 제거.
