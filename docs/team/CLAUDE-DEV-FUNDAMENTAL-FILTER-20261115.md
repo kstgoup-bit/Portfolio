@@ -1,3 +1,22 @@
+STATUS: READY_FOR_REVIEW (재무 필터 3단계 — 곡소리·환호성 화면 재무 라벨, 합성 자료 · 브랜치 한정, 운영 미반영)
+ORDER-ID: 순태씨 대화 2026-11-15 13시대 '승인'(3단계 진행 승인) · 이전 GPT-REVIEW-fundamental-filter-20261115-1130 APPROVE(2단계)
+BASE: 488cd55a29784febe5634268ceeeefd1bd52ccfb (+ main 6741702 병합)
+HEAD: main CLAUDE-LATEST.md의 HEAD(이 보고서가 든 브랜치 최신 커밋)
+CODE-COMMIT: 45beaa4a96f336f59b85b0d3e59cc149e3835f91
+REVIEW-SCOPE: has/fundamental-filter.js(validNormalized·display 추가), has/fear-top.js(카드 재무 줄·근거 펼침·머리 문구), has/live-price-panel.js(환호성 카드 재무 줄 1줄), portfolio_v5.html(script 1줄), tests/fundamental-display.test.cjs 6건, tests/lib/live-data-edits.json·live-data-pins.json
+
+## 3단계 — 화면 재무 라벨 (2026-11-15, 순태씨 승인)
+- 자료 경로: 곡소리 요약 항목의 `fundamental`, 환호성 가격 응답 항목의 `fundamental` = `normalize()` 결과(추후 GAS가 실어 보냄). 앱은 `validNormalized()`로 형식(버전·결산일 내림차순·숫자/null·conflicts 모양)을 엄격히 확인한 뒤에만 기기 시각으로 `assess()` → 신선도(18개월) 판정은 표시 시점 기준.
+- 표시 상태: 자료 없음 '재무: 미연결(재무 자료 수집 전) · 판단 보류' / 형식 불명 '자료 형식 확인 필요' / 국내(KR) '국내·해외 기업 재무 확인 미연결(미국 SEC만 1단계)' / 판정 시 '재무: <라벨> · <사유> · 판단 보류'. 근거 펼침에 항목별 상태·근거·반론, 기준 결산일·공시일·SEC·'임계값 미검증'.
+- 맥락 문구: 곡소리 취약 → '가격 하락이 기업가치 훼손일 수 있음 — 곡소리로 보지 않음', 우량 → '밸류에이션 확인 전이라 매수 검토 아님'. 환호성 취약 → '탈출 신호 여부 점검 필요(매도 판단은 순태씨)', 우량 → '과열 여부는 밸류에이션 연결 전 판단 보류'. 의견은 항상 '판단 보류'.
+- 지금 운영 GAS는 `fundamental`을 보내지 않으므로, 반영해도 화면은 '재무: 미연결'만 추가됨(네트워크·저장 변화 0).
+- 시험: 새 6건(상태별 표시·형식 거부 7종·오래된 자료·곡소리 카드 5종·모듈 없을 때 기존 문구·환호성 카드·pin/순서), 전체 2137 중 2135 통과/0 실패/2 skip(DST), 비밀값 0.
+- 화면: Playwright Chromium 360·390·430px(합성 3종목 곡소리 카드, 외부 요청 차단) 가로 넘침 0(scrollWidth=clientWidth), 최소 글자 13.3px.
+- 미검증·한계: 실제 GAS 응답에 `fundamental`을 싣는 수집(4단계, 순태씨 GAS 작업) 미구현 → 실제 자료 화면 미검증. 갤럭시 실기기 미확인. 밸류에이션 미연결이라 '매수 검토' 표시 없음.
+- 순태씨 결정 필요: 운영 반영 여부(지피 검토 후 '올려'), 4단계 GAS 수집 시점.
+
+---
+# (이전) 2단계 보고
 STATUS: READY_FOR_REVIEW (2단계 지피 재검토 1030 반영: 보고서 정합성 복원 · 재검토 요청, 앱·GAS 연결 없음)
 ORDER-ID: GPT-REVIEW-fundamental-filter-20261115-1030 (CHANGES_REQUESTED 3항 보고서 정합성) · 이전 GPT-REVIEW-fundamental-filter-20261115-0930 (1~3항)
 BASE: e83bc9c94cdf6c6a3e0bce73b31881b51f81b1c0

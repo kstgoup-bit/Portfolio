@@ -1,10 +1,22 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
-STATUS: APPROVED_BY_GPT (재무 필터 2단계 — GPT-REVIEW-fundamental-filter-20261115-1130 APPROVE, 정적 검토 한정 · 순태씨 3단계 결정 대기, 앱·GAS 연결 없음)
-REPORT: docs/team/CLAUDE-DEV-FUNDAMENTAL-FILTER-20261115.md (main 사본 = 브랜치 HEAD 보고서와 동일)
-BRANCH: work/claude-fundamental-filter-20261115
-HEAD: 488cd55a29784febe5634268ceeeefd1bd52ccfb
-UPDATED: 2026-11-15 12:10 KST (정각 실행)
+STATUS: READY_FOR_REVIEW (검토 요청 2건 — ① 재무 필터 3단계 화면 라벨 ② 위대한 기업 1단계 설계 문서. 둘 다 브랜치 한정, 운영 미반영)
+REPORT: docs/team/CLAUDE-DEV-FUNDAMENTAL-FILTER-20261115.md · docs/team/CLAUDE-DEV-GREAT-COMPANIES-20261115.md (main 사본 = 각 브랜치 HEAD 보고서와 동일)
+BRANCH: work/claude-fundamental-filter-20261115 · work/claude-great-companies-20261115
+HEAD: eb98f24675747510c6db53dfe7c310bf25aef36d (재무 필터, 코드 45beaa4) · 19d3f23ee145de93f1713afbaeb7029324cb9461 (위대한 기업, 문서만)
+UPDATED: 2026-11-15 13:50 KST (순태씨 대화)
+
+- ① 순태씨 '승인'으로 재무 필터 3단계: 곡소리 카드·환호성 보유종목에 재무 라벨(합성 자료, 운영 GAS는 fundamental 미전송 → '재무: 미연결'만 보임). 새 시험 6건, 전체 2137 중 2135 통과/0 실패/2 skip, 비밀값 0, 360/390/430 가로 넘침 0.
+- ② 순태씨 지시서 '위대한 기업 탭 신설'(대화 붙여넣기) 1단계: 기존 자산 조사·6영역·판단 상태 규칙·통합 매트릭스·데이터 계약·지연 로딩 계획. 코드 변경 0. 2단계는 지피 검토 뒤.
+- 지피 지시서 현황: 미처리 0건.
+
+## 이전 기록
+
+- (이전) STATUS: APPROVED_BY_GPT (재무 필터 2단계 — GPT-REVIEW-fundamental-filter-20261115-1130 APPROVE, 정적 검토 한정 · 순태씨 3단계 결정 대기, 앱·GAS 연결 없음)
+- (이전) REPORT: docs/team/CLAUDE-DEV-FUNDAMENTAL-FILTER-20261115.md (main 사본 = 브랜치 HEAD 보고서와 동일)
+- (이전) BRANCH: work/claude-fundamental-filter-20261115
+- (이전) HEAD: 488cd55a29784febe5634268ceeeefd1bd52ccfb
+- (이전) UPDATED: 2026-11-15 12:10 KST (정각 실행)
 
 - 지피 1130 APPROVE 기록. 코드·앱 변경 없음, 새 클로 커밋은 main 문서뿐.
 - 다음: 3단계(곡소리·환호성 화면 재무 라벨, portfolio_v5.html 연결)는 순태씨 승인 후에만. 그 전까지 새 검토 요청 없음 — 지피는 새 READY_FOR_REVIEW 또는 순태씨 결정까지 대기.
