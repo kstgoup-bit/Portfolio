@@ -1,9 +1,29 @@
-STATUS: WIP (1단계 완료 · 지피 검토 요청)
-ORDER-ID: 순태씨 대화 2026-11-15 '재무 필터 시작'
-BASE: 38cf77863892f80626dafd8adbce6b1dd2c4331a
-HEAD: 2519926397abe6d0e364eb4e012d8871e9f2c2e7
-REVIEW-SCOPE: has/fundamental-filter.js 전체(새 파일, 앱 연결 없음), tests/fundamental-filter.test.cjs 11건, live-data-pins addedRuntimeFiles 1개
+STATUS: READY_FOR_REVIEW (2단계 완료 · 지피 검토 요청, 앱·GAS 연결 없음)
+ORDER-ID: 순태씨 대화 2026-11-15 '재무 필터 시작' + 'SEC 조회 승인'
+BASE: 2519926397abe6d0e364eb4e012d8871e9f2c2e7
+HEAD: e83bc9c94cdf6c6a3e0bce73b31881b51f81b1c0
+REVIEW-SCOPE: has/fundamental-filter.js 변경분(태그 대체·latestWith·금융업·혼재 조건), tests/fundamental-filter-sec-sample.test.cjs 6건, tests/fixtures/sec-sample-20261115/*.txt(실제 SEC 값)
 
+## 2단계 — 실제 SEC 5종목 대조 (2026-11-15)
+출처: https://data.sec.gov/api/xbrl/companyconcept/CIK##########/us-gaap/<TAG>.json (SEC EDGAR XBRL, 조회 2026-11-15 KST, 순태씨 조회 승인). 10-K·FY·결산일 2021-06 이후, 태그·결산일별 최신 공시. 값은 조회 도구가 옮긴 숫자이며 아래 계산은 손으로 다시 확인함.
+
+| 종목 | 결과 | 주요 수치(손계산 대조) | 발견·조치 |
+|---|---|---|---|
+| AAPL | 우량 근거 충분 | ROE 157.5%(자사주로 자본 작음), 순부채/OCF 0.5배(FY2025), 이익률 32% | FY2026 10-K가 일부 태그(영업이익·현금·부채)에 아직 없음 → 시점 항목은 직전 결산까지 보고 '[결산일 기준]' 표시. 이자비용 FY2024부터 미공시 → n/a |
+| MSFT | 우량 근거 충분 | 이자보상 155237/3051=50.9배, 순부채/OCF 0.1배, ROE 34.3% | InterestExpense가 FY2024까지 → InterestExpenseNonoperating 대체(기존 목록) 확인 |
+| NVDA | 우량 근거 충분 | 이자보상 503.4배, 순현금, FCF 5/5년 | 설비투자 태그가 PaymentsToAcquireProductiveAssets(무형자산 포함) → 대체 목록 추가 |
+| JNJ | 우량 근거 충분 | 평균 ROE 31%, 순부채/OCF 0.9배 | 영업이익 미공시 → 이익률 n/a. 자본은 비지배지분 포함 태그만 있음(기존 대체). 10-K 안 분기 값 제외 확인. 2023년 순이익에 일회성(분사) 이익 포함 — 반론 문구로만 표시 |
+| JPM | 공시 부족(금융업 보류) | 영업현금흐름 음수(은행 특성) | 그대로 두면 '이익의 질 취약'으로 오판 → Deposits 공시 기업은 금융업으로 판정 보류 |
+
+추가 규칙: 판정 가능 항목이 4개뿐이면 취약이 없어도 '혼재(근거 부족)' — 우량 근거 충분은 5개 이상일 때만.
+
+시험: 새 6건, 전체 2123 중 2121 통과/0 실패/2 skip(DST), 비밀값 0. 화면 변경 없음.
+
+미검증·한계: 우량 4곳은 모두 대형 우량주라 '취약' 실제 사례 대조는 아직 없음(다음에 낙폭 큰 종목으로). 보험·리츠 판별 없음. AAPL FY2026 자본 112,093백만 달러 등 SEC 응답값 자체는 원본 10-K 문서와 대조하지 않음. 조회 도구가 숫자를 옮기는 과정의 오류 가능성 — 핵심 값은 손계산 일치로만 확인.
+
+다음 단위: 3. 앱 표시(곡소리 카드·환호성 보유종목 재무 라벨, 합성 자료로 먼저) — 순태씨 승인 필요. 4. GAS 수집은 순태씨 GAS 작업 때.
+
+---
 # 재무 필터(2차 우량주 판정) 1단계 — 2026-11-15
 
 ## 순태씨 결정 (2026-11-15 대화)
