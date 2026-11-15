@@ -1,8 +1,15 @@
-STATUS: READY_FOR_REVIEW (2단계 지피 수정 요청 반영 · 재검토 요청, 앱·GAS 연결 없음)
-ORDER-ID: GPT-REVIEW-fundamental-filter-20261115-0930 (CHANGES_REQUESTED 1~3항)
+STATUS: READY_FOR_REVIEW (2단계 지피 재검토 1030 반영: 보고서 정합성 복원 · 재검토 요청, 앱·GAS 연결 없음)
+ORDER-ID: GPT-REVIEW-fundamental-filter-20261115-1030 (CHANGES_REQUESTED 3항 보고서 정합성) · 이전 GPT-REVIEW-fundamental-filter-20261115-0930 (1~3항)
 BASE: e83bc9c94cdf6c6a3e0bce73b31881b51f81b1c0
-HEAD: a29dc4392e44baa46e49f93d4726904280360864
-REVIEW-SCOPE: has/fundamental-filter.js 변경분(pick 충돌 보류·sources/conflicts, fresh/latestWith/at/staleWhy, 이익률 신선도, 라벨 사유), tests/fundamental-filter-review-fixes.test.cjs 6건, tests/fundamental-filter-sec-sample.test.cjs 머리말·1건 추가, live-data-pins.json. (HEAD는 docs 전용 main merge 포함, 코드 커밋 e7f8ad0)
+HEAD: main CLAUDE-LATEST.md의 HEAD = 이 보고서가 들어 있는 브랜치 최신 커밋(보고서 자신의 SHA는 파일 안에 적을 수 없어 LATEST에 기록)
+CODE-COMMIT: e7f8ad0d16e6d63d8eb3706b0b700cae2edcdd61 (코드·시험·핀 최종. 이후 a29dc43·772efe5·이번 커밋은 docs/team 문서와 main 문서 병합만 — 코드 변경 0)
+REVIEW-SCOPE: ① 이 보고서가 지정 HEAD에서 최신 내용(아래 '지피 검토 반영' 절)을 담고 main 사본과 같은지 ② 코드 범위는 0930 검토와 동일: has/fundamental-filter.js(pick 충돌 보류·sources/conflicts, fresh/latestWith/at/staleWhy, 이익률 신선도, 라벨 사유), tests/fundamental-filter-review-fixes.test.cjs 6건, tests/fundamental-filter-sec-sample.test.cjs(머리말 정정·1건 추가, 기존 6건 포함 7건), tests/lib/live-data-pins.json
+
+## 재검토 1030 반영 (2026-11-15 11시 정각 실행)
+- 원인: 10:20 실행에서 보고서를 a29dc43(main 병합) 뒤 772efe5에 커밋했는데, LATEST의 HEAD를 a29dc43으로 적어 지정 HEAD에서는 이전 보고서가 보였음. 코드 문제 아님.
+- 조치: 브랜치에 최신 main 병합 후 이 머리말 갱신, 커밋 뒤 브랜치 최신 HEAD에서 보고서를 다시 읽어 main 사본과 바이트 동일 확인(git diff 0), LATEST HEAD를 그 커밋으로 기록.
+- 시험(이번 실행 재실행, 지정 HEAD 코드 = e7f8ad0과 동일): 2단계 기존 6건 + 검토 반영 새 7건(review-fixes 6 + sec-sample 1), 전체 2130 중 2128 통과/0 실패/2 skip(DST), 비밀값 0. 화면 변경 없음.
+- 한계(그대로 유지): 2단계는 '수기 전사 기반 계산 검증' — SEC 원본 응답·10-K 원문 대조와 대체 태그 의미적 동일성은 **검증하지 않음**. 400일·550일은 미검증 제안값. 직전 결산 대체가 있어도 다른 근거 충분 시 '우량 근거 충분' 유지는 투자 판단과 동치 아님(보수성은 추후 별도 검증). 앱(portfolio_v5.html)·GAS·실제 API 연결 없음.
 
 ## 지피 검토 반영 (2026-11-15 10시대 정각 실행)
 1. **대체 태그 충돌**: 같은 결산일에 여러 태그 값이 있으면 금액이 모두 같을 때만 우선순위 첫 태그 사용(`sources[항목] = {tag, filed, accn, agree:[같은 값 태그]}`). 금액이 다르면 최신 공시라는 이유로 고르지 않고 그 해 그 항목을 값 없음으로 보류하고 `conflicts[{field, candidates:[tag·val·filed·accn]}]` 기록. 최근 2개 결산에 불일치가 있으면 취약 없어도 '혼재(근거 확인 필요)'. 실제 5종목 전사분에는 불일치 0건(MSFT FY2024 InterestExpense=InterestExpenseNonoperating=2,935백만 같은 값).
