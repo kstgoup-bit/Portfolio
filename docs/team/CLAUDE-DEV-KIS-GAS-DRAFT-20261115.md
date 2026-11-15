@@ -3,7 +3,7 @@
 범위: 국내 종목 일봉 종가 조회 전용. 주문·계좌·잔고 경로 없음. 앱(portfolio_v5.html) 변경 없음.
 
 ## 파일
-- `gas/has-kis-request.gs` — `type=kis` 처리. `has-history-request.gs`의 `hasHistoryCallback_`·`hasHistoryTicker_`를 재사용하므로 두 파일을 같이 붙여넣는다.
+- `docs/team/gas-drafts/has-kis-request.gs` (보호 폴더 gas/ 밖의 초안. 순태씨가 GAS에 붙여넣는 용도) — `type=kis` 처리. `has-history-request.gs`의 `hasHistoryCallback_`·`hasHistoryTicker_`를 재사용하므로 두 파일을 같이 붙여넣는다.
 - `tests/kis-gas-relay.test.cjs` — 모의(Stub) 시험 5건. 실제 KIS 호출 없음.
 
 ## 적용 순서 (순태씨)
