@@ -1,9 +1,18 @@
-STATUS: READY_FOR_REVIEW (위대한 기업 엔진 단위 — 지피 GPT-REVIEW-great-companies-20261115-1730 CHANGES_REQUESTED 반영 · 재검토 요청. 시험 전용 UI는 다음 단위)
-ORDER-ID: GPT-20261115-1326 · GPT-REVIEW-great-companies-20261115-1730 (엔진 문구 CHANGES_REQUESTED) · 이전 1431·1531·1630 반영분 포함
-BASE: ebe80acc558b4b9a55489cdab1755bbd0a215d50 (지피 1730 검토 HEAD) · 최신 main 7ef7752 병합 c3cd28f
-HEAD: main CLAUDE-LATEST.md의 HEAD(이 보고서가 든 브랜치 최신 커밋) · CODE-COMMIT b453445e70c3610f115912c942aa6c85333944c6
+STATUS: READY_FOR_REVIEW (위대한 기업 엔진 단위 — 지피 GPT-REVIEW-great-companies-20261115-1830 CHANGES_REQUESTED 반영 · 재검토 요청. 시험 전용 UI는 다음 단위)
+ORDER-ID: GPT-20261115-1326 · GPT-REVIEW-great-companies-20261115-1830 (오래된 밸류에이션 '미연결' 오표시 CHANGES_REQUESTED) · 이전 1431·1531·1630·1730 반영분 포함
+BASE: e0ee68ef528a315a5b4e08d07dd1e1d6f083bc53 (지피 1830 검토 HEAD)
+HEAD: main CLAUDE-LATEST.md의 HEAD(이 보고서가 든 브랜치 최신 커밋) · CODE-COMMIT은 같은 커밋(코드·시험·보고서 한 커밋)
 BRANCH: work/claude-great-companies-20261115
-REVIEW-SCOPE: c3cd28f...b453445 — has/great-companies.js(relate() priority 최종 분기 문구 + valuationPending 필드, 게이트 주석 정정), tests/great-companies.test.cjs(기존 ③ 단언 수정 + 새 4건), tests/lib/live-data-pins.json(SHA 1개). c3cd28f는 main 병합(앱 코드 변경 없음, 문서·운영 반영분).
+REVIEW-SCOPE: e0ee68e...HEAD — has/great-companies.js(valuationBand() reason 필드, relate() fear·priority 분기 보류 사유 구분), tests/great-companies.test.cjs(새 3건), tests/lib/live-data-pins.json(SHA 1개), 이 보고서.
+
+# 0-f. 지피 1830 검토 반영 (2026-11-15 19시 정각 실행)
+1. **보류 사유 구분**: `valuationBand()` 출력에 `reason` 추가 — `missing`(입력 없음) / `stale`(입력 있음, 기준일 31일 초과) / `unverified`(최신 입력 low·mid·high, 원본 미검증). band 값과 기존 `text`는 그대로.
+2. **priority 최종 분기** `valuationPending`: missing → '현재 본질가치 대비 평가 미완료(밸류에이션 미연결)', stale → '…(밸류에이션 기준일 YYYY-MM-DD 오래됨 — 확인 전 판단 보류)', unverified → '…(밸류에이션 입력 미검증)'. 오래된 값을 '미연결'이나 '입력 미검증(최신)'으로 표시하지 않음.
+3. **곡소리(fear) 분기**도 같은 구분: stale → '밸류에이션 기준일 오래됨(YYYY-MM-DD) — 확인 전 판단 보류', missing → '밸류에이션 확인 전이라 판단 보류(미연결)'(기존 시험 ① 문구 '밸류에이션 확인 전' 유지).
+4. **새 합성 시험 3건**: 1830-① priority·가격 2026-11-14(-2%, 6%)·밸류에이션 asOf 2026-10-01(평가 2026-11-15) → reason stale, text·valuationPending에 '미연결'·'미검증' 없음, '기준일 2026-10-01 오래됨' 표시, euphoria 유지, warning·riskWarning false, buyGate·sellGate 닫힘, 가치 확정 문구 없음 ② 없음/최신/오래됨 대비 — reason missing·unverified·stale, valuationPending 세 문구 모두 다름, 게이트 닫힘·경고 없음 ③ 곡소리(-25%)+오래됨 → 판단 보류·'미연결' 아님·buyGate 닫힘 / 오래됨+18% → riskBasis ['concentration']만, businessWarning false, sellGate 닫힘(가격·밸류에이션 신호와 위험·경쟁력 경고 독립).
+- 시험(클로 실행): great-companies 37건 통과, 전체 2178 중 2176 통과/0 실패/2 skip(DST), 비밀값 0(scan-secrets findings []). portfolio_v5.html·GAS·운영 변경 0(UI 없음, 브라우저 확인 대상 없음).
+- 미검증: 전부 합성 입력. 실제 SEC·밸류에이션 원본 검증 없음. 가격 stale·밸류에이션 stale 동시 경우는 가격 stale 분기가 먼저 반환(밸류에이션 사유는 valuation.reason으로만 노출) — 기존 동작 유지.
+- 다음 단위: 시험 전용 UI(`has/great-companies-lab.html`) + Chromium 360/390/430 — 지피 재검토 후.
 
 # 0-e. 지피 1730 검토 반영 (2026-11-15 18시 정각 실행)
 1. **본질가치 확정 문구 제거**: priority·한도 이내·밸류에이션 high 아님 분기의 '고점권이지만 경쟁력·기업가치 유지 — 보유 지속 검토(매도 근거 부족)' 삭제. 새 문구: '고점권(가격 위치 신호) · 경쟁력 지표 유지 근거 — 현재 본질가치 대비 평가 미완료(밸류에이션 미연결|입력 미검증) · 보유 지속 검토(제한된 자료 기준 검토 의견, 매수·매도 판단 아님) · 현재 비중 x% / 한도 y%'. 가격 신호 없음도 같은 구조('가격 신호 없음 · 경쟁력 지표 유지 근거 — …').
