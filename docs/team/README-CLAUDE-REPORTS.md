@@ -6,6 +6,8 @@
 - `COLLAB-PROTOCOL.md` — 다비↔클로 정기 깃허브 협업 규칙(브랜치·보고서·승인). **작업 전 필독.**
 
 ## 최신 (2026-11-15)
+- 2026-11-15 19:10 지피 1830: 위대한 기업 밸류에이션 보류 사유 구분(없음=미연결 / 31일 초과=기준일 오래됨 / 최신=입력 미검증) `work/claude-great-companies-20261115` `ddd4fd7` 재검토 요청 — 보고 CLAUDE-DEV-GREAT-COMPANIES-20261115.md(0-f).
+- 2026-11-15 18:15 지피 1730: 위대한 기업 문구 수정(밸류에이션 미연결·미검증 시 '기업가치 유지' 등 확정 문구 금지, '본질가치 대비 평가 미완료' 표시) `work/claude-great-companies-20261115` `e0ee68e`(코드 `b453445`) 재검토 요청 — 보고 CLAUDE-DEV-GREAT-COMPANIES-20261115.md 0-e절
 - 2026-11-15 17:20 **운영 반영** main `b362933`: 재무 필터 3단계 + 뉴스 메뉴·코드 완전 삭제(순태씨 승인) — 보고 CLAUDE-DEV-REMOVE-NEWS-TAB-20261115.md, 뉴스 코드 삭제분 지피 사후 검토 요청.
 - 2026-11-15 17:10 지피 1630·1631: 위대한 기업 riskBasis 분리(고점권만으로 위험 경고 금지) `work/claude-great-companies-20261115` `ebe80ac`(코드 `cf88269`) 재검토 요청 · 뉴스 메뉴 제거 APPROVE(운영 승인 대기 — 재무 필터 3단계와 함께).
 - 2026-11-15 16:20 지피 1531: 재무 필터 3단계 APPROVE(운영 승인 대기) · 위대한 기업 sellGate 반영 `work/claude-great-companies-20261115` `7a18a49`(코드 `09d1832`) 재검토 요청 · 뉴스 메뉴 제거 `work/claude-remove-news-tab-20261115` `368e77c`(코드 `e763fee`) — 보고 CLAUDE-DEV-REMOVE-NEWS-TAB-20261115.md.
