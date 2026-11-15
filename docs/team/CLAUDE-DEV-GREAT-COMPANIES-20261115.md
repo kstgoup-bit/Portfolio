@@ -1,9 +1,19 @@
-STATUS: READY_FOR_REVIEW (위대한 기업 — ORDER GPT-20261115-1326 중 엔진 단위: 순수 평가 엔진 + 합성 시험. 시험 전용 UI 프로토타입은 다음 단위)
-ORDER-ID: GPT-20261115-1326 (같은 내용의 순태씨 대화 지시서 2026-11-15 포함)
-BASE: b410141 (main) — 브랜치에 work/claude-fundamental-filter-20261115(eb98f24, 재무 필터 3단계 검토 대기) 병합 위에 작업
-HEAD: main CLAUDE-LATEST.md의 HEAD(이 보고서가 든 브랜치 최신 커밋) · CODE-COMMIT d2af13c11f82a803b5114548c91e7fff014a971f
+STATUS: READY_FOR_REVIEW (위대한 기업 엔진 단위 — 지피 GPT-REVIEW-great-companies-20261115-1431 CHANGES_REQUESTED 1~4항 반영 · 재검토 요청. 시험 전용 UI는 다음 단위)
+ORDER-ID: GPT-20261115-1326 · GPT-REVIEW-great-companies-20261115-1431 (엔진 CHANGES_REQUESTED) · GPT-REVIEW-great-companies-design-20261115-1430 (설계 APPROVE, 범위 한정)
+BASE: 72e12cd4ac7bf516bcde4f9412f2d65335722180 (+ work/claude-fundamental-filter-20261115 ca5da5f 병합 7c152cc — 재무 필터 1430 수정 포함)
+HEAD: main CLAUDE-LATEST.md의 HEAD(이 보고서가 든 브랜치 최신 커밋) · CODE-COMMIT f3c25ac96cfaa9b116de2f9dc8f7e7a4ce600813
 BRANCH: work/claude-great-companies-20261115
-REVIEW-SCOPE: has/great-companies.js, tests/great-companies.test.cjs, tests/lib/live-data-pins.json(새 파일 1줄 등록), 이 문서 0절(엔진 단위). 1~8절(설계)은 이전 검토 범위 그대로.
+REVIEW-SCOPE: 7c152cc...f3c25ac — has/great-companies.js, tests/great-companies.test.cjs(기존 16건 중 ①·⑥·⑩·valuation 입력 수정 + 새 4건), tests/lib/live-data-pins.json(SHA 1개). 병합분(재무 필터)은 그 브랜치 보고서 범위.
+
+# 0-b. 지피 1431 검토 반영 (2026-11-15 15시 정각 실행)
+1. **매수 검토 게이트 닫힘**: 엔진은 어떤 입력(합성 포함)에서도 '분할매수 검토 대상'을 만들지 않음. 곡소리+장기보유 우선 검토+밸류에이션 중간/낮음 → opinion '판단 보류', 문구 '실제 밸류에이션 검증·4단계 사전 조사 연결 전이라 판단 보류(매수 검토 아님)'. 관계 설명은 `priceRelation.scenario`('가상 분석(설명용, 입력 미검증): …')로만 분리. 모든 출력에 `priceRelation.buyGate = {open:false, missing:[실제 검증된 밸류에이션 출처·기준일, 4단계 사전 조사 출처·기준일]}`. 시험 ① 기대값 수정. 4단계 조사 계약은 이번 단위에서 만들지 않음(게이트 열기는 새 지시·순태씨 결정 필요).
+2. **종목·기준시각 정합성**: `fundamental.ticker ≠ company.ticker`(식별자 없음 포함) → 보류. `valuation`은 `ticker`·`source` 필수, `metric`은 허용 목록(PER·PBR·PSR·P/FCF·EV/EBIT·EV/EBITDA), 티커 불일치 → 보류. 가격 기준시각이 평가 시각+10분보다 미래 → 보류. 밸류에이션 기준일 미래 → 보류, 31일 초과 → 밸류에이션 판단 보류(band unknown). 재무 결산일 미래·공시일이 결산일 전/미래 → 보류. 자본배분 결산일 미래 → 보류.
+3. **자본배분 기간 일치**: 환원(자사주+배당)과 FCF는 같은 결산일 교집합 연도만 합산(환원 값이 빈 연도 제외), 3년 미만이면 비율 판단 보류(미확인 사항에 표시). 근거 문구에 기간 표시(예: '같은 결산 3년 2023~2025'). 시험: 자본배분 3년/재무 5년, 결산일 시차(6월 결산 → 0년), 중간 누락, 순서 역전(형식 오류 보류).
+4. **캐시 서술 정정**: 메모리 캐시는 같은 JS 인스턴스 안에서만 재계산 생략. 브라우저 새로고침·앱 재실행은 새 인스턴스라 다시 계산(아래 0절 '캐시' 서술 정정). 실제 탐색·새로고침·모바일 성능 측정은 3단계 격리 UI에서 별도. 저장소·백업 신설 없음.
+- 설계 3절과의 정리: 정성 미확인이면 긍정 상태(장기보유 우선 검토)는 보류. 단, 수치·정성 서로 다른 근거 2종 이상 취약이면 '보유 논리 훼손 우려' 경고는 표시(신호이며 행동 지시 아님, opinion '점검 필요'). 근거 미검증 상태에서 긍정 장기보유·매수 판단은 만들지 않음.
+- 시험: great-companies 20건 통과, 전체 2161 중 2159 통과/0 실패/2 skip(DST), 비밀값 0. 앱·portfolio_v5.html·GAS 변경 0(UI 없음이라 브라우저 확인 대상 없음).
+- 미검증: 실제 SEC·실제 밸류에이션·4단계 조사 자료 없음(전부 합성). 임계값(10분·31일 포함) 제안값.
+- 다음 단위: 시험 전용 UI(`has/great-companies-lab.html`, `?test=1`) + Chromium 360/390/430 + 새로고침 재계산 측정 — 지피 재검토 후.
 
 # 0. 엔진 단위 보고 (클로 정각 실행, 2026-11-15 14:14 KST)
 
@@ -27,7 +37,7 @@ REVIEW-SCOPE: has/great-companies.js, tests/great-companies.test.cjs, tests/lib/
 - 정성 입력 형식(신규, 읽기 전용 계약): `thesis.moat`, `thesis.capital` = `{text, confirmedAt(YYYY-MM-DD), sourceRefs[]}`. 기존 PRINCIPLE_KNOWLEDGE_TICKER에는 이 칸이 없음 → 결정 필요(8절) 그대로.
 
 ## 가격 신호 관계(표시 문구, 권유 아님)
-- 곡소리(고점 대비 −20% 이하)+우선 검토: 밸류에이션 미연결 → 판단 보류 / 중간·낮음 → '분할매수 검토 대상(최종 결정 순태씨)'.
+- (1431로 변경: 중간·낮음도 판단 보류 + scenario 설명만, 0-b절) 곡소리(고점 대비 −20% 이하)+우선 검토: 밸류에이션 미연결 → 판단 보류 / 중간·낮음 → '분할매수 검토 대상(최종 결정 순태씨)'.
 - 곡소리+(밸류에이션 높음 또는 비중 초과) → '신호 상충' 판단 보류 + 상충 목록(⑧).
 - 고점권(−5% 이내)+우선 검토: 한도 이내 → '보유 지속 검토(매도 근거 부족)' / 비중 초과(10%, 확신 25%) → '일부 축소 검토 가능(세금·비용·재진입 위험 비교)' / 밸류에이션 높음만 → '일률 매도 아님, 분할매도 여부는 순태씨'.
 - 훼손 우려: 곡소리면 '곡소리 아님', 상승 중이면 '상승 중이지만 경쟁력 훼손 신호', 신호 없음이어도 경고(warning:true).
@@ -35,7 +45,7 @@ REVIEW-SCOPE: has/great-companies.js, tests/great-companies.test.cjs, tests/lib/
 - 출력 전체 금지어 검사(확정·자동 매수/매도·주문 실행·매수하세요 등) → 걸리면 판단 보류로 차단.
 
 ## 캐시(⑩)
-- `createEvaluator()`: 키 = 기준일(UTC 날짜) + 입력 JSON. 같은 입력 재평가 시 계산 0회(시험: computed 2→2, cacheHits 2). 입력·날짜가 바뀌면 다시 계산. 최대 200개, 메모리만(저장소 0).
+- (1431 정정: 같은 JS 인스턴스 안에서만, 새로고침은 재계산) `createEvaluator()`: 키 = 기준일(UTC 날짜) + 입력 JSON. 같은 입력 재평가 시 계산 0회(시험: computed 2→2, cacheHits 2). 입력·날짜가 바뀌면 다시 계산. 최대 200개, 메모리만(저장소 0).
 
 ## 시험 결과 (이 실행, 클로 환경)
 - 새 시험 16/16 통과.
