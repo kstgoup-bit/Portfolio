@@ -14,7 +14,8 @@ function navDOM(){
 test('risk menu preserves every existing internal destination and adds a separate same-origin euphoria entry',()=>{
  const d=navDOM();try{const w=d.window,nav=w.document.querySelector('#subtabs-risk');
  a.deepEqual(Array.from(w.TAB_GROUPS.risk),['principledash','risk','commandments','radar','ledgerdemo','staff','pretrade']);
- a.equal([...nav.querySelectorAll('.tab')].some(b=>/뉴스|'news'/.test(b.textContent+b.getAttribute('onclick'))),false); // 순태씨 지시 2026-11-15: 뉴스 메뉴 제거(패널·loadPortfolioNews 코드는 1차 보존)
+ a.equal([...nav.querySelectorAll('.tab')].some(b=>/뉴스|'news'/.test(b.textContent+b.getAttribute('onclick'))),false); // 순태씨 지시 2026-11-15: 뉴스 메뉴·패널·코드 전부 제거
+ a.equal(/panel-news|loadPortfolioNews|translateAndRender|renderNews|newsRefreshBtn/.test(html),false);
  w.switchTab('risk');w.switchTab('news');a.equal(w.document.querySelector('.panel.active').id,'panel-risk');a.equal(w.TAB_TO_GROUP.news,undefined); // 그룹에서 빠져 이동 안 됨
  a.equal([...nav.querySelectorAll('.tab')].some(b=>/AI자문|'advisor'/.test(b.textContent+b.getAttribute('onclick'))),false); // 순태씨 결정 2026-11-11: AI자문 메뉴 제거(패널 코드는 보존)
  const buttons=[...nav.querySelectorAll('.tab')];a.equal(buttons.length,w.TAB_GROUPS.risk.length);
