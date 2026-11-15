@@ -212,11 +212,12 @@
   }
 
   function valuationBand(v, now) {
-    if (!plain(v)) return { band: 'unknown', text: '고평가 판단 보류(밸류에이션 미연결)' };
-    if (num(now) && now - ms(v.asOf) > T.valMaxAgeDays * DAY) return { band: 'unknown', text: v.metric + ' 기준일 ' + v.asOf + ' — ' + T.valMaxAgeDays + '일 초과로 밸류에이션 판단 보류' };
+    // GPT-REVIEW-great-companies-20261115-1830: unknown 사유를 구분(missing = 입력 없음, stale = 입력은 있으나 기준일 오래됨).
+    if (!plain(v)) return { band: 'unknown', reason: 'missing', text: '고평가 판단 보류(밸류에이션 미연결)' };
+    if (num(now) && now - ms(v.asOf) > T.valMaxAgeDays * DAY) return { band: 'unknown', reason: 'stale', text: v.metric + ' 기준일 ' + v.asOf + ' — ' + T.valMaxAgeDays + '일 초과로 밸류에이션 판단 보류' };
     var all = v.history.slice().sort(function (a, b) { return a - b; }), below = all.filter(function (h) { return h < v.current; }).length, p = below / all.length;
     var band = p >= T.valHighPct ? 'high' : p <= T.valLowPct ? 'low' : 'mid';
-    return { band: band, pctRank: Math.round(p * 100), text: v.metric + ' ' + v.current + ' — 자기 과거 ' + all.length + '개 값 중 하위 ' + Math.round(p * 100) + '% 위치(' + { high: '높은 편', low: '낮은 편', mid: '중간' }[band] + ', ' + v.asOf + ')' };
+    return { band: band, reason: 'unverified', pctRank: Math.round(p * 100), text: v.metric + ' ' + v.current + ' — 자기 과거 ' + all.length + '개 값 중 하위 ' + Math.round(p * 100) + '% 위치(' + { high: '높은 편', low: '낮은 편', mid: '중간' }[band] + ', ' + v.asOf + ')' };
   }
 
   function relate(state, x, fa, val, now) {
@@ -249,7 +250,7 @@
     }
     if (res.signal === 'fear') {
       res.opinion = '판단 보류';
-      if (val.band === 'unknown') { res.text = '가격 하락·경쟁력 유지 근거 — 밸류에이션 확인 전이라 판단 보류' + lim; return res; }
+      if (val.band === 'unknown') { res.text = '가격 하락·경쟁력 유지 근거 — ' + (val.reason === 'stale' ? '밸류에이션 기준일 오래됨(' + x.valuation.asOf + ') — 확인 전 판단 보류' : '밸류에이션 확인 전이라 판단 보류(미연결)') + lim; return res; }
       res.text = '가격 하락·경쟁력 유지 근거 — 실제 밸류에이션 검증·4단계 사전 조사 연결 전이라 판단 보류(매수 검토 아님)' + lim;
       res.scenario = '가상 분석(설명용, 입력 미검증): 밸류에이션 ' + { low: '낮은 편', mid: '중간' }[val.band] + ' 입력 기준 — 검증·조사 후에만 곡소리 분할매수 검토 후보가 될 수 있음';
       return res;
@@ -263,7 +264,10 @@
     if (val.band === 'high') { res.opinion = '보유 지속 검토'; res.text = '위험 신호: 밸류에이션 높은 편(입력 미검증) — 경쟁력 유지, 일률 매도 아님(매도 검토 게이트 닫힘, 최종 결정 순태씨)' + lim; return res; }
     // GPT-REVIEW-great-companies-20261115-1730: 경쟁력 지표 평가와 본질가치 평가를 분리. 밸류에이션이 없거나(unknown)
     // 입력이 있어도(low/mid) 미검증이므로 본질가치를 확정하는 문구(시험 VALUE_CONFIRM 목록)를 쓰지 않는다.
-    res.valuationPending = val.band === 'unknown' ? '현재 본질가치 대비 평가 미완료(밸류에이션 미연결)' : '현재 본질가치 대비 평가 미완료(밸류에이션 입력 미검증)';
+    // 1830: 없음(미연결) / 오래됨 / 최신이지만 미검증을 서로 다른 보류 사유로 표시한다.
+    res.valuationPending = val.band !== 'unknown' ? '현재 본질가치 대비 평가 미완료(밸류에이션 입력 미검증)'
+      : val.reason === 'stale' ? '현재 본질가치 대비 평가 미완료(밸류에이션 기준일 ' + x.valuation.asOf + ' 오래됨 — 확인 전 판단 보류)'
+      : '현재 본질가치 대비 평가 미완료(밸류에이션 미연결)';
     res.text = (res.signal === 'euphoria' ? '고점권(가격 위치 신호) · 경쟁력 지표 유지 근거' : '가격 신호 없음 · 경쟁력 지표 유지 근거') + ' — ' + res.valuationPending + ' · 보유 지속 검토(제한된 자료 기준 검토 의견, 매수·매도 판단 아님)' + lim;
     return res;
   }

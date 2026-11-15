@@ -258,3 +258,31 @@ test('1730-④ 엔진 원본에 가치 확정 문구·구형 고점권 위험 �
   assert.doesNotMatch(src,/비중 초과·고평가·고점권은 위험 신호/);
   assert.match(src,/고점권은 가격 위치 신호/);
 });
+
+// GPT-REVIEW-great-companies-20261115-1830: 밸류에이션 없음 / 오래됨 / 최신 미검증 보류 사유 구분
+const STALE_V={ticker:'SYN',metric:'P/FCF',current:20,history:[14,18,22,26,30],asOf:'2026-10-01',source:'가상 밸류에이션 입력(합성)'};
+const P_EUPH={asOf:'2026-11-14T07:00:00Z',drawdownPct:-2,weightPct:6,conviction:false};
+test('1830-① priority·최근 가격·오래된 밸류에이션 → 미연결로 표시하지 않고 기준일 오래됨 표시, 게이트 닫힘',()=>{
+  const a=A(input({valuation:STALE_V,price:P_EUPH}));const r=a.priceRelation;
+  assert.equal(a.state,'priority');assert.equal(r.valuation.band,'unknown');assert.equal(r.valuation.reason,'stale');
+  assert.doesNotMatch(r.text,/미연결/);assert.doesNotMatch(r.valuationPending,/미연결/);
+  assert.match(r.valuationPending,/기준일 2026-10-01 오래됨 — 확인 전 판단 보류/);assert.match(r.text,/기준일 2026-10-01 오래됨/);
+  assert.doesNotMatch(r.valuationPending,/미검증/); // 오래된 값을 최신 미검증 값처럼 표시하지 않음
+  assert.equal(r.signal,'euphoria');assert.equal(r.warning,false);assert.equal(r.riskWarning,false);
+  assert.equal(r.buyGate.open,false);assert.equal(r.sellGate.open,false);assert.doesNotMatch(allText(a),VALUE_CONFIRM);
+});
+test('1830-② 대비: 없음 = 미연결, 최신 입력 = 입력 미검증, 오래됨 = 기준일 오래됨 — 세 사유가 서로 다름',()=>{
+  const none=A(input({valuation:null,price:P_EUPH})).priceRelation;
+  const fresh=A(input({valuation:Object.assign({},STALE_V,{asOf:'2026-11-14'}),price:P_EUPH})).priceRelation;
+  const stale=A(input({valuation:STALE_V,price:P_EUPH})).priceRelation;
+  assert.equal(none.valuation.reason,'missing');assert.equal(fresh.valuation.reason,'unverified');assert.equal(stale.valuation.reason,'stale');
+  assert.match(none.valuationPending,/밸류에이션 미연결/);assert.match(fresh.valuationPending,/밸류에이션 입력 미검증/);
+  assert.equal(new Set([none.valuationPending,fresh.valuationPending,stale.valuationPending]).size,3);
+  for(const r of [none,fresh,stale]){assert.equal(r.buyGate.open,false);assert.equal(r.sellGate.open,false);assert.equal(r.riskWarning,false);assert.equal(r.warning,false);}
+});
+test('1830-③ 곡소리(가격 하락)+오래된 밸류에이션도 미연결 아님·판단 보류, 비중 초과면 위험 신호는 가격·밸류에이션과 독립',()=>{
+  const fear=A(input({valuation:STALE_V,price:{asOf:'2026-11-14T07:00:00Z',drawdownPct:-25,weightPct:6,conviction:false}})).priceRelation;
+  assert.equal(fear.signal,'fear');assert.equal(fear.opinion,'판단 보류');assert.doesNotMatch(fear.text,/미연결/);assert.match(fear.text,/기준일 오래됨\(2026-10-01\)/);assert.equal(fear.buyGate.open,false);
+  const over=A(input({valuation:STALE_V,price:{asOf:'2026-11-14T07:00:00Z',drawdownPct:-2,weightPct:18,conviction:false}})).priceRelation;
+  assert.deepEqual(over.riskBasis.map(b=>b.kind),['concentration']);assert.equal(over.sellGate.open,false);assert.equal(over.businessWarning,false);
+});
