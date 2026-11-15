@@ -1,16 +1,30 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
-STATUS: READY_FOR_REVIEW (운영 앱 '위대한 기업' 탭 연결 — 순태씨 '진행' 결정. 읽기 전용·지연 로딩, 현재 전 종목 판단 보류(재무 미연결). 브랜치 한정, 운영 미반영) · 운영 최신 = main `b362933` · 지피 사후 검토 요청 유지: 뉴스 코드 완전 삭제 `d3f5fcc`
-REPORT: docs/team/CLAUDE-DEV-GREAT-COMPANIES-20261115.md(0-h절) (main 사본 = 브랜치 HEAD 보고서와 동일)
+STATUS: READY_FOR_REVIEW (지피 GPT-REVIEW-great-companies-20261115-2130 CHANGES_REQUESTED 2건 반영 — 상품 유형 미확인 보류, 다계좌 투자원칙 기록 선택·상충 표시. 브랜치 한정, 운영 미반영) · 운영 최신 = main `b362933` · 지피 사후 검토 요청 유지: 뉴스 코드 완전 삭제 `d3f5fcc`
+REPORT: docs/team/CLAUDE-DEV-GREAT-COMPANIES-20261115.md(0-i절) (main 사본 = 브랜치 HEAD 보고서와 동일)
 BRANCH: work/claude-great-companies-20261115
-HEAD: dad6ac509cf02c73d451ef07f93610a03909b31f (코드·시험·보고서 같은 커밋) · 운영 b362933a1ec89efbd0ba7cd9fe47828dfd81c837
-UPDATED: 2026-11-15 21:55 KST (순태씨 대화 '진행')
+HEAD: 46d05f728a3bf969b1d1ded178c6cfbb6f03829f (코드·시험·보고서 같은 커밋) · 검토 BASE dad6ac509cf02c73d451ef07f93610a03909b31f
+UPDATED: 2026-11-15 22:20 KST (정각 실행)
+
+- CR1: 유형 칸 없는 종목은 일반기업으로 단정하지 않고 '상품 유형 미확인 — 기업 평가 보류'. 국내 ETF 상표 뒤 공백 없는 이름(KODEX미국S&P500TR 등)·이름의 'ETF' 낱말은 ETF 추정. 엔진에 kind 'unknown' 1줄.
+- CR2: 빈 원칙 기록이 실제 기록을 가리지 않음, 계좌별 실제 기록이 다르면 '원칙 기록 상충 — 확인 필요'(고르거나 합치지 않음).
+- 시험(클로 실행): 신규 3건, 전체 2196 중 2194 통과/0 실패/2 skip(DST), 비밀값 0, Chromium 360/390/430 통과. portfolio_v5.html 변경 없음. 갤럭시 미검증.
+- 지피 지시서 현황: 새 GPT-ORDER 없음. 지피 재검토 요청(REVIEW-SCOPE 보고서 0-i) → APPROVE 후 순태씨 '올려'.
+
+## 이전 기록
+
+- (이전) STATUS: READY_FOR_REVIEW (운영 앱 '위대한 기업' 탭 연결 — 순태씨 '진행' 결정. 읽기 전용·지연 로딩, 현재 전 종목 판단 보류(재무 미연결). 브랜치 한정, 운영 미반영) · 운영 최신 = main `b362933` · 지피 사후 검토 요청 유지: 뉴스 코드 완전 삭제 `d3f5fcc`
+- (이전) REPORT: docs/team/CLAUDE-DEV-GREAT-COMPANIES-20261115.md(0-h절) (main 사본 = 브랜치 HEAD 보고서와 동일)
+- (이전) BRANCH: work/claude-great-companies-20261115
+- (이전) HEAD: dad6ac509cf02c73d451ef07f93610a03909b31f (코드·시험·보고서 같은 커밋) · 운영 b362933a1ec89efbd0ba7cd9fe47828dfd81c837
+- (이전) UPDATED: 2026-11-15 21:55 KST (순태씨 대화 '진행')
 
 - 위험관리 메뉴에 '🏛️ 위대한 기업' 탭: 처음 누를 때만 패널·엔진 불러옴(로그인 로딩 영향 0), 보유·투자원칙 기록 읽기만, 저장·전송 0, 게이트 닫힘. 자료 연결 상태(SEC·DART·밸류에이션 미연결) 화면 표시.
 - 시험(클로 실행): 새 6건, 전체 2193 중 2191 통과/0 실패/2 skip(DST), 비밀값 0, Chromium 360/390/430 통과(넘침 0·12px·#333·오류 0·localStorage 불변). 갤럭시 미검증.
 - 지피 지시서 현황: 새 GPT-ORDER 없음. 지피 검토 요청(REVIEW-SCOPE 보고서 참조) → 순태씨 '올려' 후 운영 반영.
 
-## 이전 기록
+
+
 
 - (이전) STATUS: APPROVED_AWAITING_USER (지피 GPT-REVIEW-great-companies-20261115-2030 APPROVE — 위대한 기업 시험 전용 UI `95af5fb` 정적 검토 한정. ORDER GPT-20261115-1326 1단계 종료. **순태씨 결정 필요: 운영 앱 '위대한 기업' 탭 연결 개발 진행 여부**) · 운영 최신 = main `b362933` · 지피 사후 검토 요청 유지: 뉴스 코드 완전 삭제 `d3f5fcc`
 - (이전) REPORT: docs/team/CLAUDE-DEV-GREAT-COMPANIES-20261115.md(0-g절) · 지피 검토 docs/gpt-great-companies-20261115:docs/team/GPT-REVIEW-great-companies-20261115-2030.md
