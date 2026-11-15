@@ -188,3 +188,36 @@ test('1531 출력 계약: 모든 출력에 sellGate 닫힘',()=>{
   const outs=[A(input()),A(input({price:{asOf:'2026-11-14T07:00:00Z',drawdownPct:-1,weightPct:40}})),A(input({fundamental:null})),G.assess(null,{now:NOW})];
   for(const o of outs){assert.equal(o.priceRelation.sellGate.open,false);assert.doesNotMatch(o.opinion,SELL_ACTION);}
 });
+
+// GPT-REVIEW-great-companies-20261115-1630: 가격 위치(고점권)만으로 riskWarning 금지, 위험 근거·훼손 경고 분리
+test('1630-① 장기보유 우선 + 고점권(-2%) + 비중 6% + 밸류에이션 미연결 → euphoria 유지, 위험 경고 없음',()=>{
+  const a=A(input({valuation:null,price:{asOf:'2026-11-14T07:00:00Z',drawdownPct:-2,weightPct:6,conviction:false}}));
+  assert.equal(a.state,'priority');assert.equal(a.priceRelation.signal,'euphoria');assert.ok(a.priceRelation.signals.some(x=>/고점권/.test(x)));
+  assert.equal(a.priceRelation.riskWarning,false);assert.deepEqual(a.priceRelation.riskBasis,[]);assert.equal(a.priceRelation.warning,false);
+  noSellAction(a);assert.equal(a.opinion,'보유 지속 검토');assert.doesNotMatch(a.priceRelation.text,/위험 신호/);
+});
+test('1630-② 고점권 + 비중 18% → 집중위험 근거로만 주의, 매도 게이트 닫힘·점검 필요',()=>{
+  const a=A(input({valuation:null,price:{asOf:'2026-11-14T07:00:00Z',drawdownPct:-2,weightPct:18,conviction:false}}));
+  assert.equal(a.priceRelation.signal,'euphoria');assert.equal(a.priceRelation.riskWarning,true);
+  assert.deepEqual(a.priceRelation.riskBasis.map(b=>b.kind),['concentration']);assert.match(a.priceRelation.riskBasis[0].text,/비중 18% > 한도 10%/);
+  noSellAction(a);assert.equal(a.opinion,'점검 필요');
+});
+test('1630-② 가상 밸류에이션 고평가 근거는 verified:false·미검증 표시',()=>{
+  const hi={ticker:'SYN',metric:'P/FCF',current:40,history:[14,18,22,26,30],asOf:'2026-11-14',source:'가상 밸류에이션 입력(합성)'};
+  const a=A(input({valuation:hi,price:{asOf:'2026-11-14T07:00:00Z',drawdownPct:-8,weightPct:6,conviction:false}}));
+  const v=a.priceRelation.riskBasis.find(b=>b.kind==='valuation');assert.ok(v);assert.equal(v.verified,false);assert.match(v.text,/입력 미검증 — 검증된 고평가 아님/);assert.equal(v.source,'가상 밸류에이션 입력(합성)');
+  assert.ok(a.priceRelation.signals.includes('밸류에이션 높은 편(입력 미검증)'));assert.match(a.priceRelation.text,/입력 미검증/);noSellAction(a);
+});
+test('1630-③ erosion 경고 소비 계약: warning·businessWarning=true, riskWarning과 별개, 고점권이어도 훼손 경고 전달',()=>{
+  const a=A(input({fundamental:norm(erodingYears),thesis:Object.assign({},input().thesis,{logicState:'weakened'}),valuation:null,price:{asOf:'2026-11-14T07:00:00Z',drawdownPct:-2,weightPct:6,conviction:false}}));
+  assert.equal(a.state,'erosion');assert.equal(a.priceRelation.signal,'euphoria');
+  assert.equal(a.priceRelation.warning,true);assert.equal(a.priceRelation.businessWarning,true);assert.match(a.priceRelation.warningText,/경쟁력·보유 논리 훼손 우려/);
+  assert.equal(a.priceRelation.riskWarning,false);assert.deepEqual(a.priceRelation.riskBasis,[]);
+  assert.match(a.priceRelation.text,/경쟁력 훼손 신호/);assert.equal(a.opinion,'점검 필요');noSellAction(a);
+  const b=A(input({fundamental:norm(erodingYears),thesis:Object.assign({},input().thesis,{logicState:'weakened'}),valuation:null,price:{asOf:'2026-11-14T07:00:00Z',drawdownPct:-8,weightPct:15,conviction:false}}));
+  assert.equal(b.state,'erosion');assert.equal(b.priceRelation.warning,true);assert.equal(b.priceRelation.riskWarning,true);assert.deepEqual(b.priceRelation.riskBasis.map(x=>x.kind),['concentration']);
+});
+test('1630 출력 계약: 모든 출력에 riskBasis 배열·warning/businessWarning 일치, riskWarning ⇔ riskBasis 비어 있지 않음',()=>{
+  const outs=[A(input()),A(input({price:{asOf:'2026-11-14T07:00:00Z',drawdownPct:-1,weightPct:40}})),A(input({price:{asOf:'2026-11-14T07:00:00Z',drawdownPct:-1,weightPct:5}})),A(input({fundamental:null})),G.assess(null,{now:NOW}),A(input({price:{asOf:'2026-10-01T07:00:00Z',drawdownPct:-1,weightPct:18}}))];
+  for(const o of outs){const r=o.priceRelation;assert.ok(Array.isArray(r.riskBasis));assert.equal(r.warning,r.businessWarning);assert.equal(r.riskWarning,r.riskBasis.length>0);}
+});
