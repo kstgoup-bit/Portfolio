@@ -1,6 +1,7 @@
 'use strict';
-// 실제 SEC companyconcept 값(2026-11-15 KST 조회, tests/fixtures/sec-sample-20261115/*.txt — 각 파일 첫 줄에 출처 URL)로 재무 필터 대조.
-// 기대값은 손계산으로 확인한 값. 판정 라벨은 매수 권유가 아니며 항상 판단 보류.
+// 수기 전사 기반 계산 검증: SEC companyconcept(2026-11-15 KST 조회)에서 10-K·FY·연간 항목만 골라 7열(tag|start|end|val|filed|form|accn)로 옮겨 적은
+// tests/fixtures/sec-sample-20261115/*.txt(첫 줄에 CIK·출처 URL)로 계산이 맞는지 본다. 원본 전체 응답이 아니므로 ① SEC 원본에서 연간 값만 고르는지,
+// ② 전사 오류 유무는 이 시험으로 검증되지 않는다(fp:'FY'는 전사 때 골라낸 조건을 그대로 주입). 기대값은 손계산. 판정 라벨은 매수 권유가 아니며 항상 판단 보류.
 const test=require('node:test');const assert=require('node:assert/strict');
 const fs=require('fs');const path=require('path');
 const F=require('../has/fundamental-filter.js');
@@ -30,3 +31,8 @@ test('판정 가능 항목 4개뿐이면 취약 없어도 우량 근거 충분�
   const l=load('JNJ');delete l.facts['us-gaap'].StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest;
   const a=F.assess(F.normalize(l),{now:NOW});assert.equal(a.label,'mixed');assert.match(a.reason,/근거 부족/);
   const f=F.assess(F.normalize(load('MSFT'),{financial:true}),{now:NOW});assert.equal(f.label,'insufficient');});
+test('5종목 모두 대체 태그 간 같은 결산일 값 불일치 없음, AAPL 직전 결산 대체(414일 전)는 fallback에 기록',()=>{
+  for(const t of ['AAPL','MSFT','NVDA','JNJ','JPM']){const {n}=run(t);assert.ok(n.years.every(r=>r.conflicts.length===0),t);}
+  const {n,a}=run('MSFT');assert.deepEqual(n.years[2].sources.interest.agree,['InterestExpenseNonoperating']);// FY2024 두 태그 2935000000 같은 값
+  assert.equal(n.years[2].sources.interest.accn,'0000950170-24-087843');
+  const ap=run('AAPL').a;assert.deepEqual(ap.fallback.map(x=>x.id).sort(),['leverage','margin']);assert.match(ap.reason,/직전 결산 기준/);});

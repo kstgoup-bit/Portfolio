@@ -7,7 +7,7 @@
   if (typeof module === 'object' && module.exports) module.exports = factory(); else root.HASFundamentalFilter = factory();
 })(typeof window !== 'undefined' ? window : this, function () {
   'use strict';
-  var VERSION = 'has-fundamental-v1', DAY = 86400000, YEARS = 5, STALE_DAYS = 550, TARGET_DRAWDOWN = -20, DEEP_DRAWDOWN = -30;
+  var VERSION = 'has-fundamental-v1', DAY = 86400000, YEARS = 5, STALE_DAYS = 550, FALLBACK_GAP_DAYS = 400, TARGET_DRAWDOWN = -20, DEEP_DRAWDOWN = -30;
   var TAGS = {
     revenue: ['Revenues', 'RevenueFromContractWithCustomerExcludingAssessedTax', 'SalesRevenueNet'],
     operatingIncome: ['OperatingIncomeLoss'],
@@ -39,11 +39,19 @@
     });
     return out;
   }
+  /* 같은 결산일에 대체 태그가 여러 개면: 금액이 모두 같을 때만 우선순위 첫 태그를 쓰고(같은 값을 낸 태그는 agree에 기록),
+   * 금액이 다르면 최신 공시라는 이유로 고르지 않고 그 해 그 항목을 보류(conflict, 값 없음)한다. 태그 의미가 다를 수 있기 때문. */
   function pick(facts, field) {
     var list = TAGS[field], merged = {};
     for (var i = 0; i < list.length; i++) {
       var got = annualEntries(facts, list[i], !!FLOW[field]);
-      Object.keys(got).forEach(function (end) { if (!merged[end]) merged[end] = got[end]; });
+      Object.keys(got).forEach(function (end) {
+        var g = got[end], m = merged[end];
+        if (!m) { merged[end] = { val: g.val, filed: g.filed, lastFiled: g.filed, tag: g.tag, accn: g.accn, agree: [], conflict: false, candidates: [g] }; return; }
+        m.candidates.push(g);
+        if (g.filed > m.lastFiled) m.lastFiled = g.filed;
+        if (m.conflict || g.val !== m.candidates[0].val) { m.conflict = true; m.val = null; m.tag = null; m.accn = null; m.filed = null; } else m.agree.push(g.tag);
+      });
     }
     return merged;
   }
@@ -58,11 +66,13 @@
     Object.keys(series.netIncome).forEach(function (e) { ends[e] = 1; });
     Object.keys(series.revenue).forEach(function (e) { ends[e] = 1; });
     var years = Object.keys(ends).sort().reverse().slice(0, YEARS).map(function (end) {
-      function v(k) { var x = series[k][end]; return x ? x.val : null; }
+      function v(k) { var x = series[k][end]; return x && !x.conflict ? x.val : null; }
+      var sources = {}, conflicts = [];
+      Object.keys(series).forEach(function (k) { var x = series[k][end]; if (!x) return; if (x.conflict) conflicts.push({ field: k, candidates: x.candidates.map(function (c) { return { tag: c.tag, val: c.val, filed: c.filed, accn: c.accn }; }) }); else sources[k] = { tag: x.tag, filed: x.filed, accn: x.accn, agree: x.agree.slice() }; });
       var debt = v('debtTotal');
       if (debt === null && v('debtNoncurrent') !== null) debt = v('debtNoncurrent') + (v('debtCurrent') || 0);
-      var filed = Object.keys(series).reduce(function (m, k) { var x = series[k][end]; return x && x.filed > m ? x.filed : m; }, '');
-      return { end: end, filed: filed, revenue: v('revenue'), operatingIncome: v('operatingIncome'), netIncome: v('netIncome'), ocf: v('ocf'), capex: v('capex'), interest: v('interest'), equity: v('equity'), cash: v('cash'), debt: debt };
+      var filed = Object.keys(series).reduce(function (m, k) { var x = series[k][end]; return x && x.lastFiled > m ? x.lastFiled : m; }, '');
+      return { end: end, filed: filed, revenue: v('revenue'), operatingIncome: v('operatingIncome'), netIncome: v('netIncome'), ocf: v('ocf'), capex: v('capex'), interest: v('interest'), equity: v('equity'), cash: v('cash'), debt: debt, sources: sources, conflicts: conflicts };
     });
     var financial = o.financial === true || Object.keys(series.deposits).length > 0;
     return { ok: true, version: VERSION, financial: financial, cik: num(raw.cik) || typeof raw.cik === 'string' ? String(raw.cik) : null, name: typeof raw.entityName === 'string' ? raw.entityName.slice(0, 120) : null, ticker: typeof o.ticker === 'string' ? o.ticker : null, years: years };
@@ -73,7 +83,7 @@
   function na(id, name, why) { return check(id, name, 'na', null, why, '자료가 없어 판정에서 제외했습니다.'); }
   function assess(norm, options) {
     var o = options || {}, now = num(o.now) ? o.now : Date.now();
-    var base = { version: VERSION, signalHold: true, opinion: '판단 보류', ticker: norm && norm.ticker || null, name: norm && norm.name || null, checks: [], asOf: null, filed: null, years: 0 };
+    var base = { version: VERSION, signalHold: true, opinion: '판단 보류', ticker: norm && norm.ticker || null, name: norm && norm.name || null, checks: [], asOf: null, filed: null, years: 0, fallback: [], conflicts: [] };
     function out(label, reason) { base.label = label; base.labelKo = LABELS[label]; base.reason = reason || null; base.reviewEligible = label === 'strong'; return base; }
     if (!norm || !norm.ok) return out('insufficient', norm && norm.reason === 'ifrs-filer' ? '해외 기업 공시(IFRS·20-F) — 별도 확인 필요' : '재무 자료 형식 확인 필요');
     var y = norm.years.filter(function (r) { return num(r.netIncome); });
@@ -83,9 +93,13 @@
     if (y.length < 3) return out('insufficient', '연간 공시 3년 미만');
     if (now - Date.parse(y[0].end) > STALE_DAYS * DAY) return out('insufficient', '최근 연간 공시가 18개월 이상 지남');
     var c = base.checks;
-    /* 시점 항목(부채·이자)은 가장 최근 연도에 값이 없으면 바로 전 해까지 본다(일부 태그가 늦게 반영되는 경우). 어느 결산일인지 근거에 표시. */
-    function latestWith(keys) { for (var i = 0; i < Math.min(2, y.length); i++) { if (keys.every(function (k) { return num(y[i][k]); })) return y[i]; } return null; }
-    function at(r) { return r && r.end !== y[0].end ? ' [' + r.end + ' 결산 기준]' : ''; }
+    y.slice(0, 2).forEach(function (r) { (r.conflicts || []).forEach(function (k) { base.conflicts.push({ end: r.end, field: k.field, candidates: k.candidates }); }); });
+    /* 최근 항목(부채·이자·이익률)은 가장 최근 연도에 값이 없으면 바로 전 해까지만 본다(일부 태그가 늦게 반영되는 경우).
+     * 직전 결산 허용 한도: 최신 연도와 FALLBACK_GAP_DAYS(400일) 이내, 그 항목 결산일 자체도 기준시각에서 STALE_DAYS(550일) 이내. 넘으면 na. */
+    function fresh(r) { return !!r && (r.end === y[0].end || (Date.parse(y[0].end) - Date.parse(r.end) <= FALLBACK_GAP_DAYS * DAY && now - Date.parse(r.end) <= STALE_DAYS * DAY)); }
+    function latestWith(keys) { for (var i = 0; i < Math.min(2, y.length); i++) { if (keys.every(function (k) { return num(y[i][k]); })) return fresh(y[i]) ? y[i] : null; } return null; }
+    function at(r, id) { if (!r || r.end === y[0].end) return ''; base.fallback.push({ id: id, end: r.end, latest: y[0].end }); return ' [' + r.end + ' 결산 기준 · 최신 ' + y[0].end + ' 결산엔 값 없음]'; }
+    function staleWhy(keys) { var r = y.slice(0, 2).filter(function (x) { return keys.every(function (k) { return num(x[k]); }); })[0]; return r && !fresh(r) ? ' (직전 결산 허용 한도 초과: ' + r.end + ')' : ''; }
     // 1. 수익성: 평균 ROE
     var roe = y.filter(function (r) { return num(r.equity) && r.equity > 0; }).map(function (r) { return r.netIncome / r.equity; });
     if (y.some(function (r) { return num(r.equity) && r.equity <= 0; })) c.push(check('roe', '수익성(ROE)', 'warn', null, '자기자본이 0 이하인 해가 있어 ROE를 계산할 수 없습니다.', '대규모 자사주 매입으로 자본이 음수인 우량 기업도 있습니다.'));
@@ -94,16 +108,17 @@
     // 2. 영업이익률 추세
     var mr = y.filter(function (r) { return num(r.operatingIncome) && num(r.revenue) && r.revenue > 0; }), m = mr.map(function (r) { return r.operatingIncome / r.revenue; });
     if (m.length < 3) c.push(na('margin', '영업이익률 추세', '매출·영업이익 자료 3년 미만'));
-    else { var gap = m[0] - avg(m.slice(1)); c.push(check('margin', '영업이익률 추세', gap < -0.05 ? 'fail' : gap < -0.02 ? 'warn' : 'pass', pct(m[0]), '최근 ' + pct(m[0]) + '% · 이전 평균 대비 ' + (gap >= 0 ? '+' : '') + pct(gap) + '%p (제안 기준: 5%p 넘게 하락 시 취약)' + at(mr[0]), '일회성 비용이나 투자 확대로 일시 하락했을 수 있습니다.')); }
+    else if (mr[0] !== y[0] && (mr[0] !== y[1] || !fresh(mr[0]))) c.push(na('margin', '영업이익률 추세', '최근 2개 결산에 매출·영업이익 값 없음 또는 직전 결산 허용 한도 초과(' + mr[0].end + ')'));
+    else { var gap = m[0] - avg(m.slice(1)); c.push(check('margin', '영업이익률 추세', gap < -0.05 ? 'fail' : gap < -0.02 ? 'warn' : 'pass', pct(m[0]), '최근 ' + pct(m[0]) + '% · 이전 평균 대비 ' + (gap >= 0 ? '+' : '') + pct(gap) + '%p (제안 기준: 5%p 넘게 하락 시 취약)' + at(mr[0], 'margin'), '일회성 비용이나 투자 확대로 일시 하락했을 수 있습니다.')); }
     // 3. 안정성: 순부채 / 영업현금흐름
     var L = latestWith(['debt', 'cash', 'ocf']);
-    if (!L) c.push(na('leverage', '안정성(순부채/영업현금흐름)', '부채·현금·영업현금흐름 중 빠진 값'));
+    if (!L) c.push(na('leverage', '안정성(순부채/영업현금흐름)', '부채·현금·영업현금흐름 중 빠진 값' + staleWhy(['debt', 'cash', 'ocf'])));
     else { var nd = L.debt - L.cash, lv = L.ocf > 0 ? nd / L.ocf : null;
-      c.push(check('leverage', '안정성(순부채/영업현금흐름)', nd <= 0 ? 'pass' : lv === null || lv > 5 ? 'fail' : lv > 3 ? 'warn' : 'pass', lv === null ? null : Math.round(lv * 10) / 10, nd <= 0 ? '순현금(현금이 장기부채보다 많음)' + at(L) : lv === null ? '영업현금흐름이 0 이하인데 순부채가 있음' : '순부채가 영업현금흐름의 ' + (Math.round(lv * 10) / 10) + '배 (제안 기준: 3배 이하 양호, 5배 초과 취약)' + at(L), '리스부채·단기차입금은 포함하지 않았습니다(장기부채 기준).')); }
+      c.push(check('leverage', '안정성(순부채/영업현금흐름)', nd <= 0 ? 'pass' : lv === null || lv > 5 ? 'fail' : lv > 3 ? 'warn' : 'pass', lv === null ? null : Math.round(lv * 10) / 10, nd <= 0 ? '순현금(현금이 장기부채보다 많음)' + at(L, 'leverage') : lv === null ? '영업현금흐름이 0 이하인데 순부채가 있음' : '순부채가 영업현금흐름의 ' + (Math.round(lv * 10) / 10) + '배 (제안 기준: 3배 이하 양호, 5배 초과 취약)' + at(L, 'leverage'), '리스부채·단기차입금은 포함하지 않았습니다(장기부채 기준).')); }
     // 4. 이자보상배율
     var I = latestWith(['interest', 'operatingIncome']);
-    if (!I || I.interest <= 0) c.push(na('interest', '이자보상배율', '이자비용 공시 없음 또는 0'));
-    else { var ic = I.operatingIncome / I.interest; c.push(check('interest', '이자보상배율', ic >= 5 ? 'pass' : ic < 2 ? 'fail' : 'warn', Math.round(ic * 10) / 10, '영업이익이 이자비용의 ' + (Math.round(ic * 10) / 10) + '배 (제안 기준: 5배 이상 양호, 2배 미만 취약)' + at(I), '금리 상승기에는 이자비용이 빠르게 늘 수 있습니다.')); }
+    if (!I || I.interest <= 0) c.push(na('interest', '이자보상배율', '이자비용 공시 없음 또는 0' + staleWhy(['interest', 'operatingIncome'])));
+    else { var ic = I.operatingIncome / I.interest; c.push(check('interest', '이자보상배율', ic >= 5 ? 'pass' : ic < 2 ? 'fail' : 'warn', Math.round(ic * 10) / 10, '영업이익이 이자비용의 ' + (Math.round(ic * 10) / 10) + '배 (제안 기준: 5배 이상 양호, 2배 미만 취약)' + at(I, 'interest'), '금리 상승기에는 이자비용이 빠르게 늘 수 있습니다.')); }
     // 5. 현금창출: FCF 흑자 연수
     var f = y.filter(function (r) { return num(r.ocf) && num(r.capex); });
     if (f.length < 3) c.push(na('fcf', '현금창출(FCF 흑자 연수)', '영업현금흐름·설비투자 자료 3년 미만'));
@@ -122,8 +137,10 @@
     if (used.length < 4) return out('insufficient', '판정 가능한 항목 4개 미만');
     if (fails >= 2) return out('weak', '취약 항목 ' + fails + '개 — 곡소리가 아니라 기업가치 훼손일 수 있음(탈출 신호 가능)');
     if (fails === 0 && warns <= 1 && used.length < 5) return out('mixed', '취약 항목 없음 · 판정 가능 항목 ' + used.length + '개뿐 — 근거 부족');
-    if (fails === 0 && warns <= 1) return out('strong', '취약 항목 없음 · 주의 ' + warns + '개 — 밸류에이션 확인 전');
-    return out('mixed', '취약 ' + fails + '개 · 주의 ' + warns + '개');
+    if (fails === 0 && warns <= 1 && base.conflicts.length) return out('mixed', '취약 항목 없음 · 최근 결산에 태그 간 값 불일치 ' + base.conflicts.length + '건 보류 — 근거 확인 필요');
+    var fb = base.fallback.length ? ' · 일부 항목(' + base.fallback.map(function (x) { return x.id; }).join('·') + ') 직전 결산 기준' : '';
+    if (fails === 0 && warns <= 1) return out('strong', '취약 항목 없음 · 주의 ' + warns + '개 — 밸류에이션 확인 전' + fb);
+    return out('mixed', '취약 ' + fails + '개 · 주의 ' + warns + '개' + fb);
   }
   /* 재무 판정 대상: 52주 고점 대비 -20% 이하(곡소리 후보) ∪ 보유종목(환호성용). 미국만(1단계). */
   function targets(summaryItems, holdings, options) {
@@ -139,5 +156,5 @@
     if (!day(seen)) return true;
     return day(latestFiled) && latestFiled > seen;
   }
-  return Object.freeze({ VERSION: VERSION, LABELS: LABELS, TARGET_DRAWDOWN: TARGET_DRAWDOWN, DEEP_DRAWDOWN: DEEP_DRAWDOWN, normalize: normalize, assess: assess, targets: targets, needsRefresh: needsRefresh });
+  return Object.freeze({ VERSION: VERSION, LABELS: LABELS, STALE_DAYS: STALE_DAYS, FALLBACK_GAP_DAYS: FALLBACK_GAP_DAYS, TARGET_DRAWDOWN: TARGET_DRAWDOWN, DEEP_DRAWDOWN: DEEP_DRAWDOWN, normalize: normalize, assess: assess, targets: targets, needsRefresh: needsRefresh });
 });
