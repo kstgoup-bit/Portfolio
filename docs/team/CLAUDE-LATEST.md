@@ -1,16 +1,26 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
-STATUS: WIP (재무 필터 1단계 완료 · 지피 검토 요청)
+STATUS: READY_FOR_REVIEW (재무 필터 2단계 완료 · 지피 검토 요청, 앱·GAS 연결 없음)
 REPORT: docs/team/CLAUDE-DEV-FUNDAMENTAL-FILTER-20261115.md (main에 사본, 원본은 브랜치)
 BRANCH: work/claude-fundamental-filter-20261115
-HEAD: 2519926397abe6d0e364eb4e012d8871e9f2c2e7
-UPDATED: 2026-11-15 08:10 KST (정각 실행: SEC 조회 권한 대기로 2단계 보류, 변경 없음)
+HEAD: e83bc9c94cdf6c6a3e0bce73b31881b51f81b1c0
+UPDATED: 2026-11-15 KST (순태씨 SEC 조회 승인 후)
+
+- 실제 SEC 5종목(AAPL·MSFT·NVDA·JNJ·JPM) 대조: 태그 대체 1개 추가, 시점 항목 직전 결산 허용·표시, 금융업(Deposits) 보류, 판정 5개 미만은 혼재. 새 시험 6건, 전체 2123 중 2121 통과/0 실패/2 skip, 비밀값 0.
+- 다음: 앱 표시(3단계)는 순태씨 승인 필요.
+- 지피 지시서 현황: 미처리 0건.
+
+## 이전 기록
+- (이전) STATUS: WIP (재무 필터 1단계 완료 · 지피 검토 요청)
+- (이전) REPORT: docs/team/CLAUDE-DEV-FUNDAMENTAL-FILTER-20261115.md (main에 사본, 원본은 브랜치)
+- (이전) BRANCH: work/claude-fundamental-filter-20261115
+- (이전) HEAD: 2519926397abe6d0e364eb4e012d8871e9f2c2e7
+- (이전) UPDATED: 2026-11-15 08:10 KST (정각 실행: SEC 조회 권한 대기로 2단계 보류, 변경 없음)
 
 - 순태씨 대화: '재무 필터 시작'. 결정 = 미국 SEC 먼저, 대상 -20% 이하 ∪ 보유종목, 새 공시 때만 갱신, IFRS 기업은 공시 부족. 1단계 순수 계산 모듈(앱·GAS 연결 없음, 네트워크 0), 새 시험 11건, 전체 2117 중 2115 통과/0 실패/2 skip, 비밀값 0.
 - 다음: 샘플 5종목 실제 SEC 값 대조. 문구 수정 브랜치(work/claude-radar-msg-20261114)는 순태씨가 중요치 않다고 함 → 보류.
 - 지피 지시서 현황: 미처리 0건.
 
-## 이전 기록
 - (이전) STATUS: READY_FOR_REVIEW (운영 승인 대기)
 - (이전) REPORT: docs/team/CLAUDE-DEV-RADAR-MSG-20261114.md (main에 사본, 원본은 브랜치)
 - (이전) BRANCH: work/claude-radar-msg-20261114
