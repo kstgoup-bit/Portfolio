@@ -77,7 +77,7 @@
       card.appendChild(node('p','52주 고점 대비 '+pct(r.drawdownPct)+' · '+r.asOf));
       [1,3,6].forEach(function(month){var ret=r.returns&&r.returns[month];evidence.appendChild(node('p',month+'개월 '+pct(ret&&ret.value)+(ret&&ret.startDate?' · '+ret.startDate+' ~ '+ret.endDate:'')+(ret&&Number.isFinite(ret.excessPct)?' · '+(t.market==='KR'?'069500':'QQQ')+' 대비 '+ret.excessPct.toFixed(1)+'%p':' · 지수 비교 보류')));});
       if(entry.kind==='euphoria') euphoriaNotes(card,r,info.weights[key]);
-      if(entry.kind==='euphoria'&&W.HASFundamentalFilter&&typeof W.HASFundamentalFilter.display==='function'){var fd;try{fd=W.HASFundamentalFilter.display(data.fundamental,{now:Date.now(),market:t.market,context:'euphoria'});}catch(e){fd={text:'재무: 판정 오류 · 판단 보류',note:'',lines:[]};}card.appendChild(node('p',fd.text));if(fd.note)card.appendChild(node('p',fd.note));fd.lines.forEach(function(x){evidence.appendChild(node('p',x));});}
+      if(entry.kind==='euphoria'&&W.HASFundamentalFilter&&typeof W.HASFundamentalFilter.display==='function'){var fd;try{fd=W.HASFundamentalFilter.display(data.fundamental,{now:Date.now(),market:t.market,ticker:t.ticker,context:'euphoria'});}catch(e){fd={text:'재무: 판정 오류 · 판단 보류',note:'',lines:[]};}card.appendChild(node('p',fd.text));if(fd.note)card.appendChild(node('p',fd.note));fd.lines.forEach(function(x){evidence.appendChild(node('p',x));});}
       if(entry.kind==='euphoria') evidence.appendChild(node('p','보유 비중 '+pct(info.weights[key])+' · 앱 입력 평가액 기준, 확신 종목 지정과 한도 적용은 미연결'));
       card.appendChild(evidence);root.appendChild(card);
     });

@@ -18,8 +18,8 @@
     "has/benchmark-history-policy.js": "e9bdf34629de9b21931f8e77e0576aff6c6fe863e77a3b4a0f2ad4c866a10cd4"
   },
   "addedRuntimeFiles": {
-    "has/live-price-reference.js": "74ec48bfd7b9fe121eeccb1fe4849289ca2e8dd0cd18f38462c83bded92c2cb1",
-    "has/live-price-panel.js": "badbac5ab3465d8d3fd50e8d2a37ef28dfb4d7ea35b591c67ceda68edd7021a2",
+    "has/live-price-reference.js": "ec7dc368b8d2ea2b212a091ac8935d1dff50ffb451d6236ef993c75f0cf275ce",
+    "has/live-price-panel.js": "009d9e8dba906350a2327cd19e1247b9de38bb11282951d294061fe5102f9104",
     "has/universe-screen.js": "7675b49f5be479bb0382f34bc718368262a4240a9f53bcd18c9a0b8ece5e12da",
     "has/universe-screen.html": "1950ca2a10f0ea145d954e638cb41daf7980b229c281f51da992d55326f3a663",
     "has/universe-screen-ui.js": "206023690c9a33be4cdfc63d5b21cdeaccc802cbfac73f9dc83354c6150e2cf3",
@@ -27,12 +27,12 @@
     "radar/data/kospi200-20261112.json": "27d11d585b9c4b2de052bfa16e583fade517f40d565cd233a9687c69811fbd05",
     "radar/data/us200-20261112.json": "4ec662322dcf2ed3d2e30592cd6ca7966c268d445c7758d110da2d211229d26a",
     "radar/data/universe-manifest-20261112.json": "f372ea97d54902c6a89476b077384f2f3e604b694f6285fc9c7313510c254edf",
-    "has/fear-top.js": "374e641333891ab657d306da692d28d8de19290a5fd88de29a5230aafa219bee",
+    "has/fear-top.js": "ae9647ba3c5a33dbd53f1c9c8385da5817c56678f3db51d3bc461e9c502adba9",
     "has/capital-allocation.js": "984fbd0574c2b7d1d1a13c45248800f7bc2eb15d2e980bbe59fc18df276bd05c",
     "has/capital-allocation-lab.js": "18b532bb6bdbae7e3284a8b3c929840c5484a88c3861a39a3d6e5314eae92382",
     "has/capital-allocation-lab.html": "9954811f994b04537dec5674553995820fa00eb9abe23da8780013c8e3336140",
     "has/capital-allocation-lab.css": "beb3c222a4f5584c61b3a73d0ba7076a4157f45bd8a41268d11a3d287f3cea75",
-    "has/fundamental-filter.js": "4d364e51e3df88e9d4147cc4aff39d9125d594e5ce882382f0615266c936bf91",
+    "has/fundamental-filter.js": "45a38e95efff38244feae679389b4a6bc6a7a89ef0e47b6727e795c51759d093",
     "has/great-companies.js": "175db7d0d88939963197847b3e373f42fe22bdcb4319f034fd037f1b3d7006df"
   }
 }
