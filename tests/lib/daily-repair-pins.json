@@ -8,7 +8,10 @@
     "has/restore-rehearsal.js": "bb92bbfa5b1d5826fa3fbbe7a5bdfb253c60e6ebc5e66724518f0ec9b38aed59"
   },
   "removedExternalURLOccurrences": [
-    "https://query1.finance.yahoo.com/v8/finance/chart/"
+    "https://query1.finance.yahoo.com/v8/finance/chart/",
+    "https://news.google.com/rss/search?q=",
+    "https://corsproxy.io/?",
+    "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key="
   ],
   "addedExternalURLOccurrences": [
     "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol="

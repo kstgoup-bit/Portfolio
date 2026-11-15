@@ -9,7 +9,7 @@
     "has/benchmark-history-policy.js": "8d64e852feb00050449f3b66b51e0188059a77accc10dcff9e8880a3969893f9"
   },
   "currentSha256": {
-    "portfolio_v5.html": "a1c1c2ea42fcc0e072ad9a2981715aa1fb0a768eb4cf1d372ae398ffd64ed353",
+    "portfolio_v5.html": "e3e86a4959b10622bac93782a3ae3ca35e45460879ce41ca5be9578b0afeaf9e",
     "radar/ui.js": "30cf84406bf9e6d7156b44f19c955c103f32fdd5d9095811512806f5350686e5",
     "has/advisor-panel.js": "2da44530135fe29fc9cd630ddad49ec18c68f3314b53133e94829e1aef1689b7",
     "service-worker.js": "bd7c5a33f7070bf8e4791fedb5cbfc4572741076023efb1090e838d8041c7b72",
@@ -18,8 +18,8 @@
     "has/benchmark-history-policy.js": "e9bdf34629de9b21931f8e77e0576aff6c6fe863e77a3b4a0f2ad4c866a10cd4"
   },
   "addedRuntimeFiles": {
-    "has/live-price-reference.js": "74ec48bfd7b9fe121eeccb1fe4849289ca2e8dd0cd18f38462c83bded92c2cb1",
-    "has/live-price-panel.js": "dbc6cf1b1a18ed806f50ec39f3df9f4cb784175eb86617fbadd8869dbef0faa5",
+    "has/live-price-reference.js": "ec7dc368b8d2ea2b212a091ac8935d1dff50ffb451d6236ef993c75f0cf275ce",
+    "has/live-price-panel.js": "009d9e8dba906350a2327cd19e1247b9de38bb11282951d294061fe5102f9104",
     "has/universe-screen.js": "7675b49f5be479bb0382f34bc718368262a4240a9f53bcd18c9a0b8ece5e12da",
     "has/universe-screen.html": "1950ca2a10f0ea145d954e638cb41daf7980b229c281f51da992d55326f3a663",
     "has/universe-screen-ui.js": "206023690c9a33be4cdfc63d5b21cdeaccc802cbfac73f9dc83354c6150e2cf3",
@@ -27,10 +27,11 @@
     "radar/data/kospi200-20261112.json": "27d11d585b9c4b2de052bfa16e583fade517f40d565cd233a9687c69811fbd05",
     "radar/data/us200-20261112.json": "4ec662322dcf2ed3d2e30592cd6ca7966c268d445c7758d110da2d211229d26a",
     "radar/data/universe-manifest-20261112.json": "f372ea97d54902c6a89476b077384f2f3e604b694f6285fc9c7313510c254edf",
-    "has/fear-top.js": "32aebd82350dd38f79711f8d8aefe8d686ee796398ee33e2a0a2b5989122f5a1",
+    "has/fear-top.js": "ae9647ba3c5a33dbd53f1c9c8385da5817c56678f3db51d3bc461e9c502adba9",
     "has/capital-allocation.js": "984fbd0574c2b7d1d1a13c45248800f7bc2eb15d2e980bbe59fc18df276bd05c",
     "has/capital-allocation-lab.js": "18b532bb6bdbae7e3284a8b3c929840c5484a88c3861a39a3d6e5314eae92382",
     "has/capital-allocation-lab.html": "9954811f994b04537dec5674553995820fa00eb9abe23da8780013c8e3336140",
-    "has/capital-allocation-lab.css": "beb3c222a4f5584c61b3a73d0ba7076a4157f45bd8a41268d11a3d287f3cea75"
+    "has/capital-allocation-lab.css": "beb3c222a4f5584c61b3a73d0ba7076a4157f45bd8a41268d11a3d287f3cea75",
+    "has/fundamental-filter.js": "45a38e95efff38244feae679389b4a6bc6a7a89ef0e47b6727e795c51759d093"
   }
 }

@@ -64,7 +64,7 @@
    var task=Promise.resolve().then(function(){if(typeof o.transport!=='function')throw Error('transport-missing');return o.transport(url.href);}).then(function(data){if(!plain(data))throw Error('invalid-response');return data;},function(){return null;}).then(function(data){
     if(g!==generation)return;
     chunk.forEach(function(x){var k=key(market,x.ticker),raw=data&&data[x.ticker],n=normalize(raw,{ticker:x.ticker,market:market,now:now()}),old=cache.get(k);
-     if(n.ok&&(!old||old.endpoint!==base||n.asOf>=old.asOf)){cache.set(k,{ticker:x.ticker,market:market,endpoint:base,status:n.observationAgeDays>7?'stale':'ready',record:JSON.parse(JSON.stringify(raw)),asOf:n.asOf,observationAgeDays:n.observationAgeDays,receivedAt:new Date(now()).toISOString(),receiptDay:day,signalHold:true});}
+     if(n.ok&&(!old||old.endpoint!==base||n.asOf>=old.asOf)){cache.set(k,{ticker:x.ticker,market:market,endpoint:base,status:n.observationAgeDays>7?'stale':'ready',record:JSON.parse(JSON.stringify(raw)),fundamental:plain(raw.fundamental)?JSON.parse(JSON.stringify(raw.fundamental)):null,asOf:n.asOf,observationAgeDays:n.observationAgeDays,receivedAt:new Date(now()).toISOString(),receiptDay:day,signalHold:true});}
      else if(old&&old.endpoint===base){cache.set(k,Object.assign({},old,{status:'stale',error:n.ok?'older-response':'request-or-data-failed'}));}
      else cache.set(k,{ticker:x.ticker,market:market,endpoint:base,status:'missing',record:null,error:'request-or-data-failed',signalHold:true});
     });
