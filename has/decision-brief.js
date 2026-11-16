@@ -23,14 +23,35 @@
     if (b !== 'real' && b !== 'synthetic') return '자료 구분(실제/합성) 없음';
     if (b === 'synthetic' && bb !== 'synthetic') return '실제 화면에 합성 자료 의견';
     if (b === 'real' && bb === 'synthetic') return '합성 화면에 실제 자료 의견';
+    // CR-4: 상위 브리핑도 실제/합성이 확정돼야 하고 조언과 명시적으로 같아야 함(누락·빈 값 = 보류)
+    if (bb !== 'real' && bb !== 'synthetic') return '브리핑 자료 구분(실제/합성) 없음';
+    if (b !== bb) return '브리핑과 의견의 자료 구분 불일치';
     if (!a.dataQuality || a.dataQuality.ok !== true) return '자료 신뢰성 미확인';
     if (!texts(a.reasonsFor).length) return '근거 없음';
     if (!texts(a.reasonsAgainst).length) return '반론 없음';
     if (!Array.isArray(a.facts) || !a.facts.length || a.facts.some(function (f) { return !f || typeof f !== 'object' || !str(f.text).trim() || !str(f.source).trim(); })) return '출처가 확인된 사실 없음';
     var t = Date.parse(str(a.asOf)); if (!str(a.asOf) || isNaN(t)) return '기준 시각 없음';
-    var g = Date.parse(str(brief.generatedAt)); if (!isNaN(g) && t > g + 60000) return '기준 시각이 미래';
+    // CR-4: 판단 시각(brief.generatedAt)은 필수 — 없거나 손상이면 미래 여부를 확인할 수 없으므로 보류
+    var g = Date.parse(str(brief.generatedAt)); if (!str(brief.generatedAt) || isNaN(g)) return '브리핑 판단 시각 없음';
+    if (t > g + 60000) return '기준 시각이 미래';
     var held = !!(a.holding && a.holding.held === true);
     if ((k === 'sell' || k === 'hold') && !held) return k === 'sell' ? '미보유 종목의 매도 검토' : '미보유 종목의 장기보유';
+    return '';
+  }
+  /* CR-3: 같은 종목(다계좌·중복)의 모든 기록을 검사 — 한 건이라도 검증 실패하거나 보유 여부·기준 시각·시장·자료 구분이
+     서로 다르면 종목 전체를 판단 보류. 순서와 무관. 유효하고 속성이 같은 중복은 1건으로 센다. */
+  function held(x) { return !!(x.holding && x.holding.held === true); }
+  function verifyGroup(g, k, brief) {
+    for (var i = 0; i < g.length; i++) { var w = verify(g[i], k, brief); if (w) return g.length > 1 ? '같은 종목 ' + g.length + '건 중 검증 실패: ' + w : w; }
+    if (g.length < 2) return '';
+    var a = g[0], ta = Date.parse(str(a.asOf));
+    for (var j = 1; j < g.length; j++) {
+      var x = g[j];
+      if (held(x) !== held(a)) return '같은 종목 기록 상충(보유 여부)';
+      if (Date.parse(str(x.asOf)) !== ta) return '같은 종목 기록 상충(기준 시각)';
+      if (str(x.market) !== str(a.market)) return '같은 종목 기록 상충(시장)';
+      if (str(x.basis) !== str(a.basis)) return '같은 종목 기록 상충(실제/합성)';
+    }
     return '';
   }
   /* brief: briefing-model 결과. 반환값은 새 객체(입력 불변). */
@@ -38,7 +59,8 @@
     var out = { buy: [], sell: [], hold: [], pending: [], risks: [], checks: [], total: 0, ok: false };
     if (!brief || typeof brief !== 'object') return out;
     var advices = [].concat(Array.isArray(brief.opinions) ? brief.opinions : [], Array.isArray(brief.buyCandidates) ? brief.buyCandidates : []);
-    var groups = {}, order = [];
+    // CR-3: 프로토타입 없는 맵 — 'constructor'·'__proto__' 같은 티커도 일반 키로만 다룬다
+    var groups = Object.create(null), order = [];
     advices.forEach(function (a) {
       if (!a || typeof a !== 'object' || typeof a.ticker !== 'string' || !a.ticker) return;
       if (!groups[a.ticker]) { groups[a.ticker] = []; order.push(a.ticker); } groups[a.ticker].push(a);
@@ -50,7 +72,7 @@
       var why = '';
       // 같은 종목에 서로 다른 의견이 있으면 상충 → 판단 보류
       if (g.some(function (x) { return str(x.opinion) !== item.opinion; })) why = '같은 종목 의견 상충';
-      else if (k) why = verify(a, k, brief);
+      else if (k) why = verifyGroup(g, k, brief);
       if (k && !why) { item.reason = texts(a.reasonsFor)[0]; item.verified = true; out[k].push(item); }
       else { item.reason = why || item.against || first(a.unknown) || '근거 부족'; item.verified = false; out.pending.push(item); }
     });

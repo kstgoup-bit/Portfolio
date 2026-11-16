@@ -166,3 +166,51 @@ test('CR-1 접힌 기본 화면: 매수·매도·장기보유 3카드와 정확�
   for (const k of ['buy', 'sell', 'hold']) a.match(box.querySelector('[data-testid=hdb-card-' + k + ']').textContent, /0건$/);
   a.ok(box.querySelector('[data-testid=hdb-risk-line]'), '위험 한 줄 유지');
 });
+
+test('CR-3 같은 종목 다계좌·중복: 모든 기록을 검사(순서 무관), 한 건 실패·속성 상충이면 종목 전체 판단 보류, 위험 키 안전', () => {
+  const run = ops => D.classify({ basis: 'real', generatedAt: NOW, opinions: ops, buyCandidates: [], risks: [] });
+  const cnt = c => [c.buy.length, c.sell.length, c.hold.length, c.pending.length];
+  // 정상 다계좌(같은 속성) → 1건, 역순도 동일
+  const ok2 = [mk('MSFT', '보유', true), mk('MSFT', '보유', true)];
+  a.deepEqual(cnt(run(ok2)), [0, 0, 1, 0]); a.deepEqual(cnt(run(ok2.slice().reverse())), [0, 0, 1, 0]);
+  const bad = [
+    [[mk('MSFT', '보유', true), mk('MSFT', '보유', true, { dataQuality: { ok: false } })], /2건 중 검증 실패: 자료 신뢰성 미확인/],
+    [[mk('MSFT', '보유', true), mk('MSFT', '보유', true, { facts: [] })], /2건 중 검증 실패: 출처가 확인된 사실 없음/],
+    [[mk('MSFT', '보유', true), mk('MSFT', '보유', true, { asOf: '2026-11-05T09:00:00+09:00' })], /기록 상충\(기준 시각\)/],
+    [[mk('MSFT', '매수 검토', true), mk('MSFT', '매수 검토', false)], /기록 상충\(보유 여부\)/],
+    [[mk('MSFT', '보유', true, { market: 'US' }), mk('MSFT', '보유', true, { market: 'KR' })], /기록 상충\(시장\)/],
+    [[mk('MSFT', '보유', true), mk('MSFT', '보유', false)], /2건 중 검증 실패: 미보유 종목의 장기보유/]
+  ];
+  for (const [ops, re] of bad) for (const o of [ops, ops.slice().reverse()]) {
+    const c = run(o); a.deepEqual(cnt(c), [0, 0, 0, 1], String(re)); a.match(c.pending[0].reason, re); a.equal(c.pending[0].verified, false); a.equal(c.total, 1);
+  }
+  // 손상·위험 티커 키: 던지지 않고 일반 키로 처리, 프로토타입 오염 없음
+  const keys = ['constructor', '__proto__', 'toString', 'hasOwnProperty'];
+  const c = run(keys.map(t => mk(t, '보유', true)).concat([mk('constructor', '보유', true)]));
+  a.deepEqual(cnt(c), [0, 0, 4, 0]); a.deepEqual(c.hold.map(x => x.ticker), keys);
+  a.equal({}.polluted, undefined); a.equal(typeof Object.prototype.constructor, 'function');
+});
+
+test('CR-4 브리핑 판단 시각·실제/합성 필수: 누락·손상·불일치는 판단 보류, 정상 실제·합성 계약은 유지', () => {
+  const one = (adv, b) => D.classify(Object.assign({ opinions: [], buyCandidates: [adv], risks: [] }, b));
+  const cnt = c => [c.buy.length, c.sell.length, c.hold.length, c.pending.length];
+  a.deepEqual(cnt(one(mk('OK', '매수 검토', false), { basis: 'real', generatedAt: NOW })), [1, 0, 0, 0]);
+  a.deepEqual(cnt(one(mk('OK', '매수 검토', false, { basis: 'synthetic' }), { basis: 'synthetic', generatedAt: NOW })), [1, 0, 0, 0]);
+  const fut = { asOf: '2027-01-01T00:00:00+09:00' };
+  const cases = [
+    [mk('G1', '매수 검토', false, fut), { basis: 'real' }, '브리핑 판단 시각 없음'],
+    [mk('G2', '매수 검토', false, fut), { basis: 'real', generatedAt: '' }, '브리핑 판단 시각 없음'],
+    [mk('G3', '매수 검토', false, fut), { basis: 'real', generatedAt: 'broken' }, '브리핑 판단 시각 없음'],
+    [mk('G4', '매수 검토', false), { basis: 'real', generatedAt: 12345 }, '브리핑 판단 시각 없음'],
+    [mk('G5', '매수 검토', false, fut), { basis: 'real', generatedAt: NOW }, '기준 시각이 미래'],
+    [mk('P1', '매수 검토', false), { generatedAt: NOW }, '브리핑 자료 구분(실제/합성) 없음'],
+    [mk('P2', '매수 검토', false), { basis: '', generatedAt: NOW }, '브리핑 자료 구분(실제/합성) 없음'],
+    [mk('P3', '매수 검토', false), { basis: 'unspecified', generatedAt: NOW }, '브리핑 자료 구분(실제/합성) 없음'],
+    [mk('P4', '보유', true, { basis: 'synthetic' }), { basis: 'real', generatedAt: NOW }, '실제 화면에 합성 자료 의견'],
+    [mk('P5', '보유', true), { basis: 'synthetic', generatedAt: NOW }, '합성 화면에 실제 자료 의견']
+  ];
+  for (const [adv, b, why] of cases) { const c = one(adv, b); a.deepEqual(cnt(c), [0, 0, 0, 1], adv.ticker); a.equal(c.pending[0].reason, why, adv.ticker); }
+  // 실제 엔진 경로: 합성 예시 유지, 'unspecified'(구분 미지정) 브리핑은 후보 0
+  a.equal(D.classify(brief(S.DATA, S.externals(), 'synthetic', S.NOW)).buy.length, 1);
+  const u = D.classify(brief(S.DATA, S.externals(), 'unspecified', S.NOW)); a.deepEqual([u.buy.length, u.sell.length, u.hold.length], [0, 0, 0]);
+});
