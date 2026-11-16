@@ -6,6 +6,9 @@
  *   (최대 초당 10건, 요청 헤더에 User-Agent 선언 필요), https://www.sec.gov/search-filings/edgar-application-programming-interfaces
  *   (companyfacts = https://data.sec.gov/api/xbrl/companyfacts/CIK##########.json, CORS 미지원 → 브라우저 직접 호출 불가, GAS 경유).
  * 개인정보: 요청에는 티커만 받는다. 보유·계좌·금액 정보는 GAS로 보내지 않는다. 키·비용 없음. 주문·매매 없음.
+ * 이용률: 스크립트 잠금 + 캐시 공유 시각으로 모든 실행 합산 250ms 간격·분당 60건, 429/403이면 10분 전체 중단(재시도 없음, 앱이 나중에 다시 요청).
+ *   SEC 한도(사용자/애플리케이션 전체 초당 10건) https://www.sec.gov/filergroup/announcements-old/new-rate-control-limits
+ *   CacheService 항목 100KB·최대 6시간 https://developers.google.com/apps-script/reference/cache/cache
  * 미검증: 실제 SEC 응답 크기·GAS 실행시간·UrlFetch 일일 할당량, company_tickers.json 정확도(SEC도 정확성 보증 안 함).
  */
 // 순태씨가 배포 때 직접 채운다(저장소에는 실제 연락처를 두지 않는다). 예: 'HAS-portfolio 본인이메일'
@@ -14,7 +17,12 @@ var HAS_SEC_MAX_TICKERS = 6;
 var HAS_SEC_MAX_FACTS_BYTES = 30 * 1024 * 1024;   // 이보다 큰 응답은 거부(UrlFetch 50MB 한도 안쪽)
 var HAS_SEC_MAX_RESPONSE_CHARS = 200000;
 var HAS_SEC_CACHE_SECONDS = 21600;                // CacheService 최대 6시간
-var HAS_SEC_MIN_GAP_MS = 200;                     // 요청 간 간격(초당 10건 한도보다 넉넉히 느리게)
+var HAS_SEC_MIN_GAP_MS = 250;                     // 스크립트 전체 SEC 요청 시작 간격(모든 실행 합산, 최대 초당 4건 — 한도 10건보다 보수적)
+var HAS_SEC_MAX_PER_MIN = 60;                     // 스크립트 전체 분당 SEC 요청 상한. 넘으면 요청하지 않고 보류
+var HAS_SEC_COOLDOWN_MS = 10 * 60 * 1000;         // 429·403 받으면 10분간 모든 SEC 요청 중단(즉시 재요청 없음)
+var HAS_SEC_LOCK_WAIT_MS = 5000;                  // 다른 실행이 SEC 요청 차례를 쥐고 있으면 최대 5초 기다리고, 못 받으면 보류
+var HAS_SEC_CIK_CACHE_SECONDS = 21600;            // 요청 티커의 CIK만 개별 캐시(지도 원본 ~1MB는 캐시 100KB 한도 초과라 저장 안 함)
+var HAS_SEC_UNKNOWN_CACHE_SECONDS = 3600;         // 지도에 없는 티커도 1시간 기억 → 지도 반복 조회 방지
 var HAS_SEC_TICKER_RE = /^[A-Z]{1,5}(?:[.-][A-Z])?$/;
 
 function hasSecParseTickers_(raw) {
@@ -28,50 +36,111 @@ function hasSecParseTickers_(raw) {
   return out.length >= 1 && out.length <= HAS_SEC_MAX_TICKERS ? out : null;
 }
 
-function hasSecFetch_(url) {
+/* 모든 SEC 요청(지도+회사자료)이 지나는 관문. 스크립트 잠금으로 여러 실행을 줄 세우고, 캐시에 공유한
+ * 마지막 요청 시각·분당 건수·중단 시각을 확인한다. 통과 못 하면 요청하지 않고 sec-busy/sec-rate-hold/sec-cooldown. */
+function hasSecGate_(cache) {
+  var lock = LockService.getScriptLock();
+  if (!lock.tryLock(HAS_SEC_LOCK_WAIT_MS)) throw Error('sec-busy');
+  try {
+    var now = Date.now(), until = Number(cache.get('HAS_SEC_COOLDOWN_UNTIL')) || 0;
+    if (until > now) throw Error('sec-cooldown');
+    var last = Number(cache.get('HAS_SEC_LAST_MS')) || 0, wait = last + HAS_SEC_MIN_GAP_MS - now;
+    if (wait > 0) { Utilities.sleep(wait); now = Date.now(); }
+    var minKey = 'HAS_SEC_N_' + Math.floor(now / 60000), n = Number(cache.get(minKey)) || 0;
+    if (n >= HAS_SEC_MAX_PER_MIN) throw Error('sec-rate-hold');
+    cache.put('HAS_SEC_LAST_MS', String(now), 60);
+    cache.put(minKey, String(n + 1), 120);
+  } finally { lock.releaseLock(); }
+}
+
+function hasSecFetch_(url, cache) {
+  hasSecGate_(cache);
   var res = UrlFetchApp.fetch(url, { method: 'get', muteHttpExceptions: true, followRedirects: false, headers: { 'User-Agent': HAS_SEC_USER_AGENT, 'Accept-Encoding': 'gzip, deflate' } });
   var code = res.getResponseCode();
+  if (code === 429 || code === 403) {   // 이용률 제한·차단 신호: 재시도하지 않고 전체 중단 시각 기록
+    try { cache.put('HAS_SEC_COOLDOWN_UNTIL', String(Date.now() + HAS_SEC_COOLDOWN_MS), Math.ceil(HAS_SEC_COOLDOWN_MS / 1000)); } catch (e) { /* 기록 실패해도 이번 요청은 실패 처리 */ }
+    throw Error('sec-http-' + code);
+  }
   if (code !== 200) throw Error('sec-http-' + code);
   var text = res.getContentText('UTF-8');
   if (text.length > HAS_SEC_MAX_FACTS_BYTES) throw Error('sec-too-large');
   return JSON.parse(text);
 }
 
-/* company_tickers.json: {"0":{"cik_str":320193,"ticker":"AAPL","title":"Apple Inc."},...} → 요청 티커의 CIK만 뽑는다. */
-function hasSecCiks_(tickers) {
-  var map = hasSecFetch_('https://www.sec.gov/files/company_tickers.json'), out = {};
-  Object.keys(map).forEach(function (k) {
-    var r = map[k];
-    if (!r || typeof r.ticker !== 'string' || !Number.isInteger(r.cik_str) || r.cik_str <= 0) return;
-    var t = r.ticker.toUpperCase();
-    if (tickers.indexOf(t) >= 0 && !out[t]) out[t] = r.cik_str;
+function hasSecValidCik_(n) { return typeof n === 'number' && Number.isInteger(n) && n > 0 && n <= 9999999999; }
+/* raw.cik: 정수 또는 숫자만으로 된 문자열(앞 0 허용)만 인정. 그 외는 null. */
+function hasSecRawCik_(v) {
+  if (typeof v === 'number') return hasSecValidCik_(v) ? v : null;
+  if (typeof v === 'string' && /^\d{1,10}$/.test(v)) { var n = Number(v); return hasSecValidCik_(n) ? n : null; }
+  return null;
+}
+
+/* 요청 티커의 CIK: 먼저 티커별 캐시, 없는 것만 company_tickers.json 한 번 받아 채운다.
+ * 반환 {ciks:{T:cik}, unknown:{T:1}, mapError:'sec-...'|null} */
+function hasSecCiks_(tickers, cache) {
+  var ciks = {}, unknown = {}, need = [];
+  tickers.forEach(function (t) {
+    var v = cache.get('HAS_SEC_CIK_' + t);
+    if (v === '0') unknown[t] = 1;
+    else if (v && /^\d{1,10}$/.test(v) && hasSecValidCik_(Number(v))) ciks[t] = Number(v);
+    else need.push(t);
   });
-  return out;
+  if (!need.length) return { ciks: ciks, unknown: unknown, mapError: null };
+  var map;
+  try { map = hasSecFetch_('https://www.sec.gov/files/company_tickers.json', cache); }
+  catch (e) { var m = String(e && e.message); return { ciks: ciks, unknown: unknown, mapError: /^sec-(busy|cooldown|rate-hold|http-429|http-403)$/.test(m) ? m : 'sec-ticker-map-failed' }; }
+  var found = {};
+  Object.keys(map || {}).forEach(function (k) {
+    var r = map[k];
+    if (!r || typeof r.ticker !== 'string' || !hasSecValidCik_(r.cik_str)) return;
+    var t = r.ticker.toUpperCase();
+    if (need.indexOf(t) >= 0 && !found[t]) found[t] = r.cik_str;
+  });
+  need.forEach(function (t) {
+    try {
+      if (found[t]) { ciks[t] = found[t]; cache.put('HAS_SEC_CIK_' + t, String(found[t]), HAS_SEC_CIK_CACHE_SECONDS); }
+      else { unknown[t] = 1; cache.put('HAS_SEC_CIK_' + t, '0', HAS_SEC_UNKNOWN_CACHE_SECONDS); }
+    } catch (e) { /* 캐시 실패는 무시 */ }
+  });
+  return { ciks: ciks, unknown: unknown, mapError: null };
 }
 
 function hasSecCik10_(n) { return ('0000000000' + n).slice(-10); }
 
+/* 캐시 키에 CIK를 넣고, 꺼낸 값도 티커·CIK·앱 검증(validNormalized)을 다시 확인한다. */
 function hasSecOne_(ticker, cik, cache) {
-  var key = 'HAS_SEC_F_' + ticker, hit = cache.get(key);
-  if (hit) { try { return JSON.parse(hit); } catch (e) { /* 캐시 손상 → 다시 받기 */ } }
-  var raw = hasSecFetch_('https://data.sec.gov/api/xbrl/companyfacts/CIK' + hasSecCik10_(cik) + '.json');
+  var key = 'HAS_SEC_F_' + ticker + '_' + hasSecCik10_(cik), hit = cache.get(key);
+  if (hit) {
+    try {
+      var c = JSON.parse(hit);
+      if (c && c.ticker === ticker && hasSecRawCik_(c.cik) === cik && HASFundamentalFilter.validNormalized(c)) return c;
+    } catch (e) { /* 캐시 손상 → 다시 받기 */ }
+  }
+  var raw = hasSecFetch_('https://data.sec.gov/api/xbrl/companyfacts/CIK' + hasSecCik10_(cik) + '.json', cache);
+  if (!raw || raw.cik === undefined || raw.cik === null || raw.cik === '') throw Error('sec-cik-missing');
+  if (hasSecRawCik_(raw.cik) !== cik) throw Error('sec-cik-mismatch');   // 다른 회사 자료를 이 티커로 확정하지 않는다
   var n = HASFundamentalFilter.normalize(raw, { ticker: ticker });
+  if (!n || n.ok !== true || !HASFundamentalFilter.validNormalized(n)) throw Error('sec-normalize-failed');
+  n.cik = String(cik);
   var json = JSON.stringify(n);
   if (json.length <= 90000) { try { cache.put(key, json, HAS_SEC_CACHE_SECONDS); } catch (e) { /* 캐시 실패는 무시 */ } }
   return n;
 }
 
 function hasSecCollect_(tickers) {
-  var cache = CacheService.getScriptCache(), items = {}, ciks;
-  try { ciks = hasSecCiks_(tickers); } catch (e) { return { error: 'sec-ticker-map-failed' }; }
+  var cache = CacheService.getScriptCache(), items = {};
+  var m = hasSecCiks_(tickers, cache), held = null;
   for (var i = 0; i < tickers.length; i++) {
     var t = tickers[i];
-    if (!ciks[t]) { items[t] = { ok: false, reason: 'unknown-ticker', ticker: t }; continue; }
+    if (m.unknown[t]) { items[t] = { ok: false, reason: 'unknown-ticker', ticker: t }; continue; }
+    if (!m.ciks[t]) { items[t] = { ok: false, reason: m.mapError || 'sec-ticker-map-failed', ticker: t }; continue; }
+    if (held) { items[t] = { ok: false, reason: held, ticker: t }; continue; }   // 중단·보류 뒤에는 남은 종목도 요청하지 않음
     try {
-      if (i > 0) Utilities.sleep(HAS_SEC_MIN_GAP_MS);
-      items[t] = hasSecOne_(t, ciks[t], cache);
+      items[t] = hasSecOne_(t, m.ciks[t], cache);
     } catch (e) {
-      items[t] = { ok: false, reason: /^sec-/.test(String(e && e.message)) ? String(e.message) : 'sec-failed', ticker: t };
+      var r = /^sec-/.test(String(e && e.message)) ? String(e.message) : 'sec-failed';
+      if (/^sec-(busy|cooldown|rate-hold|http-429|http-403)$/.test(r)) held = r === 'sec-http-429' || r === 'sec-http-403' ? 'sec-cooldown' : r;
+      items[t] = { ok: false, reason: r, ticker: t };
     }
   }
   return { ok: true, asOf: new Date().toISOString().slice(0, 10), items: items };
