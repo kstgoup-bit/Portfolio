@@ -57,6 +57,8 @@
 - GPT-REVIEW-great-companies-20261115-2130 — CHANGES_REQUESTED(운영 탭 연결 dad6ac5: ETF 오분류·다계좌 원칙 기록 누락) 반영 2026-11-15 22:20 `46d05f7`
 - GPT-REVIEW-great-companies-20261115-2230 — CHANGES_REQUESTED(46d05f7: 원문만 다른 원칙 기록 상충 누락·productType 출처 미검증 승격/다계좌 유형 상충) 반영 2026-11-15 23:10 `09d39c5`
 - GPT-REVIEW-sec-gas-20261116-0930 — CHANGES_REQUESTED(CR-1 CIK 정합성·CR-2 SEC 이용률) 반영 `e4741d5`, 재검토 요청 2026-11-16 10:10
+- GPT-REVIEW-sec-gas-20261116-1030 — CHANGES_REQUESTED(CR-3 허가 상태 캐시 퇴거·CR-4 중단 기록 실패) 반영 `f3c5c78`, 재검토 요청 2026-11-16 11:10
+- GPT-20261116-1030 — 접수(위험관리 브리핑·후보 카드·접기 UI), 다음 정각 실행에서 착수 예정 2026-11-16 11:10
 
 ## 기록
 - 2026-11-12 13:45 역할 변경 반영, 일지 시작. 다비의 빈 브랜치 `work/davi-universe-screen-20261112`(= main c9d8084, 변경 없음) 확인 — 클로가 이어받음.
@@ -134,3 +136,4 @@
 - 2026-11-16 순태씨 확인: 갤럭시에서 '위대한 기업' 탭 정상 열림(운영 `4b46fea`). 다음 후보: SEC 재무 연결(GAS 변경 = 순태씨 승인 필요).
 - 2026-11-16 (순태씨 '진행') SEC 재무 GAS 초안: `work/claude-sec-gas-20261116` `e375ba748cacee9cbabf89baaa138d435e251b29`(main 9953af8 기준). gas/has-sec-fundamental.gs + 가짜 GAS 시험 7건 + 배포 안내. 전체 2206 중 2204 통과/0 실패/2 skip, 비밀값 0. 실GAS 미접근. 다음: 지피 검토 → 순태씨 GAS 승인 → 앱 연결 단계.
 - 2026-11-16 10:10 정각 실행: 지피 GPT-REVIEW-sec-gas-20261116-0930(CHANGES_REQUESTED) 처리. `work/claude-sec-gas-20261116` `e4741d5`(main ce38ef2 병합 후): raw.cik=URL CIK 확인·CIK 포함 캐시 키·캐시 재검증, 잠금+공유 시각 관문(250ms·분당 60·429/403 10분 중단·sec-busy), 티커별 CIK 캐시. 신규 시험 11건, 전체 2217 중 2215 통과/0 실패/2 skip, 비밀값 0. 새 GPT-ORDER 없음, 다비 새 문서 없음. 다음: 지피 재검토 → 순태씨 GAS 승인 → 앱 연결 단계.
+- 2026-11-16 11:10 정각 실행: 지피 GPT-REVIEW-sec-gas-20261116-1030(CHANGES_REQUESTED) 처리. `work/claude-sec-gas-20261116` `f3c5c78`(main 5cedc6a 병합 후): 허가 상태 PropertiesService 이동·잠금 요청 끝까지·되읽기 확인·pending fail-closed 중단. 신규 시험 10건, 전체 2227 중 2225 통과/0 실패/2 skip, 비밀값 0. 새 GPT-ORDER-20261116-1030 접수(다음 실행 착수). 다비 새 문서 없음. 다음: GPT-20261116-1030 위험관리 UI 브랜치 `work/claude-risk-briefing-20261116` / 지피 sec-gas 재검토.

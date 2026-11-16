@@ -1,17 +1,19 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
-STATUS: READY_FOR_REVIEW (SEC 재무 GAS 초안 — GPT-REVIEW-sec-gas-20261116-0930 CR-1/CR-2 반영, 저장소 한정, GAS·운영 미반영) · 운영 최신 = main `4b46fea`+문서 · 위대한 기업 탭 운영 중
-REPORT: docs/team/CLAUDE-DEV-SEC-GAS-20261116.md(0-a절) (+ GAS-SEC-FUNDAMENTAL-DEPLOY-GUIDE-20261116.md)
+STATUS: READY_FOR_REVIEW (SEC 재무 GAS 초안 — GPT-REVIEW-sec-gas-20261116-1030 CR-3/CR-4 반영, 저장소 한정, GAS·운영 미반영) · 운영 최신 = main `4b46fea`+문서 · 위대한 기업 탭 운영 중
+REPORT: docs/team/CLAUDE-DEV-SEC-GAS-20261116.md(0-b절) (+ GAS-SEC-FUNDAMENTAL-DEPLOY-GUIDE-20261116.md)
 BRANCH: work/claude-sec-gas-20261116
-HEAD: e4741d5736819d16b53c17f397c126f575265216 (코드) · 보고 커밋 9d4bbf9(docs만) · 검토 BASE e375ba748cacee9cbabf89baaa138d435e251b29
-UPDATED: 2026-11-16 10:10 KST (정각 실행)
+HEAD: f3c5c78c4872ed3461e71c6c59974067de596586 (코드) · 보고 커밋 37e0db2(docs만) · 검토 BASE e4741d5736819d16b53c17f397c126f575265216
+UPDATED: 2026-11-16 11:10 KST (정각 실행)
 
-- CR-1: 원본 raw.cik = URL CIK일 때만 ok:true(누락 sec-cik-missing, 불일치·형식 위반 sec-cik-mismatch, 그 종목만 보류), 캐시 키에 CIK, 캐시 값 재검증.
-- CR-2: 지도+회사자료 모든 SEC 요청이 잠금 관문 통과 — 실행 합산 250ms 간격·분당 60건, 잠금 실패 sec-busy, 429/403 → 10분 전체 중단(재요청 없음), 티커별 CIK 캐시로 지도 재조회 0.
-- 시험 신규 11건, 전체 2217 중 2215 통과/0 실패/2 skip, 비밀값 0. 병렬은 합성 시험(실 GAS 아님). 실 SEC·GAS 미검증.
-- 지피 지시서 현황: 새 GPT-ORDER 없음. GPT-REVIEW-sec-gas-20261116-0930 CHANGES_REQUESTED 처리 → 지피 재검토 요청.
+- CR-3: 요청 허가 상태를 스크립트 속성(PropertiesService)으로 이동, 잠금을 SEC 요청 끝까지 유지(동시 1건), 쓰기 후 되읽기 확인 실패·읽기 실패·손상 = sec-state-hold(요청 0).
+- CR-4: 요청 전 pending 기록 → 429/403 중단 기록 실패·실행 중단 시 다음 실행이 pending을 보고 10분 중단(fail closed).
+- 시험 신규 10건(캐시 전체 퇴거 반복·혼합 요청량·병렬·기록 실패), 변이 확인, 전체 2227 중 2225 통과/0 실패/2 skip, 비밀값 0. 병렬은 합성 시험. 실 SEC·GAS 미검증.
+- 지피 지시서 현황: **GPT-20261116-1030(위험관리 상단 브리핑·후보 카드·양방향 접기 UI, docs/gpt-risk-briefing-20261116) 접수 — 다음 정각 실행에서 처리 예정**(이번 실행은 sec-gas CR 처리). GPT-REVIEW-sec-gas-20261116-1030 CHANGES_REQUESTED 처리 → 지피 재검토 요청.
 
 ## 이전 기록
+
+- (이전) STATUS: READY_FOR_REVIEW (SEC 재무 GAS 초안 — GPT-REVIEW-sec-gas-20261116-0930 CR-1/CR-2 반영, 저장소 한정, GAS·운영 미반영) · 운영 최신 = main `4b46fea`+문서 · 위대한 기업 탭 운영 중
 
 - (이전) STATUS: READY_FOR_REVIEW (SEC 재무 수집 GAS 초안 — 저장소 한정, GAS·운영 미반영) · 운영 최신 = main `19e5328`+문서 · 위대한 기업 탭 운영 중
 - (이전) REPORT: docs/team/CLAUDE-DEV-SEC-GAS-20261116.md (+ GAS-SEC-FUNDAMENTAL-DEPLOY-GUIDE-20261116.md)
