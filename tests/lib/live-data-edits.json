@@ -311,6 +311,18 @@
     [
       "  if(tab===\"principledash\") renderPrincipleDash();\n  if(tab===\"greatco\") hasLoadGreatCompanies();\n",
       "  if(tab===\"principledash\") renderPrincipleDash();\n"
+    ],
+    [
+      "<link rel=\"stylesheet\" href=\"has/advisor-panel.css\">\n<link rel=\"stylesheet\" href=\"has/decision-brief.css\">\n<link rel=\"stylesheet\" href=\"has/pretrade-panel.css\">",
+      "<link rel=\"stylesheet\" href=\"has/advisor-panel.css\">\n<link rel=\"stylesheet\" href=\"has/pretrade-panel.css\">"
+    ],
+    [
+      "<script defer src=\"has/advisor-panel.js\"></script>\n<script defer src=\"has/decision-brief.js\"></script>\n<script defer src=\"has/pretrade-log.js\"></script>",
+      "<script defer src=\"has/advisor-panel.js\"></script>\n<script defer src=\"has/pretrade-log.js\"></script>"
+    ],
+    [
+      "  if(window.HASPretradePanel) window.HASPretradePanel.onTabChange(tab);\n  if(window.HASDecisionBrief) window.HASDecisionBrief.onTabChange(tab);\n  if(window.HASPriceTrustUI) window.HASPriceTrustUI.refresh();\n  if(window.HASAdvisorPanel) window.HASAdvisorPanel.refresh();\n  if(typeof hasSyncRiskTabHighlight",
+      "  if(window.HASPretradePanel) window.HASPretradePanel.onTabChange(tab);\n  if(window.HASPriceTrustUI) window.HASPriceTrustUI.refresh();\n  if(window.HASAdvisorPanel) window.HASAdvisorPanel.refresh();\n  if(typeof hasSyncRiskTabHighlight"
     ]
   ],
   "radar/ui.js": [
@@ -351,6 +363,10 @@
     [
       "    if (!root) return; root.replaceChildren();\n    root.appendChild(el('h2', '', '🧭 AI 투자참모 (읽기 전용)'));\n    if(mode==='real' && W.HASLivePricePanel){var priceBox=el('section','hs-card');root.appendChild(priceBox);W.HASLivePricePanel.mount(priceBox,'advisor');}\n    var valueLink = el('a', 'hs-kv', '기업 품질·가격 매력도·시장 심리 분석실 열기 (입력 자료 기반)'); valueLink.href = 'has/valuation-lab.html'; valueLink.setAttribute('data-testid', 'hs-valuation-link'); root.appendChild(valueLink);\n    if (!ready()) { var w = el('div', 'hs-warn', 'AI 참모 모듈을 불러오지 못해 이 화면을 사용할 수 없습니다. 기존 투자·백업 기능에는 영향이 없습니다.'); w.setAttribute('role', 'alert'); w.setAttribute('data-testid', 'hs-unavailable'); root.appendChild(w); return; }\n",
       "    if (!root) return; root.replaceChildren();\n    root.appendChild(el('h2', '', '🧭 AI 투자참모 (읽기 전용)'));\n    var valueLink = el('a', 'hs-kv', '기업 품질·가격 매력도·시장 심리 분석실 열기 (입력 자료 기반)'); valueLink.href = 'has/valuation-lab.html'; valueLink.setAttribute('data-testid', 'hs-valuation-link'); root.appendChild(valueLink);\n    if (!ready()) { var w = el('div', 'hs-warn', 'AI 참모 모듈을 불러오지 못해 이 화면을 사용할 수 없습니다. 기존 투자·백업 기능에는 영향이 없습니다.'); w.setAttribute('role', 'alert'); w.setAttribute('data-testid', 'hs-unavailable'); root.appendChild(w); return; }\n"
+    ],
+    [
+      "      if (!ready()) { s.hidden = true; return; } s.hidden = false; var prev = mode; var c = (function () { var m = mode; mode = 'real'; var x = compute(); mode = m; return x; })();\n      if (W.HASDecisionBrief) { W.HASDecisionBrief.renderStrip(s, c, function () { if (window.switchTab) window.switchTab('staff'); }); return; }\n      var t = el('span', '', '🧭 오늘의 투자 브리핑: '",
+      "      if (!ready()) { s.hidden = true; return; } s.hidden = false; var prev = mode; var c = (function () { var m = mode; mode = 'real'; var x = compute(); mode = m; return x; })();\n      var t = el('span', '', '🧭 오늘의 투자 브리핑: '"
     ]
   ],
   "service-worker.js": [

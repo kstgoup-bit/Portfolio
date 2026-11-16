@@ -92,6 +92,7 @@
     var s = document.getElementById('hasBriefStrip'); if (!s) return; s.replaceChildren();
     try {
       if (!ready()) { s.hidden = true; return; } s.hidden = false; var prev = mode; var c = (function () { var m = mode; mode = 'real'; var x = compute(); mode = m; return x; })();
+      if (W.HASDecisionBrief) { W.HASDecisionBrief.renderStrip(s, c, function () { if (window.switchTab) window.switchTab('staff'); }); return; }
       var t = el('span', '', '🧭 오늘의 투자 브리핑: ' + (c.brief ? c.brief.headline : '점검 불가') + ' (내 기록 기준 · 시장 감시 아님)'); t.setAttribute('data-testid', 'hs-strip-text'); s.appendChild(t);
       var b = el('button', '', '자세히'); b.setAttribute('data-testid', 'hs-strip-open'); b.addEventListener('click', function () { if (window.switchTab) window.switchTab('staff'); }); s.appendChild(b);
     } catch (e) { s.hidden = true; }

@@ -1,0 +1,24 @@
+/* HAS 오늘의 투자 판단·같은 버튼 펼치기/접기 (GPT-20261116-1030). 글자 12px 이상·#333 이상 진한 색. */
+body #hasBriefStrip.hdb{display:block;flex-wrap:wrap}
+#hasBriefStrip.hdb[hidden]{display:none}
+.hdb-head{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px}
+.hdb-sum{flex:1 1 0;min-width:0;overflow-wrap:anywhere;font-size:13px;color:#0b2a5e}
+.hdb-basis{font-weight:400;color:#333;font-size:12px}
+.hdb-head>details{flex:0 0 auto}.hdb-head>details[open]{flex:1 1 100%}
+details>summary.hdb-toggle{list-style:none;display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:44px;box-sizing:border-box;padding:4px 12px;border:1px solid #0d47a1;border-radius:10px;background:#fff;color:#0d47a1;font:700 13px "Noto Sans KR",system-ui,sans-serif;cursor:pointer;-webkit-user-select:none;user-select:none}
+details>summary.hdb-toggle::-webkit-details-marker{display:none}
+details>summary.hdb-toggle:focus-visible{outline:3px solid #1565c0;outline-offset:2px}
+.hdb-body{padding:6px 0;font-size:13px;color:#222;font-weight:400}
+.hdb-risk{margin:2px 0 4px;color:#b71c1c;font-size:13px;font-weight:700;overflow-wrap:anywhere}
+.hdb-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:6px}
+.hdb-card{border:1px solid #90a4ae;border-radius:10px;background:#fff;padding:6px 8px;margin:4px 0;min-width:0;overflow-wrap:anywhere}
+.hdb-card h3{margin:0 0 4px;font-size:14px;color:#0b2a5e}
+.hdb-buy h3{color:#1b5e20}.hdb-sell h3{color:#b71c1c}.hdb-hold h3{color:#0d47a1}.hdb-pending h3{color:#5d4037}
+.hdb-item{border-top:1px solid #cfd8dc;padding:4px 0}.hdb-row{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.hdb-op{font-size:12px;color:#333;border:1px solid #90a4ae;border-radius:8px;padding:0 6px}
+.hdb-note{font-size:12px;color:#333;margin:2px 0}.hdb-warn{font-size:13px;color:#b71c1c;font-weight:700;margin:2px 0}
+.hdb-go{min-height:44px;padding:4px 12px;border:1px solid #0d47a1;border-radius:10px;background:#fff;color:#0d47a1;font:700 13px "Noto Sans KR",system-ui,sans-serif;cursor:pointer;margin-top:4px}
+#hasPriceTrust details[open]>.hdb-body{padding:2px 0 6px}
+/* 위험관리 하위 메뉴: 화면 너비 안에서 줄바꿈(가로 스크롤·잘림 없음) */
+#subtabs-risk{flex-wrap:wrap;overflow-x:visible;justify-content:flex-start}
+#subtabs-risk .tab,#subtabs-risk .has-risk-shortcut{flex:1 1 auto;max-width:100%;white-space:normal;text-align:center;padding:6px 8px;margin:2px 1px;font-size:13px}
