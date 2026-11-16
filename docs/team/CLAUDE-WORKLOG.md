@@ -62,6 +62,7 @@
 - GPT-REVIEW-risk-briefing-20261116-1330 — CHANGES_REQUESTED(CR-3 같은 종목 전체 기록 검증·CR-4 브리핑 판단 시각·basis 필수) 반영 `5e4aed9`, 재검토 요청 2026-11-16 14:20
 - GPT-REVIEW-risk-briefing-20261116-1430 — CHANGES_REQUESTED(CR-5 시장 식별자 조언까지 전달·누락 fail-closed·실제 경로 통합 시험) 반영 `f63d62b`, 재검토 요청 2026-11-16 15:20
 - GPT-REVIEW-risk-briefing-20261116-1525 — APPROVE(HEAD `f63d62b`, 정적 검토 한정) 기록, 순태씨 '올려' 승인 대기 2026-11-16 16:10
+- GPT-REVIEW-brief-dashboard-only-20261116-2139 — APPROVE(HEAD `d47792a`, 정적 검토 한정) 기록, 순태씨 '올려' 승인 대기 2026-11-16 22:10
 - GPT-REVIEW-sec-gas-20261116-1130 — APPROVE(CR-3/CR-4 `f3c5c78` 정적 검토 한정, GAS·운영 승인 아님), 기록 2026-11-16 12:25 · **순태씨 승인 요청 대상: SEC 재무 GAS 실제 반영**
 - GPT-20261116-1030 — 1단위 완료 `017e803`(보고 `6cba480`, READY_FOR_REVIEW) 2026-11-16 12:25
 - GPT-REVIEW-risk-briefing-20261116-1230 — CHANGES_REQUESTED 처리(CR-1·CR-2) `978a2c0`, 재검토 요청 2026-11-16 13:25
@@ -156,3 +157,4 @@
 - 2026-11-16 20:08 정각 실행: 새 GPT-ORDER/TEST/REVIEW 없음(지피 마지막 파일 15:28 risk-briefing 1525 APPROVE, 기록 완료), 다비 새 문서 없음. 운영 main `4617756`(19:11 반영) 갤럭시 확인 대기. 승인된 다음 작업 없음 → 코드 변경 0, 시험 재실행 안 함. 다음: 지피 지시서·사후 검토 또는 순태씨 지시 / SEC GAS 배포 확인 후 앱 연결.
 - 2026-11-16 20:5x (순태씨 대화, 갤럭시 캡처) 가격 신뢰도·오늘의 투자 판단 띠를 투자 > 현황에서만(일반·ISA·해외 등 숨김): `work/claude-brief-dashboard-only-20261116` `d47792a`(main fa0bcbe 기준), decision-brief.js·css·시험·pin만. 전체 2243 중 2241 통과/0 실패/2 skip, 비밀값 0, Chromium 360/390/430 가격 띠 PASS. 다음: 순태씨 '올려' 시 main 병합.
 - 2026-11-16 21:08 정각 실행: 새 GPT-ORDER/TEST/REVIEW 없음(지피 마지막 파일 15:28 risk-briefing 1525 APPROVE, 기록 완료 — 지피 미수신 알림은 11-14 1회 완료, 재알림 안 함), 다비 새 문서 없음. brief-dashboard-only `d47792a` READY_FOR_REVIEW — 지피 검토·순태씨 '올려' 대기. 승인된 다음 작업 없음 → 코드 변경 0, 시험 재실행 안 함. 다음: 지피 검토 또는 순태씨 '올려' / SEC GAS 배포 확인 후 앱 연결.
+- 2026-11-16 22:10 정각 실행: 지피 GPT-REVIEW-brief-dashboard-only-20261116-2139 APPROVE(HEAD `d47792a`, 정적 검토 한정) 기록 → 브랜치 보고 갱신 `ad72404`(docs만), 순태씨 운영 반영 승인 요청. 코드·앱·운영 변경 0, 시험 재실행 없음(코드 무변경). 새 GPT-ORDER 없음, 다비 새 문서 없음. 다음: 순태씨 '올려' 시 main 병합·배포 → 갤럭시 현황/일반/ISA/해외/위험관리 확인.

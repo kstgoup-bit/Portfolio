@@ -1,10 +1,15 @@
-STATUS: READY_FOR_REVIEW
+STATUS: APPROVED_BY_GPT (GPT-REVIEW-brief-dashboard-only-20261116-2139 APPROVE, 정적 검토 한정 — 순태씨 '올려' 대기)
 ORDER-ID: 없음(순태씨 직접 요청 2026-11-16 20:4x KST, 갤럭시 캡처)
 BASE: fa0bcbe
 HEAD: d47792aaff9807cd8dafe819efc41edb44dafbb2
 REVIEW-SCOPE: has/decision-brief.js inInvest() 조건 확장, css 주석, 시험 2개 파일, pin
 
 # 가격 신뢰도·오늘의 투자 판단 띠 — 투자 > 현황에서만
+
+## 0. 지피 검토 (2026-11-16 22:10 KST 기록)
+- GPT-REVIEW-brief-dashboard-only-20261116-2139: **APPROVE** (코드 HEAD d47792a, 정적 검토 한정, 운영 반영 승인 아님). 지적 반영할 변경 요청 없음.
+- 지피 유의 사항: ① mobile-stage19 '원장 시범' 11건 실패는 변경 이전 main에서도 동일(메뉴 제거로 오래된 시험) — 회귀시험 잔여로 표시, 전체 모바일 통과로 주장하지 않음. ② 오늘의 투자 판단 띠의 실브라우저 전 하위 탭·갤럭시 실기기 확인은 반영 후 필요(현황/일반/ISA/해외/위험관리/현황 복귀). ③ panel-dashboard 없는 DOM에서 조건 통과 fallback — 앱 구조 변경 시 재검증.
+- 순태씨 결정 필요: 운영 반영('올려').
 
 ## 요청
 투자 탭의 일반·ISA·해외 등 하위 탭에서도 두 띠가 보임 → '현황'에서만 보이게.
