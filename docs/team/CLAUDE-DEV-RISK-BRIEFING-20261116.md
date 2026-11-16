@@ -1,9 +1,19 @@
 STATUS: READY_FOR_REVIEW
-ORDER-ID: GPT-20261116-1030
-BASE: 0857a4b2d96ef798e254c9ab34773b668d9eccc5
-HEAD: 017e8034df17950f657e855aeb1513f85210ccf2
-REVIEW-SCOPE: 0857a4b2d96ef798e254c9ab34773b668d9eccc5..017e8034df17950f657e855aeb1513f85210ccf2 전체(앱 코드 7파일). 운영 반영 아님 — main 병합·배포는 순태씨 '올려' 후.
-UPDATED: 2026-11-16 12:25 KST (정각 실행)
+ORDER-ID: GPT-20261116-1030 (GPT-REVIEW-risk-briefing-20261116-1230 CR-1·CR-2 반영)
+BASE: 017e8034df17950f657e855aeb1513f85210ccf2
+HEAD: 978a2c02eb1281bb33bf675adaa85642014e8c0f
+REVIEW-SCOPE: 017e803..978a2c0 중 CR 수정분 = has/decision-brief.js·has/decision-brief.css·tests/decision-brief.test.cjs·tests/lib/live-data-pins.json (중간 merge 2146c31은 main 1d57664 반영 — SEC GAS·문서, pins 충돌만 해소). 운영 반영 아님 — main 병합·배포는 순태씨 '올려' 후.
+UPDATED: 2026-11-16 13:25 KST (정각 실행)
+
+## 0. CR 반영 (GPT-REVIEW-risk-briefing-20261116-1230)
+- **CR-1 첫 화면 3카드:** 접힌 기본 화면에 '매수 검토 N건 · 매도 검토 N건 · 장기보유 N건' 3분할 상태 카드(`data-testid=hdb-mini`, 각 `hdb-card-buy/sell/hold`)를 접기 **밖**에 배치. 종목·근거·반론·판단 보류 사유는 같은 버튼 '펼치기 ▼' 안(`hdb-list-*`, `hdb-card-pending`). 0건이면 '0건' 그대로, 예시 수치·종목 없음. 중요 위험 한 줄·가격 신뢰도 경고는 그대로 접기 밖.
+- **CR-2 검증된 후보 계약(fail-closed):** `classify()`가 새 `verify()`를 거쳐야만 후보로 셈 — 실제/합성 구분 존재·화면과 일치, `dataQuality.ok===true`, 실제 근거 문장(공백 제외)·반론 1개 이상, 출처 있는 사실 1개 이상, 기준 시각 존재·파싱 가능·생성 시각보다 미래 아님, 매도 검토·장기보유는 `holding.held===true`. 같은 종목에 다른 의견이 있으면 '같은 종목 의견 상충'으로 보류. 어긋나면 판단 보류 + 사유(예: '자료 신뢰성 미확인'). '규칙 엔진 근거' 같은 대체 문구 승격 제거. 항목에 `verified` 표시.
+- 시험: 반례 17건(지피 예시 `{ticker:'X',opinion:'매수 검토',basis:'real',dataQuality:{ok:false}}` 포함)·상충·중복·합성 엔진 정상 경로 유지·입력 불변 + 접힌 화면 3카드 DOM 단언. 기존 ② 수제 객체는 완전한 계약으로 고침, ④ 사유 기대값 갱신.
+- 전체 `node --require ./tests/lib/no-network.cjs --test tests/*.test.cjs`: **2237 중 2235 통과 / 0 실패 / 2 skip**(이전 보고의 universe-screen-dom 실패 1건은 이번 환경에서 재현되지 않음 — 원인 미조사, 환경 의존 가능성). `tools/scan-secrets.cjs` 발견 0.
+- Chromium(Playwright, 실제 앱 로딩·합성 보유 자료·외부 요청 차단) 360/390/430/1280: 접힌 상태에서 3카드 모두 보임(360px 3분할 각 102px, 화면 안 y≈579), 가로 넘침 0(펼침 포함), 12px 미만 글자 0, 펼침→접힘 정상, 페이지 오류 0. 캡처 미커밋. 갤럭시 실기기 미검증.
+- 순태씨 결정 필요: 없음(운영 반영 여부만 — 지피 재검토 APPROVE 후).
+
+## (이전 단위 보고 017e803)
 
 # 위험관리 상단 '오늘의 투자 판단'·같은 버튼 펼치기/접기 — 1단위 완료
 

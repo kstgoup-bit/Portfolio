@@ -61,6 +61,7 @@
 - GPT-20261116-1030 — 접수(위험관리 브리핑·후보 카드·접기 UI), 다음 정각 실행에서 착수 예정 2026-11-16 11:10
 - GPT-REVIEW-sec-gas-20261116-1130 — APPROVE(CR-3/CR-4 `f3c5c78` 정적 검토 한정, GAS·운영 승인 아님), 기록 2026-11-16 12:25 · **순태씨 승인 요청 대상: SEC 재무 GAS 실제 반영**
 - GPT-20261116-1030 — 1단위 완료 `017e803`(보고 `6cba480`, READY_FOR_REVIEW) 2026-11-16 12:25
+- GPT-REVIEW-risk-briefing-20261116-1230 — CHANGES_REQUESTED 처리(CR-1·CR-2) `978a2c0`, 재검토 요청 2026-11-16 13:25
 
 ## 기록
 - 2026-11-12 13:45 역할 변경 반영, 일지 시작. 다비의 빈 브랜치 `work/davi-universe-screen-20261112`(= main c9d8084, 변경 없음) 확인 — 클로가 이어받음.
@@ -141,3 +142,4 @@
 - 2026-11-16 11:10 정각 실행: 지피 GPT-REVIEW-sec-gas-20261116-1030(CHANGES_REQUESTED) 처리. `work/claude-sec-gas-20261116` `f3c5c78`(main 5cedc6a 병합 후): 허가 상태 PropertiesService 이동·잠금 요청 끝까지·되읽기 확인·pending fail-closed 중단. 신규 시험 10건, 전체 2227 중 2225 통과/0 실패/2 skip, 비밀값 0. 새 GPT-ORDER-20261116-1030 접수(다음 실행 착수). 다비 새 문서 없음. 다음: GPT-20261116-1030 위험관리 UI 브랜치 `work/claude-risk-briefing-20261116` / 지피 sec-gas 재검토.
 - 2026-11-16 12:25 정각 실행: 지피 GPT-REVIEW-sec-gas-20261116-1130 APPROVE 기록(순태씨 GAS 승인 대기). GPT-20261116-1030 처리: `work/claude-risk-briefing-20261116` `017e803`(main 0857a4b 기준) — has/decision-brief.js·css 신규, html 3줄·advisor-panel 1줄(역방향 쌍 4·pin 갱신). 오늘의 투자 판단(매수·매도 검토·장기보유·판단 보류·중요 위험) + 같은 버튼 펼치기/접기·탭 이동 접힘·하위 메뉴 줄바꿈. 신규 시험 8건, 전체 2208 중 2205 통과/1 실패(universe-screen-dom, 변경 전 main 동일 재현)/2 skip, 비밀값 0, Chromium 360/390/430/1280 통과. 다음: 지피 검토 → 순태씨 '올려' / universe-screen-dom 실패 원인 확인 / 다비 새 문서 없음.
 - 2026-11-16 (순태씨 대화 'GAS 올려') SEC 재무 GAS: `work/claude-sec-gas-20261116` `f3c5c78` → main no-ff 병합(gas/has-sec-fundamental.gs·시험만, 앱 코드 변경 0). 병합 후 전체 2228 중 2225 통과/1 실패(universe-screen-dom, 기존 동일)/2 skip, 비밀값 0. 클로는 Apps Script에 접근할 수 없어 실제 GAS 붙여넣기·배포·연락처(User-Agent) 입력은 순태씨가 배포 안내(GAS-SEC-FUNDAMENTAL-DEPLOY-GUIDE-20261116.md) 순서대로 진행. 다음: 순태씨 GAS 배포·`?type=fundamental&tickers=AAPL` 확인 → 앱 연결 단계.
+- 2026-11-16 13:25 정각 실행: 지피 GPT-REVIEW-risk-briefing-20261116-1230(CHANGES_REQUESTED) 처리. `work/claude-risk-briefing-20261116` `978a2c0`(main 1d57664 병합 후, pins 충돌 해소): CR-1 접힌 첫 화면 3분할 상태 카드(매수·매도 검토·장기보유 건수, 종목·사유는 펼침 안) / CR-2 classify() verify() fail-closed(실제·합성 구분·자료 신뢰성·근거·반론·출처 사실·기준 시각·보유 여부·동종목 상충). 신규 시험 2건(반례 17+), 전체 2237 중 2235 통과/0 실패/2 skip(universe-screen-dom 이번엔 통과), 비밀값 0, Chromium 360/390/430/1280 확인. 새 GPT-ORDER 없음, 다비 새 문서 없음. 다음: 지피 재검토 → 순태씨 '올려' / SEC GAS 순태씨 배포 확인 후 앱 연결.
