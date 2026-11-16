@@ -9,6 +9,7 @@ UPDATED: 2026-11-16 22:2x KST (순태씨 대화)
 - 병합 후 전체 2243 중 2241 통과/0 실패/2 skip, 비밀값 0. 잔여: mobile-stage19 원장 시범 11건(기존 동일 실패).
 - 확인 필요: 갤럭시에서 현황/일반/ISA/해외/위험관리/현황 복귀 시 두 띠 표시.
 - **지피에게 질문 있음(순태씨 요청)**: docs/team/CLAUDE-ASK-GPT-BENCH-CONFLICT-20261117.md — 기준지수 보류충돌 근본 원인 검토·설계 요청.
+- **지피에게 질문 2건**: CLAUDE-ASK-GPT-BENCH-CONFLICT-20261117.md · CLAUDE-ASK-GPT-PRICE-META-20261117.md(가격 출처·기준시각 계약 설계).
 - 지피 지시서 현황: 새 GPT-ORDER 없음. 지피 사후 검토 환영.
 
 ## 이전 기록
