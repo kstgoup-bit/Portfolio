@@ -1,5 +1,5 @@
 'use strict';
-// GPT-20261117-0730 1단계: 기준지수 보류충돌 원인 합성 진단. 합성 자료만, 운영 코드·저장소 무변경.
+// GPT-20261117-0730: 기준지수 보류충돌 원인 합성 진단(1단계) + 2단계 수정(장 마감+30분 전 당일 봉 미저장) 회귀 시험. 합성 자료만.
 const test=require('node:test'),a=require('node:assert/strict');
 const H=require('../has/benchmark-history-policy.js'),B=require('../backup/core.js');
 const BASE=['2026-11-10','2026-11-11','2026-11-12','2026-11-13'];
@@ -15,78 +15,94 @@ const conflicts=(store,sym)=>store.series[sym]?store.series[sym].conflicts:[];
 const R_IN1='2026-11-16T15:00:00.000Z',R_IN2='2026-11-16T16:45:00.000Z',R_POST='2026-11-16T22:00:00.000Z',R_NEXT='2026-11-17T15:00:00.000Z';
 const D16=BASE.concat('2026-11-16'),D17=D16.concat('2026-11-17');
 
-test('(a) 같은 시장일 장중 두 번 다른 값 → pending-review 충돌 1건(가설1 코드상 가능)',()=>{
+test('(a) 같은 시장일 장중 두 번 다른 값 → 당일 봉 미저장, 충돌 0 (2단계 수정)',()=>{
  const s1=merge(null,gas('SPY',R_IN1,bars(D16,748.12)),'SPY',R_IN1);a.equal(s1.ok,true);
- const p=H.readStore(s1.store,null,Date.parse(R_IN1)).series.SPY.byDate['2026-11-16'];a.equal(p.finality,'provisional');
+ a.equal(H.readStore(s1.store,null,Date.parse(R_IN1)).series.SPY.byDate['2026-11-16'],undefined);
+ a.deepEqual(s1.failures.filter(f=>f.reason==='intraday-not-persisted').map(f=>f.d),['2026-11-16']);
  const s2=merge(s1.store,gas('SPY',R_IN2,bars(D16,745.82)),'SPY',R_IN2);a.equal(s2.ok,true);
- a.equal(conflicts(s2.store,'SPY').length,1);a.equal(conflicts(s2.store,'SPY')[0].status,'pending-review');
+ a.equal(conflicts(s2.store,'SPY').length,0);a.equal(s2.changed,false);
 });
-test('(a2) 한국 시간 아침(미국 장 마감 후, 같은 미국 시장일) 수신도 provisional·successor 불가 → pending-review',()=>{
+test('(a2) 장중 미저장 → 한국 아침(미국 마감+30분 이후) 수신만 저장, 같은 값 재수신은 변화 없음',()=>{
  const s1=merge(null,gas('SPY',R_IN2,bars(D16,748.12)),'SPY',R_IN2);
  const s2=merge(s1.store,gas('SPY',R_POST,bars(D16,745.82)),'SPY',R_POST);
- a.equal(s2.ok,true);a.equal(conflicts(s2.store,'SPY')[0].status,'pending-review');
- a.equal(H.readStore(s2.store,null,Date.parse(R_POST)).series.SPY.pendingConflicts.length,1);
+ a.equal(s2.ok,true);a.deepEqual(s2.acceptedDates,['2026-11-16']);a.equal(conflicts(s2.store,'SPY').length,0);
+ const p=H.readStore(s2.store,null,Date.parse(R_POST)).series.SPY.byDate['2026-11-16'];a.equal(p.close,745.82);a.equal(p.finality,'provisional');
+ const R2='2026-11-16T23:30:00.000Z',s3=merge(s2.store,gas('SPY',R2,bars(D16,745.82)),'SPY',R2);a.equal(s3.changed,false);a.equal(conflicts(s3.store,'SPY').length,0);
 });
-test('(b) 장중 1회 후 다음 시장일 같은 출처 → provisional-successor(정상), 그러나 장중 2회였으면 pending이 successor를 막음',()=>{
- const one=merge(null,gas('SPY',R_IN1,bars(D16,748.12)),'SPY',R_IN1);
+test('(a3) 마감 직후~30분 이내 수신(16:10 ET)도 미저장, 16:31 ET 이후 저장',()=>{
+ const early='2026-11-16T21:10:00.000Z',late='2026-11-16T21:31:00.000Z';
+ a.equal(merge(null,gas('SPY',early,bars(D16,745)),'SPY',early).failures.some(f=>f.d==='2026-11-16'&&f.reason==='intraday-not-persisted'),true);
+ a.deepEqual(merge(null,gas('SPY',late,bars(D16,745)),'SPY',late).acceptedDates.slice(-1),['2026-11-16']);
+});
+test('(b) 마감 후 저장값 → 다음 시장일 같은 출처 다른 값은 provisional-successor (기존 규칙 유지)',()=>{
+ const one=merge(null,gas('SPY',R_POST,bars(D16,748.12)),'SPY',R_POST);
  const ok=merge(one.store,gas('SPY',R_NEXT,bars(D17,750)),'SPY',R_NEXT);
- // D17의 11-16 값은 bars()가 100+4=104로 만든다 → 원래 값과 다름. 같은 출처·다음 시장일이므로 successor.
  a.equal(ok.ok,true);a.equal(conflicts(ok.store,'SPY').length,1);a.equal(conflicts(ok.store,'SPY')[0].status,'provisional-successor');
- a.deepEqual(ok.acceptedDates,['2026-11-17']);
- const two=merge(one.store,gas('SPY',R_IN2,bars(D16,747)),'SPY',R_IN2);
- const blocked=merge(two.store,gas('SPY',R_NEXT,bars(D17,750)),'SPY',R_NEXT);
- a.equal(blocked.ok,true);a.equal(conflicts(blocked.store,'SPY').filter(c=>c.d==='2026-11-16'&&c.status==='pending-review').length,2);
- a.equal(conflicts(blocked.store,'SPY').some(c=>c.status==='provisional-successor'),false);
+ a.deepEqual(ok.acceptedDates,[],'11-17 은 장중이라 미저장');
 });
-test('(c) 다음 시장일이라도 출처가 다르면(GAS → Yahoo 직접) successor 불가 → pending-review',()=>{
- const one=merge(null,gas('SPY',R_IN1,bars(D16,748.12)),'SPY',R_IN1);
+test('(b2) 다음 날 장중에 여러 번 열어도 그날 봉은 비교·저장하지 않아 pending 0',()=>{
+ const one=merge(null,gas('SPY',R_POST,bars(D16,748.12)),'SPY',R_POST);
+ let st=one.store;for(const v of [751,752,753]){const m=merge(st,gas('SPY',R_NEXT,bars(D17,v).map(b=>b.d==='2026-11-16'?{d:b.d,c:748.12}:b)),'SPY',R_NEXT);a.equal(m.ok,true);st=m.store;}
+ a.equal(conflicts(st,'SPY').filter(c=>c.status==='pending-review').length,0);
+ a.equal(conflicts(st,'SPY').length,1,'같은 값 다음날 재확인은 successor 1건(기존 규칙, 1회만)');
+});
+test('(c) 남은 원인: 출처가 다르면(GAS → Yahoo 직접) successor 불가 → pending-review (이번 수정 범위 밖)',()=>{
+ const one=merge(null,gas('SPY',R_POST,bars(D16,748.12)),'SPY',R_POST);
  const y=merge(one.store,yahoo('SPY',R_NEXT,bars(D17,750)),'SPY',R_NEXT);
  a.equal(y.ok,true);a.equal(conflicts(y.store,'SPY')[0].status,'pending-review');a.equal(conflicts(y.store,'SPY')[0].alternative.source,'yahoo-chart-v8');
 });
-test('(c2) Yahoo 직접 경로는 마지막 봉 시각이 바뀌면 같은 값도 별도 충돌로 중복 기록될 수 있음(dedup 키에 providerBarTs 포함)',()=>{
- const base=merge(null,yahoo('SPY',R_IN1,bars(D16,748.12),Date.parse(R_IN1)/1000-60),'SPY',R_IN1);
- const x1=merge(base.store,yahoo('SPY',R_IN2,bars(D16,747),Date.parse(R_IN2)/1000-120),'SPY',R_IN2);
- const x2=merge(x1.store,yahoo('SPY',R_IN2,bars(D16,747),Date.parse(R_IN2)/1000-60),'SPY',R_IN2);
+test('(c2) 남은 원인: Yahoo 직접 경로는 봉 시각만 달라도 같은 값이 별도 충돌(dedup 키에 providerBarTs)',()=>{
+ const P1='2026-11-16T22:00:00.000Z',P2='2026-11-16T23:00:00.000Z',P3='2026-11-16T23:30:00.000Z';
+ const base=merge(null,yahoo('SPY',P1,bars(D16,748.12),Date.parse(P1)/1000-60),'SPY',P1);
+ const x1=merge(base.store,yahoo('SPY',P2,bars(D16,747),Date.parse(P2)/1000-120),'SPY',P2);
+ const x2=merge(x1.store,yahoo('SPY',P3,bars(D16,747),Date.parse(P3)/1000-60),'SPY',P3);
  a.equal(conflicts(x2.store,'SPY').length,2,'같은 값 747이 봉 시각만 달라 2건');
 });
-test('(d) 가격 종류 불일치(AV 원가격 vs Yahoo) 시 과거 날짜 전체가 충돌로 들어갈 수 있음 — 날짜 수만큼 누적',()=>{
- const one=merge(null,gas('SPY',R_IN1,bars(D16,748.12)),'SPY',R_IN1);
+test('(d) 가격 종류 불일치(AV 원가격 vs Yahoo) 시 과거 날짜 전체가 충돌로 들어갈 수 있음 — 당일 장중 봉은 제외',()=>{
+ const one=merge(null,gas('SPY',R_POST,bars(D16,748.12)),'SPY',R_POST);
  const adj=bars(D17,750).map(b=>({d:b.d,c:+(b.c*0.99).toFixed(4)}));
  const m=merge(one.store,av('SPY',R_NEXT,adj),'SPY',R_NEXT);a.equal(m.ok,true);
  a.equal(conflicts(m.store,'SPY').filter(c=>c.status==='pending-review').length,D16.length,'기존 날짜 5개 모두 충돌');
 });
-test('(e) DST: closeTimeMs는 -05:00 고정 → 서머타임 기간 실제 마감(20:00Z)보다 1시간 늦게 판단(보수적), 조기폐장 미반영',()=>{
+test('(e) DST: persistAfterMs 는 IANA 시간대 기준(서머타임 20:30Z, 표준시 21:30Z, 한국 07:00Z), closeTimeMs 는 기존 그대로',()=>{
+ a.equal(new Date(H.persistAfterMs('2026-07-15','US')).toISOString(),'2026-07-15T20:30:00.000Z');
+ a.equal(new Date(H.persistAfterMs('2026-11-16','US')).toISOString(),'2026-11-16T21:30:00.000Z');
+ a.equal(new Date(H.persistAfterMs('2026-03-09','US')).toISOString(),'2026-03-09T20:30:00.000Z','2026-03-08 서머타임 시작 다음 날');
+ a.equal(new Date(H.persistAfterMs('2026-11-16','KR')).toISOString(),'2026-11-16T07:00:00.000Z');
+ a.equal(Number.isNaN(H.persistAfterMs('bad','US')),true);
  a.equal(new Date(H.closeTimeMs('2026-07-15','US')).toISOString(),'2026-07-15T21:00:00.000Z');
- a.equal(new Date(H.closeTimeMs('2026-11-16','US')).toISOString(),'2026-11-16T21:00:00.000Z');
- a.equal(new Date(H.closeTimeMs('2026-11-27','US')).toISOString(),'2026-11-27T21:00:00.000Z','조기폐장일도 16:00 기준');
- // 서머타임 실제 마감 30분 후 수신(20:30Z)은 당일 종가 옵션에서 제외됨(보수적).
- const R='2026-07-15T20:30:00.000Z',d=['2026-07-13','2026-07-14','2026-07-15'];
- const s=merge(null,gas('QQQ',R,bars(d,500)),'QQQ',R),pts=H.readStore(s.store,null,Date.parse(R)).series.QQQ.points;
- a.equal(H.selectPointAtOrBefore(pts,'QQQ',Date.parse(R),{now:Date.parse(R),sameDayAfterClose:true}).date,'2026-07-14');
+ const d=['2026-07-13','2026-07-14','2026-07-15'];
+ a.equal(merge(null,gas('QQQ','2026-07-15T20:20:00.000Z',bars(d,500)),'QQQ','2026-07-15T20:20:00.000Z').acceptedDates.includes('2026-07-15'),false);
+ a.equal(merge(null,gas('QQQ','2026-07-15T20:40:00.000Z',bars(d,500)),'QQQ','2026-07-15T20:40:00.000Z').acceptedDates.includes('2026-07-15'),true);
 });
-test('(f) 충돌 256 상한: 257번째 충돌이 생기면 새 날짜까지 포함한 병합 전체가 store-bound로 거절(차트 갱신 정지)',()=>{
- let st=merge(null,gas('SPY',R_IN1,bars(D16,700)),'SPY',R_IN1).store;
- const t0=Date.parse(R_IN1);
+test('(e2) 한국 069500: 15:30+30분(16:00 KST) 전 수신 당일 미저장, 이후 저장',()=>{
+ const kr=(R,last)=>H.parseGasHistory({'069500':{source:'yahoo-chart-v8',symbol:'069500.KS',currency:'KRW',exchange:'KSE',timezone:'Asia/Seoul',instrumentType:'ETF',adjustment:'unverified',regularMarketTime:null,regularMarketPrice:null,fiftyTwoWeekHigh:null,barCount:3,bars:[{d:'2026-11-12',c:80000},{d:'2026-11-13',c:80100},{d:'2026-11-16',c:last}]}},'KS200',R,{mode:'configured-gas'});
+ const R1='2026-11-16T06:50:00.000Z',R2='2026-11-16T07:05:00.000Z';
+ a.equal(H.mergeHistoryStore(null,null,kr(R1,80685),'KS200',Date.parse(R1)).acceptedDates.includes('2026-11-16'),false);
+ a.equal(H.mergeHistoryStore(null,null,kr(R2,79625),'KS200',Date.parse(R2)).acceptedDates.includes('2026-11-16'),true);
+});
+test('(f) 충돌 256 상한(남은 위험): 257번째 충돌이 생기면 새 날짜까지 포함한 병합 전체가 store-bound로 거절',()=>{
+ const t0=Date.parse(R_POST);let st=merge(null,gas('SPY',R_POST,bars(D16,700)),'SPY',R_POST).store;
  for(let i=1;i<=256;i++){const r=new Date(t0+i*60000).toISOString();const m=merge(st,gas('SPY',r,bars(D16,700+i/100)),'SPY',r);a.equal(m.ok,true,'i='+i+' '+m.reason);st=m.store;}
  a.equal(conflicts(st,'SPY').length,256);
  const view=H.readStore(st,null,Date.parse(R_NEXT));a.equal(view.ok,true);a.equal(view.series.SPY.ok,true,'256건은 읽기·차트 가능');
- const same=merge(st,gas('SPY',R_NEXT,bars(D16,700)),'SPY',R_NEXT);
- a.equal(same.ok,true,'기존 값과 같고 새 날짜 없으면 통과');
- const next=merge(st,gas('SPY',R_NEXT,bars(D17,750)),'SPY',R_NEXT);
+ const RN='2026-11-17T22:00:00.000Z';
+ a.equal(merge(st,gas('SPY',RN,bars(D16,700)),'SPY',RN).ok,true,'기존 값과 같고 새 날짜 없으면 통과');
+ const next=merge(st,gas('SPY',RN,bars(D17,750)),'SPY',RN);
  a.equal(next.ok,false);a.equal(next.reason,'store-bound','11-17 새 날짜도 함께 거절');
  // (g) 백업 호환: 256건 저장소는 백업 검증 통과
- a.equal(H.validateStore(st,null,Date.parse(R_NEXT)).ok,true);
+ a.equal(H.validateStore(st,null,Date.parse(RN)).ok,true);
  a.doesNotThrow(()=>B.validateStoredValue('v5_benchHistV2',JSON.stringify(st)));
 });
-test('(f2) 정상 successor 전이도 conflicts 배열을 소비 — 정리(prune) 경로 없음',()=>{
- const one=merge(null,gas('SPY',R_IN1,bars(D16,748.12)),'SPY',R_IN1);
- const ok=merge(one.store,gas('SPY',R_NEXT,bars(D17,750)),'SPY',R_NEXT);
- a.equal(conflicts(ok.store,'SPY').length,1);a.equal(conflicts(ok.store,'SPY')[0].status,'provisional-successor');
+test('(f2) 장중 재조회만으로는 상한에 다가가지 않음(장중 300회 → 충돌 0)',()=>{
+ const t0=Date.parse(R_IN1);let st=merge(null,gas('SPY',R_IN1,bars(D16,700)),'SPY',R_IN1).store;
+ for(let i=1;i<=300;i++){const r=new Date(t0+i*60000).toISOString();const m=merge(st,gas('SPY',r,bars(D16,700+i/100)),'SPY',r);a.equal(m.ok,true);st=m.store;}
+ a.equal(conflicts(st,'SPY').length,0);
 });
-test('(g2) 레거시 점(finality 없음)과 다른 값은 항상 pending-review(successor 불가)',()=>{
+test('(g2) 레거시 점(finality 없음)과 다른 과거 값은 여전히 pending-review, 당일 장중 봉은 미저장',()=>{
  const legacy=JSON.stringify({SPY:BASE.map((d,i)=>({ts:Date.parse(d+'T14:30:00Z'),close:100+i}))});
  const R=R_IN1,c=gas('SPY',R,bars(D16,748).map(b=>b.d==='2026-11-13'?{d:b.d,c:99}:b));
  const m=H.mergeHistoryStore(null,legacy,c,'SPY',Date.parse(R));a.equal(m.ok,true);
  const cf=conflicts(m.store,'SPY');a.equal(cf.length,1);a.equal(cf[0].status,'pending-review');a.equal(cf[0].d,'2026-11-13');
- a.equal(H.readStore(m.store,legacy,Date.parse(R)).ok,true);
+ a.deepEqual(m.acceptedDates,[]);a.equal(H.readStore(m.store,legacy,Date.parse(R)).ok,true);
 });

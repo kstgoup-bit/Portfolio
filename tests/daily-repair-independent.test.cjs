@@ -221,7 +221,7 @@ test('repair independent benchmark: hostile metadata, prototype and getter input
 });
 
 test('repair independent benchmark: later-day provisional successor preserves both receipts and is never called final',()=>{
-  const early='2026-11-09T19:00:00.000Z',first=parsed('QQQ',['2026-11-06','2026-11-09'],[100,102],early);
+  const early='2026-11-09T22:00:00.000Z',first=parsed('QQQ',['2026-11-06','2026-11-09'],[100,102],early);
   const initial=H.mergeHistoryStore(null,null,first,'QQQ',Date.parse(early));a.equal(initial.ok,true);
   const old=clone(initial.store),oldObservation=initial.store.series.QQQ.observations.at(-1);a.equal(oldObservation.finality,'provisional');
   const later=H.mergeHistoryStore(initial.store,null,parsed('QQQ',['2026-11-06','2026-11-09','2026-11-10'],[100,102.5,103]),'QQQ',NOW);a.equal(later.ok,true);
