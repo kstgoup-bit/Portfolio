@@ -13,7 +13,7 @@ function navDOM(){
 }
 test('risk menu preserves every existing internal destination and adds a separate same-origin euphoria entry',()=>{
  const d=navDOM();try{const w=d.window,nav=w.document.querySelector('#subtabs-risk');
- a.deepEqual(Array.from(w.TAB_GROUPS.risk),['principledash','risk','commandments','radar','greatco','ledgerdemo','staff','pretrade']);
+ a.deepEqual(Array.from(w.TAB_GROUPS.risk),['principledash','risk','radar','greatco','ledgerdemo','staff','pretrade','commandments']);
  a.equal([...nav.querySelectorAll('.tab')].some(b=>/뉴스|'news'/.test(b.textContent+b.getAttribute('onclick'))),false); // 순태씨 지시 2026-11-15: 뉴스 메뉴·패널·코드 전부 제거
  a.equal(/panel-news|loadPortfolioNews|translateAndRender|renderNews|newsRefreshBtn/.test(html),false);
  w.switchTab('risk');w.switchTab('news');a.equal(w.document.querySelector('.panel.active').id,'panel-risk');a.equal(w.TAB_TO_GROUP.news,undefined); // 그룹에서 빠져 이동 안 됨
@@ -73,4 +73,9 @@ test('exact two edited runtime files reverse to the previous candidate and all o
  for(const file of Object.keys(pins.currentSha256)){a.equal(sha(require('./lib/speed-minimal-projection.cjs').beforeSpeedBytes(file)),pins.currentSha256[file]);a.equal(sha(p.beforeRiskMenuBytes(file)),pins.baselineSha256[file]);}
  for(const[file,hash]of Object.entries(pins.addedRuntimeFiles))a.equal(sha(read(file)),hash);
  a.equal(require('./lib/daily-followup-pins.json').currentSha256['portfolio_v5.html'],pins.baselineSha256['portfolio_v5.html']);
+});
+test('위험관리 하위 메뉴: 15계명 버튼은 같은 줄 맨 오른쪽(마지막)에 있다(순태씨 2026-11-17)',()=>{
+ const m=/<div class="tabs sub-tabs" id="subtabs-risk"[^>]*>([\s\S]*?)\n<\/div>/.exec(html)[1];
+ const tabs=[...m.matchAll(/<button class="tab" onclick="switchTab\('([a-z]+)'\)"/g)].map(x=>x[1]);
+ a.equal(tabs[tabs.length-1],'commandments');a.equal(tabs.length,8);a.equal(new Set(tabs).size,8);
 });
