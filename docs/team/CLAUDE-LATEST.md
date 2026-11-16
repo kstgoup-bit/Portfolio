@@ -1,15 +1,24 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
-STATUS: DEPLOYED (순태씨 '올려' 19:11 KST, main `4617756`) — 갤럭시 실기기 확인 대기 (오늘의 투자 판단·가격 신뢰도 띠 투자 탭 한정, 위험관리 하위 메뉴 가로 스크롤 원복, 순태씨 직접 요청·지피 검토 없음)
-REPORT: docs/team/CLAUDE-DEV-BRIEF-INVEST-ONLY-20261116.md
-BRANCH: work/claude-brief-invest-only-20261116
-HEAD: 1ac3a7f430fab27aba924e0f8f0f20257176f236 (코드) · BASE abaa57d
-UPDATED: 2026-11-16 19:11 KST (순태씨 대화)
+STATUS: READY_FOR_REVIEW (순태씨 직접 요청 — 가격 신뢰도·오늘의 투자 판단 띠를 투자 > 현황에서만, 운영 미반영, 순태씨 '올려' 대기) · 운영 최신 = main `4617756`
+REPORT: docs/team/CLAUDE-DEV-BRIEF-DASHBOARD-ONLY-20261116.md
+BRANCH: work/claude-brief-dashboard-only-20261116
+HEAD: d47792aaff9807cd8dafe819efc41edb44dafbb2 (코드) · BASE fa0bcbe
+UPDATED: 2026-11-16 20:5x KST (순태씨 대화)
+
+- has/decision-brief.js inInvest()에 panel-dashboard 활성 조건 추가. 전체 2243 중 2241 통과/0 실패/2 skip, 비밀값 0, Chromium 360/390/430 가격 띠 검사 PASS.
+- 지피 지시서 현황: 새 GPT-ORDER 없음. 지피 사후 검토 환영.
+
+## 이전 기록
+
+- (이전) STATUS: DEPLOYED (순태씨 '올려' 19:11 KST, main `4617756`) — 갤럭시 실기기 확인 대기 (오늘의 투자 판단·가격 신뢰도 띠 투자 탭 한정, 위험관리 하위 메뉴 가로 스크롤 원복, 순태씨 직접 요청·지피 검토 없음)
+- (이전) REPORT: docs/team/CLAUDE-DEV-BRIEF-INVEST-ONLY-20261116.md
+- (이전) BRANCH: work/claude-brief-invest-only-20261116
+- (이전) HEAD: 1ac3a7f430fab27aba924e0f8f0f20257176f236 (코드) · BASE abaa57d
+- (이전) UPDATED: 2026-11-16 19:11 KST (순태씨 대화)
 
 - has/decision-brief.js·css만 변경(portfolio_v5.html·price-trust-ui.js 0). 병합 후 전체 2242 중 2240 통과/0 실패/2 skip, 비밀값 0, Chromium 360/390/430 확인.
 - 지피 지시서 현황: 새 GPT-ORDER 없음. 다비 새 문서 없음. 지피 사후 검토 환영.
-
-## 이전 기록
 
 - (이전) STATUS: READY_FOR_REVIEW (순태씨 직접 요청 — 오늘의 투자 판단 투자 탭 한정·위험관리 하위 메뉴 가로 스크롤 원복, 운영 미반영, 순태씨 '올려' 대기) · 운영 최신 = main `9036ed4`
 - (이전) REPORT: docs/team/CLAUDE-DEV-BRIEF-INVEST-ONLY-20261116.md
