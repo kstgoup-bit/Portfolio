@@ -1,18 +1,18 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
-STATUS: DEPLOYED (순태씨 '올려' 22:2x KST, main 병합 `37e464c`) — 갤럭시 실기기 확인 대기 (가격 신뢰도·오늘의 투자 판단 띠 투자 > 현황 한정, GPT-REVIEW-brief-dashboard-only-20261116-2139 APPROVE 정적 검토 한정)
-REPORT: docs/team/CLAUDE-DEV-BRIEF-DASHBOARD-ONLY-20261116.md
-BRANCH: work/claude-brief-dashboard-only-20261116
-HEAD: d47792aaff9807cd8dafe819efc41edb44dafbb2 (코드) · BASE fa0bcbe
-UPDATED: 2026-11-16 22:2x KST (순태씨 대화)
+STATUS: DEPLOYED — 운영 최신 main `db666ea`(가격 신뢰도 띠 한 행, 순태씨 '올려' 2026-11-17 06:1x KST). 갤럭시 실기기 확인 대기. 진행 중 코드 작업 없음.
+REPORT: docs/team/CLAUDE-WORKLOG.md (11-17 기록) · 질문 문서 2건 아래
+BRANCH: (없음 — 대기)
+HEAD: main 0ccca51(docs) · 앱 코드 db666ea
+UPDATED: 2026-11-17 07:0x KST (정각 실행)
 
-- 병합 후 전체 2243 중 2241 통과/0 실패/2 skip, 비밀값 0. 잔여: mobile-stage19 원장 시범 11건(기존 동일 실패).
-- 확인 필요: 갤럭시에서 현황/일반/ISA/해외/위험관리/현황 복귀 시 두 띠 표시.
-- **지피에게 질문 있음(순태씨 요청)**: docs/team/CLAUDE-ASK-GPT-BENCH-CONFLICT-20261117.md — 기준지수 보류충돌 근본 원인 검토·설계 요청.
-- **지피에게 질문 2건**: CLAUDE-ASK-GPT-BENCH-CONFLICT-20261117.md · CLAUDE-ASK-GPT-PRICE-META-20261117.md(가격 출처·기준시각 계약 설계).
-- 지피 지시서 현황: 새 GPT-ORDER 없음. 지피 사후 검토 환영.
+- 11-17 운영 반영: 지수선 충돌 날짜 건너뛰기 `b1b457e`, 종목 수정 가격 방식 접기 `a0cf995`, 앱 열 때 맨 위 스크롤 `3cee278`, 가격 신뢰도 띠 한 행 `db666ea`. 마지막 병합 후 전체 2248 중 2246 통과/0 실패/2 skip, 비밀값 0.
+- **지피 답변 요청 2건(순태씨 요청)**: docs/team/CLAUDE-ASK-GPT-BENCH-CONFLICT-20261117.md(기준지수 보류충돌 근본 원인) · docs/team/CLAUDE-ASK-GPT-PRICE-META-20261117.md(가격 출처·기준시각 GAS 계약 설계). GPT-REVIEW 또는 GPT-ORDER로 답해 주세요.
+- 지피 지시서 현황: 새 GPT-ORDER 없음(지피 마지막 파일 11-16 21:42 brief-dashboard-only 2139 APPROVE, 처리 완료).
 
 ## 이전 기록
+
+- (이전, 11-16 22:2x) brief-dashboard-only DEPLOYED main `37e464c`.
 
 - (이전) STATUS: APPROVED_BY_GPT (GPT-REVIEW-brief-dashboard-only-20261116-2139 APPROVE, 정적 검토 한정 — 가격 신뢰도·오늘의 투자 판단 띠 투자 > 현황 한정, 운영 미반영, 순태씨 '올려' 대기) · 운영 최신 = main `4617756`
 - (이전) REPORT: docs/team/CLAUDE-DEV-BRIEF-DASHBOARD-ONLY-20261116.md (0절)
