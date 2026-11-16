@@ -343,6 +343,14 @@
     [
       "// 앱을 열거나 잠금을 풀면 맨 위(가격 신뢰도·오늘의 투자 판단 띠)부터 보이게 한다. 잠금 입력 키보드·브라우저 스크롤 복원으로 위가 가려지는 것을 막는다.\nfunction hasScrollTop(){try{history.scrollRestoration=\"manual\";}catch(e){}try{window.scrollTo(0,0);}catch(e){}setTimeout(function(){try{window.scrollTo(0,0);}catch(e){}},400);}\nfunction hasStartApp",
       "function hasStartApp"
+    ],
+    [
+      "  <button class=\"tab\" onclick=\"switchTab('radar')\">📡 곡소리 <small style=\"font-size:12px;color:#333;font-weight:400\">준비 중</small></button>\n  <a class=\"has-risk-shortcut\" href=\"#kst-radar/real/euphoria\" onclick=\"if(window.KSTRadar){window.KSTRadar.openEuphoria();return false;}\" aria-label=\"환호성 · 가격 참고\">📣 환호성 <small style=\"font-size:12px;color:#333;font-weight:400\">준비 중</small></a>\n  <button class=\"tab\" onclick=\"switchTab('greatco')\">🏛️ 위대한 기업 <small style=\"font-size:12px;color:#333;font-weight:400\">판단 보조</small></button>\n  <button class=\"tab\" onclick=\"switchTab('ledgerdemo')\">🧪 거래 기록·손익 계산 체험 <small style=\"font-size:12px;color:#333;font-weight:400\">체험판</small></button>\n  <button class=\"tab\" onclick=\"switchTab('staff')\">🧭 AI 참모</button>\n  <button class=\"tab\" onclick=\"switchTab('pretrade')\">📝 매매 점검</button>\n  <button class=\"tab\" onclick=\"switchTab('commandments')\">📜 15계명</button>\n",
+      "  <button class=\"tab\" onclick=\"switchTab('commandments')\">📜 15계명</button>\n  <button class=\"tab\" onclick=\"switchTab('radar')\">📡 곡소리 <small style=\"font-size:12px;color:#333;font-weight:400\">준비 중</small></button>\n  <a class=\"has-risk-shortcut\" href=\"#kst-radar/real/euphoria\" onclick=\"if(window.KSTRadar){window.KSTRadar.openEuphoria();return false;}\" aria-label=\"환호성 · 가격 참고\">📣 환호성 <small style=\"font-size:12px;color:#333;font-weight:400\">준비 중</small></a>\n  <button class=\"tab\" onclick=\"switchTab('greatco')\">🏛️ 위대한 기업 <small style=\"font-size:12px;color:#333;font-weight:400\">판단 보조</small></button>\n  <button class=\"tab\" onclick=\"switchTab('ledgerdemo')\">🧪 거래 기록·손익 계산 체험 <small style=\"font-size:12px;color:#333;font-weight:400\">체험판</small></button>\n  <button class=\"tab\" onclick=\"switchTab('staff')\">🧭 AI 참모</button>\n  <button class=\"tab\" onclick=\"switchTab('pretrade')\">📝 매매 점검</button>\n"
+    ],
+    [
+      "  risk:    [\"principledash\",\"risk\",\"radar\",\"greatco\",\"ledgerdemo\",\"staff\",\"pretrade\",\"commandments\"],\n",
+      "  risk:    [\"principledash\",\"risk\",\"commandments\",\"radar\",\"greatco\",\"ledgerdemo\",\"staff\",\"pretrade\"],\n"
     ]
   ],
   "radar/ui.js": [
