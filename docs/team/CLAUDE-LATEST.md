@@ -1,17 +1,23 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
-STATUS: READY_FOR_REVIEW (SEC 재무 GAS 초안 — GPT-REVIEW-sec-gas-20261116-1030 CR-3/CR-4 반영, 저장소 한정, GAS·운영 미반영) · 운영 최신 = main `4b46fea`+문서 · 위대한 기업 탭 운영 중
-REPORT: docs/team/CLAUDE-DEV-SEC-GAS-20261116.md(0-b절) (+ GAS-SEC-FUNDAMENTAL-DEPLOY-GUIDE-20261116.md)
-BRANCH: work/claude-sec-gas-20261116
-HEAD: f3c5c78c4872ed3461e71c6c59974067de596586 (코드) · 보고 커밋 37e0db2(docs만) · 검토 BASE e4741d5736819d16b53c17f397c126f575265216
-UPDATED: 2026-11-16 11:10 KST (정각 실행)
+STATUS: READY_FOR_REVIEW (위험관리 상단 '오늘의 투자 판단'·같은 버튼 펼치기/접기 — GPT-20261116-1030 1단위, 저장소 한정, 운영 미반영) · 운영 최신 = main `4b46fea`+문서
+REPORT: docs/team/CLAUDE-DEV-RISK-BRIEFING-20261116.md
+BRANCH: work/claude-risk-briefing-20261116
+HEAD: 017e8034df17950f657e855aeb1513f85210ccf2 (코드) · 보고 커밋 6cba480(docs만) · BASE 0857a4b2d96ef798e254c9ab34773b668d9eccc5
+UPDATED: 2026-11-16 12:25 KST (정각 실행)
 
-- CR-3: 요청 허가 상태를 스크립트 속성(PropertiesService)으로 이동, 잠금을 SEC 요청 끝까지 유지(동시 1건), 쓰기 후 되읽기 확인 실패·읽기 실패·손상 = sec-state-hold(요청 0).
-- CR-4: 요청 전 pending 기록 → 429/403 중단 기록 실패·실행 중단 시 다음 실행이 pending을 보고 10분 중단(fail closed).
-- 시험 신규 10건(캐시 전체 퇴거 반복·혼합 요청량·병렬·기록 실패), 변이 확인, 전체 2227 중 2225 통과/0 실패/2 skip, 비밀값 0. 병렬은 합성 시험. 실 SEC·GAS 미검증.
-- 지피 지시서 현황: **GPT-20261116-1030(위험관리 상단 브리핑·후보 카드·양방향 접기 UI, docs/gpt-risk-briefing-20261116) 접수 — 다음 정각 실행에서 처리 예정**(이번 실행은 sec-gas CR 처리). GPT-REVIEW-sec-gas-20261116-1030 CHANGES_REQUESTED 처리 → 지피 재검토 요청.
+- 상단 브리핑 → '🧭 오늘의 투자 판단: 매수 검토 N · 매도 검토 N · 장기보유 N · 판단 보류 N · 중요 위험 N'(규칙 엔진이 근거를 갖춘 의견만 집계, 운영은 재무 미연결이라 0·0·0). 중요 위험 한 줄·가격 신뢰도 경고는 접혀도 항상 보임.
+- 가격 신뢰도·브리핑·후보 상세: 같은 버튼 '펼치기 ▼'↔'접기 ▲', aria-expanded 즉시 일치, 탭 이동 시 모두 접힘. 위험관리 하위 메뉴 줄바꿈(가로 스크롤 0).
+- 시험 신규 8건, 전체 2208 중 2205 통과/1 실패(universe-screen-dom — 변경 전 main도 동일 재현, 무관)/2 skip, 비밀값 0, Chromium 360/390/430/1280 확인. 갤럭시 실기기 미검증.
+- 지피 지시서 현황: GPT-20261116-1030 처리(READY_FOR_REVIEW, 지피 정적 검토 요청). GPT-REVIEW-sec-gas-20261116-1130 **APPROVE**(f3c5c78 정적 검토 한정) 기록 → SEC 재무 GAS 실제 반영은 순태씨 승인 대기. 새 GPT-ORDER 없음.
 
 ## 이전 기록
+
+- (이전) STATUS: READY_FOR_REVIEW (SEC 재무 GAS 초안 — GPT-REVIEW-sec-gas-20261116-1030 CR-3/CR-4 반영, 저장소 한정, GAS·운영 미반영) · 운영 최신 = main `4b46fea`+문서 · 위대한 기업 탭 운영 중
+- (이전) REPORT: docs/team/CLAUDE-DEV-SEC-GAS-20261116.md(0-b절) (+ GAS-SEC-FUNDAMENTAL-DEPLOY-GUIDE-20261116.md)
+- (이전) BRANCH: work/claude-sec-gas-20261116
+- (이전) HEAD: f3c5c78c4872ed3461e71c6c59974067de596586 (코드) · 보고 커밋 37e0db2(docs만) · 검토 BASE e4741d5736819d16b53c17f397c126f575265216
+- (이전) UPDATED: 2026-11-16 11:10 KST (정각 실행)
 
 - (이전) STATUS: READY_FOR_REVIEW (SEC 재무 GAS 초안 — GPT-REVIEW-sec-gas-20261116-0930 CR-1/CR-2 반영, 저장소 한정, GAS·운영 미반영) · 운영 최신 = main `4b46fea`+문서 · 위대한 기업 탭 운영 중
 
