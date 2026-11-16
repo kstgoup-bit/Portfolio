@@ -7828,6 +7828,7 @@ function checkPw() {
     failCount=0;
     sessionStorage.setItem("v5_auth","1");
     renderAll();
+    hasScrollTop();
     // (자동 스냅샷은 시세 갱신 성공 시 fetchKR/fetchUS 안의 autoSnapshot()에서 처리)
   } else {
     failCount++;
@@ -7841,6 +7842,8 @@ function checkPw() {
 // 실행
 // =============================================
 // 글꼴·이미지 다운로드(load)를 기다리지 않고 HTML 해석 직후 시작 — 잠금 확인 버튼이 바로 반응
+// 앱을 열거나 잠금을 풀면 맨 위(가격 신뢰도·오늘의 투자 판단 띠)부터 보이게 한다. 잠금 입력 키보드·브라우저 스크롤 복원으로 위가 가려지는 것을 막는다.
+function hasScrollTop(){try{history.scrollRestoration="manual";}catch(e){}try{window.scrollTo(0,0);}catch(e){}setTimeout(function(){try{window.scrollTo(0,0);}catch(e){}},400);}
 function hasStartApp() {
   if(hasStartApp.done) return; hasStartApp.done=true;
   // 속도: 화면 한 번 그리는 동안 같은 자산기록 검증을 한 번만(기록 수×표 줄 수만큼 반복하던 검증 재사용)
@@ -7863,6 +7866,7 @@ function hasStartApp() {
   load();
   loadBenchmarkCacheSync();
   renderAll();
+  hasScrollTop();
   fetchBenchmarkHistory(true);
   // 환율/국내/미국 자동갱신 + 완료 후 자산 자동기록
   var startupEpoch=snapshotInputEpoch;

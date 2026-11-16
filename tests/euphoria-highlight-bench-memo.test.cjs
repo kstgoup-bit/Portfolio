@@ -59,3 +59,9 @@ test('직전 거래일도 충돌이면 충돌 날짜를 건너뛰어 충돌 없�
   assert.equal(hist.length,4,'입력 기록은 그대로');
   assert.match(html,/그래프 전용: 직전 거래일도 충돌이면/);
 });
+test('앱을 열거나 잠금을 풀면 맨 위로 스크롤해 가격 신뢰도 띠가 보이게 한다',()=>{
+  const fn=/function hasScrollTop\(\)\{[^\n]*\n/.exec(html)[0];
+  assert.match(fn,/scrollRestoration="manual"/);assert.match(fn,/window\.scrollTo\(0,0\)/);assert.doesNotMatch(fn,/localStorage|setItem/);
+  assert.match(html,/sessionStorage\.setItem\("v5_auth","1"\);\n    renderAll\(\);\n    hasScrollTop\(\);/);
+  assert.match(html,/loadBenchmarkCacheSync\(\);\n  renderAll\(\);\n  hasScrollTop\(\);/);
+});
