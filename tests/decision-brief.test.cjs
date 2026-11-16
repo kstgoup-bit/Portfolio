@@ -296,3 +296,11 @@ test('판단 보류 종목에 종목명 표시: 앱 이름표 우선, 없으면 
   D2.renderStrip(box, { brief: b }, () => { }); // names 없이 다시 그려도 오류 없음
   a.equal(box.querySelectorAll('[data-testid=hdb-item-pending]').length, 3);
 });
+
+test('가격 신뢰도 띠 접힌 상태: 경고와 펼치기 버튼이 한 행(flex)에 오고 펼치면 전체 폭', () => {
+  const css = read('has/decision-brief.css');
+  a.match(css, /body #hasPriceTrust\.hpt:not\(\.hdb-off\)\{display:flex;flex-wrap:wrap;align-items:center/);
+  a.match(css, /#hasPriceTrust \.hpt-head\{flex:1 1 0;min-width:0/);
+  a.match(css, /#hasPriceTrust>details\[open\]\{flex:1 1 100%\}/);
+  a.ok(css.indexOf('body #hasPriceTrust.hpt:not(.hdb-off)') < css.indexOf('body #hasPriceTrust.hdb-off.hdb-off'), '숨김 규칙이 항상 우선');
+});
