@@ -107,7 +107,10 @@
   function collapsible(key, label) { var d = el('details', 'hdb-det'); d.appendChild(el('summary', '', '펼치기 ▼')); if (label) d.querySelector('summary').setAttribute('aria-label', label); return d; }
   function prune() { registry = registry.filter(function (d) { return d.isConnected; }); }
   function closeAll() { prune(); openState = {}; registry.forEach(function (d) { d.open = false; }); }
-  function onTabChange() { closeAll(); }
+  // 투자 대분류(gtab-invest)가 활성일 때만 띠를 보인다. 탭 표시가 없으면(시험 등) 그대로 둔다.
+  function inInvest() { var g = typeof document !== 'undefined' && document.getElementById('gtab-invest'); return !g || g.classList.contains('active'); }
+  function applyScope() { var b = typeof document !== 'undefined' && document.getElementById('hasBriefStrip'); if (b) b.classList.toggle('hdb-off', !inInvest()); }
+  function onTabChange() { closeAll(); applyScope(); }
   function item(it, kind) {
     var li = el('div', 'hdb-item'); li.setAttribute('data-testid', 'hdb-item-' + kind);
     var row = el('div', 'hdb-row'); row.appendChild(el('b', '', it.ticker)); row.appendChild(el('span', 'hdb-op', it.opinion || '판단 보류')); li.appendChild(row);
@@ -153,7 +156,7 @@
       c.risks.concat(c.checks).forEach(function (r) { rs.appendChild(el('div', IMPORTANT.indexOf(r.type) >= 0 ? 'hdb-warn' : 'hdb-note', r.text + (r.basis ? ' [' + r.basis + ']' : ''))); }); body.appendChild(rs); }
     body.appendChild(el('div', 'hdb-note', NOTE));
     var go = el('button', 'hdb-go', 'AI 참모에서 자세히'); go.type = 'button'; go.setAttribute('data-testid', 'hs-strip-open'); go.addEventListener('click', function (e) { e.stopPropagation(); if (openStaff) openStaff(); }); body.appendChild(go);
-    d.appendChild(body); wire(d, 'strip', body);
+    d.appendChild(body); wire(d, 'strip', body); box.classList.toggle('hdb-off', !inInvest());
   }
   /* 가격 신뢰도 띠: 원본(price-trust-ui, 보호 파일)이 그린 details를 같은 버튼 패턴으로만 바꾼다. 경고 문구는 그대로·항상 보임. */
   function enhancePriceTrust() {
@@ -168,5 +171,5 @@
     try { enhancePriceTrust(); } catch (e) { }
   }
   if (typeof document !== 'undefined') document.addEventListener('DOMContentLoaded', install);
-  return Object.freeze({ KINDS: KINDS, NOTE: NOTE, classify: classify, verify: verify, summaryText: summaryText, renderStrip: renderStrip, enhancePriceTrust: enhancePriceTrust, closeAll: closeAll, onTabChange: onTabChange, install: install });
+  return Object.freeze({ KINDS: KINDS, NOTE: NOTE, classify: classify, verify: verify, summaryText: summaryText, renderStrip: renderStrip, enhancePriceTrust: enhancePriceTrust, closeAll: closeAll, onTabChange: onTabChange, inInvest: inInvest, install: install });
 });

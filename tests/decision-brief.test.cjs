@@ -111,7 +111,21 @@ test('정적: 앱 연결은 최소 변경(스크립트·CSS 추가, 탭 전환 �
   a.match(html, /HASDecisionBrief\.onTabChange\(tab\);\n  if\(window\.HASPriceTrustUI\) window\.HASPriceTrustUI\.refresh\(\);/);
   a.match(ap, /if \(W\.HASDecisionBrief\) \{ W\.HASDecisionBrief\.renderStrip\(s, c, [^\n]+\n      var t = el\('span', '', '🧭 오늘의 투자 브리핑: '/);
   for (const m of css.matchAll(/font(?:-size)?:[^;}]*?(\d+)px/g)) a.ok(Number(m[1]) >= 12, m[0]);
-  a.match(css, /#subtabs-risk\{flex-wrap:wrap;overflow-x:visible/);
+  a.doesNotMatch(css, /#subtabs-risk/, '위험관리 하위 메뉴는 원래 가로 스크롤 그대로(순태씨 2026-11-16)');
+  a.match(css, /#hasBriefStrip\.hdb\.hdb-off\{display:none\}/);
+});
+
+test('순태씨 2026-11-16: 오늘의 투자 판단 띠는 투자 대분류에서만 보이고 위험관리·자산관리·설정에서는 숨김', () => {
+  const w = new JSDOM('<!doctype html><body><button class="gtab active" id="gtab-invest"></button><button class="gtab" id="gtab-risk"></button><div id="hasPriceTrust"></div><div id="hasBriefStrip"></div></body>', { runScripts: 'outside-only' }).window;
+  w.eval(read('has/decision-brief.js')); const D2 = w.HASDecisionBrief, box = w.document.getElementById('hasBriefStrip');
+  const gi = w.document.getElementById('gtab-invest'), gr = w.document.getElementById('gtab-risk');
+  D2.renderStrip(box, { brief: brief(forty()) }, () => { });
+  a.equal(box.classList.contains('hdb-off'), false, '투자 탭: 보임'); a.match(box.textContent, /판단 보류 40/);
+  gi.classList.remove('active'); gr.classList.add('active'); D2.onTabChange('principledash');
+  a.equal(box.classList.contains('hdb-off'), true, '위험관리: 숨김');
+  D2.renderStrip(box, { brief: brief(forty()) }, () => { }); a.equal(box.classList.contains('hdb-off'), true, '다시 그려도 숨김 유지');
+  gr.classList.remove('active'); gi.classList.add('active'); D2.onTabChange('dashboard');
+  a.equal(box.classList.contains('hdb-off'), false, '투자 탭 복귀: 다시 보임');
 });
 
 test('CR-2 검증된 후보 계약: 신뢰성·근거·반론·출처·시각·실제/합성·보유·상충 중 하나라도 어긋나면 판단 보류(fail-closed)', () => {

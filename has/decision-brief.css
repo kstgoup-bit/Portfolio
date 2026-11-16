@@ -19,9 +19,8 @@ details>summary.hdb-toggle:focus-visible{outline:3px solid #1565c0;outline-offse
 .hdb-note{font-size:12px;color:#333;margin:2px 0}.hdb-warn{font-size:13px;color:#b71c1c;font-weight:700;margin:2px 0}
 .hdb-go{min-height:44px;padding:4px 12px;border:1px solid #0d47a1;border-radius:10px;background:#fff;color:#0d47a1;font:700 13px "Noto Sans KR",system-ui,sans-serif;cursor:pointer;margin-top:4px}
 #hasPriceTrust details[open]>.hdb-body{padding:2px 0 6px}
-/* 위험관리 하위 메뉴: 화면 너비 안에서 줄바꿈(가로 스크롤·잘림 없음) */
-#subtabs-risk{flex-wrap:wrap;overflow-x:visible;justify-content:flex-start}
-#subtabs-risk .tab,#subtabs-risk .has-risk-shortcut{flex:1 1 auto;max-width:100%;white-space:normal;text-align:center;padding:6px 8px;margin:2px 1px;font-size:13px}
+/* 오늘의 투자 판단은 투자 탭에서만 보인다(순태씨 2026-11-16). 위험관리 하위 메뉴는 원래 가로 스크롤로 되돌림. */
+#hasBriefStrip.hdb.hdb-off{display:none}
 /* 첫 화면 3분할 상태 카드(접힌 상태에서도 보임, CR-1) */
 .hdb-mini{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:4px 0}
 .hdb-mc{border:1px solid #90a4ae;border-radius:10px;background:#fff;padding:6px 4px;text-align:center;min-width:0;overflow-wrap:anywhere;display:flex;flex-direction:column;gap:2px}
