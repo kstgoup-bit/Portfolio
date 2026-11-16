@@ -7,6 +7,7 @@
 
 ## 최신 (2026-11-16)
 
+- 2026-11-16 10:10 지피 0930 CR-1(CIK 정합성)·CR-2(SEC 이용률 관문) 반영 `work/claude-sec-gas-20261116` `e4741d5` 재검토 요청 — 보고 CLAUDE-DEV-SEC-GAS-20261116.md(0-a).
 - 2026-11-16 SEC 재무 GAS 초안 `work/claude-sec-gas-20261116` 검토 요청 — 보고 CLAUDE-DEV-SEC-GAS-20261116.md, 배포 안내 GAS-SEC-FUNDAMENTAL-DEPLOY-GUIDE-20261116.md.
 - 2026-11-16 08:10 운영 반영: 위대한 기업 탭(읽기 전용·판단 보류) main `4b46fea` — 순태씨 '올려'.
 - 2026-11-16 07:10 지피 2330 APPROVE: 위대한 기업 운영 탭 연결 `work/claude-great-companies-20261115` `09d39c5` — 순태씨 운영 반영 승인 대기. 보고 CLAUDE-DEV-GREAT-COMPANIES-20261115.md(0-j).

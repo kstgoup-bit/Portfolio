@@ -1,16 +1,28 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
-STATUS: READY_FOR_REVIEW (SEC 재무 수집 GAS 초안 — 저장소 한정, GAS·운영 미반영) · 운영 최신 = main `19e5328`+문서 · 위대한 기업 탭 운영 중
-REPORT: docs/team/CLAUDE-DEV-SEC-GAS-20261116.md (+ GAS-SEC-FUNDAMENTAL-DEPLOY-GUIDE-20261116.md)
+STATUS: READY_FOR_REVIEW (SEC 재무 GAS 초안 — GPT-REVIEW-sec-gas-20261116-0930 CR-1/CR-2 반영, 저장소 한정, GAS·운영 미반영) · 운영 최신 = main `4b46fea`+문서 · 위대한 기업 탭 운영 중
+REPORT: docs/team/CLAUDE-DEV-SEC-GAS-20261116.md(0-a절) (+ GAS-SEC-FUNDAMENTAL-DEPLOY-GUIDE-20261116.md)
 BRANCH: work/claude-sec-gas-20261116
-HEAD: e375ba748cacee9cbabf89baaa138d435e251b29 · 검토 BASE 9953af8bafc659f06426897713f5b1d569d3896a
-UPDATED: 2026-11-16 (순태씨 대화 '진행')
+HEAD: e4741d5736819d16b53c17f397c126f575265216 (코드) · 보고 커밋 9d4bbf9(docs만) · 검토 BASE e375ba748cacee9cbabf89baaa138d435e251b29
+UPDATED: 2026-11-16 10:10 KST (정각 실행)
 
-- gas/has-sec-fundamental.gs: type=fundamental&tickers=(≤6) → SEC companyfacts → normalize() 응답. 티커만 전송, 키·비용 없음, UA는 순태씨가 배포 때 입력. 시험 신규 7건, 전체 2206 중 2204 통과/0 실패/2 skip, 비밀값 0.
-- 미검증: 실제 SEC·GAS 실행시간·할당량. 앱 연결(응답→카드)은 다음 단계. GAS 반영은 순태씨 승인 필요.
-- 지피 지시서 현황: 새 GPT-ORDER 없음. 지피 검토 요청(REVIEW-SCOPE 보고서 머리말).
+- CR-1: 원본 raw.cik = URL CIK일 때만 ok:true(누락 sec-cik-missing, 불일치·형식 위반 sec-cik-mismatch, 그 종목만 보류), 캐시 키에 CIK, 캐시 값 재검증.
+- CR-2: 지도+회사자료 모든 SEC 요청이 잠금 관문 통과 — 실행 합산 250ms 간격·분당 60건, 잠금 실패 sec-busy, 429/403 → 10분 전체 중단(재요청 없음), 티커별 CIK 캐시로 지도 재조회 0.
+- 시험 신규 11건, 전체 2217 중 2215 통과/0 실패/2 skip, 비밀값 0. 병렬은 합성 시험(실 GAS 아님). 실 SEC·GAS 미검증.
+- 지피 지시서 현황: 새 GPT-ORDER 없음. GPT-REVIEW-sec-gas-20261116-0930 CHANGES_REQUESTED 처리 → 지피 재검토 요청.
 
 ## 이전 기록
+
+- (이전) STATUS: READY_FOR_REVIEW (SEC 재무 수집 GAS 초안 — 저장소 한정, GAS·운영 미반영) · 운영 최신 = main `19e5328`+문서 · 위대한 기업 탭 운영 중
+- (이전) REPORT: docs/team/CLAUDE-DEV-SEC-GAS-20261116.md (+ GAS-SEC-FUNDAMENTAL-DEPLOY-GUIDE-20261116.md)
+- (이전) BRANCH: work/claude-sec-gas-20261116
+- (이전) HEAD: e375ba748cacee9cbabf89baaa138d435e251b29 · 검토 BASE 9953af8bafc659f06426897713f5b1d569d3896a
+- (이전) UPDATED: 2026-11-16 (순태씨 대화 '진행')
+
+- (이전) gas/has-sec-fundamental.gs: type=fundamental&tickers=(≤6) → SEC companyfacts → normalize() 응답. 티커만 전송, 키·비용 없음, UA는 순태씨가 배포 때 입력. 시험 신규 7건, 전체 2206 중 2204 통과/0 실패/2 skip, 비밀값 0.
+- (이전) 미검증: 실제 SEC·GAS 실행시간·할당량. 앱 연결(응답→카드)은 다음 단계. GAS 반영은 순태씨 승인 필요.
+- (이전) 지피 지시서 현황: 새 GPT-ORDER 없음. 지피 검토 요청(REVIEW-SCOPE 보고서 머리말).
+
 
 - (이전) STATUS: RELEASED — 위대한 기업 운영 탭 연결 운영 반영 (순태씨 2026-11-16 '올려', 지피 2330 APPROVE) · 운영 최신 = main `4b46fea` · 지피 사후 검토 요청 유지: 뉴스 코드 완전 삭제 `d3f5fcc`
 - (이전) REPORT: docs/team/CLAUDE-DEV-GREAT-COMPANIES-20261115.md(0-j절)
