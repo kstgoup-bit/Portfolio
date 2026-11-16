@@ -2872,6 +2872,8 @@ function findBenchAtOrBefore(hist,targetTs,id) {
   var dis=benchChartConflicts(g),r=HASBenchmarkHistory.selectPointAtOrBefore(hist,id,targetTs,{now:nowMs,sameDayAfterClose:true,conflicts:dis});
   // 당일 종가가 보류 충돌이면 그 값을 쓰지 않고 이전 거래일 종가로 되돌아간다(선이 끊기지 않게). 이전 날짜도 충돌이면 기존처럼 비운다.
   if(!r.ok&&r.reason==="benchmark-date-conflict")r=HASBenchmarkHistory.selectPointAtOrBefore(hist,id,targetTs,{now:nowMs,conflicts:dis});
+  // 그래프 전용: 직전 거래일도 충돌이면 충돌 날짜를 건너뛰고 그 이전의 충돌 없는 마지막 종가로 선을 잇는다(선이 통째로 끊기지 않게). 저장값·충돌 기록·수익률 평가는 그대로.
+  if(!r.ok&&r.reason==="benchmark-date-conflict"&&sp&&Qm){try{var bad=Object.create(null);dis.forEach(function(x){bad[x.d]=1;});var okRows=hist.filter(function(p){var dd=p&&typeof p.d==="string"?p.d:(p&&typeof p.ts==="number"?Qm.marketDate(new Date(p.ts).toISOString(),sp.market):null);return dd&&!bad[dd];});r=HASBenchmarkHistory.selectPointAtOrBefore(okRows,id,targetTs,{now:nowMs,conflicts:[]});}catch(e){}}
   return (c.map[ck]=r.ok?r.point:null);
 }
 var _benchSelCache={hist:null,len:-1,state:null,at:0,map:null};

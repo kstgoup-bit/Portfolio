@@ -323,6 +323,10 @@
     [
       "  if(window.HASPretradePanel) window.HASPretradePanel.onTabChange(tab);\n  if(window.HASDecisionBrief) window.HASDecisionBrief.onTabChange(tab);\n  if(window.HASPriceTrustUI) window.HASPriceTrustUI.refresh();\n  if(window.HASAdvisorPanel) window.HASAdvisorPanel.refresh();\n  if(typeof hasSyncRiskTabHighlight",
       "  if(window.HASPretradePanel) window.HASPretradePanel.onTabChange(tab);\n  if(window.HASPriceTrustUI) window.HASPriceTrustUI.refresh();\n  if(window.HASAdvisorPanel) window.HASAdvisorPanel.refresh();\n  if(typeof hasSyncRiskTabHighlight"
+    ],
+    [
+      "  if(!r.ok&&r.reason===\"benchmark-date-conflict\")r=HASBenchmarkHistory.selectPointAtOrBefore(hist,id,targetTs,{now:nowMs,conflicts:dis});\n  // 그래프 전용: 직전 거래일도 충돌이면 충돌 날짜를 건너뛰고 그 이전의 충돌 없는 마지막 종가로 선을 잇는다(선이 통째로 끊기지 않게). 저장값·충돌 기록·수익률 평가는 그대로.\n  if(!r.ok&&r.reason===\"benchmark-date-conflict\"&&sp&&Qm){try{var bad=Object.create(null);dis.forEach(function(x){bad[x.d]=1;});var okRows=hist.filter(function(p){var dd=p&&typeof p.d===\"string\"?p.d:(p&&typeof p.ts===\"number\"?Qm.marketDate(new Date(p.ts).toISOString(),sp.market):null);return dd&&!bad[dd];});r=HASBenchmarkHistory.selectPointAtOrBefore(okRows,id,targetTs,{now:nowMs,conflicts:[]});}catch(e){}}\n",
+      "  if(!r.ok&&r.reason===\"benchmark-date-conflict\")r=HASBenchmarkHistory.selectPointAtOrBefore(hist,id,targetTs,{now:nowMs,conflicts:dis});\n"
     ]
   ],
   "radar/ui.js": [

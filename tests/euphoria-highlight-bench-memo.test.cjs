@@ -39,3 +39,23 @@ test('진단 문구에 충돌 날짜와 현재 선택 결과(당일허용/전날
   assert.match(html,/지금 선택: 당일허용 /);assert.match(html,/충돌날짜 /);
   const fn=/function benchDiagText\(\)\{[\s\S]*?\n\}\n/.exec(html)[0];assert.doesNotMatch(fn,/localStorage|setItem/);
 });
+test('직전 거래일도 충돌이면 충돌 날짜를 건너뛰어 충돌 없는 마지막 종가로 잇는다(그래프 전용, 입력 불변)',()=>{
+  const src=/function findBenchAtOrBefore\(hist,targetTs,id\) \{[\s\S]*?\n\}\nvar _benchSelCache[^\n]*\n/.exec(html)[0];
+  const day=s=>Date.parse(s+'T14:30:00Z');
+  const rows=['2026-11-10','2026-11-11','2026-11-12','2026-11-13'].map((d,i)=>({ts:day(d),close:100+i}));
+  const dateOf=p=>new Date(p.ts).toISOString().slice(0,10);
+  const calls=[];
+  const H={specs:{QQQ:{market:'US'}},closeTimeMs:()=>0,selectPointAtOrBefore(rs,id,t,o){calls.push(rs.length);
+    const bad=(o.conflicts||[]).map(c=>c.d);const last=[...rs].filter(p=>p.ts<t&&!bad.includes(dateOf(p))&&dateOf(p)<new Date(t).toISOString().slice(0,10)).pop();
+    if(!last&&(o.conflicts||[]).length)return {ok:false,reason:'benchmark-date-conflict'};
+    const sel=[...rs].filter(p=>p.ts<t).pop();if(sel&&(o.conflicts||[]).some(c=>c.d===dateOf(sel)))return {ok:false,reason:'benchmark-date-conflict'};
+    return sel?{ok:true,point:sel}:{ok:false,reason:'no-prior-observation'};}};
+  const state={ok:true,series:{QQQ:{ok:true,pendingConflicts:[{d:'2026-11-12',status:'pending-review',existing:{close:102},alternative:{close:90}},{d:'2026-11-13',status:'pending-review',existing:{close:103},alternative:{close:90}}]}}};
+  const f=new Function('window','HASBenchmarkHistory','benchmarkHistory','_benchState','_benchSelCache','benchChartConflicts','Date',src+';return findBenchAtOrBefore;');
+  const hist=rows,bh={KS200:[],NDX:hist,SPY:[]};
+  const fn=f({HASQuoteModel:{marketDate:(iso)=>iso.slice(0,10)},HASBenchmarkHistory:H},H,bh,state,{hist:null,len:-1,state:null,at:0,map:null},g=>g.pendingConflicts,Date);
+  const r=fn(hist,Date.now(),'QQQ');
+  assert.ok(r&&r.close===101,'11-12·11-13 충돌이면 11-11 종가(101)로 잇는다');
+  assert.equal(hist.length,4,'입력 기록은 그대로');
+  assert.match(html,/그래프 전용: 직전 거래일도 충돌이면/);
+});
