@@ -18,7 +18,7 @@
     var s = Object.assign({}, DEF, settings || {}), q = stock.quote, held = !!stock.held;
     if (!fin(s.reviewWeightPct)||s.reviewWeightPct<=0||s.reviewWeightPct>100) s.reviewWeightPct=10;
     var wt = ctx && fin(ctx.weightPct) ? ctx.weightPct : null, cash = ctx && fin(ctx.cashPct) ? ctx.cashPct : null;
-    var adv = { ticker: stock.ticker, name: stock.name || stock.ticker, asOf: nowISO, opinion: '판단 보류', aggressive: null, defensive: null,
+    var adv = { ticker: stock.ticker, market: stock.market === 'KR' || stock.market === 'US' ? stock.market : null, name: stock.name || stock.ticker, asOf: nowISO, opinion: '판단 보류', aggressive: null, defensive: null,
       facts: [], estimates: [], reasonsFor: [], reasonsAgainst: [], unknown: w.missing.slice(), risks: [], holding: { held: held, weightPct: wt, cashPct: cash },
       conditions: { buyReview: [], sellReview: [] }, checks: [], dataQuality: { ok: w.dataGate.ok, why: w.dataGate.why.slice() }, independence: INDEPENDENCE, notice: NOTICE, source: q && q.source || null, synthetic:!!(q&&q.synthetic), basis:q&&q.synthetic?'synthetic':'real' };
     if (!w.dataGate.ok) { adv.reasonsAgainst.push('시세를 신뢰할 수 없어 판단하지 않습니다: ' + w.dataGate.why.join(', ')); adv.checks.push('시세 출처·기준일·독립 대조 확인'); adv.aggressive = { stance: '판단 보류', why: ['자료 부족'] }; adv.defensive = { stance: '판단 보류', why: ['자료 부족'] }; return adv; }

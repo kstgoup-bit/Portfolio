@@ -8,8 +8,8 @@
     gemini: '기존 Gemini 자문: 사용자가 요청할 때 서술형 의견을 만든다. 근거 수치를 이 모듈이 검증하지 않는다.',
     rules: '신규 규칙 점검: 확인된 시세·재무·보유 비중만으로 신호와 4가지 의견(매수 검토/보유/비중 축소 검토/판단 보류)을 만든다. 자료가 부족하면 판단 보류.'
   });
-  function hold(ticker, name, why, basis, nowISO, heldFlag) {
-    return { ticker: ticker, name: name || ticker, asOf: nowISO, opinion: '판단 보류', aggressive: { stance: '판단 보류', why: [] }, defensive: { stance: '판단 보류', why: [] }, facts: [], estimates: [],
+  function hold(ticker, name, why, basis, nowISO, heldFlag, market) {
+    return { ticker: ticker, market: market === 'KR' || market === 'US' ? market : null, name: name || ticker, asOf: nowISO, opinion: '판단 보류', aggressive: { stance: '판단 보류', why: [] }, defensive: { stance: '판단 보류', why: [] }, facts: [], estimates: [],
       reasonsFor: [], reasonsAgainst: ['판단에 필요한 자료가 없습니다: ' + why], unknown: [why], risks: [], holding: { held: heldFlag !== false }, conditions: { buyReview: [], sellReview: [] },
       checks: ['시세·재무 자료를 확인된 출처로 준비'], dataQuality: { ok: false, why: [why] }, independence: A.INDEPENDENCE, notice: A.NOTICE, source: null, basis: basis };
   }
@@ -28,14 +28,14 @@
       targets.forEach(function (h) {
         try {
           var q = ex.quotes && ex.quotes[h.ticker];
-          if (!q) { out.advices.push(hold(h.ticker, h.name, '확인된 시세 없음', out.basis, nowISO, !!h.held)); return; }
+          if (!q) { out.advices.push(hold(h.ticker, h.name, '확인된 시세 없음', out.basis, nowISO, !!h.held, h.market)); return; }
           var stock = { ticker: h.ticker, name: h.name || h.ticker, market: h.market, quote: q, high52w: ex.high52w && ex.high52w[h.ticker] || null, returns: ex.returns && ex.returns[h.ticker] || null,
             fundamentals: ex.fundamentals && ex.fundamentals[h.ticker] || null, thesis: ex.thesis && ex.thesis[h.ticker] || null, held: h.held };
           var ctx = { weightPct: h.weightPct, weightBasis: 'app-entered', cashPct: p.cashPct, cashBasis: 'app-entered', market: ex.market || null };
           var w = W.evaluateStock(stock, ctx, nowISO), a = A.analyze(stock, w, ctx, nowISO), g = G.guard(a, nowISO);
-          if (!g.ok) { out.errors.push(h.ticker + ': 조언 검증 실패 — ' + g.errors.join(' | ')); out.advices.push(hold(h.ticker, h.name, '조언 검증 실패로 표시하지 않음', out.basis, nowISO, !!h.held)); return; }
+          if (!g.ok) { out.errors.push(h.ticker + ': 조언 검증 실패 — ' + g.errors.join(' | ')); out.advices.push(hold(h.ticker, h.name, '조언 검증 실패로 표시하지 않음', out.basis, nowISO, !!h.held, h.market)); return; }
           a.basis = out.basis; a.signals = w.signals; out.advices.push(a);
-        } catch (e) { out.errors.push(h.ticker + ': 분석 모듈 오류 — ' + (e && e.message || e)); out.advices.push(hold(h.ticker, h.name, '분석 모듈 오류', out.basis, nowISO, !!h.held)); }
+        } catch (e) { out.errors.push(h.ticker + ': 분석 모듈 오류 — ' + (e && e.message || e)); out.advices.push(hold(h.ticker, h.name, '분석 모듈 오류', out.basis, nowISO, !!h.held, h.market)); }
       });
       var pf = W.evaluatePortfolio({ cashPct: p.cashPct, market: ex.market || null, fx: ex.fx || null }, nowISO); out.portfolioSignals = pf.signals; out.portfolioMissing = pf.missing;
       if (out.errors.length) out.status = 'partial';

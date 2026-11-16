@@ -33,6 +33,7 @@ F.prototype=Orig.prototype;F.supportedLocalesOf=Orig.supportedLocalesOf;Intl.Dat
 <link rel="stylesheet" href="has/risk-menu-shortcuts.css">
 <link rel="stylesheet" href="has/readability.css">
 <link rel="stylesheet" href="has/advisor-panel.css">
+<link rel="stylesheet" href="has/decision-brief.css">
 <link rel="stylesheet" href="has/pretrade-panel.css">
 <script defer src="invest/ledger.js"></script>
 <script defer src="has/ledger-demo-model.js"></script>
@@ -51,6 +52,7 @@ F.prototype=Orig.prototype;F.supportedLocalesOf=Orig.supportedLocalesOf;Intl.Dat
 <script defer src="has/opinion-conflict.js"></script>
 <script defer src="has/advisor-synthetic.js"></script>
 <script defer src="has/advisor-panel.js"></script>
+<script defer src="has/decision-brief.js"></script>
 <script defer src="has/pretrade-log.js"></script>
 <script defer src="has/pretrade-panel.js"></script>
 <meta name="mobile-web-app-capable" content="yes">
@@ -7293,6 +7295,7 @@ function switchTab(tab) {
   if(window.HASLedgerDemo) window.HASLedgerDemo.onTabChange(tab);
   if(window.HASAdvisorPanel) window.HASAdvisorPanel.onTabChange(tab);
   if(window.HASPretradePanel) window.HASPretradePanel.onTabChange(tab);
+  if(window.HASDecisionBrief) window.HASDecisionBrief.onTabChange(tab);
   if(window.HASPriceTrustUI) window.HASPriceTrustUI.refresh();
   if(window.HASAdvisorPanel) window.HASAdvisorPanel.refresh();
   if(typeof hasSyncRiskTabHighlight==="function") hasSyncRiskTabHighlight();
