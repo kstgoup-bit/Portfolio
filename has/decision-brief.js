@@ -2,7 +2,7 @@
    읽기 전용: 브리핑 계산 결과(advisor-panel compute)만 받아 분류·표시한다. 저장소·네트워크·주문 없음, 입력을 바꾸지 않는다.
    분류 원칙: 규칙 엔진(advisor-core)이 근거를 모두 갖춰 낸 의견만 후보로 센다 — '매수 검토'(재무·투자 논리 이상 없음 + 가격 조건),
    '비중 축소 검토'(가치·재무·경쟁력·비용·재진입 위험 검토 완료) → 매도 검토, '보유'(재무·투자 논리 이상 없음) → 장기보유.
-   그 밖의 모든 의견·알 수 없는 값은 판단 보류(사유 표시). 가격 하락·고점 근접만으로는 어떤 후보도 되지 않는다(엔진이 판단 보류로 냄).
+   그 밖의 모든 의견·알 수 없는 값, 그리고 verify() 검증 계약(자료 신뢰성·근거·반론·출처 사실·기준 시각·실제/합성·보유 여부·상충)을 못 넘은 의견은 판단 보류(사유 표시). 가격 하락·고점 근접만으로는 어떤 후보도 되지 않는다(엔진이 판단 보류로 냄).
    가격 신뢰도·중요 위험 한 줄은 접힌 상태에서도 항상 보인다. */
 (function (root, factory) { if (typeof module === 'object' && module.exports) module.exports = factory(); else root.HASDecisionBrief = factory(); })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
   'use strict';
@@ -15,21 +15,44 @@
   var NOTE = '가격 하락·고점 근접만으로는 후보가 되지 않습니다. 재무·투자 논리·출처·기준일이 확인된 규칙 엔진 의견만 셉니다. 매수·매도 결정과 주문은 직접 하십시오.';
   function str(x) { return typeof x === 'string' ? x : ''; }
   function first(a) { return Array.isArray(a) && a.length ? str(typeof a[0] === 'object' && a[0] ? a[0].text : a[0]) : ''; }
+  function texts(a) { return Array.isArray(a) ? a.map(function (x) { return str(typeof x === 'object' && x ? x.text : x).trim(); }).filter(Boolean) : []; }
+  /* 검증된 후보 계약(fail-closed, GPT-REVIEW-risk-briefing-20261116-1230 CR-2): 원본 엔진·가드를 통과했더라도 여기서 다시 확인한다.
+     하나라도 빠지거나 상충하면 후보로 세지 않고 판단 보류 + 사유. 반환: 보류 사유 문자열 또는 ''(통과). */
+  function verify(a, k, brief) {
+    var b = str(a.basis), bb = str(brief.basis);
+    if (b !== 'real' && b !== 'synthetic') return '자료 구분(실제/합성) 없음';
+    if (b === 'synthetic' && bb !== 'synthetic') return '실제 화면에 합성 자료 의견';
+    if (b === 'real' && bb === 'synthetic') return '합성 화면에 실제 자료 의견';
+    if (!a.dataQuality || a.dataQuality.ok !== true) return '자료 신뢰성 미확인';
+    if (!texts(a.reasonsFor).length) return '근거 없음';
+    if (!texts(a.reasonsAgainst).length) return '반론 없음';
+    if (!Array.isArray(a.facts) || !a.facts.length || a.facts.some(function (f) { return !f || typeof f !== 'object' || !str(f.text).trim() || !str(f.source).trim(); })) return '출처가 확인된 사실 없음';
+    var t = Date.parse(str(a.asOf)); if (!str(a.asOf) || isNaN(t)) return '기준 시각 없음';
+    var g = Date.parse(str(brief.generatedAt)); if (!isNaN(g) && t > g + 60000) return '기준 시각이 미래';
+    var held = !!(a.holding && a.holding.held === true);
+    if ((k === 'sell' || k === 'hold') && !held) return k === 'sell' ? '미보유 종목의 매도 검토' : '미보유 종목의 장기보유';
+    return '';
+  }
   /* brief: briefing-model 결과. 반환값은 새 객체(입력 불변). */
   function classify(brief) {
     var out = { buy: [], sell: [], hold: [], pending: [], risks: [], checks: [], total: 0, ok: false };
     if (!brief || typeof brief !== 'object') return out;
     var advices = [].concat(Array.isArray(brief.opinions) ? brief.opinions : [], Array.isArray(brief.buyCandidates) ? brief.buyCandidates : []);
-    var seen = {};
+    var groups = {}, order = [];
     advices.forEach(function (a) {
-      if (!a || typeof a !== 'object' || typeof a.ticker !== 'string') return;
-      if (seen[a.ticker]) return; seen[a.ticker] = 1; out.total++;
-      var item = { ticker: a.ticker, opinion: str(a.opinion), held: !!(a.holding && a.holding.held), reason: '', against: first(a.reasonsAgainst), asOf: str(a.asOf || a.generatedAt), basis: str(a.basis) };
+      if (!a || typeof a !== 'object' || typeof a.ticker !== 'string' || !a.ticker) return;
+      if (!groups[a.ticker]) { groups[a.ticker] = []; order.push(a.ticker); } groups[a.ticker].push(a);
+    });
+    order.forEach(function (tk) {
+      var g = groups[tk], a = g[0]; out.total++;
+      var item = { ticker: tk, opinion: str(a.opinion), held: !!(a.holding && a.holding.held === true), reason: '', against: first(a.reasonsAgainst), asOf: str(a.asOf || a.generatedAt), basis: str(a.basis) };
       var k = null; KINDS.forEach(function (x) { if (x.opinion === a.opinion) k = x.key; });
-      // 장기보유는 보유 종목만, 합성 자료는 실제 후보로 세지 않는다.
-      if (k === 'hold' && !item.held) k = null; if (item.basis === 'synthetic' && brief.basis !== 'synthetic') k = null;
-      if (k) { item.reason = first(a.reasonsFor) || '규칙 엔진 근거'; out[k].push(item); }
-      else { item.reason = item.against || first(a.unknown) || '근거 부족'; out.pending.push(item); }
+      var why = '';
+      // 같은 종목에 서로 다른 의견이 있으면 상충 → 판단 보류
+      if (g.some(function (x) { return str(x.opinion) !== item.opinion; })) why = '같은 종목 의견 상충';
+      else if (k) why = verify(a, k, brief);
+      if (k && !why) { item.reason = texts(a.reasonsFor)[0]; item.verified = true; out[k].push(item); }
+      else { item.reason = why || item.against || first(a.unknown) || '근거 부족'; item.verified = false; out.pending.push(item); }
     });
     (Array.isArray(brief.risks) ? brief.risks : []).forEach(function (r) {
       if (!r || typeof r !== 'object') return; var t = { id: str(r.id), type: str(r.type), text: str(r.text), basis: str(r.basis) };
@@ -78,12 +101,19 @@
     t.appendChild(document.createTextNode(computed && computed.brief ? summaryText(c) : '점검 불가')); t.appendChild(el('span', 'hdb-basis', ' (내 기록 기준 · 시장 감시 아님)'));
     head.appendChild(t);
     var d = collapsible('strip', '오늘의 투자 판단 상세'); head.appendChild(d); box.appendChild(head);
+    // 첫 화면(접힌 상태)에도 보이는 3분할 상태 카드 — 정확한 건수만, 종목·사유는 펼친 뒤에 (CR-1)
+    var mini = el('div', 'hdb-mini'); mini.setAttribute('data-testid', 'hdb-mini');
+    KINDS.forEach(function (k) {
+      var m = el('div', 'hdb-mc hdb-' + k.key); m.setAttribute('data-testid', 'hdb-card-' + k.key); m.setAttribute('aria-label', k.title + ' ' + c[k.key].length + '건');
+      m.appendChild(el('span', 'hdb-mc-t', k.title)); m.appendChild(el('b', 'hdb-mc-n', c[k.key].length + '건')); mini.appendChild(m);
+    });
+    box.appendChild(mini);
     // 중요 위험 한 줄은 접혀 있어도 항상 보인다.
     if (c.risks.length) { var w = el('div', 'hdb-risk', '⚠️ 중요 위험: ' + c.risks[0].text + (c.risks.length > 1 ? ' 외 ' + (c.risks.length - 1) + '건' : '')); w.setAttribute('role', 'alert'); w.setAttribute('data-testid', 'hdb-risk-line'); box.appendChild(w); }
     var body = el('div', 'hdb-body'); body.setAttribute('data-testid', 'hdb-body');
     var grid = el('div', 'hdb-cards');
     KINDS.forEach(function (k) {
-      var card = el('section', 'hdb-card hdb-' + k.key); card.setAttribute('data-testid', 'hdb-card-' + k.key);
+      var card = el('section', 'hdb-card hdb-' + k.key); card.setAttribute('data-testid', 'hdb-list-' + k.key);
       card.appendChild(el('h3', '', k.title + ' ' + c[k.key].length + '건'));
       if (!c[k.key].length) card.appendChild(el('div', 'hdb-note', k.empty + (c.pending.length ? ' — 판단 보류 ' + c.pending.length + '건은 아래 사유 참고' : '')));
       c[k.key].forEach(function (it) { card.appendChild(item(it, k.key)); });
@@ -114,5 +144,5 @@
     try { enhancePriceTrust(); } catch (e) { }
   }
   if (typeof document !== 'undefined') document.addEventListener('DOMContentLoaded', install);
-  return Object.freeze({ KINDS: KINDS, NOTE: NOTE, classify: classify, summaryText: summaryText, renderStrip: renderStrip, enhancePriceTrust: enhancePriceTrust, closeAll: closeAll, onTabChange: onTabChange, install: install });
+  return Object.freeze({ KINDS: KINDS, NOTE: NOTE, classify: classify, verify: verify, summaryText: summaryText, renderStrip: renderStrip, enhancePriceTrust: enhancePriceTrust, closeAll: closeAll, onTabChange: onTabChange, install: install });
 });

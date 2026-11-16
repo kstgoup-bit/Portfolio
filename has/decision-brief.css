@@ -22,3 +22,8 @@ details>summary.hdb-toggle:focus-visible{outline:3px solid #1565c0;outline-offse
 /* 위험관리 하위 메뉴: 화면 너비 안에서 줄바꿈(가로 스크롤·잘림 없음) */
 #subtabs-risk{flex-wrap:wrap;overflow-x:visible;justify-content:flex-start}
 #subtabs-risk .tab,#subtabs-risk .has-risk-shortcut{flex:1 1 auto;max-width:100%;white-space:normal;text-align:center;padding:6px 8px;margin:2px 1px;font-size:13px}
+/* 첫 화면 3분할 상태 카드(접힌 상태에서도 보임, CR-1) */
+.hdb-mini{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:4px 0}
+.hdb-mc{border:1px solid #90a4ae;border-radius:10px;background:#fff;padding:6px 4px;text-align:center;min-width:0;overflow-wrap:anywhere;display:flex;flex-direction:column;gap:2px}
+.hdb-mc-t{font-size:12px;font-weight:700;color:#333}.hdb-mc-n{font-size:16px}
+.hdb-mc.hdb-buy .hdb-mc-n{color:#1b5e20}.hdb-mc.hdb-sell .hdb-mc-n{color:#b71c1c}.hdb-mc.hdb-hold .hdb-mc-n{color:#0d47a1}
