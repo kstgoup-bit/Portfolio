@@ -26,6 +26,8 @@
     // CR-4: 상위 브리핑도 실제/합성이 확정돼야 하고 조언과 명시적으로 같아야 함(누락·빈 값 = 보류)
     if (bb !== 'real' && bb !== 'synthetic') return '브리핑 자료 구분(실제/합성) 없음';
     if (b !== bb) return '브리핑과 의견의 자료 구분 불일치';
+    // CR-5: 종목 시장 식별자(KR/US)가 없거나 비정상이면 다계좌 상충을 확인할 수 없으므로 보류
+    if (a.market !== 'KR' && a.market !== 'US') return '시장 식별자(KR/US) 없음';
     if (!a.dataQuality || a.dataQuality.ok !== true) return '자료 신뢰성 미확인';
     if (!texts(a.reasonsFor).length) return '근거 없음';
     if (!texts(a.reasonsAgainst).length) return '반론 없음';

@@ -22,7 +22,7 @@ test('① 미검증 40·위험 1 자료: 매수·매도·장기보유 0, 판단 
   for (const s of [read('has/decision-brief.js')]) { a.doesNotMatch(s, /판단 보류 40|위험 1['"]/); a.doesNotMatch(s, /AVGO|NVDA|MSFT/); a.doesNotMatch(s, /localStorage|sessionStorage|indexedDB|fetch\(|XMLHttpRequest/); }
 });
 
-const mk = (ticker, opinion, held, ext = {}) => Object.assign({ ticker, opinion, holding: { held }, reasonsFor: ['근거 ' + ticker], reasonsAgainst: ['반론 ' + ticker], basis: 'real', asOf: NOW, dataQuality: { ok: true, why: [] }, facts: [{ text: '사실 ' + ticker, source: '출처 ' + ticker }] }, ext);
+const mk = (ticker, opinion, held, ext = {}) => Object.assign({ ticker, market: 'US', opinion, holding: { held }, reasonsFor: ['근거 ' + ticker], reasonsAgainst: ['반론 ' + ticker], basis: 'real', asOf: NOW, dataQuality: { ok: true, why: [] }, facts: [{ text: '사실 ' + ticker, source: '출처 ' + ticker }] }, ext);
 
 test('② 근거가 모두 검증된 규칙 엔진 의견만 숫자가 바뀜(합성 예시: 매수 검토 1)', () => {
   const c = D.classify(brief(S.DATA, S.externals(), 'synthetic', S.NOW));
@@ -119,7 +119,7 @@ test('CR-2 검증된 후보 계약: 신뢰성·근거·반론·출처·시각·�
   // 기준: 모든 조건을 갖춘 실제 의견은 후보 1건
   a.equal(one(mk('OK', '매수 검토', false)).buy.length, 1);
   const cases = [
-    [{ ticker: 'X', opinion: '매수 검토', basis: 'real', dataQuality: { ok: false } }, '자료 신뢰성 미확인'],
+    [{ ticker: 'X', market: 'KR', opinion: '매수 검토', basis: 'real', dataQuality: { ok: false } }, '자료 신뢰성 미확인'],
     [mk('Q', '매수 검토', false, { dataQuality: { ok: false, why: ['미검증'] } }), '자료 신뢰성 미확인'],
     [mk('Q2', '매수 검토', false, { dataQuality: undefined }), '자료 신뢰성 미확인'],
     [mk('R', '매수 검토', false, { reasonsFor: [] }), '근거 없음'],
@@ -213,4 +213,36 @@ test('CR-4 브리핑 판단 시각·실제/합성 필수: 누락·손상·불일
   // 실제 엔진 경로: 합성 예시 유지, 'unspecified'(구분 미지정) 브리핑은 후보 0
   a.equal(D.classify(brief(S.DATA, S.externals(), 'synthetic', S.NOW)).buy.length, 1);
   const u = D.classify(brief(S.DATA, S.externals(), 'unspecified', S.NOW)); a.deepEqual([u.buy.length, u.sell.length, u.hold.length], [0, 0, 0]);
+});
+
+test('CR-5 시장 식별자 전달: portfolio-reader → advisor-bridge → advisor-core → briefing-model → decision-brief 실제 경로, KR/US 양쪽 계좌 같은 종목은 순서와 무관하게 판단 보류', () => {
+  const cnt = c => [c.buy.length, c.sell.length, c.hold.length, c.pending.length];
+  const gen = JSON.parse(S.DATA.v5_gen), ov = JSON.parse(S.DATA.v5_ov), kr2 = st(7, 'SYN-KR2', 10, 100, 60), kr2us = Object.assign({}, kr2, { id: 8, quantity: 10 / 1400 });
+  const run = d => { const g = k => d[k] === undefined ? null : d[k], br = B.run(g, S.externals(), S.NOW, { basis: 'synthetic' }); return { br, c: D.classify(M.build(R.read(g, { basis: 'synthetic', asOf: S.NOW }), br, S.NOW)) }; };
+  // 기준: 국내 계좌 1곳만 보유 → 엔진 의견에 market 'KR'이 실리고 검증된 후보 1건
+  const one = run(Object.assign({}, S.DATA, { v5_gen: JSON.stringify(gen.concat([kr2])) }));
+  const kAdv = one.br.advices.find(x => x.ticker === 'SYN-KR2'); a.equal(kAdv.market, 'KR'); a.equal(one.c.buy.length, 1); a.equal(one.c.buy[0].ticker, 'SYN-KR2');
+  for (const x of one.br.advices) a.ok(x.market === 'KR' || x.market === 'US', x.ticker + ' 시장 식별자 전달');
+  a.equal(one.br.advices.find(x => x.ticker === 'SYN-US2').market, 'US', '관심종목·보류 조언(hold)도 시장 전달');
+  // 같은 종목이 국내·해외 계좌 양쪽 → 입력 순서와 무관하게 종목 전체 판단 보류
+  const both = [Object.assign({}, S.DATA, { v5_gen: JSON.stringify(gen.concat([kr2])), v5_ov: JSON.stringify(ov.concat([kr2us])) }),
+    Object.assign({}, S.DATA, { v5_gen: JSON.stringify([kr2].concat(gen)), v5_ov: JSON.stringify([kr2us].concat(ov)) }),
+    Object.assign({}, S.DATA, { v5_ov: JSON.stringify([kr2us].concat(ov)), v5_gen: JSON.stringify(gen.concat([kr2])) })];
+  for (const d of both) {
+    const r = run(d), ms = r.br.advices.filter(x => x.ticker === 'SYN-KR2').map(x => x.market).sort();
+    a.deepEqual(ms, ['KR', 'US'], '계좌별 시장이 손실 없이 최종 조언까지');
+    a.equal(r.c.buy.length + r.c.sell.length + r.c.hold.length, 0); const p = r.c.pending.filter(x => x.ticker === 'SYN-KR2'); a.equal(p.length, 1); a.equal(p[0].verified, false);
+  }
+  // 실제 엔진이 만든 조언 그대로, 의견이 같아도 시장만 다르면 '기록 상충(시장)' (순서 무관)
+  const usCopy = Object.assign({}, kAdv, { market: 'US' }), b0 = { basis: 'synthetic', generatedAt: S.NOW, opinions: [], risks: [] };
+  for (const list of [[kAdv, usCopy], [usCopy, kAdv]]) { const c = D.classify(Object.assign({}, b0, { buyCandidates: list })); a.deepEqual(cnt(c), [0, 0, 0, 1]); a.match(c.pending[0].reason, /기록 상충\(시장\)/); }
+  // 시장 누락·비정상 값은 fail-closed
+  for (const m of [undefined, null, '', 'JP', 'kr', 1]) { const x = Object.assign({}, kAdv, { market: m }); const c = D.classify(Object.assign({}, b0, { buyCandidates: [x] })); a.deepEqual(cnt(c), [0, 0, 0, 1], String(m)); a.equal(c.pending[0].reason, '시장 식별자(KR/US) 없음'); }
+  // 관심종목 시장 값이 비정상이면 조언 market = null → 후보가 되지 않음(보류 조언 경로 포함)
+  const ext = S.externals(); ext.watchlist = [{ ticker: 'SYN-KR2', name: '합성 C', market: 'JP' }, { ticker: 'NOQ', name: '시세 없음' }];
+  const g = k => S.DATA[k] === undefined ? null : S.DATA[k], br = B.run(g, ext, S.NOW, { basis: 'synthetic' });
+  a.equal(br.advices.find(x => x.ticker === 'SYN-KR2').market, null); a.equal(br.advices.find(x => x.ticker === 'NOQ').market, null);
+  const c = D.classify(M.build(R.read(g, { basis: 'synthetic', asOf: S.NOW }), br, S.NOW)); a.equal(c.buy.length, 0);
+  // 화면 표시 항목에 계좌·금액 노출 없음(시장 식별자만 조언에 실림)
+  for (const x of br.advices) a.ok(!('account' in x) && !('valueKRW' in x), '계좌·금액 미포함');
 });

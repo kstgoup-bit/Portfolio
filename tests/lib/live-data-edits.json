@@ -424,5 +424,33 @@
       "  function boundary(fn){return function(){for(var i=0;i<arguments.length;i++)if(!plainData(arguments[i]))return fail('non-data-input');try{return fn.apply(null,arguments);}catch(e){return fail('invalid-input');}};}\n  return Object.freeze({specs:specs,closeTimeMs:closeTimeMs,limits:Object.freeze({bars:MAX_BARS,conflicts:MAX_CONFLICTS,bytes:MAX_BYTES}),readCache:boundary(readCache),parseTransportJSON:boundary(parseTransportJSON),validatePoint:boundary(validatePoint),validateSeries:boundary(series),observedDate:function(p,id){return plainData(p)?observedDate(p,id):null;},fingerprint:fingerprint,readStore:boundary(readStore),validateStore:boundary(validateStore),validateObservation:boundary(validateObservation),mergeHistoryStore:boundary(mergeHistoryStore),selectPointAtOrBefore:boundary(selectPointAtOrBefore),admitCandidate:boundary(admitCandidate),parseYahoo:boundary(parseYahoo),parseAlphaVantage:boundary(parseAlphaVantage),parseGasHistory:boundary(parseGasHistory),mergeSeries:boundary(mergeSeries),describe:boundary(describe),liveGasEnabled:true});\n});\n",
       "  function boundary(fn){return function(){for(var i=0;i<arguments.length;i++)if(!plainData(arguments[i]))return fail('non-data-input');try{return fn.apply(null,arguments);}catch(e){return fail('invalid-input');}};}\n  return Object.freeze({specs:specs,limits:Object.freeze({bars:MAX_BARS,conflicts:MAX_CONFLICTS,bytes:MAX_BYTES}),readCache:boundary(readCache),parseTransportJSON:boundary(parseTransportJSON),validatePoint:boundary(validatePoint),validateSeries:boundary(series),observedDate:function(p,id){return plainData(p)?observedDate(p,id):null;},fingerprint:fingerprint,readStore:boundary(readStore),validateStore:boundary(validateStore),validateObservation:boundary(validateObservation),mergeHistoryStore:boundary(mergeHistoryStore),selectPointAtOrBefore:boundary(selectPointAtOrBefore),admitCandidate:boundary(admitCandidate),parseYahoo:boundary(parseYahoo),parseAlphaVantage:boundary(parseAlphaVantage),parseGasHistory:boundary(parseGasHistory),mergeSeries:boundary(mergeSeries),describe:boundary(describe),liveGasEnabled:true});\n});\n"
     ]
+  ],
+  "has/advisor-core.js": [
+    [
+      "    var adv = { ticker: stock.ticker, market: stock.market === 'KR' || stock.market === 'US' ? stock.market : null, name: stock.name || stock.ticker, asOf: nowISO, opinion: '판단 보류', aggressive: null, defensive: null,\n",
+      "    var adv = { ticker: stock.ticker, name: stock.name || stock.ticker, asOf: nowISO, opinion: '판단 보류', aggressive: null, defensive: null,\n"
+    ]
+  ],
+  "has/advisor-bridge.js": [
+    [
+      "  function hold(ticker, name, why, basis, nowISO, heldFlag, market) {\n",
+      "  function hold(ticker, name, why, basis, nowISO, heldFlag) {\n"
+    ],
+    [
+      "    return { ticker: ticker, market: market === 'KR' || market === 'US' ? market : null, name: name || ticker, asOf: nowISO, opinion: '판단 보류', aggressive: { stance: '판단 보류', why: [] }, defensive: { stance: '판단 보류', why: [] }, facts: [], estimates: [],\n",
+      "    return { ticker: ticker, name: name || ticker, asOf: nowISO, opinion: '판단 보류', aggressive: { stance: '판단 보류', why: [] }, defensive: { stance: '판단 보류', why: [] }, facts: [], estimates: [],\n"
+    ],
+    [
+      "          if (!q) { out.advices.push(hold(h.ticker, h.name, '확인된 시세 없음', out.basis, nowISO, !!h.held, h.market)); return; }\n",
+      "          if (!q) { out.advices.push(hold(h.ticker, h.name, '확인된 시세 없음', out.basis, nowISO, !!h.held)); return; }\n"
+    ],
+    [
+      "          if (!g.ok) { out.errors.push(h.ticker + ': 조언 검증 실패 — ' + g.errors.join(' | ')); out.advices.push(hold(h.ticker, h.name, '조언 검증 실패로 표시하지 않음', out.basis, nowISO, !!h.held, h.market)); return; }\n",
+      "          if (!g.ok) { out.errors.push(h.ticker + ': 조언 검증 실패 — ' + g.errors.join(' | ')); out.advices.push(hold(h.ticker, h.name, '조언 검증 실패로 표시하지 않음', out.basis, nowISO, !!h.held)); return; }\n"
+    ],
+    [
+      "        } catch (e) { out.errors.push(h.ticker + ': 분석 모듈 오류 — ' + (e && e.message || e)); out.advices.push(hold(h.ticker, h.name, '분석 모듈 오류', out.basis, nowISO, !!h.held, h.market)); }\n",
+      "        } catch (e) { out.errors.push(h.ticker + ': 분석 모듈 오류 — ' + (e && e.message || e)); out.advices.push(hold(h.ticker, h.name, '분석 모듈 오류', out.basis, nowISO, !!h.held)); }\n"
+    ]
   ]
 }
