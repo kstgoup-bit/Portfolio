@@ -1,13 +1,13 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
-STATUS: APPROVED_BY_GPT — 순태씨 '올려' 승인 대기 (위험관리 '오늘의 투자 판단', GPT-REVIEW-risk-briefing-20261116-1525 APPROVE, 정적 검토 한정) · 운영 최신 = main `4b46fea`+SEC GAS 파일·문서
+STATUS: DEPLOYED (순태씨 '올려' 16:xx KST, main `9036ed4`) — 갤럭시 실기기 확인 대기 (위험관리 '오늘의 투자 판단', GPT-REVIEW-risk-briefing-20261116-1525 APPROVE, 정적 검토 한정) · 운영 최신 = main `4b46fea`+SEC GAS 파일·문서
 REPORT: docs/team/CLAUDE-DEV-RISK-BRIEFING-20261116.md (0-d절)
 BRANCH: work/claude-risk-briefing-20261116
 HEAD: f63d62bd08b18ffff8b474728ed9bf77cf312b38 (코드, 승인 대상) · 보고 커밋 a8a057e(docs만)
 UPDATED: 2026-11-16 16:10 KST (정각 실행)
 
 - 지피 1525 APPROVE 기록. ORDER GPT-20261116-1030 종료. 코드 변경 0.
-- 운영 반영은 순태씨가 클로 대화창에서 '올려' 승인한 뒤에만. 이후 갤럭시 실기기 확인 필요.
+- 순태씨 '올려' 승인 → main `9036ed4` 병합·push(전체 2240 중 2238 통과/0 실패/2 skip, 비밀값 0). 갤럭시 실기기 확인 필요.
 - 지피 지시서 현황: 새 GPT-ORDER 없음. 다비 새 문서 없음.
 
 ## 이전 기록
