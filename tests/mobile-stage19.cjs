@@ -51,8 +51,10 @@ const txt = (page, sel) => page.locator(sel).innerText();
   for (const w of SIZES) await check('가격 신뢰도 띠: 모든 주요 탭에서 보이고 "미검증"을 명시, 근거 없는 표현 없음, 글씨·대비·가로 넘침 ' + w + 'px', async () => {
     const { ctx, page } = await open(w); const strip = page.locator('#hasPriceTrust'); await page.evaluate(() => { window.__writes.length = 0; });
     const tabs = [['#gtab-invest', null], ['#gtab-risk', null], ['#gtab-asset', null], ['#gtab-settings', null]];
-    for (const [sel] of tabs) { await page.locator(sel).click(); await page.waitForTimeout(150); assert.ok(await strip.isVisible(), sel + ' 에서 띠 안 보임'); const t = await strip.innerText(); assert.match(t, /미검증 가격 · 출처·기준시각 확인 필요/); assert.ok(!/실시간|공식|검증 완료/.test(t), t); }
-    await page.locator('#gtab-invest').click(); await page.locator('#subtabs-invest button').filter({ hasText: '해외' }).click(); assert.ok(await strip.isVisible());
+    // 순태씨 2026-11-16: 가격 신뢰도 띠는 투자 > 현황에서만 보임
+    for (const [sel] of tabs) { await page.locator(sel).click(); await page.waitForTimeout(150); if (sel !== '#gtab-invest') { assert.ok(!(await strip.isVisible()), sel + ' 에서 띠가 보임'); continue; } assert.ok(await strip.isVisible(), sel + ' 에서 띠 안 보임'); const t = await strip.innerText(); assert.match(t, /미검증 가격 · 출처·기준시각 확인 필요/); assert.ok(!/실시간|공식|검증 완료/.test(t), t); }
+    await page.locator('#gtab-invest').click(); await page.locator('#subtabs-invest button').filter({ hasText: '해외' }).click(); assert.ok(!(await strip.isVisible()), '해외에서 띠가 보임');
+    await page.locator('#subtabs-invest button').filter({ hasText: '현황' }).click(); assert.ok(await strip.isVisible());
     await strip.locator('summary').click(); const full = await strip.innerText(); for (const k of ['출처', '미확인', '저장된 이전 값', '바꾸지 않습니다', '판단 보류']) assert.ok(full.includes(k), k + ' / ' + full);
     const geo = await page.evaluate(() => { const r = document.getElementById('hasPriceTrust'), out = { sw: document.documentElement.scrollWidth, iw: innerWidth, small: [], over: [], low: [] };
       const lum = c => { const m = c.match(/\d+(\.\d+)?/g).map(Number), f = v => { v /= 255; return v <= .03928 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4); }; return .2126 * f(m[0]) + .7152 * f(m[1]) + .0722 * f(m[2]); };

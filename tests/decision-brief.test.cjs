@@ -271,3 +271,16 @@ test('CR-5 시장 식별자 전달: portfolio-reader → advisor-bridge → advi
   // 화면 표시 항목에 계좌·금액 노출 없음(시장 식별자만 조언에 실림)
   for (const x of br.advices) a.ok(!('account' in x) && !('valueKRW' in x), '계좌·금액 미포함');
 });
+
+test('순태씨 2026-11-16: 두 띠는 투자 > 현황에서만 — 일반·ISA·해외 등 다른 하위 탭에서는 숨김', () => {
+  const w = new JSDOM('<!doctype html><body><button class="gtab active" id="gtab-invest"></button><button class="gtab" id="gtab-risk"></button><div id="hasPriceTrust" class="hpt"></div><div id="hasBriefStrip"></div><div class="panel active" id="panel-dashboard"></div><div class="panel" id="panel-gen"></div></body>', { runScripts: 'outside-only' }).window;
+  w.eval(read('has/decision-brief.js')); const D2 = w.HASDecisionBrief, box = w.document.getElementById('hasBriefStrip'), pt = w.document.getElementById('hasPriceTrust');
+  const dash = w.document.getElementById('panel-dashboard'), gen = w.document.getElementById('panel-gen');
+  D2.renderStrip(box, { brief: brief(forty()) }, () => { }); D2.install();
+  a.equal(box.classList.contains('hdb-off'), false, '현황: 판단 보임'); a.equal(pt.classList.contains('hdb-off'), false, '현황: 가격 보임');
+  dash.classList.remove('active'); gen.classList.add('active'); D2.onTabChange('gen');
+  a.equal(box.classList.contains('hdb-off'), true, '일반: 판단 숨김'); a.equal(pt.classList.contains('hdb-off'), true, '일반: 가격 숨김');
+  D2.renderStrip(box, { brief: brief(forty()) }, () => { }); a.equal(box.classList.contains('hdb-off'), true, '일반: 다시 그려도 숨김');
+  gen.classList.remove('active'); dash.classList.add('active'); D2.onTabChange('dashboard');
+  a.equal(box.classList.contains('hdb-off'), false, '현황 복귀: 판단 보임'); a.equal(pt.classList.contains('hdb-off'), false, '현황 복귀: 가격 보임');
+});
