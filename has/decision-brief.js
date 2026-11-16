@@ -107,8 +107,13 @@
   function collapsible(key, label) { var d = el('details', 'hdb-det'); d.appendChild(el('summary', '', '펼치기 ▼')); if (label) d.querySelector('summary').setAttribute('aria-label', label); return d; }
   function prune() { registry = registry.filter(function (d) { return d.isConnected; }); }
   function closeAll() { prune(); openState = {}; registry.forEach(function (d) { d.open = false; }); }
-  // 투자 대분류(gtab-invest)가 활성일 때만 띠를 보인다. 탭 표시가 없으면(시험 등) 그대로 둔다.
-  function inInvest() { var g = typeof document !== 'undefined' && document.getElementById('gtab-invest'); return !g || g.classList.contains('active'); }
+  // 투자 대분류(gtab-invest)의 '현황'(panel-dashboard)이 활성일 때만 띠를 보인다(순태씨 2026-11-16: 일반·ISA·해외 등에서는 숨김).
+  // 탭·패널 표시가 없으면(시험 등) 그 조건은 통과로 둔다.
+  function inInvest() {
+    if (typeof document === 'undefined') return true;
+    var g = document.getElementById('gtab-invest'); if (g && !g.classList.contains('active')) return false;
+    var d = document.getElementById('panel-dashboard'); return !d || d.classList.contains('active');
+  }
   // 오늘의 투자 판단 띠·가격 신뢰도 띠 모두 투자 탭에서만(순태씨 2026-11-16).
   function applyScope() { if (typeof document === 'undefined') return; var off = !inInvest(); ['hasBriefStrip', 'hasPriceTrust'].forEach(function (id) { var b = document.getElementById(id); if (b) b.classList.toggle('hdb-off', off); }); }
   function onTabChange() { closeAll(); applyScope(); }
