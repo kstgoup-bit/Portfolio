@@ -1,17 +1,23 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
-STATUS: READY_FOR_REVIEW (위험관리 '오늘의 투자 판단' — GPT-REVIEW-risk-briefing-20261116-1330 CR-3·CR-4 반영, 저장소 한정, 운영 미반영) · 운영 최신 = main `4b46fea`+SEC GAS 파일·문서
-REPORT: docs/team/CLAUDE-DEV-RISK-BRIEFING-20261116.md (0-b절)
+STATUS: READY_FOR_REVIEW (위험관리 '오늘의 투자 판단' — GPT-REVIEW-risk-briefing-20261116-1430 CR-5 반영, 저장소 한정, 운영 미반영) · 운영 최신 = main `4b46fea`+SEC GAS 파일·문서
+REPORT: docs/team/CLAUDE-DEV-RISK-BRIEFING-20261116.md (0-c절)
 BRANCH: work/claude-risk-briefing-20261116
-HEAD: 5e4aed9d2742248b7a3d413eb6471a16cc476114 (코드) · 보고 커밋 35250f0(docs만) · 검토 BASE 978a2c02eb1281bb33bf675adaa85642014e8c0f
-UPDATED: 2026-11-16 14:20 KST (정각 실행)
+HEAD: f63d62bd08b18ffff8b474728ed9bf77cf312b38 (코드) · 보고 커밋 0055ca7(docs만) · 검토 BASE 5e4aed9d2742248b7a3d413eb6471a16cc476114
+UPDATED: 2026-11-16 15:20 KST (정각 실행)
 
-- CR-3: 같은 종목 모든 기록 verify(순서 무관), 한 건 실패·보유 여부/기준 시각/시장/실제·합성 상충이면 종목 전체 판단 보류, 안전 키 맵(Object.create(null)).
-- CR-4: brief.generatedAt 필수(누락·손상 = 보류, 미래 asOf 항상 차단), brief.basis 'real'/'synthetic' 필수·조언과 일치.
-- 시험: 신규 2건, 전체 2239 중 2237 통과/0 실패/2 skip, 비밀값 0. 화면 변경 없음. 갤럭시 실기기 미검증.
-- 지피 지시서 현황: GPT-REVIEW-risk-briefing-20261116-1330 CHANGES_REQUESTED 처리 → 재검토 요청. 새 GPT-ORDER 없음.
+- CR-5: advisor-core 조언·advisor-bridge 보류 조언(hold)에 market(KR/US만, 그 외 null) 전달. decision-brief verify가 시장 누락·비정상이면 판단 보류.
+- 통합 시험: portfolio-reader→advisor-bridge→advisor-core→briefing-model→decision-brief, 같은 종목 KR/US 양쪽 계좌 3가지 순서 모두 판단 보류, 실제 엔진 조언 시장만 다르면 '기록 상충(시장)'.
+- 시험: 신규 1건, 전체 2240 중 2238 통과/0 실패/2 skip, 비밀값 0. 화면 변경 없음. 갤럭시 실기기 미검증.
+- 지피 지시서 현황: GPT-REVIEW-risk-briefing-20261116-1430 CHANGES_REQUESTED 처리 → 재검토 요청. 새 GPT-ORDER 없음.
 
 ## 이전 기록
+
+- (이전) STATUS: READY_FOR_REVIEW (위험관리 '오늘의 투자 판단' — GPT-REVIEW-risk-briefing-20261116-1330 CR-3·CR-4 반영, 저장소 한정, 운영 미반영) · 운영 최신 = main `4b46fea`+SEC GAS 파일·문서
+- (이전) REPORT: docs/team/CLAUDE-DEV-RISK-BRIEFING-20261116.md (0-b절)
+- (이전) BRANCH: work/claude-risk-briefing-20261116
+- (이전) HEAD: 5e4aed9d2742248b7a3d413eb6471a16cc476114 (코드) · 보고 커밋 35250f0(docs만) · 검토 BASE 978a2c02eb1281bb33bf675adaa85642014e8c0f
+- (이전) UPDATED: 2026-11-16 14:20 KST (정각 실행)
 
 - (이전) STATUS: READY_FOR_REVIEW (위험관리 '오늘의 투자 판단' — GPT-REVIEW-risk-briefing-20261116-1230 CR-1·CR-2 반영, 저장소 한정, 운영 미반영) · 운영 최신 = main `4b46fea`+SEC GAS 파일·문서
 - (이전) REPORT: docs/team/CLAUDE-DEV-RISK-BRIEFING-20261116.md (0절)
