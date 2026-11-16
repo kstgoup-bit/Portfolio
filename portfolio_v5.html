@@ -5038,16 +5038,17 @@ function manualLocalInput(iso) {
 function renderManualPriceForm(stock,type) {
   var suffix=type+"_"+stock.id, manual=stock.pricingMode==="manual", m=stock.manualPrice||{}, currency=type==="ov"?"USD":"KRW";
   var timezone="기기 현지 시간"; try{timezone=Intl.DateTimeFormat().resolvedOptions().timeZone||timezone;}catch(e){}
-  return '<fieldset style="margin-top:10px;padding:10px;border:1px solid #bd9b45;border-radius:8px"><legend style="font-size:13px">자산 기록용 가격 방식</legend>'+
-    '<label style="font-size:13px" for="epm_'+suffix+'">가격 방식(종목별 직접 선택)</label><select id="epm_'+suffix+'" onchange="toggleManualPriceFields(\''+type+'\','+stock.id+')" style="width:100%;min-height:44px;font-size:14px;padding:8px"><option value="quote"'+(!manual?' selected':'')+'>시세 조회</option><option value="manual"'+(manual?' selected':'')+'>수동 가격 사용(미확정)</option></select>'+
+  return '<details id="epd_'+suffix+'" style="margin-top:8px"'+(manual?' open':'')+'><summary id="eps_'+suffix+'" style="min-height:44px;display:flex;align-items:center;font-size:13px;color:#333;cursor:pointer">⚙ 가격 방식: '+(manual?'수동 가격(미확정)':'시세 조회')+' (변경)</summary>'+
+    '<div style="padding:4px 0 8px"><label style="font-size:13px" for="epm_'+suffix+'">가격 방식(종목별 직접 선택)</label><select id="epm_'+suffix+'" onchange="toggleManualPriceFields(\''+type+'\','+stock.id+')" style="width:100%;min-height:44px;font-size:14px;padding:8px"><option value="quote"'+(!manual?' selected':'')+'>시세 조회</option><option value="manual"'+(manual?' selected':'')+'>수동 가격 사용(미확정)</option></select>'+
     '<div id="epf_'+suffix+'"'+(!manual?' hidden':'')+' style="margin-top:8px"><label style="font-size:13px" for="emp_'+suffix+'">보유수량 1단위당 가격 ('+currency+')</label><input id="emp_'+suffix+'" type="number" inputmode="decimal" min="0.00000001" max="1000000000000" step="any" value="'+snapshotEscape(m.value)+'" style="width:100%;min-height:44px;font-size:14px;padding:8px">'+
     '<label style="font-size:13px" for="emas_'+suffix+'">실제 가격 기준 일시(기기 시간대: '+snapshotEscape(timezone)+')</label><input id="emas_'+suffix+'" type="datetime-local" step="0.001" value="'+snapshotEscape(manualLocalInput(m.priceAsOf))+'" style="width:100%;min-height:44px;font-size:14px;padding:8px">'+
     '<label style="font-size:13px" for="emage_'+suffix+'">입력 가격 허용 기간(KST 달력 날짜 기준)</label><select id="emage_'+suffix+'" style="width:100%;min-height:44px;font-size:14px;padding:8px">'+[1,2,3,4].map(function(n){return '<option value="'+n+'"'+(n===(m.maxAgeDays||1)?' selected':'')+'>'+n+'일</option>';}).join('')+'</select>'+
-    '<p style="font-size:12px;margin-top:6px">기준 일시는 자동 입력하지 않습니다. 수량이 g이면 가격도 1g당 금액을 입력하세요. 한국 시간의 날짜 차이가 선택한 일수를 넘으면 기록을 보류합니다. 이 기간은 사용자 입력 허용 기준이며 시장 최신성·공식 시세를 인증하지 않습니다. 수동 값은 매수·매도 판단 근거로 확인된 값이 아닙니다.</p></div></fieldset>';
+    '<p style="font-size:12px;margin-top:6px">기준 일시는 자동 입력하지 않습니다. 수량이 g이면 1g당 금액을 입력하세요. 허용 기간(한국 날짜 차이)을 넘으면 기록을 보류합니다. 수동 값은 사용자 입력이며 시장 최신성·매수·매도 판단 근거가 아닙니다.</p></div></div></details>';
 }
 function toggleManualPriceFields(type,id) {
-  var mode=document.getElementById("epm_"+type+"_"+id), fields=document.getElementById("epf_"+type+"_"+id);
+  var mode=document.getElementById("epm_"+type+"_"+id), fields=document.getElementById("epf_"+type+"_"+id), sum=document.getElementById("eps_"+type+"_"+id);
   if(fields && mode) fields.hidden=mode.value!=="manual";
+  if(sum && mode) sum.textContent="⚙ 가격 방식: "+(mode.value==="manual"?"수동 가격(미확정)":"시세 조회")+" (변경)";
 }
 function readManualPriceForm(type,id) {
   var suffix=type+"_"+id, mode=(document.getElementById("epm_"+suffix)||{}).value;

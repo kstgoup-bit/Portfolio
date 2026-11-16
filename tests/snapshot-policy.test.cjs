@@ -190,3 +190,11 @@ test('actual load preserves legacy pension deposit labels and theme bytes withou
   }
   assert.doesNotMatch(fn('load'), /migrateDepositLabels|renameMap|nameMap/);
 });
+test('가격 방식은 접힌 한 줄 요약으로 공간을 줄이고, 수동 선택이면 펼쳐 둔다', () => {
+  const h = harness();
+  const q = h.context.renderManualPriceForm(stock(), 'gen');
+  assert.match(q, /<details id="epd_gen_1" style="margin-top:8px"><summary id="eps_gen_1"[^>]*>⚙ 가격 방식: 시세 조회 \(변경\)/);
+  assert.doesNotMatch(q, /<fieldset/);
+  const m = h.context.renderManualPriceForm(stock({ pricingMode: 'manual', manualPrice: { value: 5, priceAsOf: '2026-11-10T06:00:00.000Z', maxAgeDays: 2 } }), 'gen');
+  assert.match(m, /<details id="epd_gen_1" style="margin-top:8px" open>/); assert.match(m, /수동 가격\(미확정\) \(변경\)/);
+});
