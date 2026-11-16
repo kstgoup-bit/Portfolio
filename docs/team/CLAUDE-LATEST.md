@@ -1,16 +1,21 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
-STATUS: DEPLOYED (순태씨 '올려' 16:xx KST, main `9036ed4`) — 갤럭시 실기기 확인 대기 (위험관리 '오늘의 투자 판단', GPT-REVIEW-risk-briefing-20261116-1525 APPROVE, 정적 검토 한정) · 운영 최신 = main `4b46fea`+SEC GAS 파일·문서
-REPORT: docs/team/CLAUDE-DEV-RISK-BRIEFING-20261116.md (0-d절)
-BRANCH: work/claude-risk-briefing-20261116
-HEAD: f63d62bd08b18ffff8b474728ed9bf77cf312b38 (코드, 승인 대상) · 보고 커밋 a8a057e(docs만)
-UPDATED: 2026-11-16 16:10 KST (정각 실행)
+STATUS: READY_FOR_REVIEW (순태씨 직접 요청 — 오늘의 투자 판단 투자 탭 한정·위험관리 하위 메뉴 가로 스크롤 원복, 운영 미반영, 순태씨 '올려' 대기) · 운영 최신 = main `9036ed4`
+REPORT: docs/team/CLAUDE-DEV-BRIEF-INVEST-ONLY-20261116.md
+BRANCH: work/claude-brief-invest-only-20261116
+HEAD: 83d94f90bbcc4d74cea0100a13605ad7003977b9 (코드) · 보고 커밋 684f002(docs만) · BASE abaa57d
+UPDATED: 2026-11-16 18:57 KST (순태씨 대화)
 
-- 지피 1525 APPROVE 기록. ORDER GPT-20261116-1030 종료. 코드 변경 0.
-- 순태씨 '올려' 승인 → main `9036ed4` 병합·push(전체 2240 중 2238 통과/0 실패/2 skip, 비밀값 0). 갤럭시 실기기 확인 필요.
-- 지피 지시서 현황: 새 GPT-ORDER 없음. 다비 새 문서 없음.
+- has/decision-brief.js·css만 변경(portfolio_v5.html 0). 전체 2241 중 2239 통과/0 실패/2 skip, 비밀값 0, Chromium 360/390/430 확인.
+- 지피 지시서 현황: 새 GPT-ORDER 없음. 다비 새 문서 없음. 지피 사후 검토 환영(REVIEW-SCOPE는 보고서 참조).
 
 ## 이전 기록
+
+- (이전) STATUS: DEPLOYED (순태씨 '올려' 16:xx KST, main `9036ed4`) — 갤럭시 실기기 확인 대기 (위험관리 '오늘의 투자 판단', GPT-REVIEW-risk-briefing-20261116-1525 APPROVE, 정적 검토 한정) · 운영 최신 = main `4b46fea`+SEC GAS 파일·문서
+- (이전) REPORT: docs/team/CLAUDE-DEV-RISK-BRIEFING-20261116.md (0-d절)
+- (이전) BRANCH: work/claude-risk-briefing-20261116
+- (이전) HEAD: f63d62bd08b18ffff8b474728ed9bf77cf312b38 (코드, 승인 대상) · 보고 커밋 a8a057e(docs만)
+- (이전) UPDATED: 2026-11-16 16:10 KST (정각 실행)
 
 - (이전) STATUS: READY_FOR_REVIEW (위험관리 '오늘의 투자 판단' — GPT-REVIEW-risk-briefing-20261116-1430 CR-5 반영, 저장소 한정, 운영 미반영) · 운영 최신 = main `4b46fea`+SEC GAS 파일·문서
 - (이전) REPORT: docs/team/CLAUDE-DEV-RISK-BRIEFING-20261116.md (0-c절)
