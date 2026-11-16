@@ -22,7 +22,7 @@ STATUS: DRAFT — 순태씨 GAS 승인 전. 클로는 Apps Script에 접근할 �
 ## 한계(미검증)
 - 실제 SEC 응답 크기·GAS 실행시간(대형주 companyfacts는 수 MB)·UrlFetch 일일 할당량.
 - 티커→CIK 표(company_tickers.json)는 SEC가 정확성을 보증하지 않음. 모르는 티커는 'unknown-ticker'로 보류.
-- 이용률 보호(지피 CR-2 반영): 스크립트 잠금(LockService)으로 실행들을 줄 세움, 5초 안에 차례를 못 받으면 `sec-busy` 보류. 429·403을 받으면 재요청 없이 **10분간 모든 SEC 요청 중단**(`sec-cooldown`), 앱이 나중에 다시 요청. 권한 창에 잠금·캐시 권한이 함께 보일 수 있음.
+- 이용률 보호(지피 CR-2·CR-3·CR-4 반영): 스크립트 잠금(LockService)을 SEC 요청이 끝날 때까지 쥐어 **한 번에 1건**, 10초 안에 차례를 못 받으면 `sec-busy` 보류. 요청 허가 상태(마지막 시각·분당 건수·중단 시각·진행 중 표시)는 **스크립트 속성 `HAS_SEC_GATE_STATE`**(PropertiesService)에 저장 — 배포 후 '프로젝트 설정 > 스크립트 속성'에 이 키가 생기는 것이 정상이며 **손으로 지우거나 고치지 말 것**(지우면 처음 상태, 형식이 깨지면 10분 보류). 429·403 또는 앞 요청 결과 미기록이면 재요청 없이 **10분간 모든 SEC 요청 중단**(`sec-cooldown`), 상태를 읽거나 쓰지 못하면 `sec-state-hold`(요청 안 함). 권한 창에 잠금·캐시·속성 권한이 함께 보일 수 있음.
 - 종목 정합성(지피 CR-1 반영): SEC 원본의 CIK가 요청 티커의 CIK와 다르거나 없으면 그 종목은 `sec-cik-mismatch`/`sec-cik-missing`로 보류.
 - 실제 Apps Script에서 `HASFundamentalFilter` 전역·기존 `hasHistoryCallback_` 의존성·기존 doGet 충돌 여부는 배포 확인 때 점검 필요(Node 가짜 환경 시험은 운영 증빙 아님).
 - 결과는 6시간 캐시(CacheService 한도). 앱 쪽 연결(가져와서 카드에 싣기)은 **다음 단계**이며 이 GAS만 올리면 화면은 아직 '미연결'.
