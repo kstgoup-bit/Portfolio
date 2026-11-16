@@ -6,7 +6,9 @@ STATUS: DRAFT — 순태씨 GAS 승인 전. 클로는 Apps Script에 접근할 �
 앱이 미국 종목의 SEC 공시 재무(최근 5년 연간)를 GAS 경유로 받아 '위대한 기업'·곡소리·환호성 카드에 재무 라벨을 보여 주게 합니다. 요청에는 **티커만** 보냅니다(보유·금액 없음). 키·비용 없음(SEC 공개 API). 판단은 계속 '판단 보류'이며 매수·매도 권유 없음.
 
 ## 규칙 출처(2026-11-16 확인)
-- https://www.sec.gov/os/accessing-edgar-data — 최대 초당 10건, 요청 헤더에 User-Agent 선언 필요(회사명+연락처 형식). 이 코드는 요청 간 200ms 간격, 한 번에 최대 6종목.
+- https://www.sec.gov/os/accessing-edgar-data — 최대 초당 10건, 요청 헤더에 User-Agent 선언 필요(회사명+연락처 형식). 이 코드는 스크립트 전체(모든 실행 합산) 요청 시작 간격 250ms·분당 60건, 한 번에 최대 6종목.
+- https://www.sec.gov/filergroup/announcements-old/new-rate-control-limits — 한도는 사용자/애플리케이션 **전체** 기준(지피 검토 인용, 클로 원문 재조회는 미실시).
+- https://developers.google.com/apps-script/reference/cache/cache — CacheService 항목 100KB·최대 6시간(지피 검토 인용).
 - https://www.sec.gov/search-filings/edgar-application-programming-interfaces — companyfacts URL, 인증 불필요, CORS 미지원(그래서 GAS 경유).
 
 ## 순서
@@ -20,4 +22,7 @@ STATUS: DRAFT — 순태씨 GAS 승인 전. 클로는 Apps Script에 접근할 �
 ## 한계(미검증)
 - 실제 SEC 응답 크기·GAS 실행시간(대형주 companyfacts는 수 MB)·UrlFetch 일일 할당량.
 - 티커→CIK 표(company_tickers.json)는 SEC가 정확성을 보증하지 않음. 모르는 티커는 'unknown-ticker'로 보류.
+- 이용률 보호(지피 CR-2 반영): 스크립트 잠금(LockService)으로 실행들을 줄 세움, 5초 안에 차례를 못 받으면 `sec-busy` 보류. 429·403을 받으면 재요청 없이 **10분간 모든 SEC 요청 중단**(`sec-cooldown`), 앱이 나중에 다시 요청. 권한 창에 잠금·캐시 권한이 함께 보일 수 있음.
+- 종목 정합성(지피 CR-1 반영): SEC 원본의 CIK가 요청 티커의 CIK와 다르거나 없으면 그 종목은 `sec-cik-mismatch`/`sec-cik-missing`로 보류.
+- 실제 Apps Script에서 `HASFundamentalFilter` 전역·기존 `hasHistoryCallback_` 의존성·기존 doGet 충돌 여부는 배포 확인 때 점검 필요(Node 가짜 환경 시험은 운영 증빙 아님).
 - 결과는 6시간 캐시(CacheService 한도). 앱 쪽 연결(가져와서 카드에 싣기)은 **다음 단계**이며 이 GAS만 올리면 화면은 아직 '미연결'.
