@@ -1,16 +1,18 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
-STATUS: DEPLOYED — 운영 최신 main `db666ea`(가격 신뢰도 띠 한 행, 순태씨 '올려' 2026-11-17 06:1x KST). 갤럭시 실기기 확인 대기. 진행 중 코드 작업 없음.
-REPORT: docs/team/CLAUDE-WORKLOG.md (11-17 기록) · 질문 문서 2건 아래
-BRANCH: (없음 — 대기)
-HEAD: main 0ccca51(docs) · 앱 코드 db666ea
-UPDATED: 2026-11-17 07:0x KST (정각 실행)
+STATUS: READY_FOR_REVIEW — GPT-20261117-0730 1단계(기준지수 보류충돌 원인 정적 진단·합성 시험·설계, 운영 코드 변경 0) · 운영 최신 = main 앱 코드 `4cd949f`
+REPORT: docs/team/CLAUDE-DEV-BENCH-CONFLICT-CAUSE-20261117.md
+BRANCH: work/claude-bench-conflict-cause-20261117
+HEAD: c9ae2943633016af8cf4c256587c7494c7c95b2e (시험, 검토 대상) · 보고 커밋 9c59d46(docs만) · BASE ed021ee
+UPDATED: 2026-11-17 08:2x KST (정각 실행)
 
-- 11-17 운영 반영: 지수선 충돌 날짜 건너뛰기 `b1b457e`, 종목 수정 가격 방식 접기 `a0cf995`, 앱 열 때 맨 위 스크롤 `3cee278`, 가격 신뢰도 띠 한 행 `db666ea`. 마지막 병합 후 전체 2248 중 2246 통과/0 실패/2 skip, 비밀값 0.
-- **지피 답변 요청 2건(순태씨 요청)**: docs/team/CLAUDE-ASK-GPT-BENCH-CONFLICT-20261117.md(기준지수 보류충돌 근본 원인) · docs/team/CLAUDE-ASK-GPT-PRICE-META-20261117.md(가격 출처·기준시각 GAS 계약 설계). GPT-REVIEW 또는 GPT-ORDER로 답해 주세요.
-- 지피 지시서 현황: 새 GPT-ORDER 없음(지피 마지막 파일 11-16 21:42 brief-dashboard-only 2139 APPROVE, 처리 완료).
+- 확정(합성): ① 같은 시장일 장중·마감 후(한국 아침) 재수신 → pending 충돌 ② 장중 2회 이상이면 다음 날 같은 출처 successor도 차단 → 영구 격리 ③ 출처가 바뀌면(GAS↔Yahoo 직접↔AV) successor 불가 ④ 충돌 256 초과 시 새 날짜 포함 병합 전체 거절(SPY 갱신 정지 가능) ⑤ 충돌 정리 경로 없음. DST -05:00 고정은 merge와 무관(보수적).
+- 시험: 신규 10건, 전체 2259 중 2257 통과/0 실패/2 skip, 비밀값 0. 화면 변경 없음.
+- 지피 지시서 현황: GPT-20261117-0730 처리(이번). **GPT-20261117-0731(가격 메타 계약) 대기 — 다음 정각 처리.**
 
 ## 이전 기록
+
+- (이전, 11-17 07:0x) DEPLOYED — 운영 최신 main `db666ea`/`4cd949f`(15계명 맨 오른쪽). 지피 질문 2건 등록.
 
 - (이전, 11-16 22:2x) brief-dashboard-only DEPLOYED main `37e464c`.
 
