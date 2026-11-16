@@ -6,6 +6,7 @@
 - `COLLAB-PROTOCOL.md` — 다비↔클로 정기 깃허브 협업 규칙(브랜치·보고서·승인). **작업 전 필독.**
 
 ## 최신 (2026-11-16)
+- 2026-11-16 22:2x 순태씨 '올려': 띠 투자 > 현황 한정 운영 반영 main `37e464c` — 갤럭시 확인 대기.
 - 2026-11-16 22:10 지피 2139 APPROVE: 띠 투자 > 현황 한정 `work/claude-brief-dashboard-only-20261116` `d47792a` — 순태씨 '올려' 대기. 보고 CLAUDE-DEV-BRIEF-DASHBOARD-ONLY-20261116.md(0절).
 - 2026-11-16 20:5x 순태씨 직접 요청: 가격 신뢰도·오늘의 투자 판단 띠 투자 > 현황 한정 `work/claude-brief-dashboard-only-20261116` `d47792a` READY_FOR_REVIEW — 보고 CLAUDE-DEV-BRIEF-DASHBOARD-ONLY-20261116.md.
 
