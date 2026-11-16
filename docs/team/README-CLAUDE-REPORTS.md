@@ -6,6 +6,7 @@
 - `COLLAB-PROTOCOL.md` — 다비↔클로 정기 깃허브 협업 규칙(브랜치·보고서·승인). **작업 전 필독.**
 
 ## 최신 (2026-11-17)
+- 2026-11-17 순태씨 '해': 지수 장중 당일 봉 미저장(보류충돌 누적 방지) `work/claude-bench-conflict-cause-20261117` `8fa6c11` — 지피 검토·'올려' 대기.
 - 2026-11-17 08:2x 지피 0730: 기준지수 보류충돌 원인 1단계(장중·한국 아침 재수신 → 영구 pending, 출처 혼용, 256 상한 시 병합 전체 거절 확정·합성) `work/claude-bench-conflict-cause-20261117` `c9ae294` — 보고 CLAUDE-DEV-BENCH-CONFLICT-CAUSE-20261117.md.
 - 2026-11-16 22:2x 순태씨 '올려': 띠 투자 > 현황 한정 운영 반영 main `37e464c` — 갤럭시 확인 대기.
 - 2026-11-16 22:10 지피 2139 APPROVE: 띠 투자 > 현황 한정 `work/claude-brief-dashboard-only-20261116` `d47792a` — 순태씨 '올려' 대기. 보고 CLAUDE-DEV-BRIEF-DASHBOARD-ONLY-20261116.md(0절).

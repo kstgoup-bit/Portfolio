@@ -1,10 +1,45 @@
 STATUS: READY_FOR_REVIEW
-ORDER-ID: GPT-20261117-0730
-BASE: ed021eea818aab92af9dc5e013f86f2dd4dbb560
-HEAD: c9ae2943633016af8cf4c256587c7494c7c95b2e (시험 커밋, 검토 대상) · 보고 커밋은 그 다음 docs만
-REVIEW-SCOPE: 1단계 정적 진단 + 합성 시험 `tests/benchmark-conflict-cause.test.cjs` + 설계안(이 문서). 운영 코드·GAS·저장 자료 변경 0.
+ORDER-ID: GPT-20261117-0730 (2단계 — 순태씨 '해' 2026-11-17 대화)
+BASE: ed021eea818aab92af9dc5e013f86f2dd4dbb560 (main 병합 포함, 이후 main 은 docs 만)
+HEAD: 8fa6c1167da6ae145577ef95e3642dc66ee3f598 (2단계 코드, 검토 대상) · 1단계 시험 c9ae294
+REVIEW-SCOPE: 2단계 최소 수정 `8fa6c11` — 장 마감+30분 전 수신 당일 봉 미저장 + IANA 마감 시각. 기존 저장 자료·충돌 정리·출처 고정·dedup·상한 표시는 범위 밖. 운영 미반영(순태씨 '올려' 대기).
 
-# 기준지수 보류충돌 — 원인 진단·무손상 해결 설계 (1단계)
+# 기준지수 보류충돌 — 원인 진단(1단계) + 최소 수정(2단계)
+
+## 2단계 (2026-11-17, 순태씨 '해')
+
+### 변경
+| 파일 | 내용 |
+|---|---|
+| `has/benchmark-history-policy.js` | `mergeHistoryStore`: 봉 날짜 == 수신 시장일 이고 수신 < `persistAfterMs` 이면 저장·비교 안 함 → `failures:[{d,reason:'intraday-not-persisted'}]`. 신규 `persistAfterMs(day,market)` = Intl(IANA) 기준 정규 마감(KR 15:30 Asia/Seoul, US 16:00 America/New_York) + 30분, 공개 export 추가. `closeTimeMs`·`sameDayAfterClose` 선택 규칙은 무변경 |
+| `tests/lib/live-data-edits.json` · `live-data-pins.json` | [현재, 이전] 3쌍 추가(문맥 1줄, 역적용으로 원본 재현 확인), currentSha256 갱신 |
+| `tests/benchmark-conflict-cause.test.cjs` | 1단계 원인 시험을 새 동작 회귀 시험으로 갱신(13건). 남은 원인 (c)(c2)(d)(f)는 그대로 문서화 |
+| `tests/benchmark-gas-link.test.cjs`, `tests/release-candidate-composition.test.cjs`, `tests/daily-repair-independent.test.cjs` | 장중 수신 당일 봉이 provisional 저장된다고 전제한 3곳의 수신 시각을 마감+30분 뒤로 조정(시험 의도 — provisional 저장·successor·백업 왕복 — 유지). 장중 미저장 단언 추가 |
+
+`portfolio_v5.html`·GAS·백업 코드 무변경. 앱 상태 문구는 기존 "당일 미확정" 그대로.
+
+### 효과 (합성 확인)
+- 장중 300회 재조회 → 충돌 0 (f2). 한국 아침(미국 마감 뒤) 수신만 저장 (a2). 마감 직후 30분 이내는 미저장 (a3). 서머타임 20:30Z / 표준시 21:30Z / 한국 07:00Z (e)(e2).
+- 다음 날 같은 출처 다른 값 → provisional-successor 유지 (b). 같은 값 다음 날 재확인은 successor 1건(기존 규칙, 1회).
+- 기존에 저장된 장중 값·충돌 256건 등은 **그대로**(정리 안 함).
+
+### 남은 원인·위험 (이번 범위 밖)
+- 출처 혼용(GAS↔Yahoo 직접↔AV) 충돌 (c)(d), Yahoo 직접 dedup 키 (c2), 256 상한 시 병합 전체 거절 (f) — SPY 가 이미 256건이면 **이번 수정만으로 SPY 갱신이 풀리지 않을 수 있음**(새 날짜 + 이전 날짜 값 차이가 동시에 오면 거절). 해소는 기존 충돌 정리(마이그레이션, 별도 승인).
+- 장중 오늘 지수 값은 저장되지 않으므로 지수 그래프는 전 거래일 종가까지 표시(기존에도 계산은 당일 제외).
+- 조기폐장일은 정규 16:00 기준(늦게 저장될 뿐 틀리지 않음).
+
+### 시험
+- `NODE_PATH=<jsdom>/node_modules node --require ./tests/lib/no-network.cjs --test tests/*.test.cjs` → **2262 중 2260 통과 / 0 실패 / 2 skip**
+- `node tools/scan-secrets.cjs` → findings 0
+- 화면 변경 없음 → Playwright 해당 없음
+
+### 순태씨 결정 필요
+1. 지피 검토 후 운영 반영('올려').
+2. 다음: 기존 충돌 정리(장중 pending 압축·SPY 상한 해소) 마이그레이션 — 실제 저장 자료 변경이라 별도 승인.
+
+---
+
+# (1단계 보고 — 원문 유지)
 
 작성: 클로, 2026-11-17 08:xx KST 정각 실행. 시험은 클로가 이 컨테이너에서 실행한 결과이며 지피 독립 재실행이 아니다. 순태씨 실제 이력·백업은 열람·다운로드·전송하지 않았다(합성 자료만).
 

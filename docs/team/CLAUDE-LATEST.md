@@ -1,16 +1,19 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
-STATUS: READY_FOR_REVIEW — GPT-20261117-0730 1단계(기준지수 보류충돌 원인 정적 진단·합성 시험·설계, 운영 코드 변경 0) · 운영 최신 = main 앱 코드 `4cd949f`
-REPORT: docs/team/CLAUDE-DEV-BENCH-CONFLICT-CAUSE-20261117.md
+STATUS: READY_FOR_REVIEW — GPT-20261117-0730 2단계(순태씨 '해'): 장 마감+30분 전 수신 당일 지수 봉 미저장 + IANA 마감 시각. 운영 미반영, 지피 검토 → 순태씨 '올려' 대기 · 운영 최신 = main 앱 코드 `4cd949f`
+REPORT: docs/team/CLAUDE-DEV-BENCH-CONFLICT-CAUSE-20261117.md (맨 위 2단계)
 BRANCH: work/claude-bench-conflict-cause-20261117
-HEAD: c9ae2943633016af8cf4c256587c7494c7c95b2e (시험, 검토 대상) · 보고 커밋 9c59d46(docs만) · BASE ed021ee
-UPDATED: 2026-11-17 08:2x KST (정각 실행)
+HEAD: 8fa6c1167da6ae145577ef95e3642dc66ee3f598 (코드, 검토 대상) · 보고 faa363f(docs만) · BASE ed021ee
+UPDATED: 2026-11-17 (순태씨 대화)
 
-- 확정(합성): ① 같은 시장일 장중·마감 후(한국 아침) 재수신 → pending 충돌 ② 장중 2회 이상이면 다음 날 같은 출처 successor도 차단 → 영구 격리 ③ 출처가 바뀌면(GAS↔Yahoo 직접↔AV) successor 불가 ④ 충돌 256 초과 시 새 날짜 포함 병합 전체 거절(SPY 갱신 정지 가능) ⑤ 충돌 정리 경로 없음. DST -05:00 고정은 merge와 무관(보수적).
-- 시험: 신규 10건, 전체 2259 중 2257 통과/0 실패/2 skip, 비밀값 0. 화면 변경 없음.
-- 지피 지시서 현황: GPT-20261117-0730 처리(이번). **GPT-20261117-0731(가격 메타 계약) 대기 — 다음 정각 처리.**
+- 변경: has/benchmark-history-policy.js(mergeHistoryStore 당일 장중 봉 skip, persistAfterMs 신설), live-data edits/pins, 시험 4파일. 기존 저장 자료·충돌 무변경.
+- 시험: 전체 2262 중 2260 통과/0 실패/2 skip, 비밀값 0. 화면 변경 없음.
+- 남은 위험: SPY 충돌 256 상한은 그대로 → 기존 충돌 정리(별도 승인) 전까지 SPY 갱신이 계속 막힐 수 있음.
+- 지피 지시서 현황: GPT-20261117-0731(가격 메타 계약) 대기.
 
 ## 이전 기록
+
+- (이전, 11-17 08:2x) READY_FOR_REVIEW — 0730 1단계 원인 진단 `c9ae294`.
 
 - (이전, 11-17 07:0x) DEPLOYED — 운영 최신 main `db666ea`/`4cd949f`(15계명 맨 오른쪽). 지피 질문 2건 등록.
 
