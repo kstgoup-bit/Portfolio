@@ -7,6 +7,7 @@
 
 ## 최신 (2026-11-16)
 
+- 2026-11-16 16:10 지피 1525 APPROVE — 위험관리 '오늘의 투자 판단' `work/claude-risk-briefing-20261116` `f63d62b`, 순태씨 '올려' 승인 대기 — 보고 CLAUDE-DEV-RISK-BRIEFING-20261116.md(0-d).
 - 2026-11-16 15:20 지피 1430 CR-5(시장 식별자 KR/US를 엔진·보류 조언까지 전달, 누락 fail-closed, 실제 경로 통합 시험) 반영 `work/claude-risk-briefing-20261116` `f63d62b` 재검토 요청 — 보고 CLAUDE-DEV-RISK-BRIEFING-20261116.md(0-c).
 - 2026-11-16 14:20 지피 1330 CR-3(같은 종목 전체 기록 검증·상충 보류·안전 키)·CR-4(판단 시각·basis 필수) 반영 `work/claude-risk-briefing-20261116` `5e4aed9` 재검토 요청 — 보고 CLAUDE-DEV-RISK-BRIEFING-20261116.md(0-b).
 - 2026-11-16 13:25 지피 1230 CR-1(접힌 첫 화면 3카드)·CR-2(검증된 후보 fail-closed) 반영 `work/claude-risk-briefing-20261116` `978a2c0` 재검토 요청 — 보고 CLAUDE-DEV-RISK-BRIEFING-20261116.md(0절).

@@ -61,6 +61,7 @@
 - GPT-20261116-1030 — 접수(위험관리 브리핑·후보 카드·접기 UI), 다음 정각 실행에서 착수 예정 2026-11-16 11:10
 - GPT-REVIEW-risk-briefing-20261116-1330 — CHANGES_REQUESTED(CR-3 같은 종목 전체 기록 검증·CR-4 브리핑 판단 시각·basis 필수) 반영 `5e4aed9`, 재검토 요청 2026-11-16 14:20
 - GPT-REVIEW-risk-briefing-20261116-1430 — CHANGES_REQUESTED(CR-5 시장 식별자 조언까지 전달·누락 fail-closed·실제 경로 통합 시험) 반영 `f63d62b`, 재검토 요청 2026-11-16 15:20
+- GPT-REVIEW-risk-briefing-20261116-1525 — APPROVE(HEAD `f63d62b`, 정적 검토 한정) 기록, 순태씨 '올려' 승인 대기 2026-11-16 16:10
 - GPT-REVIEW-sec-gas-20261116-1130 — APPROVE(CR-3/CR-4 `f3c5c78` 정적 검토 한정, GAS·운영 승인 아님), 기록 2026-11-16 12:25 · **순태씨 승인 요청 대상: SEC 재무 GAS 실제 반영**
 - GPT-20261116-1030 — 1단위 완료 `017e803`(보고 `6cba480`, READY_FOR_REVIEW) 2026-11-16 12:25
 - GPT-REVIEW-risk-briefing-20261116-1230 — CHANGES_REQUESTED 처리(CR-1·CR-2) `978a2c0`, 재검토 요청 2026-11-16 13:25
@@ -147,3 +148,4 @@
 - 2026-11-16 13:25 정각 실행: 지피 GPT-REVIEW-risk-briefing-20261116-1230(CHANGES_REQUESTED) 처리. `work/claude-risk-briefing-20261116` `978a2c0`(main 1d57664 병합 후, pins 충돌 해소): CR-1 접힌 첫 화면 3분할 상태 카드(매수·매도 검토·장기보유 건수, 종목·사유는 펼침 안) / CR-2 classify() verify() fail-closed(실제·합성 구분·자료 신뢰성·근거·반론·출처 사실·기준 시각·보유 여부·동종목 상충). 신규 시험 2건(반례 17+), 전체 2237 중 2235 통과/0 실패/2 skip(universe-screen-dom 이번엔 통과), 비밀값 0, Chromium 360/390/430/1280 확인. 새 GPT-ORDER 없음, 다비 새 문서 없음. 다음: 지피 재검토 → 순태씨 '올려' / SEC GAS 순태씨 배포 확인 후 앱 연결.
 - 2026-11-16 14:20 정각 실행: 지피 GPT-REVIEW-risk-briefing-20261116-1330(CHANGES_REQUESTED) 처리. `work/claude-risk-briefing-20261116` `5e4aed9`(main 59bec81 병합 후): CR-3 verifyGroup(같은 종목 모든 기록·속성 상충 보류·안전 키) / CR-4 generatedAt·brief.basis 필수 fail-closed. 신규 시험 2건, 전체 2239 중 2237 통과/0 실패/2 skip, 비밀값 0. 다음: 지피 재검토 → APPROVE 시 순태씨 운영 반영 승인 요청.
 - 2026-11-16 15:20 정각 실행: 지피 GPT-REVIEW-risk-briefing-20261116-1430(CHANGES_REQUESTED) 처리. `work/claude-risk-briefing-20261116` `f63d62b`(main 84e87cd 병합 후): CR-5 advisor-core 조언·advisor-bridge hold()에 market(KR/US, 그 외 null) 전달, decision-brief verify 시장 누락·비정상 보류, reader→bridge→core→model→brief 통합 시험(KR/US 양쪽 계좌 3순서 보류). advisor-core/bridge 역방향 쌍·pin 등록. 신규 시험 1건, 전체 2240 중 2238 통과/0 실패/2 skip, 비밀값 0. 다음: 지피 재검토 → APPROVE 시 순태씨 운영 반영 승인 요청.
+- 2026-11-16 16:10 정각 실행: 지피 GPT-REVIEW-risk-briefing-20261116-1525 APPROVE(HEAD `f63d62b`, 정적 검토 한정) 기록 → ORDER GPT-20261116-1030 종료, 순태씨 운영 반영 승인 요청. 브랜치 보고 갱신 `a8a057e`(docs만). 코드·앱·운영 변경 0, 시험 재실행 없음(코드 무변경). 새 GPT-ORDER 없음, 다비 새 문서 없음. 다음: 순태씨 '올려' 시 main 병합·배포 → 갤럭시 확인 / SEC GAS 순태씨 배포 확인 후 앱 연결.

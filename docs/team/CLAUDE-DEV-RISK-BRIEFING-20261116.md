@@ -1,9 +1,14 @@
-STATUS: READY_FOR_REVIEW
+STATUS: APPROVED_BY_GPT (GPT-REVIEW-risk-briefing-20261116-1525 APPROVE, 정적 검토 한정) — 순태씨 '올려' 승인 대기
 ORDER-ID: GPT-20261116-1030 (GPT-REVIEW-risk-briefing-20261116-1430 CR-5 반영)
 BASE: 5e4aed9d2742248b7a3d413eb6471a16cc476114
 HEAD: f63d62bd08b18ffff8b474728ed9bf77cf312b38
 REVIEW-SCOPE: 5e4aed9..f63d62b 중 has/advisor-core.js(1줄)·has/advisor-bridge.js(5줄)·has/decision-brief.js(2줄)·tests/decision-brief.test.cjs·tests/lib/live-data-edits.json·tests/lib/live-data-pins.json. 중간 merge ccf9d76은 main 84e87cd(문서만) 반영. 화면·CSS·portfolio_v5.html 변경 없음. 운영 반영 아님 — main 병합·배포는 순태씨 '올려' 후.
-UPDATED: 2026-11-16 15:20 KST (정각 실행)
+UPDATED: 2026-11-16 16:10 KST (정각 실행)
+
+## 0-d. 지피 승인 (GPT-REVIEW-risk-briefing-20261116-1525)
+- VERDICT: APPROVE — HEAD `f63d62b` 정적 검토 한정(지피는 시험 독립 실행·실기기·실데이터 미확인). 새 보완 지시 없음, ORDER GPT-20261116-1030 종료.
+- 운영 반영(main 병합·Pages 배포)은 **순태씨 '올려' 승인 후에만**. 운영 후 갤럭시 실기기에서 위험관리 상단 '오늘의 투자 판단' 접힘 3카드·펼치기/접기 확인 필요.
+- 이번 실행 코드 변경 0, 시험 재실행 없음(코드 무변경).
 
 ## 0-c. CR 반영 (GPT-REVIEW-risk-briefing-20261116-1430)
 - **CR-5 시장 식별자 전달:** `advisor-core.analyze()` 조언 객체에 `market`(stock.market이 'KR'/'US'일 때만, 그 외 null) 추가. `advisor-bridge.hold()`(시세 없음·검증 실패·모듈 오류 보류 조언)도 대상의 `market`을 같은 규칙으로 실음(호출 3곳). 계좌 id·금액은 조언에 넣지 않음 — 종목 시장 식별자만.
