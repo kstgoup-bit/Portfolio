@@ -112,7 +112,7 @@ test('정적: 앱 연결은 최소 변경(스크립트·CSS 추가, 탭 전환 �
   a.match(ap, /if \(W\.HASDecisionBrief\) \{ W\.HASDecisionBrief\.renderStrip\(s, c, [^\n]+\n      var t = el\('span', '', '🧭 오늘의 투자 브리핑: '/);
   for (const m of css.matchAll(/font(?:-size)?:[^;}]*?(\d+)px/g)) a.ok(Number(m[1]) >= 12, m[0]);
   a.doesNotMatch(css, /#subtabs-risk/, '위험관리 하위 메뉴는 원래 가로 스크롤 그대로(순태씨 2026-11-16)');
-  a.match(css, /#hasBriefStrip\.hdb\.hdb-off\{display:none\}/);
+  a.match(css, /#hasBriefStrip\.hdb\.hdb-off,body #hasPriceTrust\.hdb-off\.hdb-off\{display:none\}/);
 });
 
 test('순태씨 2026-11-16: 오늘의 투자 판단 띠는 투자 대분류에서만 보이고 위험관리·자산관리·설정에서는 숨김', () => {
@@ -126,6 +126,17 @@ test('순태씨 2026-11-16: 오늘의 투자 판단 띠는 투자 대분류에�
   D2.renderStrip(box, { brief: brief(forty()) }, () => { }); a.equal(box.classList.contains('hdb-off'), true, '다시 그려도 숨김 유지');
   gr.classList.remove('active'); gi.classList.add('active'); D2.onTabChange('dashboard');
   a.equal(box.classList.contains('hdb-off'), false, '투자 탭 복귀: 다시 보임');
+});
+
+test('순태씨 2026-11-16: 가격 신뢰도 띠도 투자 탭에서만 — 원본 refresh가 className을 덮어써도 숨김 유지', () => {
+  const w = new JSDOM('<!doctype html><body><button class="gtab" id="gtab-invest"></button><button class="gtab active" id="gtab-risk"></button><div id="hasPriceTrust" class="hpt"></div><div id="hasBriefStrip"></div></body>', { runScripts: 'outside-only' }).window;
+  // 원본 price-trust-ui처럼 className을 통째로 바꾸는 가짜 refresh
+  w.HASPriceTrustUI = { refresh() { const b = w.document.getElementById('hasPriceTrust'); b.className = 'hpt hpt-warn'; b.innerHTML = '<div class="hpt-head">가격</div><details><summary>자세히 보기</summary><div>줄</div></details>'; } };
+  w.HASPriceTrustUI.refresh(); w.eval(read('has/decision-brief.js')); const D2 = w.HASDecisionBrief, pt = w.document.getElementById('hasPriceTrust');
+  D2.install(); a.equal(pt.classList.contains('hdb-off'), true, '위험관리에서 숨김');
+  w.HASPriceTrustUI.refresh(); a.equal(pt.classList.contains('hdb-off'), true, '원본 다시 그려도 숨김');
+  w.document.getElementById('gtab-risk').classList.remove('active'); w.document.getElementById('gtab-invest').classList.add('active');
+  D2.onTabChange('dashboard'); w.HASPriceTrustUI.refresh(); a.equal(pt.classList.contains('hdb-off'), false, '투자 탭: 보임'); a.match(pt.textContent, /가격/);
 });
 
 test('CR-2 검증된 후보 계약: 신뢰성·근거·반론·출처·시각·실제/합성·보유·상충 중 하나라도 어긋나면 판단 보류(fail-closed)', () => {

@@ -109,7 +109,8 @@
   function closeAll() { prune(); openState = {}; registry.forEach(function (d) { d.open = false; }); }
   // 투자 대분류(gtab-invest)가 활성일 때만 띠를 보인다. 탭 표시가 없으면(시험 등) 그대로 둔다.
   function inInvest() { var g = typeof document !== 'undefined' && document.getElementById('gtab-invest'); return !g || g.classList.contains('active'); }
-  function applyScope() { var b = typeof document !== 'undefined' && document.getElementById('hasBriefStrip'); if (b) b.classList.toggle('hdb-off', !inInvest()); }
+  // 오늘의 투자 판단 띠·가격 신뢰도 띠 모두 투자 탭에서만(순태씨 2026-11-16).
+  function applyScope() { if (typeof document === 'undefined') return; var off = !inInvest(); ['hasBriefStrip', 'hasPriceTrust'].forEach(function (id) { var b = document.getElementById(id); if (b) b.classList.toggle('hdb-off', off); }); }
   function onTabChange() { closeAll(); applyScope(); }
   function item(it, kind) {
     var li = el('div', 'hdb-item'); li.setAttribute('data-testid', 'hdb-item-' + kind);
@@ -167,8 +168,8 @@
   }
   function install() {
     if (typeof window === 'undefined') return;
-    var P = window.HASPriceTrustUI; if (P && typeof P.refresh === 'function' && !P.__hdb) { var orig = P.refresh; P.refresh = function () { var r = orig.apply(this, arguments); try { enhancePriceTrust(); } catch (e) { } return r; }; P.__hdb = true; }
-    try { enhancePriceTrust(); } catch (e) { }
+    var P = window.HASPriceTrustUI; if (P && typeof P.refresh === 'function' && !P.__hdb) { var orig = P.refresh; P.refresh = function () { var r = orig.apply(this, arguments); try { enhancePriceTrust(); applyScope(); } catch (e) { } return r; }; P.__hdb = true; }
+    try { enhancePriceTrust(); applyScope(); } catch (e) { }
   }
   if (typeof document !== 'undefined') document.addEventListener('DOMContentLoaded', install);
   return Object.freeze({ KINDS: KINDS, NOTE: NOTE, classify: classify, verify: verify, summaryText: summaryText, renderStrip: renderStrip, enhancePriceTrust: enhancePriceTrust, closeAll: closeAll, onTabChange: onTabChange, inInvest: inInvest, install: install });
