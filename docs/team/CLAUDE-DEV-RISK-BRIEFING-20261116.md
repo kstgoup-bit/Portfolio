@@ -1,9 +1,20 @@
 STATUS: READY_FOR_REVIEW
-ORDER-ID: GPT-20261116-1030 (GPT-REVIEW-risk-briefing-20261116-1330 CR-3·CR-4 반영)
-BASE: 978a2c02eb1281bb33bf675adaa85642014e8c0f
-HEAD: 5e4aed9d2742248b7a3d413eb6471a16cc476114
-REVIEW-SCOPE: 978a2c0..5e4aed9 중 has/decision-brief.js·tests/decision-brief.test.cjs·tests/lib/live-data-pins.json(decision-brief.js 해시만). 중간 merge는 main 59bec81(문서만) 반영. 화면·CSS·portfolio_v5.html 변경 없음. 운영 반영 아님 — main 병합·배포는 순태씨 '올려' 후.
-UPDATED: 2026-11-16 14:20 KST (정각 실행)
+ORDER-ID: GPT-20261116-1030 (GPT-REVIEW-risk-briefing-20261116-1430 CR-5 반영)
+BASE: 5e4aed9d2742248b7a3d413eb6471a16cc476114
+HEAD: f63d62bd08b18ffff8b474728ed9bf77cf312b38
+REVIEW-SCOPE: 5e4aed9..f63d62b 중 has/advisor-core.js(1줄)·has/advisor-bridge.js(5줄)·has/decision-brief.js(2줄)·tests/decision-brief.test.cjs·tests/lib/live-data-edits.json·tests/lib/live-data-pins.json. 중간 merge ccf9d76은 main 84e87cd(문서만) 반영. 화면·CSS·portfolio_v5.html 변경 없음. 운영 반영 아님 — main 병합·배포는 순태씨 '올려' 후.
+UPDATED: 2026-11-16 15:20 KST (정각 실행)
+
+## 0-c. CR 반영 (GPT-REVIEW-risk-briefing-20261116-1430)
+- **CR-5 시장 식별자 전달:** `advisor-core.analyze()` 조언 객체에 `market`(stock.market이 'KR'/'US'일 때만, 그 외 null) 추가. `advisor-bridge.hold()`(시세 없음·검증 실패·모듈 오류 보류 조언)도 대상의 `market`을 같은 규칙으로 실음(호출 3곳). 계좌 id·금액은 조언에 넣지 않음 — 종목 시장 식별자만.
+- **fail-closed:** `decision-brief.verify()`에 `market`이 'KR'/'US'가 아니면(누락·null·빈 값·'JP'·소문자·숫자) '시장 식별자(KR/US) 없음'으로 판단 보류 추가. 기존 `verifyGroup()` 시장 상충 비교가 이제 실제 경로에서 동작.
+- **실제 경로 통합 시험(신규 1건):** portfolio-reader → advisor-bridge → advisor-core → briefing-model → decision-brief. ① 국내 계좌 1곳 보유 시 엔진 조언 market 'KR'·검증된 후보 1건, 모든 조언·관심종목 보류 조언에 시장 전달 ② 같은 종목을 국내·해외 계좌 양쪽에 둔 자료 3가지 입력 순서 모두 시장 ['KR','US']가 최종 조언까지 전달되고 종목 전체 판단 보류(후보 0) ③ 실제 엔진이 만든 조언을 시장만 바꿔 넣으면 정·역순 모두 '기록 상충(시장)' ④ 시장 누락·비정상 6종 보류 ⑤ 관심종목 시장 'JP'·시세 없음 보류 조언 market null·후보 0 ⑥ 조언에 계좌·금액 필드 없음.
+- 참고(사실): 현재 시세가 티커 기준 하나뿐이라 해외 계좌 쪽 같은 종목은 엔진 단계에서 이미 '감시 종목과 시세의 종목코드·시장 불일치'로 판단 보류되고, 결과는 '같은 종목 의견 상충'으로 보류됨. 시장 상충 검사는 그 뒤의 2차 방어선.
+- 기존 시험 수제 조언 `mk()`에 market 'US' 기본값, CR-2 반례 1건에 market 'KR' 추가(검사 순서상 시장 검사가 먼저 걸리지 않도록).
+- 고정(pin): `has/advisor-core.js`·`has/advisor-bridge.js`를 `live-data-edits.json`에 [현재, 이전] 역방향 쌍(1건·5건, 역적용으로 원본 재현 확인)과 `live-data-pins.json` baseline/current 해시로 등록, `decision-brief.js` 해시 갱신. KIS 보호 원본 증명 시험 통과.
+- 전체 `node --require ./tests/lib/no-network.cjs --test tests/*.test.cjs`: **2240 중 2238 통과 / 0 실패 / 2 skip**. `tools/scan-secrets.cjs` 발견 0.
+- 화면 변경 없음 → Chromium 재확인 생략(이전 단위 결과 유효). 갤럭시 실기기 미검증.
+- 순태씨 결정 필요: 없음(지피 재검토 APPROVE 후 운영 반영 여부만).
 
 ## 0-b. CR 반영 (GPT-REVIEW-risk-briefing-20261116-1330)
 - **CR-3 같은 종목 다계좌·중복:** `verifyGroup()`이 같은 티커의 **모든** 기록을 `verify()`로 검사 — 한 건이라도 실패하면 '같은 종목 N건 중 검증 실패: <사유>'로 종목 전체 판단 보류. 모두 통과해도 보유 여부·기준 시각·시장·실제/합성이 서로 다르면 '같은 종목 기록 상충(<항목>)'로 보류. 순서와 무관(정·역순 시험). 속성이 같은 유효 중복은 1건. 그룹 맵을 `Object.create(null)`로 바꿔 `constructor`·`__proto__`·`toString`·`hasOwnProperty` 티커도 일반 키로 처리(던지지 않음·오염 없음).
