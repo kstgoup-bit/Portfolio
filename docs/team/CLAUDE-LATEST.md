@@ -1,17 +1,23 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
-STATUS: READY_FOR_REVIEW (위험관리 상단 '오늘의 투자 판단'·같은 버튼 펼치기/접기 — GPT-20261116-1030 1단위, 저장소 한정, 운영 미반영) · 운영 최신 = main `4b46fea`+문서
-REPORT: docs/team/CLAUDE-DEV-RISK-BRIEFING-20261116.md
+STATUS: READY_FOR_REVIEW (위험관리 '오늘의 투자 판단' — GPT-REVIEW-risk-briefing-20261116-1230 CR-1·CR-2 반영, 저장소 한정, 운영 미반영) · 운영 최신 = main `4b46fea`+SEC GAS 파일·문서
+REPORT: docs/team/CLAUDE-DEV-RISK-BRIEFING-20261116.md (0절)
 BRANCH: work/claude-risk-briefing-20261116
-HEAD: 017e8034df17950f657e855aeb1513f85210ccf2 (코드) · 보고 커밋 6cba480(docs만) · BASE 0857a4b2d96ef798e254c9ab34773b668d9eccc5
-UPDATED: 2026-11-16 12:25 KST (정각 실행)
+HEAD: 978a2c02eb1281bb33bf675adaa85642014e8c0f (코드) · 보고 커밋 35a5f9d(docs만) · 검토 BASE 017e8034df17950f657e855aeb1513f85210ccf2
+UPDATED: 2026-11-16 13:25 KST (정각 실행)
 
-- 상단 브리핑 → '🧭 오늘의 투자 판단: 매수 검토 N · 매도 검토 N · 장기보유 N · 판단 보류 N · 중요 위험 N'(규칙 엔진이 근거를 갖춘 의견만 집계, 운영은 재무 미연결이라 0·0·0). 중요 위험 한 줄·가격 신뢰도 경고는 접혀도 항상 보임.
-- 가격 신뢰도·브리핑·후보 상세: 같은 버튼 '펼치기 ▼'↔'접기 ▲', aria-expanded 즉시 일치, 탭 이동 시 모두 접힘. 위험관리 하위 메뉴 줄바꿈(가로 스크롤 0).
-- 시험 신규 8건, 전체 2208 중 2205 통과/1 실패(universe-screen-dom — 변경 전 main도 동일 재현, 무관)/2 skip, 비밀값 0, Chromium 360/390/430/1280 확인. 갤럭시 실기기 미검증.
-- 지피 지시서 현황: GPT-20261116-1030 처리(READY_FOR_REVIEW, 지피 정적 검토 요청). GPT-REVIEW-sec-gas-20261116-1130 **APPROVE**(f3c5c78 정적 검토 한정) 기록 → SEC 재무 GAS 실제 반영은 순태씨 승인 대기. 새 GPT-ORDER 없음.
+- CR-1: 접힌 첫 화면에 매수 검토·매도 검토·장기보유 3분할 카드(정확한 건수, 0건은 0건) 상시 표시. 종목·근거·반론·보류 사유는 같은 버튼 펼치기 안.
+- CR-2: classify()가 verify() 검증 계약(fail-closed)을 통과한 의견만 후보로 셈 — 실제/합성 구분·화면 일치, dataQuality.ok, 근거·반론 실문장, 출처 있는 사실, 기준 시각(미래 아님), 매도·장기보유는 보유 확인, 동종목 상충 보류. 대체 문구 승격 제거.
+- 시험: 신규 2건(반례 17+·접힌 화면 DOM), 전체 2237 중 2235 통과/0 실패/2 skip, 비밀값 0, Chromium 360/390/430/1280(접힌 3카드 보임·넘침 0·12px 미만 0·오류 0). 갤럭시 실기기 미검증.
+- 지피 지시서 현황: GPT-REVIEW-risk-briefing-20261116-1230 CHANGES_REQUESTED 처리 → 재검토 요청. 새 GPT-ORDER 없음. SEC GAS는 main 병합 완료, Apps Script 배포는 순태씨 진행 대기.
 
 ## 이전 기록
+
+- (이전) STATUS: READY_FOR_REVIEW (위험관리 상단 '오늘의 투자 판단'·같은 버튼 펼치기/접기 — GPT-20261116-1030 1단위, 저장소 한정, 운영 미반영) · 운영 최신 = main `4b46fea`+문서
+- (이전) REPORT: docs/team/CLAUDE-DEV-RISK-BRIEFING-20261116.md
+- (이전) BRANCH: work/claude-risk-briefing-20261116
+- (이전) HEAD: 017e8034df17950f657e855aeb1513f85210ccf2 (코드) · 보고 커밋 6cba480(docs만) · BASE 0857a4b2d96ef798e254c9ab34773b668d9eccc5
+- (이전) UPDATED: 2026-11-16 12:25 KST (정각 실행)
 
 - (이전) STATUS: READY_FOR_REVIEW (SEC 재무 GAS 초안 — GPT-REVIEW-sec-gas-20261116-1030 CR-3/CR-4 반영, 저장소 한정, GAS·운영 미반영) · 운영 최신 = main `4b46fea`+문서 · 위대한 기업 탭 운영 중
 - (이전) REPORT: docs/team/CLAUDE-DEV-SEC-GAS-20261116.md(0-b절) (+ GAS-SEC-FUNDAMENTAL-DEPLOY-GUIDE-20261116.md)
