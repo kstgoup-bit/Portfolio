@@ -1,9 +1,17 @@
 STATUS: READY_FOR_REVIEW
-ORDER-ID: GPT-20261116-1030 (GPT-REVIEW-risk-briefing-20261116-1230 CR-1·CR-2 반영)
-BASE: 017e8034df17950f657e855aeb1513f85210ccf2
-HEAD: 978a2c02eb1281bb33bf675adaa85642014e8c0f
-REVIEW-SCOPE: 017e803..978a2c0 중 CR 수정분 = has/decision-brief.js·has/decision-brief.css·tests/decision-brief.test.cjs·tests/lib/live-data-pins.json (중간 merge 2146c31은 main 1d57664 반영 — SEC GAS·문서, pins 충돌만 해소). 운영 반영 아님 — main 병합·배포는 순태씨 '올려' 후.
-UPDATED: 2026-11-16 13:25 KST (정각 실행)
+ORDER-ID: GPT-20261116-1030 (GPT-REVIEW-risk-briefing-20261116-1330 CR-3·CR-4 반영)
+BASE: 978a2c02eb1281bb33bf675adaa85642014e8c0f
+HEAD: 5e4aed9d2742248b7a3d413eb6471a16cc476114
+REVIEW-SCOPE: 978a2c0..5e4aed9 중 has/decision-brief.js·tests/decision-brief.test.cjs·tests/lib/live-data-pins.json(decision-brief.js 해시만). 중간 merge는 main 59bec81(문서만) 반영. 화면·CSS·portfolio_v5.html 변경 없음. 운영 반영 아님 — main 병합·배포는 순태씨 '올려' 후.
+UPDATED: 2026-11-16 14:20 KST (정각 실행)
+
+## 0-b. CR 반영 (GPT-REVIEW-risk-briefing-20261116-1330)
+- **CR-3 같은 종목 다계좌·중복:** `verifyGroup()`이 같은 티커의 **모든** 기록을 `verify()`로 검사 — 한 건이라도 실패하면 '같은 종목 N건 중 검증 실패: <사유>'로 종목 전체 판단 보류. 모두 통과해도 보유 여부·기준 시각·시장·실제/합성이 서로 다르면 '같은 종목 기록 상충(<항목>)'로 보류. 순서와 무관(정·역순 시험). 속성이 같은 유효 중복은 1건. 그룹 맵을 `Object.create(null)`로 바꿔 `constructor`·`__proto__`·`toString`·`hasOwnProperty` 티커도 일반 키로 처리(던지지 않음·오염 없음).
+- **CR-4 브리핑 판단 시각·실제/합성 필수:** `brief.generatedAt` 없음·빈 값·손상·숫자형이면 '브리핑 판단 시각 없음'으로 보류(미래 확인 건너뛰기 제거), 유효하면 `asOf ≤ generatedAt+60초` 항상 강제. `brief.basis`가 'real'/'synthetic'이 아니면(누락·빈 값·'unspecified') '브리핑 자료 구분(실제/합성) 없음', 조언 basis와 다르면 보류.
+- 시험 신규 2건: CR-3(정상 다계좌·역순·한쪽 불신뢰·출처 누락·기준 시각 상충·보유/미보유 혼합·시장 상충·위험 키) / CR-4(생성시각 누락·빈·손상·숫자·미래 asOf·basis 누락·빈·unspecified·불일치 + 정상 실제·합성 회귀, 실제 엔진 경로 'unspecified' 브리핑 후보 0).
+- 전체 `node --require ./tests/lib/no-network.cjs --test tests/*.test.cjs`: **2239 중 2237 통과 / 0 실패 / 2 skip**. `tools/scan-secrets.cjs` 발견 0.
+- 화면 변경 없음(분류 논리만) → 이번 단위 Chromium 재확인 생략, 이전 단위 결과 유효. 갤럭시 실기기 미검증.
+- 순태씨 결정 필요: 없음(지피 재검토 APPROVE 후 운영 반영 여부만).
 
 ## 0. CR 반영 (GPT-REVIEW-risk-briefing-20261116-1230)
 - **CR-1 첫 화면 3카드:** 접힌 기본 화면에 '매수 검토 N건 · 매도 검토 N건 · 장기보유 N건' 3분할 상태 카드(`data-testid=hdb-mini`, 각 `hdb-card-buy/sell/hold`)를 접기 **밖**에 배치. 종목·근거·반론·판단 보류 사유는 같은 버튼 '펼치기 ▼' 안(`hdb-list-*`, `hdb-card-pending`). 0건이면 '0건' 그대로, 예시 수치·종목 없음. 중요 위험 한 줄·가격 신뢰도 경고는 그대로 접기 밖.
