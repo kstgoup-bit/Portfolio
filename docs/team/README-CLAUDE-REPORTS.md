@@ -7,6 +7,7 @@
 
 ## 최신 (2026-11-16)
 
+- 2026-11-16 SEC 재무 GAS 초안 `work/claude-sec-gas-20261116` 검토 요청 — 보고 CLAUDE-DEV-SEC-GAS-20261116.md, 배포 안내 GAS-SEC-FUNDAMENTAL-DEPLOY-GUIDE-20261116.md.
 - 2026-11-16 08:10 운영 반영: 위대한 기업 탭(읽기 전용·판단 보류) main `4b46fea` — 순태씨 '올려'.
 - 2026-11-16 07:10 지피 2330 APPROVE: 위대한 기업 운영 탭 연결 `work/claude-great-companies-20261115` `09d39c5` — 순태씨 운영 반영 승인 대기. 보고 CLAUDE-DEV-GREAT-COMPANIES-20261115.md(0-j).
 - 2026-11-15 23:10 지피 2230 CR 반영: 위대한 기업 다계좌 투자원칙 원문 내용 비교(공백·NFC 정규화, 원문 비노출)·productType 단독 company 승격 금지·상품 유형 상충 보류 `work/claude-great-companies-20261115` `09d39c5` 재검토 요청 — 보고 CLAUDE-DEV-GREAT-COMPANIES-20261115.md(0-j).

@@ -1,16 +1,22 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
-STATUS: RELEASED — 위대한 기업 운영 탭 연결 운영 반영 (순태씨 2026-11-16 '올려', 지피 2330 APPROVE) · 운영 최신 = main `4b46fea` · 지피 사후 검토 요청 유지: 뉴스 코드 완전 삭제 `d3f5fcc`
-REPORT: docs/team/CLAUDE-DEV-GREAT-COMPANIES-20261115.md(0-j절)
-BRANCH: work/claude-great-companies-20261115 → main 병합 `4b46fea4b6c8ec6c19a7a1f516fc73d1dcb5ada6`
-HEAD: 09d39c5b63ac4d8fc0bb64b1cb4a9011053cb4af (승인 HEAD와 앱 코드 동일, 병합 후 차이는 docs만)
-UPDATED: 2026-11-16 08:10 KST (순태씨 대화 '올려')
+STATUS: READY_FOR_REVIEW (SEC 재무 수집 GAS 초안 — 저장소 한정, GAS·운영 미반영) · 운영 최신 = main `19e5328`+문서 · 위대한 기업 탭 운영 중
+REPORT: docs/team/CLAUDE-DEV-SEC-GAS-20261116.md (+ GAS-SEC-FUNDAMENTAL-DEPLOY-GUIDE-20261116.md)
+BRANCH: work/claude-sec-gas-20261116
+HEAD: e375ba748cacee9cbabf89baaa138d435e251b29 · 검토 BASE 9953af8bafc659f06426897713f5b1d569d3896a
+UPDATED: 2026-11-16 (순태씨 대화 '진행')
 
-- 병합 후 전체 시험 2199 중 2197 통과/0 실패/2 skip(DST), 비밀값 0. GitHub Pages 배포 실행.
-- 갤럭시 실기기: 순태씨 확인 — 탭 정상 열림(2026-11-16). 후속: 종목 유형 공식 출처, universe-400 출처·기준일, 뉴스 삭제 사후 검토.
-- 지피 지시서 현황: 새 GPT-ORDER 없음.
+- gas/has-sec-fundamental.gs: type=fundamental&tickers=(≤6) → SEC companyfacts → normalize() 응답. 티커만 전송, 키·비용 없음, UA는 순태씨가 배포 때 입력. 시험 신규 7건, 전체 2206 중 2204 통과/0 실패/2 skip, 비밀값 0.
+- 미검증: 실제 SEC·GAS 실행시간·할당량. 앱 연결(응답→카드)은 다음 단계. GAS 반영은 순태씨 승인 필요.
+- 지피 지시서 현황: 새 GPT-ORDER 없음. 지피 검토 요청(REVIEW-SCOPE 보고서 머리말).
 
 ## 이전 기록
+
+- (이전) STATUS: RELEASED — 위대한 기업 운영 탭 연결 운영 반영 (순태씨 2026-11-16 '올려', 지피 2330 APPROVE) · 운영 최신 = main `4b46fea` · 지피 사후 검토 요청 유지: 뉴스 코드 완전 삭제 `d3f5fcc`
+- (이전) REPORT: docs/team/CLAUDE-DEV-GREAT-COMPANIES-20261115.md(0-j절)
+- (이전) BRANCH: work/claude-great-companies-20261115 → main 병합 `4b46fea4b6c8ec6c19a7a1f516fc73d1dcb5ada6`
+- (이전) HEAD: 09d39c5b63ac4d8fc0bb64b1cb4a9011053cb4af (승인 HEAD와 앱 코드 동일, 병합 후 차이는 docs만)
+- (이전) UPDATED: 2026-11-16 08:10 KST (순태씨 대화 '올려')
 
 - (이전) STATUS: APPROVED_BY_GPT — 순태씨 운영 반영 승인 대기 (지피 GPT-REVIEW-great-companies-20261115-2330 APPROVE, 정적 검토 한정. 브랜치 한정, 운영 미반영) · 운영 최신 = main `b362933` · 지피 사후 검토 요청 유지: 뉴스 코드 완전 삭제 `d3f5fcc`
 - (이전) REPORT: docs/team/CLAUDE-DEV-GREAT-COMPANIES-20261115.md(0-j절)
