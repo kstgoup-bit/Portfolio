@@ -7,6 +7,7 @@
 
 ## 최신 (2026-11-16)
 
+- 2026-11-16 19:11 순태씨 '올려': 오늘의 투자 판단·가격 신뢰도 띠 투자 탭 한정·위험관리 하위 메뉴 가로 스크롤 원복 → main `4617756` 운영 반영 — 보고 CLAUDE-DEV-BRIEF-INVEST-ONLY-20261116.md.
 - 2026-11-16 18:57 순태씨 요청: 오늘의 투자 판단 투자 탭 한정·위험관리 하위 메뉴 가로 스크롤 원복 `work/claude-brief-invest-only-20261116` `83d94f9`, 순태씨 '올려' 대기 — 보고 CLAUDE-DEV-BRIEF-INVEST-ONLY-20261116.md.
 - 2026-11-16 16:10 지피 1525 APPROVE — 위험관리 '오늘의 투자 판단' `work/claude-risk-briefing-20261116` `f63d62b`, 순태씨 '올려' 승인 대기 — 보고 CLAUDE-DEV-RISK-BRIEFING-20261116.md(0-d).
 - 2026-11-16 15:20 지피 1430 CR-5(시장 식별자 KR/US를 엔진·보류 조언까지 전달, 누락 fail-closed, 실제 경로 통합 시험) 반영 `work/claude-risk-briefing-20261116` `f63d62b` 재검토 요청 — 보고 CLAUDE-DEV-RISK-BRIEFING-20261116.md(0-c).

@@ -1,15 +1,21 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
-STATUS: READY_FOR_REVIEW (순태씨 직접 요청 — 오늘의 투자 판단 투자 탭 한정·위험관리 하위 메뉴 가로 스크롤 원복, 운영 미반영, 순태씨 '올려' 대기) · 운영 최신 = main `9036ed4`
+STATUS: DEPLOYED (순태씨 '올려' 19:11 KST, main `4617756`) — 갤럭시 실기기 확인 대기 (오늘의 투자 판단·가격 신뢰도 띠 투자 탭 한정, 위험관리 하위 메뉴 가로 스크롤 원복, 순태씨 직접 요청·지피 검토 없음)
 REPORT: docs/team/CLAUDE-DEV-BRIEF-INVEST-ONLY-20261116.md
 BRANCH: work/claude-brief-invest-only-20261116
-HEAD: 83d94f90bbcc4d74cea0100a13605ad7003977b9 (코드) · 보고 커밋 684f002(docs만) · BASE abaa57d
-UPDATED: 2026-11-16 18:57 KST (순태씨 대화)
+HEAD: 1ac3a7f430fab27aba924e0f8f0f20257176f236 (코드) · BASE abaa57d
+UPDATED: 2026-11-16 19:11 KST (순태씨 대화)
 
-- has/decision-brief.js·css만 변경(portfolio_v5.html 0). 전체 2241 중 2239 통과/0 실패/2 skip, 비밀값 0, Chromium 360/390/430 확인.
-- 지피 지시서 현황: 새 GPT-ORDER 없음. 다비 새 문서 없음. 지피 사후 검토 환영(REVIEW-SCOPE는 보고서 참조).
+- has/decision-brief.js·css만 변경(portfolio_v5.html·price-trust-ui.js 0). 병합 후 전체 2242 중 2240 통과/0 실패/2 skip, 비밀값 0, Chromium 360/390/430 확인.
+- 지피 지시서 현황: 새 GPT-ORDER 없음. 다비 새 문서 없음. 지피 사후 검토 환영.
 
 ## 이전 기록
+
+- (이전) STATUS: READY_FOR_REVIEW (순태씨 직접 요청 — 오늘의 투자 판단 투자 탭 한정·위험관리 하위 메뉴 가로 스크롤 원복, 운영 미반영, 순태씨 '올려' 대기) · 운영 최신 = main `9036ed4`
+- (이전) REPORT: docs/team/CLAUDE-DEV-BRIEF-INVEST-ONLY-20261116.md
+- (이전) BRANCH: work/claude-brief-invest-only-20261116
+- (이전) HEAD: 83d94f90bbcc4d74cea0100a13605ad7003977b9 (코드) · 보고 커밋 684f002(docs만) · BASE abaa57d
+- (이전) UPDATED: 2026-11-16 18:57 KST (순태씨 대화)
 
 - (이전) STATUS: DEPLOYED (순태씨 '올려' 16:xx KST, main `9036ed4`) — 갤럭시 실기기 확인 대기 (위험관리 '오늘의 투자 판단', GPT-REVIEW-risk-briefing-20261116-1525 APPROVE, 정적 검토 한정) · 운영 최신 = main `4b46fea`+SEC GAS 파일·문서
 - (이전) REPORT: docs/team/CLAUDE-DEV-RISK-BRIEFING-20261116.md (0-d절)
