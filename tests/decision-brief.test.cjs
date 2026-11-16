@@ -284,3 +284,15 @@ test('순태씨 2026-11-16: 두 띠는 투자 > 현황에서만 — 일반·ISA�
   gen.classList.remove('active'); dash.classList.add('active'); D2.onTabChange('dashboard');
   a.equal(box.classList.contains('hdb-off'), false, '현황 복귀: 판단 보임'); a.equal(pt.classList.contains('hdb-off'), false, '현황 복귀: 가격 보임');
 });
+
+test('판단 보류 종목에 종목명 표시: 앱 이름표 우선, 없으면 의견의 name, 둘 다 없으면 코드만', async () => {
+  const w = dom(), D2 = w.HASDecisionBrief, box = w.document.getElementById('hasBriefStrip');
+  D2.install();
+  const mk = (t, name) => ({ ticker: t, name, opinion: '판단 보류', reasonsFor: [], reasonsAgainst: ['확인된 시세 없음'], unknown: [], risks: [], holding: { held: true } });
+  const b = { opinions: [mk('00680K', '00680K'), mk('487240', '487240'), mk('AAA', 'Alpha Corp')], buyCandidates: [], risks: [] };
+  D2.renderStrip(box, { brief: b, names: { '00680K': '미래에셋증권2우B', constructor: 'x' } }, () => { });
+  const rows = Array.from(box.querySelectorAll('[data-testid=hdb-item-pending] .hdb-row b')).map(e => e.textContent);
+  a.deepEqual(rows, ['미래에셋증권2우B (00680K)', '487240', 'Alpha Corp (AAA)']);
+  D2.renderStrip(box, { brief: b }, () => { }); // names 없이 다시 그려도 오류 없음
+  a.equal(box.querySelectorAll('[data-testid=hdb-item-pending]').length, 3);
+});

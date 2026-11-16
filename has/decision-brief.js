@@ -69,7 +69,7 @@
     });
     order.forEach(function (tk) {
       var g = groups[tk], a = g[0]; out.total++;
-      var item = { ticker: tk, opinion: str(a.opinion), held: !!(a.holding && a.holding.held === true), reason: '', against: first(a.reasonsAgainst), asOf: str(a.asOf || a.generatedAt), basis: str(a.basis) };
+      var item = { ticker: tk, opinion: str(a.opinion), held: !!(a.holding && a.holding.held === true), reason: '', against: first(a.reasonsAgainst), asOf: str(a.asOf || a.generatedAt), basis: str(a.basis), name: (typeof a.name === 'string' && a.name !== tk) ? a.name : '' };
       var k = null; KINDS.forEach(function (x) { if (x.opinion === a.opinion) k = x.key; });
       var why = '';
       // 같은 종목에 서로 다른 의견이 있으면 상충 → 판단 보류
@@ -91,7 +91,7 @@
   /* ---------- 화면(브라우저 전용) ---------- */
   var openState = {}, registry = [];
   function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
-  var uid = 0;
+  var uid = 0, nameMap = Object.create(null); // 종목명 표시용(앱의 보유종목 이름표). 없으면 코드만.
   /* 같은 버튼 1회 → 펼침, 다시 1회 → 접힘. details/summary(키보드 Enter/Space·터치·스크린리더 기본 동작) + 버튼 모양·문구·aria-expanded 동기화. */
   function wire(d, key, body) {
     var s = d.querySelector(':scope > summary'); if (!s) return d;
@@ -119,7 +119,7 @@
   function onTabChange() { closeAll(); applyScope(); }
   function item(it, kind) {
     var li = el('div', 'hdb-item'); li.setAttribute('data-testid', 'hdb-item-' + kind);
-    var row = el('div', 'hdb-row'); row.appendChild(el('b', '', it.ticker)); row.appendChild(el('span', 'hdb-op', it.opinion || '판단 보류')); li.appendChild(row);
+    var row = el('div', 'hdb-row'); row.appendChild(el('b', '', (nameMap[it.ticker] || it.name) ? (nameMap[it.ticker] || it.name) + ' (' + it.ticker + ')' : it.ticker)); row.appendChild(el('span', 'hdb-op', it.opinion || '판단 보류')); li.appendChild(row);
     var d = collapsible('item|' + kind + '|' + it.ticker, it.ticker + ' 상세 근거'); var body = el('div', 'hdb-body');
     body.appendChild(el('div', '', (kind === 'pending' ? '보류 사유: ' : '근거: ') + it.reason));
     if (kind !== 'pending') body.appendChild(el('div', '', '반론·제약: ' + (it.against || '반대 근거는 자료에서 확인되지 않음(검토 필요)')));
@@ -128,6 +128,7 @@
   }
   function renderStrip(box, computed, openStaff) {
     prune(); box.replaceChildren(); box.classList.add('hdb'); box.setAttribute('role', 'region'); box.setAttribute('aria-label', '오늘의 투자 판단');
+    nameMap = Object.create(null); var nm0 = computed && computed.names; if (nm0 && typeof nm0 === 'object') Object.keys(nm0).forEach(function (k) { if (typeof nm0[k] === 'string' && nm0[k]) nameMap[k] = nm0[k]; });
     var c = classify(computed && computed.brief);
     var head = el('div', 'hdb-head'); var t = el('span', 'hdb-sum'); t.setAttribute('data-testid', 'hs-strip-text');
     t.appendChild(el('strong', '', '🧭 오늘의 투자 판단: '));
