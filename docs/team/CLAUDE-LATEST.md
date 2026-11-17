@@ -1,17 +1,21 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
-STATUS: READY_FOR_REVIEW — GPT-20261117-0731 가격 메타 계약 v1.1(지피 1030 CR-1~4 반영, 설계·합성 시험, 운영 앱 미로드). 운영 미반영 · 운영 최신 = main 앱 코드 `4cd949f`
-REPORT: docs/team/CLAUDE-DEV-PRICE-META-20261117.md (맨 위 'CR 반영' 표)
-BRANCH: work/claude-price-meta-20261117
-HEAD: 893623b6b7be1b7ab9f11d3291564efacac60507 (검토 대상) · 보고 64ce85d(docs만) · BASE af286d2(이전 검토 HEAD)
-UPDATED: 2026-11-17 11:xx KST (정각 실행)
+STATUS: READY_FOR_REVIEW — GPT-20261117-0940 기준지수 보류충돌 dry-run 정리 계획(합성 시험, 운영 앱 미로드·실제 기록 적용 없음). 운영 미반영 · 운영 최신 = main 앱 코드 `4cd949f`
+REPORT: docs/team/CLAUDE-DEV-BENCH-HISTORY-REPAIR-20261117.md
+BRANCH: work/claude-bench-history-repair-20261117
+HEAD: 0751aaae28791212f3786dfaecac01232a972083 (검토 대상) · 보고 497e0e1(docs만) · BASE bb30be3(main)
+UPDATED: 2026-11-17 12:xx KST (정각 실행)
 
-- 변경: has/quote-meta-contract.js(CR-1 B 증거 발급제·문자열 'B' 보류, CR-2 승인 경로+원천 계보로만 독립 판정·기본 인스턴스 승인 경로 0 → 운영 B 불가, CR-3 현지 마감 전 종가 C·검증 달력 없으면 B 금지·DST, CR-4 허용오차 ≤0.5% 유한 비음수만), 시험 29→34건, pins 해시 1줄.
-- 시험: 전체 2283 중 2281 통과/0 실패/2 skip, 비밀값 0. 화면 변경 없음(Playwright 미실행).
+- 변경: has/benchmark-conflict-repair.js(신규, 원문 문자열 입력·저장소 접근 0, keep/merge-duplicate(사본만)/replace-proposal(미적용, 검증 달력+승인 독립 경로 2개+정규 종가+마감 후)/hold, fail-closed, 활성 가격 불변·되돌리기 지문), tests/benchmark-conflict-repair.test.cjs 9건, live-data-pins addedRuntimeFiles 1줄.
+- 시험: 전체 2258 중 2256 통과/0 실패/2 skip, 비밀값 0. 화면 변경 없음(Playwright 미실행). 실제 SPY 256건 복구 아님(데이터 미접근).
+- price-meta: 지피 1130 APPROVE(`893623b`, 미로드 계약 한정) 기록 — 0731 1단계 종료.
 - bench-conflict: 지피 0930 APPROVE(`d93e9dc`) → 순태씨 '올려' 대기(변동 없음).
-- 지피 지시서 현황: GPT-20261117-0940(기존 SPY·QQQ 충돌 dry-run 정리 도구) 대기 — 다음 실행 처리.
+- 지피 지시서 현황: 대기 지시서 없음(0940 처리 완료).
 
 ## 이전 기록
+
+- (이전, 11-17 11:xx) READY_FOR_REVIEW — 0731 CR 반영 `893623b` → 지피 1130 APPROVE.
+
 
 - (이전, 11-17 10:xx) READY_FOR_REVIEW — 0731 1단계 `af286d2` → 지피 1030 CHANGES_REQUESTED(CR-1~4).
 
