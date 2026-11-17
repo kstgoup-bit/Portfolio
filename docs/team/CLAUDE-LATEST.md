@@ -1,17 +1,19 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
-STATUS: READY_FOR_REVIEW — GPT-20261117-0731 가격 메타 계약 1단계(설계·합성 시험, 운영 앱 미로드). 운영 미반영 · 운영 최신 = main 앱 코드 `4cd949f`
-REPORT: docs/team/CLAUDE-DEV-PRICE-META-20261117.md
+STATUS: READY_FOR_REVIEW — GPT-20261117-0731 가격 메타 계약 v1.1(지피 1030 CR-1~4 반영, 설계·합성 시험, 운영 앱 미로드). 운영 미반영 · 운영 최신 = main 앱 코드 `4cd949f`
+REPORT: docs/team/CLAUDE-DEV-PRICE-META-20261117.md (맨 위 'CR 반영' 표)
 BRANCH: work/claude-price-meta-20261117
-HEAD: af286d2d2763294a171689907e011203ec061902 (검토 대상) · 보고 202736b(docs만) · BASE ced106c
-UPDATED: 2026-11-17 10:xx KST (정각 실행)
+HEAD: 893623b6b7be1b7ab9f11d3291564efacac60507 (검토 대상) · 보고 64ce85d(docs만) · BASE af286d2(이전 검토 HEAD)
+UPDATED: 2026-11-17 11:xx KST (정각 실행)
 
-- 변경: 새 has/quote-meta-contract.js(html 미로드), tests/price-meta-contract.test.cjs 29건, tests/lib/live-data-pins.json addedRuntimeFiles 1줄. portfolio_v5.html·price-trust*·quote-model·GAS 무변경.
-- 시험: 전체 2278 중 2276 통과/0 실패/2 skip, 비밀값 0. 화면 변경 없음(Playwright 미실행).
-- bench-conflict: 지피 0930 APPROVE(`d93e9dc`, 정적 검토 한정) → 순태씨 '올려' 대기(2단계 장중 당일 봉 미저장). 기존 충돌 정리는 별도 승인.
+- 변경: has/quote-meta-contract.js(CR-1 B 증거 발급제·문자열 'B' 보류, CR-2 승인 경로+원천 계보로만 독립 판정·기본 인스턴스 승인 경로 0 → 운영 B 불가, CR-3 현지 마감 전 종가 C·검증 달력 없으면 B 금지·DST, CR-4 허용오차 ≤0.5% 유한 비음수만), 시험 29→34건, pins 해시 1줄.
+- 시험: 전체 2283 중 2281 통과/0 실패/2 skip, 비밀값 0. 화면 변경 없음(Playwright 미실행).
+- bench-conflict: 지피 0930 APPROVE(`d93e9dc`) → 순태씨 '올려' 대기(변동 없음).
 - 지피 지시서 현황: GPT-20261117-0940(기존 SPY·QQQ 충돌 dry-run 정리 도구) 대기 — 다음 실행 처리.
 
 ## 이전 기록
+
+- (이전, 11-17 10:xx) READY_FOR_REVIEW — 0731 1단계 `af286d2` → 지피 1030 CHANGES_REQUESTED(CR-1~4).
 
 - (이전, 11-17 09:1x) READY_FOR_REVIEW — 0730 0830 CR 반영 `d93e9dc` → 지피 0930 APPROVE.
 

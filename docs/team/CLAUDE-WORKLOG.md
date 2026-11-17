@@ -19,6 +19,7 @@
 다음 묶음: 1단계 후속(탭 첫 진입 자동 조회·하루 캐시, 확신 종목 UI 25%/10%, '준비 중' 제거) → 2차 재무(SEC EDGAR, DART) → 서비스워커 rollback.
 
 ## 처리한 지시서
+- GPT-REVIEW-price-meta-20261117-1030 — CHANGES_REQUESTED(CR-1 B 증거, CR-2 독립 공급자, CR-3 종가 시간·달력, CR-4 허용오차) 반영 `893623b`(보고 `64ce85d`), 재검토 요청 2026-11-17 11:xx
 - GPT-20261117-0731 (2026-11-17 10:xx) READY_FOR_REVIEW: 가격 메타 계약 v1 설계 — has/quote-meta-contract.js(운영 앱 미로드)·합성 시험 29건 `af286d2`, 보고 `202736b` (`work/claude-price-meta-20261117`). 전체 2278 중 2276 통과/0 실패/2 skip, 비밀값 0. 운영·GAS 변경 0.
 - GPT-REVIEW-bench-conflict-cause-20261117-0930 — APPROVE(HEAD `d93e9dc` 정적 검토 한정: 1단계 합성 증빙 + 2단계 장중 당일 봉 미저장 `8fa6c11`, 운영 승인 아님), 기록 2026-11-17 10:xx · ORDER GPT-20261117-0730 종료 · 순태씨 '올려' 승인 요청. 기존 충돌 정리는 별도 승인.
 - GPT-REVIEW-bench-conflict-cause-20261117-0830 — CHANGES_REQUESTED(CR-1 (g) 복구·백업 분리 시험, CR-2 H3 증거 수준) 반영 `d93e9dc`(보고 `fc47ee0`), 재검토 요청 2026-11-17 09:1x
@@ -176,3 +177,4 @@
 - 2026-11-17 (순태씨 대화 '올려') 15계명 탭 위험관리 맨 오른쪽 `349ca41` → main `4cd949f`(no-ff) 운영 반영. 병합 후 전체 2249 중 2247 통과/0 실패/2 skip, 비밀값 0. 다음: 갤럭시 확인 / 지피 답변 2건 확인.
 - 2026-11-17 09:1x 정각 실행: 지피 GPT-REVIEW-bench-conflict-cause-20261117-0830 CHANGES_REQUESTED 반영 — 새 `tests/benchmark-conflict-backup-g.test.cjs` 6건(실제 backup/core create/parse/preview/apply/undo 합성 왕복, 레거시 원문 바이트 보존, 지문 일치/불일치, 그룹 합침, 쓰기 실패 자동 되돌림, 256건 왕복 후에도 store-bound 잔존), 보고 H3 '기여 여부 미검증'. `d93e9dc`, 보고 `fc47ee0`. 전체 2268 중 2266 통과/0 실패/2 skip, 비밀값 0. 운영·has·backup·GAS·실자료 변경 0. GPT-20261117-0731(가격 메타 계약) 다음 실행 처리 예정. 다음: 지피 재검토 / 0731.
 - 2026-11-17 10:xx 정각 실행: 지피 0930 APPROVE(bench-conflict `d93e9dc`) 기록 → 순태씨 '올려' 승인 요청. GPT-20261117-0731 처리: `work/claude-price-meta-20261117` `af286d2`(main ced106c 기준) — 계약 v1(`__quoteMeta` 추가·U/A/B/C·자가 선언 무시·B여도 재무·본질가치·공시·반론 관문)·띠 우선순위·현행 반례 3건 고정, live-data-pins addedRuntimeFiles 1줄. 전체 2278 중 2276 통과/0 실패/2 skip, 비밀값 0, 화면 변경 없음. 새 GPT-ORDER-20261117-0940(기존 충돌 dry-run 정리 도구) 접수 — 다음 실행 착수. 다음: 0940 / 지피 0731 검토 / 순태씨 bench-conflict '올려'.
+- 2026-11-17 11:xx 정각 실행: 지피 GPT-REVIEW-price-meta-20261117-1030 CHANGES_REQUESTED 반영 — `work/claude-price-meta-20261117` `893623b`(main d8f0760 docs merge 후): signalPolicy 문자열 'B' 보류·인스턴스 발급 증거만 인정, A 시세 동결·발급 등록, 독립성은 앱 코드 route + 신뢰 설정 upstream(기본 0개 → B 불가), 정규장 마감 전 종가 C(DST)·검증 달력 없으면 B 금지, 허용오차 ≤0.5% 유한 비음수만. 시험 34건, 전체 2283 중 2281 통과/0 실패/2 skip, 비밀값 0. 운영·GAS 변경 0. 다음: GPT-20261117-0940(SPY·QQQ 충돌 dry-run 정리 도구) 처리.
