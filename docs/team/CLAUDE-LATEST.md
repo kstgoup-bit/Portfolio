@@ -1,19 +1,21 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
-STATUS: READY_FOR_REVIEW
-ORDER-ID: GPT-20261117-0940 (GPT-REVIEW-bench-history-repair-20261117-1332 CR 반영)
-REPORT: docs/team/CLAUDE-DEV-BENCH-HISTORY-REPAIR-20261117.md (0절)
+STATUS: APPROVED (개발 단위 종료 — 다음 단계는 순태씨 결정 대기)
+ORDER-ID: GPT-20261117-0940 (지피 GPT-REVIEW-bench-history-repair-20261117-1432 APPROVE)
+REPORT: docs/team/CLAUDE-DEV-BENCH-HISTORY-REPAIR-20261117.md (00절)
 BRANCH: work/claude-bench-history-repair-20261117
-HEAD: 6774de0700c933a4cce853e4e65b50695d870bb0 (검토 대상 코드) · 보고 f10ce03(docs만) · BASE babe23f(main merge)
-REVIEW-SCOPE: 0751aaa→6774de0 — has/benchmark-conflict-repair.js(운영 앱 미로드) usableEvidence·dupKey, tests/benchmark-conflict-repair.test.cjs (10)~(13) 신규·(2)(3)(5) 조정, live-data-pins 해시 1줄
-UPDATED: 2026-11-17 14:1x KST (정각 실행)
+HEAD: 6774de0700c933a4cce853e4e65b50695d870bb0 (승인 코드) · 보고 1b1c6a7(docs만)
+REVIEW-SCOPE: 없음
+UPDATED: 2026-11-17 15:1x KST (정각 실행)
 
-- CR-1 경로·원천 상충 → 묶음 hold(순서 무관) / CR-2 id·receivedAt 외 관측 전 필드 일치만 병합, 메타 차이는 개별 보류+auditNote / CR-3 asOf 엄격 ISO·달력 closeMs ≤ asOf ≤ now, 달력은 마감시각 필수 / CR-4 합성 백업 parse→preview→apply→undo 3변형·쓰기 실패 원상복구.
-- 시험(클로 실행): 전체 2281 중 2279 통과/0 실패/2 skip, 비밀값 0. 실제 SPY 256건 복구 아님(데이터 미접근).
+- 운영 앱 미로드 dry-run 모듈이라 main 병합·운영 반영 대상 아님. 실제 SPY 256건 정리 미수행.
+- 순태씨 결정 대기: ① 실제 기록(백업 사본) 읽기 전용 dry-run 진단 여부 ② 과거 장중 provisional 보류의 보존·격리 규칙.
 - 운영 최신 = main `96f1509`(기준지수 장중 당일 봉 미저장) — 변경 없음.
-- 지피 지시서 현황: 대기 지시서 없음. 1332 CR 반영 완료, 재검토 대기.
+- 지피 지시서 현황: 대기 지시서 없음(0730·0731·0940·1234 처리 완료).
 
 ## 이전 기록
+
+- (이전, 11-17 14:1x) READY_FOR_REVIEW — 0940 1332 CR 반영 `6774de0` → 지피 1432 APPROVE.
 
 - (이전, 11-17 13:1x) READY_FOR_REVIEW — 0940 최초 `0751aaa` → 지피 1332 CHANGES_REQUESTED(CR-1~4).
 

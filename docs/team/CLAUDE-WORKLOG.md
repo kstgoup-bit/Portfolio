@@ -19,6 +19,7 @@
 다음 묶음: 1단계 후속(탭 첫 진입 자동 조회·하루 캐시, 확신 종목 UI 25%/10%, '준비 중' 제거) → 2차 재무(SEC EDGAR, DART) → 서비스워커 rollback.
 
 ## 처리한 지시서
+- GPT-REVIEW-bench-history-repair-20261117-1432 (2026-11-17 15:1x) APPROVE 기록: 0940 미로드·합성 dry-run 개발 단위 종료(`6774de0`). 운영 반영 대상 아님. 실제 기록 정리·provisional 규칙은 순태씨 결정 대상.
 - GPT-REVIEW-bench-history-repair-20261117-1332 (2026-11-17 14:xx) CHANGES_REQUESTED 반영 → READY_FOR_REVIEW: CR-1 경로·원천 상충 묶음 hold, CR-2 관측 전 필드 일치만 병합·메타 차이 감사 표기, CR-3 근거 asOf 엄격 ISO·[달력 closeMs, now]·달력 마감시각 필수, CR-4 합성 백업 apply/undo 왕복. HEAD `6774de0`, 보고 `f10ce03`.
 - GPT-20261117-1234 (2026-11-17 13:1x) 완료: 문서 메타데이터만 — 0940 보고 HEADER READY_FOR_REVIEW·HEAD `0751aaa` 일치·GPT-REVIEW 없음 확인 후 CLAUDE-LATEST 최상단을 READY_FOR_REVIEW로 정정, 운영 배포 `96f1509`는 이전 기록으로 분리. 코드·시험·자료 변경 0, 지피 검토 완료 아님.
 - GPT-20261117-0940 (2026-11-17 12:xx) READY_FOR_REVIEW: 기준지수 보류충돌 dry-run 정리 계획 — has/benchmark-conflict-repair.js(운영 앱 미로드)·합성 시험 9건 `0751aaa`, 보고 `497e0e1` (`work/claude-bench-history-repair-20261117`). 전체 2258 중 2256 통과/0 실패/2 skip, 비밀값 0. 실제 기록·백업·GAS·운영 변경 0, 실제 SPY 256건 복구 아님.
@@ -186,3 +187,4 @@
 - 2026-11-17 (순태씨 대화 '올려') 기준지수 장중 당일 봉 미저장 `d93e9dc`(지피 0930 APPROVE) → main `96f1509`(no-ff) 운영 반영. 병합 후 전체 2268 중 2266 통과/0 실패/2 skip, 비밀값 0. 기존 충돌 256건은 그대로(정리 안 함). 다음: 갤럭시 확인(새 충돌 증가 멈춤 여부) / 지피 0940 검토 / 장중 보류 처리 규칙 결정.
 - 2026-11-17 13:1x 정각 실행: GPT-20261117-1234 처리(LATEST·README·일지 문서만, 0940 READY_FOR_REVIEW 포인터 정정). 코드·시험 재실행 없음. 다음: 지피 0940 검토 대기 / 장중 provisional 보류 처리 규칙 순태씨 결정.
 - 2026-11-17 14:xx 정각 실행: 지피 1332 CR-1~4 반영 `work/claude-bench-history-repair-20261117` `6774de0`(main babe23f merge 후) — 시험 (10)~(13) 신규, (2)(3) 과거 장중 보류 합성 재현 방식 변경(96f1509 이후 앱 경로로는 생성 불가). 전체 2281 중 2279 통과/0 실패/2 skip, 비밀값 0, 화면 변경 없음. 운영·GAS·실자료 변경 0. 다음: 지피 재검토 / 실제 기록 정리 여부·장중 보류 규칙 순태씨 결정.
+- 2026-11-17 15:1x 정각 실행: 지피 1432 APPROVE(bench-history-repair `6774de0`) 기록, 브랜치 보고 머리글 APPROVED `1b1c6a7`. 새 GPT-ORDER 없음, 다비 새 문서 없음. 코드 변경 0, 시험 재실행 안 함. 다음: 순태씨 결정(실제 기록 읽기 전용 진단 여부·장중 provisional 보존 규칙) 대기 / 갤럭시 확인.
