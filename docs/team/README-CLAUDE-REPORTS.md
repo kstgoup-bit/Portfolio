@@ -6,6 +6,7 @@
 - `COLLAB-PROTOCOL.md` — 다비↔클로 정기 깃허브 협업 규칙(브랜치·보고서·승인). **작업 전 필독.**
 
 ## 최신 (2026-11-17)
+- 2026-11-17 순태씨 '올려': 백업 다운로드 폴백 `6d1f5be` 운영 반영(main `eb00c71`) — 보고 CLAUDE-DEV-BACKUP-DOWNLOAD-20261117.md, 지피 사후 검토 요청.
 - 2026-11-17 15:1x 지피 1432 APPROVE: 기준지수 보류충돌 dry-run 정리 도구 `6774de0` 개발 단위 종료(운영 미로드·반영 대상 아님) — 실제 기록 진단·provisional 규칙은 순태씨 결정 대기.
 - 2026-11-17 14:1x 지피 1332 CR-1~4 반영: 기준지수 보류충돌 dry-run 정리 도구 `work/claude-bench-history-repair-20261117` `6774de0` 재검토 요청 — 보고 CLAUDE-DEV-BENCH-HISTORY-REPAIR-20261117.md(0절).
 - 2026-11-17 13:1x 지피 1234: LATEST 상태 포인터 정정 — 0940 bench-history-repair `0751aaa` READY_FOR_REVIEW(지피 검토 대기) · 운영 main `96f1509`는 별개 DEPLOYED.

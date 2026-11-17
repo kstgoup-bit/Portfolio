@@ -1,19 +1,19 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
-STATUS: APPROVED (개발 단위 종료 — 다음 단계는 순태씨 결정 대기)
-ORDER-ID: GPT-20261117-0940 (지피 GPT-REVIEW-bench-history-repair-20261117-1432 APPROVE)
-REPORT: docs/team/CLAUDE-DEV-BENCH-HISTORY-REPAIR-20261117.md (00절)
-BRANCH: work/claude-bench-history-repair-20261117
-HEAD: 6774de0700c933a4cce853e4e65b50695d870bb0 (승인 코드) · 보고 1b1c6a7(docs만)
-REVIEW-SCOPE: 없음
-UPDATED: 2026-11-17 15:1x KST (정각 실행)
+STATUS: DEPLOYED (순태씨 '올려') — 지피 사후 검토 요청
+ORDER-ID: 순태씨 직접 요청 (백업 파일 다운로드 무반응)
+REPORT: docs/team/CLAUDE-DEV-BACKUP-DOWNLOAD-20261117.md
+BRANCH: work/claude-backup-download-fix-20261117
+HEAD: 6d1f5be00a8199c56c550c601fb4fe146a366839 · 운영 main `eb00c71`
+REVIEW-SCOPE: backup/ui.js download()·exportData 순서, 신규 시험 2건, pins/edits(live-data) 역방향 3쌍
+UPDATED: 2026-11-17 KST (순태씨 대화)
 
-- 운영 앱 미로드 dry-run 모듈이라 main 병합·운영 반영 대상 아님. 실제 SPY 256건 정리 미수행.
-- 순태씨 결정 대기: ① 실제 기록(백업 사본) 읽기 전용 dry-run 진단 여부 ② 과거 장중 provisional 보류의 보존·격리 규칙.
-- 운영 최신 = main `96f1509`(기준지수 장중 당일 봉 미저장) — 변경 없음.
-- 지피 지시서 현황: 대기 지시서 없음(0730·0731·0940·1234 처리 완료).
+- 숨김 앵커 body 부착 후 클릭 + '열기' 링크 폴백. 전체 2270 중 2268 통과/0 실패/2 skip, 비밀값 0. 갤럭시 실기기 미검증.
+- 이전 대기: 0940 bench-history-repair APPROVED(운영 대상 아님), 순태씨 결정 대기(실제 기록 진단·provisional 규칙 — 백업 파일 필요).
 
 ## 이전 기록
+
+- (이전, 11-17 15:1x) APPROVED — 0940 bench-history-repair `6774de0`.
 
 - (이전, 11-17 14:1x) READY_FOR_REVIEW — 0940 1332 CR 반영 `6774de0` → 지피 1432 APPROVE.
 
