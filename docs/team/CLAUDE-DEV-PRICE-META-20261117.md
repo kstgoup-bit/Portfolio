@@ -1,9 +1,25 @@
 STATUS: READY_FOR_REVIEW
-ORDER-ID: GPT-20261117-0731
-BASE: ced106c740de4932e2ca6582d9517de6692d22ce (main, 지시서 BASE ed021ee 이후 docs·bench-conflict 반영분 포함)
-HEAD: af286d2d2763294a171689907e011203ec061902 (검토 대상, 코드·시험) · 보고는 다음 docs 커밋
-REVIEW-SCOPE: 1단계 설계·합성 시험만 — 새 순수 모듈 has/quote-meta-contract.js(운영 앱 미로드), tests/price-meta-contract.test.cjs(29건), live-data-pins addedRuntimeFiles 1줄, 이 보고서. portfolio_v5.html·has/price-trust*·quote-model·GAS·저장 자료 운영 동작 변경 0.
-UPDATED: 2026-11-17 10:xx KST (정각 실행)
+ORDER-ID: GPT-20261117-0731 (GPT-REVIEW-price-meta-20261117-1030 CHANGES_REQUESTED 반영)
+BASE: af286d2d2763294a171689907e011203ec061902 (이전 검토 HEAD) · main d8f0760(docs만) merge 포함
+HEAD: 893623b6b7be1b7ab9f11d3291564efacac60507 (검토 대상, 코드·시험) · 보고는 다음 docs 커밋
+REVIEW-SCOPE: CR-1~4 반영분만 — has/quote-meta-contract.js(여전히 portfolio_v5.html 미로드), tests/price-meta-contract.test.cjs(29→34건, B 관련 2건 교체 + CR 시험 5건), live-data-pins addedRuntimeFiles 해시 1줄. portfolio_v5.html·price-trust*·quote-model·GAS·저장 자료 변경 0.
+UPDATED: 2026-11-17 11:xx KST (정각 실행)
+
+## CR 반영 (지피 1030) — v1.1
+| CR | 변경 | 재현 시험 |
+|---|---|---|
+| CR-1 B 증거 없는 해제 | `signalPolicy`는 문자열 `'B'`를 항상 보류. 같은 계약 인스턴스의 `crossCheck`가 발급·동결·WeakSet 등록한 증거 객체만 인정. `parseResponse`의 A 시세도 동결·발급 등록 → 호출자가 만든 가짜 A로 대조 불가 | `'B'`+관문 4개 true → hold, 모양만 같은 위조 증거 → hold, 다른 인스턴스 증거 → hold, 가짜 A → C, 증거·시세 변경 시 TypeError |
+| CR-2 이름 ≠ 독립 | `source`는 표시용. 독립성은 앱 코드가 넘기는 `ctx.route`(응답 아님) + 앱 내부 신뢰 설정 `createContract({routes:{id:{approved:true, upstream}}})`의 원천 계보로만. **기본 인스턴스는 승인 경로 0개 → 운영에서 B 불가.** 응답 안 `route/upstream/lineage`는 무시(플래그) | 같은 경로·이름만 다름 → C, 다른 경로·다른 이름·같은 원천(대소문자 무시) 재포장 → C, 미승인 경로 → C, 응답 자가 선언 경로 → C, 형식 틀린 설정 → 승인 0개 |
+| CR-3 종가 시간·거래일 | `regular-close`는 거래소 현지 시각(Intl 시간대, DST 자동) 표준 마감(US 16:00 ET, KR 15:30 KST) 이전이면 C. `crossCheck`는 검증된 `closeCalendar(market, date)`가 없으면(기본) C, 휴장·형식 오류·예외·달력 마감 전도 C. 수신시각은 근거로 안 씀 | 11:00 ET 위장 → C, 11월 20:00Z(15:00 EST) C/21:00Z A, 3-6 EST 20:30Z C/21:05Z A, 3-9 EDT 19:30Z C/20:05Z A, KR 11:00 C/15:30 A, 달력 없음·휴장·예외·17:00 마감·'4pm' → C |
+| CR-4 허용오차 | 고정 정책값 0.5%(설계 제안, 공식 검증 아님) 이하 유한 비음수만. 그 외(Infinity·NaN·음수·1·0.0051·문자열·null) 보류, 옵션 형식 오류 보류 | 0.5% 정확히 B, 0.51% C, 더 엄격한 0.1%는 적용 |
+
+- 시험: 이 파일 34/34. 전체 2283 중 2281 통과/0 실패/2 skip(기존 skip), `tools/scan-secrets` 발견 0. 화면 변경 없음 → Playwright 미실행.
+- 미검증: 미국·한국 휴장·조기폐장 공식 달력 미연결(그래서 B 금지 유지), 표준 마감 시각은 일반 지식(공식 문서 재확인 전 미검증), 0.5%는 설계 제안. 실제 GAS·두 번째 공급자 접속 없음. 지피 독립 재현 전.
+- 한계(정직): 조기폐장일의 진짜 종가(예: 13:00)는 현재 C로 떨어진다 — fail-closed 의도. 신뢰 설정은 앱 코드에서만 정해야 하며, 이를 바꾸는 코드는 별도 검토·순태씨 승인 대상.
+- 순태씨 결정 필요: 없음(설계 단계). 다음: 지피 재검토 → 2단계(운영 연결)는 별도 승인.
+
+---
+(이하 1단계 최초 보고, HEAD af286d2 기준 — 5·7절 등 B 관련 설명은 위 v1.1이 우선)
 
 # 가격 신뢰도 — 종목별 출처·기준시각 계약 v1 설계 (GPT-20261117-0731)
 
