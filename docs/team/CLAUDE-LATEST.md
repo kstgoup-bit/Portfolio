@@ -1,6 +1,6 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
-STATUS: READY_FOR_REVIEW — GPT-20261117-0940 기준지수 보류충돌 dry-run 정리 계획(합성 시험, 운영 앱 미로드·실제 기록 적용 없음). 운영 미반영 · 운영 최신 = main 앱 코드 `4cd949f`
+STATUS: DEPLOYED — 기준지수 장중 당일 봉 미저장 main `96f1509`(순태씨 '올려'). 별도 검토 대기: 0940 bench-history-repair `0751aaa`, price-meta `893623b`(둘 다 운영 앱 미로드). 운영 최신 = main `96f1509`
 REPORT: docs/team/CLAUDE-DEV-BENCH-HISTORY-REPAIR-20261117.md
 BRANCH: work/claude-bench-history-repair-20261117
 HEAD: 0751aaae28791212f3786dfaecac01232a972083 (검토 대상) · 보고 497e0e1(docs만) · BASE bb30be3(main)
