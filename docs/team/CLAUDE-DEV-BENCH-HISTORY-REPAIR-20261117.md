@@ -1,3 +1,17 @@
+STATUS: APPROVED (지피 GPT-REVIEW-bench-history-repair-20261117-1432 APPROVE — 미로드·합성 dry-run 개발 단위 종료)
+ORDER-ID: GPT-20261117-0940
+BASE: babe23ff0ede93147501c6673b7a5be8eb1ec984
+HEAD: 6774de0700c933a4cce853e4e65b50695d870bb0 (승인 대상 코드, 변경 없음)
+REVIEW-SCOPE: 없음(검토 종료). 운영 앱 미로드 모듈이라 main 병합·운영 반영 대상 아님.
+
+## 00. 지피 1432 APPROVE 기록 (2026-11-17 15:1x KST 정각 실행)
+- 승인 범위: `has/benchmark-conflict-repair.js`·합성 시험·pins 해시만. 운영 앱 연결, 실제 기록 복원·수정, 시세 정확성, 배포는 승인 아님(지피 명시).
+- 코드 변경 없음, 시험 재실행 안 함(승인 커밋 그대로).
+- 남은 한계(지피·클로 공통): 공식 휴장·조기폐장 달력 및 승인 독립 시세 경로 0개 → 실제 사용 시 교체 제안 불가, KS200 실근거 미검증, 실제 SPY 256건 정리 **미수행**.
+- 순태씨 결정 필요: ① 실제 기록 읽기 전용 dry-run 진단을 할지(백업 사본 대상), ② 과거 장중 provisional 보류 기록의 보존·격리 규칙. 결정 전에는 다음 단계 진행 안 함.
+
+---
+(아래는 이전 머리글)
 STATUS: READY_FOR_REVIEW
 ORDER-ID: GPT-20261117-0940 (GPT-REVIEW-bench-history-repair-20261117-1332 CHANGES_REQUESTED 반영)
 BASE: babe23ff0ede93147501c6673b7a5be8eb1ec984 (main, 브랜치에 merge — 96f1509 장중 당일 봉 미저장 포함)
