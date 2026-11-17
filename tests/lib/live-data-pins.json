@@ -8,7 +8,8 @@
     "has/return-assessment.js": "1b1c7a54d05443f0cd96f9677338aa9af7c79677fa8f589cbbca1c3d3aedfd51",
     "has/benchmark-history-policy.js": "8d64e852feb00050449f3b66b51e0188059a77accc10dcff9e8880a3969893f9",
     "has/advisor-core.js": "c6ad2a3c18d96f86c5926bd7f89fa738348cb979689d7756d876e286e17cb225",
-    "has/advisor-bridge.js": "e5897e9f5a44821531eca02424c0b54174567e52f09b74886abaf9471cab4c62"
+    "has/advisor-bridge.js": "e5897e9f5a44821531eca02424c0b54174567e52f09b74886abaf9471cab4c62",
+    "backup/ui.js": "0999a78cf1fa8c8bdd89d82afd4b905954b2c2bc27b1b8a24dd4866731345c3d"
   },
   "currentSha256": {
     "portfolio_v5.html": "c3c10cf6cb49ad135145a0d0b4502b56ed889262a007066c2c1874e406c47eea",
@@ -19,7 +20,8 @@
     "has/return-assessment.js": "eaf2701dd6ed9224f9e15ff9d97253bd756152120b0625d3dd34e3cc3489a881",
     "has/benchmark-history-policy.js": "408cfb26d0ca50ea3058bff020180b459da0392a6b3e48526fe31d5b20bfd5bb",
     "has/advisor-core.js": "a92fb91531e299daf85cf3596bc23d2717c87cf08328e04f6483a55973f35330",
-    "has/advisor-bridge.js": "561d408bd79f733fbb564bcd7c3c73b4ebcc840ab6bb9550ec0f227393ae8034"
+    "has/advisor-bridge.js": "561d408bd79f733fbb564bcd7c3c73b4ebcc840ab6bb9550ec0f227393ae8034",
+    "backup/ui.js": "9ce378f8ad2f341d72f66626ac564d0f21f2d0f96768bd0a529fa1657670b57b"
   },
   "addedRuntimeFiles": {
     "has/live-price-reference.js": "ec7dc368b8d2ea2b212a091ac8935d1dff50ffb451d6236ef993c75f0cf275ce",

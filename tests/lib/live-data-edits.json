@@ -492,5 +492,19 @@
       "        } catch (e) { out.errors.push(h.ticker + ': 분석 모듈 오류 — ' + (e && e.message || e)); out.advices.push(hold(h.ticker, h.name, '분석 모듈 오류', out.basis, nowISO, !!h.held, h.market)); }\n",
       "        } catch (e) { out.errors.push(h.ticker + ': 분석 모듈 오류 — ' + (e && e.message || e)); out.advices.push(hold(h.ticker, h.name, '분석 모듈 오류', out.basis, nowISO, !!h.held)); }\n"
     ]
+  ],
+  "backup/ui.js": [
+    [
+      " function download(text,name){const url=URL.createObjectURL(new Blob([text],{type:'application/json'})),a=el('a');a.href=url;a.download=name;a.style.display='none';document.body.appendChild(a);a.click();setTimeout(()=>{a.remove();},1000);const m=document.getElementById('backupMsg');if(m){const f=el('a','파일이 안 받아지면 여기를 눌러 열기');f.href=url;f.target='_blank';f.rel='noopener';f.id='backupOpenLink';f.style.cssText='display:block;margin-top:6px;font-size:12px;color:#1565c0;text-decoration:underline';m.appendChild(f);}setTimeout(()=>URL.revokeObjectURL(url),120000);}",
+      " function download(text,name){const url=URL.createObjectURL(new Blob([text],{type:'application/json'})),a=el('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}"
+    ],
+    [
+      "const __n='KST-전체백업-v7-'+new Date().toISOString().slice(0,10)+'.json';msg(",
+      "download(text,'KST-전체백업-v7-'+new Date().toISOString().slice(0,10)+'.json');msg("
+    ],
+    [
+      "레이더는 제외합니다.');download(text,__n);}catch",
+      "레이더는 제외합니다.');}catch"
+    ]
   ]
 }
