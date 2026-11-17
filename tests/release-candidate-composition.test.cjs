@@ -3,7 +3,8 @@
 const test=require('node:test'),a=require('node:assert/strict');
 const B=require('../backup/core.js'),H=require('../has/benchmark-history-policy.js');
 const P=require('../has/snapshot-policy.js'),R=require('../has/return-assessment.js');
-const NOW=Date.parse('2026-11-11T03:00:00Z'),START=NOW-7*86400000;
+// 069500 당일 봉을 provisional 로 저장하려면 마감+30분(16:00 KST) 뒤 수신이어야 한다(GPT-20261117-0730 2단계).
+const NOW=Date.parse('2026-11-11T07:05:00Z'),START=NOW-7*86400000;
 function memory(extra={}){
  const m=new Map(Object.entries({...Object.fromEntries(B.ACCOUNTS.map(k=>[k,'[]'])),...extra})),writes=[];
  return {get length(){return m.size;},key:i=>[...m.keys()][i]??null,getItem:k=>m.get(k)??null,

@@ -17,7 +17,7 @@
     "service-worker.js": "bd7c5a33f7070bf8e4791fedb5cbfc4572741076023efb1090e838d8041c7b72",
     "has/snapshot-policy.js": "8d228e107cf61a4cb4a520e0dc0200da1daaa7a0627c9cbb2e9bfcd098fbb3bf",
     "has/return-assessment.js": "eaf2701dd6ed9224f9e15ff9d97253bd756152120b0625d3dd34e3cc3489a881",
-    "has/benchmark-history-policy.js": "e9bdf34629de9b21931f8e77e0576aff6c6fe863e77a3b4a0f2ad4c866a10cd4",
+    "has/benchmark-history-policy.js": "408cfb26d0ca50ea3058bff020180b459da0392a6b3e48526fe31d5b20bfd5bb",
     "has/advisor-core.js": "a92fb91531e299daf85cf3596bc23d2717c87cf08328e04f6483a55973f35330",
     "has/advisor-bridge.js": "561d408bd79f733fbb564bcd7c3c73b4ebcc840ab6bb9550ec0f227393ae8034"
   },

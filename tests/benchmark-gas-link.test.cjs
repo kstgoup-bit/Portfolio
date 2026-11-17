@@ -3,6 +3,7 @@
 const test=require('node:test'),a=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
 const H=require('../has/benchmark-history-policy.js'),B=require('../backup/core.js');
 const ISO='2026-11-11T03:00:00.000Z',NOW=Date.parse(ISO);
+const POST='2026-11-11T07:05:00.000Z';
 function fixture(dates=['2026-11-09','2026-11-10','2026-11-11']){return {'069500':{source:'yahoo-chart-v8',symbol:'069500.KS',currency:'KRW',exchange:'KSE',timezone:'Asia/Seoul',instrumentType:'ETF',adjustment:'unverified',regularMarketTime:ISO,regularMarketPrice:103,fiftyTwoWeekHigh:150,barCount:dates.length,bars:dates.map((d,i)=>({d,c:101+i}))}};}
 const parse=x=>H.parseGasHistory(x,'KS200',ISO,{mode:'configured-gas'});
 const clone=x=>JSON.parse(JSON.stringify(x));
@@ -10,7 +11,9 @@ test('configured Korean GAS bars persist as dated unofficial observations, never
  const c=parse(fixture());a.equal(c.ok,true);a.equal(c.synthetic,false);a.equal(c.points,null);a.equal(c.source,'yahoo-chart-v8-via-gas');a.equal(c.latestness,'unconfirmed');a.equal(c.signalHold,true);
  const r=H.mergeHistoryStore(null,null,c,'KS200',NOW);a.equal(r.ok,true);a.equal(H.validateStore(r.store,null,NOW).ok,true);
  for(const p of r.store.series.KS200.observations){a.equal(p.providerBarTs,null);a.equal('ts' in p,false);a.equal(p.adjustment,'unverified');}
- a.equal(r.store.series.KS200.observations.at(-1).finality,'provisional');
+ // 장중(12:00 KST) 수신 당일 봉은 저장하지 않는다(GPT-20261117-0730 2단계). 마감+30분 뒤 수신만 provisional 저장.
+ a.equal(r.store.series.KS200.observations.at(-1).d,'2026-11-10');a.equal(r.store.series.KS200.observations.at(-1).finality,'unverified');a.deepEqual(r.failures,[{d:'2026-11-11',reason:'intraday-not-persisted'}]);
+ const post=H.mergeHistoryStore(null,null,H.parseGasHistory(fixture(),'KS200',POST,{mode:'configured-gas'}),'KS200',Date.parse(POST));a.equal(post.store.series.KS200.observations.at(-1).finality,'provisional');a.equal(post.store.series.KS200.observations.at(-1).d,'2026-11-11');
  const state=H.readStore(r.store,null,NOW),selected=H.selectPointAtOrBefore(state.series.KS200.points,'KS200',NOW,{now:NOW});a.equal(selected.date,'2026-11-10');a.equal(selected.latestness,'unconfirmed');
  B.validateStoredValue('v5_benchHistV2',JSON.stringify(r.store));
 });
@@ -26,7 +29,7 @@ test('bad identity, dates, metadata, shape and hostile values are rejected',()=>
 test('same data does not refresh receipt; conflicting historical dates retain original and independent later append',()=>{
  const first=H.mergeHistoryStore(null,null,parse(fixture(['2026-11-09','2026-11-10'])),'KS200',NOW),before=JSON.stringify(first.store);
  a.equal(H.mergeHistoryStore(first.store,null,parse(fixture(['2026-11-09','2026-11-10'])),'KS200',NOW).changed,false);
- const x=fixture();x['069500'].bars[0].c=999;const next=H.mergeHistoryStore(first.store,null,parse(x),'KS200',NOW);a.equal(JSON.stringify(first.store),before);a.deepEqual(next.acceptedDates,['2026-11-11']);a.equal(next.pendingConflicts.length,1);a.equal(next.store.series.KS200.observations[0].close,101);
+ const x=fixture();x['069500'].bars[0].c=999;const next=H.mergeHistoryStore(first.store,null,H.parseGasHistory(x,'KS200',POST,{mode:'configured-gas'}),'KS200',Date.parse(POST));a.equal(JSON.stringify(first.store),before);a.deepEqual(next.acceptedDates,['2026-11-11']);a.equal(next.pendingConflicts.length,1);a.equal(next.store.series.KS200.observations[0].close,101);
 });
 function harness({url='https://script.google.com/macros/s/SYNTHETIC_DEPLOYMENT/exec',legacy=null,quota=false}={}){
  const html=fs.readFileSync(require('node:path').join(__dirname,'../portfolio_v5.html'),'utf8');
