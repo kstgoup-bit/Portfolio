@@ -57,25 +57,103 @@ test('공급자 혼용 응답 표시', () => {
   const r = K.parseResponse(resp({ AAA: metaUS(), BBB: metaUS({ source: 'synthetic-provider-y' }) }), CTX);
   a.equal(r.mixedSource, true); a.ok(r.quotes.AAA.flags.includes('mixed-source'));
 });
-test('B 판정: 서로 다른 두 공급자·같은 시장일·정규장 종가·같은 조정 기준·허용 오차 안에서만', () => {
-  const p1 = K.parseResponse(resp({ AAA: metaUS() }), CTX).quotes.AAA;
-  const p2 = K.parseResponse({ AAA: 100.2, __quoteMeta: { schema: K.SCHEMA, quotes: { AAA: metaUS({ source: 'synthetic-provider-y' }) } } }, CTX).quotes.AAA;
-  a.equal(K.crossCheck(p1, p2).state, 'B');
-  const same = K.parseResponse({ AAA: 100, __quoteMeta: { schema: K.SCHEMA, quotes: { AAA: metaUS({ source: 'SYNTHETIC-PROVIDER-X' }) } } }, CTX).quotes.AAA;
-  a.equal(K.crossCheck(p1, same).state, 'C', '대소문자만 다른 같은 공급자는 독립 아님');
-  const far = K.parseResponse({ AAA: 103, __quoteMeta: { schema: K.SCHEMA, quotes: { AAA: metaUS({ source: 'synthetic-provider-y' }) } } }, CTX).quotes.AAA;
-  const cf = K.crossCheck(p1, far); a.equal(cf.state, 'C'); a.match(cf.reasons[0], /충돌/);
-  const adj = K.parseResponse({ AAA: 100, __quoteMeta: { schema: K.SCHEMA, quotes: { AAA: metaUS({ source: 'synthetic-provider-y', adjusted: 'split+dividend' }) } } }, CTX).quotes.AAA;
-  a.equal(K.crossCheck(p1, adj).state, 'C');
-  const live = K.parseResponse({ AAA: 100, __quoteMeta: { schema: K.SCHEMA, quotes: { AAA: metaUS({ source: 'synthetic-provider-y', kind: 'delayed', asOf: '2026-11-16T15:00:00-05:00' }) } } }, CTX).quotes.AAA;
-  a.equal(live.state, 'A'); a.equal(K.crossCheck(p1, live).state, 'C', '지연·장중 가격은 대조 대상 아님');
-  a.equal(K.crossCheck(p1, { state: 'U', price: 100, meta: null }).state, 'C');
+/* ── 0731 지피 1030 CR 반영: B 는 앱 코드가 정한 승인 경로·원천 계보·검증 달력이 있는 인스턴스에서만 ── */
+const ALL = { fundamentals: true, valuation: true, disclosure: true, counterArgument: true };
+const CAL_OK = (mk, d) => ({ trading: true, close: mk === 'US' ? '16:00' : '15:30' });
+const ROUTES = { 'route-x': { approved: true, upstream: 'synthetic-up-1' }, 'route-y': { approved: true, upstream: 'synthetic-up-2' }, 'route-z': { approved: true, upstream: 'SYNTHETIC-UP-1' } };
+const mk = (cfg) => K.createContract(cfg === undefined ? { routes: ROUTES, closeCalendar: CAL_OK } : cfg);
+const qv = (inst, route, price, patch, ctx) => inst.parseResponse({ AAA: price, __quoteMeta: { schema: K.SCHEMA, quotes: { AAA: metaUS(patch) } } }, Object.assign({}, CTX, { route }, ctx || {})).quotes.AAA;
+
+test('B 판정(정상 경로): 승인된 서로 다른 경로·다른 원천 계보·같은 시장일·정규장 종가·같은 조정·허용오차 안·검증 달력 마감 이후', () => {
+  const I = mk(), p1 = qv(I, 'route-x', 100), p2 = qv(I, 'route-y', 100.2, { source: 'synthetic-provider-y' });
+  const ev = I.crossCheck(p1, p2);
+  a.equal(ev.state, 'B'); a.deepEqual([...ev.routes], ['route-x', 'route-y']); a.deepEqual([...ev.upstreams], ['synthetic-up-1', 'synthetic-up-2']);
+  a.ok(Object.isFrozen(ev)); a.equal(ev.tolerance, K.CROSS_TOLERANCE);
+  const far = I.crossCheck(p1, qv(I, 'route-y', 103)); a.equal(far.state, 'C'); a.match(far.reasons[0], /충돌/);
+  a.equal(I.crossCheck(p1, qv(I, 'route-y', 100, { adjusted: 'split+dividend' })).state, 'C');
+  const live = qv(I, 'route-y', 100, { kind: 'delayed', asOf: '2026-11-16T15:00:00-05:00' });
+  a.equal(live.state, 'A'); a.equal(I.crossCheck(p1, live).state, 'C', '지연·장중 가격은 대조 대상 아님');
+  a.equal(I.crossCheck(p1, { state: 'U', price: 100, meta: null }).state, 'C');
+});
+test('CR-1: 문자열 B·위조 증거·다른 인스턴스 증거로는 보류 해제 불가 — 이 인스턴스 crossCheck 발급 증거만', () => {
+  a.equal(K.signalPolicy('B', ALL).hold, true, "문자열 'B' + 관문 4개 true여도 보류");
+  a.match(K.signalPolicy('B', ALL).reason, /증거 없는 B/);
+  const fake = Object.freeze({ state: 'B', reasons: [], diff: 0, sources: ['x', 'y'], routes: ['route-x', 'route-y'] });
+  const I = mk(); a.equal(I.signalPolicy(fake, ALL).hold, true, '모양만 같은 위조 증거');
+  const ev = I.crossCheck(qv(I, 'route-x', 100), qv(I, 'route-y', 100));
+  a.equal(ev.state, 'B'); a.equal(I.signalPolicy(ev, ALL).hold, false); a.match(I.signalPolicy(ev, ALL).reason, /최종 결정은 순태씨/);
+  a.equal(K.signalPolicy(ev, ALL).hold, true, '다른 인스턴스(기본)가 발급한 증거 아님');
+  a.equal(mk().signalPolicy(ev, ALL).hold, true, '다른 인스턴스 증거');
+  a.throws(() => { ev.state = 'B'; ev.prices[0] = 1; }, TypeError, '증거 동결');
+  /* 호출자가 만든 가짜 A 시세로 대조 불가, 발급된 A 시세는 동결 */
+  const p1 = qv(I, 'route-x', 100), forgedA = { state: 'A', price: 100, meta: Object.assign({}, p1.meta, { route: 'route-y' }) };
+  a.equal(I.crossCheck(p1, forgedA).state, 'C'); a.throws(() => { p1.price = 1; }, TypeError);
+  a.equal(I.signalPolicy('C', ALL).hold, true); a.equal(I.signalPolicy(undefined, ALL).hold, true); a.equal(I.signalPolicy({}, ALL).hold, true);
 });
 test('B여도 재무·본질가치·공시·반론 관문이 모두 정확히 true가 아니면 보류', () => {
-  const all = { fundamentals: true, valuation: true, disclosure: true, counterArgument: true };
-  a.equal(K.signalPolicy('B', all).hold, false); a.match(K.signalPolicy('B', all).reason, /최종 결정은 순태씨/);
-  for (const k of K.GATES) { a.equal(K.signalPolicy('B', { ...all, [k]: false }).hold, true, k); a.equal(K.signalPolicy('B', { ...all, [k]: 'true' }).hold, true, k + ' 문자열'); }
-  a.equal(K.signalPolicy('B').hold, true); a.equal(K.signalPolicy('verified', all).hold, true, '알 수 없는 상태 문자열');
+  const I = mk(), ev = I.crossCheck(qv(I, 'route-x', 100), qv(I, 'route-y', 100));
+  a.equal(I.signalPolicy(ev, ALL).hold, false);
+  for (const k of K.GATES) { a.equal(I.signalPolicy(ev, { ...ALL, [k]: false }).hold, true, k); a.equal(I.signalPolicy(ev, { ...ALL, [k]: 'true' }).hold, true, k + ' 문자열'); }
+  a.equal(I.signalPolicy(ev).hold, true); a.equal(K.signalPolicy('verified', ALL).hold, true, '알 수 없는 상태 문자열');
+});
+test('CR-2: 공급자 이름 두 개 ≠ 독립 — 경로·원천 계보로만 판정, 재포장·미승인·응답 자가 선언 경로는 C', () => {
+  const I = mk(), x = qv(I, 'route-x', 100);
+  const sameRoute = I.crossCheck(x, qv(I, 'route-x', 100, { source: 'totally-different-name' }));
+  a.equal(sameRoute.state, 'C'); a.ok(sameRoute.reasons.some(r => /같은 수집 경로/.test(r)), '이름만 다른 같은 GAS 경로');
+  const repack = I.crossCheck(x, qv(I, 'route-z', 100, { source: 'brand-new-vendor' }));
+  a.equal(repack.state, 'C'); a.ok(repack.reasons.some(r => /재포장/.test(r)), '다른 경로·다른 이름이지만 같은 원천(대소문자 무시)');
+  const unknown = qv(I, 'route-unapproved', 100, { source: 'synthetic-provider-y' });
+  a.equal(unknown.meta.route, null); a.ok(I.crossCheck(x, unknown).reasons.some(r => /승인된 수집 경로 없음/.test(r)));
+  const declared = qv(I, undefined, 100, { source: 'synthetic-provider-y', route: 'route-y', upstream: 'synthetic-up-2' });
+  a.equal(declared.meta.route, null, '응답이 밝힌 경로는 무시'); a.ok(declared.flags.includes('self-declared-route-ignored')); a.equal(I.crossCheck(x, declared).state, 'C');
+  /* 기본 인스턴스(운영 기본값): 승인 경로 0개 → 이름이 달라도 항상 C */
+  a.deepEqual(K.approvedRoutes(), []);
+  const d1 = qv(K, 'route-x', 100), d2 = qv(K, 'route-y', 100, { source: 'synthetic-provider-y' });
+  a.equal(K.crossCheck(d1, d2).state, 'C');
+  /* 신뢰 설정 형식 오류는 버림 */
+  const bad = K.createContract({ routes: { 'route-x': { approved: 'true', upstream: 'u1' }, 'route-y': { approved: true }, 'Route Bad': { approved: true, upstream: 'u3' } }, closeCalendar: CAL_OK });
+  a.deepEqual(bad.approvedRoutes(), []);
+});
+const US_CTX = (now) => ({ now, appReceivedAt: now });
+test('CR-3: 정규장 마감 전 시각을 종가로 표기하면 C — DST 전후 뉴욕 시간·서울 시간', () => {
+  a.equal(qv(K, null, 100, { asOf: '2026-11-16T11:00:00-05:00' }).state, 'C', '11:00 ET를 종가로 위장');
+  a.ok(qv(K, null, 100, { asOf: '2026-11-16T11:00:00-05:00' }).reasons.includes('정규장 마감 전 시각을 종가로 표기'));
+  a.equal(qv(K, null, 100, { asOf: '2026-11-16T20:00:00Z' }).state, 'C', '20:00Z = 15:00 EST(11월, 표준시)');
+  a.equal(qv(K, null, 100, { asOf: '2026-11-16T21:00:00Z' }).state, 'A', '21:00Z = 16:00 EST');
+  /* 2026 미국 서머타임 시작 3-8(일): 3-6(금) EST, 3-9(월) EDT */
+  const pre = US_CTX('2026-03-07T03:00:00Z'), post = US_CTX('2026-03-10T03:00:00Z');
+  a.equal(qv(K, null, 100, { asOf: '2026-03-06T20:30:00Z', marketDate: '2026-03-06', receivedAt: undefined }, pre).state, 'C', '20:30Z = 15:30 EST');
+  a.equal(qv(K, null, 100, { asOf: '2026-03-06T21:05:00Z', marketDate: '2026-03-06', receivedAt: undefined }, pre).state, 'A', '21:05Z = 16:05 EST');
+  a.equal(qv(K, null, 100, { asOf: '2026-03-09T20:05:00Z', marketDate: '2026-03-09', receivedAt: undefined }, post).state, 'A', '20:05Z = 16:05 EDT');
+  a.equal(qv(K, null, 100, { asOf: '2026-03-09T19:30:00Z', marketDate: '2026-03-09', receivedAt: undefined }, post).state, 'C', '19:30Z = 15:30 EDT');
+  const kr = (asOf) => K.parseResponse({ '005930': 50000, __quoteMeta: { schema: K.SCHEMA, quotes: { '005930': { market: 'KR', currency: 'KRW', source: 'synthetic-kr', asOf, marketDate: '2026-11-16', kind: 'regular-close', adjusted: 'none' } } } }, { market: 'KR', tickers: ['005930'], now: NOW }).quotes['005930'].state;
+  a.equal(kr('2026-11-16T11:00:00+09:00'), 'C'); a.equal(kr('2026-11-16T15:30:00+09:00'), 'A');
+  a.ok(qv(K, null, 100).flags.includes('close-calendar-unverified'));
+});
+test('CR-3: 검증된 휴장·조기폐장 달력이 없거나 거래일 아님·마감 전이면 B 금지', () => {
+  const noCal = mk({ routes: ROUTES });
+  const r = noCal.crossCheck(qv(noCal, 'route-x', 100), qv(noCal, 'route-y', 100));
+  a.equal(r.state, 'C'); a.ok(r.reasons.some(s => /달력 미검증/.test(s)));
+  const holiday = mk({ routes: ROUTES, closeCalendar: () => ({ trading: false }) });
+  a.equal(holiday.crossCheck(qv(holiday, 'route-x', 100), qv(holiday, 'route-y', 100)).state, 'C');
+  const throws = mk({ routes: ROUTES, closeCalendar: () => { throw new Error('x'); } });
+  a.equal(throws.crossCheck(qv(throws, 'route-x', 100), qv(throws, 'route-y', 100)).state, 'C');
+  const late = mk({ routes: ROUTES, closeCalendar: () => ({ trading: true, close: '17:00' }) });
+  a.ok(late.crossCheck(qv(late, 'route-x', 100), qv(late, 'route-y', 100)).reasons.some(s => /마감 전/.test(s)), '달력 마감이 asOf보다 늦음');
+  const badFmt = mk({ routes: ROUTES, closeCalendar: () => ({ trading: true, close: '4pm' }) });
+  a.equal(badFmt.crossCheck(qv(badFmt, 'route-x', 100), qv(badFmt, 'route-y', 100)).state, 'C');
+});
+test('CR-4: 허용오차는 정책 상한(0.5%) 이하 유한 비음수만 — Infinity·NaN·음수·1·문자열은 보류, 경계 0.5%', () => {
+  const I = mk(), p1 = qv(I, 'route-x', 100), far = qv(I, 'route-y', 150);
+  for (const t of [Infinity, NaN, -0.001, 1, 0.0051, '0.001', null]) {
+    const r = I.crossCheck(p1, far, { tolerance: t }); a.equal(r.state, 'C', String(t)); a.match(r.reasons[0], /허용오차 비정상/);
+  }
+  a.equal(I.crossCheck(p1, far, 'x').state, 'C', '옵션 형식 오류');
+  a.equal(K.CROSS_TOLERANCE, 0.005);
+  a.equal(I.crossCheck(p1, qv(I, 'route-y', 100.5)).state, 'B', '정확히 0.5%는 허용');
+  a.equal(I.crossCheck(p1, qv(I, 'route-y', 100.51)).state, 'C', '0.51%는 충돌');
+  a.equal(I.crossCheck(p1, qv(I, 'route-y', 100.2), { tolerance: 0.001 }).state, 'C', '더 엄격한 값은 허용');
+  a.equal(I.crossCheck(p1, qv(I, 'route-y', 100.05), { tolerance: 0.001 }).state, 'B');
 });
 test('결정성·입력 불변·순서 안정', () => {
   const d = resp({ AAA: metaUS(), BBB: metaUS({ kind: 'unknown' }) }), s = JSON.stringify(d);
