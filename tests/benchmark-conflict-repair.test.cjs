@@ -17,11 +17,14 @@ function dupOf(c,minutes){const alt={...c.alternative,receivedAt:new Date(Date.p
  const o={d:c.d,existing:c.existing,alternative:{}};for(const k of ['id','d','close','source','receivedAt','providerBarTs','dateKind','adjustment','finality'])o.alternative[k]=alt[k];o.status=c.status;return o;}
 function withDups(store,n){const s=JSON.parse(JSON.stringify(store)),c=s.series.SPY.conflicts.find(x=>x.status==='pending-review'&&x.alternative.finality==='unverified');
  for(let i=1;i<=n;i++)s.series.SPY.conflicts.push(dupOf(c,i));a.equal(H.validateStore(s,LEGACY,NOW).ok,true);return s;}
-// 장중 먼저 → 마감 후 보류 순서로 만든 저장소 (실제 앱 경로 재현)
-function intradayThenPost(n){let s=null;for(let i=0;i<n;i++){const t=new Date(Date.parse('2026-11-16T15:00:00.000Z')+i*60000).toISOString();
- const m=H.mergeHistoryStore(s,LEGACY,gas('SPY',t,bars(D16,(d,j)=>d==='2026-11-16'?740+i/100:100+j)),'SPY',Date.parse(t));a.equal(m.ok,true,m.reason);s=m.store;}
- return merge(s,'SPY','2026-11-17T01:00:00.000Z',(d,i)=>d==='2026-11-13'?99:d==='2026-11-16'?745.82:100+i);}
-const CAL=(d,m)=>[1,2,3,4,5].includes(new Date(d+'T00:00:00Z').getUTCDay());
+// 과거 앱(main 96f1509 이전)이 장중 당일 봉을 저장·비교하며 남긴 provisional 보류충돌을 합성으로 재현.
+// 현재 앱은 장 마감+30분 전 당일 봉을 저장하지 않으므로(intraday-not-persisted) 새로 생기지 않지만, 기존 기록에는 남아 있다.
+function intradayThenPost(n){const s=JSON.parse(JSON.stringify(baseStore())),g=s.series.SPY,ex=g.observations.find(o=>o.d==='2026-11-16');
+ for(let i=0;i<n;i++){const alt={d:'2026-11-16',close:Math.round((740+(i+1)/100)*100)/100,source:'yahoo-chart-v8-via-gas',receivedAt:new Date(Date.parse('2026-11-16T15:00:00.000Z')+i*60000).toISOString(),providerBarTs:null,dateKind:'exchange-date-only',adjustment:'unverified',finality:'provisional'};
+  alt.id='o:'+H.fingerprint(JSON.stringify([alt.d,alt.close,alt.source,alt.receivedAt,alt.providerBarTs]));
+  const o={};for(const k of ['id','d','close','source','receivedAt','providerBarTs','dateKind','adjustment','finality'])o[k]=alt[k];g.conflicts.push({d:'2026-11-16',existing:ex,alternative:o,status:'pending-review'});}
+ const v=H.validateStore(s,LEGACY,NOW);a.equal(v.ok,true,v.reason);return s;}
+const CAL=(d,m)=>[1,2,3,4,5].includes(new Date(d+'T00:00:00Z').getUTCDay())?{open:true,closeMs:Date.parse(d+'T21:00:00.000Z')}:{open:false};
 const ROUTES={'r-a':{upstream:'u-1'},'r-b':{upstream:'u-2'}};
 const ev=(close,route,extra={})=>({id:'SPY',d:'2026-11-13',close,currency:'USD',market:'US',priceKind:'regular-close',route,asOf:'2026-11-13T22:00:00.000Z',...extra});
 const active=(raw)=>JSON.stringify(H.readStore(JSON.parse(raw),LEGACY,NOW).series.SPY.points);
@@ -65,6 +68,7 @@ test('(5) 교체 제안은 검증 달력 + 승인된 서로 다른 경로·원�
  a.equal(hold({}).reason,'calendar-unverified');
  a.equal(hold({closeCalendar:()=>{throw Error('x');}}).reason,'calendar-closed-or-unknown');
  a.equal(hold({closeCalendar:()=>false}).reason,'calendar-closed-or-unknown');
+ a.equal(hold({closeCalendar:()=>true}).reason,'calendar-close-time-unverified','마감 시각 없는 true는 DST·조기폐장 미확인');
  a.equal(hold({closeCalendar:CAL,evidence:[ev(103,'r-a'),ev(103,'r-b')]}).reason,'independent-evidence-insufficient','기본 승인 경로 0');
  const base={closeCalendar:CAL,approvedRoutes:ROUTES};
  const ok=hold({...base,evidence:[ev(103,'r-a'),ev(103,'r-b')]});a.equal(ok.action,'replace-proposal');a.equal(ok.choice,'existing');a.equal(ok.requiresUserApproval,true);
@@ -111,4 +115,85 @@ test('(9) 운영 앱 미로드·저장소/네트워크/타이머 접근 코드 �
  a.doesNotMatch(src,/localStorage|sessionStorage|indexedDB|fetch\(|XMLHttpRequest|setItem|removeItem|setTimeout|setInterval|google\.script|navigator/);
  a.doesNotMatch(fs.readFileSync(path.join(__dirname,'../portfolio_v5.html'),'utf8'),/benchmark-conflict-repair/);
  a.ok(Object.isFrozen(R));
+});
+
+// ---- GPT-REVIEW-bench-history-repair-20261117-1332 CR-1~CR-4 ----
+const perms=xs=>xs.length<=1?[xs]:xs.flatMap((x,i)=>perms(xs.slice(0,i).concat(xs.slice(i+1))).map(r=>[x,...r]));
+const at13=(raw,o)=>{const p=R.plan(raw,LEGACY,NOW,o);a.equal(p.ok,true,p.reason);return p.actions.find(v=>v.d==='2026-11-13'&&v.action!=='merge-duplicate');};
+test('(10) CR-1: 같은 승인 경로·원천의 상충 종가는 순서와 무관하게 전체 보류',()=>{
+ const raw=JSON.stringify(baseStore()),base={closeCalendar:CAL,approvedRoutes:{...ROUTES,'r-c':{upstream:'u-1'}}};
+ for(const e of perms([ev(103,'r-a'),ev(99,'r-a'),ev(103,'r-b')]))a.equal(at13(raw,{...base,evidence:e}).reason,'evidence-route-conflict',JSON.stringify(e.map(x=>x.close)));
+ for(const e of perms([ev(103,'r-a'),ev(99,'r-c'),ev(103,'r-b')]))a.equal(at13(raw,{...base,evidence:e}).reason,'evidence-route-conflict','같은 상류 u-1의 다른 경로');
+ // 시간상 쓸 수 없는(마감 전) 관측도 상충 검사에는 포함
+ a.equal(at13(raw,{...base,evidence:[ev(99,'r-a',{asOf:'2026-11-13T16:00:00.000Z'}),ev(103,'r-a'),ev(103,'r-b')]}).reason,'evidence-route-conflict');
+ // 동일 경로 동일값 중복 = 독립 1개
+ a.equal(at13(raw,{...base,evidence:[ev(103,'r-a'),ev(103,'r-a'),ev(103,'r-c')]}).reason,'independent-evidence-insufficient');
+ // 서로 다른 승인 원천의 정확히 일치하는 정규 종가 2개만 통과
+ for(const e of perms([ev(103,'r-a'),ev(103,'r-b'),ev(103,'r-a')])){const x=at13(raw,{...base,evidence:e});a.equal(x.action,'replace-proposal');a.equal(x.choice,'existing');}
+ // 미승인 경로의 상충 값은 근거가 아니므로 무시(승인 경로만 판단)
+ a.equal(at13(raw,{...base,evidence:[ev(103,'r-a'),ev(99,'r-zz'),ev(103,'r-b')]}).action,'replace-proposal');
+});
+test('(11) CR-2: providerBarTs·dateKind 등 수신시각 외 메타가 다르면 병합하지 않고 개별 보류 + 감사 표기',()=>{
+ const st=baseStore(),s=JSON.parse(JSON.stringify(st)),c=s.series.SPY.conflicts.find(x=>x.status==='pending-review'&&x.alternative.finality==='unverified');
+ const mk=(ts,min)=>{const alt={...c.alternative,source:'yahoo-chart-v8',providerBarTs:ts,receivedAt:new Date(Date.parse(c.alternative.receivedAt)+min*60000).toISOString()};
+  alt.id='o:'+H.fingerprint(JSON.stringify([alt.d,alt.close,alt.source,alt.receivedAt,alt.providerBarTs]));const o={d:c.d,existing:c.existing,alternative:{}};
+  for(const k of ['id','d','close','source','receivedAt','providerBarTs','dateKind','adjustment','finality'])o.alternative[k]=alt[k];o.status=c.status;return o;};
+ const t1=Date.parse('2026-11-13T14:30:00.000Z'),t2=Date.parse('2026-11-13T20:59:00.000Z');
+ // 수신시각만 다른 2건(t1,t1) + 공급자 바 시각이 다른 1건(t2)
+ s.series.SPY.conflicts.push(mk(t1,1),mk(t1,2),mk(t2,3));const v=H.validateStore(s,LEGACY,NOW);a.equal(v.ok,true,v.reason);
+ const raw=JSON.stringify(s),p=R.plan(raw,LEGACY,NOW);a.equal(p.ok,true,p.reason);
+ const merges=p.actions.filter(x=>x.action==='merge-duplicate');a.equal(merges.length,1);a.equal(merges[0].ids.length,1,'t1 수신시각 중복만 병합');
+ const kept=JSON.parse(p.simulatedStoreRaw).series.SPY.conflicts.map(x=>x.alternative);
+ a.ok(kept.some(x=>x.providerBarTs===t2),'다른 바 시각 관측은 사본에 그대로');a.ok(kept.some(x=>x.providerBarTs===null),'GAS 관측(바 시각 없음)도 별도 유지');
+ const holds=p.actions.filter(x=>x.action==='hold'&&x.d==='2026-11-13');a.equal(holds.length,3,'GAS·t1·t2 각각 보류');
+ a.equal(holds.filter(x=>x.auditNote==='metadata-differs-not-merged').length,2,'같은 출처에서 바 시각만 다른 t1·t2에 감사 표기');
+ a.equal(holds.find(x=>x.source==='yahoo-chart-v8-via-gas').auditNote,undefined);
+ // 원본·활성 가격·타 종목 불변
+ a.equal(active(p.simulatedStoreRaw),active(raw));a.equal(JSON.stringify(JSON.parse(p.simulatedStoreRaw).series.QQQ),JSON.stringify(s.series.QQQ));
+ // 수신시각만 다른 경우(기존 시험)는 감사 표기 없음
+ const q=R.plan(JSON.stringify(withDups(st,2)),LEGACY,NOW);a.ok(q.actions.filter(x=>x.d==='2026-11-13').every(x=>x.auditNote===undefined));
+});
+test('(12) CR-3: 근거 기준시각은 엄격 ISO·검증 마감 이후·실행 now 이하만, 달력 마감시각 검증',()=>{
+ const raw=JSON.stringify(baseStore()),base={closeCalendar:CAL,approvedRoutes:ROUTES},iso=t=>new Date(t).toISOString();
+ const two=asOf=>at13(raw,{...base,evidence:[ev(103,'r-a',{asOf}),ev(103,'r-b')]});
+ for(const x of [iso(NOW+60000),iso(NOW+5*365*864e5),'NaN','','2026-11-13 22:00:00','2026-11-13T22:00:00Z','2026-11-13T22:00:00.000+00:00','2026-11-31T22:00:00.000Z','2026-11-13T25:00:00.000Z',null,Date.parse('2026-11-13T22:00:00.000Z')])
+  a.equal(two(x).reason,'independent-evidence-insufficient',String(x));
+ const close=Date.parse('2026-11-13T21:00:00.000Z');
+ a.equal(two(iso(close)).action,'replace-proposal','마감 시각 정확히 = 허용');a.equal(two(iso(close-1)).reason,'independent-evidence-insufficient','마감 1ms 전');
+ a.equal(two(iso(NOW)).action,'replace-proposal','now 정확히 = 허용');
+ const cal=c=>at13(raw,{...base,closeCalendar:()=>c,evidence:[ev(103,'r-a'),ev(103,'r-b')]}).reason;
+ a.equal(cal({open:true}),'calendar-close-time-invalid');a.equal(cal({open:true,closeMs:NaN}),'calendar-close-time-invalid');
+ a.equal(cal({open:true,closeMs:Date.parse('2026-11-14T05:30:00.000Z')}),'calendar-close-time-invalid','마감시각이 뉴욕 기준 다른 날짜');
+ a.equal(cal({open:true,closeMs:NOW+1}),'calendar-close-time-invalid','미래 마감');a.equal(cal({open:'true',closeMs:close}),'calendar-closed-or-unknown');
+ // 조기폐장(13:00 ET = 18:00Z)은 달력이 주면 그 시각 기준
+ const early=at13(raw,{...base,closeCalendar:()=>({open:true,closeMs:Date.parse('2026-11-13T18:00:00.000Z')}),evidence:[ev(103,'r-a',{asOf:'2026-11-13T18:30:00.000Z'}),ev(103,'r-b')]});
+ a.equal(early.action,'replace-proposal');
+});
+test('(13) CR-4: dry-run 사본 → 합성 백업 apply → undo 왕복, 실패 시 원상복구, 선택 안 한 종목·계좌 독립, 256 포화·순서 바뀜',()=>{
+ const ACC=Object.fromEntries(B.ACCOUNTS.map((k,i)=>[k,JSON.stringify([{id:i+1,name:'합성 T'+i,ticker:'T'+i,quantity:i+1,avgPrice:100,currentPrice:110}])]));
+ const mem=(extra,failKey=null)=>{const m=new Map(Object.entries({...ACC,...extra})),w=[];return {get length(){return m.size;},key:i=>[...m.keys()][i]??null,getItem:k=>m.get(k)??null,
+  setItem(k,v){if(k===failKey)throw new Error('synthetic quota');w.push(k);m.set(k,String(v));},removeItem(k){w.push(k);m.delete(k);},all:()=>Object.fromEntries(m),w};};
+ const docOf=v2=>JSON.stringify({format:B.FORMAT,schemaVersion:B.VERSION,exportedAt:R_POST,scope:'portfolio-only-no-secrets-no-radar',storage:{...ACC,v5_benchHist:LEGACY,v5_benchHistV2:v2}});
+ const strip=o=>{const x={...o};delete x[B.JOURNAL];return x;};
+ for(const variant of ['dups','saturated','reversed']){
+  let s;if(variant==='saturated'){const st=intradayThenPost(200);s=withDups(st,256-st.series.SPY.conflicts.length);}else s=withDups(baseStore(),3);
+  s=merge(s,'QQQ',R_POST,(d,i)=>d==='2026-11-12'?1:500+i);if(variant==='reversed'){s=JSON.parse(JSON.stringify(s));s.series.SPY.conflicts.reverse();}
+  const raw=JSON.stringify(s),p=R.plan(raw,LEGACY,NOW,{ids:['SPY']});a.equal(p.ok,true,p.reason);a.equal(R.plan(raw,LEGACY,NOW,{ids:['SPY']}).simulatedStoreRaw,p.simulatedStoreRaw,'동일 입력 동일 결과');
+  const dst=mem({v5_benchHist:LEGACY,v5_benchHistV2:raw}),before=dst.all();
+  B.preview(dst,B.parse(docOf(p.simulatedStoreRaw)));a.equal(dst.w.length,0);
+  B.apply(dst,B.parse(docOf(p.simulatedStoreRaw)));
+  a.equal(dst.getItem('v5_benchHist'),LEGACY,'레거시 원문 바이트 동일');a.equal(dst.getItem('v5_benchHistV2'),p.simulatedStoreRaw);
+  for(const k of B.ACCOUNTS)a.equal(dst.getItem(k),ACC[k],'계좌 '+k+' 불변');
+  const after=JSON.parse(dst.getItem('v5_benchHistV2'));a.equal(JSON.stringify(after.series.QQQ),JSON.stringify(s.series.QQQ),'선택 안 한 QQQ 바이트 동일');
+  a.equal(H.validateStore(after,LEGACY,NOW).ok,true);a.equal(active(dst.getItem('v5_benchHistV2')),active(raw),'활성 가격 불변');
+  if(variant==='saturated'){a.equal(s.series.SPY.conflicts.length,256);a.ok(after.series.SPY.conflicts.length<256,'사본은 포화 해소');}
+  B.undo(dst);a.deepEqual(strip(dst.all()),strip(before),'undo 후 원래 바이트');a.equal(dst.getItem('v5_benchHistV2'),raw);
+  // 보조 기록 쓰기 실패 → 자동 원상복구
+  const bad=mem({v5_benchHist:LEGACY,v5_benchHistV2:raw},'v5_benchHistV2'),b0=bad.all();
+  a.throws(()=>B.apply(bad,B.parse(docOf(p.simulatedStoreRaw))),/복원 실패|복구/);a.deepEqual(strip(bad.all()),strip(b0));a.equal(B.readJournal(bad).status,'undone');
+ }
+ // 포화 원본은 여전히 fail-closed(store-bound) — dry-run은 원본을 고치지 않음
+ const st=intradayThenPost(200),sat=withDups(st,256-st.series.SPY.conflicts.length),copy=JSON.stringify(sat);R.plan(copy,LEGACY,NOW);
+ const blocked=H.mergeHistoryStore(JSON.parse(copy),LEGACY,gas('SPY','2026-11-17T22:00:00.000Z',bars(D16.concat('2026-11-17'),(d,i)=>d==='2026-11-12'?50:100+i)),'SPY',Date.parse('2026-11-17T22:00:00.000Z'));
+ a.equal(blocked.ok,false);a.equal(blocked.reason,'store-bound');
 });

@@ -10,58 +10,81 @@
   function fail(reason,extra){var o={ok:false,dryRun:true,applied:false,reason:reason,actions:[]};if(extra)for(var k in extra)o[k]=extra[k];return o;}
   function diffPct(a,b){return Math.round(Math.abs(b-a)/a*1e6)/1e4;}
   function weekday(d){var w=new Date(d+'T00:00:00Z').getUTCDay();return w!==0&&w!==6;}
-  // Evidence is only usable when: tolerance valid, verified calendar function given,
-  // >=2 entries from distinct APPROVED routes with distinct upstreams, identity/price kind
-  // match, asOf after the regular close. Default approvedRoutes is empty -> never usable.
-  function usableEvidence(list,id,d,opt){
+  // Evidence is only usable when: tolerance valid, verified calendar gives open:true AND a verified
+  // close time (closeMs) on that exchange date (DST / early close / holiday come from the calendar,
+  // never from a fixed offset), >=2 entries from distinct APPROVED routes with distinct upstreams,
+  // identity/price kind match, strict ISO asOf in [closeMs, now]. Default approvedRoutes is empty.
+  // CR-1: any approved route or upstream reporting 2+ different closes for the same day -> whole
+  // bundle held (order independent, nothing silently dropped).
+  var ISO=/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
+  function strictIso(v){if(typeof v!=='string'||!ISO.test(v))return NaN;var t=Date.parse(v);return isFinite(t)&&new Date(t).toISOString()===v?t:NaN;}
+  function marketDay(ms,market){try{return new Intl.DateTimeFormat('en-CA',{timeZone:market==='KR'?'Asia/Seoul':'America/New_York',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(ms));}catch(e){return null;}}
+  function usableEvidence(list,id,d,opt,now){
     var s=H.specs[id],routes=obj(opt.approvedRoutes)?opt.approvedRoutes:{},tol=opt.tolerance===undefined?0:opt.tolerance;
     if(typeof tol!=='number'||!isFinite(tol)||tol<0||tol>MAX_TOLERANCE)return {ok:false,reason:'tolerance-invalid'};
     if(typeof opt.closeCalendar!=='function')return {ok:false,reason:'calendar-unverified'};
-    var open;try{open=opt.closeCalendar(d,s.market);}catch(e){open=null;}
-    if(open!==true)return {ok:false,reason:'calendar-closed-or-unknown'};
-    var close=H.closeTimeMs(d,s.market),picked=[],usedRoutes={},usedUp={};
+    var cal;try{cal=opt.closeCalendar(d,s.market);}catch(e){cal=null;}
+    if(cal===true)return {ok:false,reason:'calendar-close-time-unverified'};
+    if(!obj(cal)||cal.open!==true)return {ok:false,reason:'calendar-closed-or-unknown'};
+    var close=cal.closeMs;
+    if(typeof close!=='number'||!isFinite(close)||marketDay(close,s.market)!==d||close>now)return {ok:false,reason:'calendar-close-time-invalid'};
+    var seenRoute={},seenUp={},conflict=false;
     (Array.isArray(list)?list:[]).forEach(function(e){
       if(!obj(e)||e.id!==id||e.d!==d||e.currency!==s.currency||e.market!==s.market||e.priceKind!=='regular-close'||typeof e.close!=='number'||!isFinite(e.close)||e.close<=0)return;
       if(typeof e.route!=='string'||!own(routes,e.route)||!obj(routes[e.route])||typeof routes[e.route].upstream!=='string')return; // self-declared upstream ignored
-      var up=routes[e.route].upstream,at=typeof e.asOf==='string'?Date.parse(e.asOf):NaN;
-      if(!isFinite(at)||at<close||usedRoutes[e.route]||usedUp[up])return;
-      usedRoutes[e.route]=true;usedUp[up]=true;picked.push(e.close);
+      var up=routes[e.route].upstream;
+      // conflict check uses every well-formed approved observation, even ones not usable by time
+      if(own(seenRoute,e.route)&&seenRoute[e.route].close!==e.close)conflict=true;
+      if(own(seenUp,up)&&seenUp[up].close!==e.close)conflict=true;
+      var at=strictIso(e.asOf),usable=isFinite(at)&&at>=close&&at<=now;
+      if(!own(seenRoute,e.route))seenRoute[e.route]={close:e.close,usable:false};
+      if(!own(seenUp,up))seenUp[up]={close:e.close,usable:false};
+      if(usable){seenRoute[e.route].usable=true;seenUp[up].usable=true;}
     });
+    if(conflict)return {ok:false,reason:'evidence-route-conflict'};
+    var picked=Object.keys(seenUp).sort().filter(function(u){return seenUp[u].usable;}).map(function(u){return seenUp[u].close;});
     if(picked.length<2)return {ok:false,reason:'independent-evidence-insufficient'};
     var lo=Math.min.apply(null,picked),hi=Math.max.apply(null,picked);
     if((hi-lo)/lo>tol)return {ok:false,reason:'evidence-disagrees'};
     return {ok:true,closes:picked,tol:tol};
   }
   function within(v,closes,tol){return closes.every(function(c){return Math.abs(v-c)/c<=tol;});}
-  function dupKey(c){return JSON.stringify([c.d,c.status,c.existing,c.alternative.close,c.alternative.source,c.alternative.finality]);}
+  function canon(v){if(Array.isArray(v))return v.map(canon);if(obj(v)){var o={};Object.keys(v).sort().forEach(function(k){o[k]=canon(v[k]);});return o;}return v;}
+  // CR-2: a duplicate must match on EVERY alternative field (providerBarTs, dateKind, adjustment, future keys)
+  // except id and receivedAt, plus the whole existing record. Anything else stays a separate hold.
+  function altCore(c){var o={};Object.keys(c.alternative).forEach(function(k){if(k!=='id'&&k!=='receivedAt')o[k]=c.alternative[k];});return o;}
+  function dupKey(c){return JSON.stringify(canon([c.d,c.status,c.existing,altCore(c)]));}
+  function looseKey(c){return JSON.stringify(canon([c.d,c.status,c.existing,c.alternative.close,c.alternative.source,c.alternative.finality]));}
   function earlier(a,b){var x=Date.parse(a.alternative.receivedAt),y=Date.parse(b.alternative.receivedAt);return x!==y?x<y:a.alternative.id<b.alternative.id;}
   function sortActions(list){return list.sort(function(a,b){return a.d<b.d?-1:a.d>b.d?1:a.action<b.action?-1:a.action>b.action?1:(a.ids[0]<b.ids[0]?-1:a.ids[0]>b.ids[0]?1:0);});}
   function summarize(g,read){
     var pend=g.conflicts.filter(function(c){return c.status==='pending-review';}).length;
     return {observations:g.observations.length,conflicts:g.conflicts.length,pending:pend,successors:g.conflicts.length-pend,saturated:g.conflicts.length>=H.limits.conflicts,headroom:H.limits.conflicts-g.conflicts.length,latestDate:read&&read.latestDate||null};
   }
-  function planGroup(id,g,read,opt){
+  function planGroup(id,g,read,opt,now){
     var actions=[],groups=Object.create(null),order=[];
     g.conflicts.forEach(function(c){
       if(c.status==='provisional-successor'){actions.push({action:'keep',d:c.d,ids:[c.alternative.id],reason:'provisional-successor-normal'});return;}
       var k=dupKey(c);if(!groups[k]){groups[k]=[];order.push(k);}groups[k].push(c);
     });
-    var removeIds=Object.create(null);
+    var removeIds=Object.create(null),loose=Object.create(null);
+    order.forEach(function(k){var lk=looseKey(groups[k][0]);loose[lk]=(loose[lk]||0)+1;});
     order.sort().forEach(function(k){
       var list=groups[k].slice().sort(function(a,b){return earlier(a,b)?-1:1;}),rep=list[0],ex=rep.existing.close,al=rep.alternative.close;
       var base={d:rep.d,existingClose:ex,alternativeClose:al,diffPct:diffPct(ex,al),source:rep.alternative.source,finality:rep.alternative.finality,existingSource:own(rep.existing,'source')?rep.existing.source:'legacy-unknown'};
       if(list.length>1){
         var dropped=list.slice(1).map(function(c){return c.alternative.id;});
         dropped.forEach(function(x){removeIds[x]=true;});
-        actions.push(Object.assign({action:'merge-duplicate',ids:dropped,keptId:rep.alternative.id,count:list.length,reason:'same-date-close-source-finality-existing'},base));
+        actions.push(Object.assign({action:'merge-duplicate',ids:dropped,keptId:rep.alternative.id,count:list.length,reason:'identical-except-receivedAt'},base));
       }
-      var ev=usableEvidence(opt.evidence,id,rep.d,opt),act,reason;
+      var ev=usableEvidence(opt.evidence,id,rep.d,opt,now),act,reason;
       if(rep.alternative.finality==='provisional'){act='hold';reason='intraday-provisional-unconfirmed';}
       else if(!ev.ok){act='hold';reason=ev.reason;}
       else{var mx=within(ex,ev.closes,ev.tol),ma=within(al,ev.closes,ev.tol);
         if(mx&&!ma){act='replace-proposal';reason='evidence-confirms-existing';base.choice='existing';}
         else if(ma&&!mx){act='replace-proposal';reason='evidence-confirms-alternative';base.choice='alternative';}
         else{act='hold';reason=mx?'evidence-ambiguous':'evidence-matches-neither';}}
+      if(loose[looseKey(rep)]>1)base.auditNote='metadata-differs-not-merged';
       if(act==='hold'&&rep.existing&&own(rep.existing,'source')&&rep.existing.source!==rep.alternative.source)base.crossSource=true;
       actions.push(Object.assign({action:act,ids:[rep.alternative.id],reason:reason,requiresUserApproval:act==='replace-proposal'},base));
     });
@@ -82,7 +105,7 @@
       if(!own(store.series,id))return;
       var g=store.series[id];
       if(ids.indexOf(id)<0){out[id]={planned:false,before:summarize(g,read.series[id]),after:summarize(g,read.series[id]),actions:[]};return;}
-      var p=planGroup(id,g,read.series[id],opt);
+      var p=planGroup(id,g,read.series[id],opt,now);
       next.series[id].conflicts=next.series[id].conflicts.filter(function(c){return !p.removeIds[c.alternative.id];});
       out[id]={planned:true,before:summarize(g,read.series[id]),after:summarize(next.series[id],null),actions:p.actions};
       out[id].after.latestDate=out[id].before.latestDate;
