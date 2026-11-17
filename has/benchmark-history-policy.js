@@ -231,7 +231,10 @@
     var read=readStore(store,legacyRaw,now);if(!read.ok)return read;
     var current=read.series[id];if(!current||!current.ok)return fail('existing-series-quarantined');
     var g=current.group,adds=[],alternatives=[],accepted=[],unchanged=[],pending=[],failures=[];
-    c.bars.forEach(function(b,i){var old=current.byDate[b.d],p=makeObservation(c,i);
+    c.bars.forEach(function(b,i){
+      // 장 마감(+30분) 전에 받은 당일 봉은 확정 전 값이라 저장·비교하지 않는다(보류충돌 누적 방지).
+      if(b.d===Q.marketDate(c.receivedAt,c.market)&&!(Date.parse(c.receivedAt)>=persistAfterMs(b.d,c.market))){failures.push({d:b.d,reason:'intraday-not-persisted'});return;}
+      var old=current.byDate[b.d],p=makeObservation(c,i);
       if(old){
         var successor=provisionalSuccessor(old,p,id)&&!current.pendingConflicts.some(function(x){return x.d===b.d;});
         if(old.close===b.c&&!successor)unchanged.push(b.d);
@@ -249,6 +252,13 @@
     return {ok:true,changed:true,store:next,acceptedDates:accepted,unchangedDates:unchanged,pendingConflicts:pending,failures:failures};
   }
   function closeTimeMs(day,market){return Date.parse(day+(market==='KR'?'T15:30:00+09:00':'T16:00:00-05:00'));}
+  // IANA 시간대 기준 정규 마감 + 30분(서머타임 반영). 조기폐장·휴장은 모르므로 정규 마감 기준(보수적).
+  function persistAfterMs(day,market){
+    if(!Q.isValidDate(day))return NaN;var tz=market==='KR'?'Asia/Seoul':'America/New_York',h=market==='KR'?15:16,m=market==='KR'?30:0;
+    var guess=Date.UTC(+day.slice(0,4),+day.slice(5,7)-1,+day.slice(8,10),h,m),o={};
+    new Intl.DateTimeFormat('en-US',{timeZone:tz,hourCycle:'h23',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).formatToParts(new Date(guess)).forEach(function(x){o[x.type]=x.value;});
+    var local=Date.UTC(+o.year,+o.month-1,+o.day,+o.hour%24,+o.minute);return guess-(local-guess)+30*60000;
+  }
   function sameDayCloseOk(p,id,targetTs,day){var close=closeTimeMs(day,specFor(id).market);return typeof p.receivedAt==='string'&&Number.isFinite(close)&&targetTs>=close&&Date.parse(p.receivedAt)>=close;}
   function selectPointAtOrBefore(rows,id,targetTs,options){
     options=options||{};var now=options.now===undefined?targetTs:options.now;
@@ -296,5 +306,5 @@
     try{return walk(value,0);}catch(e){return false;}
   }
   function boundary(fn){return function(){for(var i=0;i<arguments.length;i++)if(!plainData(arguments[i]))return fail('non-data-input');try{return fn.apply(null,arguments);}catch(e){return fail('invalid-input');}};}
-  return Object.freeze({specs:specs,closeTimeMs:closeTimeMs,limits:Object.freeze({bars:MAX_BARS,conflicts:MAX_CONFLICTS,bytes:MAX_BYTES}),readCache:boundary(readCache),parseTransportJSON:boundary(parseTransportJSON),validatePoint:boundary(validatePoint),validateSeries:boundary(series),observedDate:function(p,id){return plainData(p)?observedDate(p,id):null;},fingerprint:fingerprint,readStore:boundary(readStore),validateStore:boundary(validateStore),validateObservation:boundary(validateObservation),mergeHistoryStore:boundary(mergeHistoryStore),selectPointAtOrBefore:boundary(selectPointAtOrBefore),admitCandidate:boundary(admitCandidate),parseYahoo:boundary(parseYahoo),parseAlphaVantage:boundary(parseAlphaVantage),parseGasHistory:boundary(parseGasHistory),mergeSeries:boundary(mergeSeries),describe:boundary(describe),liveGasEnabled:true});
+  return Object.freeze({specs:specs,closeTimeMs:closeTimeMs,persistAfterMs:persistAfterMs,limits:Object.freeze({bars:MAX_BARS,conflicts:MAX_CONFLICTS,bytes:MAX_BYTES}),readCache:boundary(readCache),parseTransportJSON:boundary(parseTransportJSON),validatePoint:boundary(validatePoint),validateSeries:boundary(series),observedDate:function(p,id){return plainData(p)?observedDate(p,id):null;},fingerprint:fingerprint,readStore:boundary(readStore),validateStore:boundary(validateStore),validateObservation:boundary(validateObservation),mergeHistoryStore:boundary(mergeHistoryStore),selectPointAtOrBefore:boundary(selectPointAtOrBefore),admitCandidate:boundary(admitCandidate),parseYahoo:boundary(parseYahoo),parseAlphaVantage:boundary(parseAlphaVantage),parseGasHistory:boundary(parseGasHistory),mergeSeries:boundary(mergeSeries),describe:boundary(describe),liveGasEnabled:true});
 });
