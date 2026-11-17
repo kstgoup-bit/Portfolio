@@ -1,18 +1,23 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
-STATUS: DEPLOYED — 기준지수 장중 당일 봉 미저장 main `96f1509`(순태씨 '올려'). 별도 검토 대기: 0940 bench-history-repair `0751aaa`, price-meta `893623b`(둘 다 운영 앱 미로드). 운영 최신 = main `96f1509`
+STATUS: READY_FOR_REVIEW
+ORDER-ID: GPT-20261117-0940
 REPORT: docs/team/CLAUDE-DEV-BENCH-HISTORY-REPAIR-20261117.md
 BRANCH: work/claude-bench-history-repair-20261117
-HEAD: 0751aaae28791212f3786dfaecac01232a972083 (검토 대상) · 보고 497e0e1(docs만) · BASE bb30be3(main)
-UPDATED: 2026-11-17 12:xx KST (정각 실행)
+HEAD: 0751aaae28791212f3786dfaecac01232a972083 (검토 대상 코드) · 보고 497e0e1(docs만) · BASE bb30be3(main)
+REVIEW-SCOPE: has/benchmark-conflict-repair.js(신규, 운영 앱 미로드) dry-run 정리 계획 + tests/benchmark-conflict-repair.test.cjs 9건 + tests/lib/live-data-pins.json addedRuntimeFiles 1줄
+UPDATED: 2026-11-17 13:1x KST (정각 실행, GPT-20261117-1234 상태 포인터 정정 — 문서 메타데이터만)
 
-- 변경: has/benchmark-conflict-repair.js(신규, 원문 문자열 입력·저장소 접근 0, keep/merge-duplicate(사본만)/replace-proposal(미적용, 검증 달력+승인 독립 경로 2개+정규 종가+마감 후)/hold, fail-closed, 활성 가격 불변·되돌리기 지문), tests/benchmark-conflict-repair.test.cjs 9건, live-data-pins addedRuntimeFiles 1줄.
-- 시험: 전체 2258 중 2256 통과/0 실패/2 skip, 비밀값 0. 화면 변경 없음(Playwright 미실행). 실제 SPY 256건 복구 아님(데이터 미접근).
-- price-meta: 지피 1130 APPROVE(`893623b`, 미로드 계약 한정) 기록 — 0731 1단계 종료.
-- bench-conflict: 지피 0930 APPROVE(`d93e9dc`) → 순태씨 '올려' 대기(변동 없음).
-- 지피 지시서 현황: 대기 지시서 없음(0940 처리 완료).
+- 0940 보고 원문 HEADER = READY_FOR_REVIEW, HEAD 일치, 해당 GPT-REVIEW 없음 확인 → 검토 대기 상태로 정정. 지피 검토 전(코드·합성 시험은 아직 지피 미검토).
+- 시험(보고 당시 기록, 이번 실행 재실행 없음): 전체 2258 중 2256 통과/0 실패/2 skip, 비밀값 0. 실제 SPY 256건 복구 아님(데이터 미접근).
+- 운영 최신 = main `96f1509`(기준지수 장중 당일 봉 미저장, 순태씨 '올려') — 별개 작업, 아래 이전 기록.
+- price-meta `893623b`: 지피 1130 APPROVE(미로드 계약 한정), 1단계 종료.
+- 지피 지시서 현황: GPT-20261117-1234 처리(이번 실행). 대기 지시서 없음.
 
 ## 이전 기록
+
+- (이전, 11-17 12:xx~) DEPLOYED — 기준지수 장중 당일 봉 미저장 main `96f1509`(지피 0930 APPROVE `d93e9dc`, 순태씨 '올려'). 0940 bench-history-repair와 별개.
+
 
 - (이전, 11-17 11:xx) READY_FOR_REVIEW — 0731 CR 반영 `893623b` → 지피 1130 APPROVE.
 
