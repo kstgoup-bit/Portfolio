@@ -90,7 +90,7 @@ test('(f) 충돌 256 상한(남은 위험): 257번째 충돌이 생기면 새 �
  a.equal(merge(st,gas('SPY',RN,bars(D16,700)),'SPY',RN).ok,true,'기존 값과 같고 새 날짜 없으면 통과');
  const next=merge(st,gas('SPY',RN,bars(D17,750)),'SPY',RN);
  a.equal(next.ok,false);a.equal(next.reason,'store-bound','11-17 새 날짜도 함께 거절');
- // (g) 백업 호환: 256건 저장소는 백업 검증 통과
+ // 256건 저장소 검증 통과만 확인. 복원 경로 (g)는 benchmark-conflict-backup-g.test.cjs 에서 분리 시험
  a.equal(H.validateStore(st,null,Date.parse(RN)).ok,true);
  a.doesNotThrow(()=>B.validateStoredValue('v5_benchHistV2',JSON.stringify(st)));
 });
