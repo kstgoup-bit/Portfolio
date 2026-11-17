@@ -1,20 +1,21 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
 STATUS: READY_FOR_REVIEW
-ORDER-ID: GPT-20261117-0940
-REPORT: docs/team/CLAUDE-DEV-BENCH-HISTORY-REPAIR-20261117.md
+ORDER-ID: GPT-20261117-0940 (GPT-REVIEW-bench-history-repair-20261117-1332 CR 반영)
+REPORT: docs/team/CLAUDE-DEV-BENCH-HISTORY-REPAIR-20261117.md (0절)
 BRANCH: work/claude-bench-history-repair-20261117
-HEAD: 0751aaae28791212f3786dfaecac01232a972083 (검토 대상 코드) · 보고 497e0e1(docs만) · BASE bb30be3(main)
-REVIEW-SCOPE: has/benchmark-conflict-repair.js(신규, 운영 앱 미로드) dry-run 정리 계획 + tests/benchmark-conflict-repair.test.cjs 9건 + tests/lib/live-data-pins.json addedRuntimeFiles 1줄
-UPDATED: 2026-11-17 13:1x KST (정각 실행, GPT-20261117-1234 상태 포인터 정정 — 문서 메타데이터만)
+HEAD: 6774de0700c933a4cce853e4e65b50695d870bb0 (검토 대상 코드) · 보고 f10ce03(docs만) · BASE babe23f(main merge)
+REVIEW-SCOPE: 0751aaa→6774de0 — has/benchmark-conflict-repair.js(운영 앱 미로드) usableEvidence·dupKey, tests/benchmark-conflict-repair.test.cjs (10)~(13) 신규·(2)(3)(5) 조정, live-data-pins 해시 1줄
+UPDATED: 2026-11-17 14:1x KST (정각 실행)
 
-- 0940 보고 원문 HEADER = READY_FOR_REVIEW, HEAD 일치, 해당 GPT-REVIEW 없음 확인 → 검토 대기 상태로 정정. 지피 검토 전(코드·합성 시험은 아직 지피 미검토).
-- 시험(보고 당시 기록, 이번 실행 재실행 없음): 전체 2258 중 2256 통과/0 실패/2 skip, 비밀값 0. 실제 SPY 256건 복구 아님(데이터 미접근).
-- 운영 최신 = main `96f1509`(기준지수 장중 당일 봉 미저장, 순태씨 '올려') — 별개 작업, 아래 이전 기록.
-- price-meta `893623b`: 지피 1130 APPROVE(미로드 계약 한정), 1단계 종료.
-- 지피 지시서 현황: GPT-20261117-1234 처리(이번 실행). 대기 지시서 없음.
+- CR-1 경로·원천 상충 → 묶음 hold(순서 무관) / CR-2 id·receivedAt 외 관측 전 필드 일치만 병합, 메타 차이는 개별 보류+auditNote / CR-3 asOf 엄격 ISO·달력 closeMs ≤ asOf ≤ now, 달력은 마감시각 필수 / CR-4 합성 백업 parse→preview→apply→undo 3변형·쓰기 실패 원상복구.
+- 시험(클로 실행): 전체 2281 중 2279 통과/0 실패/2 skip, 비밀값 0. 실제 SPY 256건 복구 아님(데이터 미접근).
+- 운영 최신 = main `96f1509`(기준지수 장중 당일 봉 미저장) — 변경 없음.
+- 지피 지시서 현황: 대기 지시서 없음. 1332 CR 반영 완료, 재검토 대기.
 
 ## 이전 기록
+
+- (이전, 11-17 13:1x) READY_FOR_REVIEW — 0940 최초 `0751aaa` → 지피 1332 CHANGES_REQUESTED(CR-1~4).
 
 - (이전, 11-17 12:xx~) DEPLOYED — 기준지수 장중 당일 봉 미저장 main `96f1509`(지피 0930 APPROVE `d93e9dc`, 순태씨 '올려'). 0940 bench-history-repair와 별개.
 

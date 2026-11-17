@@ -1,8 +1,28 @@
 STATUS: READY_FOR_REVIEW
-ORDER-ID: GPT-20261117-0940
-BASE: bb30be3e3426fc5e022fc694c39533408dafb443 (main, 이후 docs만)
-HEAD: 0751aaae28791212f3786dfaecac01232a972083 (검토 대상)
-REVIEW-SCOPE: `has/benchmark-conflict-repair.js`(신규, 운영 앱 미로드) dry-run 정리 계획 + `tests/benchmark-conflict-repair.test.cjs` 9건 + `tests/lib/live-data-pins.json` addedRuntimeFiles 1줄. 실제 자료 정리·운영 연결·0730 2단계(장중 봉 미저장)와 무관.
+ORDER-ID: GPT-20261117-0940 (GPT-REVIEW-bench-history-repair-20261117-1332 CHANGES_REQUESTED 반영)
+BASE: babe23ff0ede93147501c6673b7a5be8eb1ec984 (main, 브랜치에 merge — 96f1509 장중 당일 봉 미저장 포함)
+HEAD: 6774de0700c933a4cce853e4e65b50695d870bb0 (검토 대상)
+REVIEW-SCOPE: 0751aaa→6774de0 차이 — `has/benchmark-conflict-repair.js`(usableEvidence·dupKey 교체, 운영 앱 미로드) + `tests/benchmark-conflict-repair.test.cjs`(신규 (10)~(13), (3)·(5) 합성 재현/달력 형식 조정) + `tests/lib/live-data-pins.json` 해시 1줄. merge 커밋 99dc003은 main 그대로(충돌 없음).
+
+## 0. 1332 CR 반영 (2026-11-17 14:xx KST 정각 실행)
+
+| CR | 반영 | 시험 |
+|---|---|---|
+| CR-1 경로·원천 상충 | 승인 경로 또는 상류 원천 하나가 같은 날짜에 서로 다른 종가 2개 이상이면 묶음 전체 `hold`(`evidence-route-conflict`). 시간상 쓸 수 없는(마감 전) 유효 형식 관측도 상충 검사에 포함. 채택은 원천별 1개(정렬된 원천 키) → 입력 순서 무관 | (10) r-a 103·r-a 99·r-b 103 6순열 전부 hold, 같은 상류 다른 경로도 hold, 동일 경로 동일값 = 독립 1개, 서로 다른 승인 원천 일치 2개만 교체 제안, 미승인 경로 값은 무시 |
+| CR-2 메타 차이 보존 | 중복 판정 = `id`·`receivedAt`을 뺀 **관측 전 필드**(providerBarTs·dateKind·adjustment·이후 스키마 키 자동 포함) + 기존 기록 전체 일치. 다르면 병합하지 않고 개별 보류, 같은 날짜·종가·출처인데 메타만 다르면 `auditNote: metadata-differs-not-merged` | (11) yahoo-chart-v8 바 시각 t1 두 건만 병합, t2·GAS는 사본에 남고 각각 보류, 활성 가격·QQQ 불변 |
+| CR-3 미래·형식·달력 | 근거 `asOf`는 엄격 ISO(`YYYY-MM-DDTHH:MM:SS.sssZ`, 왕복 일치)·`closeMs ≤ asOf ≤ now`. 달력은 `{open:true, closeMs}`로 **마감 시각까지** 줘야 함 — `true`만이면 `calendar-close-time-unverified`, closeMs가 거래소 시간대 기준 다른 날짜/미래/비수치면 `calendar-close-time-invalid`. 고정 오프셋 `closeTimeMs`는 더 이상 근거 판정에 쓰지 않음(DST·조기폐장은 달력 책임) | (12) now+1분·+5년·NaN·빈값·공백/무밀리초/+00:00·11-31·25시·숫자 거절, 마감 정각·now 정각 허용, 마감 1ms 전 거절, 조기폐장 18:00Z 달력 허용 |
+| CR-4 백업 왕복 | 합성 Map 저장소(계좌 4개 합성 1종목씩)에서 dry-run 사본을 백업 문서로 만들어 `parse→preview→apply→undo` | (13) 중복/256 포화/순서 뒤집음 3변형 × {레거시 원문 바이트 동일, 사본 = 저장값, 계좌 4개·선택 안 한 QQQ 바이트 동일, 활성 가격 불변, undo 후 원래 바이트, 보조 기록 쓰기 실패 → 자동 원상복구·journal undone}. 포화 원본은 여전히 `store-bound`(dry-run이 원본을 고치지 않음) |
+
+추가 조정: main `96f1509` 이후 앱이 장중 당일 봉을 저장하지 않아, (2)(3)의 "과거 장중 provisional 보류 누적" 저장소를 `mergeHistoryStore`로 더는 만들 수 없음 → 과거 앱이 남긴 형태 그대로 합성 보류를 직접 넣고 `validateStore` 통과를 확인하는 방식으로 바꿈(검증 대상 동작은 동일).
+
+시험(클로 컨테이너): `node --require ./tests/lib/no-network.cjs --test tests/*.test.cjs` 전체 2281 중 2279 통과 / 0 실패 / 2 skip, 이 파일 13건 통과. `node tools/scan-secrets.cjs` findings 0. 화면 변경 없음(Playwright 불필요).
+
+미완료·미검증: 실제 SPY 256건 정리 없음(실자료 미접근). 승인 경로·검증 달력은 여전히 기본 0개 → 실사용에서 교체 제안은 나오지 않음. KR(KS200) 근거 경로는 합성 시험 없음(US만). 순태씨 결정 필요: 실제 기록 정리 실행 여부(별도 승인), 장중 provisional 보류의 처리 규칙.
+
+---
+
+(이하 0751aaa 최초 보고)
+
 
 # 기준지수 SPY·QQQ 보류충돌 — dry-run 정리 도구 (1단계)
 

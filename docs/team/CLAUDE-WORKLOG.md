@@ -19,6 +19,7 @@
 다음 묶음: 1단계 후속(탭 첫 진입 자동 조회·하루 캐시, 확신 종목 UI 25%/10%, '준비 중' 제거) → 2차 재무(SEC EDGAR, DART) → 서비스워커 rollback.
 
 ## 처리한 지시서
+- GPT-REVIEW-bench-history-repair-20261117-1332 (2026-11-17 14:xx) CHANGES_REQUESTED 반영 → READY_FOR_REVIEW: CR-1 경로·원천 상충 묶음 hold, CR-2 관측 전 필드 일치만 병합·메타 차이 감사 표기, CR-3 근거 asOf 엄격 ISO·[달력 closeMs, now]·달력 마감시각 필수, CR-4 합성 백업 apply/undo 왕복. HEAD `6774de0`, 보고 `f10ce03`.
 - GPT-20261117-1234 (2026-11-17 13:1x) 완료: 문서 메타데이터만 — 0940 보고 HEADER READY_FOR_REVIEW·HEAD `0751aaa` 일치·GPT-REVIEW 없음 확인 후 CLAUDE-LATEST 최상단을 READY_FOR_REVIEW로 정정, 운영 배포 `96f1509`는 이전 기록으로 분리. 코드·시험·자료 변경 0, 지피 검토 완료 아님.
 - GPT-20261117-0940 (2026-11-17 12:xx) READY_FOR_REVIEW: 기준지수 보류충돌 dry-run 정리 계획 — has/benchmark-conflict-repair.js(운영 앱 미로드)·합성 시험 9건 `0751aaa`, 보고 `497e0e1` (`work/claude-bench-history-repair-20261117`). 전체 2258 중 2256 통과/0 실패/2 skip, 비밀값 0. 실제 기록·백업·GAS·운영 변경 0, 실제 SPY 256건 복구 아님.
 - GPT-REVIEW-price-meta-20261117-1130 — APPROVE(HEAD `893623b`, 미로드 계약 v1.1·합성 시험 정적 검토 한정 — 실제 B 달성·운영 연결·투자 신호 해제 아님), 기록 2026-11-17 12:xx · ORDER GPT-20261117-0731 1단계 종료. 앱 화면 변화 없는 파일이라 운영 반영은 2단계(실제 연결)와 함께 순태씨 판단.
@@ -184,3 +185,4 @@
 - 2026-11-17 12:xx 정각 실행: 지피 1130 price-meta APPROVE(`893623b`, 미로드 계약 한정) 기록. GPT-20261117-0940 처리: `work/claude-bench-history-repair-20261117` `0751aaa`(main bb30be3 기준) — 원문 문자열만 받는 dry-run 계획(keep / 확인된 중복만 사본 병합 / 교체 제안(검증 달력+승인 독립 경로 2개+정규 종가, 사본 미적용) / 보류), fail-closed, 활성 가격 불변 검사, 되돌리기 지문. 시험 9건, 전체 2258 중 2256 통과/0 실패/2 skip, 비밀값 0, 화면 변경 없음. 다음: 지피 0940 검토 / 순태씨 bench-conflict '올려' / 장중 provisional 보류 처리 규칙 결정.
 - 2026-11-17 (순태씨 대화 '올려') 기준지수 장중 당일 봉 미저장 `d93e9dc`(지피 0930 APPROVE) → main `96f1509`(no-ff) 운영 반영. 병합 후 전체 2268 중 2266 통과/0 실패/2 skip, 비밀값 0. 기존 충돌 256건은 그대로(정리 안 함). 다음: 갤럭시 확인(새 충돌 증가 멈춤 여부) / 지피 0940 검토 / 장중 보류 처리 규칙 결정.
 - 2026-11-17 13:1x 정각 실행: GPT-20261117-1234 처리(LATEST·README·일지 문서만, 0940 READY_FOR_REVIEW 포인터 정정). 코드·시험 재실행 없음. 다음: 지피 0940 검토 대기 / 장중 provisional 보류 처리 규칙 순태씨 결정.
+- 2026-11-17 14:xx 정각 실행: 지피 1332 CR-1~4 반영 `work/claude-bench-history-repair-20261117` `6774de0`(main babe23f merge 후) — 시험 (10)~(13) 신규, (2)(3) 과거 장중 보류 합성 재현 방식 변경(96f1509 이후 앱 경로로는 생성 불가). 전체 2281 중 2279 통과/0 실패/2 skip, 비밀값 0, 화면 변경 없음. 운영·GAS·실자료 변경 0. 다음: 지피 재검토 / 실제 기록 정리 여부·장중 보류 규칙 순태씨 결정.
