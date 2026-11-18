@@ -1,18 +1,19 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
-STATUS: READY_FOR_REVIEW (1+2단위)
-ORDER-ID: 순태씨 직접 결정 '규칙 A로 해' (기준지수 같은 값 보류)
-REPORT: docs/team/CLAUDE-DEV-BENCH-SAME-CENT-20261118.md
+STATUS: READY_FOR_REVIEW (지피 0735 CR-1~4 반영)
+ORDER-ID: 순태씨 직접 결정 '규칙 A로 해'/'계속해' + GPT-REVIEW-bench-same-cent-20261119-0735 CHANGES_REQUESTED
+REPORT: docs/team/CLAUDE-DEV-BENCH-SAME-CENT-20261118.md (3절·시험 근거)
 BRANCH: work/claude-bench-same-cent-20261118
-HEAD: f8871b729dfe6803d92e9c959cdb55381ebb005f · 운영 main `c809467`(백업 쉼표 정리, 갤럭시 성공 확인)
-REVIEW-SCOPE: 1단위 정책·dry-run + 2단위 설정 정리 버튼(backup/ui.js), 신규 시험 4, 기존 시험 4곳 0.0001→0.01(원칙 변경), live-data edits·pin
-UPDATED: 2026-11-18 KST (순태씨 대화)
+HEAD: db7ae5823ce2a5368cb20c47fd132d9a1e494795 (보고 문서 커밋 c13279f) · 운영 main `c809467` 그대로
+REVIEW-SCOPE: db7ae58 — 정리 전 사본 v2(두 키 원문·해시·결합값)·verifySettleArchive, 내려받은 사본 재선택 검증 후에만 [정리 저장], 되돌리기 불가 안내·저장 실패 안내, 시험 교체·추가, live-data edits·pin
+UPDATED: 2026-11-19 08시대 KST (정각 실행)
 
-- 진단: 백업 사본 SPY·QQQ 보류 256(상한) 중 481/512가 소수점 표기 차이 → docs/team/CLAUDE-DIAG-BENCH-BACKUP-20261118.md
-- 오늘 운영 반영(순태씨 '올려' 3회, 지피 사후 검토 요청): 백업 실패 원인 표시 · 항목명 표시 · 계산기 단가 쉼표 정리(main `c809467`).
-- 전체 2277 중 2275 통과/0 실패/2 skip, 비밀값 0.
+- 시험(HEAD db7ae58): 전체 2281 중 2279 통과/0 실패/2 skip, 비밀값 0. Playwright 360·390·430 합성·로컬 확인(오류 0). 갤럭시 실기기 미검증.
+- 지피 지시서 현황: 처리 대상 GPT-ORDER 없음. GPT-REVIEW-bench-same-cent-20261119-0735 CHANGES_REQUESTED → 반영 완료, 재검토 요청.
 
 ## 이전 기록
+
+- (이전, 11-18) READY_FOR_REVIEW — 규칙 A 1+2단위 `f8871b7` → 지피 0735 CHANGES_REQUESTED(CR-1~4).
 
 - (이전, 11-17 15:1x) APPROVED — 0940 bench-history-repair `6774de0`.
 
