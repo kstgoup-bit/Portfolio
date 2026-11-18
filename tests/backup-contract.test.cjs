@@ -88,7 +88,7 @@ test('export refuses corrupted source even with valid memory override',()=>{cons
 // Minimal DOM is enough to exercise the real backup adapter without a browser or jsdom.
 function harness(seed={},runtime=true){
  const storage=seeded();for(const[k,v]of Object.entries(seed))storage.setItem(k,v);
- const all=[];function el(tag){const x={tagName:tag.toUpperCase(),children:[],parent:null,textContent:'',style:{},attributes:{},listeners:{},append(...items){for(const item of items){this.children.push(item);item.parent=this;}},setAttribute(k,v){this.attributes[k]=v;},addEventListener(k,fn){this.listeners[k]=fn;},remove(){if(this.parent)this.parent.children=this.parent.children.filter(x=>x!==this);this.parent=null;},click(){this.listeners.click?.();},scrollIntoView(){}};all.push(x);return x;}
+ const all=[];function el(tag){const x={tagName:tag.toUpperCase(),children:[],parent:null,textContent:'',style:{},attributes:{},listeners:{},append(...items){for(const item of items){this.children.push(item);item.parent=this;}},setAttribute(k,v){this.attributes[k]=v;},addEventListener(k,fn){this.listeners[k]=fn;},remove(){if(this.parent)this.parent.children=this.parent.children.filter(x=>x!==this);this.parent=null;},click(){this.listeners.click?.();},scrollIntoView(){},appendChild(x){this.append(x);return x;}};all.push(x);return x;}
  const body=el('body'),host=el('div'),message=el('div');host.id='portfolioBackupTools';message.id='backupMsg';const fx=el('input');fx.id='usdKrw';fx.value='1400';body.append(host,message,fx);
  const document={body,createElement:el,getElementById:id=>all.find(x=>x.id===id&&x.parent)||null};
  const calls=[],downloads=[];const context={backupStateLoaded:true,document,localStorage:storage,TextEncoder,Blob,URL:{createObjectURL:b=>{downloads.push(b);return 'blob:synthetic';},revokeObjectURL(){}},setTimeout(){},confirm:()=>true,console};context.window=context;
@@ -131,3 +131,31 @@ test('평균단가 계산기 단가 쉼표(12,345.5 / 1,200.)는 백업 사본�
 test('정리할 수 없는 계산기 값(문자 섞임)은 그대로 두어 백업을 막고 항목 이름을 알린다',()=>{
  const h=harness({calc_p1_gen_1:'12,34a'});h.ctx.exportData();a.equal(h.downloads.length,0);a.match(h.message.textContent,/항목: calc_p1_gen_1/);
 });
+{
+ // 규칙 A 2단위: 설정 화면 '기준지수 같은 값 보류 정리' (합성 자료)
+ const P=require('../has/benchmark-history-policy.js'),D=['2026-11-05','2026-11-06','2026-11-09'],T0=Date.parse('2026-11-10T22:00:00.000Z');
+ const legacyRaw=JSON.stringify({QQQ:D.map((d,i)=>({ts:Date.parse(d+'T14:30:00Z'),close:[701.53,702.1,700][i]}))});
+ const sv=P.specs.QQQ,yh=closes=>P.parseYahoo({chart:{result:[{meta:{symbol:sv.symbol,currency:sv.currency,exchangeTimezoneName:sv.timezone,exchangeName:'NMS',fullExchangeName:'NasdaqGS',instrumentType:'ETF',dataGranularity:'1d',regularMarketTime:T0/1000-3600},timestamp:D.map(d=>Date.parse(d+'T14:30:00Z')/1000),indicators:{quote:[{close:closes}]}}],error:null}},'QQQ','2026-11-10T22:00:00.000Z');
+ function sideRaw(sameCloses){
+  const base=P.mergeHistoryStore(null,legacyRaw,yh([701.54,702.1,700]),'QQQ',T0),real=base.store.series.QQQ.conflicts[0];
+  const extra=sameCloses.map(([d,close],i)=>{const p={...real.alternative,d,close,receivedAt:'2026-11-10T21:0'+i+':00.000Z',providerBarTs:Date.parse(d+'T14:30:00Z')};p.id='o:'+P.fingerprint(JSON.stringify([p.d,p.close,p.source,p.receivedAt,p.providerBarTs]));return {d,existing:JSON.parse(legacyRaw).QQQ[D.indexOf(d)],alternative:p,status:'pending-review'};});
+  return JSON.stringify({...base.store,series:{...base.store.series,QQQ:{...base.store.series.QQQ,conflicts:[real,...extra]}}});
+ }
+ test('지수 같은 값 보류 정리: 미리보기는 사본만 내려받고 저장은 [정리 저장] 뒤에만, 다른 값 보류·지수 원본은 보존',async()=>{
+  const raw=sideRaw([['2026-11-05',701.530029296875],['2026-11-06',702.0999755859375]]);
+  const h=harness({v5_benchHist:legacyRaw,v5_benchHistV2:raw});h.button('기준지수 같은 값 보류 정리').click();
+  a.equal(h.storage.getItem('v5_benchHistV2'),raw,'미리보기 단계에서는 저장 금지');a.equal(h.downloads.length,1);a.match(h.message.textContent,/QQQ 3→1건/);a.match(h.message.textContent,/아직 바꾸지 않았습니다/);
+  const arc=JSON.parse(await h.downloads[0].text());a.equal(arc.format,'kst-bench-same-value-archive');a.equal(arc.originalV2Raw,raw);a.equal(arc.removed.length,2);
+  h.button('정리 저장 (사본 확인함)').click();
+  const next=JSON.parse(h.storage.getItem('v5_benchHistV2'));a.equal(next.series.QQQ.conflicts.length,1);a.equal(next.series.QQQ.conflicts[0].alternative.close,701.54);
+  a.equal(h.storage.getItem('v5_benchHist'),legacyRaw);a.ok(h.calls.includes('invalidate'));a.match(h.message.textContent,/정리를 저장했습니다/);a.equal(h.button('정리 저장 (사본 확인함)'),undefined);
+ });
+ test('지수 같은 값 보류 정리: 미리보기 뒤 기록이 바뀌면 저장하지 않고, 정리할 것 없으면 아무 파일도 만들지 않는다',()=>{
+  const raw=sideRaw([['2026-11-05',701.530029296875]]),h=harness({v5_benchHist:legacyRaw,v5_benchHistV2:raw});h.button('기준지수 같은 값 보류 정리').click();
+  const changed=sideRaw([['2026-11-06',702.0999755859375]]);h.storage.setItem('v5_benchHistV2',changed);h.button('정리 저장 (사본 확인함)').click();
+  a.equal(h.storage.getItem('v5_benchHistV2'),changed);a.match(h.message.textContent,/바뀌었습니다/);
+  const none=sideRaw([]),h2=harness({v5_benchHist:legacyRaw,v5_benchHistV2:none});h2.button('기준지수 같은 값 보류 정리').click();
+  a.equal(h2.downloads.length,0);a.equal(h2.storage.getItem('v5_benchHistV2'),none);a.match(h2.message.textContent,/정리할 같은 값 보류가 없습니다/);
+  const h3=harness();h3.button('기준지수 같은 값 보류 정리').click();a.equal(h3.downloads.length,0);a.match(h3.message.textContent,/정리할 지수 보류 기록이 없습니다/);
+ });
+}
