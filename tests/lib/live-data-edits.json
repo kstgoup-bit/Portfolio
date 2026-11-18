@@ -509,6 +509,14 @@
     [
       "}catch(e){msg('백업 실패: 손상 자료 또는 저장 접근 오류를 확인하세요. 현재 자료를 바꾸지 않았습니다.'+(e&&e.message?' (원인: '+String(e.message).slice(0,120)+')':''));try{document.getElementById('backupMsg').scrollIntoView({block:'center'});}catch{}}};",
       "}catch{msg('백업 실패: 손상 자료 또는 저장 접근 오류를 확인하세요. 현재 자료를 바꾸지 않았습니다.');}};"
+    ],
+    [
+      "(e&&e.message?' (원인: '+String(e.message).slice(0,120)+badKey()+')':'')",
+      "(e&&e.message?' (원인: '+String(e.message).slice(0,120)+')':'')"
+    ],
+    [
+      " function badKey(){try{const ks=[];for(let i=0;i<localStorage.length;i++)ks.push(localStorage.key(i));for(const k of ks.sort()){if(!B.allowed(k))continue;try{B.validateStoredValue(k,localStorage.getItem(k));}catch{return /^[A-Za-z0-9_]{1,60}$/.test(k)?' · 항목: '+k:'';}}const fx=(document.getElementById('usdKrw')||{}).value;if(typeof fx==='string'){try{B.validateStoredValue('v5_fx',fx);}catch{return ' · 항목: 환율 입력칸 \"'+fx.slice(0,12)+'\"';}}}catch{}return '';}\n function download(text,name){",
+      " function download(text,name){"
     ]
   ]
 }

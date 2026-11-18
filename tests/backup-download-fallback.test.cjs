@@ -25,3 +25,11 @@ test('exportData: 백업 실패 시 파일·열기 링크를 만들지 않는다
  a.equal(n,0);a.equal(w.document.getElementById('backupOpenLink'),null);a.match(w.document.getElementById('backupMsg').textContent,/백업 실패/);a.match(w.document.getElementById('backupMsg').textContent,/원인: 계좌 자료를 읽지 못했으므로/,'실패 원인을 화면에 보여야 함');
  w.close();
 });
+test('exportData: 실패 시 문제 저장 항목 이름을 안내한다',()=>{
+ const dom=new JSDOM('<body><div id="portfolioBackupTools"></div><div id="backupMsg"></div><input id="usdKrw" value="1400"></body>',{runScripts:'outside-only',url:'https://example.test/'});
+ const w=dom.window;w.localStorage.setItem('v5_cma_amount','1,000');
+ w.eval('var genStocks=[],domStocks=[],ovStocks=[],penStocks=[],divList=[],snapshots=[],deposits=[],balGoals=[];function loadDebtBank(){return[]}function loadDebtHouse(){return[]}function loadNonFinAssets(){return[]}window.backupStateLoaded=true;window.KSTPortfolioBackup={MAX_BYTES:1e7,isWriteBlocked(){return false},allowed(k){return k==="v5_cma_amount"},validateStoredValue(k,v){if(!/^\\d+$/.test(v))throw Error("숫자 설정 손상")},create(){throw Error("숫자 설정 손상")}};');
+ w.eval(fs.readFileSync(path.join(ROOT,'backup/ui.js'),'utf8'));w.exportData();
+ a.match(w.document.getElementById('backupMsg').textContent,/원인: 숫자 설정 손상 · 항목: v5_cma_amount/);
+ w.close();
+});
