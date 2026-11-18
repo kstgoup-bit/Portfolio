@@ -21,7 +21,7 @@
   window.invalidateBackupRuntime();
  }
  function refresh(){load();if(typeof benchmarkHistory!=='undefined')benchmarkHistory={KS200:[],NDX:[],SPY:[]};if(typeof loadBenchmarkCacheSync==='function')loadBenchmarkCacheSync();renderAll();}
- window.exportData=function(){try{if(isWriteBlocked()){showBlocked();return;}const text=JSON.stringify(B.create(localStorage,effective()),null,2);if(new Blob([text]).size>B.MAX_BYTES)throw Error('용량 한도 초과');const __n='KST-전체백업-v7-'+new Date().toISOString().slice(0,10)+'.json';msg('v7 전체 백업을 만들었습니다. 4개 계좌·활동 분류와 원본 지수 기록·별도 충돌 보류 자료를 보존합니다. 보류 자료는 계산에 사용하지 않습니다. API 키·잠금·GAS 주소·레이더는 제외합니다.');download(text,__n);}catch{msg('백업 실패: 손상 자료 또는 저장 접근 오류를 확인하세요. 현재 자료를 바꾸지 않았습니다.');}};
+ window.exportData=function(){try{if(isWriteBlocked()){showBlocked();return;}const text=JSON.stringify(B.create(localStorage,effective()),null,2);if(new Blob([text]).size>B.MAX_BYTES)throw Error('용량 한도 초과');const __n='KST-전체백업-v7-'+new Date().toISOString().slice(0,10)+'.json';msg('v7 전체 백업을 만들었습니다. 4개 계좌·활동 분류와 원본 지수 기록·별도 충돌 보류 자료를 보존합니다. 보류 자료는 계산에 사용하지 않습니다. API 키·잠금·GAS 주소·레이더는 제외합니다.');download(text,__n);}catch(e){msg('백업 실패: 손상 자료 또는 저장 접근 오류를 확인하세요. 현재 자료를 바꾸지 않았습니다.'+(e&&e.message?' (원인: '+String(e.message).slice(0,120)+')':''));try{document.getElementById('backupMsg').scrollIntoView({block:'center'});}catch{}}};
  function downloadJournal(){const j=B.readJournal(localStorage);if(!j)throw Error('복원 전 사본이 없습니다.');download(JSON.stringify({format:'kst-portfolio-recovery',schemaVersion:1,journal:j},null,2),'KST-복원전사본.json');}
  function showBlocked(){
   if(!isWriteBlocked())return false;
