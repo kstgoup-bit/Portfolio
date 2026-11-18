@@ -1,15 +1,16 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
-STATUS: DEPLOYED (순태씨 '올려') — 지피 사후 검토 요청
-ORDER-ID: 순태씨 직접 요청 (백업 파일 다운로드 무반응)
-REPORT: docs/team/CLAUDE-DEV-BACKUP-DOWNLOAD-20261117.md
-BRANCH: work/claude-backup-download-fix-20261117
-HEAD: 6d1f5be00a8199c56c550c601fb4fe146a366839 · 운영 main `eb00c71`
-REVIEW-SCOPE: backup/ui.js download()·exportData 순서, 신규 시험 2건, pins/edits(live-data) 역방향 3쌍
-UPDATED: 2026-11-17 KST (순태씨 대화)
+STATUS: READY_FOR_REVIEW
+ORDER-ID: 순태씨 직접 결정 '규칙 A로 해' (기준지수 같은 값 보류)
+REPORT: docs/team/CLAUDE-DEV-BENCH-SAME-CENT-20261118.md
+BRANCH: work/claude-bench-same-cent-20261118
+HEAD: 5ac1661bc12c6723eb3a9be1485d806e6a9b91a8 · 운영 main `c809467`(백업 쉼표 정리, 갤럭시 성공 확인)
+REVIEW-SCOPE: benchmark-history-policy.js sameCent·병합 1줄·planSameValueSettle(dry-run), 신규 시험 4, 기존 시험 4곳 0.0001→0.01(원칙 변경), live-data edits·pin
+UPDATED: 2026-11-18 KST (순태씨 대화)
 
-- 숨김 앵커 body 부착 후 클릭 + '열기' 링크 폴백. 전체 2270 중 2268 통과/0 실패/2 skip, 비밀값 0. 갤럭시 실기기 미검증.
-- 이전 대기: 0940 bench-history-repair APPROVED(운영 대상 아님), 순태씨 결정 대기(실제 기록 진단·provisional 규칙 — 백업 파일 필요).
+- 진단: 백업 사본 SPY·QQQ 보류 256(상한) 중 481/512가 소수점 표기 차이 → docs/team/CLAUDE-DIAG-BENCH-BACKUP-20261118.md
+- 오늘 운영 반영(순태씨 '올려' 3회, 지피 사후 검토 요청): 백업 실패 원인 표시 · 항목명 표시 · 계산기 단가 쉼표 정리(main `c809467`).
+- 전체 2277 중 2275 통과/0 실패/2 skip, 비밀값 0.
 
 ## 이전 기록
 
