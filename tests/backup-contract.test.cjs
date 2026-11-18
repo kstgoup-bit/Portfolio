@@ -141,19 +141,49 @@ test('정리할 수 없는 계산기 값(문자 섞임)은 그대로 두어 백�
   const extra=sameCloses.map(([d,close],i)=>{const p={...real.alternative,d,close,receivedAt:'2026-11-10T21:0'+i+':00.000Z',providerBarTs:Date.parse(d+'T14:30:00Z')};p.id='o:'+P.fingerprint(JSON.stringify([p.d,p.close,p.source,p.receivedAt,p.providerBarTs]));return {d,existing:JSON.parse(legacyRaw).QQQ[D.indexOf(d)],alternative:p,status:'pending-review'};});
   return JSON.stringify({...base.store,series:{...base.store.series,QQQ:{...base.store.series.QQQ,conflicts:[real,...extra]}}});
  }
- test('지수 같은 값 보류 정리: 미리보기는 사본만 내려받고 저장은 [정리 저장] 뒤에만, 다른 값 보류·지수 원본은 보존',async()=>{
+ const settleInput=h=>h.all.find(x=>x.parent&&x.parent.id==='benchSettleVerify'&&x.tagName==='INPUT');
+ async function pick(h,text){const inp=settleInput(h);inp.files=text===null?[]:[{size:Buffer.byteLength(text),text:async()=>text}];await inp.listeners.change();}
+ const APPLY='정리 저장 (사본 확인함)';
+ test('지수 같은 값 보류 정리: 다운로드는 시도만 표시, 내려받은 사본을 다시 골라 확인해야 [정리 저장]이 열리고, 저장 후 사본으로 원상복구 왕복',async()=>{
   const raw=sideRaw([['2026-11-05',701.530029296875],['2026-11-06',702.0999755859375]]);
   const h=harness({v5_benchHist:legacyRaw,v5_benchHistV2:raw});h.button('기준지수 같은 값 보류 정리').click();
-  a.equal(h.storage.getItem('v5_benchHistV2'),raw,'미리보기 단계에서는 저장 금지');a.equal(h.downloads.length,1);a.match(h.message.textContent,/QQQ 3→1건/);a.match(h.message.textContent,/아직 바꾸지 않았습니다/);
-  const arc=JSON.parse(await h.downloads[0].text());a.equal(arc.format,'kst-bench-same-value-archive');a.equal(arc.originalV2Raw,raw);a.equal(arc.removed.length,2);
-  h.button('정리 저장 (사본 확인함)').click();
-  const next=JSON.parse(h.storage.getItem('v5_benchHistV2'));a.equal(next.series.QQQ.conflicts.length,1);a.equal(next.series.QQQ.conflicts[0].alternative.close,701.54);
-  a.equal(h.storage.getItem('v5_benchHist'),legacyRaw);a.ok(h.calls.includes('invalidate'));a.match(h.message.textContent,/정리를 저장했습니다/);a.equal(h.button('정리 저장 (사본 확인함)'),undefined);
+  a.equal(h.storage.getItem('v5_benchHistV2'),raw,'미리보기 단계에서는 저장 금지');a.equal(h.downloads.length,1);a.match(h.message.textContent,/QQQ 3→1건/);a.match(h.message.textContent,/저장 여부 미확인/);a.doesNotMatch(h.message.textContent,/내려받았습니다/);
+  a.equal(h.button(APPLY),undefined,'사본 확인 전에는 저장 버튼 없음');
+  const text=await h.downloads[0].text(),arc=JSON.parse(text);a.equal(arc.format,'kst-bench-same-value-archive');a.equal(arc.schemaVersion,2);
+  a.equal(arc.keys.v5_benchHistV2.raw,raw);a.equal(arc.keys.v5_benchHist.raw,legacyRaw,'CR-1 지수 원본 원문 포함');a.equal(arc.keys.v5_benchHist.fingerprint,P.fingerprint(legacyRaw));a.equal(arc.binding.legacyFingerprint,JSON.parse(raw).legacyFingerprint);a.equal(arc.removed.length,2);a.match(arc.purpose,/일반 복원 파일이 아니/);
+  await pick(h,text);a.match(h.message.textContent,/사본 확인 완료/);a.match(h.message.textContent,/전체 복원 되돌리기'로는 이 정리를 취소할 수 없습니다/);
+  let asked='';h.ctx.confirm=q=>{asked=q;return true;};h.button(APPLY).click();a.match(asked,/취소할 수 없습니다/);
+  const after=h.storage.getItem('v5_benchHistV2'),next=JSON.parse(after);a.equal(next.series.QQQ.conflicts.length,1);a.equal(next.series.QQQ.conflicts[0].alternative.close,701.54);
+  a.equal(h.storage.getItem('v5_benchHist'),legacyRaw);a.ok(h.calls.includes('invalidate'));a.match(h.message.textContent,/정리를 저장했습니다/);a.equal(h.button(APPLY),undefined);a.equal(h.document.getElementById('benchSettleVerify'),null);
+  // 사본 → 검증 → 원상복구 왕복(합성 로컬 자료, 자동 복원 UI 없음): 사본의 원문으로 두 키를 되돌리면 바이트 동일·검사 통과
+  const v=P.verifySettleArchive(text,legacyRaw,raw,after,Date.parse('2026-11-10T22:00:00.000Z'));a.equal(v.ok,true,v.reason);
+  h.storage.setItem('v5_benchHist',v.restore.v5_benchHist);h.storage.setItem('v5_benchHistV2',v.restore.v5_benchHistV2);a.equal(h.storage.getItem('v5_benchHistV2'),raw);a.equal(P.validateStore(JSON.parse(raw),legacyRaw,Date.parse('2026-11-10T22:00:00.000Z')).ok,true);
+  a.equal(h.button('전체 복원 되돌리기')!==undefined,true);a.equal(typeof h.ctx.HASBenchmarkHistory.restoreSettleArchive,'undefined','자동 복원 기능 없음');
  });
- test('지수 같은 값 보류 정리: 미리보기 뒤 기록이 바뀌면 저장하지 않고, 정리할 것 없으면 아무 파일도 만들지 않는다',()=>{
-  const raw=sideRaw([['2026-11-05',701.530029296875]]),h=harness({v5_benchHist:legacyRaw,v5_benchHistV2:raw});h.button('기준지수 같은 값 보류 정리').click();
-  const changed=sideRaw([['2026-11-06',702.0999755859375]]);h.storage.setItem('v5_benchHistV2',changed);h.button('정리 저장 (사본 확인함)').click();
-  a.equal(h.storage.getItem('v5_benchHistV2'),changed);a.match(h.message.textContent,/바뀌었습니다/);
+ test('지수 같은 값 보류 정리: 재선택 사본이 없거나 손상·불일치·다른 미리보기·확인 취소면 저장 0',async()=>{
+  const raw=sideRaw([['2026-11-05',701.530029296875],['2026-11-06',702.0999755859375]]);
+  const h=harness({v5_benchHist:legacyRaw,v5_benchHistV2:raw});h.button('기준지수 같은 값 보류 정리').click();const text=await h.downloads[0].text(),arc=JSON.parse(text);
+  const bad=[[null,/고르지 않았습니다/],['{',/파일을 읽을 수 없습니다/],[JSON.stringify({format:'kst-portfolio-backup'}),/형식이 아닙니다/],
+   [JSON.stringify({...arc,keys:{...arc.keys,v5_benchHist:{...arc.keys.v5_benchHist,raw:arc.keys.v5_benchHist.raw.replace('700','701')}}}),/해시가 맞지 않습니다/],
+   [JSON.stringify({...arc,keys:{...arc.keys,v5_benchHist:{raw:'{}',fingerprint:P.fingerprint('{}')}}}),/미리보기 시점 자료와 다릅니다/],
+   [JSON.stringify({...arc,binding:{legacyFingerprint:P.fingerprint('x')}}),/연결값/],
+   [JSON.stringify({...arc,plan:{...arc.plan,nextFingerprint:P.fingerprint('x')}}),/이번 미리보기의 사본이 아닙니다/]];
+  for(const[t,re]of bad){await pick(h,t);a.match(h.message.textContent,re);a.equal(h.button(APPLY),undefined);a.equal(h.storage.getItem('v5_benchHistV2'),raw);}
+  const big={size:9e6,text:async()=>text};const inp=settleInput(h);inp.files=[big];await inp.listeners.change();a.match(h.message.textContent,/파일 크기/);a.equal(h.button(APPLY),undefined);
+  await pick(h,text);const oldApply=h.button(APPLY);a.ok(oldApply);
+  h.ctx.confirm=()=>false;oldApply.click();a.equal(h.storage.getItem('v5_benchHistV2'),raw,'확인 취소 → 저장 0');h.ctx.confirm=()=>true;
+  h.button('기준지수 같은 값 보류 정리').click();a.equal(h.button(APPLY),undefined,'새 미리보기는 이전 확인을 무효화');oldApply.click();a.equal(h.storage.getItem('v5_benchHistV2'),raw);a.match(h.message.textContent,/사본 확인이 끝나지 않았습니다/);
+ });
+ test('지수 같은 값 보류 정리: 확인 후 두 키 중 하나라도 바뀌면 저장 0, 저장 실패는 불변·안내, 정리할 것 없으면 파일 0',async()=>{
+  for(const key of ['v5_benchHistV2','v5_benchHist']){
+   const raw=sideRaw([['2026-11-05',701.530029296875]]),h=harness({v5_benchHist:legacyRaw,v5_benchHistV2:raw});h.button('기준지수 같은 값 보류 정리').click();await pick(h,await h.downloads[0].text());
+   const changed=key==='v5_benchHistV2'?sideRaw([['2026-11-06',702.0999755859375]]):legacyRaw.replace('700','699');h.storage.setItem(key,changed);h.button(APPLY).click();
+   a.equal(h.storage.getItem(key),changed);a.equal(h.storage.getItem('v5_benchHistV2'),key==='v5_benchHistV2'?changed:raw);a.match(h.message.textContent,/바뀌었습니다/);a.ok(!h.calls.includes('invalidate'));
+  }
+  const raw=sideRaw([['2026-11-05',701.530029296875]]),h=harness({v5_benchHist:legacyRaw,v5_benchHistV2:raw});h.button('기준지수 같은 값 보류 정리').click();await pick(h,await h.downloads[0].text());
+  const set=h.storage.setItem.bind(h.storage);h.storage.setItem=(k,v)=>{if(k==='v5_benchHistV2')throw Error('QuotaExceededError');return set(k,v);};h.button(APPLY).click();
+  a.equal(h.storage.getItem('v5_benchHistV2'),raw);a.match(h.message.textContent,/저장하지 못했고 지수 기록은 그대로입니다/);a.equal(h.button(APPLY),undefined);h.storage.setItem=set;
+  h.button('기준지수 같은 값 보류 정리').click();a.equal(h.downloads.length,2,'실패 후 재실행은 다시 미리보기부터');
   const none=sideRaw([]),h2=harness({v5_benchHist:legacyRaw,v5_benchHistV2:none});h2.button('기준지수 같은 값 보류 정리').click();
   a.equal(h2.downloads.length,0);a.equal(h2.storage.getItem('v5_benchHistV2'),none);a.match(h2.message.textContent,/정리할 같은 값 보류가 없습니다/);
   const h3=harness();h3.button('기준지수 같은 값 보류 정리').click();a.equal(h3.downloads.length,0);a.match(h3.message.textContent,/정리할 지수 보류 기록이 없습니다/);

@@ -60,13 +60,25 @@
  // 규칙 A(순태씨 2026-11-18): 기준지수 같은 값(센트 동일) 보류 정리 — 미리보기·정리 전 사본 다운로드 → 순태씨 확인 → 저장.
  let settlePlan=null;
  function settleRead(){const H=window.HASBenchmarkHistory;if(!H||typeof H.planSameValueSettle!=='function')throw Error('지수 정리 모듈을 불러오지 못했습니다. 자료를 바꾸지 않았습니다.');const legacyRaw=localStorage.getItem('v5_benchHist'),sideRaw=localStorage.getItem('v5_benchHistV2');if(legacyRaw===null||sideRaw===null)throw Error('정리할 지수 보류 기록이 없습니다. 자료를 바꾸지 않았습니다.');const r=H.planSameValueSettle(sideRaw,legacyRaw,Date.now());if(!r.ok)throw Error('지수 기록 검사 실패('+String(r.reason).slice(0,40)+'). 자료를 바꾸지 않았습니다.');return {r,legacyRaw,sideRaw};}
- host.append(btn('기준지수 같은 값 보류 정리',()=>{try{if(isWriteBlocked()){showBlocked();return;}document.getElementById('benchSettleApply')?.remove();settlePlan=null;const p=settleRead();if(!p.r.changed){msg('정리할 같은 값 보류가 없습니다. 자료를 바꾸지 않았습니다.');return;}
-  const c=p.r.counts,names=Object.keys(c).filter(k=>c[k].settled).map(k=>k+' '+c[k].before+'→'+c[k].after+'건').join(', '),day=new Date().toISOString().slice(0,10);
-  const archive={format:'kst-bench-same-value-archive',schemaVersion:1,createdAt:new Date().toISOString(),rule:'센트까지 같은 값은 같은 시세(규칙 A)',counts:c,originalV2Raw:p.sideRaw,removed:p.r.removed};
-  msg('정리 미리보기: '+names+'. 지수 계산 가격은 바뀌지 않습니다. 정리 전 사본 파일을 내려받았습니다. 다운로드 폴더에서 파일을 확인한 뒤 [정리 저장]을 누르세요. 아직 바꾸지 않았습니다.');
-  download(JSON.stringify(archive,null,2),'KST-지수보류-정리전사본-'+day+'.json');settlePlan=p;
-  const ap=btn('정리 저장 (사본 확인함)',()=>{try{if(settlePlan!==p)throw Error('이전 미리보기입니다. 다시 눌러 주세요. 자료를 바꾸지 않았습니다.');if(!confirm(names+' 정리를 저장할까요? 같은 값 보류만 빼고, 다른 값 보류와 계산 가격은 그대로 둡니다.'))return;if(localStorage.getItem('v5_benchHistV2')!==p.sideRaw||localStorage.getItem('v5_benchHist')!==p.legacyRaw)throw Error('미리보기 이후 지수 기록이 바뀌었습니다. 다시 미리보기 하세요. 자료를 바꾸지 않았습니다.');B.validateStoredValue('v5_benchHistV2',p.r.nextRaw);prepareRuntimeChange();localStorage.setItem('v5_benchHistV2',p.r.nextRaw);if(localStorage.getItem('v5_benchHistV2')!==p.r.nextRaw)throw Error('저장 결과를 확인하지 못했습니다. 정리 전 사본 파일을 보관하세요.');settlePlan=null;ap.remove();refresh();msg('정리를 저장했습니다: '+names+'. 정리 전 사본 파일은 지우지 말고 보관하세요.');}catch(e){msg(e.message);}});
-  ap.id='benchSettleApply';ap.style.background='#1565c0';ap.style.color='#fff';host.append(ap);
+ const NOUNDO='일반 \'전체 복원 되돌리기\'로는 이 정리를 취소할 수 없습니다. 정리 전 사본 파일을 따로 보관하세요(공개·업로드 금지).';
+ const VERIFY_FAIL={'archive-json':'파일을 읽을 수 없습니다','archive-size':'파일이 너무 큽니다','archive-format':'정리 전 사본 형식이 아닙니다','archive-keys':'원문이 빠져 있습니다','archive-hash':'원문 해시가 맞지 않습니다(손상)','archive-mismatch':'미리보기 시점 자료와 다릅니다','archive-binding':'두 기록의 연결값이 맞지 않습니다','archive-store-invalid':'원문 검사에 실패했습니다','archive-plan-mismatch':'이번 미리보기의 사본이 아닙니다'};
+ host.append(btn('기준지수 같은 값 보류 정리',()=>{try{if(isWriteBlocked()){showBlocked();return;}for(const id of ['benchSettleApply','benchSettleVerify'])document.getElementById(id)?.remove();settlePlan=null;const p=settleRead();if(!p.r.changed){msg('정리할 같은 값 보류가 없습니다. 자료를 바꾸지 않았습니다.');return;}
+  const c=p.r.counts,names=Object.keys(c).filter(k=>c[k].settled).map(k=>k+' '+c[k].before+'→'+c[k].after+'건').join(', '),day=new Date().toISOString().slice(0,10),H=window.HASBenchmarkHistory;
+  if(typeof H.makeSettleArchive!=='function'||typeof H.verifySettleArchive!=='function')throw Error('사본 확인 모듈이 없습니다. 자료를 바꾸지 않았습니다.');
+  const made=H.makeSettleArchive(p.legacyRaw,p.sideRaw,p.r.nextRaw,c,p.r.removed,new Date().toISOString());if(!made.ok)throw Error('정리 전 사본을 만들지 못했습니다. 자료를 바꾸지 않았습니다.');
+  settlePlan=p;p.verified=false;
+  msg('정리 미리보기: '+names+'. 지수 계산 가격은 바뀌지 않습니다. 정리 전 사본 다운로드를 시도했습니다(저장 여부 미확인). 다운로드 폴더의 그 파일을 아래 [내려받은 사본 선택]으로 다시 고르면 내용을 확인한 뒤에만 [정리 저장]이 열립니다. 아직 바꾸지 않았습니다.');
+  download(JSON.stringify(made.archive,null,2),'KST-지수보류-정리전사본-'+day+'.json');
+  const box=el('label','내려받은 사본 선택 '),inp=el('input');box.id='benchSettleVerify';box.style.cssText='display:block;margin:8px 0;color:#17263b';inp.type='file';inp.accept='.json,application/json';box.append(inp);host.append(box);
+  inp.addEventListener('change',async()=>{document.getElementById('benchSettleApply')?.remove();p.verified=false;try{const file=inp.files&&inp.files[0];inp.value='';
+   if(!file){msg('파일을 고르지 않았습니다. 저장하지 않습니다.');return;}if(settlePlan!==p)throw Error('이전 미리보기입니다. 다시 눌러 주세요. 자료를 바꾸지 않았습니다.');
+   if(!(file.size<=8000000)||typeof file.text!=='function')throw Error('사본 확인 실패(파일 크기·읽기). 저장하지 않습니다.');const text=await file.text();if(settlePlan!==p)return;
+   const v=H.verifySettleArchive(text,p.legacyRaw,p.sideRaw,p.r.nextRaw,Date.now());if(!v.ok)throw Error('사본 확인 실패: '+(VERIFY_FAIL[v.reason]||'확인할 수 없습니다')+'. 저장하지 않습니다.');
+   if(localStorage.getItem('v5_benchHistV2')!==p.sideRaw||localStorage.getItem('v5_benchHist')!==p.legacyRaw)throw Error('미리보기 이후 지수 기록이 바뀌었습니다. 다시 미리보기 하세요. 자료를 바꾸지 않았습니다.');
+   p.verified=true;msg('사본 확인 완료: 두 기록 원문·해시·연결값이 미리보기와 같습니다. 이 파일을 보관한 뒤 [정리 저장]을 누르세요. '+NOUNDO);
+   const ap=btn('정리 저장 (사본 확인함)',()=>{const before={L:localStorage.getItem('v5_benchHist'),V:localStorage.getItem('v5_benchHistV2')};let wrote=false;try{if(settlePlan!==p||p.verified!==true)throw Error('사본 확인이 끝나지 않았습니다. 자료를 바꾸지 않았습니다.');if(!confirm(names+' 정리를 저장할까요? 같은 값 보류만 빼고, 다른 값 보류와 계산 가격은 그대로 둡니다.\n'+NOUNDO))return;if(before.V!==p.sideRaw||before.L!==p.legacyRaw)throw Error('미리보기 이후 지수 기록이 바뀌었습니다. 다시 미리보기 하세요. 자료를 바꾸지 않았습니다.');B.validateStoredValue('v5_benchHistV2',p.r.nextRaw);prepareRuntimeChange();wrote=true;localStorage.setItem('v5_benchHistV2',p.r.nextRaw);if(localStorage.getItem('v5_benchHistV2')!==p.r.nextRaw)throw Error('저장 결과를 확인하지 못했습니다.');settlePlan=null;ap.remove();box.remove();refresh();msg('정리를 저장했습니다: '+names+'. '+NOUNDO+' 다시 눌러도 같은 값 보류가 없으면 아무것도 바꾸지 않습니다.');}catch(e){if(!wrote){msg(e.message);return;}settlePlan=null;ap.remove();const same=localStorage.getItem('v5_benchHistV2')===before.V&&localStorage.getItem('v5_benchHist')===before.L;msg(same?'저장하지 못했고 지수 기록은 그대로입니다. 그대로 쓰셔도 됩니다. 정리 전 사본 파일은 보관하세요.':'저장 중 오류로 지수 기록 상태를 확인하지 못했습니다. 앱이 자동 복원하지 않습니다. 정리 전 사본 파일을 보관하고 클로에게 알려 주세요.');}});
+   ap.id='benchSettleApply';ap.style.background='#1565c0';ap.style.color='#fff';host.append(ap);
+  }catch(e){msg(e.message);}});
  }catch(e){msg(e.message);}}));
  if(isWriteBlocked()){showBlocked();msg('중단되거나 손상된 전체 복원 사본이 있습니다. 기록·복원·자동 갱신을 중지하고 사본을 내보내세요. 자동 복구하지 않습니다.');}
 })();

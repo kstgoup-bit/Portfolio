@@ -41,3 +41,17 @@ test('planSameValueSettle: 정리할 것 없으면 변화 없음, 잘못된 입�
  const raw=storeWith([]);const r=P.planSameValueSettle(raw,legacyRaw,MS);a.equal(r.ok,true);a.equal(r.changed,false);a.equal(r.nextRaw,raw);
  a.equal(P.planSameValueSettle('{',legacyRaw,MS).ok,false);a.equal(P.planSameValueSettle(raw,null,MS).ok,false);a.equal(P.planSameValueSettle(raw,'{"QQQ":[]}',MS).ok,false);
 });
+test('정리 전 사본(CR-1): 두 키 원문·해시·결합값 포함, 검증은 fail-closed, 사본→검증→원상복구 왕복',()=>{
+ const raw=storeWith([['2026-11-05',701.530029296875]]),r=P.planSameValueSettle(raw,legacyRaw,MS);a.equal(r.changed,true);
+ a.equal(P.makeSettleArchive(legacyRaw,raw,raw,r.counts,r.removed,NOW).ok,false,'변화 없는 계획은 사본 안 만듦');
+ const m=P.makeSettleArchive(legacyRaw,raw,r.nextRaw,r.counts,r.removed,NOW);a.equal(m.ok,true,m.reason);const text=JSON.stringify(m.archive,null,2);
+ a.equal(m.archive.keys.v5_benchHist.raw,legacyRaw);a.equal(m.archive.keys.v5_benchHistV2.raw,raw);a.equal(m.archive.binding.legacyFingerprint,P.fingerprint(legacyRaw));
+ const v=P.verifySettleArchive(text,legacyRaw,raw,r.nextRaw,MS);a.equal(v.ok,true,v.reason);a.deepEqual(v.restore,{v5_benchHist:legacyRaw,v5_benchHistV2:raw});
+ // 정리 저장 후 상태에서 사본 원문으로 되돌리면 원래 바이트·검사 통과
+ const store=new Map([['v5_benchHist',legacyRaw],['v5_benchHistV2',r.nextRaw]]);for(const[k,x]of Object.entries(v.restore))store.set(k,x);
+ a.equal(store.get('v5_benchHistV2'),raw);a.equal(P.validateStore(JSON.parse(store.get('v5_benchHistV2')),store.get('v5_benchHist'),MS).ok,true);
+ a.equal(P.verifySettleArchive(text,legacyRaw,r.nextRaw,r.nextRaw,MS).reason,'archive-mismatch');
+ a.equal(P.verifySettleArchive(text.replace('"schemaVersion": 2','"schemaVersion": 1'),legacyRaw,raw,r.nextRaw,MS).reason,'archive-format');
+ a.equal(P.verifySettleArchive('x'.repeat(8000001),legacyRaw,raw,r.nextRaw,MS).reason,'archive-size');
+ a.equal(P.verifySettleArchive(null,legacyRaw,raw,r.nextRaw,MS).ok,false);
+});

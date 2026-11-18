@@ -242,6 +242,29 @@
     for(var i=0;i<IDS.length;i++){var id=IDS[i],a=before.series[id],b=after.series[id];if(!a||!b||JSON.stringify(a.points)!==JSON.stringify(b.points))return fail('active-values-changed');}
     return {ok:true,dryRun:true,changed:true,counts:counts,removed:removed,nextRaw:JSON.stringify(next)};
   }
+  // 정리 전 사본(지피 CR-1): 두 저장 키 원문 + 해시 + 결합값. 전체 백업·일반 복원 파일이 아니며 자동 복원 없음.
+  var ARCHIVE_FORMAT='kst-bench-same-value-archive';
+  function makeSettleArchive(legacyRaw,storeRaw,nextRaw,counts,removed,createdAt){
+    if(typeof legacyRaw!=='string'||typeof storeRaw!=='string'||typeof nextRaw!=='string'||nextRaw===storeRaw||!obj(counts)||!Array.isArray(removed)||!removed.length||typeof createdAt!=='string')return fail('archive-input');
+    var parsed=parseTransportJSON(storeRaw);if(!parsed.ok||!obj(parsed.data))return fail('store-json');
+    return {ok:true,archive:{format:ARCHIVE_FORMAT,schemaVersion:2,purpose:'기준지수 같은 값 보류 정리 전 사본. 전체 백업·일반 복원 파일이 아니며 앱이 자동 복원하지 않는다.',createdAt:createdAt,rule:'센트까지 같은 값은 같은 시세(규칙 A)',
+      keys:{v5_benchHist:{raw:legacyRaw,fingerprint:fingerprint(legacyRaw)},v5_benchHistV2:{raw:storeRaw,fingerprint:fingerprint(storeRaw)}},
+      binding:{legacyFingerprint:parsed.data.legacyFingerprint},plan:{nextFingerprint:fingerprint(nextRaw),counts:counts,removedCount:removed.length},removed:removed}};
+  }
+  // 사용자가 내려받은 사본을 다시 골랐을 때: 원문·해시·결합·미리보기 시점 자료 일치를 모두 확인해야 ok(fail-closed).
+  function verifySettleArchive(text,legacyRaw,storeRaw,nextRaw,now){
+    if(typeof text!=='string'||typeof legacyRaw!=='string'||typeof storeRaw!=='string'||typeof nextRaw!=='string')return fail('archive-input');
+    if(text.length>4*MAX_BYTES)return fail('archive-size');var a;try{a=parseRawJSON(text);}catch(e){return fail('archive-json');}if(!obj(a))return fail('archive-json');
+    if(a.format!==ARCHIVE_FORMAT||a.schemaVersion!==2||!obj(a.keys)||!obj(a.binding)||!obj(a.plan))return fail('archive-format');
+    var L=a.keys.v5_benchHist,V=a.keys.v5_benchHistV2;
+    if(!obj(L)||!obj(V)||typeof L.raw!=='string'||typeof V.raw!=='string')return fail('archive-keys');
+    if(L.fingerprint!==fingerprint(L.raw)||V.fingerprint!==fingerprint(V.raw))return fail('archive-hash');
+    if(L.raw!==legacyRaw||V.raw!==storeRaw)return fail('archive-mismatch');
+    var s=parseTransportJSON(V.raw);if(!s.ok||!obj(s.data)||s.data.legacyFingerprint!==a.binding.legacyFingerprint||a.binding.legacyFingerprint!==fingerprint(L.raw))return fail('archive-binding');
+    if(!validateStore(s.data,L.raw,now).ok)return fail('archive-store-invalid');
+    if(a.plan.nextFingerprint!==fingerprint(nextRaw))return fail('archive-plan-mismatch');
+    return {ok:true,restore:{v5_benchHist:L.raw,v5_benchHistV2:V.raw}};
+  }
   function mergeHistoryStore(store,legacyRaw,c,id,now){
     var gate=admitCandidate(c,id,now);if(!gate.ok)return gate;
     var read=readStore(store,legacyRaw,now);if(!read.ok)return read;
@@ -322,5 +345,5 @@
     try{return walk(value,0);}catch(e){return false;}
   }
   function boundary(fn){return function(){for(var i=0;i<arguments.length;i++)if(!plainData(arguments[i]))return fail('non-data-input');try{return fn.apply(null,arguments);}catch(e){return fail('invalid-input');}};}
-  return Object.freeze({specs:specs,closeTimeMs:closeTimeMs,persistAfterMs:persistAfterMs,limits:Object.freeze({bars:MAX_BARS,conflicts:MAX_CONFLICTS,bytes:MAX_BYTES}),readCache:boundary(readCache),parseTransportJSON:boundary(parseTransportJSON),validatePoint:boundary(validatePoint),validateSeries:boundary(series),observedDate:function(p,id){return plainData(p)?observedDate(p,id):null;},fingerprint:fingerprint,readStore:boundary(readStore),validateStore:boundary(validateStore),validateObservation:boundary(validateObservation),mergeHistoryStore:boundary(mergeHistoryStore),sameCent:sameCent,planSameValueSettle:boundary(planSameValueSettle),selectPointAtOrBefore:boundary(selectPointAtOrBefore),admitCandidate:boundary(admitCandidate),parseYahoo:boundary(parseYahoo),parseAlphaVantage:boundary(parseAlphaVantage),parseGasHistory:boundary(parseGasHistory),mergeSeries:boundary(mergeSeries),describe:boundary(describe),liveGasEnabled:true});
+  return Object.freeze({specs:specs,closeTimeMs:closeTimeMs,persistAfterMs:persistAfterMs,limits:Object.freeze({bars:MAX_BARS,conflicts:MAX_CONFLICTS,bytes:MAX_BYTES}),readCache:boundary(readCache),parseTransportJSON:boundary(parseTransportJSON),validatePoint:boundary(validatePoint),validateSeries:boundary(series),observedDate:function(p,id){return plainData(p)?observedDate(p,id):null;},fingerprint:fingerprint,readStore:boundary(readStore),validateStore:boundary(validateStore),validateObservation:boundary(validateObservation),mergeHistoryStore:boundary(mergeHistoryStore),sameCent:sameCent,planSameValueSettle:boundary(planSameValueSettle),makeSettleArchive:boundary(makeSettleArchive),verifySettleArchive:function(){try{return verifySettleArchive.apply(null,arguments);}catch(e){return fail('invalid-input');}},selectPointAtOrBefore:boundary(selectPointAtOrBefore),admitCandidate:boundary(admitCandidate),parseYahoo:boundary(parseYahoo),parseAlphaVantage:boundary(parseAlphaVantage),parseGasHistory:boundary(parseGasHistory),mergeSeries:boundary(mergeSeries),describe:boundary(describe),liveGasEnabled:true});
 });
