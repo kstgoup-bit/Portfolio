@@ -463,6 +463,18 @@
     [
       "closeTimeMs:closeTimeMs,persistAfterMs:persistAfterMs,limits:",
       "closeTimeMs:closeTimeMs,limits:"
+    ],
+    [
+      "        if(sameCent(old.close,b.c)&&!successor)unchanged.push(b.d);",
+      "        if(old.close===b.c&&!successor)unchanged.push(b.d);"
+    ],
+    [
+      "  // 규칙 A(순태씨 2026-11-18): 센트(소수 둘째 자리)까지 같은 값은 같은 시세의 표기 차이로 본다.\n  function sameCent(a,b){return typeof a==='number'&&typeof b==='number'&&isFinite(a)&&isFinite(b)&&Math.round(a*100)===Math.round(b*100);}\n  // DRY-RUN: 같은 값 보류(pending-review, 센트 동일)만 빼낸 새 저장소 문자열과 빼낸 목록을 돌려준다. 저장·삭제하지 않는다.\n  function planSameValueSettle(storeRaw,legacyRaw,now){\n    if(typeof storeRaw!=='string'||typeof legacyRaw!=='string')return fail('raw-string-required');\n    var parsed=parseTransportJSON(storeRaw);if(!parsed.ok)return fail('store-json');\n    var store=parsed.data,before=validateStore(store,legacyRaw,now);if(!before.ok)return fail('store-invalid-before');\n    var next=Object.assign({},store,{series:Object.assign({},store.series)}),removed=[],counts={};\n    IDS.forEach(function(id){if(!own(store.series,id))return;var g=store.series[id],keep=[],n=0;\n      g.conflicts.forEach(function(c){if(c.status==='pending-review'&&sameCent(c.existing.close,c.alternative.close)){removed.push({id:id,conflict:c});n++;}else keep.push(c);});\n      counts[id]={before:g.conflicts.length,settled:n,after:keep.length};if(n)next.series[id]=Object.assign({},g,{conflicts:keep});});\n    if(!removed.length)return {ok:true,dryRun:true,changed:false,counts:counts,removed:[],nextRaw:storeRaw};\n    var after=validateStore(next,legacyRaw,now);if(!after.ok)return fail('store-invalid-after');\n    for(var i=0;i<IDS.length;i++){var id=IDS[i],a=before.series[id],b=after.series[id];if(!a||!b||JSON.stringify(a.points)!==JSON.stringify(b.points))return fail('active-values-changed');}\n    return {ok:true,dryRun:true,changed:true,counts:counts,removed:removed,nextRaw:JSON.stringify(next)};\n  }\n  function mergeHistoryStore(store,legacyRaw,c,id,now){",
+      "  function mergeHistoryStore(store,legacyRaw,c,id,now){"
+    ],
+    [
+      "mergeHistoryStore:boundary(mergeHistoryStore),sameCent:sameCent,planSameValueSettle:boundary(planSameValueSettle),",
+      "mergeHistoryStore:boundary(mergeHistoryStore),"
     ]
   ],
   "has/advisor-core.js": [

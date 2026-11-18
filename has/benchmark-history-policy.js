@@ -226,6 +226,22 @@
     if(arguments.length<2)return {ok:true,store:store,bindingChecked:false};
     var r=readStore(store,legacyRaw,ceiling);return r.ok&&!r.allValid?fail('store-series-invalid'):r;
   }
+  // 규칙 A(순태씨 2026-11-18): 센트(소수 둘째 자리)까지 같은 값은 같은 시세의 표기 차이로 본다.
+  function sameCent(a,b){return typeof a==='number'&&typeof b==='number'&&isFinite(a)&&isFinite(b)&&Math.round(a*100)===Math.round(b*100);}
+  // DRY-RUN: 같은 값 보류(pending-review, 센트 동일)만 빼낸 새 저장소 문자열과 빼낸 목록을 돌려준다. 저장·삭제하지 않는다.
+  function planSameValueSettle(storeRaw,legacyRaw,now){
+    if(typeof storeRaw!=='string'||typeof legacyRaw!=='string')return fail('raw-string-required');
+    var parsed=parseTransportJSON(storeRaw);if(!parsed.ok)return fail('store-json');
+    var store=parsed.data,before=validateStore(store,legacyRaw,now);if(!before.ok)return fail('store-invalid-before');
+    var next=Object.assign({},store,{series:Object.assign({},store.series)}),removed=[],counts={};
+    IDS.forEach(function(id){if(!own(store.series,id))return;var g=store.series[id],keep=[],n=0;
+      g.conflicts.forEach(function(c){if(c.status==='pending-review'&&sameCent(c.existing.close,c.alternative.close)){removed.push({id:id,conflict:c});n++;}else keep.push(c);});
+      counts[id]={before:g.conflicts.length,settled:n,after:keep.length};if(n)next.series[id]=Object.assign({},g,{conflicts:keep});});
+    if(!removed.length)return {ok:true,dryRun:true,changed:false,counts:counts,removed:[],nextRaw:storeRaw};
+    var after=validateStore(next,legacyRaw,now);if(!after.ok)return fail('store-invalid-after');
+    for(var i=0;i<IDS.length;i++){var id=IDS[i],a=before.series[id],b=after.series[id];if(!a||!b||JSON.stringify(a.points)!==JSON.stringify(b.points))return fail('active-values-changed');}
+    return {ok:true,dryRun:true,changed:true,counts:counts,removed:removed,nextRaw:JSON.stringify(next)};
+  }
   function mergeHistoryStore(store,legacyRaw,c,id,now){
     var gate=admitCandidate(c,id,now);if(!gate.ok)return gate;
     var read=readStore(store,legacyRaw,now);if(!read.ok)return read;
@@ -237,7 +253,7 @@
       var old=current.byDate[b.d],p=makeObservation(c,i);
       if(old){
         var successor=provisionalSuccessor(old,p,id)&&!current.pendingConflicts.some(function(x){return x.d===b.d;});
-        if(old.close===b.c&&!successor)unchanged.push(b.d);
+        if(sameCent(old.close,b.c)&&!successor)unchanged.push(b.d);
         else{
           var known=g.conflicts.concat(alternatives).find(function(x){return x.d===b.d&&x.alternative.source===p.source&&x.alternative.close===p.close&&x.alternative.providerBarTs===p.providerBarTs&&x.status===(successor?'provisional-successor':'pending-review');});
           var conflict=known||{d:b.d,existing:old,alternative:p,status:successor?'provisional-successor':'pending-review'};
@@ -306,5 +322,5 @@
     try{return walk(value,0);}catch(e){return false;}
   }
   function boundary(fn){return function(){for(var i=0;i<arguments.length;i++)if(!plainData(arguments[i]))return fail('non-data-input');try{return fn.apply(null,arguments);}catch(e){return fail('invalid-input');}};}
-  return Object.freeze({specs:specs,closeTimeMs:closeTimeMs,persistAfterMs:persistAfterMs,limits:Object.freeze({bars:MAX_BARS,conflicts:MAX_CONFLICTS,bytes:MAX_BYTES}),readCache:boundary(readCache),parseTransportJSON:boundary(parseTransportJSON),validatePoint:boundary(validatePoint),validateSeries:boundary(series),observedDate:function(p,id){return plainData(p)?observedDate(p,id):null;},fingerprint:fingerprint,readStore:boundary(readStore),validateStore:boundary(validateStore),validateObservation:boundary(validateObservation),mergeHistoryStore:boundary(mergeHistoryStore),selectPointAtOrBefore:boundary(selectPointAtOrBefore),admitCandidate:boundary(admitCandidate),parseYahoo:boundary(parseYahoo),parseAlphaVantage:boundary(parseAlphaVantage),parseGasHistory:boundary(parseGasHistory),mergeSeries:boundary(mergeSeries),describe:boundary(describe),liveGasEnabled:true});
+  return Object.freeze({specs:specs,closeTimeMs:closeTimeMs,persistAfterMs:persistAfterMs,limits:Object.freeze({bars:MAX_BARS,conflicts:MAX_CONFLICTS,bytes:MAX_BYTES}),readCache:boundary(readCache),parseTransportJSON:boundary(parseTransportJSON),validatePoint:boundary(validatePoint),validateSeries:boundary(series),observedDate:function(p,id){return plainData(p)?observedDate(p,id):null;},fingerprint:fingerprint,readStore:boundary(readStore),validateStore:boundary(validateStore),validateObservation:boundary(validateObservation),mergeHistoryStore:boundary(mergeHistoryStore),sameCent:sameCent,planSameValueSettle:boundary(planSameValueSettle),selectPointAtOrBefore:boundary(selectPointAtOrBefore),admitCandidate:boundary(admitCandidate),parseYahoo:boundary(parseYahoo),parseAlphaVantage:boundary(parseAlphaVantage),parseGasHistory:boundary(parseGasHistory),mergeSeries:boundary(mergeSeries),describe:boundary(describe),liveGasEnabled:true});
 });

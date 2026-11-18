@@ -15,7 +15,7 @@ function candidate(dates=['2026-11-06','2026-11-09'],prices=[100,101],id='QQQ'){
  const c=H.parseYahoo(payload,id,ISO);a.equal(c.ok,true);return c;
 }
 function paired(raw=' {\n "QQQ" : [{"ts":1793975400000,"close":100}], "KS200": [], "SPY": []\n} '){
- const c=candidate(['2026-11-06','2026-11-09'],[100.0001,101]);
+ const c=candidate(['2026-11-06','2026-11-09'],[100.01,101]);
  const merged=H.mergeHistoryStore(null,raw,c,'QQQ',NOW);a.equal(merged.ok,true,JSON.stringify(merged));
  return {'v5_benchHist':raw,'v5_benchHistV2':JSON.stringify(merged.store)};
 }
