@@ -22,6 +22,6 @@ test('exportData: 백업 실패 시 파일·열기 링크를 만들지 않는다
  const w=dom.window;let n=0;w.URL.createObjectURL=()=>{n++;return 'blob:x';};
  w.eval('window.KSTPortfolioBackup={MAX_BYTES:1e7,isWriteBlocked(){return false},create(){return{}}};');
  w.eval(fs.readFileSync(path.join(ROOT,'backup/ui.js'),'utf8'));w.exportData();
- a.equal(n,0);a.equal(w.document.getElementById('backupOpenLink'),null);a.match(w.document.getElementById('backupMsg').textContent,/백업 실패/);
+ a.equal(n,0);a.equal(w.document.getElementById('backupOpenLink'),null);a.match(w.document.getElementById('backupMsg').textContent,/백업 실패/);a.match(w.document.getElementById('backupMsg').textContent,/원인: 계좌 자료를 읽지 못했으므로/,'실패 원인을 화면에 보여야 함');
  w.close();
 });

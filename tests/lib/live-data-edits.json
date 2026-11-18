@@ -505,6 +505,10 @@
     [
       "레이더는 제외합니다.');download(text,__n);}catch",
       "레이더는 제외합니다.');}catch"
+    ],
+    [
+      "}catch(e){msg('백업 실패: 손상 자료 또는 저장 접근 오류를 확인하세요. 현재 자료를 바꾸지 않았습니다.'+(e&&e.message?' (원인: '+String(e.message).slice(0,120)+')':''));try{document.getElementById('backupMsg').scrollIntoView({block:'center'});}catch{}}};",
+      "}catch{msg('백업 실패: 손상 자료 또는 저장 접근 오류를 확인하세요. 현재 자료를 바꾸지 않았습니다.');}};"
     ]
   ]
 }
