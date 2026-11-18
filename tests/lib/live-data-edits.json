@@ -517,6 +517,14 @@
     [
       " function badKey(){try{const ks=[];for(let i=0;i<localStorage.length;i++)ks.push(localStorage.key(i));for(const k of ks.sort()){if(!B.allowed(k))continue;try{B.validateStoredValue(k,localStorage.getItem(k));}catch{return /^[A-Za-z0-9_]{1,60}$/.test(k)?' · 항목: '+k:'';}}const fx=(document.getElementById('usdKrw')||{}).value;if(typeof fx==='string'){try{B.validateStoredValue('v5_fx',fx);}catch{return ' · 항목: 환율 입력칸 \"'+fx.slice(0,12)+'\"';}}}catch{}return '';}\n function download(text,name){",
       " function download(text,name){"
+    ],
+    [
+      "B.create(calcView(localStorage),effective())",
+      "B.create(localStorage,effective())"
+    ],
+    [
+      " function calcView(st){const fix=(k,v)=>{if(typeof v!=='string'||!/^calc_[qp][123]_(dom|ov|pen|gen)_\\d+$/.test(k)||!/^[\\d,]+(\\.\\d*)?$/.test(v)||!v.includes(',')&&!v.endsWith('.'))return v;const t=v.replace(/,/g,'').replace(/\\.$/,'');return /^(0|[1-9]\\d*)(\\.\\d+)?$/.test(t)?t:v;};return {get length(){return st.length;},key:i=>st.key(i),getItem:k=>fix(k,st.getItem(k))};}\n function badKey(){",
+      " function badKey(){"
     ]
   ]
 }
