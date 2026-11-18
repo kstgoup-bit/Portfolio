@@ -1,8 +1,16 @@
-STATUS: READY_FOR_REVIEW (1단위: 정책 + dry-run, 화면·실제 기록 변경 없음)
-ORDER-ID: 순태씨 직접 결정 '규칙 A로 해' (2026-11-18, 진단 보고 docs/team/CLAUDE-DIAG-BENCH-BACKUP-20261118.md)
-BASE: d9e7c16d33ef033db404999ef8d4de1b46e05bc1
-HEAD: 5ac1661bc12c6723eb3a9be1485d806e6a9b91a8
-REVIEW-SCOPE: has/benchmark-history-policy.js sameCent·mergeHistoryStore 1줄·planSameValueSettle, tests/benchmark-same-cent.test.cjs(신규 4), 기존 시험 4곳 0.0001→0.01, live-data edits 3쌍·pin
+STATUS: READY_FOR_REVIEW (1+2단위 완료: 정책·dry-run + 설정 화면 정리 버튼, 운영 미반영)
+ORDER-ID: 순태씨 직접 결정 '규칙 A로 해' / '계속해' (2026-11-18)
+BASE: 87d7993e8776997cbb1e3a9ccc8a4ab48579bef7
+HEAD: f8871b729dfe6803d92e9c959cdb55381ebb005f
+REVIEW-SCOPE: 1단위(5ac1661) + 2단위 backup/ui.js 정리 버튼(settleRead·미리보기·사본 다운로드·정리 저장), tests/backup-contract.test.cjs 신규 2건·harness appendChild, live-data edits·pin
+
+## 2단위 (설정 > 백업·복원 카드)
+- [기준지수 같은 값 보류 정리] → planSameValueSettle 미리보기(건수) + 정리 전 사본 JSON 다운로드(format kst-bench-same-value-archive, originalV2Raw 전체 + removed) → 저장 안 함.
+- [정리 저장 (사본 확인함)] → confirm → 미리보기 이후 v5_benchHist/V2 바뀌면 중단 → validateStoredValue → prepareRuntimeChange(invalidateBackupRuntime) → setItem → 읽어 확인 → refresh. 복원 차단 상태면 showBlocked.
+- 순태씨 사본(읽기 전용, 로컬 Playwright): 360·390·430px 모두 미리보기 'QQQ 256→18건, SPY 256→14건' → 저장 후 KS200 20 / QQQ 18 / SPY 14, 페이지 오류 0.
+- 효과 확인(node, 사본): 정리 전 SPY 11-17 새 봉 병합 = store-bound 거절 → 정리 후 수락(11-17 저장, 11-16 실제 다른 값 1건만 새 보류).
+- 시험: 전체 2279 중 2277 통과 / 0 실패 / 2 skip, 비밀값 0.
+- 미검증: 갤럭시 실기기 다운로드·confirm 동작, 운영 GAS 실제 수신 후 미국 지수 저장 재개.
 
 ## 변경
 - mergeHistoryStore: 기존값과 새 값이 센트까지 같으면(Math.round(x*100) 동일) unchanged — 충돌 미생성. 단 provisional-successor 판정은 그대로(같은 값이어도 승계면 기존 흐름).
@@ -16,6 +24,6 @@ REVIEW-SCOPE: has/benchmark-history-policy.js sameCent·mergeHistoryStore 1줄·
 ## 시험
 - 전체 2277 중 2275 통과 / 0 실패 / 2 skip, 비밀값 0. 화면 변경 없음(Playwright 불필요).
 
-## 미완료 (다음 단위, 별도 승인)
+## (1단위 당시 메모)
 - 2단위: 설정 화면에 '기준지수 같은 값 보류 정리' — 미리보기(건수) → 정리 전 사본(빼낸 보류 JSON) 자동 다운로드 → 순태씨 확인 → 저장. 보관함 = 그 사본 파일(+순태씨 11-18 백업). 앱 안 별도 보관 키는 백업 허용 목록·스키마 변경이 필요해 하지 않음(지피 의견 요청).
 - 미국 기준지수 11-16 이후 미저장(상한 256)은 2단위 적용 후에 풀림. 1단위만 운영 반영해도 상한이 차 있어 저장은 여전히 막힘.

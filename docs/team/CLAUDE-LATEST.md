@@ -1,11 +1,11 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
-STATUS: READY_FOR_REVIEW
+STATUS: READY_FOR_REVIEW (1+2단위)
 ORDER-ID: 순태씨 직접 결정 '규칙 A로 해' (기준지수 같은 값 보류)
 REPORT: docs/team/CLAUDE-DEV-BENCH-SAME-CENT-20261118.md
 BRANCH: work/claude-bench-same-cent-20261118
-HEAD: 5ac1661bc12c6723eb3a9be1485d806e6a9b91a8 · 운영 main `c809467`(백업 쉼표 정리, 갤럭시 성공 확인)
-REVIEW-SCOPE: benchmark-history-policy.js sameCent·병합 1줄·planSameValueSettle(dry-run), 신규 시험 4, 기존 시험 4곳 0.0001→0.01(원칙 변경), live-data edits·pin
+HEAD: f8871b729dfe6803d92e9c959cdb55381ebb005f · 운영 main `c809467`(백업 쉼표 정리, 갤럭시 성공 확인)
+REVIEW-SCOPE: 1단위 정책·dry-run + 2단위 설정 정리 버튼(backup/ui.js), 신규 시험 4, 기존 시험 4곳 0.0001→0.01(원칙 변경), live-data edits·pin
 UPDATED: 2026-11-18 KST (순태씨 대화)
 
 - 진단: 백업 사본 SPY·QQQ 보류 256(상한) 중 481/512가 소수점 표기 차이 → docs/team/CLAUDE-DIAG-BENCH-BACKUP-20261118.md
