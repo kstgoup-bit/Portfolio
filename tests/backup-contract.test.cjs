@@ -122,3 +122,12 @@ test('policy-emitted quote/manual/cash/FX snapshots are all backup-compatible, i
   const result=P.evaluate(input);a.equal(result.ok,true,JSON.stringify(result.missing));const s=seeded();B.apply(s,parse({version:'v5',snapshots:{[input.key]:[result.snapshot]}}));a.deepEqual(JSON.parse(s.getItem('v5_snap'))[input.key][0],result.snapshot);
  }
 });
+test('평균단가 계산기 단가 쉼표(12,345.5 / 1,200.)는 백업 사본에서만 숫자로 정리하고 실제 저장값은 그대로 둔다',async()=>{
+ const h=harness({calc_p1_gen_1:'12,345.5',calc_p2_gen_1:'1,200.',calc_q1_gen_1:'3',calc_p3_gen_1:''}),before=h.storage.all();h.ctx.exportData();
+ a.equal(h.downloads.length,1,h.message.textContent);a.deepEqual(h.storage.all(),before);
+ const b=JSON.parse(await h.downloads[0].text()),flat=JSON.stringify(b);a.match(flat,/"calc_p1_gen_1":"12345\.5"/);a.match(flat,/"calc_p2_gen_1":"1200"/);a.match(flat,/"calc_q1_gen_1":"3"/);
+ a.doesNotThrow(()=>B.parse(JSON.stringify(b)),'정리된 백업은 복원 검사를 통과해야 함');
+});
+test('정리할 수 없는 계산기 값(문자 섞임)은 그대로 두어 백업을 막고 항목 이름을 알린다',()=>{
+ const h=harness({calc_p1_gen_1:'12,34a'});h.ctx.exportData();a.equal(h.downloads.length,0);a.match(h.message.textContent,/항목: calc_p1_gen_1/);
+});
