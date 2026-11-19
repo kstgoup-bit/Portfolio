@@ -141,7 +141,7 @@ test('정리할 수 없는 계산기 값(문자 섞임)은 그대로 두어 백�
   const extra=sameCloses.map(([d,close],i)=>{const p={...real.alternative,d,close,receivedAt:'2026-11-10T21:0'+i+':00.000Z',providerBarTs:Date.parse(d+'T14:30:00Z')};p.id='o:'+P.fingerprint(JSON.stringify([p.d,p.close,p.source,p.receivedAt,p.providerBarTs]));return {d,existing:JSON.parse(legacyRaw).QQQ[D.indexOf(d)],alternative:p,status:'pending-review'};});
   return JSON.stringify({...base.store,series:{...base.store.series,QQQ:{...base.store.series.QQQ,conflicts:[real,...extra]}}});
  }
- const settleInput=h=>h.all.find(x=>x.parent&&x.parent.id==='benchSettleVerify'&&x.tagName==='INPUT');
+ const settleInput=h=>h.all.findLast(x=>x.parent&&x.parent.id==='benchSettleVerify'&&x.tagName==='INPUT');
  async function pick(h,text){const inp=settleInput(h);inp.files=text===null?[]:[{size:Buffer.byteLength(text),text:async()=>text}];await inp.listeners.change();}
  const APPLY='정리 저장 (사본 확인함)';
  test('지수 같은 값 보류 정리: 다운로드는 시도만 표시, 내려받은 사본을 다시 골라 확인해야 [정리 저장]이 열리고, 저장 후 사본으로 원상복구 왕복',async()=>{
@@ -187,5 +187,31 @@ test('정리할 수 없는 계산기 값(문자 섞임)은 그대로 두어 백�
   const none=sideRaw([]),h2=harness({v5_benchHist:legacyRaw,v5_benchHistV2:none});h2.button('기준지수 같은 값 보류 정리').click();
   a.equal(h2.downloads.length,0);a.equal(h2.storage.getItem('v5_benchHistV2'),none);a.match(h2.message.textContent,/정리할 같은 값 보류가 없습니다/);
   const h3=harness();h3.button('기준지수 같은 값 보류 정리').click();a.equal(h3.downloads.length,0);a.match(h3.message.textContent,/정리할 지수 보류 기록이 없습니다/);
+ });
+
+ // 지피 0830 CR-5: 같은 미리보기 안 비동기 재선택 경합 — 최신 선택만 결과를 바꾼다(합성 지연 Promise, 실제 Android 재현 아님).
+ function deferred(){let res,rej;const pr=new Promise((a1,b1)=>{res=a1;rej=b1;});return {pr,res,rej};}
+ function slowPick(h,size){const d=deferred(),inp=settleInput(h);inp.files=[{size,text:()=>d.pr}];const run=inp.listeners.change();return {d,run};}
+ test('지수 같은 값 보류 정리 CR-5: A 읽는 중 B 실패·취소·새 미리보기면 A 늦은 성공이 [정리 저장]을 되살리지 못함',async()=>{
+  const raw=sideRaw([['2026-11-05',701.530029296875]]),fresh=()=>{const h=harness({v5_benchHist:legacyRaw,v5_benchHistV2:raw});h.button('기준지수 같은 값 보류 정리').click();return h;};
+  // (1) A 정상 시작 → B 손상 → A 늦게 완료
+  let h=fresh(),text=await h.downloads[0].text();let A=slowPick(h,text.length);await pick(h,'{');a.match(h.message.textContent,/파일을 읽을 수 없습니다/);
+  A.d.res(text);await A.run;a.equal(h.button(APPLY),undefined,'최신 B 실패 후 A 늦은 성공 → 버튼 0');a.match(h.message.textContent,/파일을 읽을 수 없습니다/,'구 요청이 최신 문구를 덮지 않음');
+  h.ctx.confirm=()=>true;a.equal(h.storage.getItem('v5_benchHistV2'),raw,'setItem 0');
+  // (1b) A 정상 시작 → B 미선택 → A 늦게 완료
+  h=fresh();text=await h.downloads[0].text();A=slowPick(h,text.length);await pick(h,null);A.d.res(text);await A.run;a.equal(h.button(APPLY),undefined);a.match(h.message.textContent,/고르지 않았습니다/);
+  // (1c) A 정상 시작 → 파일 선택 창 취소(cancel) → A 늦게 완료
+  h=fresh();text=await h.downloads[0].text();A=slowPick(h,text.length);settleInput(h).listeners.cancel();A.d.res(text);await A.run;a.equal(h.button(APPLY),undefined);a.equal(h.storage.getItem('v5_benchHistV2'),raw);
+  // (1d) A 정상 시작 → B 읽기 reject → A 늦게 완료: 둘 다 버튼 0
+  h=fresh();text=await h.downloads[0].text();A=slowPick(h,text.length);const B=slowPick(h,text.length);B.d.rej(Error('NotReadableError'));await B.run;a.equal(h.button(APPLY),undefined);A.d.res(text);await A.run;a.equal(h.button(APPLY),undefined);a.equal(h.storage.getItem('v5_benchHistV2'),raw);
+  // (2) A 정상 시작 → B 정상 진행 중 → A 먼저 완료: B 완료 전 버튼 0, B 검증 후에만 버튼
+  h=fresh();text=await h.downloads[0].text();A=slowPick(h,text.length);const B2=slowPick(h,text.length);A.d.res(text);await A.run;a.equal(h.button(APPLY),undefined,'최신 B 검증 전 버튼 0');a.equal(h.storage.getItem('v5_benchHistV2'),raw);
+  B2.d.res(text);await B2.run;a.ok(h.button(APPLY),'마지막 정상 파일 검증 후에만 버튼');a.match(h.message.textContent,/사본 확인 완료/);
+  // (2b) 버튼이 열린 뒤 다시 고르기 시작하면 옛 버튼은 사라지고, 옛 버튼 참조를 눌러도 저장 0
+  const old=h.button(APPLY);const C=slowPick(h,text.length);a.equal(h.button(APPLY),undefined);old.click();a.equal(h.storage.getItem('v5_benchHistV2'),raw);a.match(h.message.textContent,/사본 확인이 끝나지 않았습니다/);C.d.rej(Error('x'));await C.run;
+  // (3) A 정상 시작 → 새 미리보기 → A 완료: 버튼 0
+  h=fresh();text=await h.downloads[0].text();A=slowPick(h,text.length);h.button('기준지수 같은 값 보류 정리').click();A.d.res(text);await A.run;a.equal(h.button(APPLY),undefined);a.equal(h.storage.getItem('v5_benchHistV2'),raw);
+  // 새 미리보기의 사본을 정상 선택하면 열림(정상 경로 유지)
+  await pick(h,await h.downloads[1].text());a.ok(h.button(APPLY));
  });
 }

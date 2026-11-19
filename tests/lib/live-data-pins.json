@@ -21,7 +21,7 @@
     "has/benchmark-history-policy.js": "c27b95942d2800c8d0c8d6e82804ec5c14c0e564618ad0107b2f942060d97281",
     "has/advisor-core.js": "a92fb91531e299daf85cf3596bc23d2717c87cf08328e04f6483a55973f35330",
     "has/advisor-bridge.js": "561d408bd79f733fbb564bcd7c3c73b4ebcc840ab6bb9550ec0f227393ae8034",
-    "backup/ui.js": "9416c076636d6852cd6bc29d022cffe792bc24ecef3769b25dc103014de7605f"
+    "backup/ui.js": "60fa260fb96d997d27bcda24b6006630cd196e910af1c0792781e1a5e8fbfca6"
   },
   "addedRuntimeFiles": {
     "has/live-price-reference.js": "ec7dc368b8d2ea2b212a091ac8935d1dff50ffb451d6236ef993c75f0cf275ce",
