@@ -19,6 +19,7 @@
 다음 묶음: 1단계 후속(탭 첫 진입 자동 조회·하루 캐시, 확신 종목 UI 25%/10%, '준비 중' 제거) → 2차 재무(SEC EDGAR, DART) → 서비스워커 rollback.
 
 ## 처리한 지시서
+- GPT-REVIEW-bench-same-cent-20261119-0830 (2026-11-19 09시) CHANGES_REQUESTED 반영 → READY_FOR_REVIEW `68b440b`: CR-5 정리 전 사본 재선택 검증 세대(settleGen) — 최신 선택만 결과·[정리 저장] 갱신, 구 요청 늦은 성공·실패 무시, cancel도 무효화, 경합 시험 추가.
 - GPT-REVIEW-bench-same-cent-20261119-0735 (2026-11-19 08시) CHANGES_REQUESTED 반영 → READY_FOR_REVIEW `db7ae58`: CR-1 사본 v2 두 키 원문·해시·결합값+검증·왕복 시험, CR-2 다운로드 미확인 표시·사본 재선택 검증 게이트(fail-closed), CR-3 되돌리기 불가·실패 안내, CR-4 시험 근거 단위별 분리·실패 시나리오 추가.
 - GPT-REVIEW-bench-history-repair-20261117-1432 (2026-11-17 15:1x) APPROVE 기록: 0940 미로드·합성 dry-run 개발 단위 종료(`6774de0`). 운영 반영 대상 아님. 실제 기록 정리·provisional 규칙은 순태씨 결정 대상.
 - GPT-REVIEW-bench-history-repair-20261117-1332 (2026-11-17 14:xx) CHANGES_REQUESTED 반영 → READY_FOR_REVIEW: CR-1 경로·원천 상충 묶음 hold, CR-2 관측 전 필드 일치만 병합·메타 차이 감사 표기, CR-3 근거 asOf 엄격 ISO·[달력 closeMs, now]·달력 마감시각 필수, CR-4 합성 백업 apply/undo 왕복. HEAD `6774de0`, 보고 `f10ce03`.
@@ -221,3 +222,4 @@
 - 2026-11-18 (순태씨 '계속해') 규칙 A 2단위 `f8871b7`: 설정 > 백업·복원 '기준지수 같은 값 보류 정리'(미리보기·정리 전 사본 다운로드·[정리 저장]). 사본 실측 QQQ 256→18, SPY 256→14, 정리 후 SPY 11-17 봉 저장 가능 확인. 360/390/430 확인, 전체 2279 중 2277 통과/0 실패. 다음: 순태씨 '올려' 또는 지피 검토.
 - 2026-11-19 07:07 정각 실행: 새 GPT-ORDER/TEST/REVIEW 없음(지피 마지막 파일 11-17 14:33, 미수신 알림은 11-14 1회 완료 — 재알림 안 함), 다비 새 문서 없음. 규칙 A 1+2단위 `f8871b7` READY_FOR_REVIEW — 순태씨 '올려'/지피 검토 대기. 승인된 다음 작업 없음 → 코드 변경 0, 시험 재실행 안 함. 다음: 지피 새 파일 확인.
 - 2026-11-19 08:0x 정각 실행: 지피 GPT-REVIEW-bench-same-cent-20261119-0735 CHANGES_REQUESTED 반영 — work/claude-bench-same-cent-20261118 `db7ae58`(보고 `c13279f`). 전체 2281 중 2279 통과/0 실패/2 skip, 비밀값 0, Playwright 360·390·430 합성 확인. 다음: 지피 재검토 → APPROVE 시 순태씨 '올려' 요청.
+- 2026-11-19 09:0x 정각 실행: 지피 GPT-REVIEW-bench-same-cent-20261119-0830 CHANGES_REQUESTED(CR-5 비동기 재선택 경합) 반영 — work/claude-bench-same-cent-20261118 `68b440b`(보고 `2fbd960`). 전체 2282 중 2280 통과/0 실패/2 skip, 비밀값 0, 새 시험은 수정 전 코드에서 실패 확인. 화면 배치 변경 없음(Playwright 재실행 안 함). 운영·GAS·실자료 변경 0. 새 GPT-ORDER 없음, 다비 새 문서 없음. 다음: 지피 재검토.

@@ -1,17 +1,19 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
-STATUS: READY_FOR_REVIEW (지피 0735 CR-1~4 반영)
-ORDER-ID: 순태씨 직접 결정 '규칙 A로 해'/'계속해' + GPT-REVIEW-bench-same-cent-20261119-0735 CHANGES_REQUESTED
-REPORT: docs/team/CLAUDE-DEV-BENCH-SAME-CENT-20261118.md (3절·시험 근거)
+STATUS: READY_FOR_REVIEW (지피 0830 CR-5 반영)
+ORDER-ID: 순태씨 직접 결정 '규칙 A로 해'/'계속해' + GPT-REVIEW-bench-same-cent-20261119-0830 CHANGES_REQUESTED
+REPORT: docs/team/CLAUDE-DEV-BENCH-SAME-CENT-20261118.md (4절·시험 근거)
 BRANCH: work/claude-bench-same-cent-20261118
-HEAD: db7ae5823ce2a5368cb20c47fd132d9a1e494795 (보고 문서 커밋 c13279f) · 운영 main `c809467` 그대로
-REVIEW-SCOPE: db7ae58 — 정리 전 사본 v2(두 키 원문·해시·결합값)·verifySettleArchive, 내려받은 사본 재선택 검증 후에만 [정리 저장], 되돌리기 불가 안내·저장 실패 안내, 시험 교체·추가, live-data edits·pin
-UPDATED: 2026-11-19 08시대 KST (정각 실행)
+HEAD: 68b440b329bbf34ee633345f56f8669e80291023 (보고 문서 커밋 2fbd960) · 운영 main 앱 그대로
+REVIEW-SCOPE: 68b440b — backup/ui.js 정리 전 사본 재선택 검증 세대(settleGen: 미리보기·change·cancel마다 +1, await 뒤·성공 직전·저장 클릭 시 세대 확인, 구 요청 실패 문구도 최신 덮지 않음), tests/backup-contract.test.cjs CR-5 경합 시험, live-data edits·pin
+UPDATED: 2026-11-19 09시대 KST (정각 실행)
 
-- 시험(HEAD db7ae58): 전체 2281 중 2279 통과/0 실패/2 skip, 비밀값 0. Playwright 360·390·430 합성·로컬 확인(오류 0). 갤럭시 실기기 미검증.
-- 지피 지시서 현황: 처리 대상 GPT-ORDER 없음. GPT-REVIEW-bench-same-cent-20261119-0735 CHANGES_REQUESTED → 반영 완료, 재검토 요청.
+- 시험(HEAD 68b440b): 전체 2282 중 2280 통과/0 실패/2 skip, 비밀값 0. 새 시험은 수정 전 코드에서 실패(red→green). 화면 배치 변경 없음. 갤럭시 실기기·cancel 이벤트 미검증.
+- 지피 지시서 현황: 처리 대상 GPT-ORDER 없음. GPT-REVIEW-bench-same-cent-20261119-0830 CHANGES_REQUESTED → 반영 완료, 재검토 요청.
 
 ## 이전 기록
+
+- (이전, 11-19 08시) READY_FOR_REVIEW — 0735 CR-1~4 `db7ae58` → 지피 0830 CHANGES_REQUESTED(CR-5).
 
 - (이전, 11-18) READY_FOR_REVIEW — 규칙 A 1+2단위 `f8871b7` → 지피 0735 CHANGES_REQUESTED(CR-1~4).
 

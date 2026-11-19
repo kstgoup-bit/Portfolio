@@ -1,8 +1,24 @@
-STATUS: READY_FOR_REVIEW (지피 GPT-REVIEW-bench-same-cent-20261119-0735 CR-1~4 반영, 운영 미반영)
-ORDER-ID: 순태씨 직접 결정 '규칙 A로 해' / '계속해' (2026-11-18) + GPT-REVIEW-bench-same-cent-20261119-0735 CHANGES_REQUESTED
-BASE: f8871b729dfe6803d92e9c959cdb55381ebb005f
-HEAD: db7ae5823ce2a5368cb20c47fd132d9a1e494795
-REVIEW-SCOPE: CR 반영 커밋 db7ae58 — has/benchmark-history-policy.js(makeSettleArchive·verifySettleArchive), backup/ui.js(사본 재선택 검증 게이트·되돌리기 불가 안내·저장 실패 안내), tests/backup-contract.test.cjs(정리 시험 2→3건 교체), tests/benchmark-same-cent.test.cjs(+1), live-data edits·pin
+STATUS: READY_FOR_REVIEW (지피 GPT-REVIEW-bench-same-cent-20261119-0830 CR-5 반영, 운영 미반영)
+ORDER-ID: 순태씨 직접 결정 '규칙 A로 해' / '계속해' (2026-11-18) + GPT-REVIEW-bench-same-cent-20261119-0830 CHANGES_REQUESTED
+BASE: db7ae5823ce2a5368cb20c47fd132d9a1e494795
+HEAD: 68b440b329bbf34ee633345f56f8669e80291023
+REVIEW-SCOPE: CR-5 커밋 68b440b — backup/ui.js(정리 전 사본 재선택 검증 세대 settleGen), tests/backup-contract.test.cjs(CR-5 경합 시험 1건 추가, settleInput 헬퍼를 최신 입력 기준으로), live-data edits·pin
+
+## 4절. 지피 0830 CR-5 반영 (2026-11-19 09시 정각 실행)
+- backup/ui.js: 모듈 변수 `settleGen`(단조 증가). [기준지수 같은 값 보류 정리] 누를 때마다, 파일 입력 `change`마다(미선택·실패 포함), 파일 선택 창 `cancel`마다 세대 +1. change 진입 시 기존 [정리 저장] 제거·`p.verified=false`·`p.okGen=-1`.
+- `await file.text()` 이후 `settlePlan===p && settleGen===g` 둘 다 맞을 때만 계속, 검증 성공 직전 한 번 더 `settleGen===g` 확인 후에만 `p.verified=true; p.okGen=g`·문구·버튼 생성. 구 요청의 늦은 실패(catch)도 `settleGen===g`일 때만 문구를 바꿈(최신 문구를 덮지 않음).
+- [정리 저장] 클릭 시 `settlePlan===p && p.verified===true && p.okGen===settleGen` 아니면 "사본 확인이 끝나지 않았습니다"·저장 0.
+- 시험(합성 지연 Promise, 실제 Android 재현 아님): (1) A 정상 읽는 중 → B 손상 → A 늦게 완료: 버튼 0·B 실패 문구 유지·setItem 0, (1b) B 미선택, (1c) cancel 이벤트, (1d) B 읽기 reject 후 A 완료: 모두 버튼 0·저장 0, (2) A 정상 → B 정상 진행 중 → A 먼저 완료: B 완료 전 버튼 0, B 검증 후에만 버튼, (2b) 버튼 열린 뒤 재선택 시작 → 옛 버튼 사라지고 옛 참조 클릭도 저장 0, (3) A 읽는 중 → 새 미리보기 → A 완료: 버튼 0, 새 미리보기 사본 정상 선택 시에만 열림.
+- 수정 전 코드(db7ae58의 backup/ui.js)로 새 시험을 돌리면 실패함을 확인(red→green).
+
+### 시험 근거 (CR-5, HEAD 68b440b, 2026-11-19 09시대 KST)
+- `NODE_PATH=<jsdom> node --require ./tests/lib/no-network.cjs --test tests/*.test.cjs` → 전체 2282 중 2280 통과 / 0 실패 / 2 skip. `node tools/scan-secrets.cjs` → findings 0.
+- live-data 투영: backup/ui.js 역적용으로 기준 원본 재현 확인(beforeLiveDataBytes 통과), currentSha256 갱신.
+- Playwright: 이번은 화면 배치·문구 스타일 변경 없음(비동기 로직만)이라 재실행 안 함. 이전 360·390·430 확인(db7ae58)은 정상 경로 기준.
+- 미검증: 갤럭시 삼성 인터넷/크롬에서 파일 선택 창 `cancel` 이벤트 발생 여부·다운로드·재선택 실제 동작. cancel 이벤트가 없는 브라우저에서도 다음 change가 세대를 올리므로 fail-closed는 유지(취소만 하고 다시 안 고르면 진행 중이던 이전 정상 읽기가 버튼을 열 수 있음 — 그 파일은 사용자가 직접 고른 정상 사본이며 검증 통과분임).
+
+## 순태씨 결정 필요
+- 운영 반영('올려')은 지피 재검토 APPROVE 후. 실제 기록 정리 실행은 운영 반영 후 순태씨가 직접.
 
 ## 3절. 지피 0735 CR 반영 (2026-11-19 08시 정각 실행)
 - CR-1: 정리 전 사본 schemaVersion 2 — keys.v5_benchHist / keys.v5_benchHistV2 각각 원문(raw)+fingerprint(sha256-utf16be-v1), binding.legacyFingerprint, plan.nextFingerprint·counts·removedCount, removed. purpose에 "전체 백업·일반 복원 파일 아님, 자동 복원 없음" 명시. 자동 복원 기능 구현 안 함(별도 승인). verifySettleArchive(text, legacyRaw, storeRaw, nextRaw, now): 형식·해시·현재 원문 일치·결합값·validateStore·이번 미리보기 nextRaw 일치 모두 통과해야 ok(fail-closed, 8MB 상한). 사본→검증→원상복구 왕복은 합성 로컬 자료로만 시험(바이트 동일·validateStore 통과).
