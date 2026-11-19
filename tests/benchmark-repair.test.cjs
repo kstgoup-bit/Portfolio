@@ -20,8 +20,8 @@ test('legacy symbol isolation preserves invalid bytes and references, duplicate 
  const merged=P.mergeHistoryStore(null,before,candidate(), 'QQQ',NOW);a.equal(merged.ok,true);a.equal(P.readStore(merged.store,before,NOW).series.SPY.ok,false);a.equal(merged.store.series.SPY,undefined);
 });
 test('zero tolerance conflict evidence does not stop unrelated append or mutate legacy',()=>{
- const old=legacy(),raw=JSON.stringify(old),c=candidate(['2026-11-05','2026-11-06','2026-11-09'],[99,100.0001,101]);
- const r=P.mergeHistoryStore(null,raw,c,'QQQ',NOW);a.equal(r.ok,true);a.deepEqual(r.acceptedDates,['2026-11-09']);a.equal(r.pendingConflicts.length,1);a.equal(r.pendingConflicts[0].alternative.close,100.0001);a.equal(JSON.stringify(old),raw);
+ const old=legacy(),raw=JSON.stringify(old),c=candidate(['2026-11-05','2026-11-06','2026-11-09'],[99,100.01,101]);
+ const r=P.mergeHistoryStore(null,raw,c,'QQQ',NOW);a.equal(r.ok,true);a.deepEqual(r.acceptedDates,['2026-11-09']);a.equal(r.pendingConflicts.length,1);a.equal(r.pendingConflicts[0].alternative.close,100.01);a.equal(JSON.stringify(old),raw);
  const view=P.readStore(r.store,raw,NOW);a.equal(view.series.QQQ.byDate['2026-11-06'].close,100);a.equal(view.series.QQQ.byDate['2026-11-09'].close,101);a.equal(view.series.QQQ.pendingConflicts.length,1);a.equal(P.validateStore(r.store).ok,true);a.equal(P.validateStore(r.store,raw,NOW).ok,true);
  const saved=JSON.stringify(r.store),again=P.mergeHistoryStore(r.store,raw,c,'QQQ',NOW);a.equal(again.changed,false);a.equal(again.store,r.store);a.equal(JSON.stringify(r.store),saved);
 });
@@ -50,7 +50,7 @@ test('unchanged next-day provisional receipt retains explicit successor evidence
  a.equal(next.changed,true);a.equal(next.store.series.QQQ.conflicts[0].status,'provisional-successor');a.equal(P.validateStore(next.store,null,NEXTMS).ok,true);
 });
 test('boundary conflict holds exactly affected benchmark boundary, never silently skips disputed date',()=>{
- const r=P.mergeHistoryStore(null,JSON.stringify(legacy()),candidate(['2026-11-06','2026-11-09'],[100.0001,101]),'QQQ',NOW),v=P.readStore(r.store,JSON.stringify(legacy()),NOW).series.QQQ;
+ const r=P.mergeHistoryStore(null,JSON.stringify(legacy()),candidate(['2026-11-06','2026-11-09'],[100.01,101]),'QQQ',NOW),v=P.readStore(r.store,JSON.stringify(legacy()),NOW).series.QQQ;
  const bad=P.selectPointAtOrBefore(v.points,'QQQ',Date.parse('2026-11-09T12:00Z'),{now:NOW,conflicts:v.conflicts});a.equal(bad.reason,'benchmark-date-conflict');
  const good=P.selectPointAtOrBefore(v.points,'QQQ',NOW,{now:NOW,conflicts:v.conflicts});a.equal(good.ok,true);a.equal(good.date,'2026-11-09');
 });

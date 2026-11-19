@@ -163,7 +163,7 @@ function av(dates=['2026-11-06','2026-11-09'],prices=[100,102]) {
 }
 
 test('repair independent benchmark: tiny and material conflicts retain originals while unrelated dates append',()=>{
-  for(const change of [0.0001,50]) {
+  for(const change of [0.01,50]) {
     const old=parsed('QQQ',['2026-11-05','2026-11-06'],[100,101]).points,legacy=JSON.stringify({QQQ:old});
     const incoming=parsed('QQQ',['2026-11-05','2026-11-06','2026-11-09','2026-11-10'],[100+change,101,102,103]);
     const r=H.mergeHistoryStore(null,legacy,incoming,'QQQ',NOW);a.equal(r.ok,true);a.equal(r.changed,true);
