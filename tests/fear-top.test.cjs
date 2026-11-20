@@ -46,3 +46,15 @@ test('fear-top.js pinned and wired before radar/ui.js',()=>{
   const html=fs.readFileSync(path.join(__dirname,'..','portfolio_v5.html'),'utf8');
   assert.ok(html.indexOf('has/universe-screen.js')<html.indexOf('has/fear-top.js')&&html.indexOf('has/fear-top.js')<html.indexOf('radar/ui.js'));
 });
+
+test('종목 이름은 표시 전용: 구성종목 파일과 일치하고 모르는 종목은 빈 문자열', () => {
+  const F = require('../has/fear-top.js');
+  const fs = require('node:fs');
+  const kr = JSON.parse(fs.readFileSync('radar/data/kospi200-20261112.json', 'utf8')).members;
+  const us = JSON.parse(fs.readFileSync('radar/data/us200-20261112.json', 'utf8')).members;
+  for (const m of kr) require('node:assert/strict').equal(F.nameOf('KR', m.ticker), m.name);
+  for (const m of us) require('node:assert/strict').equal(F.nameOf('US', m.ticker), m.name);
+  require('node:assert/strict').equal(F.nameOf('KR', 'ZZZZZZ'), '');
+  require('node:assert/strict').equal(F.nameOf('US', '__proto__'), '');
+  require('node:assert/strict').equal(F.nameOf('US', '005930'), '');
+});
