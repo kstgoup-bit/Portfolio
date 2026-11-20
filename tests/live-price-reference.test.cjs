@@ -18,3 +18,18 @@ test('old valid observations are explicitly stale, not falsely fresh from receip
 test('mixed unsupported symbols do not suppress valid requests or contaminate daily cache',async()=>{let urls=[];const svc=C.createService({endpoint:URL,now:()=>NOW,transport:async u=>{urls.push(u);return {MSFT:raw()};}});const items=[{ticker:'MSFT',market:'US'},{ticker:'CASH',market:'KR'},{ticker:'123456789',market:'KR'},{ticker:'__proto__',market:'US'}];let r=await svc.load(items);a.equal(urls.length,1);a.equal(new global.URL(urls[0]).searchParams.get('tickers'),'MSFT');a.equal(r.ok,false);a.equal(r.partial,true);a.equal(r.items[0].status,'ready');a.equal(r.items.filter(x=>x.status==='unsupported').length,3);await svc.load(items);a.equal(urls.length,1);const good=await svc.load([{ticker:'MSFT',market:'US'}]);a.equal(good.ok,true);a.equal(urls.length,1);});
 test('all unsupported and getter inputs never invoke transport or getters',async()=>{let calls=0,reads=0;const s=C.createService({endpoint:URL,transport:async()=>calls++});const getter={get ticker(){reads++;return 'MSFT';},market:'US'};const r=await s.load([getter,null,{ticker:'CASH',market:'KR'}]);a.equal(calls,0);a.equal(reads,0);a.equal(r.items.length,3);a.ok(r.items.every(x=>x.status==='unsupported'));});
 test('after New York 16:00 does not certify the same-day observation as a close',()=>{const x=raw();x.bars[x.bars.length-1].c=170;const r=C.normalize(x,{ticker:'MSFT',market:'US',now:Date.parse('2026-11-12T23:30:00Z')});a.equal(r.ok,true);a.equal(r.asOf,'2026-11-11');a.equal(r.signalHold,true);a.equal(r.adjustment,'unverified');});
+
+test('액면분할 사례: 제공처 메타 고점이 분할 전 값이어도 하락률은 일봉 종가 고점 기준(SNDK)', () => {
+  const x = raw();
+  const bars = [];
+  for (let t = Date.parse('2025-11-12T00:00:00Z'); t < Date.parse('2026-11-11T00:00:00Z'); t += 7 * 86400000) bars.push({ d: new Date(t).toISOString().slice(0, 10), c: 150 });
+  bars.push({ d: '2026-06-22', c: 294.3 });
+  bars.sort((p, q) => (p.d < q.d ? -1 : 1));
+  bars.push({ d: '2026-11-11', c: 94.4 });
+  x.bars = bars; x.barCount = bars.length; x.fiftyTwoWeekHigh = 2360; x.regularMarketPrice = 94.4; // 제공처 고점은 분할 전 미조정 값
+  const r = C.analyze(x, opts);
+  a.equal(r.ok, true);
+  a.equal(r.drawdownBasis, 'bar-close-high-365d');
+  a.ok(Math.abs(r.drawdownPct - (94.4 / 294.3 - 1) * 100) < 1e-9);
+  a.ok(r.drawdownPct > -70 && r.drawdownPct < -67);
+});

@@ -33,6 +33,10 @@
  function monthBefore(s,n){var d=new Date(s+'T00:00:00Z'),day=d.getUTCDate();d.setUTCDate(1);d.setUTCMonth(d.getUTCMonth()-n);var end=new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth()+1,0)).getUTCDate();d.setUTCDate(Math.min(day,end));return d.toISOString().slice(0,10);}
  function analyze(raw,options){
   var o=options||{},r=normalize(raw,o);if(!r.ok)return r;
+  /* 고점은 가격과 같은 기준(조정된 일봉 종가, 최근 365일)에서 구한다. 제공처 메타의 52주 고점은 액면분할 전 값일 수 있어 가격과 섞으면 하락률이 크게 틀린다(SNDK 사례). 기록이 330일 미만이면 일봉만으로 52주 고점을 확정할 수 없어 기존 제공처 고점 규칙을 쓴다. */
+  var lastBar=r.bars[r.bars.length-1],cut=Date.parse(lastBar.d)-365*DAY,barHigh=null;
+  if(Date.parse(lastBar.d)-Date.parse(r.bars[0].d)>=330*DAY){for(var bi=0;bi<r.bars.length;bi++){if(Date.parse(r.bars[bi].d)>=cut&&(barHigh===null||r.bars[bi].c>barHigh))barHigh=r.bars[bi].c;}}
+  var providerOk=r.high52&&r.high52>=lastBar.c;
   var last=r.bars[r.bars.length-1],benchmark=o.benchmark?normalize(o.benchmark.record,{ticker:o.benchmark.ticker,market:o.benchmark.market,now:o.now}):null;
   var returns={};[1,3,6].forEach(function(n){var target=monthBefore(last.d,n),p=null;for(var i=0;i<r.bars.length;i++){if(r.bars[i].d<=target)p=r.bars[i];else break;}
    var v={value:null,startDate:null,endDate:last.d,benchmarkReturn:null,excessPct:null,reason:'insufficient-history'};
@@ -40,7 +44,7 @@
     if(benchmark&&benchmark.ok&&benchmark.currency===r.currency){var a=benchmark.bars.find(function(x){return x.d===p.d;}),b=benchmark.bars.find(function(x){return x.d===last.d;});if(a&&b){v.benchmarkReturn=(b.c/a.c-1)*100;v.excessPct=v.value-v.benchmarkReturn;}}
    }returns[n]=v;
   });
-  return Object.assign({},r,{price:last.c,priceKind:'prior-dated-observation-not-confirmed-close',drawdownPct:r.high52&&r.high52>=last.c?(last.c/r.high52-1)*100:null,returns:returns,notice:'미검증 가격 참고값 · 기업가치·매매 판단 보류'});
+  return Object.assign({},r,{price:last.c,priceKind:'prior-dated-observation-not-confirmed-close',drawdownPct:barHigh?(last.c/barHigh-1)*100:(providerOk?(last.c/r.high52-1)*100:null),barHigh52:barHigh,drawdownBasis:barHigh?'bar-close-high-365d':(providerOk?'provider-high':'none'),returns:returns,notice:'미검증 가격 참고값 · 기업가치·매매 판단 보류'});
  }
  function createService(options){
   var o=options||{},cache=new Map(),pending=new Map(),generation=0,activeEndpoint=null,now=o.now||Date.now;
