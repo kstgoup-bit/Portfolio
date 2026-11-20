@@ -1,17 +1,20 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
-STATUS: READY_FOR_REVIEW (설계 문서 r2만 — 코드·운영 변경 0)
-ORDER-ID: GPT-20261120-2132 (GPT-REVIEW-ai-trading-plan-20261120-2233 CHANGES_REQUESTED 반영)
-REPORT: docs/team/CLAUDE-DEV-AI-TRADING-PLAN-20261120.md (머리말 CR 대응표; 본문 docs/team/AI-TRADING-ARCHITECTURE-20261120.md)
+STATUS: APPROVED (설계 문서 r2 — 문서 논의 종료, 코드·운영 변경 0)
+ORDER-ID: GPT-20261120-2132 · GPT-REVIEW-ai-trading-plan-20261120-2330 APPROVE (docs/gpt-ai-trading-plan-20261120 `d487d1a`)
+REPORT: docs/team/CLAUDE-DEV-AI-TRADING-PLAN-20261120.md (본문 docs/team/AI-TRADING-ARCHITECTURE-20261120.md)
 BRANCH: work/claude-ai-trading-plan-20261120
-HEAD: 9d1f7d898e89039a0720d172a0135d9da59b5283 (검토 대상 설계 r2) · 보고 커밋 14e5f70
-REVIEW-SCOPE: AI-TRADING-ARCHITECTURE-20261120.md r2 변경분(0dbe4b0..9d1f7d8) — CR-1 soft/hard·우량주 예외 철회·T9b/T9c, CR-2 A 미확정·주문표 미생성·승인 범위, CR-3 주문 의도 서명 계약·T15~T19(개념만), CR-4 조정 일관성 계약·T3b·분할조정 보유량. 시험 실행 주장 없음.
-UPDATED: 2026-11-20 23:1x KST (정각 실행)
+HEAD: 9d1f7d898e89039a0720d172a0135d9da59b5283 (지피 승인 대상) · 보고 커밋 14e5f70
+REVIEW-SCOPE: 없음(이번 실행 새 검토 대상 없음). 승인은 장기 설계 의견·시험 계획 문서에 한함 — G3 구현, G4/G5 실주문·API 키, GAS, 실거래, 배포 승인 아님.
+UPDATED: 2026-11-21 07:1x KST (정각 실행)
 
-- 지피 지시서 현황: 2132는 r2로 재제출. 신호 성적표 P1 `3f9009e` 지피 검토 대기(별건). 새 GPT-ORDER 없음.
-- 운영 main 앱 코드 변경 없음. 다음 개발 우선순위 G0 시세 연결·교차검증 유지.
+- 지피 지시서 현황: 새 GPT-ORDER 없음. 신호 성적표 P1 `3f9009e` 지피 검토 대기(별건, 아직 GPT-REVIEW 없음).
+- 순태씨 미확정 결정(설계 제안값): 대안 A(수동 주문) 종착점 여부, 레버리지 한도 방식, soft/hard 정지 수치, 현금 하한.
+- 운영 main 앱 코드 변경 없음. 다음 개발 우선순위 G0 시세 연결·교차검증(승인된 구체 지시 대기).
 
 ## 이전 기록
+
+- (이전, 11-20 23:1x) STATUS: READY_FOR_REVIEW (설계 문서 r2만 — 코드·운영 변경 0) / ORDER-ID: GPT-20261120-2132 (GPT-REVIEW-ai-trading-plan-20261120-2233 CHANGES_REQUESTED 반영) / REPORT: docs/team/CLAUDE-DEV-AI-TRADING-PLAN-20261120.md (머리말 CR 대응표; 본문 docs/team/AI-TRADING-ARCHITECTURE-20261120.md) / BRANCH: work/claude-ai-trading-plan-20261120 / HEAD: 9d1f7d898e89039a0720d172a0135d9da59b5283 (검토 대상 설계 r2) · 보고 커밋 14e5f70 / REVIEW-SCOPE: AI-TRADING-ARCHITECTURE-20261120.md r2 변경분(0dbe4b0..9d1f7d8) — CR-1 soft/hard·우량주 예외 철회·T9b/T9c, CR-2 A 미확정·주문표 미생성·승인 범위, CR-3 주문 의도 서명 계약·T15~T19(개념만), CR-4 조정 일관성 계약·T3b·분할조정 보유량. 시험 실행 주장 없음. / UPDATED: 2026-11-20 23:1x KST (정각 실행) /  / - 지피 지시서 현황: 2132는 r2로 재제출. 신호 성적표 P1 `3f9009e` 지피 검토 대기(별건). 새 GPT-ORDER 없음. / - 운영 main 앱 코드 변경 없음. 다음 개발 우선순위 G0 시세 연결·교차검증 유지.
 
 - (이전, 11-20 22:1x) READY_FOR_REVIEW — GPT-20261120-2132 r1 `0dbe4b0` → 지피 2233 CHANGES_REQUESTED(CR-1~4).
 
