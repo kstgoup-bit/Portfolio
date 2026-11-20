@@ -1,9 +1,25 @@
 STATUS: READY_FOR_REVIEW
-ORDER-ID: GPT-20261120-2132
-BASE: 8b0864c680baea3f20cd020a3948b7cce0a5dd34
-HEAD: 0dbe4b03646426bb1d5039465a2b97d477045de8 (검토 대상 설계 문서 커밋; 이 보고서는 다음 docs 커밋)
-REVIEW-SCOPE: docs/team/AI-TRADING-ARCHITECTURE-20261120.md 전체(설계 의견·위험등록부·게이트 표·합성시험 매트릭스 계획). 코드·설정·시험 파일 변경 0.
-UPDATED: 2026-11-20 22:1x KST (정각 실행)
+ORDER-ID: GPT-20261120-2132 (GPT-REVIEW-ai-trading-plan-20261120-2233 CHANGES_REQUESTED 반영 r2)
+BASE: 99a86a0 (0dbe4b0 + 최신 main 6df22bb merge)
+HEAD: 9d1f7d898e89039a0720d172a0135d9da59b5283 (검토 대상 설계 문서 r2 커밋; 이 보고서는 다음 docs 커밋)
+REVIEW-SCOPE: docs/team/AI-TRADING-ARCHITECTURE-20261120.md 의 r2 변경분(git diff 0dbe4b0..9d1f7d8 -- 해당 파일) — CR-1~4 대응. 코드·설정·시험 파일 변경 0.
+UPDATED: 2026-11-20 23:1x KST (정각 실행)
+
+## r2 CR 대응표 (지피 2233)
+| CR | 반영 위치 | 내용 |
+|---|---|---|
+| CR-1 손실 차단 우회 금지 | 7절 위험표 '하루 손실·최대낙폭' 행, 7절 충돌 3, 9절 3번, 5절 T9·T9b·T9c | 우량주 예외 안 **철회**. soft(경고·사람 검토)/hard(자산 종류·AI 판단 무관 신규 매수·주문 전부 차단) 분리, 자동 해제 없음(사유 해소+냉각기간+순태씨 명시 해제), 정책 개정은 순태씨 사전 승인+새 버전+재검증 없으면 효력 없음. T9b = 한도 초과+우량주 제안+AI 우회 요청 모두 차단, T9c = 정지 중 무승인 개정 무효 |
+| CR-2 권고·결정 분리 | 0절 3번, 2절 A 행·권고 문장, 4절 '승인 범위' 행·G1/G4/G5 행, 9절 1번 | '확정' → '우선 권고·미확정'. G0/G1 미충족 시 카드 '판단 보류', 이번 범위에선 **수량·지정가 주문표 미생성**(G1 금지 우회에 추가). 이번 승인 = 설계 논의만, G3 확장·G4/G5 연결 미승인 표기 |
+| CR-3 서명·재검증 계약 | 3절 신뢰 경계 규칙 3, 8절 '주문 의도 서명 계약', 5절 T15~T19 | 서명 필드(intentId·nonce·account·market·symbol·side·qtyMax·price/currency·orderType·quoteSnapshotHash/asOf·policyVersion/hash·approver·issuedAt/expiresAt), ⑤가 주문 직전 서버측 정책 재검사 + 동일 의도 문서·만료·nonce·신선도·정지·원장 확인, 하나라도 어긋나면 차단. **개념설계·가상 시험 계획만, 구현·키·실주문 API 없음** |
+| CR-4 분할 조정·보유량 지표 | 6절 필드 행·'조정 일관성 계약', 5절 편향 통제·T3b, 7절 2029 지표 | 구간 전체 같은 조정 종류·기준일일 때만 고점·수익률 계산, 혼재·메타 누락·수정 이력 상충 → 보류(C). 보유량은 분할 비율 환산 후 **추가 매수 순증**만, 보완 지표(투입액·곡소리 구간 매수 비율·교체 회전율·품질 라벨 변화), 수량 단독 성과 판정 금지 |
+
+## r2 시험
+- 수행: `node tools/scan-secrets.cjs` → findings 0.
+- 미수행: 전체 시험(코드 변경 0), T1~T19·T3b·T9b·T9c 합성시험(**계획·미실행**), Playwright(화면 변경 없음).
+- 새 시세·GAS 연결·계좌/주문 코드·비용·운영 변경 없음.
+
+---
+## (r1 보고, 22시)
 
 # AI 자동매매 장기 발전안 — 클로 교차검토 보고
 
