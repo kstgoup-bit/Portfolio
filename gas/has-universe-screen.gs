@@ -32,7 +32,7 @@ function hasScreenRead_(slot) {
   for(var i=0;i<h.count;i++){var s=p.getProperty(prefix+h.id+'_'+i);if(s===null)throw Error('screen-incomplete-storage');encoded+=s;}
   // 조각이 모두 있어도 내용이 바뀌었으면 거부한다(길이·SHA-256).
   if(encoded.length!==h.len||hasScreenDigest_(encoded)!==h.sha256)throw Error('screen-integrity');
-  return JSON.parse(Utilities.ungzip(Utilities.newBlob(Utilities.base64Decode(encoded))).getDataAsString('UTF-8'));
+  return JSON.parse(Utilities.ungzip(Utilities.newBlob(Utilities.base64Decode(encoded),'application/x-gzip')).getDataAsString('UTF-8'));
 }
 function hasScreenClean_(){
  var p=PropertiesService.getScriptProperties(),all=p.getProperties();['WORK','PUBLIC'].forEach(function(slot){var prefix='HAS_SCREEN_'+slot+'_',h=all[prefix+'HEAD']?JSON.parse(all[prefix+'HEAD']):null;Object.keys(all).forEach(function(k){if(k.indexOf(prefix)===0&&k!==prefix+'HEAD'&&(!h||k.indexOf(prefix+h.id+'_')!==0))p.deleteProperty(k);});});
