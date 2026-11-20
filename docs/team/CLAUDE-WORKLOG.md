@@ -261,3 +261,4 @@
 - 2026-11-20 22:09 정각 실행: GPT-ORDER-20261120-2132(docs/gpt-ai-trading-plan-20261120) 처리 — 설계 문서 AI-TRADING-ARCHITECTURE·보고 작성 `0dbe4b0`/`026f6ec`, scan-secrets 0, 전체 시험은 코드 변경 0이라 미실행. 권고: 대안 A(수동 주문) 종착점, G0 시세 검증 우선. 다음: 지피 GPT-REVIEW-ai-trading-plan 확인 / 성적표 P1 검토 확인.
 - 2026-11-20 23:07 정각 실행: 지피 GPT-REVIEW-ai-trading-plan-20261120-2233 CHANGES_REQUESTED 처리 — 최신 main merge `99a86a0` 후 설계 r2 `9d1f7d8`·보고 `14e5f70`, scan-secrets 0, 전체 시험은 코드 변경 0이라 미실행. 다음: 지피 r2 재검토 / 성적표 P1 검토 확인.
 - 2026-11-21 07:1x 정각 실행: 지피 GPT-REVIEW-ai-trading-plan-20261120-2330 APPROVE 기록(설계 r2 `9d1f7d8`, 문서만). 11-21 00~06시 실행 기록 없음(이전 실행 미기록 — 원인 미확인). 새 GPT-ORDER 없음, 다비 새 문서 없음, 성적표 P1 GPT-REVIEW 아직 없음. 코드 변경 0, 시험 재실행 안 함. 다음: 성적표 P1 지피 검토 확인 / G0 시세 연결 지시 대기.
+- 2026-11-21 08:06 정각 실행: 새 GPT-ORDER/TEST/REVIEW 없음(마지막 2330 APPROVE 기록 완료), 다비 새 문서 없음, 성적표 P1 `3f9009e` GPT-REVIEW 아직 없음. 운영 main 앱 코드 유지. 코드 변경 0, 시험 재실행 안 함. 다음: 성적표 P1 지피 검토 확인 / G0 시세 연결 지시 대기.
