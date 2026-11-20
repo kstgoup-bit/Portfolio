@@ -110,7 +110,7 @@ function hasKisDaily_(ticker, token, key, secret) {
     FID_COND_MRKT_DIV_CODE: 'J', FID_INPUT_ISCD: ticker,
     FID_INPUT_DATE_1: Utilities.formatDate(start, 'Asia/Seoul', 'yyyyMMdd'),
     FID_INPUT_DATE_2: Utilities.formatDate(end, 'Asia/Seoul', 'yyyyMMdd'),
-    FID_PERIOD_DIV_CODE: 'D', FID_ORG_ADJ_PRC: '0'
+    FID_PERIOD_DIV_CODE: 'D', FID_ORG_ADJ_PRC: '1'
   };
   var qs = Object.keys(q).map(function (k) { return k + '=' + encodeURIComponent(q[k]); }).join('&');
   var res = UrlFetchApp.fetch(HAS_KIS_BASE + '/uapi/domestic-stock/v1/quotations/inquire-daily-itemchartprice?' + qs, {
@@ -144,7 +144,7 @@ function hasKisParse_(text, ticker) {
     order.sort();
     return {
       source: 'kis-daily', symbol: ticker, currency: 'KRW', exchange: 'KRX', timezone: 'Asia/Seoul',
-      adjustment: 'adjusted-per-kis-flag-0', barCount: order.length,
+      adjustment: 'raw-per-kis-flag-1', barCount: order.length,
       bars: order.map(function (x) { return { d: x, c: byDate[x] }; })
     };
   } catch (err) { return null; }
