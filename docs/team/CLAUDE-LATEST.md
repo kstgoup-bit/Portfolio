@@ -1,18 +1,19 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
-STATUS: READY_FOR_REVIEW (설계 문서만 — 코드·운영 변경 0)
-ORDER-ID: GPT-20261120-2132
-REPORT: docs/team/CLAUDE-DEV-AI-TRADING-PLAN-20261120.md (본문 docs/team/AI-TRADING-ARCHITECTURE-20261120.md)
+STATUS: READY_FOR_REVIEW (설계 문서 r2만 — 코드·운영 변경 0)
+ORDER-ID: GPT-20261120-2132 (GPT-REVIEW-ai-trading-plan-20261120-2233 CHANGES_REQUESTED 반영)
+REPORT: docs/team/CLAUDE-DEV-AI-TRADING-PLAN-20261120.md (머리말 CR 대응표; 본문 docs/team/AI-TRADING-ARCHITECTURE-20261120.md)
 BRANCH: work/claude-ai-trading-plan-20261120
-HEAD: 0dbe4b03646426bb1d5039465a2b97d477045de8 (검토 대상) · 보고 커밋 026f6ec
-REVIEW-SCOPE: AI-TRADING-ARCHITECTURE-20261120.md 전체(설계·위험등록부·G0~G5 게이트 표·합성시험 계획). 시험 실행 주장 없음.
-UPDATED: 2026-11-20 22:1x KST (정각 실행)
+HEAD: 9d1f7d898e89039a0720d172a0135d9da59b5283 (검토 대상 설계 r2) · 보고 커밋 14e5f70
+REVIEW-SCOPE: AI-TRADING-ARCHITECTURE-20261120.md r2 변경분(0dbe4b0..9d1f7d8) — CR-1 soft/hard·우량주 예외 철회·T9b/T9c, CR-2 A 미확정·주문표 미생성·승인 범위, CR-3 주문 의도 서명 계약·T15~T19(개념만), CR-4 조정 일관성 계약·T3b·분할조정 보유량. 시험 실행 주장 없음.
+UPDATED: 2026-11-20 23:1x KST (정각 실행)
 
-- 권고: 종착점 = 대안 A(참모형 + 순태씨 수동 주문). 현 정적 앱 구조에선 우회 불가 위험엔진이 불가 → G4 이상은 별도 시스템. 다음 개발 우선순위는 그대로 G0 시세 연결·교차검증.
-- 지피 지시서 현황: GPT-20261120-2132 처리 완료(READY_FOR_REVIEW). 별도 진행 중 — 신호 성적표 P1 `3f9009e`(work/claude-scorecard-p1-20261120) 지피 검토 요청(CLAUDE-ASK-GPT-SIGNAL-SCORECARD-20261120.md), 충돌 없음.
-- 운영 main 앱 코드 변경 없음.
+- 지피 지시서 현황: 2132는 r2로 재제출. 신호 성적표 P1 `3f9009e` 지피 검토 대기(별건). 새 GPT-ORDER 없음.
+- 운영 main 앱 코드 변경 없음. 다음 개발 우선순위 G0 시세 연결·교차검증 유지.
 
 ## 이전 기록
+
+- (이전, 11-20 22:1x) READY_FOR_REVIEW — GPT-20261120-2132 r1 `0dbe4b0` → 지피 2233 CHANGES_REQUESTED(CR-1~4).
 
 - (이전, 11-19 09:5x) STATUS: DEPLOYED (순태씨 '지피 재검토 후 올려' + 지피 0930 APPROVE) / ORDER-ID: 순태씨 직접 결정 '규칙 A' / GPT-REVIEW-bench-same-cent-20261119-0930 APPROVE / REPORT: docs/team/CLAUDE-DEV-BENCH-SAME-CENT-20261118.md / BRANCH: work/claude-bench-same-cent-20261118 / HEAD: 68b440b329bbf34ee633345f56f8669e80291023 · 운영 main `601bb36`(no-ff) / REVIEW-SCOPE: 사후 확인만 — 병합 후 전체 2282 중 2280 통과/0 실패/2 skip, 비밀값 0 / UPDATED: 2026-11-19 09:5x KST /  / - 실제 기준지수 정리 실행은 순태씨가 갤럭시에서 직접(미리보기 → 정리 전 사본 다운로드 → 사본 재선택 검증 → [정리 저장]). 클로·지피는 실제 기록 미접근. / - 잔여 미검증: 갤럭시 cancel 이벤트·파일 재선택, 정리 후 미국 지수 저장 재개.
 

@@ -19,6 +19,7 @@
 다음 묶음: 1단계 후속(탭 첫 진입 자동 조회·하루 캐시, 확신 종목 UI 25%/10%, '준비 중' 제거) → 2차 재무(SEC EDGAR, DART) → 서비스워커 rollback.
 
 ## 처리한 지시서
+- GPT-REVIEW-ai-trading-plan-20261120-2233 (2026-11-20 23:1x) CHANGES_REQUESTED 반영 → READY_FOR_REVIEW `9d1f7d8`(보고 `14e5f70`): CR-1 hard stop 우량주 예외 철회·soft/hard·해제·개정 절차, CR-2 A 미확정·주문표 미생성, CR-3 서명 계약·서버 재검사(개념만), CR-4 조정 일관성·분할조정 보유량. 문서만.
 - GPT-20261120-2132 (2026-11-20 22:1x) READY_FOR_REVIEW: AI 자동매매 장기 아키텍처 설계 교차검토(문서만) — `work/claude-ai-trading-plan-20261120` HEAD `0dbe4b0`, 보고 `026f6ec`. 코드·GAS·운영 변경 0, 시험 계획만.
 - GPT-REVIEW-bench-same-cent-20261119-0830 (2026-11-19 09시) CHANGES_REQUESTED 반영 → READY_FOR_REVIEW `68b440b`: CR-5 정리 전 사본 재선택 검증 세대(settleGen) — 최신 선택만 결과·[정리 저장] 갱신, 구 요청 늦은 성공·실패 무시, cancel도 무효화, 경합 시험 추가.
 - GPT-REVIEW-bench-same-cent-20261119-0735 (2026-11-19 08시) CHANGES_REQUESTED 반영 → READY_FOR_REVIEW `db7ae58`: CR-1 사본 v2 두 키 원문·해시·결합값+검증·왕복 시험, CR-2 다운로드 미확인 표시·사본 재선택 검증 게이트(fail-closed), CR-3 되돌리기 불가·실패 안내, CR-4 시험 근거 단위별 분리·실패 시나리오 추가.
@@ -257,3 +258,4 @@
 - 2026-11-20 20:07 정각 실행: 새 GPT-ORDER/TEST/REVIEW 없음(마지막 0930 APPROVE 기록 완료), 다비 새 문서 없음. 운영 main 앱 코드(`d6bdde2` fear-names 대화창 작업분) 유지, 예약 실행에서 건드리지 않음. 코드 변경 0, 시험 재실행 안 함. 다음: 지피 새 파일 확인.
 - 2026-11-20 21:08 정각 실행: 새 GPT-ORDER/TEST/REVIEW 없음(마지막 0930 APPROVE 기록 완료), 다비 새 문서 없음. 대화창 작업분(drawdown-basis `6bb93a9` main, scorecard 설계·P1 `3f9009e` 지피 검토 요청 중)은 예약 실행에서 건드리지 않음. 코드 변경 0, 시험 재실행 안 함. 다음: 지피 성적표 검토(GPT-REVIEW) 확인.
 - 2026-11-20 22:09 정각 실행: GPT-ORDER-20261120-2132(docs/gpt-ai-trading-plan-20261120) 처리 — 설계 문서 AI-TRADING-ARCHITECTURE·보고 작성 `0dbe4b0`/`026f6ec`, scan-secrets 0, 전체 시험은 코드 변경 0이라 미실행. 권고: 대안 A(수동 주문) 종착점, G0 시세 검증 우선. 다음: 지피 GPT-REVIEW-ai-trading-plan 확인 / 성적표 P1 검토 확인.
+- 2026-11-20 23:07 정각 실행: 지피 GPT-REVIEW-ai-trading-plan-20261120-2233 CHANGES_REQUESTED 처리 — 최신 main merge `99a86a0` 후 설계 r2 `9d1f7d8`·보고 `14e5f70`, scan-secrets 0, 전체 시험은 코드 변경 0이라 미실행. 다음: 지피 r2 재검토 / 성적표 P1 검토 확인.

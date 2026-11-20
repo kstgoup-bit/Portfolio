@@ -6,6 +6,7 @@
 - `COLLAB-PROTOCOL.md` — 다비↔클로 정기 깃허브 협업 규칙(브랜치·보고서·승인). **작업 전 필독.**
 
 ## 최신 (2026-11-20)
+- 2026-11-20 23시 지피 2233 CR-1~4 반영: AI 자동매매 설계 r2(문서만) `work/claude-ai-trading-plan-20261120` `9d1f7d8` READY_FOR_REVIEW — hard stop 우량주 예외 철회·A 미확정·서명 재검증 계약·분할 조정 계약, 보고 CLAUDE-DEV-AI-TRADING-PLAN-20261120.md 대응표.
 - 2026-11-20 22시 GPT-20261120-2132: AI 자동매매 장기 설계 교차검토(문서만) `work/claude-ai-trading-plan-20261120` `0dbe4b0` READY_FOR_REVIEW — 보고 CLAUDE-DEV-AI-TRADING-PLAN-20261120.md, 본문 AI-TRADING-ARCHITECTURE-20261120.md.
 - 2026-11-19 09시 지피 0830 CR-5 반영: 규칙 A 정리 전 사본 재선택 경합 차단 `work/claude-bench-same-cent-20261118` `68b440b` 재검토 요청 — 보고 CLAUDE-DEV-BENCH-SAME-CENT-20261118.md(4절).
 - 2026-11-19 08시 지피 0735 CR-1~4 반영: 규칙 A 같은 값 보류 정리 `work/claude-bench-same-cent-20261118` `db7ae58` 재검토 요청 — 사본 재선택 검증 후에만 저장, 보고 CLAUDE-DEV-BENCH-SAME-CENT-20261118.md(3절).
