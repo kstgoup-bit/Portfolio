@@ -1,6 +1,6 @@
 'use strict';
 const test = require('node:test'), assert = require('node:assert'), fs = require('fs'), vm = require('vm'), path = require('path');
-const src = fs.readFileSync(path.join(__dirname, '../gas/has-history-request.gs'), 'utf8') + '\n' + fs.readFileSync(path.join(__dirname, '../docs/team/gas-drafts/has-kis-request.gs'), 'utf8');
+const src = fs.readFileSync(path.join(__dirname, '../docs/team/gas-drafts/has-kis-request.gs'), 'utf8');
 function env(opts) {
   opts = opts || {};
   const store = Object.assign({}, opts.props), calls = [];

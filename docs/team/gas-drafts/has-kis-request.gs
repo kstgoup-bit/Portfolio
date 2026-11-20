@@ -1,7 +1,6 @@
 // =====================================================================
 // HAS 추가분: KIS 국내 일봉 종가 중계 (type=kis). 시세 조회 전용 초안.
-// 기존 주식·환율·history 요청은 변경하지 않는다. has-history-request.gs의
-// hasHistoryCallback_ / hasHistoryTicker_ 를 재사용하므로 두 파일을 함께 붙여넣는다.
+// 기존 주식·환율·history 요청은 변경하지 않는다. 다른 파일에 의존하지 않는다(독립 파일).
 //
 // 요청: ?type=kis&tickers=069500,005930&callback=cb   (국내 6자리 종목코드, 최대 5개)
 // 응답: {"069500":{source:"kis-daily",symbol,currency,exchange,timezone,adjustment,barCount,bars:[{d,c}]}}
@@ -30,7 +29,7 @@ function hasKisResponse_(e, callback) {
   json = json.replace(/[<>&\u2028\u2029]/g, function (c) {
     return '\\u' + ('0000' + c.charCodeAt(0).toString(16)).slice(-4);
   });
-  var cb = hasHistoryCallback_(callback) ? callback : null;
+  var cb = hasKisCallback_(callback) ? callback : null;
   var out = ContentService.createTextOutput(cb ? cb + '(' + json + ')' : json);
   out.setMimeType(cb ? ContentService.MimeType.JAVASCRIPT : ContentService.MimeType.JSON);
   return out;
@@ -42,7 +41,7 @@ function hasKisGet_(tickers) {
   if (!raw.length || raw.length > HAS_KIS_MAX_TICKERS) return { error: 'bad-request' };
   for (var i = 0; i < raw.length; i++) {
     var t = raw[i].trim().toUpperCase();
-    if (!hasHistoryTicker_(t, 'KR')) return { error: 'bad-request' };
+    if (!hasKisTicker_(t)) return { error: 'bad-request' };
     if (!seen[t]) { seen[t] = true; list.push(t); }
   }
   var props = PropertiesService.getScriptProperties();
@@ -149,4 +148,14 @@ function hasKisParse_(text, ticker) {
       bars: order.map(function (x) { return { d: x, c: byDate[x] }; })
     };
   } catch (err) { return null; }
+}
+
+// 콜백 이름과 종목코드 검증(이 파일 안에서 자체 제공).
+function hasKisCallback_(callback) {
+  return typeof callback === 'string' && /^[A-Za-z_][A-Za-z0-9_]{0,60}$/.test(callback) &&
+    !/^(?:await|break|case|catch|class|const|continue|debugger|default|delete|do|else|enum|export|extends|false|finally|for|function|if|implements|import|in|instanceof|interface|let|new|null|package|private|protected|public|return|static|super|switch|this|throw|true|try|typeof|var|void|while|with|yield|constructor|prototype|__proto__)$/.test(callback);
+}
+
+function hasKisTicker_(ticker) {
+  return typeof ticker === 'string' && ticker.length === 6 && /^[0-9][0-9A-Z]{5}$/.test(ticker);
 }
