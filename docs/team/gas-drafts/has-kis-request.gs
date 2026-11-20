@@ -14,7 +14,7 @@ var HAS_KIS_BASE = 'https://openapi.koreainvestment.com:9443';
 var HAS_KIS_MAX_TICKERS = 5;
 var HAS_KIS_DAILY_BUDGET = 150;        // 하루 KIS 호출 상한(토큰 발급 포함)
 var HAS_KIS_LOOKBACK_DAYS = 150;       // 달력일 기준 조회 구간(한 번에 최대 100건)
-var HAS_KIS_TOKEN_MARGIN_MS = 600000;  // 만료 10분 전부터 새로 발급
+var HAS_KIS_TOKEN_MARGIN_MS = 60000;   // 만료 1분 전까지 재사용(하루 1회 발급 원칙)
 var HAS_KIS_MIN_PRICE = 1;
 var HAS_KIS_MAX_PRICE = 100000000;
 
