@@ -413,6 +413,9 @@ test('CR-8 경계 판정은 반올림 전 원시값: 19.96%·29.96%·39.96%는 �
   assert.equal(G.MOS_BANDS.status, 'unverified-initial-policy');
 });
 
+// CR-11: 발급 결과는 깊게 불변이라 strict 모드 대입은 TypeError. 변조 시도가 막히든 조용히 무시되든 출력만 대조한다.
+function tamper(fn) { try { fn(); return 'applied'; } catch (e) { assert.ok(e instanceof TypeError, String(e)); return 'blocked'; } }
+
 test('CR-9 후보·알림은 엔진 발급 결과만: 임의 객체·복사본·사후 변조·실제 자료는 0건', () => {
   const ok = run();
   assert.equal(G.shortlist([ok]).length, 1);
@@ -425,15 +428,20 @@ test('CR-9 후보·알림은 엔진 발급 결과만: 임의 객체·복사본·
   }
   // 발급된 결과를 사후 변조: 관찰 → HIGH 위조, synthetic 뒤집기, 종목 바꾸기
   const obs = run(d => { setClose(d, 68); });
-  obs.state = S.HIGH; obs.buyReview = true;
+  tamper(() => { obs.state = S.HIGH; obs.buyReview = true; });
   assert.equal(G.shortlist([obs]).length, 0); assert.equal(G.notifyPlan([obs], {}).notify, false);
-  const flip = run(); flip.synthetic = false;
-  assert.equal(G.shortlist([flip]).length, 0);
-  const swap = run(); swap.ticker = 'SYN-Z';
-  assert.equal(G.shortlist([swap]).length, 0);
+  // CR-11 이후 발급 결과는 불변 → 변조가 막히고 발급값 그대로 후보(위조 상태로 후보 되지 않음)
+  const flip = run(); assert.equal(tamper(() => { flip.synthetic = false; }), 'blocked');
+  assert.equal(flip.synthetic, true); assert.equal(G.shortlist([flip]).length, 1);
+  const swap = run(); assert.equal(tamper(() => { swap.ticker = 'SYN-Z'; }), 'blocked');
+  assert.deepEqual(G.shortlist([swap]).map(r => r.ticker), ['SYN-A']);
+  // 불변화를 우회한 복사본 변조는 제외
+  const thaw = x => (x && typeof x === 'object') ? (Array.isArray(x) ? x.map(thaw) : Object.fromEntries(Object.entries(x).map(([k, v]) => [k, thaw(v)]))) : x;
+  const flipC = thaw(run()); flipC.synthetic = false; assert.equal(G.shortlist([flipC]).length, 0);
+  const swapC = thaw(run()); swapC.ticker = 'SYN-Z'; assert.equal(G.shortlist([swapC]).length, 0);
   // 안전마진 표시값을 부풀려도 정렬은 발급 당시 원시값
   const lo = run(d => { F.withTicker(d, 'SYN-L'); setClose(d, 62); }), hi = run(d => { F.withTicker(d, 'SYN-M'); setClose(d, 58); });
-  lo.valuation.marginPct = 99;
+  tamper(() => { lo.valuation.marginPct = 99; });
   assert.deepEqual(G.shortlist([lo, hi]).map(r => r.ticker), ['SYN-M', 'SYN-L']);
   // 실제 자료(synthetic:false/누락)는 엔진 발급이어도 후보·알림 0건
   for (const f of [d => { d.synthetic = false; }, d => { delete d.synthetic; }]) {
@@ -464,4 +472,62 @@ test('CR-10 확신종목 지정 출처는 호출자 자기기재: 실제 자료�
   // 코드에 한계 명시
   const src = fs.readFileSync(path.join(__dirname, '..', 'has', 'buy-review-gate.js'), 'utf8');
   assert.match(src, /CR-10/); assert.match(src, /자기기재/);
+});
+
+test('CR-11 발급 결과 중첩 값 무결성: 안전마진·게이트·사유·하위 객체 변조가 후보·알림·화면 근거를 오염시키지 못함', () => {
+  const base = run();
+  const pct0 = base.valuation.marginPct, raw0 = base.valuation.marginRaw, gate0 = base.gates[0].status, reasons0 = base.reasons.slice();
+  assert.ok(G.verify(base));
+  // 입력과 분리: 같은 입력으로 다시 평가해도 같은 값, 결과는 깊게 불변
+  assert.ok(Object.isFrozen(base) && Object.isFrozen(base.valuation) && Object.isFrozen(base.gates[0]) && Object.isFrozen(base.reasons));
+  const attempts = {
+    marginPct: r => { r.valuation.marginPct = 99; },
+    marginRaw: r => { r.valuation.marginRaw = 99; },
+    band: r => { r.valuation.band = 'high'; },
+    gateStatus: r => { r.gates[0].status = 'FAIL'; },
+    reasonsEmpty: r => { r.reasons = []; },
+    reasonsPush: r => { r.reasons.push('위조 사유'); },
+    reasonsLen: r => { r.reasons.length = 0; },
+    riskFlags: r => { r.riskFlags.push('accounting'); },
+    evidence: r => { r.evidenceOldest = '2000-01-01'; },
+    swapValuation: r => { r.valuation = Object.assign({}, r.valuation, { marginPct: 99 }); },
+    swapGates: r => { r.gates = []; },
+    addKey: r => { r.extra = 1; },
+    defineProp: r => { Object.defineProperty(r.valuation, 'marginPct', { value: 99 }); },
+    deleteKey: r => { delete r.valuation.marginPct; }
+  };
+  for (const [name, f] of Object.entries(attempts)) {
+    const r = run();
+    const how = tamper(() => f(r));
+    assert.equal(how, 'blocked', name + ' 변조가 막혀야 함');
+    // 막혔으므로 발급값 그대로, 후보·알림도 발급 당시 값
+    assert.equal(r.valuation.marginPct, pct0, name); assert.equal(r.valuation.marginRaw, raw0, name);
+    assert.equal(r.gates[0].status, gate0, name); assert.deepEqual(r.reasons, reasons0, name);
+    const top = G.shortlist([r]); assert.equal(top.length, 1, name); assert.equal(top[0].valuation.marginPct, pct0, name);
+    const p = G.notifyPlan([r], {}); assert.equal(p.items.length, 1, name); assert.equal(p.items[0].marginPct, pct0, name);
+  }
+  // 복사본에 변조를 가하면(불변화 우회 시도) 후보·알림·verify 모두 제외
+  const thaw = x => (x && typeof x === 'object') ? (Array.isArray(x) ? x.map(thaw) : Object.fromEntries(Object.entries(x).map(([k, v]) => [k, thaw(v)]))) : x;
+  const mods = { marginPct: c => { c.valuation.marginPct = 99; }, gate: c => { c.gates[0].status = 'FAIL'; }, reasons: c => { c.reasons = []; }, none: () => {} };
+  for (const [name, f] of Object.entries(mods)) {
+    const c = thaw(base); f(c);
+    assert.equal(G.verify(c), false, name); assert.equal(G.shortlist([c]).length, 0, name);
+    const p = G.notifyPlan([c], {}); assert.equal(p.notify, false, name); assert.equal(p.items.length, 0, name);
+  }
+  // JSON 복사·외부 임의 객체·freeze된 위조 객체도 제외
+  const fake = Object.freeze({ market: 'US', ticker: 'SYN-A', synthetic: true, state: S.HIGH, buyReview: true, valuation: Object.freeze({ marginPct: 99, marginRaw: 99 }) });
+  for (const x of [JSON.parse(JSON.stringify(base)), fake, {}]) { assert.equal(G.verify(x), false); assert.equal(G.shortlist([x]).length, 0); assert.equal(G.notifyPlan([x], {}).items.length, 0); }
+  // 입력 객체는 불변화되지 않음(엔진이 호출자 자료를 바꾸지 않음)
+  const inp = F.base(); const r2 = G.evaluate(inp, F.NOW);
+  assert.ok(G.verify(r2)); assert.equal(Object.isFrozen(inp), false); assert.equal(Object.isFrozen(inp.price), false);
+  // 합성 정상 경로 유지
+  assert.equal(G.notifyPlan([run()], {}).items.length, 1);
+});
+
+test('CR-11 실험실 표시 경로는 verify 계약 사용', () => {
+  const src = fs.readFileSync(path.join(__dirname, '..', 'has', 'buy-review-lab.js'), 'utf8');
+  assert.match(src, /G\.verify\(r\)/);
+  assert.doesNotMatch(src, /appendChild\(card\(r, true\)\)/);
+  const eng = fs.readFileSync(path.join(__dirname, '..', 'has', 'buy-review-gate.js'), 'utf8');
+  assert.match(eng, /CR-11/); assert.match(eng, /marginPct: ISSUED\.get\(r\)\.marginPct/);
 });

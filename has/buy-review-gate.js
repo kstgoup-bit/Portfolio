@@ -364,8 +364,34 @@
       disclaimer: (state === STATES.HIGH ? "'높은 확신'은 수익 보장이 아닙니다. " : '') + '자동주문이 아닌 정보 제공이며 최종 결정은 순태씨가 합니다.'
     };
     // CR-9(지피 1228): 엔진이 발급한 결과만 후보·알림 대상. 발급 당시 판정 사본을 모듈 내부에 보관해 사후 위조를 걸러낸다.
-    ISSUED.set(result, { state: state, buyReview: buyState, synthetic: d.synthetic === true, market: result.market, ticker: result.ticker, marginRaw: val.marginRaw, evaluatedAt: result.evaluatedAt });
-    return result;
+    // CR-11(지피 1330): 발급 결과는 입력과 분리된 깊은 사본을 깊게 불변화해 내보내고, 발급 당시 전체 지문과 대조한다.
+    var out = freezeCopy(result);
+    ISSUED.set(out, { state: state, buyReview: buyState, synthetic: d.synthetic === true, market: out.market, ticker: out.ticker, marginRaw: val.marginRaw, marginPct: out.valuation.marginPct, evaluatedAt: out.evaluatedAt, fp: fingerprint(out) });
+    return out;
+  }
+
+  /* CR-11: 일반 객체·배열만 재귀 복사 후 freeze(입력 객체는 건드리지 않음). 지문은 키 정렬 직렬화(NaN·undefined 구분). */
+  function freezeCopy(x) {
+    if (x === null || typeof x !== 'object') return x;
+    var c;
+    if (Array.isArray(x)) c = x.map(freezeCopy);
+    else { c = {}; Object.keys(x).forEach(function (k) { c[k] = freezeCopy(x[k]); }); }
+    return Object.freeze(c);
+  }
+  function fingerprint(x) {
+    if (x === undefined) return 'u';
+    if (x === null) return 'n';
+    if (typeof x === 'number') return 'd' + (x !== x ? 'NaN' : String(x));
+    if (typeof x === 'string') return 's' + JSON.stringify(x);
+    if (typeof x === 'boolean') return x ? 't' : 'f';
+    if (typeof x !== 'object') return '?' + typeof x;
+    if (Array.isArray(x)) return '[' + x.map(fingerprint).join(',') + ']';
+    return '{' + Object.keys(x).sort().map(function (k) { return JSON.stringify(k) + ':' + fingerprint(x[k]); }).join(',') + '}';
+  }
+  function deepFrozen(x) {
+    if (x === null || typeof x !== 'object') return true;
+    if (!Object.isFrozen(x)) return false;
+    return Object.keys(x).every(function (k) { return deepFrozen(x[k]); });
   }
 
   /* CR-9: 후보·알림 경로의 독립 fail-closed 검사. 임의 객체·변조된 결과·실제 자료(synthetic !== true)는 결과의 buyReview/state 자기선언과 무관하게 제외. */
@@ -374,8 +400,12 @@
     var t = r && typeof r === 'object' ? ISSUED.get(r) : null;
     if (!t) return null;
     if (r.state !== t.state || r.buyReview !== t.buyReview || r.synthetic !== t.synthetic || r.market !== t.market || r.ticker !== t.ticker) return null;
+    // CR-11: 중첩 값(안전마진·게이트·사유·위험·신선도 등)까지 발급 당시와 같고 깊게 불변이어야 함.
+    if (!deepFrozen(r) || fingerprint(r) !== t.fp) return null;
     return t;
   }
+  /* CR-11: 표시 경로(실험실 등)도 같은 계약 — 엔진 발급·미변조 결과인지 확인. */
+  function verify(r) { return issued(r) !== null; }
   function eligible(r) {
     var t = issued(r);
     if (!t || t.buyReview !== true || !(t.state === STATES.CONDITIONAL || t.state === STATES.HIGH) || !finite(t.marginRaw)) return false;
@@ -398,7 +428,7 @@
     var prev = previous && typeof previous === 'object' ? previous : {}, fresh = [], top = shortlist(current);
     top.forEach(function (r) {
       var p = prev[key(r)];
-      if (!p || !(RANK[p.state] >= RANK[r.state])) fresh.push({ key: key(r), state: r.state, previousState: p ? p.state : null, marginPct: r.valuation.marginPct });
+      if (!p || !(RANK[p.state] >= RANK[r.state])) fresh.push({ key: key(r), state: r.state, previousState: p ? p.state : null, marginPct: ISSUED.get(r).marginPct });
     });
     var next = {};
     Object.keys(prev).forEach(function (k) { next[k] = prev[k]; });
@@ -410,5 +440,5 @@
 
   return Object.freeze({ CONTRACT: CONTRACT, STATES: STATES, GATES: GATES, MOS_BANDS: MOS_BANDS, PRICE_BANDS: PRICE_BANDS, LIMIT_CONVICTION: LIMIT_CONVICTION, LIMIT_OTHER: LIMIT_OTHER, SHORTLIST: SHORTLIST, MAX_AGE: MAX_AGE, TRUST: TRUST, REAL_DATA_LOCK: REAL_DATA_LOCK, CONVICTION_MAX_AGE: CONVICTION_MAX_AGE, CONVICTION_TRUST: CONVICTION_TRUST, VAL_RANGE: VAL_RANGE, CROSS_TOL_PCT: CROSS_TOL_PCT, VALUE_TOL_PCT: VALUE_TOL_PCT,
     impliedValuePerShare: impliedValuePerShare, evidenceCheck: evidenceCheck,
-    screenPrice: screenPrice, evaluate: evaluate, shortlist: shortlist, notifyPlan: notifyPlan });
+    screenPrice: screenPrice, evaluate: evaluate, verify: verify, shortlist: shortlist, notifyPlan: notifyPlan });
 });

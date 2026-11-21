@@ -38,9 +38,11 @@
     d.appendChild(node('p', r.disclaimer, 'small'));
     a.appendChild(d); return a;
   }
+  // CR-11(지피 1330): 엔진 발급·미변조 결과만 표시한다. 검증 실패 결과는 내용을 보여주지 않는다.
+  function show(r) { if (G.verify(r)) return card(r, true); return node('p', '검증 실패 결과: 엔진 발급·미변조가 아니어서 표시하지 않음', 'small'); }
   var today = document.getElementById('today-body'), list = document.getElementById('list-body');
   var top = G.shortlist(results);
   if (!top.length) today.appendChild(node('p', '신규 후보 없음 · 조건을 충족한 종목이 없습니다.'));
-  top.forEach(function (r) { today.appendChild(card(r, true)); });
-  results.forEach(function (r) { list.appendChild(card(r, true)); });
+  top.forEach(function (r) { today.appendChild(show(r)); });
+  results.forEach(function (r) { list.appendChild(show(r)); });
 })();
