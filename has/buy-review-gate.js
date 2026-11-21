@@ -1,5 +1,5 @@
 /* HAS 곡소리 매수 검토 게이트 1단계 (지시서 GPT-20261121-0911) — 순수 판정, 읽기 전용, 비실거래.
-   계약 buyReviewInput.v1: 호출자가 준 가격 증거·5게이트 증거·본질가치 시나리오·4단계 조사·실행 맥락만 판정한다.
+   계약 buyReviewInput.v2(지피 1031 CR-1~4 반영): 호출자가 준 가격 증거·5게이트 증거·본질가치 시나리오·4단계 조사·실행 맥락만 판정한다.
    - 네트워크·저장소·투자기록·백업을 읽거나 쓰지 않는다. 입력 객체를 바꾸지 않는다.
    - 가격 하락률은 안전마진이 아니다. 안전마진은 '검증된 보수적 본질가치' 대비로만 계산한다.
    - 하나라도 UNKNOWN/FAIL·불일치·지연·누락이면 '매수 검토'를 만들지 않는다(fail-closed).
@@ -7,7 +7,7 @@
    - 투자 판단과 실행 가능성을 분리한다. 매수 수량·주문·자동매매를 만들지 않는다. 최종 결정은 순태씨. */
 (function (root, factory) { if (typeof module === 'object' && module.exports) module.exports = factory(); else root.HASBuyReviewGate = factory(); })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
   'use strict';
-  var CONTRACT = 'buyReviewInput.v1', DAY = 86400000;
+  var CONTRACT = 'buyReviewInput.v2', DAY = 86400000;
   var STATES = Object.freeze({ OBSERVE: '관찰', HOLD: '판단 보류', RISK: '위험 경고', CONDITIONAL: '조건부 분할매수 검토', HIGH: '높은 확신의 분할매수 검토' });
   var RANK = { '관찰': 1, '판단 보류': 0, '위험 경고': 0, '조건부 분할매수 검토': 2, '높은 확신의 분할매수 검토': 3 };
   var GATES = Object.freeze([
@@ -18,7 +18,19 @@
   var MOS_BANDS = Object.freeze({ OBSERVE: 10, CONDITIONAL: 20, PRIORITY: 30, TRAP: 40, status: 'unverified-initial-policy' });
   var PRICE_BANDS = Object.freeze([35, 30, 20]);
   var LIMIT_CONVICTION = 25, LIMIT_OTHER = 10, SHORTLIST = 5;
-  var MAX_AGE = { price: 4, evidence: 120, valuation: 90, research: 30 };
+  var MAX_AGE = { price: 4, evidence: 120, valuation: 90, research: 30, cash: 1, fx: 2 };
+  // CR-1~4(지피 1031) 보강: 자기선언 문자열로 통과하지 않도록 구조화된 증빙 계약을 검사한다(외부 호출 없음).
+  var CROSS_TOL_PCT = 1, VALUE_TOL_PCT = 5;
+  // 가치 가정 경제적 범위(공학적 안전 범위, 미검증 정책): 할인율 4~20%, 장기성장률 -10~6%·할인율보다 1%p 이상 낮음, 희석 0~20%.
+  var VAL_RANGE = Object.freeze({ discountMin: 4, discountMax: 20, growthMin: -10, growthMax: 6, spreadMin: 1, dilutionMin: 0, dilutionMax: 20, status: 'unverified-sanity-range' });
+  var VAL_METHODS = Object.freeze(['fcf-perpetuity']);
+  var LINEAGE = Object.freeze(['normalizedFcf', 'stockCompensation', 'netDebt', 'shares']);
+  // 공시 원문 출처(도메인 이름만 비교, 접속하지 않음). 합성 자료는 synthetic:true 일 때만 example.invalid 허용.
+  var FILING_HOSTS = Object.freeze({ US: ['sec.gov', 'www.sec.gov'], KR: ['dart.fss.or.kr', 'kind.krx.co.kr'] });
+  var DOC_ID = Object.freeze({ US: /^\d{10}-\d{2}-\d{6}$/, KR: /^\d{14}$/ });
+  var EVIDENCE_KINDS = Object.freeze(['filing', 'news', 'consensus', 'community', 'analysis']);
+  var SELF_VERIFIERS = Object.freeze(['', 'self', 'ai-self', 'claude', 'claude-self', 'gpt', 'gpt-self', 'caller']);
+  var SYN_HOST = 'example.invalid';
   var CCY = { KR: 'KRW', US: 'USD' };
   var RESEARCH = Object.freeze([['filings', '최신 공시'], ['news', '뉴스'], ['consensus', '컨센서스'], ['community', '커뮤니티']]);
 
@@ -29,6 +41,45 @@
   function clone(x) { try { return JSON.parse(JSON.stringify(x)); } catch (e) { return null; } }
   function age(asOf, now) { return (now - Date.parse(asOf)) / DAY; }
   function fresh(asOf, now, maxDays) { return isoDay(asOf) && Date.parse(asOf) <= now + 60000 && age(asOf, now) <= maxDays; }
+  function isoTime(x) { return typeof x === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(x) && /(Z|[+-]\d{2}:\d{2})$/.test(x) && Number.isFinite(Date.parse(x)); }
+  function norm(x) { return text(x) ? x.trim().toLowerCase() : ''; }
+  function host(u) { var m = typeof u === 'string' && /^https:\/\/([a-z0-9.-]+)(?::\d+)?(\/|$)/i.exec(u.trim()); return m ? m[1].toLowerCase() : ''; }
+  function relDiff(a, b) { return Math.abs(a - b) / Math.max(Math.abs(a), Math.abs(b)) * 100; }
+
+  /* 증빙 계약 evidence.v2: 대상 종목·시장, 공표일·확인일, https 원문 주소, 원문 해시, 생성자와 다른 독립 검증자.
+     엔진은 원문을 직접 가져오지 않는다 — 해시·검증자 기록은 G0/SEC/DART 수집 단계가 만든 것이어야 하며, 그 단계가 없으면 실제 자료는 통과하지 못한다. */
+  function evidenceCheck(e, ctx, opt) {
+    var why = [];
+    opt = opt || {};
+    if (!e || typeof e !== 'object') return ['증빙 없음'];
+    if (!text(e.text)) why.push('내용 없음');
+    if (!EVIDENCE_KINDS.includes(e.kind)) why.push('증빙 종류 미지정');
+    if (opt.kind && e.kind !== opt.kind) why.push(opt.kind + ' 종류가 아님');
+    if (e.market !== ctx.market || norm(e.ticker) !== norm(ctx.ticker)) why.push('대상 종목 불일치(' + (e.market || '?') + ':' + (e.ticker || '?') + ')');
+    if (!isoDay(e.publishedAt) || !isoTime(e.retrievedAt) || Date.parse(e.publishedAt) > Date.parse(e.retrievedAt) || Date.parse(e.retrievedAt) > ctx.now + 60000) why.push('공표일·확인시각 없음 또는 순서 오류');
+    else if (!fresh(e.publishedAt, ctx.now, opt.maxDays || MAX_AGE.evidence)) why.push('오래된 증빙(허용 ' + (opt.maxDays || MAX_AGE.evidence) + '일)');
+    if (e.asOf != null && e.asOf !== e.publishedAt) why.push('기준일(asOf)과 공표일 불일치');
+    var h = host(e.url);
+    if (!h) why.push('https 원문 주소 없음');
+    else if (h === SYN_HOST || /\.invalid$/.test(h)) { if (ctx.synthetic !== true) why.push('합성 출처는 실제 판단에 사용 불가'); }
+    else if (e.kind === 'filing' && !(FILING_HOSTS[ctx.market] || []).includes(h)) why.push('공시 공식 출처 아님(' + h + ')');
+    if (e.kind === 'filing' && !(DOC_ID[ctx.market] && DOC_ID[ctx.market].test(String(e.docId || '')))) why.push('공시 문서번호 형식 오류');
+    var v = e.verification;
+    if (!v || typeof v !== 'object' || v.status !== 'verified') why.push('독립 검증 기록 없음(자기선언 문자열 불인정)');
+    else {
+      if (SELF_VERIFIERS.includes(norm(v.verifier)) || norm(v.verifier) === norm(e.producedBy)) why.push('검증자가 생성자 자신');
+      if (!/^[0-9a-f]{64}$/.test(String(v.contentSha256 || ''))) why.push('원문 해시 없음');
+      if (!isoTime(v.checkedAt) || !isoTime(e.retrievedAt) || Date.parse(v.checkedAt) < Date.parse(e.retrievedAt) || Date.parse(v.checkedAt) > ctx.now + 60000) why.push('검증 시각 오류');
+    }
+    return why;
+  }
+  function evidenceListCheck(list, ctx, opt) {
+    if (!Array.isArray(list) || !list.length) return ['증빙 목록 없음'];
+    var why = [];
+    list.forEach(function (e, i) { evidenceCheck(e, ctx, opt).forEach(function (w) { why.push('#' + (i + 1) + ' ' + w); }); });
+    if (opt && opt.needFiling && !list.some(function (e) { return e && e.kind === 'filing'; })) why.push('공시 원문 증빙 최소 1건 필요');
+    return why;
+  }
 
   /* 1. 가격 선별: 검증된 정규장 종가·52주 고점·동일 기간 벤치마크. 하나라도 어긋나면 fail-closed. */
   function screenPrice(p, market, now) {
@@ -44,8 +95,10 @@
     if (!finite(p.close) || p.close <= 0) reasons.push('종가 값 오류');
     if (!finite(p.high52w) || p.high52w <= 0 || finite(p.close) && p.high52w < p.close) reasons.push('52주 고점 값 오류');
     if (p.high52wAsOf !== p.asOf) reasons.push('종가와 52주 고점 기준일 불일치');
-    var cc = p.crossCheck;
-    if (!cc || cc.status !== 'match' || !finite(cc.diffPct) || Math.abs(cc.diffPct) > 1 || !Array.isArray(cc.sources) || cc.sources.length < 2) reasons.push('교차검증 불일치·누락(G0 미완료)');
+    if (p.sessionStatus !== 'closed' || !isoTime(p.closeConfirmedAt) || String(p.closeConfirmedAt).slice(0, 10) < String(p.asOf).slice(0, 10) || Date.parse(p.closeConfirmedAt) > now + 60000) reasons.push('종가 확정 증거 없음(장 마감·확정 시각)');
+    if (!text(p.adjustmentAsOf) || p.high52wAdjustment !== p.adjustment || p.high52wAdjustmentAsOf !== p.adjustmentAsOf) reasons.push('종가·52주 고점 조정 기준 불일치 또는 미기재(분할 전후 혼용 위험)');
+    if (p.pendingCorporateAction === true) reasons.push('미반영 기업행사(분할 등) 표시');
+    crossReasons(p, now).forEach(function (r) { reasons.push(r); });
     var b = p.benchmark;
     if (!b || !text(b.id) || !finite(b.returnPct) || !finite(b.stockReturnPct) || !b.period || !isoDay(b.period.start) || !isoDay(b.period.end) || b.period.end !== String(p.asOf).slice(0, 10)) reasons.push('동일 기간 벤치마크 상대수익률 없음');
     if (reasons.length) return out;
@@ -57,37 +110,92 @@
     return out;
   }
 
-  /* 2. 증거 검사: PASS는 검증된 증거가 있을 때만 PASS로 인정. */
-  function evidenceOK(list, now) {
-    return Array.isArray(list) && list.length > 0 && list.every(function (e) {
-      return e && text(e.text) && text(e.source) && fresh(e.asOf, now, MAX_AGE.evidence) && e.verification === 'independent-verified';
+  /* 1-1. 교차검증: 호출자의 status/diffPct는 무시하고, 독립 공급자 2곳 이상의 원시 시세를 엔진이 직접 대조한다. */
+  function crossReasons(p, now) {
+    var cc = p.crossCheck, why = [];
+    var qs = cc && Array.isArray(cc.quotes) ? cc.quotes : null;
+    if (!qs || qs.length < 2) return ['교차검증 원시 시세 2건 이상 없음(G0 미완료)'];
+    var ids = qs.map(function (q) { return norm(q && q.provider); });
+    if (ids.some(function (x) { return !x; })) why.push('교차검증 공급자 식별 누락');
+    if (new Set(ids).size !== ids.length) why.push('교차검증 공급자 중복(독립 출처 아님)');
+    if (!ids.includes(norm(p.source))) why.push('대표 종가 출처가 교차검증 공급자에 없음');
+    qs.forEach(function (q, i) {
+      var n = '공급자#' + (i + 1);
+      if (!q || typeof q !== 'object') { why.push(n + ' 자료 없음'); return; }
+      if (q.exchange !== p.exchange) why.push(n + ' 거래소 다름');
+      if (q.currency !== p.currency) why.push(n + ' 통화 다름');
+      if (q.priceType !== 'regular-close' || q.sessionStatus !== 'closed') why.push(n + ' 확정 종가 아님');
+      if (q.asOf !== p.asOf) why.push(n + ' 기준일 다름');
+      if (q.adjustment !== p.adjustment || q.adjustmentAsOf !== p.adjustmentAsOf) why.push(n + ' 조정 기준 다름');
+      if (!isoTime(q.retrievedAt) || Date.parse(q.retrievedAt) > now + 60000) why.push(n + ' 수집 시각 없음');
+      if (!finite(q.close) || q.close <= 0 || !finite(q.high52w) || q.high52w <= 0) why.push(n + ' 값 오류');
+      else if (finite(p.close) && finite(p.high52w)) {
+        if (relDiff(q.close, p.close) > CROSS_TOL_PCT) why.push(n + ' 종가 차이 ' + round(relDiff(q.close, p.close), 2) + '% > ' + CROSS_TOL_PCT + '%');
+        if (relDiff(q.high52w, p.high52w) > CROSS_TOL_PCT) why.push(n + ' 52주 고점 차이 ' + round(relDiff(q.high52w, p.high52w), 2) + '% > ' + CROSS_TOL_PCT + '%(분할 전후 혼용 의심)');
+      }
     });
+    return why;
   }
-  function gate(id, label, g, now) {
+
+  /* 2. 증거 검사: PASS는 검증된 증거가 있을 때만 PASS로 인정. */
+  function evidenceOK(list, ctx) { return evidenceListCheck(list, ctx, { needFiling: true }).length === 0; }
+  function gate(id, label, g, ctx) {
     var r = { id: id, label: label, status: 'UNKNOWN', claimed: g && g.status || null, reason: '', evidence: g && Array.isArray(g.evidence) ? clone(g.evidence) : [] };
     if (!g || !['PASS', 'FAIL', 'UNKNOWN'].includes(g.status)) { r.reason = '판정·증거 없음'; return r; }
     if (g.status === 'UNKNOWN') { r.reason = g.reason || '근거 미확인'; return r; }
-    if (!evidenceOK(g.evidence, now)) { r.reason = '증거의 출처·기준일·검증 표시 누락 또는 오래됨(허용 ' + MAX_AGE.evidence + '일)'; return r; }
+    var why = evidenceListCheck(g.evidence, ctx, { needFiling: true });
+    if (why.length) { r.reason = '증빙 계약 미충족: ' + why.slice(0, 4).join(' / ') + (why.length > 4 ? ' 외 ' + (why.length - 4) + '건' : ''); return r; }
     r.status = g.status; r.reason = g.reason || '';
     return r;
   }
 
   /* 3. 본질가치: 보수/기준/낙관 시나리오와 가정 공개가 모두 있어야 계산. */
   var SC_FIELDS = ['valuePerShare', 'discountRatePct', 'growthPct', 'normalizedFcf', 'stockCompensation', 'dilutionPct', 'netDebt', 'shares'];
-  function valuation(v, price, currency, now, flags) {
-    var out = { status: 'not-computed', conservative: null, base: null, optimistic: null, marginPct: null, band: null, currency: currency, reasons: [], assumptions: null, policy: MOS_BANDS.status };
+  /* 엔진 재계산(fcf-perpetuity): ((정상화FCF − 주식보상) × (1+g) / (r − g) − 순부채) × 금액단위 ÷ (주식수 × 주식단위 × (1+희석)). */
+  function impliedValuePerShare(x, units) {
+    var r = x.discountRatePct / 100, g = x.growthPct / 100;
+    var equity = (x.normalizedFcf - x.stockCompensation) * (1 + g) / (r - g) - x.netDebt;
+    return equity * units.moneyScale / (x.shares * units.shareScale * (1 + x.dilutionPct / 100));
+  }
+  function scenarioReasons(n, x, units) {
+    var why = [];
+    if (!x || SC_FIELDS.some(function (f) { return !finite(x[f]); }) || !text(x.method)) return [n + ' 가정 누락'];
+    if (!VAL_METHODS.includes(x.method)) why.push(n + ' 엔진 재계산 불가 방법(' + x.method + ')');
+    if (x.discountRatePct < VAL_RANGE.discountMin || x.discountRatePct > VAL_RANGE.discountMax) why.push(n + ' 할인율 범위 밖(' + x.discountRatePct + '%)');
+    if (x.growthPct < VAL_RANGE.growthMin || x.growthPct > VAL_RANGE.growthMax) why.push(n + ' 장기성장률 범위 밖(' + x.growthPct + '%)');
+    if (x.discountRatePct - x.growthPct < VAL_RANGE.spreadMin) why.push(n + ' 할인율−성장률 간격 부족');
+    if (x.dilutionPct < VAL_RANGE.dilutionMin || x.dilutionPct > VAL_RANGE.dilutionMax) why.push(n + ' 희석률 범위 밖(' + x.dilutionPct + '%)');
+    if (x.stockCompensation < 0) why.push(n + ' 주식보상 음수');
+    if (x.shares <= 0) why.push(n + ' 주식수 0 이하');
+    if (x.normalizedFcf - x.stockCompensation <= 0) why.push(n + ' 주식보상 차감 FCF 0 이하(이 방법으로 가치 산정 불가)');
+    if (x.valuePerShare <= 0) why.push(n + ' 주당가치 0 이하');
+    if (!why.length && units) {
+      var iv = impliedValuePerShare(x, units);
+      if (!finite(iv) || iv <= 0 || relDiff(iv, x.valuePerShare) > VALUE_TOL_PCT) why.push(n + ' 주당가치가 공개 가정 재계산과 다름(재계산 ' + round(iv, 2) + ', 입력 ' + x.valuePerShare + ')');
+    }
+    return why;
+  }
+  function valuation(v, price, currency, now, flags, ctx) {
+    var out = { status: 'not-computed', conservative: null, base: null, optimistic: null, marginPct: null, band: null, currency: currency, reasons: [], assumptions: null, policy: MOS_BANDS.status, range: VAL_RANGE.status };
     if (!v || typeof v !== 'object') { out.reasons.push('검증된 본질가치 추정 없음: 안전마진 미산정'); return out; }
     var s = v.scenarios || {}, names = ['conservative', 'base', 'optimistic'];
-    var bad = names.filter(function (n) { var x = s[n]; return !x || SC_FIELDS.some(function (f) { return !finite(x[f]); }) || x.valuePerShare <= 0 || x.shares <= 0 || !text(x.method); });
-    if (bad.length) out.reasons.push('시나리오 가정 누락: ' + bad.join(', '));
+    var u = v.units || {}, unitsOK = u.currency === currency && finite(u.moneyScale) && u.moneyScale > 0 && finite(u.shareScale) && u.shareScale > 0;
+    if (!unitsOK) out.reasons.push('금액·주식수 단위 미기재 또는 통화 불일치');
+    var bad = [];
+    names.forEach(function (n) { scenarioReasons(n, s[n], unitsOK ? u : null).forEach(function (w) { bad.push(w); }); });
+    if (bad.length) out.reasons.push('시나리오 가정 오류: ' + bad.join(', '));
+    if (!bad.length && !(s.conservative.shares === s.base.shares && s.base.shares === s.optimistic.shares)) out.reasons.push('시나리오별 기준 주식수 다름');
     if (v.currency !== currency) out.reasons.push('본질가치 통화가 가격 통화와 다름');
-    if (!text(v.source) || !fresh(v.asOf, now, MAX_AGE.valuation)) out.reasons.push('본질가치 출처·기준일 누락 또는 오래됨(허용 ' + MAX_AGE.valuation + '일)');
-    if (v.verification !== 'independent-verified') out.reasons.push('본질가치 추정 출처 대조 미확인');
+    if (!fresh(v.asOf, now, MAX_AGE.valuation)) out.reasons.push('본질가치 기준일 누락 또는 오래됨(허용 ' + MAX_AGE.valuation + '일)');
+    // 산출 계보: FCF·주식보상·순부채·주식수 각각 공시 원문 증빙이 있어야 한다.
+    var lin = v.lineage || {}, linBad = LINEAGE.filter(function (k) { return evidenceListCheck(lin[k], ctx, { kind: 'filing', maxDays: MAX_AGE.evidence }).length > 0; });
+    if (linBad.length) out.reasons.push('산출 계보(공시 증빙) 미충족: ' + linBad.join(', '));
     if (!bad.length && !(s.conservative.valuePerShare <= s.base.valuePerShare && s.base.valuePerShare <= s.optimistic.valuePerShare)) out.reasons.push('보수 ≤ 기준 ≤ 낙관 순서가 아님');
     if (Array.isArray(flags) && flags.length && !text(v.normalizationReason)) out.reasons.push('일회성 손익 존재: 정상화 근거 없음');
     if (v.fromDrawdown === true) out.reasons.push('가격 하락률을 본질가치로 대체할 수 없음');
     if (out.reasons.length) return out;
-    out.assumptions = names.map(function (n) { var x = s[n]; return { scenario: n, method: x.method, discountRatePct: x.discountRatePct, growthPct: x.growthPct, normalizedFcf: x.normalizedFcf, stockCompensation: x.stockCompensation, dilutionPct: x.dilutionPct, netDebt: x.netDebt, shares: x.shares }; });
+    out.assumptions = names.map(function (n) { var x = s[n]; return { scenario: n, method: x.method, discountRatePct: x.discountRatePct, growthPct: x.growthPct, normalizedFcf: x.normalizedFcf, stockCompensation: x.stockCompensation, dilutionPct: x.dilutionPct, netDebt: x.netDebt, shares: x.shares, recomputed: round(impliedValuePerShare(x, u), 2) }; });
+    out.units = { currency: u.currency, moneyScale: u.moneyScale, shareScale: u.shareScale };
     out.conservative = s.conservative.valuePerShare; out.base = s.base.valuePerShare; out.optimistic = s.optimistic.valuePerShare;
     if (!finite(price)) { out.reasons.push('검증된 가격 없음: 안전마진 미산정'); return out; }
     out.status = 'computed';
@@ -97,22 +205,44 @@
     return out;
   }
 
-  function research(r, now) {
+  /* 4단계 조사: 'done' 완료 주장과 검증된 근거를 구분한다. 완료 주장만으로는 ok가 되지 않는다. */
+  function research(r, ctx) {
     return RESEARCH.map(function (x) {
-      var o = r && r[x[0]], ok = !!o && o.done === true && text(o.source) && text(o.summary) && fresh(o.asOf, now, MAX_AGE.research);
-      return { id: x[0], label: x[1], ok: ok, asOf: o && o.asOf || null, source: o && o.source || null };
+      var o = r && r[x[0]], claimed = !!o && o.done === true;
+      var why = !o ? ['조사 기록 없음'] : [];
+      if (o && !claimed) why.push('완료 표시 없음');
+      if (o && !text(o.summary)) why.push('요약 없음');
+      if (o) evidenceListCheck(o.evidence, ctx, { kind: x[0] === 'filings' ? 'filing' : x[0], maxDays: MAX_AGE.research }).forEach(function (w) { why.push(w); });
+      var ev = o && Array.isArray(o.evidence) ? o.evidence : [];
+      return { id: x[0], label: x[1], claimed: claimed, ok: claimed && why.length === 0, verified: why.length === 0, reasons: why,
+        asOf: ev.map(function (e) { return e && e.publishedAt; }).filter(isoDay).sort().pop() || null,
+        source: ev.map(function (e) { return host(e && e.url); }).filter(Boolean).join(', ') || null };
     });
   }
 
   /* 6. 실행 가능성(투자 판단과 별도). 수량·주문은 만들지 않는다. */
-  function executability(ctx, sector) {
+  function executability(ctx, sector, market, now) {
     ctx = ctx || {};
-    var items = [], cap = ctx.conviction === true ? LIMIT_CONVICTION : LIMIT_OTHER;
-    var cash = ctx.cash || {}, cashOK = cash.status === 'verified' && finite(cash.amount) && cash.amount > 0 && text(cash.asOf);
-    items.push({ id: 'cash', label: '현금', status: cashOK ? 'ok' : 'blocked', note: cashOK ? '현금 확인 ' + cash.asOf : cash.status === 'verified' ? '현금 부족' : '현금 미확인: 수량·주문 제안 없음' });
+    var items = [], cap = ctx.conviction === true ? LIMIT_CONVICTION : LIMIT_OTHER, tradeCcy = CCY[market] || null;
+    var cash = ctx.cash || {}, scope = cash.accountScope || {};
+    var scopeOK = scope.status === 'confirmed' && Array.isArray(scope.accounts) && scope.accounts.length > 0 && scope.accounts.every(text) && new Set(scope.accounts).size === scope.accounts.length;
+    var cashWhy = [];
+    if (cash.status !== 'verified') cashWhy.push('현금 미확인');
+    if (!isoTime(cash.asOf) || Date.parse(cash.asOf) > now + 60000 || age(cash.asOf, now) > MAX_AGE.cash) cashWhy.push('현금 기준시각 없음·오래됨(허용 ' + MAX_AGE.cash + '일)');
+    if (!text(cash.currency)) cashWhy.push('현금 통화 없음');
+    if (!scopeOK) cashWhy.push('계좌 범위 미확인');
+    var cashKnown = !cashWhy.length && finite(cash.amount);
+    var cashOK = cashKnown && cash.amount > 0;
+    items.push({ id: 'cash', label: '현금', status: cashOK ? 'ok' : 'blocked', note: cashOK ? '현금 확인 ' + cash.asOf + ' · ' + cash.currency + ' · 계좌 ' + scope.accounts.length + '곳' : cashKnown ? '현금 부족' : cashWhy.join(' / ') + ': 수량·주문 제안 없음' });
+    // 통화: 현금과 매수 통화가 다르면 기준시각이 있는 환율 증빙 없이는 혼합 비교하지 않는다.
+    var fx = ctx.fx || {}, fxOK = cashOK && cash.currency === tradeCcy;
+    if (cashOK && !fxOK) fxOK = fx.base === cash.currency && fx.quote === tradeCcy && finite(fx.rate) && fx.rate > 0 && text(fx.source) && isoTime(fx.asOf) && Date.parse(fx.asOf) <= now + 60000 && age(fx.asOf, now) <= MAX_AGE.fx;
+    items.push({ id: 'currency', label: '통화 일치', status: !cashOK ? 'unknown' : fxOK ? 'ok' : 'unknown', note: !cashOK ? '현금 미확인' : cash.currency === tradeCcy ? '현금·매수 통화 ' + tradeCcy : fxOK ? cash.currency + '→' + tradeCcy + ' 환율 ' + fx.asOf + ' 기준(수량 계산 아님)' : cash.currency + ' 현금·' + tradeCcy + ' 가격: 환율 증빙 없어 비교 안 함' });
     var floor = ctx.emergencyFloor || {};
-    var floorSet = floor.status === 'set' && finite(floor.amount) && floor.amount >= 0;
-    items.push({ id: 'emergency', label: '비상현금 하한', status: !floorSet ? 'unknown' : cashOK && cash.amount > floor.amount ? 'ok' : 'blocked', note: !floorSet ? '하한 미확정(순태씨 결정 필요)' : cashOK && cash.amount > floor.amount ? '하한 위 여유 있음' : '현금이 하한 이하' });
+    var floorSet = floor.status === 'set' && finite(floor.amount) && floor.amount >= 0 && text(floor.currency);
+    var floorComparable = floorSet && cashOK && floor.currency === cash.currency;
+    items.push({ id: 'emergency', label: '비상현금 하한', status: !floorSet ? 'unknown' : !cashKnown ? 'unknown' : !floorComparable && cashOK ? 'unknown' : cashOK && cash.amount > floor.amount ? 'ok' : 'blocked',
+      note: !floorSet ? '하한 미확정(순태씨 결정 필요)' : !cashKnown ? '현금 미확인: 하한 비교 불가' : !floorComparable && cashOK ? '하한 통화(' + floor.currency + ')와 현금 통화(' + cash.currency + ') 다름: 비교 안 함' : cashOK && cash.amount > floor.amount ? '하한 위 여유 있음' : '현금이 하한 이하' });
     var w = ctx.weightPct;
     items.push({ id: 'cap', label: '보유비중 상한 ' + cap + '%', status: !finite(w) ? 'unknown' : w >= cap ? 'blocked' : 'ok', note: !finite(w) ? '현재 비중 미확인' : w >= cap ? '상한 도달·초과(' + round(w) + '%)' : '여유 ' + round(cap - w) + '%p(수량 아님)' });
     var sw = ctx.sectorWeightPct, overlap = Array.isArray(ctx.sameSectorHoldings) ? ctx.sameSectorHoldings.filter(text) : [];
@@ -127,17 +257,18 @@
     var schemaOK = validNow && d.contract === CONTRACT && ['KR', 'US'].includes(d.market) && text(d.ticker);
     if (!schemaOK) reasons.push('입력 계약·시장·종목·판정 시각 확인 필요');
     var nowV = validNow ? now : 0;
+    var ectx = { market: d.market, ticker: d.ticker, synthetic: d.synthetic === true, now: nowV };
     var price = screenPrice(d.price, d.market, nowV);
     var currency = CCY[d.market] || null;
     var flags = Array.isArray(d.earningsFlags) ? d.earningsFlags.filter(text) : [];
-    var val = valuation(d.valuation, price.status === 'fail-closed' ? null : d.price.close, currency, nowV, flags);
+    var val = valuation(d.valuation, price.status === 'fail-closed' ? null : d.price.close, currency, nowV, flags, ectx);
     var g = d.gates || {};
-    var gates = GATES.map(function (x) { return gate(x[0], x[1], g[x[0]], nowV); });
+    var gates = GATES.map(function (x) { return gate(x[0], x[1], g[x[0]], ectx); });
     // D는 엔진이 계산한 안전마진과 일치해야 한다. 호출자의 PASS만으로 통과하지 않는다.
     var D = gates[3];
     if (val.status !== 'computed') { D.status = 'UNKNOWN'; D.reason = '안전마진 미산정: ' + val.reasons.join(' / '); }
     else if (val.marginPct < MOS_BANDS.CONDITIONAL) { D.status = 'FAIL'; D.reason = '보수적 가치 대비 안전마진 ' + val.marginPct + '% (< ' + MOS_BANDS.CONDITIONAL + '%)'; }
-    else if (val.band === 'value-trap-check' && !(d.valueTrapReview && evidenceOK(d.valueTrapReview.evidence, nowV) && d.valueTrapReview.status === 'PASS')) { D.status = 'UNKNOWN'; D.reason = '안전마진 ' + val.marginPct + '%: 40% 이상은 가치함정 재검증 필요'; }
+    else if (val.band === 'value-trap-check' && !(d.valueTrapReview && evidenceOK(d.valueTrapReview.evidence, ectx) && d.valueTrapReview.status === 'PASS')) { D.status = 'UNKNOWN'; D.reason = '안전마진 ' + val.marginPct + '%: 40% 이상은 가치함정 재검증 필요'; }
     else if (D.status !== 'PASS') { D.reason = D.reason || '안전마진 가정 근거 미확인'; }
     // C: 일회성 손익이 있으면 정상화 근거가 필요.
     if (flags.length && gates[2].status === 'PASS' && !(d.valuation && text(d.valuation.normalizationReason))) { gates[2].status = 'UNKNOWN'; gates[2].reason = '일회성 손익(' + flags.join(', ') + ') 정상화 근거 없음'; }
@@ -147,7 +278,7 @@
     if (gates[4].status === 'PASS' && !counter.length) { gates[4].status = 'UNKNOWN'; gates[4].reason = '반론 검증 기록 없음'; }
     var rf = d.riskFlags || {}, riskList = ['accounting', 'liquidity', 'structural'].filter(function (k) { return rf[k] === true; });
     var riskLabels = { accounting: '회계 악화', liquidity: '유동성·차입 위험', structural: '구조적 악화' };
-    var res = research(d.research, nowV), researchOK = res.every(function (x) { return x.ok; });
+    var res = research(d.research, ectx), researchOK = res.every(function (x) { return x.ok; });
 
     var state = STATES.HOLD;
     if (!schemaOK) reasons.push('기본 정보 오류: 판단 보류');
@@ -156,13 +287,13 @@
     else if (price.status === 'not-fear') { state = STATES.OBSERVE; reasons.push(price.reasons[price.reasons.length - 1]); }
     else if (gates.some(function (x) { return x.status === 'UNKNOWN'; })) reasons.push('미확인 게이트: ' + gates.filter(function (x) { return x.status === 'UNKNOWN'; }).map(function (x) { return x.id; }).join(', '));
     else if (gates.some(function (x) { return x.status === 'FAIL'; })) { state = STATES.OBSERVE; reasons.push('FAIL 게이트: ' + gates.filter(function (x) { return x.status === 'FAIL'; }).map(function (x) { return x.id + ' ' + x.label; }).join(', ')); }
-    else if (!researchOK) reasons.push('4단계 조사 미완료: ' + res.filter(function (x) { return !x.ok; }).map(function (x) { return x.label; }).join(', '));
+    else if (!researchOK) reasons.push('4단계 조사 미완료·근거 미검증: ' + res.filter(function (x) { return !x.ok; }).map(function (x) { return x.label + (x.claimed ? '(완료 주장, 근거 미검증)' : ''); }).join(', '));
     else if (!counter.length || !invalidation.length) reasons.push('반론·무효화 조건 없음');
     else { state = val.band === 'conditional' ? STATES.CONDITIONAL : STATES.HIGH; reasons.push('5게이트 PASS · 가격 증거 · 4단계 조사 완료 · 안전마진 ' + val.marginPct + '%'); }
 
     var buyState = state === STATES.CONDITIONAL || state === STATES.HIGH;
-    var exec = executability(d.context, d.sector);
-    var freshness = [d.price && d.price.asOf].concat(gates.map(function (x) { return x.evidence.map(function (e) { return e && e.asOf; }); }).reduce(function (a, b) { return a.concat(b); }, []), res.map(function (x) { return x.asOf; }), [d.valuation && d.valuation.asOf]).filter(isoDay).sort();
+    var exec = executability(d.context, d.sector, d.market, nowV);
+    var freshness = [d.price && d.price.asOf].concat(gates.map(function (x) { return x.evidence.map(function (e) { return e && e.publishedAt; }); }).reduce(function (a, b) { return a.concat(b); }, []), res.map(function (x) { return x.asOf; }), [d.valuation && d.valuation.asOf]).filter(isoDay).sort();
     return {
       contract: CONTRACT, market: d.market || null, ticker: d.ticker || null, name: text(d.name) ? d.name : null, sector: text(d.sector) ? d.sector : null,
       synthetic: d.synthetic === true, evaluatedAt: validNow ? nowISO : null,
@@ -176,13 +307,15 @@
 
   /* 7. 오늘의 매수 검토 후보(최대 5개): 매수 검토 상태만, 상태 순위 → 안전마진 순. */
   function shortlist(results) {
+    var seen = {};
     return (Array.isArray(results) ? results : []).filter(function (r) { return r && r.buyReview; })
       .slice().sort(function (a, b) { return RANK[b.state] - RANK[a.state] || b.valuation.marginPct - a.valuation.marginPct || String(a.ticker).localeCompare(String(b.ticker)); })
+      .filter(function (r) { var k = key(r); if (seen[k]) return false; seen[k] = true; return true; })
       .slice(0, SHORTLIST);
   }
 
   /* 8. 알림: 처음 매수 검토가 되었거나 상태가 올라간 종목만. 같은 종목·같은 상태를 매일 새로 포장하지 않는다. */
-  function key(r) { return r.market + ':' + r.ticker; }
+  function key(r) { return String(r.market) + ':' + String(r.ticker).trim().toUpperCase(); }
   function notifyPlan(current, previous) {
     var prev = previous && typeof previous === 'object' ? previous : {}, fresh = [];
     shortlist(current).forEach(function (r) {
@@ -197,6 +330,7 @@
     return { notify: fresh.length > 0, items: fresh, ledger: next };
   }
 
-  return Object.freeze({ CONTRACT: CONTRACT, STATES: STATES, GATES: GATES, MOS_BANDS: MOS_BANDS, PRICE_BANDS: PRICE_BANDS, LIMIT_CONVICTION: LIMIT_CONVICTION, LIMIT_OTHER: LIMIT_OTHER, SHORTLIST: SHORTLIST, MAX_AGE: MAX_AGE,
+  return Object.freeze({ CONTRACT: CONTRACT, STATES: STATES, GATES: GATES, MOS_BANDS: MOS_BANDS, PRICE_BANDS: PRICE_BANDS, LIMIT_CONVICTION: LIMIT_CONVICTION, LIMIT_OTHER: LIMIT_OTHER, SHORTLIST: SHORTLIST, MAX_AGE: MAX_AGE, VAL_RANGE: VAL_RANGE, CROSS_TOL_PCT: CROSS_TOL_PCT, VALUE_TOL_PCT: VALUE_TOL_PCT,
+    impliedValuePerShare: impliedValuePerShare, evidenceCheck: evidenceCheck,
     screenPrice: screenPrice, evaluate: evaluate, shortlist: shortlist, notifyPlan: notifyPlan });
 });

@@ -5,15 +5,15 @@
   function node(tag, txt, cls) { var e = document.createElement(tag); if (txt != null) e.textContent = txt; if (cls) e.className = cls; return e; }
   var SAMPLES = [
     ['SYN-A', '합성 우량기업 A (안전마진 25%)', null],
-    ['SYN-B', '합성 우량기업 B (안전마진 35%)', function (d) { d.price.close = 52; }],
-    ['SYN-C', '합성 기업 C (본질가치 미산정)', function (d) { d.price.close = 50; delete d.valuation; }],
+    ['SYN-B', '합성 우량기업 B (안전마진 35%)', function (d) { d.price.close = 52; d.price.crossCheck.quotes.forEach(function (q) { q.close = 52; }); }],
+    ['SYN-C', '합성 기업 C (본질가치 미산정)', function (d) { d.price.close = 50; d.price.crossCheck.quotes.forEach(function (q) { q.close = 50; }); delete d.valuation; }],
     ['SYN-D', '합성 기업 D (차입 위험)', function (d) { d.riskFlags.liquidity = true; }],
-    ['SYN-E', '합성 기업 E (교차검증 불일치)', function (d) { d.price.crossCheck = { status: 'mismatch', diffPct: 2.4, sources: ['SYNTHETIC-1', 'SYNTHETIC-2'] }; }],
-    ['SYN-F', '합성 기업 F (현금 미확인)', function (d) { d.price.close = 55; d.context.cash = { status: 'unknown' }; }],
-    ['SYN-G', '합성 기업 G (-20% 미만)', function (d) { d.price.close = 85; }]
+    ['SYN-E', '합성 기업 E (교차검증 불일치)', function (d) { d.price.crossCheck.quotes[1].close = 61.5; }],
+    ['SYN-F', '합성 기업 F (현금 미확인)', function (d) { d.price.close = 55; d.price.crossCheck.quotes.forEach(function (q) { q.close = 55; }); d.context.cash = { status: 'unknown' }; }],
+    ['SYN-G', '합성 기업 G (-20% 미만)', function (d) { d.price.close = 85; d.price.crossCheck.quotes.forEach(function (q) { q.close = 85; }); }]
   ];
   var results = SAMPLES.map(function (s) {
-    return G.evaluate(F.base(function (d) { d.ticker = s[0]; d.name = s[1]; if (s[2]) s[2](d); }), F.NOW);
+    return G.evaluate(F.base(function (d) { F.withTicker(d, s[0]); d.name = s[1]; if (s[2]) s[2](d); }), F.NOW);
   });
   function pct(x) { return x == null ? '미산정' : x + '%'; }
   function card(r, detail) {
