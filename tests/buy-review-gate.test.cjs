@@ -380,3 +380,88 @@ test('CR-7 확신종목 25%는 지정 목록 대조 후에만, 비중 범위·�
   // 판단은 실행 가능성과 분리
   assert.equal(flag.state, S.CONDITIONAL); assert.equal(flag.executability.quantity, null); assert.equal(flag.executability.order, null);
 });
+
+test('CR-8 경계 판정은 반올림 전 원시값: 19.96%·29.96%·39.96%는 표시 20/30/40이어도 한 단계 아래', () => {
+  // 재계산 보수 주당가치 80 기준. [종가, 원시 안전마진, 기대 구간, 기대 상태]
+  const cases = [
+    [64.048, 19.94, 'observe', S.OBSERVE], [64.032, 19.96, 'observe', S.OBSERVE], [64, 20, 'conditional', S.CONDITIONAL],
+    [56.048, 29.94, 'conditional', S.CONDITIONAL], [56.032, 29.96, 'conditional', S.CONDITIONAL], [56, 30, 'priority', S.HIGH],
+    [48.048, 39.94, 'priority', S.HIGH], [48.032, 39.96, 'priority', S.HIGH], [48, 40, 'value-trap-check', S.HOLD]
+  ];
+  for (const [close, raw, band, state] of cases) {
+    const r = run(d => { setClose(d, close); });
+    const label = String(close);
+    assert.equal(r.valuation.status, 'computed', label);
+    assert.ok(Math.abs(r.valuation.marginRaw - raw) < 1e-6, label + ' raw ' + r.valuation.marginRaw);
+    assert.equal(r.valuation.marginPct, Math.round(raw * 10) / 10, label);   // 표시는 1자리 반올림
+    assert.equal(r.valuation.band, band, label); assert.equal(r.state, state, label);
+  }
+  // 지피 반례 그대로: 64.032 → 표시 20.0%여도 D FAIL·매수 검토 아님, 56.032 → 표시 30.0%여도 HIGH 아님
+  const c = run(d => { setClose(d, 64.032); });
+  assert.equal(c.valuation.marginPct, 20); assert.equal(gateOf(c, 'D').status, 'FAIL'); assert.equal(c.buyReview, false);
+  const h = run(d => { setClose(d, 56.032); });
+  assert.equal(h.valuation.marginPct, 30); assert.equal(h.state, S.CONDITIONAL); assert.notEqual(h.state, S.HIGH);
+  // 입력값 경계 충돌도 원시값으로: 재계산 19.94%, 입력 80.1(20.04%) → 경계 충돌 보류
+  const bc = run(d => { setClose(d, 64.048); d.valuation.scenarios.conservative.valuePerShare = 80.1; });
+  assert.equal(bc.valuation.status, 'boundary-conflict'); assert.equal(bc.buyReview, false);
+  // 후보 정렬도 원시값: 29.96(표시 30.0)과 29.97(표시 30.0) 중 큰 쪽이 먼저
+  const a = G.evaluate(F.withTicker(F.base(d => { setClose(d, 56.032); }), 'SYN-R1'), NOW);
+  const b = G.evaluate(F.withTicker(F.base(d => { setClose(d, 56.024); }), 'SYN-R2'), NOW);
+  assert.equal(a.valuation.marginPct, b.valuation.marginPct);
+  assert.deepEqual(G.shortlist([a, b]).map(r => r.ticker), ['SYN-R2', 'SYN-R1']);
+  // 정책값은 확정하지 않음
+  assert.equal(G.MOS_BANDS.status, 'unverified-initial-policy');
+});
+
+test('CR-9 후보·알림은 엔진 발급 결과만: 임의 객체·복사본·사후 변조·실제 자료는 0건', () => {
+  const ok = run();
+  assert.equal(G.shortlist([ok]).length, 1);
+  // 지피 반례: 평가를 거치지 않은 실자료 플래그 객체
+  const forged = { market: 'US', ticker: 'SYN-X', synthetic: false, state: S.CONDITIONAL, buyReview: true, valuation: { marginPct: 50 } };
+  const forgedSyn = Object.assign({}, forged, { synthetic: true, state: S.HIGH });
+  for (const [name, x] of Object.entries({ forged, forgedSyn, copy: Object.assign({}, ok), json: JSON.parse(JSON.stringify(ok)), nul: null, num: 1 })) {
+    assert.equal(G.shortlist([x]).length, 0, name);
+    const p = G.notifyPlan([x], {}); assert.equal(p.notify, false, name); assert.equal(p.items.length, 0, name); assert.deepEqual(p.ledger, {}, name);
+  }
+  // 발급된 결과를 사후 변조: 관찰 → HIGH 위조, synthetic 뒤집기, 종목 바꾸기
+  const obs = run(d => { setClose(d, 68); });
+  obs.state = S.HIGH; obs.buyReview = true;
+  assert.equal(G.shortlist([obs]).length, 0); assert.equal(G.notifyPlan([obs], {}).notify, false);
+  const flip = run(); flip.synthetic = false;
+  assert.equal(G.shortlist([flip]).length, 0);
+  const swap = run(); swap.ticker = 'SYN-Z';
+  assert.equal(G.shortlist([swap]).length, 0);
+  // 안전마진 표시값을 부풀려도 정렬은 발급 당시 원시값
+  const lo = run(d => { F.withTicker(d, 'SYN-L'); setClose(d, 62); }), hi = run(d => { F.withTicker(d, 'SYN-M'); setClose(d, 58); });
+  lo.valuation.marginPct = 99;
+  assert.deepEqual(G.shortlist([lo, hi]).map(r => r.ticker), ['SYN-M', 'SYN-L']);
+  // 실제 자료(synthetic:false/누락)는 엔진 발급이어도 후보·알림 0건
+  for (const f of [d => { d.synthetic = false; }, d => { delete d.synthetic; }]) {
+    const r = run(f); assert.equal(G.shortlist([r]).length, 0); assert.equal(G.notifyPlan([r], {}).notify, false);
+  }
+  // 위조 객체로 기존 원장을 내리거나 지우지 못함
+  const p1 = G.notifyPlan([ok], {});
+  const p2 = G.notifyPlan([{ market: 'US', ticker: 'SYN-A', state: S.HOLD, buyReview: false }], p1.ledger);
+  assert.equal(p2.ledger['US:SYN-A'].state, S.CONDITIONAL);
+  // 합성 정상 경로 유지
+  assert.equal(G.notifyPlan([run()], {}).items.length, 1);
+});
+
+test('CR-10 확신종목 지정 출처는 호출자 자기기재: 실제 자료는 목록이 있어도 10%, 25%는 합성 예제 한정', () => {
+  assert.equal(G.CONVICTION_TRUST, 'no-trusted-path');
+  const capOf = r => r.executability.items.find(x => x.id === 'cap');
+  // 실제 자료: designatedBy:'user'·confirmed·같은 계좌·종목 포함이어도 25% 불가
+  const real = run(d => { d.synthetic = false; d.context.weightPct = 20; d.context.convictionList = F.convictionList(['SYN-A']); });
+  assert.equal(real.executability.cap, 10); assert.equal(capOf(real).status, 'blocked'); assert.equal(capOf(real).conviction, false);
+  assert.equal(capOf(real).convictionSource, 'untrusted'); assert.match(capOf(real).note, /순태씨 승인 아님/);
+  const realFlag = run(d => { delete d.synthetic; d.context.weightPct = 5; d.context.conviction = true; });
+  assert.equal(realFlag.executability.cap, 10); assert.match(capOf(realFlag).note, /신뢰 경로 없음/);
+  const realNone = run(d => { d.synthetic = false; });
+  assert.equal(realNone.executability.cap, 10);
+  // 합성: 25%는 동작하되 '합성 예제 한정'임을 결과에 표시
+  const syn = run(d => { d.context.weightPct = 20; d.context.convictionList = F.convictionList(['SYN-A']); });
+  assert.equal(syn.executability.cap, 25); assert.equal(capOf(syn).convictionSource, 'synthetic-only'); assert.match(capOf(syn).note, /합성 예제 한정/);
+  // 코드에 한계 명시
+  const src = fs.readFileSync(path.join(__dirname, '..', 'has', 'buy-review-gate.js'), 'utf8');
+  assert.match(src, /CR-10/); assert.match(src, /자기기재/);
+});
