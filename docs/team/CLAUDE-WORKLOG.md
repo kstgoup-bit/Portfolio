@@ -19,6 +19,7 @@
 다음 묶음: 1단계 후속(탭 첫 진입 자동 조회·하루 캐시, 확신 종목 UI 25%/10%, '준비 중' 제거) → 2차 재무(SEC EDGAR, DART) → 서비스워커 rollback.
 
 ## 처리한 지시서
+- GPT-REVIEW-buy-review-gate-20261121-1128 (2026-11-21 12:2x) CHANGES_REQUESTED 반영 → READY_FOR_REVIEW r3 `26b90be`(보고 `8d235bf`): CR-5 재계산 안전마진·경계 충돌 보류, CR-6 실제 자료 잠금·신뢰 등록부·producedBy 필수, CR-7 확신종목 목록 대조·비중 범위·계좌 범위. 운영 앱 미연결.
 - GPT-REVIEW-buy-review-gate-20261121-1031 (2026-11-21 11:2x) CHANGES_REQUESTED 반영 → READY_FOR_REVIEW r2 `74a38be`(보고 `aadf3fd`): CR-1 원시 교차시세 대조·확정 종가·조정 기준, CR-2 가정 범위·재계산·계보, CR-3 증빙 계약·조사 검증 분리, CR-4 현금 신선도·통화·계좌·후보 중복 제거. 운영 앱 미연결.
 - GPT-20261121-0911 (2026-11-21 10:4x) READY_FOR_REVIEW: 곡소리 매수 검토 5게이트·안전마진 게이트 설계·합성 구현·시험 — `work/claude-buy-review-gate-20261121` HEAD `a2a4c79`, 보고 `adcd251`. 운영 앱 미연결, 실제 데이터 0.
 - GPT-REVIEW-ai-trading-plan-20261120-2330 (2026-11-21 07:1x) APPROVE 기록: GPT-20261120-2132 설계 r2 `9d1f7d8` 문서 논의 종료. 승인 범위 = 설계·시험 계획 문서만(구현·실주문·GAS·배포 아님). 운영 반영 대상 없음 → 순태씨 결정 대상은 미확정 정책값(대안 A·레버리지·soft/hard·현금 하한).
@@ -267,3 +268,4 @@
 - 2026-11-21 09:06 정각 실행: 새 GPT-ORDER/TEST/REVIEW 없음(마지막 2330 APPROVE 기록 완료), 다비 새 문서 없음, 성적표 P1 `3f9009e` GPT-REVIEW 아직 없음. 운영 main 앱 코드 유지. 코드 변경 0, 시험 재실행 안 함. 다음: 성적표 P1 지피 검토 확인 / G0 시세 연결 지시 대기.
 - 2026-11-21 10:4x 정각 실행: GPT-ORDER-20261121-0911 처리 — 엔진 has/buy-review-gate.js·합성 실험실·시험 15개 `a2a4c79`, 보고 `adcd251`. 전체 2297/0 실패/2 skip, scan-secrets 0, 모바일 360/390/430 통과. 운영 앱 변경 0. 다음: 지피 GPT-REVIEW-buy-review-gate 확인 / 성적표 P1 검토 확인.
 - 2026-11-21 11:2x 정각 실행: 지피 GPT-REVIEW-buy-review-gate-20261121-1031 CHANGES_REQUESTED 처리 — 엔진 v2 `74a38be`, 보고 `aadf3fd`. 전체 2302/0 실패/2 skip, scan-secrets 0, 모바일 360/390/430 통과. 운영 앱 변경 0. 다음: 지피 r2 재검토 확인 / 성적표 P1 검토 확인.
+- 2026-11-21 12:2x 정각 실행: 지피 GPT-REVIEW-buy-review-gate-20261121-1128 CHANGES_REQUESTED 처리 — 엔진 v2.1 `26b90be`, 보고 `8d235bf`. 전체 2305/0 실패/2 skip, scan-secrets 0, 모바일 360/390/430 통과. 운영 앱 변경 0. 다음: 지피 r3 재검토 확인 / 성적표 P1 검토 확인.
