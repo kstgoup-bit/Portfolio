@@ -1,10 +1,35 @@
 STATUS: READY_FOR_REVIEW
-ORDER-ID: GPT-20261121-0911
-BASE: 83f2a25dd12cbe8fdf06b1dcfd23bb95522a1c83
-HEAD: a2a4c791902a07d02e4da73993f10ed67f49b22a
+ORDER-ID: GPT-20261121-0911 (GPT-REVIEW-buy-review-gate-20261121-1031 CHANGES_REQUESTED CR-1~4 반영, r2)
+BASE: a2a4c791902a07d02e4da73993f10ed67f49b22a (지피가 검토한 r1)
+HEAD: 74a38bede73be4438f061ed62cb17cf0e92dc600
 BRANCH: work/claude-buy-review-gate-20261121
-REVIEW-SCOPE: 83f2a25..a2a4c79 — 새 판정 엔진 has/buy-review-gate.js, 합성 자료 has/buy-review-fixtures.js, 독립 실험실 has/buy-review-lab.{html,css,js}, 시험 tests/buy-review-gate.test.cjs·tests/buy-review-mobile.cjs, 보호 목록 tests/lib/live-data-pins.json addedRuntimeFiles 5건 등록. 운영 앱 portfolio_v5.html 변경 없음.
-UPDATED: 2026-11-21 10:4x KST (정각 실행)
+REVIEW-SCOPE: a2a4c79..74a38be (중간 ab6d429는 main 문서 merge뿐) — has/buy-review-gate.js(계약 v2: 교차 원시시세 대조·종가 확정·조정 기준, 가정 범위·엔진 재계산·산출 계보, evidence.v2 증빙 계약·조사 완료/검증 분리, 현금 신선도·통화·계좌 범위·하한 통화, 후보 중복 제거), has/buy-review-fixtures.js, has/buy-review-lab.js, tests/buy-review-gate.test.cjs(+5 시험), tests/lib/live-data-pins.json 해시 3건. 운영 앱 portfolio_v5.html 변경 없음.
+UPDATED: 2026-11-21 11:2x KST (정각 실행)
+
+## r2 — 지피 1031 CR 대응표
+
+| CR | 지적 | 대응(엔진 has/buy-review-gate.js) | 음성시험 |
+|---|---|---|---|
+| CR-1 | `crossCheck.status='match'`·`sources` 자기선언 통과, 확정 종가·분할조정 미검증 | 호출자 status/diffPct 무시. `crossCheck.quotes[]` 원시 시세 2건 이상을 엔진이 직접 대조: 공급자 식별 정규화(대소문자·공백) 후 중복 금지, 대표 종가 출처가 공급자 목록에 포함, 각 시세의 거래소·통화·`regular-close`+`sessionStatus:closed`·기준일·조정(`adjustment`+`adjustmentAsOf`) 동일, 수집 시각 필수, 종가·52주 고점 각각 상대차 ≤1%(고점 차이는 '분할 전후 혼용 의심'). 대표 가격에 `sessionStatus:closed`·`closeConfirmedAt`(기준일 이후·미래 금지), 고점의 조정 기준(`high52wAdjustment`/`AsOf`) 동일, `pendingCorporateAction` 시 차단. | 중복 공급자·대소문자 위장·1건뿐·대표 출처 누락·통화·거래소·기준일·장중·장중 세션·조정 기준·수집 시각 누락·확정 시각 없음/이전/미래·분할 전 고점 10배·고점 조정 불일치·미반영 기업행사·기존 v1 match 선언 → 모두 fail-closed 판단 보류. 1% 이내 차이는 통과. |
+| CR-2 | 비경제적 가정·근거 없는 `valuePerShare`로 D PASS | 방법을 엔진이 재계산 가능한 `fcf-perpetuity`로 한정하고 주당가치 = ((정상화FCF−주식보상)×(1+g)/(r−g) − 순부채)×금액단위 ÷ (주식수×주식단위×(1+희석))로 재계산, 입력값과 5% 넘게 다르면 미산정. 범위 VAL_RANGE(`unverified-sanity-range`): 할인율 4~20%, 장기성장 −10~6%, r−g ≥1%p, 희석 0~20%, 주식보상 ≥0, (FCF−주식보상)>0, 시나리오 간 주식수 동일. `units`(통화·moneyScale·shareScale) 필수. 산출 계보 `lineage.{normalizedFcf,stockCompensation,netDebt,shares}` 각각 공시(filing) 증빙(evidence.v2) 필수. 기존 `verification:'independent-verified'` 문자열은 더 이상 쓰지 않음. | 할인율 −20·성장 500·r−g 0.5·희석 −10·주식보상 음수·주식수 다름·단위 없음/통화 다름/0/1000배·자유입력 평가액·재계산 불가 방법·계보 없음·자체 메모 계보·뉴스 계보·다른 종목 계보 → 미산정, D=UNKNOWN. 정상 3시나리오 재계산값 기록 확인. |
+| CR-3 | `done:true`+임의 문자열로 4단계 조사 통과, `independent-verified` 문자열 | evidence.v2 계약: `kind`(filing/news/consensus/community/analysis), 대상 `market`·`ticker` 일치, `publishedAt`≤`retrievedAt`(시각)≤판정시각, 기간 내, https `url`, 공시는 공식 도메인(US sec.gov / KR dart.fss.or.kr·kind.krx.co.kr — 도메인 문자열만 비교, 접속 없음)·문서번호 형식(SEC accession / DART 14자리), `verification`={status:verified, verifier≠생성자·≠self/claude/gpt 등, contentSha256 64hex, checkedAt≥retrievedAt}. 5게이트는 게이트마다 공시 증빙 최소 1건. 조사 결과에 `claimed`(완료 주장)와 `verified`(근거 검증)를 분리, 사유 표시 '(완료 주장, 근거 미검증)'. `example.invalid` 합성 출처는 `synthetic:true` 입력에서만 허용 — 실제 판단에선 차단. | 지피 예시 `{done:true,source:'내 메모',...}`·다른 종목/시장 공시·뉴스를 공시로·게이트 자체 문자열·공시 없는 게이트·자기검증·생성자=검증자·해시 없음·검증 시각 역전·공표>확인·http·문서번호 오류 → 판단 보류. `synthetic:false`면 전 게이트 UNKNOWN, 유사 도메인(sec-gov.example.com) 거부, sec.gov 형식은 통과. |
+| CR-4 | 현금 오래됨·통화·계좌 범위 미검증, 같은 종목 중복 알림 | 현금: `status:verified`+`asOf` ISO 시각(1일 이내·미래 금지)+`currency`+`accountScope{status:confirmed, accounts[] 비어있지 않고 중복 없음}` 아니면 blocked. 통화 항목 신설: 현금 통화≠매수 통화면 `fx{base,quote,rate,source,asOf 2일 이내}` 없이는 unknown(혼합 비교 안 함). 비상현금 하한에 `currency` 필수, 현금 통화와 다르면 비교하지 않고 unknown. 투자 판단 상태는 그대로(분리). `shortlist`가 market+ticker(공백 제거·대문자) 중복 제거 후 상위 상태·안전마진 1건만 → `notifyPlan`도 같은 실행 동일 종목 최대 1회. 재진입 계약 유지. | 2일 전 현금·날짜만·미래·통화 없음·계좌 범위 없음/빈/중복/assumed → blocked; 환율 없음/오래됨/쌍 다름·하한 통화 다름/없음 → unconfirmed; USD 현금+USD 하한 → checks-ok. 같은 종목 3건(대소문자·공백 위장 포함) → 후보 1·알림 1(상위 상태), 다른 시장 같은 티커는 별개, 하락 후 재진입 1회. |
+
+### r2 시험 결과 (클로 실행)
+- `node --require ./tests/lib/no-network.cjs --test tests/*.test.cjs`: 2304 중 **2302 통과 / 0 실패 / 2 skip**(r1 2299→+5 시험). 대상 파일 tests/buy-review-gate.test.cjs 20/20.
+- `node tools/scan-secrets.cjs`: findings 0.
+- Playwright Chromium 360/390/430(tests/buy-review-mobile.cjs, 외부 요청 route 차단): 가로 스크롤 0, 최소 글자 12px, 외부 요청 0, 저장소 쓰기 0, 오늘의 후보 3건(SYN-A·B·F).
+- 실제 데이터·API·GAS·계좌 접근 0. 모든 증빙은 합성(example.invalid, 해시 'a'×64).
+
+### r2 미완료·미검증 (정직하게)
+- 엔진은 원문을 가져오지 않는다. evidence.v2의 해시·검증자 기록이 **진짜인지**는 엔진이 확인할 수 없고, 이를 만드는 G0 시세 수집·SEC/DART 원문 수집 단계(독립 검증자)가 아직 없다 → 실제 자료는 지금 구조상 통과 불가(fail-closed). 이 단계 설계·구현이 선행 과제.
+- VAL_RANGE·CROSS_TOL 1%·VALUE_TOL 5%·현금 1일·환율 2일은 공학적 안전 범위(미검증 정책)이며 업종별 조정·백테스트 없음. `fcf-perpetuity` 단일 방법만 지원(성장 단계 DCF·자산가치법 등은 미산정 처리).
+- `radar/data/universe-400.json` main 미존재 — 400종목 공식 출처·기준일 검증 완료를 주장하지 않음.
+- 순태씨 결정 필요(변동 없음): 비상현금 하한 금액·통화, 안전마진 구간 초기 정책 채택·업종별 조정.
+
+---
+
+# (r1 보고 — 아래는 a2a4c79 기준 원문)
 
 # 곡소리 레이더 매수 검토 게이트 1단계 — 설계·합성 구현·시험
 
