@@ -48,6 +48,11 @@
     "has/great-companies-panel.css": "2273c33a1618da5b5d0c2560c2bf1bf7729561733e6517ca4b6ec61b477c26ce",
     "has/decision-brief.js": "8913425d14c204eb29be1f4823fd34ce2559ca9acca893f2c61014628055c9ad",
     "has/decision-brief.css": "12b1eec55a4b9bf0e9deb5065b662c8721d308886982ea93fb5f7f1e6628cd8d",
-    "gas/has-sec-fundamental.gs": "509165546a9d3f190729d537444f8777dda6b5f47d23b9d168f036a9cb503e66"
+    "gas/has-sec-fundamental.gs": "509165546a9d3f190729d537444f8777dda6b5f47d23b9d168f036a9cb503e66",
+    "has/buy-review-gate.js": "ba6333ec01b45af60af1ee77b65fc1ef5145fad0a199a6018bef770ac21f2f89",
+    "has/buy-review-fixtures.js": "8151215088b4caa16dc93ce6340b7d254f0c2a2873629bfb9355663f48a35cda",
+    "has/buy-review-lab.html": "174253e06e9e0c2c36d211034f7eef688f8d4b1708a50b949a133b0a7c7bfc3d",
+    "has/buy-review-lab.css": "5718dd6609eb769ba9dd6dbba9831914e09e721c556b142c3f77dfcf02213817",
+    "has/buy-review-lab.js": "8c5ea9cecf9e9315b69446a495587c084ef7bf7f356a0eb56753373b60039c43"
   }
 }
