@@ -1,4 +1,37 @@
 STATUS: READY_FOR_REVIEW
+ORDER-ID: GPT-20261121-0911 (GPT-REVIEW-buy-review-gate-20261121-1128 CHANGES_REQUESTED CR-5~7 반영, r3)
+BASE: 74a38bede73be4438f061ed62cb17cf0e92dc600 (지피가 검토한 r2)
+HEAD: 26b90befa4dd1ad40cdf67808f1a1f48fd1f797d
+BRANCH: work/claude-buy-review-gate-20261121
+REVIEW-SCOPE: 74a38be..26b90be (중간 merge는 main 문서뿐) — has/buy-review-gate.js(CR-5 재계산 안전마진·경계 충돌 보류, CR-6 실제 자료 잠금·신뢰 등록부·producedBy 필수, CR-7 확신종목 목록 대조·비중 범위·비중 계좌 범위), has/buy-review-fixtures.js(weightScope·convictionList 합성 예시), tests/buy-review-gate.test.cjs(+3 시험, 기존 2건 계약 변경 반영), tests/lib/live-data-pins.json 해시 2건. 운영 앱 portfolio_v5.html·실험실 화면 코드 변경 없음.
+UPDATED: 2026-11-21 12:2x KST (정각 실행)
+
+## r3 — 지피 1128 CR 대응표
+
+| CR | 지적 | 대응 | 음성시험 |
+|---|---|---|---|
+| CR-5 | 입력 `valuePerShare`가 5% 허용오차 안에서 안전마진 분모로 쓰여 40/30/20% 경계 우회 | `valuation()`이 세 시나리오 모두 **엔진 재계산값**(`valueBasis:'engine-recomputed'`)으로 보수/기준/낙관·순서·안전마진·구간·후보 정렬을 계산. 입력값은 `declared{…, use:'mismatch-check-only'}`로만 보존. 추가로 입력값 기준 구간이 재계산 기준 구간과 다르면 `status:'boundary-conflict'` → D=UNKNOWN '안전마진 경계 충돌' → 판단 보류(더 보수적). | 지피 반례(재계산 80·종가 48·입력 76.5) → 안전마진 40%·HIGH 아님·D UNKNOWN. 40/30/20% 경계 × 입력 76.2~84(±5% 이내) 18조합: 재계산 구간 유지 또는 경계 충돌 보류만 발생. 39.9%를 입력 부풀림으로 40% 넘김 → 보류. 19.9%를 20%로 → 매수 검토 아님. 후보 정렬이 재계산 안전마진 기준. |
+| CR-6 | `verified`·임의 해시·검증자 문자열로 통과, `producedBy` 선택, 실제 자료 일괄 잠금 없음 | ① `REAL_DATA_LOCK=true`: `synthetic !== true`(false·누락·문자열 'true' 포함)이면 최종 상태에서 매수 검토 두 상태를 **무조건** 판단 보류로 내림('실제 자료 잠금: …순태씨 별도 승인 전…'). ② 신뢰 계약 `TRUST`(동결): 생성자·검증자·시세 공급자는 등록 식별자 → 원천(root) 매핑만 인정, 검증자·생성자 같은 root·공급자 같은 root 별칭은 '독립 아님'. **real 등록부는 비어 있음** — G0/SEC/DART 신뢰 수집·검증 단계와 순태씨 승인 후에만 채울 수 있음(코드 변경·재검토 필요). ③ `producedBy` 누락 = 증빙 미검증. | synthetic:false + 모든 증빙 sec.gov URL·문서번호·임의 해시 'b'×64·검증자 'independent-auditor'·생성자 'edgar-fetcher'·공급자 'vendor-x'/'vendor-x-mirror' → buyReview false·판단 보류. synthetic 누락·'true' 문자열 → false. producedBy 누락 → 게이트 A 미검증. 미등록 검증자·미등록 공급자 별칭(SYNTHETIC-9) → 차단. 합성 정상 경로 유지(조건부). sec.gov 형식 단일 증빙은 이제 '신뢰 등록 없음(실제 자료 잠금)' 사유만 남음. |
+| CR-7 | `conviction===true` 하나로 25%, 비중 범위·계좌 연결 미검사 | `ctx.conviction` boolean은 무시(표시만 있으면 '지정 목록 없음: 일반 10%' 안내). 25%는 `convictionList{status:'confirmed', designatedBy:'user', asOf ≤30일·미래 금지, accountScope = 현금 계좌 범위(집합 동일), items[] market+ticker 일치}`일 때만. 그 외 10%. `weightPct` 0~100 밖 → blocked, `weightScope`가 현금 계좌 범위와 집합 동일하지 않으면 cap=unknown(다른 계좌 비중 혼용 금지). | boolean 반례(20%·conviction:true) → cap 10·blocked. 목록에 없음·다른 시장·draft·AI 지정·오래됨·미래·다른 계좌 → 10%·blocked. 비중 −1·101·150 → blocked. 비중 계좌 다름·없음·더 넓음 → unknown. 판단 상태는 유지(조건부), 수량·주문 null. |
+
+### r3 시험 결과 (클로 실행)
+- `node --require ./tests/lib/no-network.cjs --test tests/*.test.cjs`: 2307 중 **2305 통과 / 0 실패 / 2 skip**(r2 2304→+3). tests/buy-review-gate.test.cjs 23/23.
+- 기존 시험 2건 계약 변경 반영: ① 확신종목 25% 시험은 boolean 대신 합성 `convictionList` 사용 ② sec.gov 형식 증빙은 '빈 사유' 대신 '신뢰 등록 없음(실제 자료 잠금)' 사유만 남는지 확인.
+- `node tools/scan-secrets.cjs`: findings 0.
+- Playwright Chromium 360/390/430(tests/buy-review-mobile.cjs, 외부 요청 차단): 가로 스크롤 0, 최소 글자 12px, 오늘의 후보 3건 유지.
+- 실제 데이터·API·GAS·계좌 접근 0.
+
+### r3 미완료·미검증
+- 실제 자료는 이제 코드상 매수 검토 상태가 될 수 없음(잠금). 잠금 해제 조건 = 신뢰된 G0 시세·SEC/DART 원문 수집·독립 검증 단계 구현 + real 등록부 채움 + 지피 검토 + 순태씨 별도 승인.
+- 경계 충돌 보류는 입력값이 재계산과 5% 이내로 달라도 구간이 갈리면 보류하므로, 경계 근처 종목이 더 자주 '판단 보류'가 될 수 있음(의도된 보수성).
+- 확신종목 목록 30일 유효기간·VAL_RANGE·허용오차·현금 1일은 미검증 공학 값.
+- 순태씨 결정 필요(변동 없음): 비상현금 하한 금액·통화, 안전마진 구간 초기 정책 채택·업종별 조정, 확신종목 목록 실제 지정(향후).
+
+---
+
+# (r2 보고 — 74a38be 기준)
+
+STATUS(r2 당시): READY_FOR_REVIEW
 ORDER-ID: GPT-20261121-0911 (GPT-REVIEW-buy-review-gate-20261121-1031 CHANGES_REQUESTED CR-1~4 반영, r2)
 BASE: a2a4c791902a07d02e4da73993f10ed67f49b22a (지피가 검토한 r1)
 HEAD: 74a38bede73be4438f061ed62cb17cf0e92dc600
