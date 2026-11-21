@@ -19,6 +19,7 @@
 다음 묶음: 1단계 후속(탭 첫 진입 자동 조회·하루 캐시, 확신 종목 UI 25%/10%, '준비 중' 제거) → 2차 재무(SEC EDGAR, DART) → 서비스워커 rollback.
 
 ## 처리한 지시서
+- GPT-REVIEW-buy-review-gate-20261121-1330 (2026-11-21 14:2x) CHANGES_REQUESTED 반영 → READY_FOR_REVIEW r5 `5c0346d`(보고 `f1c1b36`): CR-11 발급 결과 깊은 불변 사본·전체 지문 대조·알림 marginPct 발급값·실험실 verify 계약. 운영 앱 미연결.
 - GPT-REVIEW-buy-review-gate-20261121-1228 (2026-11-21 13:2x) CHANGES_REQUESTED 반영 → READY_FOR_REVIEW r4 `73ecb83`(보고 `033b3f2`): CR-8 원시값 경계 판정, CR-9 엔진 발급 결과만 후보·알림(실제 자료 0건), CR-10 확신종목 25% 합성 한정·실제 자료 10%. 운영 앱 미연결.
 - GPT-REVIEW-buy-review-gate-20261121-1128 (2026-11-21 12:2x) CHANGES_REQUESTED 반영 → READY_FOR_REVIEW r3 `26b90be`(보고 `8d235bf`): CR-5 재계산 안전마진·경계 충돌 보류, CR-6 실제 자료 잠금·신뢰 등록부·producedBy 필수, CR-7 확신종목 목록 대조·비중 범위·계좌 범위. 운영 앱 미연결.
 - GPT-REVIEW-buy-review-gate-20261121-1031 (2026-11-21 11:2x) CHANGES_REQUESTED 반영 → READY_FOR_REVIEW r2 `74a38be`(보고 `aadf3fd`): CR-1 원시 교차시세 대조·확정 종가·조정 기준, CR-2 가정 범위·재계산·계보, CR-3 증빙 계약·조사 검증 분리, CR-4 현금 신선도·통화·계좌·후보 중복 제거. 운영 앱 미연결.
@@ -271,3 +272,4 @@
 - 2026-11-21 11:2x 정각 실행: 지피 GPT-REVIEW-buy-review-gate-20261121-1031 CHANGES_REQUESTED 처리 — 엔진 v2 `74a38be`, 보고 `aadf3fd`. 전체 2302/0 실패/2 skip, scan-secrets 0, 모바일 360/390/430 통과. 운영 앱 변경 0. 다음: 지피 r2 재검토 확인 / 성적표 P1 검토 확인.
 - 2026-11-21 12:2x 정각 실행: 지피 GPT-REVIEW-buy-review-gate-20261121-1128 CHANGES_REQUESTED 처리 — 엔진 v2.1 `26b90be`, 보고 `8d235bf`. 전체 2305/0 실패/2 skip, scan-secrets 0, 모바일 360/390/430 통과. 운영 앱 변경 0. 다음: 지피 r3 재검토 확인 / 성적표 P1 검토 확인.
 - 2026-11-21 13:2x 정각 실행: 지피 GPT-REVIEW-buy-review-gate-20261121-1228 CHANGES_REQUESTED 처리 — 엔진 v2.2 `73ecb83`, 보고 `033b3f2`. 전체 2308/0 실패/2 skip, scan-secrets 0, 모바일 360/390/430 통과. 운영 앱 변경 0. 다음: 지피 r4 재검토 확인 / 성적표 P1 검토 확인.
+- 2026-11-21 14:2x 정각 실행: 지피 GPT-REVIEW-buy-review-gate-20261121-1330 CHANGES_REQUESTED 처리 — 엔진 v2.3 `5c0346d`, 보고 `f1c1b36`. 전체 2310/0 실패/2 skip, scan-secrets 0, 모바일 360/390/430 통과. 운영 앱 변경 0. 다음: 지피 r5 재검토 확인 / 성적표 P1 검토 확인.
