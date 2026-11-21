@@ -1,4 +1,35 @@
 STATUS: READY_FOR_REVIEW
+ORDER-ID: GPT-20261121-0911 (GPT-REVIEW-buy-review-gate-20261121-1228 CHANGES_REQUESTED CR-8~10 반영, r4)
+BASE: 26b90befa4dd1ad40cdf67808f1a1f48fd1f797d (지피가 검토한 r3)
+HEAD: 73ecb83b42880ac5bfdd1ba5d930d8085d7f4eef
+BRANCH: work/claude-buy-review-gate-20261121
+REVIEW-SCOPE: 26b90be..73ecb83 (중간 merge 8ea43ba는 main 문서뿐) — has/buy-review-gate.js(CR-8 원시값 경계 판정, CR-9 엔진 발급 결과만 후보·알림, CR-10 확신종목 25% 합성 한정), tests/buy-review-gate.test.cjs(+3 시험), tests/lib/live-data-pins.json 해시 1건. 운영 앱 portfolio_v5.html·실험실 화면·fixtures 변경 없음.
+UPDATED: 2026-11-21 13:2x KST (정각 실행)
+
+## r4 — 지피 1228 CR 대응표
+
+| CR | 지적 | 대응 | 음성시험 |
+|---|---|---|---|
+| CR-8 | 1자리 반올림값으로 구간·D 판정 → 19.96%가 20%, 29.96%가 30%로 승급 | `valuation()`이 `marginRaw`(미반올림)로 구간·경계 충돌(입력값도 `declaredMarginRaw`)을 판정, `evaluate()` D FAIL도 원시값, 후보 정렬도 원시값. `marginPct`는 표시 전용(`marginUse` 명시). 부동소수 오차(1−64/80=0.19999999999999996)만 `FLOAT_EPS=1e-9`%p로 흡수 — 표시 반올림 폭(0.05%p)보다 수천만 배 작아 19.96%를 끌어올리지 못함. 구간 정책값(10/20/30/40)은 변경·확정 안 함. | 19.94/19.96/20.00 → 관찰/관찰/조건부, 29.94/29.96/30.00 → 조건부/조건부/HIGH, 39.94/39.96/40.00 → HIGH/HIGH/가치함정 보류. 지피 반례 64.032(표시 20.0) D FAIL·매수 검토 아님, 56.032(표시 30.0) HIGH 아님. 재계산 19.94·입력 80.1(20.04%) → 경계 충돌 보류. 표시 같은 30.0%인 29.96/29.97 정렬이 원시값 순. |
+| CR-9 | 공개 `shortlist`/`notifyPlan`이 `r.buyReview` 자기선언만 확인 → 평가 안 거친 실자료 객체도 후보 | 모듈 내부 `WeakMap ISSUED`에 `evaluate()` 발급 당시 판정 사본(state·buyReview·synthetic·market·ticker·marginRaw) 보관. `shortlist`는 ① 발급 결과일 것 ② 현재 값이 사본과 같을 것(사후 변조 거부) ③ 사본 기준 매수 검토 상태 ④ `REAL_DATA_LOCK` 하에서 사본 synthetic === true 일 때만 통과. 정렬은 사본 원시값. `notifyPlan`은 같은 `shortlist`만 쓰고, 원장 하향 기록도 발급 결과만 반영. 결과 직렬화(JSON) 후 재사용은 재평가 필요(의도). | 지피 반례 객체(synthetic:false·state 조건부·buyReview:true) → 후보·알림 0·원장 {}. synthetic:true 위조, 얕은 복사, JSON 왕복, null/숫자 → 0. 관찰 결과를 HIGH로 변조, synthetic 뒤집기, 티커 바꾸기 → 0. 표시 marginPct 99로 부풀려도 정렬은 원시값. 엔진 발급 synthetic:false/누락 → 0. 위조 객체로 기존 원장 하향 불가. 합성 정상 경로·실험실 3종목 유지. |
+| CR-10 | `convictionList.designatedBy:'user'`는 호출자 자기기재인데 25% 개방 | `CONVICTION_TRUST='no-trusted-path'` 공개 상수 + 코드 주석에 한계 명시. `synthetic !== true`면 목록 내용과 무관하게 항상 일반 10%(`convictionSource:'untrusted'`, 안내 '확신종목 지정 출처 미검증(호출자 기재는 순태씨 승인 아님, 신뢰 경로 없음)'). 합성에서만 기존 목록 대조로 25%(`convictionSource:'synthetic-only'`, 안내 '합성 예제 한정 25%'). 실제 투자기록 접근·목록 동기화 없음. | 실제 자료 + confirmed·user·같은 계좌·종목 포함 목록·비중 20% → cap 10·blocked·untrusted. synthetic 누락 + boolean → 10. 합성 목록 → 25·synthetic-only. 소스에 CR-10·자기기재 명시 확인. |
+
+### r4 시험 결과 (클로 실행)
+- `node --require ./tests/lib/no-network.cjs --test tests/*.test.cjs`(jsdom NODE_PATH): 2310 중 **2308 통과 / 0 실패 / 2 skip**(r3 2305→+3). tests/buy-review-gate.test.cjs 26/26. 기존 시험 수정 없음.
+- `node tools/scan-secrets.cjs`: findings 0.
+- Playwright Chromium 360/390/430(tests/buy-review-mobile.cjs, 외부 요청 차단): 가로 스크롤 0, 최소 글자 12px, 오늘의 후보 3건 유지.
+- 실제 데이터·API·GAS·계좌 접근 0.
+
+### r4 미완료·미검증
+- 후보·알림은 같은 실행 안의 엔진 결과 객체만 받으므로, 앞으로 저장된 결과를 다시 불러와 후보를 만들려면 재평가가 필요(서명 등은 미구현).
+- 실제 자료 잠금·확신종목 신뢰 경로 해제 조건 = 신뢰 G0/SEC/DART 수집·검증 단계 + 확신종목 목록 신뢰 발급·보관 경로 + 지피 검토 + 순태씨 별도 승인.
+- `FLOAT_EPS`·VAL_RANGE·허용오차·기한은 미검증 공학 값.
+- 순태씨 결정 필요(변동 없음): 비상현금 하한 금액·통화, 안전마진 구간 초기 정책 채택·업종별 조정, 확신종목 실제 지정의 신뢰 경로.
+
+---
+
+## (이전) r3
+STATUS(r3 당시): READY_FOR_REVIEW
 ORDER-ID: GPT-20261121-0911 (GPT-REVIEW-buy-review-gate-20261121-1128 CHANGES_REQUESTED CR-5~7 반영, r3)
 BASE: 74a38bede73be4438f061ed62cb17cf0e92dc600 (지피가 검토한 r2)
 HEAD: 26b90befa4dd1ad40cdf67808f1a1f48fd1f797d
