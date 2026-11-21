@@ -1,19 +1,21 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
-STATUS: READY_FOR_REVIEW (r2)
-ORDER-ID: GPT-20261121-0911 — GPT-REVIEW-buy-review-gate-20261121-1031 CHANGES_REQUESTED CR-1~4 반영 (docs/gpt-buy-recommendation-gate-20261121 `1a2489e`)
-REPORT: docs/team/CLAUDE-DEV-BUY-REVIEW-GATE-20261121.md (맨 위 CR 대응표)
+STATUS: READY_FOR_REVIEW (r3)
+ORDER-ID: GPT-20261121-0911 — GPT-REVIEW-buy-review-gate-20261121-1128 CHANGES_REQUESTED CR-5~7 반영 (docs/gpt-buy-recommendation-gate-20261121 `db1ff49`)
+REPORT: docs/team/CLAUDE-DEV-BUY-REVIEW-GATE-20261121.md (맨 위 r3 CR 대응표)
 BRANCH: work/claude-buy-review-gate-20261121
-HEAD: 74a38bede73be4438f061ed62cb17cf0e92dc600 (검토 대상 코드) · 보고 커밋 aadf3fd
-REVIEW-SCOPE: a2a4c79..74a38be — has/buy-review-gate.js 계약 v2(CR-1 원시 교차시세 엔진 대조·종가 확정·조정 기준·분할 혼용 차단, CR-2 가정 범위·fcf-perpetuity 재계산·단위·공시 산출 계보, CR-3 evidence.v2 증빙 계약·조사 완료 주장/검증 분리·합성 출처는 synthetic에서만, CR-4 현금 1일·통화/환율·계좌 범위·하한 통화, 후보 market+ticker 중복 제거), fixtures·lab·tests(+5)·pins 3건. 운영 앱 변경 없음.
-UPDATED: 2026-11-21 11:2x KST (정각 실행)
+HEAD: 26b90befa4dd1ad40cdf67808f1a1f48fd1f797d (검토 대상 코드) · 보고 커밋 8d235bf
+REVIEW-SCOPE: 74a38be..26b90be — has/buy-review-gate.js(CR-5 안전마진·구간·정렬은 엔진 재계산값만, 입력 구간 다르면 경계 충돌 보류 / CR-6 synthetic !== true면 매수 검토 상태 금지(REAL_DATA_LOCK)·생성자·검증자·공급자 신뢰 등록부(real 비어 있음)·같은 원천 별칭 차단·producedBy 필수 / CR-7 확신종목 25%는 순태씨 지정 목록 대조 시에만·비중 0~100%·비중 계좌 범위=현금 계좌 범위), fixtures, tests(+3), pins 2건. 운영 앱 변경 없음.
+UPDATED: 2026-11-21 12:2x KST (정각 실행)
 
-- 시험: 전체 2304 중 2302 통과 / 0 실패 / 2 skip, scan-secrets 0, Playwright 360/390/430 가로 스크롤 0·최소 12px·외부 요청 0. 실제 데이터 접근 0(합성만).
-- 한계: 엔진은 원문을 가져오지 않음 — 증빙 해시·독립 검증자를 만드는 G0/SEC/DART 수집 단계가 없어 실제 자료는 구조상 통과 불가(fail-closed). 범위·허용오차는 미검증 공학 값.
-- 지피 지시서 현황: 0911 r2 재검토 대기. 신호 성적표 P1 `3f9009e` GPT-REVIEW 아직 없음(별건).
+- 시험: 전체 2307 중 2305 통과 / 0 실패 / 2 skip, scan-secrets 0, Playwright 360/390/430 가로 스크롤 0·최소 12px. 실제 데이터 접근 0(합성만).
+- 한계: 실제 자료는 잠금으로 매수 검토 불가 — 해제 = 신뢰 G0/SEC/DART 수집·검증 단계 + 등록부 + 지피 검토 + 순태씨 승인. 허용오차·기한은 미검증 공학 값.
+- 지피 지시서 현황: 0911 r3 재검토 대기. 신호 성적표 P1 `3f9009e` GPT-REVIEW 아직 없음(별건).
 - 순태씨 결정 필요: 비상현금 하한 금액·통화, 안전마진 구간 초기 정책 채택·업종별 조정.
 
 ## 이전 기록
+
+- (이전, 11-21 11:2x) STATUS: READY_FOR_REVIEW (r2) / ORDER-ID: GPT-20261121-0911 — GPT-REVIEW-buy-review-gate-20261121-1031 CHANGES_REQUESTED CR-1~4 반영 (docs/gpt-buy-recommendation-gate-20261121 `1a2489e`) / REPORT: docs/team/CLAUDE-DEV-BUY-REVIEW-GATE-20261121.md (맨 위 CR 대응표) / BRANCH: work/claude-buy-review-gate-20261121 / HEAD: 74a38bede73be4438f061ed62cb17cf0e92dc600 (검토 대상 코드) · 보고 커밋 aadf3fd → 지피 1128 CHANGES_REQUESTED(CR-5~7).
 
 - (이전, 11-21 10:4x) STATUS: READY_FOR_REVIEW / ORDER-ID: GPT-20261121-0911 (docs/gpt-buy-recommendation-gate-20261121 `92aaa4e`) / REPORT: docs/team/CLAUDE-DEV-BUY-REVIEW-GATE-20261121.md / BRANCH: work/claude-buy-review-gate-20261121 / HEAD: a2a4c791902a07d02e4da73993f10ed67f49b22a (검토 대상 코드) · 보고 커밋 adcd251 / REVIEW-SCOPE: 83f2a25..a2a4c79 — has/buy-review-gate.js(가격 fail-closed·5게이트·3시나리오 안전마진·5상태·실행 가능성 분리·후보 5개·중복 알림 방지), has/buy-review-fixtures.js, 독립 실험실 has/buy-review-lab.*, tests/buy-review-gate.test.cjs(15), tests/buy-review-mobile.cjs, live-data-pins addedRuntimeFiles 5건. 운영 앱 portfolio_v5.html 변경 없음. … → 지피 1031 CHANGES_REQUESTED(CR-1~4).
 

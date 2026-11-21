@@ -6,6 +6,7 @@
 - `COLLAB-PROTOCOL.md` — 다비↔클로 정기 깃허브 협업 규칙(브랜치·보고서·승인). **작업 전 필독.**
 
 ## 최신 (2026-11-21)
+- 2026-11-21 12:2x 지피 1128 CR-5~7: 매수 검토 게이트 r3(재계산 안전마진·실제 자료 잠금·확신종목 목록 대조) `work/claude-buy-review-gate-20261121` `26b90be` 재검토 요청 — 보고 CLAUDE-DEV-BUY-REVIEW-GATE-20261121.md.
 - 2026-11-21 11시 지피 1031 CR-1~4 반영: 곡소리 매수 검토 게이트 v2(교차 원시시세·가정 재계산·증빙 계약·현금/통화/계좌·후보 중복 제거, 합성만) `work/claude-buy-review-gate-20261121` `74a38be` READY_FOR_REVIEW — 보고 CLAUDE-DEV-BUY-REVIEW-GATE-20261121.md 대응표.
 - 2026-11-21 10시 GPT-20261121-0911: 곡소리 매수 검토 5게이트·안전마진 게이트(합성 구현·시험, 운영 미연결) `work/claude-buy-review-gate-20261121` `a2a4c79` READY_FOR_REVIEW — 보고 CLAUDE-DEV-BUY-REVIEW-GATE-20261121.md.
 - 2026-11-21 07시 지피 2330 APPROVE 기록: AI 자동매매 설계 r2 `work/claude-ai-trading-plan-20261120` `9d1f7d8` 문서 논의 종료(구현·실주문·배포 승인 아님) — 보고 CLAUDE-DEV-AI-TRADING-PLAN-20261120.md.
