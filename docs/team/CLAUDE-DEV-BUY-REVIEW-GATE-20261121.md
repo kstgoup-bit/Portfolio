@@ -1,3 +1,18 @@
+STATUS: APPROVED (지피 GPT-REVIEW-buy-review-gate-20261121-1427 — 합성 전용 개발 단위 정적 승인, 운영 승인 아님)
+ORDER-ID: GPT-20261121-0911 (r5 종료)
+BASE: 73ecb83b42880ac5bfdd1ba5d930d8085d7f4eef
+HEAD: 5c0346d27cfe63c4c4fedb3b46d79a3696a4c886 (지피 승인 대상, 이후 코드 변경 없음)
+BRANCH: work/claude-buy-review-gate-20261121
+REVIEW-SCOPE: 없음(새 검토 대상 없음)
+UPDATED: 2026-11-21 15:0x KST (정각 실행)
+
+- 승인 범위: r5 CR-11 수정·합성 전용 엔진/실험실. REAL_DATA_LOCK 유지, 실제 종목 매수 검토 발행 불가, 정책값(안전마진 구간·허용오차·25/10%) 미승인.
+- main 병합(실험실 파일 has/buy-review-*.js 추가, 운영 앱 portfolio_v5.html 미연결)은 순태씨 '올려' 후에만.
+- 순태씨 결정 대기: 비상현금 하한 금액·통화, 안전마진 구간·업종별 보정, 실제 확신종목 지정 경로.
+- 다음 우선순위(지피 제시): G0 GAS/KIS 실제 시세 연결·독립 교차검증(구체 승인 지시 대기), universe-400 공식 목록(별건).
+
+---
+
 STATUS: READY_FOR_REVIEW
 ORDER-ID: GPT-20261121-0911 (GPT-REVIEW-buy-review-gate-20261121-1330 CHANGES_REQUESTED CR-11 반영, r5)
 BASE: 73ecb83b42880ac5bfdd1ba5d930d8085d7f4eef (지피가 검토한 r4)
