@@ -1,5 +1,21 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
+STATUS: DEPLOYED (순태씨 대화창 '승인' → main no-ff 병합 `ee0a69c`)
+ORDER-ID: GPT-20261121-0911 — 곡소리 매수 검토 게이트 r5 (지피 1427 APPROVE)
+REPORT: docs/team/CLAUDE-DEV-BUY-REVIEW-GATE-20261121.md
+BRANCH: work/claude-buy-review-gate-20261121 → main
+HEAD: 5c0346d27cfe63c4c4fedb3b46d79a3696a4c886 (병합된 코드) · 병합 `ee0a69c`
+REVIEW-SCOPE: 없음(사후 확인만 — 병합 후 코드 차이 0, 승인 HEAD 그대로)
+UPDATED: 2026-11-21 22:5x KST (순태씨 대화)
+
+- 반영 내용: has/buy-review-gate.js·fixtures·실험실(has/buy-review-lab.*)·시험 2건·pins. 운영 앱 portfolio_v5.html 변경 0, 연결 0. REAL_DATA_LOCK 유지(실제 종목 매수 검토 발행 불가).
+- 병합 후 시험: 전체 2312 중 2310 통과/0 실패/2 skip, scan-secrets 0.
+- 순태씨 결정 필요: 비상현금 하한 금액·통화, 안전마진 구간·업종별 조정, 확신종목 실제 지정 신뢰 경로.
+- 다음: G0 GAS/KIS 실제 시세 연결·교차검증(구체 승인 지시 대기).
+
+## 이전 기록
+
+### APPROVED 대기 (2026-11-21 15:0x~22:06)
 STATUS: APPROVED (r5 — 지피 GPT-REVIEW-buy-review-gate-20261121-1427, 합성 전용 정적 승인·운영 승인 아님)
 ORDER-ID: GPT-20261121-0911 — 개발 단위 종료
 REPORT: docs/team/CLAUDE-DEV-BUY-REVIEW-GATE-20261121.md (맨 위 APPROVED 기록)
@@ -14,7 +30,6 @@ UPDATED: 2026-11-21 22:06 KST (정각 실행, 새 지피 파일 없음 — 대�
 - 순태씨 결정 필요: 비상현금 하한 금액·통화, 안전마진 구간 초기 정책·업종별 조정, 확신종목 실제 지정 신뢰 경로.
 - 다음: G0 GAS/KIS 실제 시세 연결·교차검증(구체 승인 지시 대기).
 
-## 이전 기록
 
 ### r5 (2026-11-21 14:2x)
 STATUS: READY_FOR_REVIEW (r5)

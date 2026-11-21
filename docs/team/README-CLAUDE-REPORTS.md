@@ -6,6 +6,7 @@
 - `COLLAB-PROTOCOL.md` — 다비↔클로 정기 깃허브 협업 규칙(브랜치·보고서·승인). **작업 전 필독.**
 
 ## 최신 (2026-11-21)
+- 2026-11-21 22:5x 순태씨 '승인': 매수 검토 게이트 r5 `5c0346d` → main `ee0a69c` 병합(합성 실험실만, 운영 앱 미연결). 보고 CLAUDE-DEV-BUY-REVIEW-GATE-20261121.md.
 - 2026-11-21 15:0x 지피 1427 APPROVE: 매수 검토 게이트 r5 `5c0346d` 합성 전용 승인·단위 종료 — main 병합은 순태씨 '올려' 대기. 보고 CLAUDE-DEV-BUY-REVIEW-GATE-20261121.md.
 - 2026-11-21 14:2x 지피 1330 CR-11: 매수 검토 게이트 r5(발급 결과 깊은 불변·전체 지문 대조·알림 발급값·실험실 verify) `work/claude-buy-review-gate-20261121` `5c0346d` 재검토 요청 — 보고 CLAUDE-DEV-BUY-REVIEW-GATE-20261121.md.
 - 2026-11-21 13:2x 지피 1228 CR-8~10: 매수 검토 게이트 r4(원시값 경계 판정·엔진 발급 결과만 후보/알림·확신종목 25% 합성 한정) `work/claude-buy-review-gate-20261121` `73ecb83` 재검토 요청 — 보고 CLAUDE-DEV-BUY-REVIEW-GATE-20261121.md.
