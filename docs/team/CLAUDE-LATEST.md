@@ -1,18 +1,21 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
-STATUS: APPROVED (설계 문서 r2 — 문서 논의 종료, 코드·운영 변경 0)
-ORDER-ID: GPT-20261120-2132 · GPT-REVIEW-ai-trading-plan-20261120-2330 APPROVE (docs/gpt-ai-trading-plan-20261120 `d487d1a`)
-REPORT: docs/team/CLAUDE-DEV-AI-TRADING-PLAN-20261120.md (본문 docs/team/AI-TRADING-ARCHITECTURE-20261120.md)
-BRANCH: work/claude-ai-trading-plan-20261120
-HEAD: 9d1f7d898e89039a0720d172a0135d9da59b5283 (지피 승인 대상) · 보고 커밋 14e5f70
-REVIEW-SCOPE: 없음(이번 실행 새 검토 대상 없음). 승인은 장기 설계 의견·시험 계획 문서에 한함 — G3 구현, G4/G5 실주문·API 키, GAS, 실거래, 배포 승인 아님.
-UPDATED: 2026-11-21 08:06 KST (정각 실행, 변경 없음 대기)
+STATUS: READY_FOR_REVIEW
+ORDER-ID: GPT-20261121-0911 (docs/gpt-buy-recommendation-gate-20261121 `92aaa4e`)
+REPORT: docs/team/CLAUDE-DEV-BUY-REVIEW-GATE-20261121.md
+BRANCH: work/claude-buy-review-gate-20261121
+HEAD: a2a4c791902a07d02e4da73993f10ed67f49b22a (검토 대상 코드) · 보고 커밋 adcd251
+REVIEW-SCOPE: 83f2a25..a2a4c79 — has/buy-review-gate.js(가격 fail-closed·5게이트·3시나리오 안전마진·5상태·실행 가능성 분리·후보 5개·중복 알림 방지), has/buy-review-fixtures.js, 독립 실험실 has/buy-review-lab.*, tests/buy-review-gate.test.cjs(15), tests/buy-review-mobile.cjs, live-data-pins addedRuntimeFiles 5건. 운영 앱 portfolio_v5.html 변경 없음.
+UPDATED: 2026-11-21 10:4x KST (정각 실행)
 
-- 지피 지시서 현황: 새 GPT-ORDER 없음. 신호 성적표 P1 `3f9009e` 지피 검토 대기(별건, 아직 GPT-REVIEW 없음).
-- 순태씨 미확정 결정(설계 제안값): 대안 A(수동 주문) 종착점 여부, 레버리지 한도 방식, soft/hard 정지 수치, 현금 하한.
-- 운영 main 앱 코드 변경 없음. 다음 개발 우선순위 G0 시세 연결·교차검증(승인된 구체 지시 대기).
+- 시험: 전체 2299 중 2297 통과 / 0 실패 / 2 skip, scan-secrets 0, Playwright 360/390/430 가로 스크롤 0·최소 12px·외부 요청 0. 실제 데이터 접근 0(합성만).
+- 선행 의존성 미완료(G0 시세 교차검증·SEC/DART 재무·미국 200 GAS) → 운영 곡소리 목록은 계속 '판단 보류', 운영 연결 안 함.
+- 지피 지시서 현황: 0911 처리 완료(검토 대기). 신호 성적표 P1 `3f9009e` GPT-REVIEW 아직 없음(별건).
+- 순태씨 결정 필요: 비상현금 하한 금액, 안전마진 구간(10/20/30/40%) 초기 정책 채택·업종별 조정.
 
 ## 이전 기록
+
+- (이전, 11-21 08~09시) STATUS: APPROVED (설계 문서 r2 — 문서 논의 종료, 코드·운영 변경 0) / ORDER-ID: GPT-20261120-2132 · GPT-REVIEW-ai-trading-plan-20261120-2330 APPROVE (docs/gpt-ai-trading-plan-20261120 `d487d1a`) / REPORT: docs/team/CLAUDE-DEV-AI-TRADING-PLAN-20261120.md (본문 docs/team/AI-TRADING-ARCHITECTURE-20261120.md) / BRANCH: work/claude-ai-trading-plan-20261120 / HEAD: 9d1f7d898e89039a0720d172a0135d9da59b5283 (지피 승인 대상) · 보고 커밋 14e5f70 / REVIEW-SCOPE: 없음(이번 실행 새 검토 대상 없음). 승인은 장기 설계 의견·시험 계획 문서에 한함 — G3 구현, G4/G5 실주문·API 키, GAS, 실거래, 배포 승인 아님. / UPDATED: 2026-11-21 08:06 KST (정각 실행, 변경 없음 대기) / - 지피 지시서 현황: 새 GPT-ORDER 없음. 신호 성적표 P1 `3f9009e` 지피 검토 대기(별건, 아직 GPT-REVIEW 없음). / - 순태씨 미확정 결정(설계 제안값): 대안 A(수동 주문) 종착점 여부, 레버리지 한도 방식, soft/hard 정지 수치, 현금 하한. / - 운영 main 앱 코드 변경 없음. 다음 개발 우선순위 G0 시세 연결·교차검증(승인된 구체 지시 대기).
 
 - (이전, 11-20 23:1x) STATUS: READY_FOR_REVIEW (설계 문서 r2만 — 코드·운영 변경 0) / ORDER-ID: GPT-20261120-2132 (GPT-REVIEW-ai-trading-plan-20261120-2233 CHANGES_REQUESTED 반영) / REPORT: docs/team/CLAUDE-DEV-AI-TRADING-PLAN-20261120.md (머리말 CR 대응표; 본문 docs/team/AI-TRADING-ARCHITECTURE-20261120.md) / BRANCH: work/claude-ai-trading-plan-20261120 / HEAD: 9d1f7d898e89039a0720d172a0135d9da59b5283 (검토 대상 설계 r2) · 보고 커밋 14e5f70 / REVIEW-SCOPE: AI-TRADING-ARCHITECTURE-20261120.md r2 변경분(0dbe4b0..9d1f7d8) — CR-1 soft/hard·우량주 예외 철회·T9b/T9c, CR-2 A 미확정·주문표 미생성·승인 범위, CR-3 주문 의도 서명 계약·T15~T19(개념만), CR-4 조정 일관성 계약·T3b·분할조정 보유량. 시험 실행 주장 없음. / UPDATED: 2026-11-20 23:1x KST (정각 실행) /  / - 지피 지시서 현황: 2132는 r2로 재제출. 신호 성적표 P1 `3f9009e` 지피 검토 대기(별건). 새 GPT-ORDER 없음. / - 운영 main 앱 코드 변경 없음. 다음 개발 우선순위 G0 시세 연결·교차검증 유지.
 
