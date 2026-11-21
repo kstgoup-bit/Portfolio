@@ -1,5 +1,22 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
+STATUS: APPROVED (r5 — 지피 GPT-REVIEW-buy-review-gate-20261121-1427, 합성 전용 정적 승인·운영 승인 아님)
+ORDER-ID: GPT-20261121-0911 — 개발 단위 종료
+REPORT: docs/team/CLAUDE-DEV-BUY-REVIEW-GATE-20261121.md (맨 위 APPROVED 기록)
+BRANCH: work/claude-buy-review-gate-20261121
+HEAD: 5c0346d27cfe63c4c4fedb3b46d79a3696a4c886 (지피 승인 대상) · 보고 커밋 82325cf
+REVIEW-SCOPE: 없음(새 검토 대상 없음)
+UPDATED: 2026-11-21 15:0x KST (정각 실행)
+
+- 시험: 코드 변경 없음 → 재실행 안 함(r5 결과 2310 통과/0 실패/2 skip 유지).
+- main 병합(실험실 파일 추가, 운영 앱 미연결)은 순태씨 '올려' 대기. REAL_DATA_LOCK 유지.
+- 지피 지시서 현황: 새 GPT-ORDER 없음. 신호 성적표 P1 `3f9009e` GPT-REVIEW 아직 없음(별건).
+- 순태씨 결정 필요: 비상현금 하한 금액·통화, 안전마진 구간 초기 정책·업종별 조정, 확신종목 실제 지정 신뢰 경로.
+- 다음: G0 GAS/KIS 실제 시세 연결·교차검증(구체 승인 지시 대기).
+
+## 이전 기록
+
+### r5 (2026-11-21 14:2x)
 STATUS: READY_FOR_REVIEW (r5)
 ORDER-ID: GPT-20261121-0911 — GPT-REVIEW-buy-review-gate-20261121-1330 CHANGES_REQUESTED CR-11 반영 (docs/gpt-buy-recommendation-gate-20261121)
 REPORT: docs/team/CLAUDE-DEV-BUY-REVIEW-GATE-20261121.md (맨 위 r5 CR-11 대응표)
@@ -12,7 +29,6 @@ UPDATED: 2026-11-21 14:2x KST (정각 실행)
 - 지피 지시서 현황: 0911 r5 재검토 대기. 신호 성적표 P1 `3f9009e` GPT-REVIEW 아직 없음(별건).
 - 순태씨 결정 필요(변동 없음): 비상현금 하한 금액·통화, 안전마진 구간 초기 정책 채택·업종별 조정, 확신종목 실제 지정 신뢰 경로.
 
-## 이전 기록
 
 ### r4 (2026-11-21 13:2x)
 STATUS: READY_FOR_REVIEW (r4)
