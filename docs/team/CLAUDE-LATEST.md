@@ -1,19 +1,21 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
-STATUS: READY_FOR_REVIEW (r3)
-ORDER-ID: GPT-20261121-0911 — GPT-REVIEW-buy-review-gate-20261121-1128 CHANGES_REQUESTED CR-5~7 반영 (docs/gpt-buy-recommendation-gate-20261121 `db1ff49`)
-REPORT: docs/team/CLAUDE-DEV-BUY-REVIEW-GATE-20261121.md (맨 위 r3 CR 대응표)
+STATUS: READY_FOR_REVIEW (r4)
+ORDER-ID: GPT-20261121-0911 — GPT-REVIEW-buy-review-gate-20261121-1228 CHANGES_REQUESTED CR-8~10 반영 (docs/gpt-buy-recommendation-gate-20261121 `d58917d`)
+REPORT: docs/team/CLAUDE-DEV-BUY-REVIEW-GATE-20261121.md (맨 위 r4 CR 대응표)
 BRANCH: work/claude-buy-review-gate-20261121
-HEAD: 26b90befa4dd1ad40cdf67808f1a1f48fd1f797d (검토 대상 코드) · 보고 커밋 8d235bf
-REVIEW-SCOPE: 74a38be..26b90be — has/buy-review-gate.js(CR-5 안전마진·구간·정렬은 엔진 재계산값만, 입력 구간 다르면 경계 충돌 보류 / CR-6 synthetic !== true면 매수 검토 상태 금지(REAL_DATA_LOCK)·생성자·검증자·공급자 신뢰 등록부(real 비어 있음)·같은 원천 별칭 차단·producedBy 필수 / CR-7 확신종목 25%는 순태씨 지정 목록 대조 시에만·비중 0~100%·비중 계좌 범위=현금 계좌 범위), fixtures, tests(+3), pins 2건. 운영 앱 변경 없음.
-UPDATED: 2026-11-21 12:2x KST (정각 실행)
+HEAD: 73ecb83b42880ac5bfdd1ba5d930d8085d7f4eef (검토 대상 코드) · 보고 커밋 033b3f2
+REVIEW-SCOPE: 26b90be..73ecb83 — has/buy-review-gate.js(CR-8 구간·D·경계충돌·정렬은 미반올림 marginRaw, marginPct 표시 전용, 부동소수 오차만 1e-9 흡수 / CR-9 WeakMap 발급 사본으로 엔진 발급·미변조·synthetic 결과만 후보·알림, 위조·복사·JSON·실제 자료 0건 / CR-10 CONVICTION_TRUST='no-trusted-path', 실제 자료는 목록 있어도 10%, 25%는 synthetic-only 표시), tests(+3), pins 1건. 운영 앱 변경 없음.
+UPDATED: 2026-11-21 13:2x KST (정각 실행)
 
-- 시험: 전체 2307 중 2305 통과 / 0 실패 / 2 skip, scan-secrets 0, Playwright 360/390/430 가로 스크롤 0·최소 12px. 실제 데이터 접근 0(합성만).
-- 한계: 실제 자료는 잠금으로 매수 검토 불가 — 해제 = 신뢰 G0/SEC/DART 수집·검증 단계 + 등록부 + 지피 검토 + 순태씨 승인. 허용오차·기한은 미검증 공학 값.
-- 지피 지시서 현황: 0911 r3 재검토 대기. 신호 성적표 P1 `3f9009e` GPT-REVIEW 아직 없음(별건).
-- 순태씨 결정 필요: 비상현금 하한 금액·통화, 안전마진 구간 초기 정책 채택·업종별 조정.
+- 시험: 전체 2310 중 2308 통과 / 0 실패 / 2 skip, scan-secrets 0, Playwright 360/390/430 가로 스크롤 0·최소 12px. 실제 데이터 접근 0(합성만).
+- 한계: 저장된 결과 재사용 시 재평가 필요. 실제 자료 잠금·확신종목 신뢰 경로 해제는 신뢰 G0/SEC/DART·목록 발급 경로 + 지피 검토 + 순태씨 승인 후.
+- 지피 지시서 현황: 0911 r4 재검토 대기. 신호 성적표 P1 `3f9009e` GPT-REVIEW 아직 없음(별건).
+- 순태씨 결정 필요: 비상현금 하한 금액·통화, 안전마진 구간 초기 정책 채택·업종별 조정, 확신종목 실제 지정 신뢰 경로.
 
 ## 이전 기록
+
+- (이전, 11-21 12:2x) STATUS: READY_FOR_REVIEW (r3) / ORDER-ID: GPT-20261121-0911 — GPT-REVIEW-buy-review-gate-20261121-1128 CHANGES_REQUESTED CR-5~7 반영 (docs/gpt-buy-recommendation-gate-20261121 `db1ff49`) / REPORT: docs/team/CLAUDE-DEV-BUY-REVIEW-GATE-20261121.md (맨 위 r3 CR 대응표) / BRANCH: work/claude-buy-review-gate-20261121 / HEAD: 26b90befa4dd1ad40cdf67808f1a1f48fd1f797d (검토 대상 코드) · 보고 커밋 8d235bf / REVIEW-SCOPE: 74a38be..26b90be — has/buy-review-gate.js(CR-5 안전마진·구간·정렬은 엔진 재계산값만, 입력 구간 다르면 경계 충돌 보류 / CR-6 synthetic !== true면 매수 검토 상태 금지(REAL_DATA_LOCK)·생성자·검증자·공급자 신뢰 등록부(real 비어 있음)·같은 원천 별칭 차단·producedBy 필수 / CR-7 확신종목 25%는 순태씨 지정 목록 대조 시에만·비중 0~100%·비중 계좌 범위=현금 계좌 범위), fixtures, tests(+3), pins 2건. 운영 앱 변경 없음. / UPDATED: 2026-11-21 12:2x KST (정각 실행) /  / - 시험: 전체 2307 중 2305 통과 / 0 실패 / 2 skip, scan-secrets 0, Playwright 360/390/430 가로 스크롤 0·최소 12px. 실제 데이터 접근 0(합성만). / - 한계: 실제 자료는 잠금으로 매수 검토 불가 — 해제 = 신뢰 G0/SEC/DART 수집·검증 단계 + 등록부 + 지피 검토 + 순태씨 승인. 허용오차·기한은 미검증 공학 값. / - 지피 지시서 현황: 0911 r3 재검토 대기. 신호 성적표 P1 `3f9009e` GPT-REVIEW 아직 없음(별건). / - 순태씨 결정 필요: 비상현금 하한 금액·통화, 안전마진 구간 초기 정책 채택·업종별 조정. → 지피 1228 CHANGES_REQUESTED(CR-8~10).
 
 - (이전, 11-21 11:2x) STATUS: READY_FOR_REVIEW (r2) / ORDER-ID: GPT-20261121-0911 — GPT-REVIEW-buy-review-gate-20261121-1031 CHANGES_REQUESTED CR-1~4 반영 (docs/gpt-buy-recommendation-gate-20261121 `1a2489e`) / REPORT: docs/team/CLAUDE-DEV-BUY-REVIEW-GATE-20261121.md (맨 위 CR 대응표) / BRANCH: work/claude-buy-review-gate-20261121 / HEAD: 74a38bede73be4438f061ed62cb17cf0e92dc600 (검토 대상 코드) · 보고 커밋 aadf3fd → 지피 1128 CHANGES_REQUESTED(CR-5~7).
 
