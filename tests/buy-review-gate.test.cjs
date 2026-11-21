@@ -111,7 +111,7 @@ test('실행 가능성은 투자 판단과 분리: 현금 부족/미확인·상�
   assert.equal(short.executability.items.find(x => x.id === 'emergency').status, 'blocked');
   const cap = run(d => { d.context.weightPct = 10; });
   assert.equal(cap.executability.items.find(x => x.id === 'cap').status, 'blocked');
-  const conv = run(d => { d.context.weightPct = 10; d.context.conviction = true; });
+  const conv = run(d => { d.context.weightPct = 10; d.context.convictionList = F.convictionList(['SYN-A']); });
   assert.equal(conv.executability.cap, 25); assert.equal(conv.executability.items.find(x => x.id === 'cap').status, 'ok');
   const sec = run(d => { d.context.sameSectorHoldings = ['SYN-B']; d.context.sectorWeightPct = 30; });
   assert.equal(sec.executability.items.find(x => x.id === 'sector').status, 'warn');
@@ -242,9 +242,10 @@ test('CR-3 조사·증빙: 완료 주장만·자체 메모·다른 종목 공시
   assert.ok(real.gates[0].reason.includes('합성 출처는 실제 판단에 사용 불가'));
   const fakeHost = run(d => { d.synthetic = false; d.gates.A.evidence[0].url = 'https://sec-gov.example.com/x'; });
   assert.ok(gateOf(fakeHost, 'A').reason.includes('공시 공식 출처 아님'));
-  // 공식 도메인 형식 확인(접속하지 않음): sec.gov·정상 문서번호면 해당 증빙 사유는 사라진다
+  // 공식 도메인 형식 확인(접속하지 않음): sec.gov·정상 문서번호면 출처 사유는 사라지고, 남는 것은 실제 자료 신뢰 등록 잠금뿐(CR-6)
   const e = F.one('10-K(형식 시험)', 'filing', '2026-11-01'); e.url = 'https://www.sec.gov/Archives/edgar/data/0/0.htm';
-  assert.deepEqual(G.evidenceCheck(e, { market: 'US', ticker: 'SYN-A', synthetic: false, now: Date.parse(NOW) }), []);
+  const left = G.evidenceCheck(e, { market: 'US', ticker: 'SYN-A', synthetic: false, now: Date.parse(NOW) });
+  assert.ok(left.length > 0 && left.every(x => /신뢰 등록 없음.*실제 자료 잠금/.test(x)), JSON.stringify(left));
 });
 test('CR-4 실행 가능성: 오래된 현금·통화 불일치·계좌 미확인·하한 통화 불일치 → blocked/unconfirmed, 판단은 유지', () => {
   const ex = (f) => run(f).executability;
@@ -287,4 +288,95 @@ test('CR-4 알림 중복 제거: 같은 실행에서 같은 market+ticker는 후
   const down = G.notifyPlan([run(d => { delete d.valuation; }), run(d => { delete d.valuation; })], p.ledger);
   assert.equal(down.notify, false);
   assert.equal(G.notifyPlan([a, a], down.ledger).items.length, 1);
+});
+
+test('CR-5 안전마진은 엔진 재계산값만 사용: 입력 주당가치 ±5% 왜곡으로 40/30/20% 경계를 넘지 못함', () => {
+  // 지피 반례: 재계산 80, 종가 48, 입력 76.5 → 재계산 기준 40%(가치함정 재검증)이며 HIGH로 우회하지 않음
+  const trap = run(d => { setClose(d, 48); d.valuation.scenarios.conservative.valuePerShare = 76.5; });
+  assert.equal(trap.valuation.valueBasis, 'engine-recomputed');
+  assert.equal(trap.valuation.conservative, 80);
+  assert.equal(trap.valuation.marginPct, 40);
+  assert.notEqual(trap.state, S.HIGH); assert.equal(trap.buyReview, false); assert.equal(gateOf(trap, 'D').status, 'UNKNOWN');
+  // 경계별 ±5% 이내 왜곡: 재계산 기준 구간이 유지되거나, 구간이 갈리면 경계 충돌로 보류
+  const cases = [[48, 'value-trap-check'], [56, 'priority'], [64, 'conditional']];  // 재계산 80 기준 40/30/20%
+  for (const [close, band] of cases) {
+    for (const declared of [76.2, 77, 79, 81, 83, 84]) {
+      const r = run(d => { setClose(d, close); d.valuation.scenarios.conservative.valuePerShare = declared; });
+      const label = close + '/' + declared;
+      assert.equal(r.valuation.marginPct, Math.round((1 - close / 80) * 1000) / 10, label);
+      if (r.valuation.status === 'computed') assert.equal(r.valuation.band, band, label);
+      else { assert.equal(r.valuation.status, 'boundary-conflict', label); assert.equal(r.state, S.HOLD, label); assert.equal(r.buyReview, false, label); assert.match(gateOf(r, 'D').reason, /경계 충돌/, label); }
+    }
+  }
+  // 경계 바로 아래(재계산 39.9%)를 입력 부풀림으로 40% 위로 올려도 HIGH가 아니라 보류
+  const up = run(d => { setClose(d, 48.08); d.valuation.scenarios.conservative.valuePerShare = 83; });
+  assert.equal(up.valuation.status, 'boundary-conflict'); assert.equal(up.state, S.HOLD);
+  // 20% 경계: 재계산 19.9%(FAIL 영역)를 입력 81로 20% 이상처럼 보여도 조건부가 되지 않음
+  const c20 = run(d => { setClose(d, 64.08); d.valuation.scenarios.conservative.valuePerShare = 81; });
+  assert.equal(c20.buyReview, false);
+  // 후보 정렬도 재계산 안전마진 기준
+  const a = G.evaluate(F.withTicker(F.base(d => { setClose(d, 58); d.valuation.scenarios.conservative.valuePerShare = 83; }), 'SYN-P'), NOW);
+  const b = G.evaluate(F.withTicker(F.base(d => { setClose(d, 57); }), 'SYN-Q'), NOW);
+  assert.ok(b.valuation.marginPct > a.valuation.marginPct);
+});
+
+test('CR-6 실제 자료 잠금: synthetic:false + sec.gov 형식 URL·임의 해시·검증자/공급자 별칭 → 매수 검토 금지·판단 보류', () => {
+  const realish = d => {
+    d.synthetic = false;
+    (function walk(x) { if (!x || typeof x !== 'object') return; if (Array.isArray(x)) { x.forEach(walk); return; }
+      if (x.kind) { x.url = 'https://www.sec.gov/Archives/edgar/data/1/' + x.kind + '.htm'; x.producedBy = 'edgar-fetcher'; x.verification = { status: 'verified', verifier: 'independent-auditor', checkedAt: x.retrievedAt.replace('12:00', '13:00'), contentSha256: 'b'.repeat(64) }; }
+      Object.keys(x).forEach(k => walk(x[k])); })(d);
+    d.price.source = 'vendor-x'; d.price.crossCheck.quotes[0].provider = 'vendor-x'; d.price.crossCheck.quotes[1].provider = 'vendor-x-mirror';
+  };
+  const r = run(realish);
+  assert.equal(r.buyReview, false); assert.equal(r.state, S.HOLD); assert.equal(r.synthetic, false);
+  assert.match(r.reasons.join(' '), /실제 자료 잠금|신뢰 등록 없음/);
+  // 엔진 내부가 모두 통과한다고 가정해도(합성 경로 그대로 + synthetic만 false) 최종 잠금이 걸린다
+  const G2 = require('../has/buy-review-gate.js');
+  assert.equal(G2.REAL_DATA_LOCK, true); assert.equal(G2.TRUST.status, 'real-data-locked');
+  assert.deepEqual(Object.keys(G2.TRUST.real.verifiers), []); assert.deepEqual(Object.keys(G2.TRUST.real.providers), []);
+  assert.ok(Object.isFrozen(G2.TRUST.real.verifiers));
+  // 문자열 synthetic, 누락도 실제 자료로 취급
+  assert.equal(run(d => { d.synthetic = 'true'; }).buyReview, false);
+  assert.equal(run(d => { delete d.synthetic; }).buyReview, false);
+  // producedBy 누락은 증빙 미검증
+  const np = run(d => { delete d.gates.A.evidence[0].producedBy; });
+  assert.equal(np.buyReview, false); assert.match(gateOf(np, 'A').reason, /producedBy/);
+  // 미등록 검증자·같은 원천 별칭 공급자(합성에서도)
+  assert.equal(run(d => { d.gates.B.evidence[0].verification.verifier = 'some-verifier'; }).buyReview, false);
+  const alias = run(d => { d.price.crossCheck.quotes[1].provider = 'SYNTHETIC-9'; });
+  assert.equal(alias.price.status, 'fail-closed'); assert.ok(alias.price.reasons.some(x => /신뢰 등록 없음/.test(x)));
+  // 합성 실험실 정상 경로는 유지
+  assert.equal(run().state, S.CONDITIONAL);
+});
+
+test('CR-7 확신종목 25%는 지정 목록 대조 후에만, 비중 범위·계좌 범위 검사', () => {
+  const capOf = f => run(f).executability.items.find(x => x.id === 'cap');
+  // 지피 반례: boolean 하나로 25%가 열리지 않음
+  const flag = run(d => { d.context.weightPct = 20; d.context.conviction = true; });
+  assert.equal(flag.executability.cap, 10); assert.equal(capOf(d => { d.context.weightPct = 20; d.context.conviction = true; }).status, 'blocked');
+  assert.match(capOf(d => { d.context.weightPct = 20; d.context.conviction = true; }).note, /지정 목록 없음/);
+  // 확인된 목록·같은 계좌·이 종목 포함일 때만 25%
+  const ok = run(d => { d.context.weightPct = 20; d.context.convictionList = F.convictionList(['SYN-A']); });
+  assert.equal(ok.executability.cap, 25); assert.equal(ok.executability.items.find(x => x.id === 'cap').status, 'ok');
+  const no = (name, f) => { const r = run(d => { d.context.weightPct = 20; d.context.convictionList = F.convictionList(['SYN-A']); f(d); }); assert.equal(r.executability.cap, 10, name); assert.equal(r.executability.items.find(x => x.id === 'cap').status, 'blocked', name); };
+  no('notInList', d => { d.context.convictionList.items = [{ market: 'US', ticker: 'SYN-B' }]; });
+  no('otherMarket', d => { d.context.convictionList.items = [{ market: 'KR', ticker: 'SYN-A' }]; });
+  no('unconfirmed', d => { d.context.convictionList.status = 'draft'; });
+  no('aiDesignated', d => { d.context.convictionList.designatedBy = 'ai'; });
+  no('stale', d => { d.context.convictionList.asOf = '2026-09-01'; });
+  no('future', d => { d.context.convictionList.asOf = '2026-12-01'; });
+  no('otherAccounts', d => { d.context.convictionList.accountScope.accounts = ['SYN-ACCT-2']; });
+  // 비중 값 범위
+  assert.equal(capOf(d => { d.context.weightPct = -1; }).status, 'blocked');
+  assert.equal(capOf(d => { d.context.weightPct = 101; }).status, 'blocked');
+  assert.match(capOf(d => { d.context.weightPct = 150; }).note, /0~100%/);
+  // 비중 계좌 범위: 다른 계좌로 분리 계산된 비중은 혼용하지 않음
+  const split = capOf(d => { d.context.weightScope = { status: 'confirmed', accounts: ['SYN-ACCT-2'] }; });
+  assert.equal(split.status, 'unknown'); assert.match(split.note, /계좌 범위/);
+  assert.equal(capOf(d => { delete d.context.weightScope; }).status, 'unknown');
+  assert.equal(capOf(d => { d.context.weightScope = { status: 'confirmed', accounts: ['SYN-ACCT-1', 'SYN-ACCT-2'] }; }).status, 'unknown');
+  assert.equal(capOf(() => {}).status, 'ok');
+  // 판단은 실행 가능성과 분리
+  assert.equal(flag.state, S.CONDITIONAL); assert.equal(flag.executability.quantity, null); assert.equal(flag.executability.order, null);
 });

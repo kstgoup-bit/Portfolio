@@ -41,7 +41,7 @@
       riskFlags: { accounting: false, liquidity: false, structural: false },
       context: { cash: { status: 'verified', amount: 5000000, currency: 'KRW', asOf: '2026-11-20T20:00:00Z', accountScope: { status: 'confirmed', accounts: ['SYN-ACCT-1'] } },
         fx: { base: 'KRW', quote: 'USD', rate: 0.00072, source: 'SYNTHETIC-FX', asOf: '2026-11-20T20:00:00Z' },
-        emergencyFloor: { status: 'set', amount: 1000000, currency: 'KRW' }, weightPct: 3, conviction: false, sectorWeightPct: 5, sameSectorHoldings: [] }
+        emergencyFloor: { status: 'set', amount: 1000000, currency: 'KRW' }, weightPct: 3, weightScope: { status: 'confirmed', accounts: ['SYN-ACCT-1'] }, conviction: false, sectorWeightPct: 5, sameSectorHoldings: [] }
     };
     return over ? over(d) || d : d;
   }
@@ -51,5 +51,7 @@
     (function walk(x) { if (!x || typeof x !== 'object') return; if (Array.isArray(x)) { x.forEach(walk); return; } if (x.kind && x.ticker === old) x.ticker = t; Object.keys(x).forEach(function (k) { walk(x[k]); }); })(d);
     d.ticker = t; return d;
   }
-  return Object.freeze({ NOW: NOW, HASH: HASH, base: base, ev: ev, one: one, sc: sc, quote: quote, withTicker: withTicker });
+  // 합성 확신종목 목록(순태씨 지정 형식 예시) — 실제 목록이 아니다.
+  function convictionList(tickers) { return { status: 'confirmed', designatedBy: 'user', asOf: '2026-11-15', accountScope: { status: 'confirmed', accounts: ['SYN-ACCT-1'] }, items: (tickers || ['SYN-A']).map(function (t) { return { market: 'US', ticker: t }; }) }; }
+  return Object.freeze({ convictionList: convictionList, NOW: NOW, HASH: HASH, base: base, ev: ev, one: one, sc: sc, quote: quote, withTicker: withTicker });
 });
