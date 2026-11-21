@@ -1,4 +1,30 @@
 STATUS: READY_FOR_REVIEW
+ORDER-ID: GPT-20261121-0911 (GPT-REVIEW-buy-review-gate-20261121-1330 CHANGES_REQUESTED CR-11 반영, r5)
+BASE: 73ecb83b42880ac5bfdd1ba5d930d8085d7f4eef (지피가 검토한 r4)
+HEAD: 5c0346d27cfe63c4c4fedb3b46d79a3696a4c886
+BRANCH: work/claude-buy-review-gate-20261121
+REVIEW-SCOPE: 73ecb83..5c0346d (중간 merge 49e1685는 main 문서뿐) — has/buy-review-gate.js(CR-11 발급 결과 깊은 불변 사본·전체 지문 대조·verify 공개·알림 marginPct 발급값), has/buy-review-lab.js(표시 경로 verify 계약), tests/buy-review-gate.test.cjs(CR-9 시험 갱신 + CR-11 시험 2건), tests/lib/live-data-pins.json 해시 2건. 운영 앱 portfolio_v5.html·fixtures·GAS 변경 없음.
+UPDATED: 2026-11-21 14:2x KST (정각 실행)
+
+## r5 — 지피 1330 CR-11 대응
+
+| CR | 지적 | 대응 | 음성시험 |
+|---|---|---|---|
+| CR-11 | `issued()`가 상위 5필드만 비교 → `valuation.marginPct`·`gates`·`reasons` 등 중첩 변조가 후보·알림·화면에 그대로 전달 | ① `evaluate()`는 결과를 입력과 분리된 **깊은 사본으로 만들고 모든 단계 `Object.freeze`** 후 그 사본을 발급(입력 객체는 freeze하지 않음 — "입력 객체를 바꾸지 않는다" 유지). ② 발급 시 키 정렬 전체 지문(`fingerprint`, NaN·undefined 구분)을 WeakMap 사본에 저장, `issued()`는 상위 5필드 + **깊은 불변 여부 + 전체 지문 일치**까지 확인. ③ `notifyPlan.items[].marginPct`는 결과 객체가 아니라 발급 사본(`ISSUED.get(r).marginPct`)에서 읽음. ④ `verify(r)` 공개, 실험실은 `G.verify(r)` 통과 결과만 카드 표시(실패 시 내용 비표시 안내). | 발급 결과에 14종 변조(marginPct/marginRaw/band/gates[0].status/reasons 교체·push·length=0/riskFlags push/evidenceOldest/valuation·gates 하위 객체 교체/키 추가/defineProperty/delete) → 모두 TypeError로 차단, 원래 값 유지, shortlist·notifyPlan의 marginPct가 발급값. 불변화를 푼 깊은 복사본에 marginPct·gate·reasons 변조 또는 무변조 → verify false·후보 0·알림 0. JSON 복사·freeze된 위조 객체·{} → 0. 입력 객체 미동결 확인. 합성 정상 경로 유지. 기존 CR-9 시험은 변조가 '차단'되는지 + 복사본 변조 제외로 갱신(대입이 strict 모드에서 throw하므로). |
+
+### r5 시험 결과 (클로 실행)
+- `node --require ./tests/lib/no-network.cjs --test tests/*.test.cjs`(jsdom NODE_PATH): 2312 중 **2310 통과 / 0 실패 / 2 skip**(r4 2310→+2). tests/buy-review-gate.test.cjs 28/28.
+- `node tools/scan-secrets.cjs`: findings 0.
+- Playwright Chromium(Python) 360/390/430, has/buy-review-lab.html, 외부 요청 차단: 가로 스크롤 0, 최소 글자 12px, 오늘의 후보 3건, 목록 7건, '검증 실패 결과' 표시 0, 페이지 오류 0.
+- 실제 데이터·API·GAS·계좌 접근 0.
+
+### r5 미완료·미검증
+- 발급 결과는 불변이므로 호출 쪽에서 결과를 고쳐 쓰는 코드는 앞으로 사본을 만들어야 하며, 그 사본은 후보·알림·표시에서 제외됨(의도). 저장·재로딩 결과는 재평가 필요(변동 없음).
+- 실제 자료 잠금·확신종목 신뢰 경로 해제 조건·순태씨 결정 사항은 r4와 동일.
+
+---
+
+STATUS: READY_FOR_REVIEW
 ORDER-ID: GPT-20261121-0911 (GPT-REVIEW-buy-review-gate-20261121-1228 CHANGES_REQUESTED CR-8~10 반영, r4)
 BASE: 26b90befa4dd1ad40cdf67808f1a1f48fd1f797d (지피가 검토한 r3)
 HEAD: 73ecb83b42880ac5bfdd1ba5d930d8085d7f4eef
