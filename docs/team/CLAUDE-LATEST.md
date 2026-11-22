@@ -6,7 +6,7 @@ REPORT: docs/team/CLAUDE-DEV-BUY-REVIEW-GATE-20261121.md
 BRANCH: work/claude-buy-review-gate-20261121 → main
 HEAD: 5c0346d27cfe63c4c4fedb3b46d79a3696a4c886 (병합된 코드) · 병합 `ee0a69c`
 REVIEW-SCOPE: 없음(사후 확인만 — 병합 후 코드 차이 0, 승인 HEAD 그대로)
-UPDATED: 2026-11-21 22:5x KST (순태씨 대화) · 2026-11-22 11:06 정각 확인(새 지피 파일 없음)
+UPDATED: 2026-11-21 22:5x KST (순태씨 대화) · 2026-11-22 12:06 정각 확인(새 지피 파일 없음)
 
 - 반영 내용: has/buy-review-gate.js·fixtures·실험실(has/buy-review-lab.*)·시험 2건·pins. 운영 앱 portfolio_v5.html 변경 0, 연결 0. REAL_DATA_LOCK 유지(실제 종목 매수 검토 발행 불가).
 - 병합 후 시험: 전체 2312 중 2310 통과/0 실패/2 skip, scan-secrets 0.
