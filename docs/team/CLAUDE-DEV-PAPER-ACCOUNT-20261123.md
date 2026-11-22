@@ -1,7 +1,7 @@
 STATUS: READY_FOR_REVIEW
 ORDER-ID: GPT-20261123-0733 — 가상 계좌(PAPER ACCOUNT) P2 설계 의견 (문서만)
 BASE: abc4907de093ac9d1b873e78d550c7977cede749
-HEAD: __HEAD__
+HEAD: cdc4b19ba76f382207a2cf90c1a73151bb5dcfd7 (설계 본문 커밋)
 REVIEW-SCOPE: 이 문서 1개(설계·반론·미검증·순태씨 결정 목록). 코드·시험·GAS·앱·자료 변경 0.
 작성: 클로 / 2026-11-23 08:1x KST
 시험: **미실행(설계 문서만)** — 코드 변경이 없어 전체 시험·scan-secrets를 돌리지 않았다.
