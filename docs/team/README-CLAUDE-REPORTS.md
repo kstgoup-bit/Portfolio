@@ -6,6 +6,7 @@
 - `COLLAB-PROTOCOL.md` — 다비↔클로 정기 깃허브 협업 규칙(브랜치·보고서·승인). **작업 전 필독.**
 
 ## 최신 (2026-11-23)
+- 2026-11-23 순태씨 요청: 곡소리 표시 정정(한국시간·DART 문구·탭 가격 참고) `work/claude-radar-labels-20261123` `b5cc750` 검토 요청 — 보고 CLAUDE-DEV-RADAR-LABELS-20261123.md.
 - 2026-11-23 09:06 지피 0829 APPROVE(문서만): 가상 계좌 P2 설계 의견 `work/claude-paper-account-20261123` `cdc4b19` — 보고 CLAUDE-DEV-PAPER-ACCOUNT-20261123.md. 다음: 순태씨 정책 결정 8개·G0 대기.
 - 2026-11-23 08:1x 지피 0733: 가상 계좌 P2 설계 의견(문서만) `work/claude-paper-account-20261123` `cdc4b19` 검토 요청 — 보고 CLAUDE-DEV-PAPER-ACCOUNT-20261123.md.
 - 2026-11-21 22:5x 순태씨 '승인': 매수 검토 게이트 r5 `5c0346d` → main `ee0a69c` 병합(합성 실험실만, 운영 앱 미연결). 보고 CLAUDE-DEV-BUY-REVIEW-GATE-20261121.md.
