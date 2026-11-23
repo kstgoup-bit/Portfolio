@@ -355,6 +355,50 @@
     [
       "  <button class=\"tab\" onclick=\"switchTab('risk')\">🌡️ 위험계</button>\n  <button class=\"tab\" onclick=\"switchTab('radar')\">📡 곡소리 <small style=\"font-size:12px;color:#333;font-weight:400\">가격 참고</small></button>\n  <a class=\"has-risk-shortcut\" href=\"#kst-radar/real/euphoria\" onclick=\"if(window.KSTRadar){window.KSTRadar.openEuphoria();return false;}\" aria-label=\"환호성 · 가격 참고\">📣 환호성 <small style=\"font-size:12px;color:#333;font-weight:400\">가격 참고</small></a>\n  <button class=\"tab\" onclick=\"switchTab('greatco')\">🏛️ 위대한 기업 <small style=\"font-size:12px;color:#333;font-weight:400\">판단 보조</small></button>\n",
       "  <button class=\"tab\" onclick=\"switchTab('risk')\">🌡️ 위험계</button>\n  <button class=\"tab\" onclick=\"switchTab('radar')\">📡 곡소리 <small style=\"font-size:12px;color:#333;font-weight:400\">준비 중</small></button>\n  <a class=\"has-risk-shortcut\" href=\"#kst-radar/real/euphoria\" onclick=\"if(window.KSTRadar){window.KSTRadar.openEuphoria();return false;}\" aria-label=\"환호성 · 가격 참고\">📣 환호성 <small style=\"font-size:12px;color:#333;font-weight:400\">준비 중</small></a>\n  <button class=\"tab\" onclick=\"switchTab('greatco')\">🏛️ 위대한 기업 <small style=\"font-size:12px;color:#333;font-weight:400\">판단 보조</small></button>\n"
+    ],
+    [
+      "  <button class=\"gtab\" id=\"gtab-explore\" onclick=\"switchGroup('explore')\">🔭 탐색</button>\n  <button class=\"gtab\" id=\"gtab-risk\" onclick=\"switchGroup('risk')\">🛡️ 위험관리</button>\n",
+      "  <button class=\"gtab\" id=\"gtab-risk\" onclick=\"switchGroup('risk')\">🛡️ 위험관리</button>\n"
+    ],
+    [
+      "<div class=\"tabs sub-tabs\" id=\"subtabs-explore\" style=\"display:none\">\n  <button class=\"tab\" onclick=\"switchTab('radar')\">📡 곡소리 <small style=\"font-size:12px;color:#333;font-weight:400\">가격 참고</small></button>\n  <a class=\"has-risk-shortcut\" href=\"#kst-radar/real/euphoria\" onclick=\"if(window.KSTRadar){window.KSTRadar.openEuphoria();return false;}\" aria-label=\"환호성 · 가격 참고\">📣 환호성<small style=\"font-size:12px;color:#333;font-weight:400;margin-left:4px\">가격 참고</small></a>\n  <button class=\"tab\" onclick=\"switchTab('greatco')\">🏛️ 위대한 기업 <small style=\"font-size:12px;color:#333;font-weight:400\">판단 보조</small></button>\n  <button class=\"tab\" onclick=\"switchTab('staff')\">🧭 AI 참모</button>\n  <button class=\"tab\" onclick=\"switchTab('ledgerdemo')\">🧪 거래 기록·손익 계산 체험 <small style=\"font-size:12px;color:#333;font-weight:400\">체험판</small></button>\n</div>\n<div class=\"tabs sub-tabs\" id=\"subtabs-risk\" style=\"display:none\">\n  <button class=\"tab\" onclick=\"switchTab('principledash')\">📋 종목분석</button>\n  <button class=\"tab\" onclick=\"switchTab('risk')\">🌡️ 위험계</button>\n  <button class=\"tab\" onclick=\"switchTab('pretrade')\">📝 매매 점검</button>\n  <button class=\"tab\" onclick=\"switchTab('commandments')\">📜 15계명</button>\n</div>\n",
+      "<div class=\"tabs sub-tabs\" id=\"subtabs-risk\" style=\"display:none\">\n  <button class=\"tab\" onclick=\"switchTab('principledash')\">📋 종목분석</button>\n  <button class=\"tab\" onclick=\"switchTab('risk')\">🌡️ 위험계</button>\n  <button class=\"tab\" onclick=\"switchTab('radar')\">📡 곡소리 <small style=\"font-size:12px;color:#333;font-weight:400\">가격 참고</small></button>\n  <a class=\"has-risk-shortcut\" href=\"#kst-radar/real/euphoria\" onclick=\"if(window.KSTRadar){window.KSTRadar.openEuphoria();return false;}\" aria-label=\"환호성 · 가격 참고\">📣 환호성 <small style=\"font-size:12px;color:#333;font-weight:400\">가격 참고</small></a>\n  <button class=\"tab\" onclick=\"switchTab('greatco')\">🏛️ 위대한 기업 <small style=\"font-size:12px;color:#333;font-weight:400\">판단 보조</small></button>\n  <button class=\"tab\" onclick=\"switchTab('ledgerdemo')\">🧪 거래 기록·손익 계산 체험 <small style=\"font-size:12px;color:#333;font-weight:400\">체험판</small></button>\n  <button class=\"tab\" onclick=\"switchTab('staff')\">🧭 AI 참모</button>\n  <button class=\"tab\" onclick=\"switchTab('pretrade')\">📝 매매 점검</button>\n  <button class=\"tab\" onclick=\"switchTab('commandments')\">📜 15계명</button>\n</div>\n"
+    ],
+    [
+      "  explore: [\"radar\",\"greatco\",\"staff\",\"ledgerdemo\"],\n  risk:    [\"principledash\",\"risk\",\"pretrade\",\"commandments\"],\n",
+      "  risk:    [\"principledash\",\"risk\",\"radar\",\"greatco\",\"ledgerdemo\",\"staff\",\"pretrade\",\"commandments\"],\n"
+    ],
+    [
+      "  var bar=document.getElementById(\"subtabs-explore\");if(!bar)return;\n  var link=bar.querySelector(\".has-risk-shortcut\");if(!link)return;",
+      "  var bar=document.getElementById(\"subtabs-risk\");if(!bar)return;\n  var link=bar.querySelector(\".has-risk-shortcut\");if(!link)return;"
+    ],
+    [
+      "  var idx=TAB_GROUPS.explore.indexOf(\"radar\"),btn=bar.querySelectorAll(\".tab\")[idx];",
+      "  var idx=TAB_GROUPS.risk.indexOf(\"radar\"),btn=bar.querySelectorAll(\".tab\")[idx];"
+    ],
+    [
+      "    link.style.color=c;link.style.borderColor=c;link.style.background=\"#fff\";link.style.fontWeight=\"800\";hasScrollSubTabIntoView(bar,link);\n",
+      "    link.style.color=c;link.style.borderColor=c;link.style.background=\"#fff\";link.style.fontWeight=\"800\";\n"
+    ],
+    [
+      "      btn.style.color=c; btn.style.borderColor=c; btn.style.background=\"#fff\";\n      hasScrollSubTabIntoView(subEl,btn);\n    }\n  }\n",
+      "      btn.style.color=c; btn.style.borderColor=c; btn.style.background=\"#fff\";\n    }\n  }\n"
+    ],
+    [
+      "/* 선택한 하위 탭이 가로 스크롤 밖으로 숨지 않게 그 탭 묶음만 옆으로 맞춘다(세로 스크롤은 건드리지 않음). */\nfunction hasScrollSubTabIntoView(bar,btn){\n  if(!bar||!btn||!(bar.scrollWidth>bar.clientWidth))return;\n  var l=btn.offsetLeft-bar.offsetLeft,r=l+btn.offsetWidth;\n  if(l<bar.scrollLeft)bar.scrollLeft=Math.max(0,l-8);\n  else if(r>bar.scrollLeft+bar.clientWidth)bar.scrollLeft=r-bar.clientWidth+8;\n}\nfunction switchGroup(group){",
+      "function switchGroup(group){"
+    ],
+    [
+      "        +'<span>다음 실적 '+hasPdDate(r.earningsDate)+' · 점검 '+hasPdDate(r.nextCheckDate)+'</span>'\n        +'<span style=\"font-weight:800;white-space:nowrap;color:'+(r.buyApproved?\"#2e7d32\":\"#c62828\")+'\">'+(r.buyApproved?\"✅ 추매가능\":\"⛔ 추매보류\")+'</span>'\n",
+      "        +'<span>다음 실적 '+(r.earningsDate||\"-\")+' · 점검 '+(r.nextCheckDate||\"-\")+'</span>'\n        +'<span style=\"font-weight:800;color:'+(r.buyApproved?\"#2e7d32\":\"#c62828\")+'\">'+(r.buyApproved?\"✅ 추매가능\":\"⛔ 추매보류\")+'</span>'\n"
+    ],
+    [
+      "// ---- 종목분석 대시보드 ----\n/* 기록된 날짜가 오늘(기기 날짜)보다 지났으면 '지남·갱신 필요'를 붙인다. 기록 자체는 바꾸지 않는다. */\nfunction hasPdDate(d){\n  if(!d)return \"-\";\n  var t=new Date(),today=t.getFullYear()+\"-\"+String(t.getMonth()+1).padStart(2,\"0\")+\"-\"+String(t.getDate()).padStart(2,\"0\");\n  var safe=String(d).replace(/[&<>\"']/g,\"\");\n  return /^\\d{4}-\\d{2}-\\d{2}$/.test(safe)&&safe<today?safe+' <b style=\"color:#c62828;white-space:nowrap\">(지남·갱신 필요)</b>':safe;\n}\n",
+      "// ---- 종목분석 대시보드 ----\n"
+    ],
+    [
+      ".gtab.active{font-weight:900;background:#fff;color:#1565c0;border-color:#1565c0;box-shadow:0 1px 5px #00000018;transition:all 0.2s}\n@media(max-width:400px){.gtab{padding:10px 2px;margin:4px 1px;font-size:13px}#subtabs-risk .tab{padding:8px 5px}}\n",
+      ".gtab.active{font-weight:900;background:#fff;color:#1565c0;border-color:#1565c0;box-shadow:0 1px 5px #00000018;transition:all 0.2s}\n"
     ]
   ],
   "radar/ui.js": [

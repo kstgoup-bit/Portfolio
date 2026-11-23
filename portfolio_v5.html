@@ -195,6 +195,7 @@ body{background:var(--sky-bg);color:var(--text);font-family:'Pretendard',sans-se
 .group-tabs{background:#f3f1fb}
 .gtab{flex:1;padding:10px 6px;border:2px solid transparent;background:none;color:var(--muted);font-size:14px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif;white-space:nowrap;border-radius:8px;margin:4px 2px;text-align:center}
 .gtab.active{font-weight:900;background:#fff;color:#1565c0;border-color:#1565c0;box-shadow:0 1px 5px #00000018;transition:all 0.2s}
+@media(max-width:400px){.gtab{padding:10px 2px;margin:4px 1px;font-size:13px}#subtabs-risk .tab{padding:8px 5px}}
 
 /* 탭 - 하위 카테고리 */
 .sub-tabs{border-top:1px solid var(--border)}
@@ -662,6 +663,7 @@ body #hasBriefStrip button{flex:0 0 auto;padding:4px 12px;border-width:1px;font-
 <!-- 대분류 탭 -->
 <div class="tabs group-tabs" id="groupTabs">
   <button class="gtab active" id="gtab-invest" onclick="switchGroup('invest')">💰 투자</button>
+  <button class="gtab" id="gtab-explore" onclick="switchGroup('explore')">🔭 탐색</button>
   <button class="gtab" id="gtab-risk" onclick="switchGroup('risk')">🛡️ 위험관리</button>
   <button class="gtab" id="gtab-asset" onclick="switchGroup('asset')">💎 자산관리</button>
   <button class="gtab" id="gtab-settings" onclick="switchGroup('settings')">⚙️ 설정</button>
@@ -676,14 +678,16 @@ body #hasBriefStrip button{flex:0 0 auto;padding:4px 12px;border-width:1px;font-
   <button class="tab" onclick="switchTab('pension')">🏦 연금</button>
   <button class="tab" onclick="switchTab('dividend')">💰 배당</button>
 </div>
+<div class="tabs sub-tabs" id="subtabs-explore" style="display:none">
+  <button class="tab" onclick="switchTab('radar')">📡 곡소리 <small style="font-size:12px;color:#333;font-weight:400">가격 참고</small></button>
+  <a class="has-risk-shortcut" href="#kst-radar/real/euphoria" onclick="if(window.KSTRadar){window.KSTRadar.openEuphoria();return false;}" aria-label="환호성 · 가격 참고">📣 환호성<small style="font-size:12px;color:#333;font-weight:400;margin-left:4px">가격 참고</small></a>
+  <button class="tab" onclick="switchTab('greatco')">🏛️ 위대한 기업 <small style="font-size:12px;color:#333;font-weight:400">판단 보조</small></button>
+  <button class="tab" onclick="switchTab('staff')">🧭 AI 참모</button>
+  <button class="tab" onclick="switchTab('ledgerdemo')">🧪 거래 기록·손익 계산 체험 <small style="font-size:12px;color:#333;font-weight:400">체험판</small></button>
+</div>
 <div class="tabs sub-tabs" id="subtabs-risk" style="display:none">
   <button class="tab" onclick="switchTab('principledash')">📋 종목분석</button>
   <button class="tab" onclick="switchTab('risk')">🌡️ 위험계</button>
-  <button class="tab" onclick="switchTab('radar')">📡 곡소리 <small style="font-size:12px;color:#333;font-weight:400">가격 참고</small></button>
-  <a class="has-risk-shortcut" href="#kst-radar/real/euphoria" onclick="if(window.KSTRadar){window.KSTRadar.openEuphoria();return false;}" aria-label="환호성 · 가격 참고">📣 환호성 <small style="font-size:12px;color:#333;font-weight:400">가격 참고</small></a>
-  <button class="tab" onclick="switchTab('greatco')">🏛️ 위대한 기업 <small style="font-size:12px;color:#333;font-weight:400">판단 보조</small></button>
-  <button class="tab" onclick="switchTab('ledgerdemo')">🧪 거래 기록·손익 계산 체험 <small style="font-size:12px;color:#333;font-weight:400">체험판</small></button>
-  <button class="tab" onclick="switchTab('staff')">🧭 AI 참모</button>
   <button class="tab" onclick="switchTab('pretrade')">📝 매매 점검</button>
   <button class="tab" onclick="switchTab('commandments')">📜 15계명</button>
 </div>
@@ -6399,6 +6403,13 @@ function openQuarterlyModal(type, id){
 }
 
 // ---- 종목분석 대시보드 ----
+/* 기록된 날짜가 오늘(기기 날짜)보다 지났으면 '지남·갱신 필요'를 붙인다. 기록 자체는 바꾸지 않는다. */
+function hasPdDate(d){
+  if(!d)return "-";
+  var t=new Date(),today=t.getFullYear()+"-"+String(t.getMonth()+1).padStart(2,"0")+"-"+String(t.getDate()).padStart(2,"0");
+  var safe=String(d).replace(/[&<>"']/g,"");
+  return /^\d{4}-\d{2}-\d{2}$/.test(safe)&&safe<today?safe+' <b style="color:#c62828;white-space:nowrap">(지남·갱신 필요)</b>':safe;
+}
 function computeBuyApproval(type,id,p){
   var w=computeCurrentWeight(type,id);
   var logicOk = p.logicState==="maintained";
@@ -6476,8 +6487,8 @@ function renderPrincipleDash(){
         +'<span style="color:'+(logicInfo?logicInfo.color:"#bbb")+';font-weight:700">'+(logicInfo?logicInfo.icon+' '+logicInfo.label:"논리 미설정")+'</span>'
       +'</div>'
       +'<div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--muted)">'
-        +'<span>다음 실적 '+(r.earningsDate||"-")+' · 점검 '+(r.nextCheckDate||"-")+'</span>'
-        +'<span style="font-weight:800;color:'+(r.buyApproved?"#2e7d32":"#c62828")+'">'+(r.buyApproved?"✅ 추매가능":"⛔ 추매보류")+'</span>'
+        +'<span>다음 실적 '+hasPdDate(r.earningsDate)+' · 점검 '+hasPdDate(r.nextCheckDate)+'</span>'
+        +'<span style="font-weight:800;white-space:nowrap;color:'+(r.buyApproved?"#2e7d32":"#c62828")+'">'+(r.buyApproved?"✅ 추매가능":"⛔ 추매보류")+'</span>'
       +'</div>'
     +'</div>';
   }).join("");
@@ -7207,7 +7218,8 @@ function changePw() {
 // =============================================
 var TAB_GROUPS={
   invest:  ["dashboard","general","domestic","overseas","pension","dividend"],
-  risk:    ["principledash","risk","radar","greatco","ledgerdemo","staff","pretrade","commandments"],
+  explore: ["radar","greatco","staff","ledgerdemo"],
+  risk:    ["principledash","risk","pretrade","commandments"],
   asset:   ["ledger","networth","debt","retirement","memo"],
   settings:["settings"]
 };
@@ -7223,6 +7235,13 @@ var tabColors={
   retirement:"#3949ab", debt:"#ad1457", networth:"#00695c", principledash:"#5e35b1", greatco:"#2e5d4b", ledgerdemo:"#8a5a00", staff:"#0d47a1"
 };
 
+/* 선택한 하위 탭이 가로 스크롤 밖으로 숨지 않게 그 탭 묶음만 옆으로 맞춘다(세로 스크롤은 건드리지 않음). */
+function hasScrollSubTabIntoView(bar,btn){
+  if(!bar||!btn||!(bar.scrollWidth>bar.clientWidth))return;
+  var l=btn.offsetLeft-bar.offsetLeft,r=l+btn.offsetWidth;
+  if(l<bar.scrollLeft)bar.scrollLeft=Math.max(0,l-8);
+  else if(r>bar.scrollLeft+bar.clientWidth)bar.scrollLeft=r-bar.clientWidth+8;
+}
 function switchGroup(group){
   var target=LAST_TAB_IN_GROUP[group]||TAB_GROUPS[group][0];
   switchTab(target);
@@ -7230,15 +7249,15 @@ function switchGroup(group){
 
 /* 환호성 화면이면 강조 테두리를 곡소리 탭이 아니라 환호성 바로가기에 둔다(주소 #kst-radar/…/euphoria 기준). */
 function hasSyncRiskTabHighlight(){
-  var bar=document.getElementById("subtabs-risk");if(!bar)return;
+  var bar=document.getElementById("subtabs-explore");if(!bar)return;
   var link=bar.querySelector(".has-risk-shortcut");if(!link)return;
   var radarPanel=document.getElementById("panel-radar");
   var euph=!!(radarPanel&&radarPanel.classList.contains("active")&&/^#kst-radar\/(real|demo)\/euphoria/.test(location.hash));
-  var idx=TAB_GROUPS.risk.indexOf("radar"),btn=bar.querySelectorAll(".tab")[idx];
+  var idx=TAB_GROUPS.explore.indexOf("radar"),btn=bar.querySelectorAll(".tab")[idx];
   var c=tabColors.radar||"#1565c0";
   link.classList.toggle("active",euph);
   if(euph){
-    link.style.color=c;link.style.borderColor=c;link.style.background="#fff";link.style.fontWeight="800";
+    link.style.color=c;link.style.borderColor=c;link.style.background="#fff";link.style.fontWeight="800";hasScrollSubTabIntoView(bar,link);
     if(btn){btn.classList.remove("active");btn.style.color="";btn.style.borderColor="";btn.style.background="";}
   }else{
     link.style.color="";link.style.borderColor="";link.style.background="";link.style.fontWeight="";
@@ -7288,6 +7307,7 @@ function switchTab(tab) {
       btn.classList.add("active");
       var c=tabColors[tab]||"#1565c0";
       btn.style.color=c; btn.style.borderColor=c; btn.style.background="#fff";
+      hasScrollSubTabIntoView(subEl,btn);
     }
   }
 

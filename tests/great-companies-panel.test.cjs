@@ -91,7 +91,7 @@ test('읽기 전용 증빙: 패널 코드에 저장·삭제·네트워크·HTML 
   a.doesNotMatch(css, /@import|url\(|position:fixed/); a.ok(css.replace(/\/\*[\s\S]*?\*\//g, '').split('}').filter(r => r.trim()).every(r => r.trim().startsWith('#panel-greatco')));
 });
 
-test('운영 앱 연결: 위험관리 메뉴 버튼·패널·처음 진입 때만 1회 스크립트 주입(defer 아님)', () => {
+test('운영 앱 연결: 탐색 메뉴 버튼(순태씨 2026-11-23 위험관리→탐색 이동)·패널·처음 진입 때만 1회 스크립트 주입(defer 아님)', () => {
   const html = read('portfolio_v5.html');
   a.doesNotMatch(html, /<script[^>]*great-companies/);
   const section = html.slice(html.indexOf('<!-- 대분류 탭 -->'), html.indexOf('<div id="hasPriceTrust"'));
@@ -100,7 +100,7 @@ test('운영 앱 연결: 위험관리 메뉴 버튼·패널·처음 진입 때�
     w.scrollTo = () => {}; w.renderMemo = w.renderRetirement = w.renderNotouch = w.renderDebt = w.renderNetWorth = w.renderPrincipleDash = () => {};
     w.eval(html.slice(html.indexOf('var TAB_GROUPS='), html.indexOf('// 노터치 자산 (연금보험')));
     for (const tab of Object.keys(w.TAB_TO_GROUP)) { const p = w.document.createElement('section'); p.className = 'panel'; p.id = 'panel-' + tab; w.document.querySelector('main').append(p); }
-    const btn = [...w.document.querySelectorAll('#subtabs-risk .tab')].find(b => b.getAttribute('onclick') === "switchTab('greatco')");
+    const btn = [...w.document.querySelectorAll('#subtabs-explore .tab')].find(b => b.getAttribute('onclick') === "switchTab('greatco')");
     a.match(btn.textContent, /위대한 기업/);
     const scripts = () => [...w.document.head.querySelectorAll('script')].filter(s => /great-companies-panel\.js$/.test(s.src));
     w.switchTab('principledash'); a.equal(scripts().length, 0); // 다른 탭·로그인 시 주입 없음
