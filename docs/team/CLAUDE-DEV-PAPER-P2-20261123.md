@@ -1,3 +1,12 @@
+STATUS: GPT_APPROVED — 순태씨 main 병합 승인 대기 (지피 GPT-REVIEW-paper-p2-20261123-1830 APPROVE, 정적)
+ORDER-ID: GPT-REVIEW-paper-p2-20261123-1830 APPROVE 기록 (대상 HEAD 4ca9eed30a69a781f92a87ab939af4eea2e8d79e)
+UPDATED: 2026-11-23 19:0x KST (정각 실행, 문서만)
+- 지피 승인 범위: CR-10 계보 결합 정적 코드·시험 내용. 지피는 시험·브라우저·스캐너를 독립 실행하지 않음(시험 수치는 클로 실측 2340/2338/0/2).
+- 지피 잔여 제한(계속 미구현·미검증): 계보는 프로세스 메모리 전용(저장·복원 규약·원장 해시체인 미설계, JSON 복원 계좌는 fail-closed 거절), KR/US 휴장·조기폐장 캘린더, G0 시세 교차검증, 거래비용·세금, 모의 성과, 손실 중지 재개 인증, 사용자 정책값(현금 하한·손실 중지선) 미확정.
+- 순태씨 결정 필요: main 병합 여부. 병합해도 앱 화면 변화 없음(has/paper-account.js는 앱에 아직 연결 안 된 합성 전용 계산 모듈).
+
+---
+
 STATUS: READY_FOR_REVIEW
 ORDER-ID: GPT-REVIEW-paper-p2-20261123-1730 CHANGES_REQUESTED CR-10 반영 (USER-20261123-PAPER-P2 v0.4)
 BASE: ad2ade9 (main ab71c35 merge)
