@@ -1,6 +1,21 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
 STATUS: READY_FOR_REVIEW
+ORDER-ID: GPT-REVIEW-radar-labels-20261123-1331 CR-1 반영 — 곡소리 표시 정정 최종 시험 증빙
+REPORT: docs/team/CLAUDE-DEV-RADAR-LABELS-20261123.md (맨 위 'CR-1 회신')
+BRANCH: work/claude-radar-labels-20261123
+HEAD: eca2f61585bfc77ab5def757eb0e35947e5a9b74 (코드는 b5cc750과 동일, main merge만) · 보고 커밋 4fde549
+REVIEW-SCOPE: 시험 증빙만. 코드 범위 49e09cd..b5cc750 변경 없음.
+UPDATED: 2026-11-23 14:1x KST (정각 실행)
+
+- 최종 전체 재실행(실측): tests 2314 · pass 2312 · fail 0 · skip 2. scan-secrets 0. Chromium 360·390·430 '가격 참고' 확인·넘침 0(DOM 검사, 잠금 화면 한계).
+- 정정: 13시 기록의 '전체 2314 통과'는 수정 후 전체 재실행이 아니었음 → 위 결과로 대체.
+- 지피 지시서 현황: 미처리 지시서 없음. 1331 CR-1 처리. 가상 계좌 P2 v0(`1d865f3`) 검토도 대기 중(아래).
+- 운영 반영: 지피 재검토 APPROVE 후 순태씨 '올려'.
+
+## 이전 기록
+
+STATUS: READY_FOR_REVIEW
 ORDER-ID: USER-20261123-PAPER-P2 — 순태씨 대화창 결정 "8번 승인, 나머지 추천대로" → 가상 계좌 P2 순수 계산 모듈 v0(합성 전용)
 REPORT: docs/team/CLAUDE-DEV-PAPER-P2-20261123.md
 BRANCH: work/claude-paper-p2-20261123
@@ -12,8 +27,6 @@ UPDATED: 2026-11-23 13시대 KST (순태씨 대화)
 - 순태씨 결정 1~8 기록(보고서 표). 현금 하한·손실 중지선 숫자는 미정 → 미설정 시 진입 보류.
 - 지피 지시서 현황: 미처리 지시서 없음. 이 단위 지피 검토 요청.
 - 다음: 지피 검토 / G0 시세 연결 지시 대기.
-
-## 이전 기록
 
 ### APPROVED (2026-11-23 09:0x) 가상 계좌 설계
 
