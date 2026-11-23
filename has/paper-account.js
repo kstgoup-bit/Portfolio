@@ -5,9 +5,14 @@
    - 실제 자료 잠금(REAL_DATA_LOCK): synthetic:true 가 아닌 계좌·후보·시세는 모두 거부한다. 실종목 기록은 G0 이후 별도 승인.
    - 주문·자동매매·실제 수량을 만들지 않는다. 모든 체결은 '연구용 체결 가정'이며 실현 가능 성과가 아니다.
    - 진입 전제: 매수 검토 게이트(has/buy-review-gate.js)가 발급한 매수 검토 상태만. 가격 하락만으로는 진입하지 않는다.
-   - 비용(수수료·세금·환전)은 미확정 → 0으로 대입하지 않고 결과에 costStatus:'unconfirmed'로 표시한다. */
-(function (root, factory) { if (typeof module === 'object' && module.exports) module.exports = factory(); else root.HASPaperAccount = factory(); })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
+   - 비용(수수료·세금·환전)은 미확정 → 0으로 대입하지 않고 결과에 costStatus:'unconfirmed'로 표시한다.
+   v0.1(지피 GPT-REVIEW-paper-p2-20261123-1430 CR-1~3): 게이트 결과는 HASBuyReviewGate.verify 통과 객체만,
+   체결은 이 모듈이 발급한 계획만(발급 시점 지문·계좌 대조 + 체결 시점 재검사), 체결일은 결정·검토 시각(거래소 현지일) 이후 첫 거래일,
+   재평가 공시는 식별자·공개시각 중복 재사용·미래 공시 금지. */
+(function (root, factory) { if (typeof module === 'object' && module.exports) module.exports = factory(require('./buy-review-gate.js')); else root.HASPaperAccount = factory(root.HASBuyReviewGate); })(typeof globalThis !== 'undefined' ? globalThis : this, function (GATE) {
   'use strict';
+  var GATE_MAX_LAG_MS = 24 * 3600 * 1000; // 결정은 게이트 발급 후 24시간 이내(같은 신호일)만
+  var TZ = Object.freeze({ KR: 'Asia/Seoul', US: 'America/New_York' });
   var CONTRACT = 'paperEvent.v0';
   var REAL_DATA_LOCK = true;
   // 순태씨 결정(2026-11-23). 숫자가 '미정'인 항목은 null이며, 호출자 계좌 설정에 없으면 fail-closed(진입 보류).
@@ -51,6 +56,52 @@
     if (!calendarOk(cal) || !day(d)) return null;
     for (var i = 0; i < cal.length; i++) if (cal[i] > d) return cal[i];
     return null;
+  }
+  /* CR-3: 시각 → 거래소 현지 날짜(KR 서울, US 뉴욕 — 서머타임은 Intl 기준). 변환 불가면 null(보류). 실제 거래소 캘린더는 미검증. */
+  function localDay(iso, market) {
+    if (!isoTime(iso) || !TZ[market]) return null;
+    try {
+      var parts = new Intl.DateTimeFormat('en-CA', { timeZone: TZ[market], year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(new Date(iso));
+      var o = {}; parts.forEach(function (p) { o[p.type] = p.value; });
+      var s = o.year + '-' + o.month + '-' + o.day;
+      return day(s) ? s : null;
+    } catch (e) { return null; }
+  }
+  function maxDay(a, b) { return a > b ? a : b; }
+
+  /* CR-1: 매수 검토 게이트가 발급·미변조(verify)하고 이 후보(시장·종목·신호일·결정시각)와 맞는 결과만. */
+  function gateReasons(g, c, lastDecidedAt) {
+    var why = [];
+    if (!GATE || typeof GATE.verify !== 'function') return ['매수 검토 게이트 모듈 없음: 진입 보류'];
+    if (!g || typeof g !== 'object' || GATE.verify(g) !== true) return ['매수 검토 게이트 발급 결과 아님(위조·복사·변조 포함, 가격 하락만으로 진입 금지)'];
+    if (g.buyReview !== true || REVIEW_STATES.indexOf(g.state) < 0) why.push('매수 검토 게이트 발급 결과 아님(매수 검토 상태 아님, 가격 하락만으로 진입 금지)');
+    if (g.synthetic !== true) why.push('게이트 결과가 합성 검증 경로가 아님');
+    if (g.market !== c.market || !text(c.symbol) || g.ticker !== c.symbol.trim()) why.push('게이트 결과의 시장·종목이 후보와 다름');
+    if (!isoTime(g.evaluatedAt) || !isoTime(c.decidedAt)) why.push('게이트 판정 시각 확인 불가');
+    else {
+      var ge = Date.parse(g.evaluatedAt), de = Date.parse(c.decidedAt);
+      if (ge > de) why.push('게이트 판정이 결정시각보다 나중(미래 정보)');
+      else if (de - ge > GATE_MAX_LAG_MS) why.push('게이트 판정이 결정시각보다 24시간 넘게 오래됨');
+      if (localDay(g.evaluatedAt, c.market) !== c.signalAsOf) why.push('게이트 판정일(거래소 현지)이 신호 기준일과 다름');
+      if (lastDecidedAt && ge <= Date.parse(lastDecidedAt)) why.push('직전 회차 결정 이후 새로 발급된 게이트 결과 아님');
+    }
+    return why;
+  }
+
+  /* CR-2: 이 모듈이 발급한 계획만 체결 가능. 발급 당시 사본 지문·계좌 id를 내부에 보관하고 대조한다. */
+  var PLANS = new WeakMap();
+  function fp(x) { return JSON.stringify(x, Object.keys(x).sort()); }
+  function issuePlan(kind, accountId, plan) {
+    plan.accountId = accountId; plan.kind = kind;
+    var out = Object.freeze(plan);
+    PLANS.set(out, { kind: kind, accountId: accountId, fp: fp(out) });
+    return out;
+  }
+  function planReasons(a, plan, kind) {
+    var t = plan && typeof plan === 'object' ? PLANS.get(plan) : null;
+    if (!t || t.kind !== kind || !Object.isFrozen(plan) || fp(plan) !== t.fp) return ['이 모듈이 발급한 ' + (kind === 'ENTRY' ? '진입' : '청산') + ' 계획 아님(위조·복사·변조)'];
+    if (t.accountId !== a.id || plan.accountId !== a.id) return ['다른 계좌의 계획'];
+    return [];
   }
 
   function createAccount(cfg) {
@@ -100,10 +151,9 @@
     if (!text(c.symbol)) why.push('종목 없음');
     if (!isoTime(c.decidedAt)) why.push('결정시각 형식 오류');
     if (!day(c.signalAsOf)) why.push('신호 기준일 형식 오류');
-    if (isoTime(c.decidedAt) && day(c.signalAsOf) && c.decidedAt.slice(0, 10) < c.signalAsOf) why.push('결정시각이 신호 기준일보다 앞섬');
-    var g = c.gate || {};
-    if (g.buyReview !== true || REVIEW_STATES.indexOf(g.state) < 0) why.push('매수 검토 게이트 발급 결과 아님(가격 하락만으로 진입 금지)');
-    if (g.synthetic !== true) why.push('게이트 결과가 합성 검증 경로가 아님');
+    var decidedDay = ccy ? localDay(c.decidedAt, c.market) : null;
+    if (isoTime(c.decidedAt) && ccy && !decidedDay) why.push('결정시각 거래소 현지 날짜 변환 불가');
+    if (decidedDay && day(c.signalAsOf) && decidedDay < c.signalAsOf) why.push('결정시각이 신호 기준일보다 앞섬');
     if (!text(c.decisionVersion)) why.push('결정 버전 없음');
     // 위험 한도 숫자 미정이면 진입 보류(fail-closed).
     var rl = a.riskLimits;
@@ -112,25 +162,33 @@
     var k = ccy && text(c.symbol) ? posKey(c.market, c.symbol.trim()) : null;
     var p = k ? a.positions[k] : null;
     var n = p ? p.tranches.length : 0;
+    var last = n > 0 ? p.tranches[n - 1].decidedAt : null;
+    if (last && isoTime(c.decidedAt) && Date.parse(c.decidedAt) <= Date.parse(last)) why.push('결정시각이 직전 회차 결정보다 앞섬');
+    why = why.concat(gateReasons(c.gate, c, last));
     if (n >= POLICY.tranches) why.push('분할 회차 소진(최대 ' + POLICY.tranches + '회)');
+    var filingId = null;
     if (n > 0 && POLICY.addOnRequiresNewFiling) {
-      var last = p.tranches[n - 1].decidedAt;
       var f = c.newFiling || {};
-      if (!(f.kind === 'periodic' && isoTime(f.publishedAt) && Date.parse(f.publishedAt) > Date.parse(last) && Date.parse(f.publishedAt) <= Date.parse(c.decidedAt)))
-        why.push('추가 매수 근거 없음: 직전 결정 이후 공개된 새 정기 공시 필요(가격·뉴스는 새 근거 아님)');
+      var used = p.tranches.map(function (t) { return t.filingId; }).concat(p.reviews.map(function (r) { return r.filingId; })).filter(text);
+      if (!(f.kind === 'periodic' && text(f.id) && isoTime(f.publishedAt) && isoTime(c.decidedAt) && Date.parse(f.publishedAt) > Date.parse(last) && Date.parse(f.publishedAt) <= Date.parse(c.decidedAt)))
+        why.push('추가 매수 근거 없음: 직전 결정 이후 공개된 새 정기 공시(식별자 포함) 필요(가격·뉴스는 새 근거 아님)');
+      else if (used.indexOf(f.id.trim()) >= 0) why.push('추가 매수 근거 없음: 이미 사용한 공시 재사용');
+      else filingId = f.id.trim();
     }
     if (c.conviction === true && CONVICTION_LOCKED) why.push('확신 종목 표시는 무시(신뢰 등록 경로 없음): 상한 ' + POLICY.capPct + '% 적용');
     var hard = why.filter(function (w) { return w.indexOf('확신 종목 표시는 무시') !== 0; });
-    var fillDay = nextTradingDay(c.calendar, c.signalAsOf);
+    // CR-3: 정보가 쓸 수 있게 된 결정시각(거래소 현지일)과 신호일 중 늦은 날 이후 첫 거래일만.
+    var fillDay = !hard.length ? nextTradingDay(c.calendar, maxDay(c.signalAsOf, decidedDay)) : null;
     if (!hard.length && !fillDay) hard.push('다음 거래일 없음(캘린더 부족)');
     if (hard.length) return { action: 'PAPER_ENTRY_HOLD', reasons: why.length > hard.length ? why : hard, order: null };
     var eq = bucketEquity(a, ccy);
     var target = eq * POLICY.capPct / 100;
     var budget = target / POLICY.tranches;
-    return { action: 'PAPER_ENTRY_PLANNED', reasons: why, order: null, plan: {
+    return { action: 'PAPER_ENTRY_PLANNED', reasons: why, order: null, plan: issuePlan('ENTRY', a.id, {
       market: c.market, ccy: ccy, symbol: c.symbol.trim(), sector: text(c.sector) ? c.sector : null, tranche: n + 1,
       decidedAt: c.decidedAt, signalAsOf: c.signalAsOf, decisionVersion: c.decisionVersion, fillRule: POLICY.fill, fillDay: fillDay,
-      budget: budget, capPct: POLICY.capPct, equityAtPlan: eq } };
+      gateState: c.gate.state, gateEvaluatedAt: c.gate.evaluatedAt, filingId: filingId,
+      budget: budget, capPct: POLICY.capPct, equityAtPlan: eq }) };
   }
 
   function idemKey(a, plan, kind) { return [plan.market, a.id, plan.symbol, plan.decisionVersion, kind, plan.tranche].join('|'); }
@@ -138,9 +196,18 @@
   /* 체결 가정: 계획의 fillDay 종가로만. 다른 날짜·비합성 시세·상한/현금 하한 위반은 거부. 같은 키 재요청은 변화 없음(멱등). */
   function fillEntry(a, plan, bar) {
     if (!a || a.synthetic !== true || !plan) return { ok: false, reasons: ['계좌·계획 없음 또는 실제 자료 잠금'], account: a };
+    var bad = planReasons(a, plan, 'ENTRY');
+    if (bad.length) return { ok: false, reasons: bad, account: a };
     var key = idemKey(a, plan, 'BUY');
     if (a.keys[key]) return { ok: true, duplicate: true, reasons: ['같은 체결 키 — 변화 없음'], account: a };
     var why = [];
+    // CR-2: 체결 시점 재검사(계획 이후 바뀐 계좌 상태 반영).
+    var rl = a.riskLimits || {};
+    if (rl.cashFloorPct == null || rl.dailyLossStopPct == null || rl.monthlyLossStopPct == null) why.push('위험 한도(현금 하한·일/월 손실 중지선) 미정: 체결 보류');
+    if (a.halted && a.halted[plan.ccy]) why.push('손실 중지선 발동 중(' + a.halted[plan.ccy] + '): 계획 후 중지 — 체결 보류');
+    var cur = a.positions[posKey(plan.market, plan.symbol)];
+    var curN = cur ? cur.tranches.length : 0;
+    if (plan.tranche !== curN + 1 || plan.tranche > POLICY.tranches) why.push('계획 회차(' + plan.tranche + ')가 현재 보유 회차와 맞지 않음(이전 계획·중복 계획)');
     if (!bar || bar.synthetic !== true) why.push('실제 자료 잠금: 합성 종가만');
     bar = bar || {};
     if (bar.date !== plan.fillDay) why.push('체결일은 신호 다음 거래일(' + plan.fillDay + ')만 허용 — 유리한 날 고르기 금지');
@@ -160,7 +227,7 @@
     if (posAfter > eqNow * POLICY.capPct / 100 + 1e-9) return { ok: false, reasons: ['종목 상한 ' + POLICY.capPct + '% 초과'], account: a };
     if (cashAfter < eqNow * n.riskLimits.cashFloorPct / 100 - 1e-9) return { ok: false, reasons: ['현금 하한 ' + n.riskLimits.cashFloorPct + '% 위반'], account: a };
     p.qty += qty; p.cost += amt; p.lastPrice = bar.close;
-    p.tranches.push({ tranche: plan.tranche, decidedAt: plan.decidedAt, fillDay: bar.date, qty: qty, price: bar.close });
+    p.tranches.push({ tranche: plan.tranche, decidedAt: plan.decidedAt, fillDay: bar.date, qty: qty, price: bar.close, filingId: plan.filingId });
     n.positions[k] = p; n.cash[plan.ccy] = cashAfter;
     var ev = { contract: CONTRACT, seq: n.events.length + 1, kind: 'PAPER_BUY', idempotencyKey: key, market: plan.market, symbol: plan.symbol,
       tranche: plan.tranche, decidedAt: plan.decidedAt, signalAsOf: plan.signalAsOf, fillDay: bar.date, fillRule: POLICY.fill,
@@ -178,34 +245,57 @@
     var why = [];
     if (!p || p.qty === 0) why.push('보유 가상 포지션 없음');
     if (OUTCOMES.indexOf(r.outcome) < 0) why.push('재평가 결과 값 오류');
-    if (r.outcome !== 'DATA-UNAVAILABLE' && !(r.filing && r.filing.kind === 'periodic' && isoTime(r.filing.publishedAt))) why.push('재평가 근거 정기 공시 없음');
+    var hasFiling = r.outcome !== 'DATA-UNAVAILABLE';
+    var fl = r.filing || {};
+    if (hasFiling && !(fl.kind === 'periodic' && text(fl.id) && isoTime(fl.publishedAt))) why.push('재평가 근거 정기 공시(식별자·공개시각) 없음');
     if (!isoTime(r.reviewedAt)) why.push('재평가 시각 형식 오류');
-    if (p && p.reviews.length && isoTime(r.reviewedAt) && r.reviewedAt <= p.reviews[p.reviews.length - 1].reviewedAt) why.push('재평가 시각 역전');
+    var tms = function (x) { return Date.parse(x); };
+    if (p && p.reviews.length && isoTime(r.reviewedAt) && tms(r.reviewedAt) <= tms(p.reviews[p.reviews.length - 1].reviewedAt)) why.push('재평가 시각 역전');
+    var lastBuy = p && p.tranches.length ? p.tranches[p.tranches.length - 1].decidedAt : null;
+    if (lastBuy && isoTime(r.reviewedAt) && tms(r.reviewedAt) <= tms(lastBuy)) why.push('재평가 시각이 마지막 매수 결정보다 앞섬');
     if (!day(r.asOf)) why.push('재평가 기준일 형식 오류');
+    var reviewDay = p ? localDay(r.reviewedAt, r.market) : null;
+    if (p && isoTime(r.reviewedAt) && !reviewDay) why.push('재평가 시각 거래소 현지 날짜 변환 불가');
+    if (reviewDay && day(r.asOf) && r.asOf > reviewDay) why.push('재평가 기준일이 재평가 시각보다 나중(미래 정보)');
+    // CR-3: 공시는 검토 시각 이전 공개분만, 같은 공시(식별자 또는 공개시각) 재사용 금지, 직전 사용 공시보다 새 것만.
+    if (p && hasFiling && text(fl.id) && isoTime(fl.publishedAt) && isoTime(r.reviewedAt)) {
+      if (tms(fl.publishedAt) > tms(r.reviewedAt)) why.push('재평가 공시가 검토 시각 이후 공개(미래 공시)');
+      if (lastBuy && tms(fl.publishedAt) <= tms(lastBuy)) why.push('재평가 공시가 마지막 매수 결정 이전 공개(이미 반영된 공시)');
+      var usedIds = p.tranches.map(function (t) { return t.filingId; }).concat(p.reviews.map(function (x) { return x.filingId; })).filter(text);
+      var usedAt = p.reviews.map(function (x) { return x.filingPublishedAt; }).filter(isoTime);
+      if (usedIds.indexOf(fl.id.trim()) >= 0 || usedAt.some(function (x) { return tms(x) === tms(fl.publishedAt); })) why.push('같은 공시 재사용(식별자·공개시각 중복)');
+      else if (usedAt.length && tms(fl.publishedAt) < Math.max.apply(null, usedAt.map(tms))) why.push('직전 재평가 공시보다 오래된 공시');
+    }
     if (why.length) return { ok: false, reasons: why, account: a };
     var n = clone(a), q = n.positions[k];
     if (r.outcome === 'EXIT-REVIEW') q.exitReviewStreak += 1;
     else if (r.outcome === 'HOLD') q.exitReviewStreak = 0;
-    q.reviews.push({ reviewedAt: r.reviewedAt, outcome: r.outcome, filingPublishedAt: r.filing ? r.filing.publishedAt : null, streak: q.exitReviewStreak });
     var exit = r.outcome === 'EXIT' || q.exitReviewStreak >= POLICY.exitReviewConsecutive;
+    q.reviews.push({ reviewedAt: r.reviewedAt, outcome: r.outcome, filingId: hasFiling ? fl.id.trim() : null, filingPublishedAt: hasFiling ? fl.publishedAt : null, streak: q.exitReviewStreak, exitPlanned: exit });
     var ev = { contract: CONTRACT, seq: n.events.length + 1, kind: 'PAPER_REVIEW', market: r.market, symbol: q.symbol, outcome: r.outcome,
       reviewedAt: r.reviewedAt, streak: q.exitReviewStreak, exitPlanned: exit, policy: POLICY.version, synthetic: true };
     n.events.push(ev);
     var out = { ok: true, reasons: [], event: ev, account: n, exitPlan: null };
     if (exit) {
-      var fd = nextTradingDay(r.calendar, r.asOf);
+      var fd = nextTradingDay(r.calendar, maxDay(r.asOf, reviewDay));
       if (!fd) { out.reasons.push('청산 계획: 다음 거래일 없음(캘린더 부족) — 보류'); return out; }
-      out.exitPlan = { market: r.market, ccy: q.ccy, symbol: q.symbol, qty: q.qty, fillRule: POLICY.fill, fillDay: fd, decidedAt: r.reviewedAt,
-        decisionVersion: text(r.decisionVersion) ? r.decisionVersion : 'review', tranche: q.reviews.length, reason: r.outcome === 'EXIT' ? 'EXIT' : 'EXIT-REVIEW x' + q.exitReviewStreak };
+      out.exitPlan = issuePlan('EXIT', n.id, { market: r.market, ccy: q.ccy, symbol: q.symbol, qty: q.qty, fillRule: POLICY.fill, fillDay: fd, decidedAt: r.reviewedAt,
+        decisionVersion: text(r.decisionVersion) ? r.decisionVersion : 'review', tranche: q.reviews.length, reviewIndex: q.reviews.length, reason: r.outcome === 'EXIT' ? 'EXIT' : 'EXIT-REVIEW x' + q.exitReviewStreak });
     }
     return out;
   }
 
   function fillExit(a, plan, bar) {
     if (!a || a.synthetic !== true || !plan) return { ok: false, reasons: ['계좌·계획 없음 또는 실제 자료 잠금'], account: a };
+    var bad = planReasons(a, plan, 'EXIT');
+    if (bad.length) return { ok: false, reasons: bad, account: a };
     var key = idemKey(a, plan, 'SELL');
     if (a.keys[key]) return { ok: true, duplicate: true, reasons: ['같은 체결 키 — 변화 없음'], account: a };
     var why = [];
+    // CR-2: 계좌 기록상 청산 근거(해당 재평가가 마지막이고 청산 계획 표시)가 지금도 유효해야 함.
+    var cp = a.positions[posKey(plan.market, plan.symbol)];
+    var rv = cp && cp.reviews.length === plan.reviewIndex ? cp.reviews[plan.reviewIndex - 1] : null;
+    if (!rv || rv.exitPlanned !== true || rv.reviewedAt !== plan.decidedAt) why.push('청산 근거 재검증 실패(이후 재평가가 있었거나 청산 조건 아님)');
     if (!bar || bar.synthetic !== true) why.push('실제 자료 잠금: 합성 종가만');
     bar = bar || {};
     if (bar.date !== plan.fillDay) why.push('청산일은 다음 거래일(' + plan.fillDay + ')만 허용');
@@ -260,6 +350,6 @@
   }
 
   return Object.freeze({ CONTRACT: CONTRACT, POLICY: POLICY, REAL_DATA_LOCK: REAL_DATA_LOCK, CONVICTION_LOCKED: CONVICTION_LOCKED, REVIEW_STATES: REVIEW_STATES, LABEL: LABEL,
-    nextTradingDay: nextTradingDay, createAccount: createAccount, planEntry: planEntry, fillEntry: fillEntry,
+    nextTradingDay: nextTradingDay, localDay: localDay, createAccount: createAccount, planEntry: planEntry, fillEntry: fillEntry,
     recordReview: recordReview, fillExit: fillExit, markToMarket: markToMarket, resume: resume });
 });
