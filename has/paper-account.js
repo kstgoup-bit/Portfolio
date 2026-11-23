@@ -11,7 +11,11 @@
    재평가 공시는 식별자·공개시각 중복 재사용·미래 공시 금지.
    v0.2(지피 GPT-REVIEW-paper-p2-20261123-1530 CR-5~7): 손실 중지 재개는 사용자 승인 경로가 생기기 전까지 잠금(RESUME_LOCKED),
    계좌 시간축(체결일·재평가일·평가일, 거래소 현지일 + UTC)을 거스르는 소급 기록 거부, 계좌는 이 모듈이 만든 상태만 신뢰
-   (위험 한도·중지 상태 지문 대조), 계획 발급 당시 위험 한도보다 완화되면 체결 거부·강화는 반영. */
+   (위험 한도·중지 상태 지문 대조), 계획 발급 당시 위험 한도보다 완화되면 체결 거부·강화는 반영.
+   v0.3(지피 GPT-REVIEW-paper-p2-20261123-1630 CR-8~9): 계좌 지문은 상태 전체(현금·납입·보유·이벤트·평가·멱등 키·시작일 등)로 넓혀
+   모듈 밖 직접 변경을 모두 거부(fail-closed), 돌려주는 이벤트·평가는 사본. 계좌 전체 시간축을 UTC 순간으로 통일 —
+   종가 체결·평가 = 거래소 정규장 마감 시각(가정: KR 15:30 서울, US 16:00 뉴욕, 조기폐장 미반영), 새 결정·재평가·체결·평가가
+   이미 기록된 마지막 순간보다 과거면 거부. 같은 순간은 종가 체결끼리만 허용. 실제 거래소 캘린더·마감 시각은 미검증. */
 (function (root, factory) { if (typeof module === 'object' && module.exports) module.exports = factory(require('./buy-review-gate.js')); else root.HASPaperAccount = factory(root.HASBuyReviewGate); })(typeof globalThis !== 'undefined' ? globalThis : this, function (GATE) {
   'use strict';
   var GATE_MAX_LAG_MS = 24 * 3600 * 1000; // 결정은 게이트 발급 후 24시간 이내(같은 신호일)만
@@ -72,6 +76,23 @@
     } catch (e) { return null; }
   }
   function maxDay(a, b) { return a > b ? a : b; }
+  /* CR-9: 거래소 현지 날짜·시각 → UTC 밀리초(서머타임은 Intl 기준). 정규장 마감 가정값 — 조기폐장일은 실제보다 늦게 잡혀 보수적. 미검증. */
+  var CLOSE = Object.freeze({ KR: [15, 30], US: [16, 0] });
+  function zonedMs(d, hh, mm, tz) {
+    if (!day(d)) return null;
+    var y = +d.slice(0, 4), mo = +d.slice(5, 7), dd = +d.slice(8, 10), want = Date.UTC(y, mo - 1, dd, hh, mm), t = want;
+    try {
+      for (var i = 0; i < 3; i++) {
+        var o = {}; new Intl.DateTimeFormat('en-US', { timeZone: tz, hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }).formatToParts(new Date(t)).forEach(function (p) { o[p.type] = p.value; });
+        var seen = Date.UTC(+o.year, +o.month - 1, +o.day, +o.hour % 24, +o.minute);
+        if (seen === want) return t;
+        t += want - seen;
+      }
+    } catch (e) { return null; }
+    return null;
+  }
+  function closeMs(d, market) { return TZ[market] ? zonedMs(d, CLOSE[market][0], CLOSE[market][1], TZ[market]) : null; }
+  function markMs(d) { var k = closeMs(d, 'KR'), u = closeMs(d, 'US'); return k == null || u == null ? null : Math.max(k, u); } // 평가일 = 두 시장 마감 뒤
 
   /* CR-1: 매수 검토 게이트가 발급·미변조(verify)하고 이 후보(시장·종목·신호일·결정시각)와 맞는 결과만. */
   function gateReasons(g, c, lastDecidedAt) {
@@ -103,30 +124,49 @@
   /* CR-7: 계좌도 이 모듈이 돌려준 상태만 신뢰. 위험 한도·중지 상태·id 지문을 내부에 보관해 복사·위조·모듈 밖 수정 계좌를 거부한다.
      (저장·복원 경로는 결정 7 미정 — 복원 계좌는 현재 신뢰하지 않는다.) */
   var ACCTS = new WeakMap();
-  function guardFp(a) { return fp({ id: a.id, policy: a.policy, riskLimits: a.riskLimits, halted: a.halted }); }
+  // CR-8: 상태 전체 지문(현금·납입·보유·회차·재평가·이벤트·평가·멱등 키·시작일·중지·한도 모두). 모듈 안 clone → reg 만 정상 경로.
+  function guardFp(a) { return fp(a); }
   function reg(a) { ACCTS.set(a, guardFp(a)); return a; }
   function acctReasons(a) {
     var t = a && typeof a === 'object' ? ACCTS.get(a) : null;
     if (!t) return ['이 모듈이 만든 계좌 상태 아님(복사·위조 계좌 — 위험 한도·중지 상태 신뢰 불가)'];
-    if (t !== guardFp(a)) return ['계좌 위험 한도·중지 상태가 모듈 밖에서 바뀜(무결성 실패 — 완화·해제 우회 금지)'];
+    if (t !== guardFp(a)) return ['계좌 상태가 모듈 밖에서 바뀜(무결성 실패 — 현금·보유·이벤트·평가·멱등 키·위험 한도·중지 상태 직접 수정 금지)'];
     return [];
   }
-  /* CR-6: 계좌 시간축. day=기록된 체결일·재평가일(거래소 현지)·평가일 중 최대, markDay=마지막 평가일(종가 기준), at=기록된 결정·재평가 UTC 최대. */
+  /* CR-6: 계좌 시간축. day=기록된 체결일·재평가일(거래소 현지)·평가일 중 최대, markDay=마지막 평가일(종가 기준), at=기록된 결정·재평가 UTC 최대.
+     CR-9: fillMs=기록된 종가 체결 순간 최대, otherMs=결정·재평가·평가 순간 최대(UTC 밀리초). 종목 구분 없이 계좌 전체. */
   function clock(a) {
-    var c = { day: null, markDay: null, at: null };
+    var c = { day: null, markDay: null, at: null, fillMs: null, otherMs: null };
     function d(x) { if (day(x) && (!c.day || x > c.day)) c.day = x; }
     function t(x) { if (isoTime(x) && (!c.at || Date.parse(x) > Date.parse(c.at))) c.at = x; }
+    function o(ms) { if (finite(ms) && (c.otherMs == null || ms > c.otherMs)) c.otherMs = ms; }
+    function f(ms) { if (finite(ms) && (c.fillMs == null || ms > c.fillMs)) c.fillMs = ms; }
     (a.events || []).forEach(function (e) {
-      if (e.kind === 'PAPER_BUY' || e.kind === 'PAPER_SELL') { d(e.fillDay); t(e.decidedAt); }
-      else if (e.kind === 'PAPER_REVIEW') { d(e.reviewDay); t(e.reviewedAt); }
+      if (e.kind === 'PAPER_BUY' || e.kind === 'PAPER_SELL') { d(e.fillDay); t(e.decidedAt); o(Date.parse(e.decidedAt)); f(closeMs(e.fillDay, e.market)); }
+      else if (e.kind === 'PAPER_REVIEW') { d(e.reviewDay); t(e.reviewedAt); o(Date.parse(e.reviewedAt)); }
     });
-    (a.marks || []).forEach(function (m) { d(m.date); c.markDay = m.date; });
+    (a.marks || []).forEach(function (m) { d(m.date); c.markDay = m.date; o(markMs(m.date)); });
+    c.lastMs = c.fillMs == null ? c.otherMs : c.otherMs == null ? c.fillMs : Math.max(c.fillMs, c.otherMs);
     return c;
   }
-  function fillTimeReasons(a, fillDay) {
+  function utc(ms) { return finite(ms) ? new Date(ms).toISOString().replace('.000Z', 'Z') : '?'; }
+  /* CR-9: 새 결정·재평가 순간은 계좌에 기록된 모든 순간(다른 종목 포함)보다 뒤여야 한다. */
+  function decisionTimeReasons(a, iso, what) {
+    var c = clock(a);
+    if (!isoTime(iso)) return [];
+    return c.lastMs != null && Date.parse(iso) <= c.lastMs ? ['계좌 시간축 역행: ' + what + ' 시각(' + iso + ')이 계좌에 이미 기록된 마지막 순간(' + utc(c.lastMs) + ', 다른 종목 포함) 이전·같음 — 소급 기록 금지'] : [];
+  }
+  function fillTimeReasons(a, fillDay, market) {
     var c = clock(a), why = [];
     if (c.day && fillDay < c.day) why.push('계좌 시간축 역행: 이미 ' + c.day + '까지 기록된 계좌에 ' + fillDay + ' 체결 삽입 금지');
     if (c.markDay && fillDay <= c.markDay) why.push('평가(' + c.markDay + ' 종가) 이후 같은·과거 날 체결 삽입 금지');
+    // CR-9: 체결 순간 = 체결일 거래소 마감. 이미 기록된 결정·재평가·평가 순간 뒤만, 종가 체결끼리는 같은 순간 허용.
+    var ms = closeMs(fillDay, market);
+    if (ms == null) why.push('체결일 거래소 마감 시각 변환 불가: 보류');
+    else {
+      if (c.otherMs != null && ms <= c.otherMs) why.push('체결 순간(' + utc(ms) + ' ' + market + ' 마감)이 이미 기록된 결정·재평가·평가 순간(' + utc(c.otherMs) + ') 이전·같음 — 같은 날 소급 체결 금지');
+      if (c.fillMs != null && ms < c.fillMs) why.push('체결 순간(' + utc(ms) + ')이 이미 기록된 다른 종가 체결(' + utc(c.fillMs) + ')보다 앞섬');
+    }
     return why;
   }
   var LOOSER = { cashFloorPct: function (now, was) { return now < was; }, dailyLossStopPct: function (now, was) { return now > was; }, monthlyLossStopPct: function (now, was) { return now > was; } };
@@ -205,6 +245,7 @@
     var n = p ? p.tranches.length : 0;
     var last = n > 0 ? p.tranches[n - 1].decidedAt : null;
     if (last && isoTime(c.decidedAt) && Date.parse(c.decidedAt) <= Date.parse(last)) why.push('결정시각이 직전 회차 결정보다 앞섬');
+    why = why.concat(decisionTimeReasons(a, c.decidedAt, '결정'));
     why = why.concat(gateReasons(c.gate, c, last));
     if (n >= POLICY.tranches) why.push('분할 회차 소진(최대 ' + POLICY.tranches + '회)');
     var filingId = null;
@@ -221,7 +262,7 @@
     // CR-3: 정보가 쓸 수 있게 된 결정시각(거래소 현지일)과 신호일 중 늦은 날 이후 첫 거래일만.
     var fillDay = !hard.length ? nextTradingDay(c.calendar, maxDay(c.signalAsOf, decidedDay)) : null;
     if (!hard.length && !fillDay) hard.push('다음 거래일 없음(캘린더 부족)');
-    if (!hard.length) hard = hard.concat(fillTimeReasons(a, fillDay));
+    if (!hard.length) hard = hard.concat(fillTimeReasons(a, fillDay, c.market));
     if (hard.length) return { action: 'PAPER_ENTRY_HOLD', reasons: why.length > hard.length ? why : hard, order: null };
     var eq = bucketEquity(a, ccy);
     var target = eq * POLICY.capPct / 100;
@@ -258,7 +299,7 @@
     if (!bar || bar.synthetic !== true) why.push('실제 자료 잠금: 합성 종가만');
     bar = bar || {};
     if (bar.date !== plan.fillDay) why.push('체결일은 신호 다음 거래일(' + plan.fillDay + ')만 허용 — 유리한 날 고르기 금지');
-    why = why.concat(fillTimeReasons(a, plan.fillDay));
+    why = why.concat(fillTimeReasons(a, plan.fillDay, plan.market));
     if (bar.priceType !== 'close') why.push('가격 종류가 종가 아님');
     if (bar.currency !== plan.ccy) why.push('통화 불일치');
     if (!pos(bar.close)) why.push('종가 값 오류');
@@ -281,7 +322,7 @@
       tranche: plan.tranche, decidedAt: plan.decidedAt, signalAsOf: plan.signalAsOf, fillDay: bar.date, fillRule: POLICY.fill,
       price: bar.close, qty: qty, amount: amt, ccy: plan.ccy, decisionVersion: plan.decisionVersion, costStatus: POLICY.costStatus, policy: POLICY.version, synthetic: true };
     n.events.push(ev); n.keys[key] = ev.seq;
-    return { ok: true, reasons: [], event: ev, account: reg(n) };
+    return { ok: true, reasons: [], event: clone(ev), account: reg(n) };
   }
 
   /* 새 정기 공시마다 강제 재평가 기록. DATA-UNAVAILABLE은 보류·증거 보존이지 청산 근거가 아니다(연속 횟수 불변).
@@ -316,6 +357,7 @@
       if (ck.day && reviewDay < ck.day) why.push('계좌 시간축 역행: 이미 ' + ck.day + '까지 기록됨');
       if (ck.markDay && reviewDay <= ck.markDay) why.push('평가(' + ck.markDay + ') 이후 같은·과거 날 재평가 삽입 금지');
       if (ck.at && isoTime(r.reviewedAt) && tms(r.reviewedAt) <= tms(ck.at)) why.push('재평가 시각이 계좌의 마지막 기록 시각 이전');
+      else why = why.concat(decisionTimeReasons(a, r.reviewedAt, '재평가'));
     }
     // CR-3: 공시는 검토 시각 이전 공개분만, 같은 공시(식별자 또는 공개시각) 재사용 금지, 직전 사용 공시보다 새 것만.
     if (p && hasFiling && text(fl.id) && isoTime(fl.publishedAt) && isoTime(r.reviewedAt)) {
@@ -335,7 +377,7 @@
     var ev = { contract: CONTRACT, seq: n.events.length + 1, kind: 'PAPER_REVIEW', market: r.market, symbol: q.symbol, outcome: r.outcome,
       reviewedAt: r.reviewedAt, reviewDay: reviewDay, streak: q.exitReviewStreak, exitPlanned: exit, policy: POLICY.version, synthetic: true };
     n.events.push(ev);
-    var out = { ok: true, reasons: [], event: ev, account: reg(n), exitPlan: null };
+    var out = { ok: true, reasons: [], event: clone(ev), account: reg(n), exitPlan: null };
     if (exit) {
       var fd = nextTradingDay(r.calendar, maxDay(r.asOf, reviewDay));
       if (!fd) { out.reasons.push('청산 계획: 다음 거래일 없음(캘린더 부족) — 보류'); return out; }
@@ -359,7 +401,7 @@
     if (!bar || bar.synthetic !== true) why.push('실제 자료 잠금: 합성 종가만');
     bar = bar || {};
     if (bar.date !== plan.fillDay) why.push('청산일은 다음 거래일(' + plan.fillDay + ')만 허용');
-    why = why.concat(fillTimeReasons(a, plan.fillDay));
+    why = why.concat(fillTimeReasons(a, plan.fillDay, plan.market));
     if (bar.priceType !== 'close') why.push('가격 종류가 종가 아님');
     if (bar.currency !== plan.ccy) why.push('통화 불일치');
     if (!pos(bar.close)) why.push('종가 값 오류');
@@ -372,7 +414,7 @@
       realizedGross: amt - q.cost, reason: plan.reason, costStatus: POLICY.costStatus, policy: POLICY.version, synthetic: true };
     n.cash[plan.ccy] += amt; q.realizedGross = (q.realizedGross || 0) + (amt - q.cost); q.qty = 0; q.cost = 0; q.lastPrice = bar.close;
     n.events.push(ev); n.keys[key] = ev.seq;
-    return { ok: true, reasons: [], event: ev, account: reg(n) };
+    return { ok: true, reasons: [], event: clone(ev), account: reg(n) };
   }
 
   /* 평가(통화별 분리, 환산 합계 없음 — 환율 원천 미검증). 손실 중지선 판정: 직전 평가 대비(일), 해당 월 첫 평가 대비(월). */
@@ -385,6 +427,10 @@
     if (ck.day && date < ck.day) return { ok: false, reasons: ['계좌 시간축 역행: 이미 ' + ck.day + '까지 기록된 계좌에 ' + date + ' 평가 삽입 금지'], account: a };
     var lastMark = a.marks.length ? a.marks[a.marks.length - 1] : null;
     if (lastMark && date <= lastMark.date) return { ok: false, reasons: ['평가일 역전·중복'], account: a };
+    // CR-9: 평가 순간(두 시장 마감 뒤)은 기록된 결정·재평가 순간 뒤, 종가 체결 순간 이상이어야 함.
+    var mms = markMs(date);
+    if (mms == null) return { ok: false, reasons: ['평가일 마감 시각 변환 불가: 보류'], account: a };
+    if ((ck.otherMs != null && mms <= ck.otherMs) || (ck.fillMs != null && mms < ck.fillMs)) return { ok: false, reasons: ['평가 순간(' + utc(mms) + ')이 이미 기록된 결정·재평가·체결 순간(' + utc(ck.lastMs) + ') 이전 — 소급 평가 금지'], account: a };
     var missing = [];
     Object.keys(a.positions).forEach(function (k) { if (a.positions[k].qty > 0 && !pos(prices[k])) missing.push(k); });
     if (missing.length) return { ok: false, reasons: ['평가 가격 누락(숨기지 않음): ' + missing.join(', ')], account: a };
@@ -404,7 +450,7 @@
     });
     mark.costStatus = POLICY.costStatus; mark.label = LABEL;
     n.marks.push(mark);
-    return { ok: true, reasons: [], mark: mark, account: reg(n) };
+    return { ok: true, reasons: [], mark: clone(mark), account: reg(n) };
   }
 
   /* CR-5: 손실 중지 재개는 잠금. 사유 문자열·승인처럼 보이는 객체·다른 계좌 승인 모두 사용자 승인이 아니다.
@@ -437,6 +483,6 @@
   }
 
   return Object.freeze({ CONTRACT: CONTRACT, POLICY: POLICY, REAL_DATA_LOCK: REAL_DATA_LOCK, CONVICTION_LOCKED: CONVICTION_LOCKED, RESUME_LOCKED: RESUME_LOCKED, REVIEW_STATES: REVIEW_STATES, LABEL: LABEL,
-    nextTradingDay: nextTradingDay, localDay: localDay, createAccount: createAccount, planEntry: planEntry, fillEntry: fillEntry,
+    nextTradingDay: nextTradingDay, localDay: localDay, closeMs: closeMs, createAccount: createAccount, planEntry: planEntry, fillEntry: fillEntry,
     recordReview: recordReview, fillExit: fillExit, markToMarket: markToMarket, resume: resume, tightenRiskLimits: tightenRiskLimits });
 });

@@ -1,7 +1,8 @@
 'use strict';
 /* 가상 계좌 P2 순수 계산 모듈 v0.1 — 합성 자료만(SYN- 종목). 네트워크·저장소·실제 기록 없음.
    지피 GPT-REVIEW-paper-p2-20261123-1430 CR-1~3: 게이트는 실제 HASBuyReviewGate.evaluate 발급 결과만, 계획은 모듈 발급분만, 시간 순서.
-   v0.2 지피 GPT-REVIEW-paper-p2-20261123-1530 CR-5~7: 재개 잠금, 계좌 시간축, 모듈 발급 계좌·위험 한도 완화 금지. */
+   v0.2 지피 GPT-REVIEW-paper-p2-20261123-1530 CR-5~7: 재개 잠금, 계좌 시간축, 모듈 발급 계좌·위험 한도 완화 금지.
+   v0.3 지피 GPT-REVIEW-paper-p2-20261123-1630 CR-8~9: 계좌 상태 전체 무결성, 종목 간·같은 날 시간축(UTC 순간). */
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -367,6 +368,102 @@ test('CR-3: 재평가 공시 — 같은 공시 반복 EXIT-REVIEW·같은 공개
   // 새 공시로 2연속 → 검토는 뉴욕 12/03 10시(asOf 12/02) → 청산일 12/04
   r = P.recordReview(a, rv('EXIT-REVIEW', '2026-12-03T15:00:00Z', '2026-12-02', { kind: 'periodic', id: 'Q4', publishedAt: '2026-12-02T12:00:00Z' }));
   assert.equal(r.ok, true, r.reasons.join('/')); assert.equal(r.exitPlan.fillDay, '2026-12-04');
+});
+
+/* ── 지피 GPT-REVIEW-paper-p2-20261123-1630 CR-8~9 반례 ── */
+test('CR-8: 계좌 상태 전체 무결성 — 현금·납입·보유량·단가·회차·keys·marks·events·시작일·중첩 필드 직접 수정은 모두 거부, 반환 이벤트·평가 사본 수정은 무해', () => {
+  const fresh = () => { const a = enter(acct().account, cand(), '2026-11-04', 100); return P.markToMarket(a, '2026-11-04', marks({ 'US:SYN-A': 100 })).account; };
+  const tamper = {
+    '현금 증액': a => { a.cash.USD += 1e6; },
+    '납입 변경': a => { a.contributed.USD = 1; },
+    '보유량 변경': a => { a.positions['US:SYN-A'].qty += 10; },
+    '단가·원가 변경': a => { a.positions['US:SYN-A'].cost = 1; },
+    '회차 기록 중첩 수정': a => { a.positions['US:SYN-A'].tranches[0].price = 1; },
+    '회차 삭제': a => { a.positions['US:SYN-A'].tranches.length = 0; },
+    'keys 삭제': a => { for (const k of Object.keys(a.keys)) delete a.keys[k]; },
+    'marks 삭제': a => { a.marks.length = 0; },
+    'marks 중첩 수정': a => { a.marks[0].equity.USD = 1e9; },
+    'events 삭제': a => { a.events.pop(); },
+    'events 삽입': a => { a.events.push({ kind: 'PAPER_BUY', fillDay: '2026-11-03', decidedAt: '2026-11-02T22:00:00Z', market: 'US' }); },
+    '시작일 변경': a => { a.startDate = '2020-01-01'; },
+    '포지션 삭제': a => { delete a.positions['US:SYN-A']; },
+    '필드 추가': a => { a.extra = 1; }
+  };
+  const b2 = issueGate('2026-11-09T21:00:00Z', { symbol: 'SYN-B' });
+  const cB = cand({ symbol: 'SYN-B', decidedAt: '2026-11-09T22:00:00Z', signalAsOf: '2026-11-09', gate: b2 });
+  for (const [name, fn] of Object.entries(tamper)) {
+    const a = fresh();
+    const plB = P.planEntry(a, cB); assert.equal(plB.action, 'PAPER_ENTRY_PLANNED', name + ': 변조 전 정상');
+    fn(a);
+    const why = /모듈 밖에서 바뀜/;
+    const pl = P.planEntry(a, cB); assert.equal(pl.action, 'PAPER_ENTRY_HOLD', name); assert.ok(pl.reasons.some(r => why.test(r)), name + ': ' + pl.reasons.join('/'));
+    assert.ok(P.fillEntry(a, plB.plan, bar('2026-11-10', 100)).reasons.some(r => why.test(r)), name + ' 체결');
+    assert.ok(P.markToMarket(a, '2026-11-10', marks({ 'US:SYN-A': 100, 'US:SYN-B': 100 })).reasons.some(r => why.test(r)), name + ' 평가');
+    assert.ok(P.recordReview(a, { synthetic: true, market: 'US', symbol: 'SYN-A', outcome: 'HOLD', reviewedAt: '2026-11-10T22:00:00Z', asOf: '2026-11-10', calendar: CAL, filing: { kind: 'periodic', id: 'QX', publishedAt: '2026-11-10T12:00:00Z' } }).reasons.some(r => why.test(r)), name + ' 재평가');
+    assert.ok(P.tightenRiskLimits(a, { cashFloorPct: 30 }).reasons.some(r => why.test(r)), name + ' 한도');
+  }
+  // 반환된 이벤트·평가 객체는 사본 — 고쳐도 계좌는 그대로 신뢰
+  const a0 = acct().account; const pl0 = P.planEntry(a0, cand()); const f0 = P.fillEntry(a0, pl0.plan, bar('2026-11-04', 100));
+  f0.event.qty = 0; f0.event.price = 1;
+  const m0 = P.markToMarket(f0.account, '2026-11-04', marks({ 'US:SYN-A': 100 })); assert.equal(m0.ok, true, m0.reasons.join('/'));
+  m0.mark.equity.USD = 1;
+  // 정상 모듈 경유: 한도 강화 → 재평가 EXIT → 청산 → 평가 모두 통과
+  const t = P.tightenRiskLimits(m0.account, { cashFloorPct: 25 }); assert.equal(t.ok, true, t.reasons.join('/'));
+  const r = P.recordReview(t.account, { synthetic: true, market: 'US', symbol: 'SYN-A', outcome: 'EXIT', reviewedAt: '2026-11-05T22:00:00Z', asOf: '2026-11-05', calendar: CAL, filing: { kind: 'periodic', id: 'Q3', publishedAt: '2026-11-05T12:00:00Z' } });
+  assert.equal(r.ok, true, r.reasons.join('/'));
+  const s = P.fillExit(r.account, r.exitPlan, bar('2026-11-06', 110)); assert.equal(s.ok, true, s.reasons.join('/'));
+  assert.equal(P.markToMarket(s.account, '2026-11-06', marks({})).ok, true);
+  // 복사(서명 없는 복원) 계좌는 계속 거부
+  assert.ok(P.planEntry(JSON.parse(JSON.stringify(s.account)), cB).reasons.some(r2 => /모듈이 만든 계좌 상태 아님/.test(r2)));
+});
+
+test('CR-9: 다른 종목 간 시간축 — A 재평가 뒤 과거 B 결정·같은 날 종가 소급 체결 거부, 미래 B 결정·다음 거래일 체결 통과, KR/US 현지일·서머타임', () => {
+  const rvA = (t, d, id) => ({ synthetic: true, market: 'US', symbol: 'SYN-A', outcome: 'HOLD', reviewedAt: t, asOf: d, calendar: CAL, filing: { kind: 'periodic', id, publishedAt: d + 'T12:00:00Z' } });
+  const candB = (iso, sig) => cand({ symbol: 'SYN-B', decidedAt: iso, signalAsOf: sig, gate: issueGate(new Date(Date.parse(iso) - 3600e3).toISOString().replace('.000Z', 'Z'), { symbol: 'SYN-B' }) });
+  // 지피 예: A 재평가 11-06T22Z 기록 뒤, B의 과거 11-05T22Z 결정(체결 11-06) 사후 발급 → 보류
+  const a = enter(acct().account, cand(), '2026-11-04', 100);
+  const rA = P.recordReview(a, rvA('2026-11-06T22:00:00Z', '2026-11-06', 'QA1')); assert.equal(rA.ok, true, rA.reasons.join('/'));
+  const back = P.planEntry(rA.account, candB('2026-11-05T22:00:00Z', '2026-11-05'));
+  assert.equal(back.action, 'PAPER_ENTRY_HOLD'); assert.ok(back.reasons.some(r => /계좌 시간축 역행: 결정 시각.*다른 종목 포함/.test(r)), back.reasons.join('/'));
+  // B 기존 회차 없음(lastDecidedAt 없음)에도 보호. 미래 B 결정 → 다음 거래일 체결 통과
+  const fwd = P.planEntry(rA.account, candB('2026-11-09T22:00:00Z', '2026-11-09'));
+  assert.equal(fwd.action, 'PAPER_ENTRY_PLANNED', fwd.reasons.join('/')); assert.equal(fwd.plan.fillDay, '2026-11-10');
+  assert.equal(P.fillEntry(rA.account, fwd.plan, bar('2026-11-10', 50)).ok, true);
+  // 같은 날 순서: B 계획(11-05T22Z, 체결 11-06) 발급 뒤 A 재평가가 11-06 장중(15Z)이면 11-06 종가(21Z) 체결 허용
+  const plB = P.planEntry(a, candB('2026-11-05T22:00:00Z', '2026-11-05')); assert.equal(plB.action, 'PAPER_ENTRY_PLANNED', plB.reasons.join('/')); assert.equal(plB.plan.fillDay, '2026-11-06');
+  const intra = P.recordReview(a, rvA('2026-11-06T15:00:00Z', '2026-11-06', 'QA2')); assert.equal(intra.ok, true, intra.reasons.join('/'));
+  assert.equal(P.fillEntry(intra.account, plB.plan, bar('2026-11-06', 50)).ok, true, '장중 재평가 뒤 종가 체결');
+  // …A 재평가가 11-06 장 마감 뒤(23Z)면 그날 종가 B 체결은 소급 → 거부
+  const after = P.recordReview(a, rvA('2026-11-06T23:00:00Z', '2026-11-06', 'QA3')); assert.equal(after.ok, true);
+  const late = P.fillEntry(after.account, plB.plan, bar('2026-11-06', 50));
+  assert.equal(late.ok, false); assert.ok(late.reasons.some(r => /같은 날 소급 체결 금지/.test(r)), late.reasons.join('/'));
+  // 평가도 같은 규칙: 마감 뒤 재평가가 기록된 날의 평가(그날 종가)는 소급 → 거부
+  assert.ok(P.markToMarket(after.account, '2026-11-06', marks({ 'US:SYN-A': 100 })).reasons.some(r => /소급 평가 금지/.test(r)));
+  // 종가 체결끼리는 같은 순간 허용(같은 날 두 종목 체결)
+  const base = acct().account; const p1 = P.planEntry(base, cand()); const p2 = P.planEntry(base, candB('2026-11-03T22:30:00Z', '2026-11-03'));
+  const g1 = P.fillEntry(base, p1.plan, bar('2026-11-04', 100)); assert.equal(g1.ok, true);
+  assert.equal(P.fillEntry(g1.account, p2.plan, bar('2026-11-04', 50)).ok, true, '같은 날 US 종가 체결 2건');
+  // KR/US 혼합: 원화 K 계획 → US A 체결(11-04 뉴욕 마감) 뒤 K 11-04(서울 마감, 더 이른 순간) 체결은 기록 순서 역행 → 거부, 시간순 기록은 통과
+  const mix = acct({ cash: { KRW: 30000000, USD: 100000 } }).account;
+  const kc = (iso, sig) => cand({ market: 'KR', symbol: 'SYN-K', decidedAt: iso, signalAsOf: sig, gate: issueGate(new Date(Date.parse(iso) - 3600e3).toISOString().replace('.000Z', 'Z'), { market: 'KR', symbol: 'SYN-K' }) });
+  const pk = P.planEntry(mix, kc('2026-11-03T08:00:00Z', '2026-11-03')); assert.equal(pk.action, 'PAPER_ENTRY_PLANNED', pk.reasons.join('/'));
+  const pu = P.planEntry(mix, cand());
+  const u1 = P.fillEntry(mix, pu.plan, bar('2026-11-04', 100)); assert.equal(u1.ok, true);
+  const kLate = P.fillEntry(u1.account, pk.plan, bar('2026-11-04', 50000, { currency: 'KRW' }));
+  assert.equal(kLate.ok, false); assert.ok(kLate.reasons.some(r => /다른 종가 체결.*보다 앞섬/.test(r)), kLate.reasons.join('/'));
+  const k1 = P.fillEntry(mix, pk.plan, bar('2026-11-04', 50000, { currency: 'KRW' })); assert.equal(k1.ok, true, k1.reasons.join('/'));
+  const u2 = P.fillEntry(k1.account, pu.plan, bar('2026-11-04', 100)); assert.equal(u2.ok, true, u2.reasons.join('/'));
+  // US 재평가 11-05T22Z(서울 11-06 07시) 뒤 서울 11-05 17시 K 추가 결정은 소급 → 보류
+  const ru = P.recordReview(u2.account, rvA('2026-11-05T22:00:00Z', '2026-11-05', 'QM1')); assert.equal(ru.ok, true, ru.reasons.join('/'));
+  assert.ok(P.planEntry(ru.account, kc('2026-11-05T08:00:00Z', '2026-11-05')).reasons.some(r => /계좌 시간축 역행: 결정 시각/.test(r)));
+  // 마감 시각 가정(정규장, 조기폐장 미반영): KR 15:30 서울 = 06:30Z, US 16:00 뉴욕 = 겨울 21:00Z / 여름 20:00Z
+  const iso = ms => new Date(ms).toISOString();
+  assert.equal(iso(P.closeMs('2026-11-04', 'KR')), '2026-11-04T06:30:00.000Z');
+  assert.equal(iso(P.closeMs('2026-10-30', 'US')), '2026-10-30T20:00:00.000Z', '서머타임 종료 전(EDT)');
+  assert.equal(iso(P.closeMs('2026-11-02', 'US')), '2026-11-02T21:00:00.000Z', '서머타임 종료 후(EST, 11-01 전환)');
+  assert.equal(iso(P.closeMs('2027-03-12', 'US')), '2027-03-12T21:00:00.000Z');
+  assert.equal(iso(P.closeMs('2027-03-15', 'US')), '2027-03-15T20:00:00.000Z', '서머타임 시작(03-14) 후');
+  assert.equal(P.closeMs('2026-13-01', 'US'), null); assert.equal(P.closeMs('2026-11-04', 'JP'), null);
 });
 
 test('모듈은 네트워크·저장소·주문 코드를 포함하지 않는다', () => {
