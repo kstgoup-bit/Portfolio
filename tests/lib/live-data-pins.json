@@ -12,7 +12,7 @@
     "backup/ui.js": "0999a78cf1fa8c8bdd89d82afd4b905954b2c2bc27b1b8a24dd4866731345c3d"
   },
   "currentSha256": {
-    "portfolio_v5.html": "c3c10cf6cb49ad135145a0d0b4502b56ed889262a007066c2c1874e406c47eea",
+    "portfolio_v5.html": "56f746658cb73ad96187070f6b857884fb11c4005cd3e042fb13fb79f32d2a2d",
     "radar/ui.js": "30cf84406bf9e6d7156b44f19c955c103f32fdd5d9095811512806f5350686e5",
     "has/advisor-panel.js": "a4458f646ce6712a47eae3a619c429d7d09ec50f6610e5d5e988d66120e8ca2b",
     "service-worker.js": "bd7c5a33f7070bf8e4791fedb5cbfc4572741076023efb1090e838d8041c7b72",
@@ -33,12 +33,12 @@
     "radar/data/kospi200-20261112.json": "27d11d585b9c4b2de052bfa16e583fade517f40d565cd233a9687c69811fbd05",
     "radar/data/us200-20261112.json": "4ec662322dcf2ed3d2e30592cd6ca7966c268d445c7758d110da2d211229d26a",
     "radar/data/universe-manifest-20261112.json": "f372ea97d54902c6a89476b077384f2f3e604b694f6285fc9c7313510c254edf",
-    "has/fear-top.js": "305594a58fbb6ca3ed2578cd2fde44c164f438978db38ceed75ec586db9ecb6b",
+    "has/fear-top.js": "012219e944a2701cb2fc28d3c077e96e90d368fc42b6518fd5323e0237b43eef",
     "has/capital-allocation.js": "984fbd0574c2b7d1d1a13c45248800f7bc2eb15d2e980bbe59fc18df276bd05c",
     "has/capital-allocation-lab.js": "18b532bb6bdbae7e3284a8b3c929840c5484a88c3861a39a3d6e5314eae92382",
     "has/capital-allocation-lab.html": "9954811f994b04537dec5674553995820fa00eb9abe23da8780013c8e3336140",
     "has/capital-allocation-lab.css": "beb3c222a4f5584c61b3a73d0ba7076a4157f45bd8a41268d11a3d287f3cea75",
-    "has/fundamental-filter.js": "45a38e95efff38244feae679389b4a6bc6a7a89ef0e47b6727e795c51759d093",
+    "has/fundamental-filter.js": "128bcc0b2de0a61ab7aecf67c6305a4c673031f8dfff86f371d9c99865b46f47",
     "has/great-companies.js": "ad4400b3250fab0db30018cf61a4fbe908042a53d32577ce86172b9ce85de9ae",
     "has/great-companies-fixtures.js": "5765a293b356d799359635d821ee105b6f178ac0b598121ca9336507a3ca0b5e",
     "has/great-companies-lab.js": "dff3b8ae0da5e6f0b36f203cd787b257695f4afa0fc694dff1d40dee7c08db5a",

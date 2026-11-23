@@ -19,6 +19,7 @@
     return { rows: ranked, visible: ranked.slice(0, VISIBLE), hidden: ranked.slice(VISIBLE), aged: aged, total: ranked.length };
   }
   function kstDay(t) { return new Date(t + 32400000).toISOString().slice(0, 10); }
+  function kstTime(iso) { var t = Date.parse(iso); return Number.isFinite(t) ? new Date(t + 32400000).toISOString().slice(0, 16).replace('T', ' ') + ' (한국시간)' : String(iso || '시각 없음'); }
   function pct(x) { return Number.isFinite(x) ? (x > 0 ? '+' : '') + x.toFixed(1) + '%' : '자료 부족'; }
   function mount(container, deps) {
     if (!container || typeof document === 'undefined') return null;
@@ -85,7 +86,7 @@
       var st = node('p', state.error || (state.summary ? '' : '버튼을 누르면 설정된 GAS에서 오늘의 요약을 1회 조회합니다.')); st.setAttribute('role', 'status'); container.appendChild(st);
       if (!state.summary) return;
       var sel = select(state.summary, now(), screen && screen.rank);
-      st.textContent = state.error || ((synthetic(state.summary) ? '합성 시험 자료(실제 시세 아님) · ' : '') + '요약 ' + state.summary.generatedAt + ' · 후보 ' + sel.total + '개');
+      st.textContent = state.error || ((synthetic(state.summary) ? '합성 시험 자료(실제 시세 아님) · ' : '') + '요약 ' + kstTime(state.summary.generatedAt) + ' · 후보 ' + sel.total + '개');
       if (!sel.total) { container.appendChild(node('p', '표시할 후보 없음 · 판단 보류 (자료가 오래됐거나 부족합니다)')); return; }
       sel.visible.forEach(function (r, i) { container.appendChild(card(r, i, sel.aged)); });
       if (sel.hidden.length) {
@@ -112,5 +113,5 @@
     render();
     return { refresh: refresh };
   }
-  return Object.freeze({ select: select, mount: mount, nameOf: nameOf, LIMIT: LIMIT, VISIBLE: VISIBLE });
+  return Object.freeze({ select: select, mount: mount, nameOf: nameOf, kstTime: kstTime, LIMIT: LIMIT, VISIBLE: VISIBLE });
 });

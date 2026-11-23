@@ -19,6 +19,8 @@
 다음 묶음: 1단계 후속(탭 첫 진입 자동 조회·하루 캐시, 확신 종목 UI 25%/10%, '준비 중' 제거) → 2차 재무(SEC EDGAR, DART) → 서비스워커 rollback.
 
 ## 처리한 지시서
+- GPT-REVIEW-paper-p2-20261123-1430 (2026-11-23 15:1x) CHANGES_REQUESTED CR-1~4 반영 — v0.1 `012855b`(보고 `34ca94a`) READY_FOR_REVIEW. 전체 2331/2329/0/2, scan-secrets 0.
+- GPT-REVIEW-radar-labels-20261123-1430 (2026-11-23 15:0x) APPROVE 기록 — CR-1 증빙 정합성·정적 검토 한정. 순태씨 운영 반영 승인 요청 대상(`eca2f61`/코드 `b5cc750`).
 - GPT-REVIEW-radar-labels-20261123-1331 (2026-11-23 14:1x) CHANGES_REQUESTED CR-1(시험 증빙) 반영 — 최종 전체 재실행 2314/pass 2312/fail 0/skip 2, 코드 변경 없음. `eca2f61`·보고 `4fde549` 재검토 요청.
 - GPT-REVIEW-paper-account-20261123-0829 (2026-11-23 09:0x) APPROVE 기록 — GPT-20261123-0733 설계 의견 `cdc4b19` 문서 요건 충족(DOCUMENT_ONLY_STATIC). 정책값·P2 구현·운영 승인 아님. 후속 보완 1~6 보고서에 기록(`ed927f9`).
 - GPT-20261123-0733 (2026-11-23 08:1x) READY_FOR_REVIEW: 가상 계좌 P2 설계 의견(문서만) — `work/claude-paper-account-20261123` HEAD `cdc4b19`, 보고 `e31a65a`. 시험 미실행(설계 문서만), 코드·GAS·운영 변경 0.
@@ -314,3 +316,5 @@
 - 2026-11-23 순태씨 대화 '다 해': 곡소리 표시 정정 3건 `b5cc750`(work/claude-radar-labels-20261123) READY_FOR_REVIEW. 전체 시험 통과/skip 2, 비밀값 0, Chromium 3폭 통과. LG이노텍·미래에셋증권 낙폭: 분할 증거 없음, 고점 날짜 미확인(미검증). 다음: 지피 검토 → 순태씨 '올려'.
 - 2026-11-23 13시대 (순태씨 대화 '8번 승인, 나머지 추천대로') 가상 계좌 정책 결정 1~8 기록 + P2 순수 계산 모듈 v0: `work/claude-paper-p2-20261123` `1d865f3`(main e7f0d41 기준) — has/paper-account.js·tests/paper-account.test.cjs 14개·live-data-pins 등록. 전체 2327 중 2324 통과/1 실패(universe-screen-dom, main 동일)/2 skip, scan-secrets 0. READY_FOR_REVIEW. 다음: 지피 검토 / G0 대기.
 - 2026-11-23 14:06 정각 실행: 지피 1331 CR-1 처리 — radar-labels 브랜치 main merge `eca2f61`(코드 동일), 전체 시험 2314/2312 통과/0 실패/2 skip, scan-secrets 0, Chromium 3폭 DOM 확인. 보고 `4fde549`. 다음: 지피 재검토 / P2 v0 검토 / G0 대기.
+- 2026-11-23 15:06 정각 실행: 지피 1430 radar-labels APPROVE 기록(순태씨 '올려' 요청 알림), paper-p2 CR-1~4 반영 v0.1 `012855b` — 게이트 verify·발급 계획만 체결·체결 시점 재검사·거래소 현지일 체결·공시 재사용 금지, universe-screen-dom 시험 대기 누락 수정. 전체 2331/2329 통과/0 실패/2 skip, scan-secrets 0. 다음: 지피 P2 재검토 / 순태씨 radar '올려' / G0 대기.
+- 2026-11-23 15시대 (순태씨 대화 '올려') 곡소리 표시 정정 `work/claude-radar-labels-20261123` → main `aa04a22` no-ff 병합(지피 1430 APPROVE). 병합 후 전체 2315 중 2312 통과/1 실패(universe-screen-dom — 병합 전 main 동일, 시험 코드 결함, 수정은 P2 브랜치 `012855b`에 있음)/2 skip, scan-secrets 0. Pages 배포 `aa04a22` success(사이트 직접 확인은 이 환경 네트워크 차단으로 못 함). 다음: 지피 P2 v0.1 재검토 / G0 대기.

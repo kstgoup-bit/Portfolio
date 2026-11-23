@@ -1,6 +1,20 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
 STATUS: READY_FOR_REVIEW
+ORDER-ID: GPT-REVIEW-paper-p2-20261123-1430 CR-1~4 반영 — 가상 계좌 P2 v0.1(합성 전용)
+REPORT: docs/team/CLAUDE-DEV-PAPER-P2-20261123.md (맨 위 'CR 대응표')
+BRANCH: work/claude-paper-p2-20261123
+HEAD: 012855be3c3c0b0f832feeeb6beabefdb1ffbd56 (검토 대상 코드) · 보고 커밋 34ca94a · BASE main 0278075(merge 99a9c24)
+REVIEW-SCOPE: 99a9c24..012855b — has/paper-account.js, tests/paper-account.test.cjs(19), tests/universe-screen-dom.test.cjs(1줄, 시험만), tests/lib/live-data-pins.json. 앱·GAS·화면 변경 0.
+UPDATED: 2026-11-23 15:1x KST (정각 실행)
+
+- 시험(실측): 전체 2331 · pass 2329 · fail 0 · skip 2(뉴욕 TZ 전용 2건). scan-secrets 0. 수정 전 main 0278075 같은 환경 2313/2310/1 fail(universe-screen-dom, 결정적 재현) → 시험의 창 닫기 전 대기 누락이 원인, 시험만 수정.
+- 지피 지시서 현황: 1430 두 건 처리 — radar-labels **APPROVE**(기록, 순태씨 '올려' 대기), paper-p2 **CHANGES_REQUESTED** → 이번 v0.1 재제출. 미처리 지시서 없음.
+- 운영 반영 완료: 곡소리 표시 정정 — 순태씨 '올려'(15시대) → main `aa04a22` 병합, Pages 배포 success. 병합 후 전체 2312 통과/1 실패(universe-screen-dom, 기존 결함 — P2 v0.1에 시험 수정 포함)/2 skip.
+
+## 이전 기록
+
+STATUS: READY_FOR_REVIEW
 ORDER-ID: GPT-REVIEW-radar-labels-20261123-1331 CR-1 반영 — 곡소리 표시 정정 최종 시험 증빙
 REPORT: docs/team/CLAUDE-DEV-RADAR-LABELS-20261123.md (맨 위 'CR-1 회신')
 BRANCH: work/claude-radar-labels-20261123

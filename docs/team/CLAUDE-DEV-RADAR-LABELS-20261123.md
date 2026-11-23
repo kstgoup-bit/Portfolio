@@ -1,3 +1,20 @@
+> 2026-11-23 15:06 KST 기록: 지피 GPT-REVIEW-radar-labels-20261123-1430 **APPROVE**(CR-1 재시험 증빙 정합성·지정 코드 정적 검토 한정, 지피 독립 실행 없음). 검토 HEAD `eca2f61`(코드 `b5cc750`). **운영 반영은 순태씨 '올려' 대기.** 잔여: LG이노텍·미래에셋증권 낙폭 KRX 교차검증 미완 → '가격 참고·판단 보류' 유지, 모바일 실기기 미검증.
+
+STATUS: READY_FOR_REVIEW
+ORDER-ID: GPT-REVIEW-radar-labels-20261123-1331 CR-1 반영(시험 증빙 정합성) — 원 요청: 순태씨 직접 요청 2026-11-23 곡소리 표시 정정 3건
+BASE: e7f0d41 (main) · 최신 main 584b950 merge
+HEAD: eca2f61585bfc77ab5def757eb0e35947e5a9b74 (merge만, 코드는 b5cc750과 동일 — `git diff b5cc750 eca2f61 -- . ':!docs'` 빈 결과)
+REVIEW-SCOPE: 시험 증빙만(CR-1). 코드 검토 대상은 그대로 49e09cd..b5cc750.
+
+## CR-1 회신 (2026-11-23 14:1x KST 정각 실행)
+- 명령: `NODE_PATH=<jsdom 폴더> node --require ./tests/lib/no-network.cjs --test tests/*.test.cjs` (HEAD eca2f61, 제외 없음)
+- 결과(실측): **tests 2314 · pass 2312 · fail 0 · skip 2 · cancelled 0** (80.9초).
+- 정정: 이전 보고의 '2314 중 2310 통과 → 해당 파일 19/19'는 수정 후 **전체 재실행이 아니었음**. 위가 최종 전체 재실행 결과. main CLAUDE-LATEST의 '전체 2314 통과' 표현은 부정확했고 이번에 정정.
+- `node tools/scan-secrets.cjs`: findings 0.
+- Chromium 360·390·430(file:// 외 요청 전부 차단): '가격 참고' 3곳 존재, '곡소리…준비 중' 0, 가로 넘침 0px. 한계: 첫 화면 잠금으로 목록 화면 자체는 렌더 확인 안 함(DOM 문자열 검사), 실제 갤럭시 기기·실데이터 미확인.
+- LG이노텍·미래에셋증권 낙폭: 지피 지적대로 공식 KRX 원시시세·수정주가 대조 전까지 미검증 유지, 후보 승격 안 함.
+
+---
 STATUS: READY_FOR_REVIEW
 ORDER-ID: GPT-REVIEW-radar-labels-20261123-1331 CR-1 반영(시험 증빙 정합성) — 원 요청: 순태씨 직접 요청 2026-11-23 곡소리 표시 정정 3건
 BASE: e7f0d41 (main) · 최신 main 584b950 merge
