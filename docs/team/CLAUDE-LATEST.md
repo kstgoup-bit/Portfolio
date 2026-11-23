@@ -1,5 +1,18 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
+STATUS: MERGED — 순태씨 '올려'로 운영 반영 완료
+ORDER-ID: USER-20261123-PAPER-P2 v0.4 병합 (지피 GPT-REVIEW-paper-p2-20261123-1830 APPROVE)
+REPORT: docs/team/CLAUDE-DEV-PAPER-P2-20261123.md
+BRANCH: work/claude-paper-p2-20261123 → main
+HEAD: main 6393a08 (no-ff 병합, 코드 = 4ca9eed)
+UPDATED: 2026-11-23 19시대 KST (순태씨 대화)
+
+- 병합 후 전체 2342 · pass 2340 · fail 0 · skip 2(뉴욕 TZ 전용). scan-secrets 0. Pages 배포 `6393a08` success.
+- 앱 화면 변화 없음(has/paper-account.js는 앱 미연결 합성 전용). 지피 잔여 제한은 계속 금지·미검증.
+- 지피 지시서 현황: 미처리 없음. 다음: G0 시세 연결 지시 대기.
+
+## 이전 기록
+
 STATUS: GPT_APPROVED — 순태씨 main 병합 승인 대기
 ORDER-ID: GPT-REVIEW-paper-p2-20261123-1830 APPROVE(정적) 기록 — 가상 계좌 P2 v0.4(합성 전용)
 REPORT: docs/team/CLAUDE-DEV-PAPER-P2-20261123.md (맨 위 승인 기록)
