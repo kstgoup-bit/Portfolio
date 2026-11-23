@@ -173,7 +173,7 @@
   function display(raw, options) {
     var o = options || {}, ctx = o.context === 'euphoria' ? 'euphoria' : 'fear';
     function hold(state, text) { return { state: state, label: null, text: '재무: ' + text + ' · 판단 보류', note: '', lines: [], signalHold: true, opinion: '판단 보류' }; }
-    if (o.market && o.market !== 'US') return hold('unsupported', '국내·해외 기업 재무 확인 미연결(미국 SEC만 1단계)');
+    if (o.market && o.market !== 'US') return hold('unsupported', o.market === 'KR' ? '국내 기업 재무(DART) 미연결' : '해외 기업 재무 미연결(미국 SEC만 연결)');
     if (raw === undefined || raw === null) return hold('none', '미연결(재무 자료 수집 전)');
     var want = typeof o.ticker === 'string' && o.ticker ? o.ticker : null;
     if (plain(raw) && (!want || raw.ticker !== want)) return hold('mismatch', want ? '종목 불일치(' + (typeof raw.ticker === 'string' ? raw.ticker.slice(0, 15) : '식별자 없음') + ' ≠ ' + want + ')' : '대상 종목 미지정');
