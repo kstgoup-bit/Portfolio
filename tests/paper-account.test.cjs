@@ -2,7 +2,8 @@
 /* 가상 계좌 P2 순수 계산 모듈 v0.1 — 합성 자료만(SYN- 종목). 네트워크·저장소·실제 기록 없음.
    지피 GPT-REVIEW-paper-p2-20261123-1430 CR-1~3: 게이트는 실제 HASBuyReviewGate.evaluate 발급 결과만, 계획은 모듈 발급분만, 시간 순서.
    v0.2 지피 GPT-REVIEW-paper-p2-20261123-1530 CR-5~7: 재개 잠금, 계좌 시간축, 모듈 발급 계좌·위험 한도 완화 금지.
-   v0.3 지피 GPT-REVIEW-paper-p2-20261123-1630 CR-8~9: 계좌 상태 전체 무결성, 종목 간·같은 날 시간축(UTC 순간). */
+   v0.3 지피 GPT-REVIEW-paper-p2-20261123-1630 CR-8~9: 계좌 상태 전체 무결성, 종목 간·같은 날 시간축(UTC 순간).
+   v0.4 지피 GPT-REVIEW-paper-p2-20261123-1730 CR-10: 계획·계좌 계보 결합(같은 id 다른 계좌 교차 사용 금지). */
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -464,6 +465,45 @@ test('CR-9: 다른 종목 간 시간축 — A 재평가 뒤 과거 B 결정·같
   assert.equal(iso(P.closeMs('2027-03-12', 'US')), '2027-03-12T21:00:00.000Z');
   assert.equal(iso(P.closeMs('2027-03-15', 'US')), '2027-03-15T20:00:00.000Z', '서머타임 시작(03-14) 후');
   assert.equal(P.closeMs('2026-13-01', 'US'), null); assert.equal(P.closeMs('2026-11-04', 'JP'), null);
+});
+
+test('CR-10: 같은 id·조건의 따로 만든 계좌 A/B — 서로의 발급 ENTRY·EXIT 계획 교차 사용 거부(B 상태 불변), 각자 계획·한도 강화·재평가 뒤 정상 경로는 유지', () => {
+  const A = acct().account, B = acct().account; // 같은 id·시장·통화·현금·위험 한도
+  assert.equal(A.id, B.id); assert.notEqual(A, B);
+  const snap = x => JSON.stringify({ cash: x.cash, positions: x.positions, events: x.events, keys: x.keys, marks: x.marks });
+  const pA = P.planEntry(A, cand()), pB = P.planEntry(B, cand());
+  assert.equal(pA.action, 'PAPER_ENTRY_PLANNED'); assert.equal(pB.action, 'PAPER_ENTRY_PLANNED');
+  const b0 = snap(B);
+  const x = P.fillEntry(B, pA.plan, bar('2026-11-04', 100));
+  assert.equal(x.ok, false); assert.ok(x.reasons.some(r => /다른 계좌 계보/.test(r)), x.reasons.join('/')); assert.equal(x.account, B);
+  assert.equal(snap(B), b0, 'B 현금·보유·이벤트·keys 불변');
+  assert.equal(P.fillEntry(A, pB.plan, bar('2026-11-04', 100)).ok, false);
+  // 각자 정상 계획 → 정상 체결
+  const fA = P.fillEntry(A, pA.plan, bar('2026-11-04', 100)); assert.equal(fA.ok, true, fA.reasons.join('/'));
+  const fB = P.fillEntry(B, pB.plan, bar('2026-11-04', 100)); assert.equal(fB.ok, true, fB.reasons.join('/'));
+  // 체결된 A 계보의 계획을 B 후속 상태에 재사용해도 거부(멱등 키 중복으로 통과하지 않음)
+  const dup = P.fillEntry(fB.account, pA.plan, bar('2026-11-04', 100)); assert.equal(dup.ok, false); assert.notEqual(dup.duplicate, true);
+  // 합법 전이(한도 강화·평가) 뒤 같은 보유·같은 EXIT 재평가 조건
+  const step = a => { const t = P.tightenRiskLimits(a, { cashFloorPct: 25 }); assert.equal(t.ok, true, t.reasons.join('/'));
+    const m = P.markToMarket(t.account, '2026-11-04', marks({ 'US:SYN-A': 100 })); assert.equal(m.ok, true, m.reasons.join('/'));
+    const r = P.recordReview(m.account, { synthetic: true, market: 'US', symbol: 'SYN-A', outcome: 'EXIT', reviewedAt: '2026-11-05T22:00:00Z', asOf: '2026-11-05', calendar: CAL, filing: { kind: 'periodic', id: 'Q3', publishedAt: '2026-11-05T12:00:00Z' } });
+    assert.equal(r.ok, true, r.reasons.join('/')); assert.ok(r.exitPlan); return r; };
+  const rA = step(fA.account), rB = step(fB.account);
+  assert.equal(JSON.stringify(rA.exitPlan), JSON.stringify(rB.exitPlan), '두 EXIT 계획 내용 동일');
+  const rb0 = snap(rB.account);
+  const xe = P.fillExit(rB.account, rA.exitPlan, bar('2026-11-06', 110));
+  assert.equal(xe.ok, false); assert.ok(xe.reasons.some(r => /다른 계좌 계보/.test(r)), xe.reasons.join('/'));
+  assert.equal(snap(rB.account), rb0, 'B 청산 전 상태 불변');
+  assert.equal(P.fillExit(rA.account, rB.exitPlan, bar('2026-11-06', 110)).ok, false);
+  const sA = P.fillExit(rA.account, rA.exitPlan, bar('2026-11-06', 110)); assert.equal(sA.ok, true, sA.reasons.join('/'));
+  const sB = P.fillExit(rB.account, rB.exitPlan, bar('2026-11-06', 110)); assert.equal(sB.ok, true, sB.reasons.join('/'));
+  assert.equal(P.fillExit(sA.account, rA.exitPlan, bar('2026-11-06', 110)).duplicate, true, '같은 계보 멱등 유지');
+  // 같은 계보의 이전 상태에서 발급한 계획은 후속 상태에서 쓸 수 있다(계보 유지)
+  const C = acct().account; const pC = P.planEntry(C, cand());
+  const tC = P.tightenRiskLimits(C, { cashFloorPct: 25 }); assert.equal(tC.ok, true);
+  const fC = P.fillEntry(tC.account, pC.plan, bar('2026-11-04', 100)); assert.equal(fC.ok, true, fC.reasons.join('/'));
+  // 계좌 객체에 남의 계보처럼 보이는 속성을 붙이는 것은 무결성 실패(입력 속성은 계보로 신뢰하지 않음)
+  const D = acct().account; D.lineage = 'A'; assert.ok(P.fillEntry(D, pA.plan, bar('2026-11-04', 100)).reasons.some(r => /모듈 밖에서 바뀜/.test(r)));
 });
 
 test('모듈은 네트워크·저장소·주문 코드를 포함하지 않는다', () => {

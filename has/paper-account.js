@@ -126,11 +126,18 @@
   var ACCTS = new WeakMap();
   // CR-8: 상태 전체 지문(현금·납입·보유·회차·재평가·이벤트·평가·멱등 키·시작일·중지·한도 모두). 모듈 안 clone → reg 만 정상 경로.
   function guardFp(a) { return fp(a); }
-  function reg(a) { ACCTS.set(a, guardFp(a)); return a; }
+  /* CR-10: 계좌 계보. createAccount 마다 새 불투명 토큰(모듈 안 객체, 입력 속성 아님), 정상 전이(clone → reg(n, 이전 계좌))는 같은 토큰을 잇는다.
+     같은 id 문자열이라도 따로 만든 계좌는 계보가 달라 서로의 계획을 쓸 수 없다. */
+  function reg(a, from) {
+    var lin = from ? (ACCTS.get(from) || {}).lin : null;
+    ACCTS.set(a, { fp: guardFp(a), lin: lin || {} });
+    return a;
+  }
+  function lineage(a) { var t = a && typeof a === 'object' ? ACCTS.get(a) : null; return t ? t.lin : null; }
   function acctReasons(a) {
     var t = a && typeof a === 'object' ? ACCTS.get(a) : null;
     if (!t) return ['이 모듈이 만든 계좌 상태 아님(복사·위조 계좌 — 위험 한도·중지 상태 신뢰 불가)'];
-    if (t !== guardFp(a)) return ['계좌 상태가 모듈 밖에서 바뀜(무결성 실패 — 현금·보유·이벤트·평가·멱등 키·위험 한도·중지 상태 직접 수정 금지)'];
+    if (t.fp !== guardFp(a)) return ['계좌 상태가 모듈 밖에서 바뀜(무결성 실패 — 현금·보유·이벤트·평가·멱등 키·위험 한도·중지 상태 직접 수정 금지)'];
     return [];
   }
   /* CR-6: 계좌 시간축. day=기록된 체결일·재평가일(거래소 현지)·평가일 중 최대, markDay=마지막 평가일(종가 기준), at=기록된 결정·재평가 UTC 최대.
@@ -170,16 +177,18 @@
     return why;
   }
   var LOOSER = { cashFloorPct: function (now, was) { return now < was; }, dailyLossStopPct: function (now, was) { return now > was; }, monthlyLossStopPct: function (now, was) { return now > was; } };
-  function issuePlan(kind, accountId, plan) {
-    plan.accountId = accountId; plan.kind = kind;
+  function issuePlan(kind, a, plan) {
+    plan.accountId = a.id; plan.kind = kind;
     var out = Object.freeze(plan);
-    PLANS.set(out, { kind: kind, accountId: accountId, fp: fp(out) });
+    PLANS.set(out, { kind: kind, accountId: a.id, lin: lineage(a), fp: fp(out) });
     return out;
   }
   function planReasons(a, plan, kind) {
     var t = plan && typeof plan === 'object' ? PLANS.get(plan) : null;
     if (!t || t.kind !== kind || !Object.isFrozen(plan) || fp(plan) !== t.fp) return ['이 모듈이 발급한 ' + (kind === 'ENTRY' ? '진입' : '청산') + ' 계획 아님(위조·복사·변조)'];
     if (t.accountId !== a.id || plan.accountId !== a.id) return ['다른 계좌의 계획'];
+    var lin = lineage(a);
+    if (!t.lin || !lin || t.lin !== lin) return ['다른 계좌 계보에서 발급된 계획(같은 id라도 따로 만든 계좌 — 교차 사용 금지)'];
     return [];
   }
 
@@ -267,7 +276,7 @@
     var eq = bucketEquity(a, ccy);
     var target = eq * POLICY.capPct / 100;
     var budget = target / POLICY.tranches;
-    return { action: 'PAPER_ENTRY_PLANNED', reasons: why, order: null, plan: issuePlan('ENTRY', a.id, {
+    return { action: 'PAPER_ENTRY_PLANNED', reasons: why, order: null, plan: issuePlan('ENTRY', a, {
       market: c.market, ccy: ccy, symbol: c.symbol.trim(), sector: text(c.sector) ? c.sector : null, tranche: n + 1,
       decidedAt: c.decidedAt, signalAsOf: c.signalAsOf, decisionVersion: c.decisionVersion, fillRule: POLICY.fill, fillDay: fillDay,
       gateState: c.gate.state, gateEvaluatedAt: c.gate.evaluatedAt, filingId: filingId,
@@ -322,7 +331,7 @@
       tranche: plan.tranche, decidedAt: plan.decidedAt, signalAsOf: plan.signalAsOf, fillDay: bar.date, fillRule: POLICY.fill,
       price: bar.close, qty: qty, amount: amt, ccy: plan.ccy, decisionVersion: plan.decisionVersion, costStatus: POLICY.costStatus, policy: POLICY.version, synthetic: true };
     n.events.push(ev); n.keys[key] = ev.seq;
-    return { ok: true, reasons: [], event: clone(ev), account: reg(n) };
+    return { ok: true, reasons: [], event: clone(ev), account: reg(n, a) };
   }
 
   /* 새 정기 공시마다 강제 재평가 기록. DATA-UNAVAILABLE은 보류·증거 보존이지 청산 근거가 아니다(연속 횟수 불변).
@@ -377,11 +386,11 @@
     var ev = { contract: CONTRACT, seq: n.events.length + 1, kind: 'PAPER_REVIEW', market: r.market, symbol: q.symbol, outcome: r.outcome,
       reviewedAt: r.reviewedAt, reviewDay: reviewDay, streak: q.exitReviewStreak, exitPlanned: exit, policy: POLICY.version, synthetic: true };
     n.events.push(ev);
-    var out = { ok: true, reasons: [], event: clone(ev), account: reg(n), exitPlan: null };
+    var out = { ok: true, reasons: [], event: clone(ev), account: reg(n, a), exitPlan: null };
     if (exit) {
       var fd = nextTradingDay(r.calendar, maxDay(r.asOf, reviewDay));
       if (!fd) { out.reasons.push('청산 계획: 다음 거래일 없음(캘린더 부족) — 보류'); return out; }
-      out.exitPlan = issuePlan('EXIT', n.id, { market: r.market, ccy: q.ccy, symbol: q.symbol, qty: q.qty, fillRule: POLICY.fill, fillDay: fd, decidedAt: r.reviewedAt,
+      out.exitPlan = issuePlan('EXIT', n, { market: r.market, ccy: q.ccy, symbol: q.symbol, qty: q.qty, fillRule: POLICY.fill, fillDay: fd, decidedAt: r.reviewedAt,
         decisionVersion: text(r.decisionVersion) ? r.decisionVersion : 'review', tranche: q.reviews.length, reviewIndex: q.reviews.length, reason: r.outcome === 'EXIT' ? 'EXIT' : 'EXIT-REVIEW x' + q.exitReviewStreak });
     }
     return out;
@@ -414,7 +423,7 @@
       realizedGross: amt - q.cost, reason: plan.reason, costStatus: POLICY.costStatus, policy: POLICY.version, synthetic: true };
     n.cash[plan.ccy] += amt; q.realizedGross = (q.realizedGross || 0) + (amt - q.cost); q.qty = 0; q.cost = 0; q.lastPrice = bar.close;
     n.events.push(ev); n.keys[key] = ev.seq;
-    return { ok: true, reasons: [], event: clone(ev), account: reg(n) };
+    return { ok: true, reasons: [], event: clone(ev), account: reg(n, a) };
   }
 
   /* 평가(통화별 분리, 환산 합계 없음 — 환율 원천 미검증). 손실 중지선 판정: 직전 평가 대비(일), 해당 월 첫 평가 대비(월). */
@@ -450,7 +459,7 @@
     });
     mark.costStatus = POLICY.costStatus; mark.label = LABEL;
     n.marks.push(mark);
-    return { ok: true, reasons: [], mark: clone(mark), account: reg(n) };
+    return { ok: true, reasons: [], mark: clone(mark), account: reg(n, a) };
   }
 
   /* CR-5: 손실 중지 재개는 잠금. 사유 문자열·승인처럼 보이는 객체·다른 계좌 승인 모두 사용자 승인이 아니다.
@@ -479,7 +488,7 @@
     var n = clone(a), was = clone(a.riskLimits);
     ks.forEach(function (k) { n.riskLimits[k] = changes[k]; });
     n.events.push({ contract: CONTRACT, seq: n.events.length + 1, kind: 'PAPER_RISK_TIGHTEN', was: was, now: clone(n.riskLimits), policy: POLICY.version, synthetic: true });
-    return { ok: true, reasons: [], account: reg(n) };
+    return { ok: true, reasons: [], account: reg(n, a) };
   }
 
   return Object.freeze({ CONTRACT: CONTRACT, POLICY: POLICY, REAL_DATA_LOCK: REAL_DATA_LOCK, CONVICTION_LOCKED: CONVICTION_LOCKED, RESUME_LOCKED: RESUME_LOCKED, REVIEW_STATES: REVIEW_STATES, LABEL: LABEL,
