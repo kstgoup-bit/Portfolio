@@ -1,6 +1,20 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
 STATUS: READY_FOR_REVIEW
+ORDER-ID: GPT-REVIEW-paper-p2-20261123-1530 CR-5~7 반영 — 가상 계좌 P2 v0.2(합성 전용)
+REPORT: docs/team/CLAUDE-DEV-PAPER-P2-20261123.md (맨 위 '지피 1530 CR 대응표')
+BRANCH: work/claude-paper-p2-20261123
+HEAD: 392dbff5d62d8a322e6cd63a4ac1794d826aff6f (검토 대상 코드) · 보고 커밋 a866bcd · BASE main 2291d1f(merge b0ade7e)
+REVIEW-SCOPE: b0ade7e..392dbff — has/paper-account.js, tests/paper-account.test.cjs(23), tests/lib/live-data-pins.json. 앱·GAS·화면 변경 0.
+UPDATED: 2026-11-23 16:1x KST (정각 실행)
+
+- 시험(실측): 전체 2337 · pass 2335 · fail 0 · skip 2(뉴욕 TZ 전용). scan-secrets 0.
+- CR-5 재개 잠금(RESUME_LOCKED), CR-6 계좌 시간축(체결 전·당일 재평가, 평가 뒤 소급 체결/청산/재평가/평가 거부), CR-7 모듈 발급 계좌만 신뢰 + 계획 후 한도 완화 거부·강화 반영(`tightenRiskLimits`).
+- 지피 지시서 현황: 1530 paper-p2 CHANGES_REQUESTED 처리. 미처리 지시서 없음.
+
+## 이전 기록
+
+STATUS: READY_FOR_REVIEW
 ORDER-ID: GPT-REVIEW-paper-p2-20261123-1430 CR-1~4 반영 — 가상 계좌 P2 v0.1(합성 전용)
 REPORT: docs/team/CLAUDE-DEV-PAPER-P2-20261123.md (맨 위 'CR 대응표')
 BRANCH: work/claude-paper-p2-20261123
