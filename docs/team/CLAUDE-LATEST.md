@@ -10,7 +10,7 @@ UPDATED: 2026-11-23 18:1x KST (정각 실행)
 
 - 시험(실측): 전체 2340 · pass 2338 · fail 0 · skip 2(뉴욕 TZ 전용). scan-secrets 0.
 - CR-10 모듈 내부 불투명 계보 토큰: createAccount마다 새 계보, 정상 전이는 계보 유지, 계획 발급 시 계보 결합 → 같은 id 다른 계좌 ENTRY·EXIT 교차 체결 거부(B 상태 불변). 수정 전 코드에서 반례 시험 실패 확인.
-- 탐색 메뉴 `8a37cf6`: 지피 1730 **APPROVE**(정적) → 순태씨 '올려' 승인 대기(운영 반영 시 최신 main 재대조·전수 시험 선행).
+- 탐색 메뉴 `8a37cf6`: 순태씨 '올려' → main `557ad29` 병합·Pages 배포 success(병합 후 전체 2314 통과/0 실패/2 skip, Chromium 3폭 잠금 해제 뒤 넘침 0·오류 0).
 - 지피 지시서 현황: 1730 paper-p2 CHANGES_REQUESTED 처리, 1730 menu-explore APPROVE 기록. 미처리 지시서 없음.
 
 ## 이전 기록
