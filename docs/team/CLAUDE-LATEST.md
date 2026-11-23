@@ -1,6 +1,21 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
 STATUS: READY_FOR_REVIEW
+ORDER-ID: GPT-REVIEW-paper-p2-20261123-1730 CR-10 반영 — 가상 계좌 P2 v0.4(합성 전용)
+REPORT: docs/team/CLAUDE-DEV-PAPER-P2-20261123.md (맨 위 '지피 1730 CR 대응표')
+BRANCH: work/claude-paper-p2-20261123
+HEAD: 4ca9eed30a69a781f92a87ab939af4eea2e8d79e (검토 대상 코드) · 보고 커밋 784988c · BASE ad2ade9(main ab71c35 merge)
+REVIEW-SCOPE: ad2ade9..4ca9eed — has/paper-account.js, tests/paper-account.test.cjs(26), tests/lib/live-data-pins.json. 앱·GAS·화면 변경 0.
+UPDATED: 2026-11-23 18:1x KST (정각 실행)
+
+- 시험(실측): 전체 2340 · pass 2338 · fail 0 · skip 2(뉴욕 TZ 전용). scan-secrets 0.
+- CR-10 모듈 내부 불투명 계보 토큰: createAccount마다 새 계보, 정상 전이는 계보 유지, 계획 발급 시 계보 결합 → 같은 id 다른 계좌 ENTRY·EXIT 교차 체결 거부(B 상태 불변). 수정 전 코드에서 반례 시험 실패 확인.
+- 탐색 메뉴 `8a37cf6`: 지피 1730 **APPROVE**(정적) → 순태씨 '올려' 승인 대기(운영 반영 시 최신 main 재대조·전수 시험 선행).
+- 지피 지시서 현황: 1730 paper-p2 CHANGES_REQUESTED 처리, 1730 menu-explore APPROVE 기록. 미처리 지시서 없음.
+
+## 이전 기록
+
+STATUS: READY_FOR_REVIEW
 ORDER-ID: GPT-REVIEW-paper-p2-20261123-1630 CR-8~9 반영 — 가상 계좌 P2 v0.3(합성 전용)
 REPORT: docs/team/CLAUDE-DEV-PAPER-P2-20261123.md (맨 위 '지피 1630 CR 대응표')
 BRANCH: work/claude-paper-p2-20261123

@@ -1,4 +1,31 @@
 STATUS: READY_FOR_REVIEW
+ORDER-ID: GPT-REVIEW-paper-p2-20261123-1730 CHANGES_REQUESTED CR-10 반영 (USER-20261123-PAPER-P2 v0.4)
+BASE: ad2ade9 (main ab71c35 merge)
+HEAD: 4ca9eed30a69a781f92a87ab939af4eea2e8d79e
+BRANCH: work/claude-paper-p2-20261123
+REVIEW-SCOPE: ad2ade9..4ca9eed — has/paper-account.js(v0.4), tests/paper-account.test.cjs(25→26), tests/lib/live-data-pins.json(해시 1줄). portfolio_v5.html·GAS·화면 변경 0.
+작성: 클로 / 2026-11-23 18시 정각 실행 KST
+
+## 지피 1730 CR 대응표
+| CR | 지적 | 반영 | 시험(합성) |
+|---|---|---|---|
+| CR-10 | 계획 식별이 계좌 id 문자열뿐 → 같은 id로 따로 만든 계좌 B가 A 발급 계획 체결 가능 | 모듈 내부 `ACCTS`(WeakMap) 값에 **불투명 계보 토큰**(모듈 안에서 만든 객체) 추가. `createAccount`는 매번 새 토큰, 정상 전이 `clone → reg(n, 이전 계좌)`는 같은 토큰을 이음(체결·재평가·청산·평가·한도 강화 6곳). `issuePlan(kind, 계좌, plan)`이 발급 계좌의 토큰을 `PLANS`에 함께 저장, `planReasons`가 id 비교 뒤 토큰 동일성(===) 확인 → 다르면 `다른 계좌 계보에서 발급된 계획` 거부. 토큰은 계좌 객체 속성이 아니므로 입력 위조 불가 | 같은 id·시장·통화·현금·한도 A/B: A ENTRY 계획 → B 체결 거부(계좌 그대로 반환, B 현금·보유·이벤트·keys·marks 직렬화 불변), 역방향도 거부. 각자 계획 정상 체결. 체결된 A 계획을 B 후속 상태에 넣어도 거부(멱등 중복으로 새지 않음). 한도 강화→평가→EXIT 재평가 뒤 두 EXIT 계획 내용이 동일해도 교차 청산 거부(B 불변), 각자 청산 통과, 같은 계보 재요청은 멱등 duplicate. 같은 계보 이전 상태 발급 계획 → 한도 강화 뒤 체결 통과(회귀). 계좌에 `lineage` 속성 붙이기 → 무결성 실패. **수정 전 코드에선 이 시험이 실패함을 확인**(반례 실재) |
+
+## 시험 결과 (이 HEAD, 실측)
+- `NODE_PATH=<jsdom 별도 폴더> node --require ./tests/lib/no-network.cjs --test tests/*.test.cjs` → **tests 2340 · pass 2338 · fail 0 · skip 2**(skip = 뉴욕 TZ 전용 기존 2건).
+- `tests/paper-account.test.cjs` 26/26(기존 25 + CR-10). CR-8 무결성·CR-9 UTC 시간축·게이트/손실 잠금·비합성 잠금·멱등 기존 시험 그대로 통과. `node tools/scan-secrets.cjs` findings 0. 화면 변경 없음 → Chromium 해당 없음.
+
+## 미완료·미검증
+- 계보는 프로세스 메모리 안에서만 유지 — 저장·복원(결정 7 미정) 시 계보 이어받기 설계 필요(현재 복원 계좌는 계속 거부).
+- 정규장 마감 가정·실제 거래소 캘린더 미연결, 재개 승인 경로, 비용·세금, 실종목 연결 미구현(v0.3과 동일). 합성 결과는 실제 성과·매수 권고 아님.
+
+## 순태씨 결정 필요
+- 위험 한도 숫자(현금 하한·일/월 손실 중지선), 손실 중지 재개 승인 방식. 결정 전 진입·재개는 계속 보류.
+
+---
+## 이전 기록 (v0.3)
+
+STATUS: READY_FOR_REVIEW
 ORDER-ID: GPT-REVIEW-paper-p2-20261123-1630 CHANGES_REQUESTED CR-8~9 반영 (USER-20261123-PAPER-P2 v0.3)
 BASE: b6daeee2f3164293e9d58fa9f4853cf73df31efb (main 99e58ea merge)
 HEAD: 3e301375a86bb732c58c0a1790e634df0b86b198

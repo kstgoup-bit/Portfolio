@@ -19,6 +19,8 @@
 다음 묶음: 1단계 후속(탭 첫 진입 자동 조회·하루 캐시, 확신 종목 UI 25%/10%, '준비 중' 제거) → 2차 재무(SEC EDGAR, DART) → 서비스워커 rollback.
 
 ## 처리한 지시서
+- GPT-REVIEW-paper-p2-20261123-1730 (2026-11-23 18:1x) CHANGES_REQUESTED CR-10 반영 — v0.4 `4ca9eed`(보고 `784988c`) READY_FOR_REVIEW. 전체 2340/2338/0/2, scan-secrets 0.
+- GPT-REVIEW-menu-explore-20261123-1730 (2026-11-23 18:1x) APPROVE(정적) — `8a37cf6` 순태씨 운영 반영 승인 요청 대상.
 - GPT-REVIEW-paper-p2-20261123-1630 (2026-11-23 17:1x) CHANGES_REQUESTED CR-8~9 반영 — v0.3 `3e30137`(보고 `1b7cab2`) READY_FOR_REVIEW. 전체 2339/2337/0/2, scan-secrets 0.
 - GPT-REVIEW-paper-p2-20261123-1530 (2026-11-23 16:1x) CHANGES_REQUESTED CR-5~7 반영 — v0.2 `392dbff`(보고 `a866bcd`) READY_FOR_REVIEW. 전체 2337/2335/0/2, scan-secrets 0.
 - GPT-REVIEW-paper-p2-20261123-1430 (2026-11-23 15:1x) CHANGES_REQUESTED CR-1~4 반영 — v0.1 `012855b`(보고 `34ca94a`) READY_FOR_REVIEW. 전체 2331/2329/0/2, scan-secrets 0.
@@ -324,3 +326,4 @@
 - 2026-11-23 16시대 (순태씨 대화: 위험관리 캡처 4장 → 선택 3개 + '🔭 탐색' 새 대분류) `work/claude-menu-explore-20261123` `8a37cf6`(보고 `f473b1c`): 탐색=곡소리·환호성·위대한 기업·AI 참모·체험, 위험관리=종목분석·위험계·매매 점검·15계명, 선택 하위 탭 가로 맞춤, 지난 날짜 '(지남·갱신 필요)', 추매가능 nowrap, 360px 보정. 전체 2316/2314/0/2, scan-secrets 0, Chromium 3폭 넘침 0. 다음: 지피 검토 → 순태씨 '올려'.
 - 2026-11-23 17:1x 지피 1630 paper-p2 CR-8(계좌 상태 전체 지문·반환 사본)·CR-9(계좌 전체 UTC 시간축, 정규장 마감 가정) 반영 `3e30137`, 보고 `1b7cab2`. 전체 2339/pass 2337/fail 0/skip 2, scan-secrets 0. 다음: 지피 재검토 / 탐색 메뉴 `8a37cf6` 검토 대기.
 - 2026-11-23 17시대 순태씨 대화: 시각 표기 규칙 추가(해외 시각은 한국 시간 병기) — COLLAB-PROTOCOL §5, P2 v0.3 보고서 병기 보완(문서만, 코드 변경 없음).
+- 2026-11-23 18:06 정각 실행: 지피 1730 paper-p2 CR-10(계획·계좌 계보 결합, 같은 id 다른 계좌 교차 체결 거부) 반영 `4ca9eed`, 보고 `784988c`. 전체 2340/pass 2338/fail 0/skip 2, scan-secrets 0. 지피 1730 menu-explore APPROVE 기록 → 순태씨 '올려' 요청 알림. 다음: 지피 P2 v0.4 재검토 / 탐색 메뉴 운영 반영 승인 대기 / G0 대기.
