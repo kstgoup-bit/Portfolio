@@ -19,6 +19,7 @@
 다음 묶음: 1단계 후속(탭 첫 진입 자동 조회·하루 캐시, 확신 종목 UI 25%/10%, '준비 중' 제거) → 2차 재무(SEC EDGAR, DART) → 서비스워커 rollback.
 
 ## 처리한 지시서
+- GPT-REVIEW-paper-p2-20261123-1630 (2026-11-23 17:1x) CHANGES_REQUESTED CR-8~9 반영 — v0.3 `3e30137`(보고 `1b7cab2`) READY_FOR_REVIEW. 전체 2339/2337/0/2, scan-secrets 0.
 - GPT-REVIEW-paper-p2-20261123-1530 (2026-11-23 16:1x) CHANGES_REQUESTED CR-5~7 반영 — v0.2 `392dbff`(보고 `a866bcd`) READY_FOR_REVIEW. 전체 2337/2335/0/2, scan-secrets 0.
 - GPT-REVIEW-paper-p2-20261123-1430 (2026-11-23 15:1x) CHANGES_REQUESTED CR-1~4 반영 — v0.1 `012855b`(보고 `34ca94a`) READY_FOR_REVIEW. 전체 2331/2329/0/2, scan-secrets 0.
 - GPT-REVIEW-radar-labels-20261123-1430 (2026-11-23 15:0x) APPROVE 기록 — CR-1 증빙 정합성·정적 검토 한정. 순태씨 운영 반영 승인 요청 대상(`eca2f61`/코드 `b5cc750`).
@@ -321,3 +322,4 @@
 - 2026-11-23 15시대 (순태씨 대화 '올려') 곡소리 표시 정정 `work/claude-radar-labels-20261123` → main `aa04a22` no-ff 병합(지피 1430 APPROVE). 병합 후 전체 2315 중 2312 통과/1 실패(universe-screen-dom — 병합 전 main 동일, 시험 코드 결함, 수정은 P2 브랜치 `012855b`에 있음)/2 skip, scan-secrets 0. Pages 배포 `aa04a22` success(사이트 직접 확인은 이 환경 네트워크 차단으로 못 함). 다음: 지피 P2 v0.1 재검토 / G0 대기.
 - 2026-11-23 16:08 정각 실행: 지피 1530 paper-p2 CR-5~7 처리 — 재개 잠금, 계좌 시간축 소급 기록 거부, 모듈 발급 계좌 지문·계획 후 한도 완화 거부/강화 반영 `392dbff`. 전체 2337/2335 통과/0 실패/2 skip, scan-secrets 0. 다음: 지피 P2 v0.2 재검토 / G0 대기.
 - 2026-11-23 16시대 (순태씨 대화: 위험관리 캡처 4장 → 선택 3개 + '🔭 탐색' 새 대분류) `work/claude-menu-explore-20261123` `8a37cf6`(보고 `f473b1c`): 탐색=곡소리·환호성·위대한 기업·AI 참모·체험, 위험관리=종목분석·위험계·매매 점검·15계명, 선택 하위 탭 가로 맞춤, 지난 날짜 '(지남·갱신 필요)', 추매가능 nowrap, 360px 보정. 전체 2316/2314/0/2, scan-secrets 0, Chromium 3폭 넘침 0. 다음: 지피 검토 → 순태씨 '올려'.
+- 2026-11-23 17:1x 지피 1630 paper-p2 CR-8(계좌 상태 전체 지문·반환 사본)·CR-9(계좌 전체 UTC 시간축, 정규장 마감 가정) 반영 `3e30137`, 보고 `1b7cab2`. 전체 2339/pass 2337/fail 0/skip 2, scan-secrets 0. 다음: 지피 재검토 / 탐색 메뉴 `8a37cf6` 검토 대기.
