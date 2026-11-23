@@ -19,6 +19,7 @@
 다음 묶음: 1단계 후속(탭 첫 진입 자동 조회·하루 캐시, 확신 종목 UI 25%/10%, '준비 중' 제거) → 2차 재무(SEC EDGAR, DART) → 서비스워커 rollback.
 
 ## 처리한 지시서
+- GPT-REVIEW-radar-labels-20261123-1331 (2026-11-23 14:1x) CHANGES_REQUESTED CR-1(시험 증빙) 반영 — 최종 전체 재실행 2314/pass 2312/fail 0/skip 2, 코드 변경 없음. `eca2f61`·보고 `4fde549` 재검토 요청.
 - GPT-REVIEW-paper-account-20261123-0829 (2026-11-23 09:0x) APPROVE 기록 — GPT-20261123-0733 설계 의견 `cdc4b19` 문서 요건 충족(DOCUMENT_ONLY_STATIC). 정책값·P2 구현·운영 승인 아님. 후속 보완 1~6 보고서에 기록(`ed927f9`).
 - GPT-20261123-0733 (2026-11-23 08:1x) READY_FOR_REVIEW: 가상 계좌 P2 설계 의견(문서만) — `work/claude-paper-account-20261123` HEAD `cdc4b19`, 보고 `e31a65a`. 시험 미실행(설계 문서만), 코드·GAS·운영 변경 0.
 - GPT-REVIEW-buy-review-gate-20261121-1427 (2026-11-21 15:0x) APPROVE 기록 — GPT-20261121-0911 r5 `5c0346d` 합성 전용 정적 승인, 개발 단위 종료. main 병합은 순태씨 '올려' 대상(운영 앱 미연결).
@@ -310,3 +311,6 @@
 - 2026-11-23 11:06 정각 실행: 새 GPT-ORDER/TEST/REVIEW 없음(지피 마지막 파일 11-23 08:29 0829 APPROVE), 다비 새 문서 없음. 코드 변경 0, 시험 재실행 안 함. 다음: G0 시세 연결 지시 대기 / 가상 계좌 정책 순태씨 결정 대기.
 - 2026-11-23 12:06 정각 실행: 새 GPT-ORDER/TEST/REVIEW 없음(지피 마지막 파일 11-23 08:29 0829 APPROVE), 다비 새 문서 없음. 코드 변경 0, 시험 재실행 안 함. 다음: G0 시세 연결 지시 대기 / 가상 계좌 정책 순태씨 결정 대기.
 - 2026-11-23 13:06 정각 실행: 새 GPT-ORDER/TEST/REVIEW 없음(지피 마지막 파일 11-23 08:29 0829 APPROVE), 다비 새 문서 없음. 코드 변경 0, 시험 재실행 안 함. 다음: G0 시세 연결 지시 대기 / 가상 계좌 정책 순태씨 결정 대기.
+- 2026-11-23 순태씨 대화 '다 해': 곡소리 표시 정정 3건 `b5cc750`(work/claude-radar-labels-20261123) READY_FOR_REVIEW. 전체 시험 통과/skip 2, 비밀값 0, Chromium 3폭 통과. LG이노텍·미래에셋증권 낙폭: 분할 증거 없음, 고점 날짜 미확인(미검증). 다음: 지피 검토 → 순태씨 '올려'.
+- 2026-11-23 13시대 (순태씨 대화 '8번 승인, 나머지 추천대로') 가상 계좌 정책 결정 1~8 기록 + P2 순수 계산 모듈 v0: `work/claude-paper-p2-20261123` `1d865f3`(main e7f0d41 기준) — has/paper-account.js·tests/paper-account.test.cjs 14개·live-data-pins 등록. 전체 2327 중 2324 통과/1 실패(universe-screen-dom, main 동일)/2 skip, scan-secrets 0. READY_FOR_REVIEW. 다음: 지피 검토 / G0 대기.
+- 2026-11-23 14:06 정각 실행: 지피 1331 CR-1 처리 — radar-labels 브랜치 main merge `eca2f61`(코드 동일), 전체 시험 2314/2312 통과/0 실패/2 skip, scan-secrets 0, Chromium 3폭 DOM 확인. 보고 `4fde549`. 다음: 지피 재검토 / P2 v0 검토 / G0 대기.
