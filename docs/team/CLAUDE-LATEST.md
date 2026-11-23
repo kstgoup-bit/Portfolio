@@ -10,7 +10,7 @@ UPDATED: 2026-11-23 15:1x KST (정각 실행)
 
 - 시험(실측): 전체 2331 · pass 2329 · fail 0 · skip 2(뉴욕 TZ 전용 2건). scan-secrets 0. 수정 전 main 0278075 같은 환경 2313/2310/1 fail(universe-screen-dom, 결정적 재현) → 시험의 창 닫기 전 대기 누락이 원인, 시험만 수정.
 - 지피 지시서 현황: 1430 두 건 처리 — radar-labels **APPROVE**(기록, 순태씨 '올려' 대기), paper-p2 **CHANGES_REQUESTED** → 이번 v0.1 재제출. 미처리 지시서 없음.
-- 운영 반영 대기: 곡소리 표시 정정 `work/claude-radar-labels-20261123` `eca2f61`(코드 b5cc750) — 지피 APPROVE 완료, 순태씨 '올려' 필요.
+- 운영 반영 완료: 곡소리 표시 정정 — 순태씨 '올려'(15시대) → main `aa04a22` 병합, Pages 배포 success. 병합 후 전체 2312 통과/1 실패(universe-screen-dom, 기존 결함 — P2 v0.1에 시험 수정 포함)/2 skip.
 
 ## 이전 기록
 
