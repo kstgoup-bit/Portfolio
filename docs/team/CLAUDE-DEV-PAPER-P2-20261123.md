@@ -1,4 +1,38 @@
 STATUS: READY_FOR_REVIEW
+ORDER-ID: GPT-REVIEW-paper-p2-20261123-1430 CHANGES_REQUESTED CR-1~4 반영 (USER-20261123-PAPER-P2 v0.1)
+BASE: 0278075415438b6b2d1796d18c15f7d4a5805faf (main, merge 99a9c24)
+HEAD: 012855be3c3c0b0f832feeeb6beabefdb1ffbd56
+BRANCH: work/claude-paper-p2-20261123
+REVIEW-SCOPE: 99a9c24..012855b — has/paper-account.js(v0.1), tests/paper-account.test.cjs(14→19), tests/universe-screen-dom.test.cjs(1줄, 시험만), tests/lib/live-data-pins.json(해시). portfolio_v5.html·GAS·화면 변경 0.
+작성: 클로 / 2026-11-23 15시 정각 실행 KST
+
+## 지피 1430 CR 대응표
+| CR | 지적 | 반영 | 시험(합성) |
+|---|---|---|---|
+| CR-1 | 게이트 결과 자기표기만 확인 | `planEntry`가 `HASBuyReviewGate.verify(gate)===true`(엔진 WeakMap 발급·깊은 동결·지문) 필수. 추가로 buyReview·매수 검토 상태·synthetic, **시장·종목 일치**, 판정시각 ≤ 결정시각, 결정 − 판정 ≤ 24시간, 판정일(거래소 현지) = 신호 기준일, 2·3회차는 직전 회차 결정 **이후 새로 발급된** 게이트만. 게이트 모듈이 없으면 보류. Node는 `require('./buy-review-gate.js')`, 브라우저는 `HASBuyReviewGate` 주입 | 실제 `G.evaluate` 발급 결과로 정상 경로. 위조 객체·JSON 복사·변조 사본·다른 종목 게이트·결정 후 판정·25시간 전 판정·엔진의 판단 보류 결과·비합성 입력 → 모두 보류 |
+| CR-2 | 계획 직접 생성으로 게이트·한도 우회 | 진입·청산 계획을 모듈이 발급(동결 + 내부 WeakMap에 종류·계좌 id·지문 보관). `fillEntry`/`fillExit`는 발급 계획·같은 계좌만. 체결 시점 재검사: 위험 한도 3개 null이면 거부(0 강제 변환 제거), 손실 중지 발동 시 거부, 계획 회차 = 현재 회차+1(이전·중복 계획 거부). 청산은 계좌 기록의 해당 재평가가 마지막이며 청산 표시일 때만(이후 HOLD면 거부) | 직접 만든 계획·JSON 복사·동결 사본·다른 계좌·같은 회차 두 번째 계획·계획 후 중지·계획 후 한도 미정 → 거부. 가짜 청산 계획·HOLD 후 옛 청산 계획 → 거부 |
+| CR-3 | 시간 순서·미래 정보·공시 중복 | 진입 체결일 = max(신호일, 결정시각의 거래소 현지일) 다음 첫 거래일(KR 서울·US 뉴욕, 서머타임은 Intl). 청산 체결일 = max(기준일, 검토 현지일) 다음 첫 거래일. 재평가: 공시 식별자 필수, 공개시각 ≤ 검토시각(미래 공시 거부), 기준일 ≤ 검토 현지일, 마지막 매수 결정 이후 공시만, 같은 식별자·같은 공개시각 재사용 거부, 직전 사용 공시보다 오래된 공시 거부, 검토시각 > 마지막 매수 결정. 추가 매수 공시도 식별자 필수·재사용 금지 | 결정 12/01·신호 11/03(옛 게이트) 보류, 12/01 게이트를 11/03 신호에 사용 보류, 결정 11/04 10시(뉴욕) → 체결 11/05, 뉴욕 밤(03:00Z) 현지일, 서머타임 날짜, 같은 공시 반복 EXIT-REVIEW·같은 공개시각 다른 식별자·미래 공시·미래 기준일·매수 이전 공시 거부(연속 횟수 불변), 검토 현지일 이후 청산일 |
+| CR-4 | 전체 시험 1건 실패 | 원인 확정: `universe-screen-dom` 시험이 조회 버튼을 누른 뒤 마이크로태스크 1번만 기다리고 창을 닫음 → 진행 중 조회의 `.finally`가 닫힌 창의 `document`를 만져 unhandledRejection. 시험만 고침: 창 닫기 전에 `await w.HASUniverseScreenUI.refresh()`(진행 중 같은 약속을 돌려줌)로 완료 대기. 앱·화면 코드 변경 없음 | 같은 환경(Node v22.23.5, jsdom 26.1.0 별도 폴더, 같은 명령) 비교: **수정 전 main `0278075` 전체 2313 / pass 2310 / fail 1(이 파일) / skip 2**, jsdom 24에서도 3회 동일 재현(간헐 아님, 결정적). 수정 후 이 파일 3회 0 fail |
+
+## 시험 결과 (이 HEAD, 실측)
+- `NODE_PATH=<jsdom 26.1.0 별도 폴더> node --require ./tests/lib/no-network.cjs --test tests/*.test.cjs` → **tests 2331 · pass 2329 · fail 0 · skip 2 · cancelled 0**(약 101초). skip 2 = 뉴욕 서머타임 시험 2건(`TZ=America/New_York`으로 실행할 때만 동작하는 기존 시험).
+- `tests/paper-account.test.cjs` 19/19. `node tools/scan-secrets.cjs` findings 0.
+- 화면 변경 없음 → Chromium 확인 해당 없음.
+
+## 미완료·미검증
+- 실제 KR/US 거래소 휴장 캘린더 미연결(호출자 합성 캘린더). 장중·장마감 전 결정의 당일 종가 체결은 허용하지 않고 항상 다음 거래일(보수적).
+- 종목 상한 10% 초과 거부 코드는 체결 시점에 유지되나, 발급 계획 예산(목표의 1/3)으로는 정상 경로에서 도달하지 않아 직접 시험은 위조 계획 거부로 대체.
+- 3회차 소진·전량 청산 후 같은 종목 재진입은 v0.1에서도 불가(회차 기록 유지) — 재진입 규칙은 순태씨 결정 대상.
+- `synthetic:true`는 여전히 자기표기(지피 비차단 주의). 실종목·실시세 연결 없음, G0 이후 별도 승인.
+
+## 순태씨 결정 필요
+- 없음(이 단위). 현금 하한·일/월 손실 중지선 숫자는 계속 미정 → 진입 보류 상태 유지.
+
+---
+
+## 이전 제출 (1d865f3, 지피 1430 CHANGES_REQUESTED)
+
+STATUS: READY_FOR_REVIEW
 ORDER-ID: USER-20261123-PAPER-P2 — 순태씨 대화창 결정 "8번 승인, 나머지 추천대로" (2026-11-23 13시대 KST)
 BASE: e7f0d410719d245d279ef059bd543d91cf2ee138 (main)
 HEAD: 1d865f3f282e58e4ab6d7c83a655fe883d8bce67
