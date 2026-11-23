@@ -58,3 +58,9 @@ test('종목 이름은 표시 전용: 구성종목 파일과 일치하고 모르
   require('node:assert/strict').equal(F.nameOf('US', '__proto__'), '');
   require('node:assert/strict').equal(F.nameOf('US', '005930'), '');
 });
+test('status line: summary time shown in KST, not raw UTC; invalid time stays visible',async()=>{
+  assert.equal(Fear.kstTime('2026-11-22T23:16:49.631Z'),'2026-11-23 08:16 (한국시간)');
+  assert.equal(Fear.kstTime('broken'),'broken');assert.equal(Fear.kstTime(''),'시각 없음');
+  const {box,api}=dom({endpoint:()=>'https://script.google.com/macros/s/x/exec',transport:async()=>summary(3)});await api.refresh();
+  const st=box.querySelector('[role=status]').textContent;assert.match(st,/요약 2026-11-14 09:00 \(한국시간\)/);assert.ok(!/T00:00:00Z/.test(st));
+});

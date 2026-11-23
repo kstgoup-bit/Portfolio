@@ -37,7 +37,7 @@ test('fear-top: cards show 재무 label per row (strong/weak/KR/none/invalid), d
   assert.equal(cards.length,6);
   assert.match(cards[0],/재무: 취약.*판단 보류/);assert.match(cards[0],/곡소리로 보지 않음/);
   assert.match(cards[1],/재무: 우량 근거 충분/);assert.match(cards[1],/반론:/);
-  assert.match(cards[2],/국내·해외 기업 재무 확인 미연결/);assert.match(cards[3],/재무: 미연결/);assert.match(cards[4],/자료 형식 확인 필요/);assert.match(cards[5],/종목 불일치\(SYNG ≠ XTKR\)/);assert.ok(!/우량 근거 충분/.test(cards[5]));
+  assert.match(cards[2],/국내 기업 재무\(DART\) 미연결/);assert.match(cards[3],/재무: 미연결/);assert.match(cards[4],/자료 형식 확인 필요/);assert.match(cards[5],/종목 불일치\(SYNG ≠ XTKR\)/);assert.ok(!/우량 근거 충분/.test(cards[5]));
   assert.ok(!BANNED.test(box.textContent));assert.ok(!/AI 의견: 매수/.test(box.textContent));
 });
 test('fear-top: without fundamental module keeps old held line',async()=>{
@@ -54,7 +54,7 @@ test('euphoria panel: US holding gets 재무 label from record.fundamental, KR h
   w.HASLivePriceReference={createService(){return {load:async()=>({items:[{ticker:'SYNB',market:'US',status:'ready',record:{},fundamental:B},{ticker:'005930',market:'KR',status:'ready',record:{}}]})};},analyze(){return {ok:true,source:'GAS',asOf:'2026-11-13',currency:'USD',drawdownPct:-2,returns:{}};}};
   w.eval(fsrc);w.eval(src);const box=w.document.querySelector('#b');w.HASLivePricePanel.mount(box,'euphoria');box.querySelector('button').click();await new Promise(r=>setImmediate(r));
   const cards=[...box.querySelectorAll('article')].map(a=>a.textContent);
-  assert.match(cards[0],/재무: (취약|공시 부족)/);assert.match(cards[1],/국내·해외 기업 재무 확인 미연결/);assert.ok(!BANNED.test(box.textContent));
+  assert.match(cards[0],/재무: (취약|공시 부족)/);assert.match(cards[1],/국내 기업 재무\(DART\) 미연결/);assert.ok(!BANNED.test(box.textContent));
 });
 test('pins: fundamental-filter/fear-top/live-price-panel sha match, script order fear-top→fundamental-filter→radar/ui.js',()=>{
   const pins=require('./lib/live-data-pins.json');
@@ -110,4 +110,8 @@ test('reference service: cache entry carries cloned fundamental, null when absen
   const r=await s.load([{ticker:'AAA',market:'US'},{ticker:'BBB',market:'US'},{ticker:'CCC',market:'US'}]);const by=t=>r.items.find(x=>x.ticker===t);
   assert.deepEqual(by('AAA').fundamental,G);assert.equal(by('BBB').fundamental,null);assert.equal(by('CCC').fundamental,null);
   by('AAA').fundamental.ticker='ZZZ';assert.equal(s.peek([{ticker:'AAA',market:'US'}])[0].fundamental.ticker,'SYNG');
+});
+test('display: KR says DART 미연결 (no misleading US SEC wording); other non-US keeps SEC note',()=>{
+  const k=F.display(undefined,{now:NOW,market:'KR',ticker:'011070'});assert.equal(k.state,'unsupported');assert.equal(k.text,'재무: 국내 기업 재무(DART) 미연결 · 판단 보류');assert.ok(!/SEC/.test(k.text));
+  const j=F.display(undefined,{now:NOW,market:'JP',ticker:'7203'});assert.equal(j.state,'unsupported');assert.match(j.text,/해외 기업 재무 미연결\(미국 SEC만 연결\)/);
 });

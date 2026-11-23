@@ -351,6 +351,10 @@
     [
       "  risk:    [\"principledash\",\"risk\",\"radar\",\"greatco\",\"ledgerdemo\",\"staff\",\"pretrade\",\"commandments\"],\n",
       "  risk:    [\"principledash\",\"risk\",\"commandments\",\"radar\",\"greatco\",\"ledgerdemo\",\"staff\",\"pretrade\"],\n"
+    ],
+    [
+      "  <button class=\"tab\" onclick=\"switchTab('risk')\">🌡️ 위험계</button>\n  <button class=\"tab\" onclick=\"switchTab('radar')\">📡 곡소리 <small style=\"font-size:12px;color:#333;font-weight:400\">가격 참고</small></button>\n  <a class=\"has-risk-shortcut\" href=\"#kst-radar/real/euphoria\" onclick=\"if(window.KSTRadar){window.KSTRadar.openEuphoria();return false;}\" aria-label=\"환호성 · 가격 참고\">📣 환호성 <small style=\"font-size:12px;color:#333;font-weight:400\">가격 참고</small></a>\n  <button class=\"tab\" onclick=\"switchTab('greatco')\">🏛️ 위대한 기업 <small style=\"font-size:12px;color:#333;font-weight:400\">판단 보조</small></button>\n",
+      "  <button class=\"tab\" onclick=\"switchTab('risk')\">🌡️ 위험계</button>\n  <button class=\"tab\" onclick=\"switchTab('radar')\">📡 곡소리 <small style=\"font-size:12px;color:#333;font-weight:400\">준비 중</small></button>\n  <a class=\"has-risk-shortcut\" href=\"#kst-radar/real/euphoria\" onclick=\"if(window.KSTRadar){window.KSTRadar.openEuphoria();return false;}\" aria-label=\"환호성 · 가격 참고\">📣 환호성 <small style=\"font-size:12px;color:#333;font-weight:400\">준비 중</small></a>\n  <button class=\"tab\" onclick=\"switchTab('greatco')\">🏛️ 위대한 기업 <small style=\"font-size:12px;color:#333;font-weight:400\">판단 보조</small></button>\n"
     ]
   ],
   "radar/ui.js": [
