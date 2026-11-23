@@ -12,15 +12,18 @@ function navDOM(){
  return d;
 }
 test('risk menu preserves every existing internal destination and adds a separate same-origin euphoria entry',()=>{
- const d=navDOM();try{const w=d.window,nav=w.document.querySelector('#subtabs-risk');
- a.deepEqual(Array.from(w.TAB_GROUPS.risk),['principledash','risk','radar','greatco','ledgerdemo','staff','pretrade','commandments']);
+ const d=navDOM();try{const w=d.window,nav=w.document.querySelector('#subtabs-explore'); // 순태씨 2026-11-23: 곡소리·환호성·위대한 기업·AI 참모·체험 → 새 대분류 '탐색'
+ a.deepEqual(Array.from(w.TAB_GROUPS.risk),['principledash','risk','pretrade','commandments']);
+ a.deepEqual(Array.from(w.TAB_GROUPS.explore),['radar','greatco','staff','ledgerdemo']);
+ a.equal(w.document.querySelector('#subtabs-risk .has-risk-shortcut'),null);
  a.equal([...nav.querySelectorAll('.tab')].some(b=>/뉴스|'news'/.test(b.textContent+b.getAttribute('onclick'))),false); // 순태씨 지시 2026-11-15: 뉴스 메뉴·패널·코드 전부 제거
  a.equal(/panel-news|loadPortfolioNews|translateAndRender|renderNews|newsRefreshBtn/.test(html),false);
  w.switchTab('risk');w.switchTab('news');a.equal(w.document.querySelector('.panel.active').id,'panel-risk');a.equal(w.TAB_TO_GROUP.news,undefined); // 그룹에서 빠져 이동 안 됨
  a.equal([...nav.querySelectorAll('.tab')].some(b=>/AI자문|'advisor'/.test(b.textContent+b.getAttribute('onclick'))),false); // 순태씨 결정 2026-11-11: AI자문 메뉴 제거(패널 코드는 보존)
- const buttons=[...nav.querySelectorAll('.tab')];a.equal(buttons.length,w.TAB_GROUPS.risk.length);
+ const buttons=[...nav.querySelectorAll('.tab')];a.equal(buttons.length,w.TAB_GROUPS.explore.length);
+ const riskButtons=[...w.document.querySelectorAll('#subtabs-risk .tab')];a.equal(riskButtons.length,w.TAB_GROUPS.risk.length);
  a.match(buttons.find(b=>b.getAttribute('onclick').includes('ledgerdemo')).textContent,/거래 기록·손익 계산 체험/);
- a.match(buttons.find(b=>b.getAttribute('onclick').includes('pretrade')).textContent,/매매 점검/);
+ a.match(riskButtons.find(b=>b.getAttribute('onclick').includes('pretrade')).textContent,/매매 점검/);
  const link=nav.querySelector('a.has-risk-shortcut');a.equal(link.getAttribute('href'),'#kst-radar/real/euphoria');a.match(link.textContent,/환호성/); // 2026-11-12 순태씨: '곡소리'·'환호성'으로 줄여 표기a.equal(link.matches('.tab'),false);a.equal(link.hasAttribute('target'),false);
  a.equal(nav.textContent.includes('가상 검증·실운용 준비'),false);
  }finally{d.window.close();}
@@ -77,5 +80,25 @@ test('exact two edited runtime files reverse to the previous candidate and all o
 test('위험관리 하위 메뉴: 15계명 버튼은 같은 줄 맨 오른쪽(마지막)에 있다(순태씨 2026-11-17)',()=>{
  const m=/<div class="tabs sub-tabs" id="subtabs-risk"[^>]*>([\s\S]*?)\n<\/div>/.exec(html)[1];
  const tabs=[...m.matchAll(/<button class="tab" onclick="switchTab\('([a-z]+)'\)"/g)].map(x=>x[1]);
- a.equal(tabs[tabs.length-1],'commandments');a.equal(tabs.length,8);a.equal(new Set(tabs).size,8);
+ a.equal(tabs[tabs.length-1],'commandments');a.equal(tabs.length,4);a.equal(new Set(tabs).size,4); // 2026-11-23 탐색 분리 후 4개
+});
+test('탐색 대분류(순태씨 2026-11-23): 큰 탭 순서·환호성 강조·선택 탭 가로 스크롤 맞춤',()=>{
+ const d=navDOM();try{const w=d.window,doc=w.document;
+ a.deepEqual([...doc.querySelectorAll('.gtab')].map(g=>g.id),['gtab-invest','gtab-explore','gtab-risk','gtab-asset','gtab-settings']);
+ w.switchGroup('explore');a.equal(doc.querySelector('.panel.active').id,'panel-radar');a.equal(doc.getElementById('gtab-explore').classList.contains('active'),true);
+ a.equal(doc.getElementById('subtabs-explore').style.display,'flex');a.equal(doc.getElementById('subtabs-risk').style.display,'none');
+ w.switchGroup('risk');a.equal(doc.querySelector('.panel.active').id,'panel-principledash');
+ // 가로 스크롤: 넘치는 묶음에서 오른쪽 끝 탭을 고르면 그 탭이 보이게 이동
+ const bar=doc.getElementById('subtabs-explore'),btn=[...bar.querySelectorAll('.tab')].at(-1);
+ Object.defineProperties(bar,{scrollWidth:{value:900},clientWidth:{value:360},offsetLeft:{value:0}});
+ Object.defineProperties(btn,{offsetLeft:{value:700},offsetWidth:{value:150}});bar.scrollLeft=0;
+ w.switchTab('ledgerdemo');a.equal(bar.scrollLeft,700+150-360+8);
+ w.hasScrollSubTabIntoView(bar,btn);a.equal(bar.scrollLeft,498,'이미 보이면 그대로');
+ }finally{d.window.close();}
+});
+test('종목분석 카드: 지난 날짜는 지남·갱신 필요 표시, 추매가능은 줄바꿈 금지',()=>{
+ const src=html.slice(html.indexOf('function hasPdDate'),html.indexOf('\n}',html.indexOf('function hasPdDate'))+2);
+ const f=new Function(src+';return hasPdDate;')();
+ a.equal(f(''),'-');a.match(f('2000-01-01'),/2000-01-01 .*지남·갱신 필요/);a.equal(f('2999-12-31'),'2999-12-31');a.equal(f('<b>x'),'bx');
+ a.match(html,/white-space:nowrap;color:'\+\(r\.buyApproved/);
 });
