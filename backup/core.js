@@ -4,7 +4,7 @@
  const FORMAT='kst-portfolio-backup',VERSION=7,JOURNAL='kst.portfolio.restoreJournal',MAX_BYTES=20*1024*1024;
  const LIMITS=Object.freeze({depth:30,nodes:500000,array:50000,keys:50000,string:MAX_BYTES});
  const ACCOUNTS=Object.freeze(['v5_gen','v5_dom','v5_ov','v5_pen']);
- const JSON_KEYS=Object.freeze([...ACCOUNTS,'v5_snap','v5_deposits','v5_div','v5_balGoals','v5_ledger','v5_fxHistory','v5_memos','v5_userThemeMap','v5_investPrinciples','v5_debtBank','v5_debtHouse','v5_nonFinAssets','v5_benchHist','v5_benchHistV2','v5_riskData','v5_rkCache']);
+ const JSON_KEYS=Object.freeze([...ACCOUNTS,'v5_snap','v5_deposits','v5_div','v5_balGoals','v5_ledger','v5_fxHistory','v5_memos','v5_userThemeMap','v5_investPrinciples','v5_debtBank','v5_debtHouse','v5_nonFinAssets','v5_benchHist','v5_benchHistV2','v5_riskData','v5_rkCache','has_trialTrades_v1','has_kisCrossLog_v1']);
  const TEXT_KEYS=Object.freeze(['v5_fx','v5_fg','v5_cma_amount','v5_lastAutoSnap','v5_divMonthFilter','v5_divSumMonth','v5_divSumYear','v5_divTickerYear']);
  const calc=k=>/^calc_[qp][123]_(dom|ov|pen|gen)_\d+$/.test(k);
  const allowed=k=>typeof k==='string'&&k.length<=256&&(JSON_KEYS.includes(k)||TEXT_KEYS.includes(k)||calc(k));
@@ -142,6 +142,8 @@
   }
   const v=parseJSON(raw);safeTree(v);
   if(ACCOUNTS.includes(k))stocks(v);
+  else if(k==='has_trialTrades_v1'){if(!Array.isArray(v)||v.length>500||v.some(r=>!object(r)||typeof r.ticker!=='string'||!['KR','US'].includes(r.market)||typeof r.date!=='string'||!finite(r.qty)||r.qty<=0||!finite(r.price)||r.price<=0))fail('실전 검증 기록 형식 오류');}
+  else if(k==='has_kisCrossLog_v1'){if(!object(v)||v.v!==1||!Array.isArray(v.rows)||v.rows.length>90)fail('KIS 대조 기록 형식 오류');}
   else if(['v5_div','v5_fxHistory','v5_memos','v5_debtBank','v5_debtHouse','v5_nonFinAssets'].includes(k)){if(!Array.isArray(v))fail('배열 형식 오류: '+k);}
   else if(!object(v))fail('객체 형식 오류: '+k);
   if(k==='v5_snap'||k==='v5_deposits'){

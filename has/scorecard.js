@@ -53,6 +53,19 @@
       (x.sellDate == null || (/^\d{4}-\d{2}-\d{2}$/.test(x.sellDate) && x.sellDate >= x.date && isFinite(x.sellPrice) && x.sellPrice > 0));
   }
   function parseTrades(text) { if (text == null) return []; try { var a = JSON.parse(text); if (Array.isArray(a) && a.length <= 500 && a.every(validTrade)) return a; } catch (e) {} return null; }
+  // 매도 기록: 전량이면 그 기록에 매도일·가격을 붙이고, 일부면 판 수량만큼 새 기록으로 나눈다(원래 산 날짜·가격 유지).
+  function applySell(trades, id, sell, newId) {
+    var i = trades.findIndex(function (t) { return t.id === id; }); if (i < 0) return { error: '기록을 찾지 못했습니다.' };
+    var t = trades[i], q = Number(sell.qty), pr = Number(sell.price);
+    if (t.sellDate) return { error: '이미 매도한 기록입니다.' };
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(sell.date || '') || sell.date < t.date) return { error: '매도 날짜는 산 날짜 이후여야 합니다.' };
+    if (!(q > 0) || q > t.qty + 1e-9) return { error: '매도 수량은 보유 수량(' + t.qty + ') 이하로 입력해 주세요.' };
+    if (!(pr > 0) || !isFinite(pr)) return { error: '매도 가격을 확인해 주세요.' };
+    var out = trades.slice();
+    if (Math.abs(q - t.qty) < 1e-9) out[i] = Object.assign({}, t, { sellDate: sell.date, sellPrice: pr });
+    else { out[i] = Object.assign({}, t, { qty: +(t.qty - q).toFixed(8) }); out.splice(i + 1, 0, Object.assign({}, t, { id: newId, qty: q, sellDate: sell.date, sellPrice: pr })); }
+    return out.every(validTrade) ? { trades: out } : { error: '매도 기록 형식 오류' };
+  }
   // trades의 수익률(매도했으면 매도가, 아니면 최근 종가)과 같은 기간 지수 대비 초과수익. 클로 카드가 있으면 그 판단을 붙인다.
   function trialScore(trades, series, cards) {
     var byT = {}; (cards || []).forEach(function (c) { byT[c.market + ':' + c.ticker] = c; });
@@ -66,7 +79,8 @@
       if (bb) { var x0 = closeOnOrBefore(bb, t.date), x1 = closeOnOrBefore(bb, endD); if (x0 && x1 && x1.d > x0.d) { r.benchRet = (x1.c / x0.c - 1) * 100; r.excess = r.ret - r.benchRet; ex.push(r.excess); } }
       return r;
     });
-    return { rows: rows, total: tot, avgExcess: ex.length ? ex.reduce(function (a, b) { return a + b; }, 0) / ex.length : NaN };
+    var realized = { KR: 0, US: 0 }; rows.forEach(function (r) { if (r.trade.sellDate) realized[r.trade.market] += (r.trade.sellPrice - r.trade.price) * r.trade.qty; });
+    return { realized: realized, rows: rows, total: tot, avgExcess: ex.length ? ex.reduce(function (a, b) { return a + b; }, 0) / ex.length : NaN };
   }
   // ---- 화면 ----
   var W = typeof window !== 'undefined' ? window : null, state = { busy: false, error: '', result: null, at: 0, trial: null, cards: [], series: {}, formMsg: '' }, cb = 0;
@@ -164,6 +178,7 @@
     if (!trades.length) { box.appendChild(node('p', '아직 기록이 없습니다. 추천 종목을 소액으로 사신 뒤 위에 입력해 주세요.')); return box; }
     var T = state.trial && state.trial.rows.length === trades.length ? state.trial : trialScore(trades, state.series, state.cards);
     ['KR', 'US'].forEach(function (m) { var t = T.total[m]; if (t.cost > 0) box.appendChild(node('div', (m === 'KR' ? '국내' : '미국') + ' 합계: 투자 ' + money(t.cost, m) + ' → 지금 ' + money(t.val, m) + ' (' + pct((t.val / t.cost - 1) * 100) + ')', 'font-weight:800')); });
+    ['KR', 'US'].forEach(function (m) { if (T.realized && T.realized[m]) box.appendChild(node('div', (m === 'KR' ? '국내' : '미국') + ' 매도 확정 손익 ' + (T.realized[m] > 0 ? '+' : '') + money(T.realized[m], m))); });
     if (isFinite(T.avgExcess)) box.appendChild(node('div', '지수 대비 평균 초과 ' + pct(T.avgExcess), 'font-weight:700'));
     if (!Object.keys(state.series).length) box.appendChild(node('div', '수익률은 위 [성적 계산하기]를 누르면 계산됩니다.'));
     T.rows.slice().reverse().forEach(function (r) {
@@ -172,6 +187,24 @@
       line.appendChild(node('div', isFinite(r.ret) ? (t.sellDate ? '매도 ' + t.sellDate + ' ' : '최근 ' + r.endDate + ' ') + money(r.last, t.market) + ' · 수익 ' + pct(r.ret) + ' · 지수 ' + pct(r.benchRet) + ' · 초과 ' + pct(r.excess) : '가격 미계산'));
       if (r.card) line.appendChild(node('div', '클로 판단: ' + (LABEL[r.card.verdict] || r.card.verdict) + ' (' + kstDate(Date.parse(r.card.reviewedAt)) + ')'));
       else line.appendChild(node('div', '클로 검토 카드 없는 종목'));
+      if (!t.sellDate) {
+        var sb = node('button', '매도 기록', 'min-height:40px;font-size:14px;margin:4px 8px 0 0'); sb.type = 'button';
+        var sf = node('div', null, 'display:none;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:6px');
+        var sd = node('input', null, 'min-height:44px;font-size:15px;box-sizing:border-box;width:100%'); sd.type = 'date'; sd.value = kstDate(Date.now()); sd.min = t.date; sd.max = kstDate(Date.now()); sd.setAttribute('aria-label', '매도 날짜');
+        var sq = node('input', null, 'min-height:44px;font-size:15px;box-sizing:border-box;width:100%'); sq.inputMode = 'decimal'; sq.value = String(t.qty); sq.setAttribute('aria-label', '매도 수량');
+        var sp = node('input', null, 'min-height:44px;font-size:15px;box-sizing:border-box;width:100%'); sp.inputMode = 'decimal'; sp.placeholder = '매도 가격'; sp.setAttribute('aria-label', '1주 매도 가격');
+        var ok = node('button', '매도 저장', 'grid-column:1 / -1;min-height:44px;font-size:15px;font-weight:700'); ok.type = 'button';
+        [sd, sq, sp, ok].forEach(function (x) { sf.appendChild(x); });
+        sb.addEventListener('click', function () { sf.style.display = sf.style.display === 'none' ? 'grid' : 'none'; });
+        ok.addEventListener('click', function () {
+          var cur = readTrades(); if (!cur) { state.formMsg = '기존 기록이 손상되어 저장하지 않았습니다.'; render(); return; }
+          var res = applySell(cur, t.id, { date: sd.value, qty: Number(String(sq.value).replace(/,/g, '')), price: Number(String(sp.value).replace(/,/g, '')) }, 'trial-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7));
+          if (res.error) { state.formMsg = res.error; render(); return; }
+          if (!writeTrades(res.trades)) { state.formMsg = '저장하지 못했습니다(저장공간 확인).'; render(); return; }
+          state.formMsg = ''; state.trial = trialScore(readTrades() || [], state.series, state.cards); render();
+        });
+        line.appendChild(sb); line.appendChild(sf);
+      }
       var del = node('button', '이 기록 삭제', 'min-height:40px;font-size:14px;margin-top:4px'); del.type = 'button';
       del.addEventListener('click', function () { if (!W.confirm(nm + ' ' + t.date + ' 기록을 삭제할까요?')) return; var cur = readTrades(); if (!cur) return; if (!writeTrades(cur.filter(function (x) { return x.id !== t.id; }))) { state.formMsg = '삭제하지 못했습니다.'; } render(); });
       line.appendChild(del); box.appendChild(line);
@@ -188,5 +221,5 @@
     bg.addEventListener('click', function (e) { if (e.target === bg) bg.remove(); }); bg.appendChild(panel); document.body.appendChild(bg);
     if (!state.result && !state.busy) run();
   }
-  return { score: score, trialScore: trialScore, parseTrades: parseTrades, validTrade: validTrade, TRIAL_KEY: TRIAL_KEY, baseDate: baseDate, closeOnOrBefore: closeOnOrBefore, cleanBars: cleanBars, open: open, LABEL: LABEL };
+  return { score: score, applySell: applySell, trialScore: trialScore, parseTrades: parseTrades, validTrade: validTrade, TRIAL_KEY: TRIAL_KEY, baseDate: baseDate, closeOnOrBefore: closeOnOrBefore, cleanBars: cleanBars, open: open, LABEL: LABEL };
 });

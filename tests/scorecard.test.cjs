@@ -27,3 +27,18 @@ test('trial trades: validation, return and excess vs benchmark, card link, sold 
   a.ok(Math.abs(r.rows[1].ret-10)<1e-9);a.ok(Math.abs(r.rows[1].excess-12)<1e-9);a.equal(r.rows[1].card,null);
   a.equal(r.total.KR.cost,160000);a.equal(r.total.KR.val,200000);
 });
+test('trial sell: full sell marks record, partial sell splits; invalid sells rejected',()=>{
+  const t={id:'trial-a',market:'US',ticker:'SOXL',date:'2026-11-25',qty:10,price:40};
+  let r=S.applySell([t],'trial-a',{date:'2026-12-01',qty:10,price:45},'trial-n');a.equal(r.trades.length,1);a.equal(r.trades[0].sellPrice,45);
+  r=S.applySell([t],'trial-a',{date:'2026-12-01',qty:4,price:45},'trial-n');a.equal(r.trades.length,2);a.equal(r.trades[0].qty,6);a.equal(r.trades[0].sellDate,undefined);a.equal(r.trades[1].qty,4);a.equal(r.trades[1].sellDate,'2026-12-01');a.equal(r.trades[1].date,'2026-11-25');
+  a.ok(S.applySell([t],'trial-a',{date:'2026-11-01',qty:1,price:45},'x').error);a.ok(S.applySell([t],'trial-a',{date:'2026-12-01',qty:11,price:45},'x').error);
+  a.ok(S.applySell([r.trades[1]],'trial-n',{date:'2026-12-02',qty:1,price:45},'x').error);
+  const sc=S.trialScore(r.trades,{},[]);a.equal(sc.realized.US,20);
+});
+test('backup includes trial trades and KIS cross-check log, rejects malformed',()=>{
+  const B=require('../backup/core.js');
+  a.doesNotThrow(()=>B.validateStoredValue('has_trialTrades_v1',JSON.stringify([{id:'trial-a',market:'KR',ticker:'001440',date:'2026-11-25',qty:1,price:16000}])));
+  a.throws(()=>B.validateStoredValue('has_trialTrades_v1','[{"ticker":"X"}]'));
+  a.doesNotThrow(()=>B.validateStoredValue('has_kisCrossLog_v1',JSON.stringify({v:1,autoDay:'',rows:[]})));
+  a.throws(()=>B.validateStoredValue('has_kisCrossLog_v1','{"v":2}'));
+});

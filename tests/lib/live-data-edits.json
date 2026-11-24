@@ -632,5 +632,15 @@
       "(function (x) { d.appendChild(el('div', 'hpt-line', x)); }); if (window.HASKISCrossCheck) { var kc = el('div'); d.appendChild(kc); window.HASKISCrossCheck.mount(kc); } box.appendChild(d);",
       "(function (x) { d.appendChild(el('div', 'hpt-line', x)); }); box.appendChild(d);"
     ]
+  ],
+  "backup/core.js": [
+    [
+      "'v5_riskData','v5_rkCache','has_trialTrades_v1','has_kisCrossLog_v1']);",
+      "'v5_riskData','v5_rkCache']);"
+    ],
+    [
+      "  else if(k==='has_trialTrades_v1'){if(!Array.isArray(v)||v.length>500||v.some(r=>!object(r)||typeof r.ticker!=='string'||!['KR','US'].includes(r.market)||typeof r.date!=='string'||!finite(r.qty)||r.qty<=0||!finite(r.price)||r.price<=0))fail('실전 검증 기록 형식 오류');}\n  else if(k==='has_kisCrossLog_v1'){if(!object(v)||v.v!==1||!Array.isArray(v.rows)||v.rows.length>90)fail('KIS 대조 기록 형식 오류');}\n  else if(['v5_div','v5_fxHistory','v5_memos','v5_debtBank','v5_debtHouse','v5_nonFinAssets'].includes(k)){",
+      "  else if(['v5_div','v5_fxHistory','v5_memos','v5_debtBank','v5_debtHouse','v5_nonFinAssets'].includes(k)){"
+    ]
   ]
 }

@@ -10,7 +10,8 @@
     "has/advisor-core.js": "c6ad2a3c18d96f86c5926bd7f89fa738348cb979689d7756d876e286e17cb225",
     "has/advisor-bridge.js": "e5897e9f5a44821531eca02424c0b54174567e52f09b74886abaf9471cab4c62",
     "backup/ui.js": "0999a78cf1fa8c8bdd89d82afd4b905954b2c2bc27b1b8a24dd4866731345c3d",
-    "has/price-trust-ui.js": "5f5a735acdd9423de63a78f7f0319db585228274b6b8d9bd2fe3c77631c4cb8c"
+    "has/price-trust-ui.js": "5f5a735acdd9423de63a78f7f0319db585228274b6b8d9bd2fe3c77631c4cb8c",
+    "backup/core.js": "ff1a15979d0dbca717538e2ec5197f641756440ac837da524a57218e56878b82"
   },
   "currentSha256": {
     "portfolio_v5.html": "4e379269dfc7c5ee5be1bfd2d823ab3f5105f197851a5fb7c7df0902f136de27",
@@ -23,7 +24,8 @@
     "has/advisor-core.js": "a92fb91531e299daf85cf3596bc23d2717c87cf08328e04f6483a55973f35330",
     "has/advisor-bridge.js": "561d408bd79f733fbb564bcd7c3c73b4ebcc840ab6bb9550ec0f227393ae8034",
     "backup/ui.js": "60fa260fb96d997d27bcda24b6006630cd196e910af1c0792781e1a5e8fbfca6",
-    "has/price-trust-ui.js": "8db6f9bfefc20c4e357ae4ef537c9a24b1877056201624bc540d3c4c390cf454"
+    "has/price-trust-ui.js": "8db6f9bfefc20c4e357ae4ef537c9a24b1877056201624bc540d3c4c390cf454",
+    "backup/core.js": "db2eaad670fc0726e24e2bfeaae17ada45c4d232f3fd0954c9cfab21deccebc7"
   },
   "addedRuntimeFiles": {
     "has/live-price-reference.js": "be7bc1fe4315328469a6bd0b3e3c7e28c688bb60dd9a1cd0fd12a182e9c84242",
@@ -59,6 +61,6 @@
     "has/paper-account.js": "63bc20846de1b79fa4c5f4bbb24bbfe865523fbc29b23b5c7be83d44c3e50e87",
     "has/kis-crosscheck.js": "11b2e347b642ea902678346f3f91108d662cafe909064a654c4e61a1cc521b69",
     "has/review-cards.js": "9d118c6ec3bae7cfb6cb1e4872a13e7b20d18bacb86c6aecf150fc07324c94c3",
-    "has/scorecard.js": "f2747113c30db5aba1862629d50432d5521af15d1aac92b1e9e0f2f941faa411"
+    "has/scorecard.js": "e3aaf9b390232fa0ff0765308584978f0f32abdecc15e3c7564d0434bd978bcf"
   }
 }
