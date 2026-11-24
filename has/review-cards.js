@@ -71,7 +71,7 @@
         var gb = node('button', state.gateBusy ? '차트 관문 확인 중…' : '📈 차트 관문 확인 (매수 타이밍)', 'min-height:44px;padding:0 14px;font-size:15px;margin:4px 0'); gb.type = 'button'; gb.disabled = !!state.gateBusy;
         gb.addEventListener('click', function () { state.gateBusy = true; render(box, d0, title, testid); G.load(gItems).then(function () {}, function () {}).then(function () { state.gateBusy = false; render(box, d0, title, testid); }); });
         box.appendChild(gb);
-        box.appendChild(node('p', '실적은 "사도 될 회사"인지, 차트 관문은 "지금 살 때"인지를 봅니다. 하락 추세면 사지 않고 기다리고, 바닥을 다지면 1차(목표 금액의 1/3), 20일선을 회복해 버티면 2차, 60일선 회복·저점 상승이면 3차로 나눠 사는 기준입니다.', 'font-size:14px'));
+        box.appendChild(node('p', '실적은 "사도 될 회사"인지, 차트 관문은 "지금 살 때"인지를 봅니다. 1·3·3·3 분할: 하락 추세면 기다리고, 바닥을 다지면 정찰병(목표 금액의 10%), 20일선을 회복해 버티면 30%, 60일선 회복·저점 상승이면 30%, 다음 실적까지 확인되면 마지막 30%를 삽니다.', 'font-size:14px'));
       }
     }
     box.appendChild(node('p', Object.keys(VERDICT).filter(function (k) { return counts[k]; }).map(function (k) { return VERDICT[k][0] + ' ' + counts[k]; }).join(' · '), 'font-weight:700'));
