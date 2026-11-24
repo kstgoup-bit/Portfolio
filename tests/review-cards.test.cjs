@@ -7,3 +7,7 @@ test('review cards: published latest.json validates; bad cards and non-https lin
   a.equal(R.validate(bad).cards.length,doc.cards.length-3);
   a.equal(R.validate({v:2}),null);a.equal(R.validate(Object.assign({},doc,{notice:''})),null);
 });
+test('review cards: holdings-latest.json validates with all verdict kinds known',()=>{
+  const doc=JSON.parse(fs.readFileSync(path.join(__dirname,'../reviews/holdings-latest.json'),'utf8'));const v=R.validate(doc);
+  a.ok(v);a.equal(v.cards.length,doc.cards.length);a.ok(v.cards.some(c=>c.verdict==='trim-review'));a.match(v.notice,/투자 자문이 아닙니다/);
+});

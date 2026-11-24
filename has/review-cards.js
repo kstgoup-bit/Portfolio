@@ -7,8 +7,8 @@
 })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
   'use strict';
   var VERDICT = {
-    'buy-review': ['🟢 매수 검토', '#1b5e20'], 'hold-long': ['🔵 장기보유', '#0d47a1'],
-    'wait': ['🟡 관망·보류', '#8a4b00'], 'sell-review': ['🔴 매도 검토', '#8b2020']
+    'buy-review': ['🟢 매수 검토', '#1b5e20'], 'add-review': ['🟢 추가 매수 검토', '#1b5e20'], 'hold-long': ['🔵 장기보유', '#0d47a1'],
+    'wait': ['🟡 관망·보류', '#8a4b00'], 'trim-review': ['🟠 비중 축소 검토', '#a33a00'], 'sell-review': ['🔴 매도 검토', '#8b2020']
   };
   function str(x, max) { return typeof x === 'string' && x.length > 0 && x.length <= max; }
   function list(a, max, len) { return Array.isArray(a) && a.length <= max && a.every(function (x) { return str(x, len); }); }
@@ -23,6 +23,21 @@
     return { reviewedAt: doc.reviewedAt, reviewer: str(doc.reviewer, 40) ? doc.reviewer : 'AI', basis: str(doc.basis, 200) ? doc.basis : '', context: str(doc.context, 600) ? doc.context : '', notice: doc.notice, cards: cards };
   }
   var state = { doc: null, error: '', loading: false, loaded: false }, mounts = [];
+  var hold = { doc: null };
+  function loadHoldings() {
+    if (typeof fetch !== 'function') return;
+    fetch('./reviews/holdings-latest.json', { cache: 'no-store', credentials: 'omit' }).then(function (r) { if (!r.ok) throw Error(); return r.json(); })
+      .then(function (d) { hold.doc = validate(d); }).catch(function () { hold.doc = null; }).then(ensureLink);
+  }
+  function openHoldings() {
+    if (!hold.doc || typeof document === 'undefined') return; var old = document.getElementById('hasHoldReview'); if (old) old.remove();
+    var bg = node('div', null, 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9998;display:flex;align-items:center;justify-content:center;padding:12px'); bg.id = 'hasHoldReview';
+    var panel = node('section', null, 'background:#fff;border-radius:16px;padding:16px;width:100%;max-width:520px;max-height:90vh;overflow:auto;box-sizing:border-box'); panel.setAttribute('role', 'dialog'); panel.setAttribute('aria-modal', 'true');
+    var body = node('div'); render(body, hold.doc, '🧠 내 보유 종목 AI 검토', 'holdings-review'); panel.appendChild(body);
+    var foot = node('div', null, 'position:sticky;bottom:-16px;margin:0 -16px -16px;padding:10px 16px 16px;background:#fff;border-top:1px solid #ddd');
+    var close = node('button', '닫기', 'width:100%;min-height:44px;font-size:15px'); close.type = 'button'; close.addEventListener('click', function () { bg.remove(); }); foot.appendChild(close); panel.appendChild(foot);
+    bg.addEventListener('click', function (e) { if (e.target === bg) bg.remove(); }); bg.appendChild(panel); document.body.appendChild(bg); panel.scrollTop = 0;
+  }
   function load() {
     if (state.loading || typeof fetch !== 'function') return;
     state.loading = true; renderAll();
@@ -33,13 +48,13 @@
   }
   function node(tag, text, css) { var e = document.createElement(tag); if (text != null) e.textContent = text; if (css) e.style.cssText = css; return e; }
   function kst(iso) { try { return new Date(iso).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }); } catch (e) { return iso; } }
-  var ORDER = { 'buy-review': 0, 'hold-long': 1, 'wait': 2, 'sell-review': 3 };
-  function render(box) {
-    box.replaceChildren(); box.setAttribute('data-testid', 'review-cards'); box.style.cssText = 'margin-top:16px;color:#333;font-size:15px;line-height:1.6;overflow-wrap:anywhere';
-    box.appendChild(node('h3', '🧠 AI 검토 카드 (곡소리 Top10)', 'margin:8px 0'));
-    if (state.loading && !state.doc) { box.appendChild(node('p', '검토 카드를 불러오는 중…')); return; }
-    if (state.error) { box.appendChild(node('p', state.error, 'color:#8b2020')); }
-    var d = state.doc; if (!d) return;
+  var ORDER = { 'buy-review': 0, 'add-review': 0, 'trim-review': 1, 'sell-review': 1, 'hold-long': 2, 'wait': 3 };
+  function render(box, d0, title, testid) {
+    box.replaceChildren(); box.setAttribute('data-testid', testid || 'review-cards'); box.style.cssText = 'margin-top:16px;color:#333;font-size:15px;line-height:1.6;overflow-wrap:anywhere';
+    box.appendChild(node('h3', title || '🧠 AI 검토 카드 (곡소리 Top10)', 'margin:8px 0'));
+    var d = d0 === undefined ? state.doc : d0;
+    if (d0 === undefined) { if (state.loading && !state.doc) { box.appendChild(node('p', '검토 카드를 불러오는 중…')); return; } if (state.error) box.appendChild(node('p', state.error, 'color:#8b2020')); }
+    if (!d) return;
     box.appendChild(node('p', '검토 ' + kst(d.reviewedAt) + ' · ' + d.reviewer + (d.basis ? ' · ' + d.basis : ''), 'font-size:13px'));
     if (d.context) box.appendChild(node('p', d.context));
     var counts = {}; d.cards.forEach(function (c) { counts[c.verdict] = (counts[c.verdict] || 0) + 1; });
@@ -56,7 +71,7 @@
     });
     box.appendChild(node('p', d.notice, 'border-top:1px solid #c9d3e0;padding-top:8px;font-size:14px'));
   }
-  function renderAll() { mounts = mounts.filter(function (m) { return m.isConnected; }); mounts.forEach(render); }
+  function renderAll() { mounts = mounts.filter(function (m) { return m.isConnected; }); mounts.forEach(function (m) { render(m); }); }
   function mount(box) { if (!box) return; mounts = mounts.filter(function (m) { return m !== box && m.isConnected; }); mounts.push(box); render(box); if (!state.loaded) load(); }
   // 현황 '오늘의 투자 판단' 띠에 곡소리 AI 매수 검토 건수를 붙이고, 누르면 곡소리 화면의 카드로 이동한다.
   function summary() { var d = state.doc; if (!d) return null; var n = d.cards.filter(function (c) { return c.verdict === 'buy-review'; }).length; return { buy: n, date: (function () { try { var x = new Date(Date.parse(d.reviewedAt) + 9 * 3600000); return (x.getUTCMonth() + 1) + '/' + x.getUTCDate(); } catch (e) { return ''; } })() }; }
@@ -66,7 +81,13 @@
   }
   function ensureLink() {
     if (typeof document === 'undefined') return; var strip = document.getElementById('hasBriefStrip'); if (!strip) return;
-    var mini = strip.querySelector('.hdb-mini'), old = strip.querySelector('[data-testid=hdb-ai-fear]'), sm = summary();
+    var mini0 = strip.querySelector('.hdb-mini'), oh = strip.querySelector('[data-testid=hdb-ai-hold]');
+    if (mini0 && hold.doc && hold.doc.cards.length) {
+      var cnt = {}; hold.doc.cards.forEach(function (c) { cnt[c.verdict] = (cnt[c.verdict] || 0) + 1; });
+      var hl = '🧠 내 보유 종목 AI 검토: ' + Object.keys(VERDICT).filter(function (k) { return cnt[k]; }).map(function (k) { return VERDICT[k][0].replace(/^\S+ /, '') + ' ' + cnt[k]; }).join(' · ') + ' · 보기 ▶';
+      if (!oh || oh.textContent !== hl || oh.previousElementSibling !== mini0) { if (oh) oh.remove(); oh = node('button', hl, 'display:block;width:100%;min-height:44px;margin-top:8px;padding:6px 10px;border:2px solid #0d47a1;border-radius:10px;background:#fff;color:#0d47a1;font-size:15px;font-weight:800;text-align:left'); oh.type = 'button'; oh.setAttribute('data-testid', 'hdb-ai-hold'); oh.addEventListener('click', function (e) { e.stopPropagation(); openHoldings(); }); mini0.after(oh); }
+    } else if (oh) oh.remove();
+    var mini = strip.querySelector('[data-testid=hdb-ai-hold]') || mini0, old = strip.querySelector('[data-testid=hdb-ai-fear]'), sm = summary();
     if (!mini || !sm || !sm.buy) { if (old) old.remove(); return; }
     var label = '🧠 곡소리 AI 매수 검토 ' + sm.buy + '건 (' + sm.date + ' 검토) · 보기 ▶';
     if (old && old.textContent === label && old.previousElementSibling === mini) return; if (old) old.remove();
@@ -76,8 +97,8 @@
   if (typeof window !== 'undefined' && typeof document !== 'undefined' && typeof MutationObserver === 'function') {
     document.addEventListener('DOMContentLoaded', function () {
       var strip = document.getElementById('hasBriefStrip'); if (strip) new MutationObserver(ensureLink).observe(strip, { childList: true });
-      load();
+      load(); loadHoldings();
     });
   }
-  return { validate: validate, mount: mount, summary: summary, open: open, VERDICT: VERDICT };
+  return { validate: validate, mount: mount, summary: summary, open: open, openHoldings: openHoldings, VERDICT: VERDICT };
 });
