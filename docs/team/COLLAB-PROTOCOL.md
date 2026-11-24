@@ -69,3 +69,4 @@
 - **07:30 지피: READY_FOR_GPT면 종목별 `AGREE` 또는 `DISAGREE(이유)`를 `docs/team/GPT-REVIEW-ai-review-YYYYMMDD-0730.md`에 작성**(main 또는 docs/gpt-* 브랜치). 지피도 출처를 직접 확인하고, 근거가 약하면 DISAGREE.
 - 07:45 클로: AGREE만 `reviews/`에 새 날짜 파일로 반영(과거 기록 수정 금지, 시험 통과 시만), 순태씨에게 휴대폰 알림. DISAGREE는 '의견 불일치로 보류', 지피 응답 없으면 전부 보류.
 - 판단 값: buy-review / add-review / hold-long / wait / trim-review / sell-review. 가격 등락만으로 판단을 바꾸지 않는다. 투자 자문 아님, 주문은 순태씨.
+- (2026-11-25 추가) 차트 관문: 매수 검토·추가 매수·장기보유 카드는 앱의 '📈 차트 관문 확인'(has/chart-gate.js, 확정 종가 20·60일선)으로 분할매수 단계를 따로 표시한다. 실적 판단(verdict)과 타이밍(관문)은 분리. 아침 알림에서 매수 쪽 변경을 알릴 때는 '매수 전 앱의 차트 관문 확인'을 붙인다.

@@ -59,11 +59,23 @@
     box.appendChild(node('p', '검토 ' + kst(d.reviewedAt) + ' · ' + d.reviewer + (d.basis ? ' · ' + d.basis : ''), 'font-size:13px'));
     if (d.context) box.appendChild(node('p', d.context));
     var counts = {}; d.cards.forEach(function (c) { counts[c.verdict] = (counts[c.verdict] || 0) + 1; });
+    var G = typeof window !== 'undefined' && window.HASChartGate, gateKinds = { 'buy-review': 1, 'add-review': 1, 'hold-long': 1 };
+    if (G) {
+      var gItems = d.cards.filter(function (c) { return gateKinds[c.verdict]; }).map(function (c) { return { ticker: c.ticker, market: c.market }; });
+      if (gItems.length) {
+        var gb = node('button', state.gateBusy ? '차트 관문 확인 중…' : '📈 차트 관문 확인 (매수 타이밍)', 'min-height:44px;padding:0 14px;font-size:15px;margin:4px 0'); gb.type = 'button'; gb.disabled = !!state.gateBusy;
+        gb.addEventListener('click', function () { state.gateBusy = true; render(box, d0, title, testid); G.load(gItems).then(function () {}, function () {}).then(function () { state.gateBusy = false; render(box, d0, title, testid); }); });
+        box.appendChild(gb);
+        box.appendChild(node('p', '실적은 "사도 될 회사"인지, 차트 관문은 "지금 살 때"인지를 봅니다. 하락 추세면 1차 소액만, 20일선을 회복해 버티면 2차, 60일선 회복·저점 상승이면 3차로 나눠 사는 기준입니다.', 'font-size:14px'));
+      }
+    }
     box.appendChild(node('p', Object.keys(VERDICT).filter(function (k) { return counts[k]; }).map(function (k) { return VERDICT[k][0] + ' ' + counts[k]; }).join(' · '), 'font-weight:700'));
     d.cards.slice().sort(function (a, b) { return ORDER[a.verdict] - ORDER[b.verdict] || (a.rank || 99) - (b.rank || 99); }).forEach(function (c) {
       var v = VERDICT[c.verdict], art = node('article', null, 'border-top:1px solid #c9d3e0;padding:10px 0');
       art.appendChild(node('div', (c.rank ? '우선순위 ' + c.rank + ' · ' : '') + c.name + ' (' + c.ticker + ') · ' + v[0], 'font-weight:800;color:' + v[1]));
       art.appendChild(node('div', c.headline));
+      var gr = G && gateKinds[c.verdict] ? G.cached(c.market, c.ticker) : null;
+      if (gr) { var gd = G.describe(gr); art.appendChild(node('div', '차트 관문: ' + gd.label, 'font-weight:800;color:' + gd.color)); if (gd.detail) art.appendChild(node('div', gd.detail, 'font-size:14px')); }
       var det = node('details'); det.appendChild(node('summary', '근거·반론·출처 보기', 'min-height:44px;display:flex;align-items:center;cursor:pointer'));
       det.appendChild(node('div', '👍 근거', 'font-weight:700')); c.reasons.forEach(function (x) { det.appendChild(node('div', '· ' + x)); });
       det.appendChild(node('div', '⚠ 반론·위험', 'font-weight:700;margin-top:6px')); c.risks.forEach(function (x) { det.appendChild(node('div', '· ' + x)); });

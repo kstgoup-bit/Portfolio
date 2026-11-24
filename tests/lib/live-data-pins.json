@@ -14,7 +14,7 @@
     "backup/core.js": "ff1a15979d0dbca717538e2ec5197f641756440ac837da524a57218e56878b82"
   },
   "currentSha256": {
-    "portfolio_v5.html": "4e379269dfc7c5ee5be1bfd2d823ab3f5105f197851a5fb7c7df0902f136de27",
+    "portfolio_v5.html": "6a1475dbcab113513daef2bda181d97367c906da3113cc6ea1d42304bae9cc2d",
     "radar/ui.js": "f6e54aee07dd7c68cab790d07f2de0a9a7f8b0c8c675bf99fbc9d22c7de4b122",
     "has/advisor-panel.js": "a4458f646ce6712a47eae3a619c429d7d09ec50f6610e5d5e988d66120e8ca2b",
     "service-worker.js": "bd7c5a33f7070bf8e4791fedb5cbfc4572741076023efb1090e838d8041c7b72",
@@ -60,7 +60,8 @@
     "has/buy-review-lab.js": "265b79fa29d7dd319aabca10567dc1982ac4b1634604ecf60cf88d080173de12",
     "has/paper-account.js": "63bc20846de1b79fa4c5f4bbb24bbfe865523fbc29b23b5c7be83d44c3e50e87",
     "has/kis-crosscheck.js": "11b2e347b642ea902678346f3f91108d662cafe909064a654c4e61a1cc521b69",
-    "has/review-cards.js": "99a7cc0b49f22cf518cd8ed91b9f8acdaf0728922e47dd4dd4d1c1dc46a947d9",
-    "has/scorecard.js": "e3aaf9b390232fa0ff0765308584978f0f32abdecc15e3c7564d0434bd978bcf"
+    "has/review-cards.js": "1287fe6e19f24dd5e35db329a48b5c3d9fea3f9592f62937e3d3c99d901b218b",
+    "has/scorecard.js": "e3aaf9b390232fa0ff0765308584978f0f32abdecc15e3c7564d0434bd978bcf",
+    "has/chart-gate.js": "62e1aef2f9af457b2f13b902f3eb54c6874499b4e95a3e5756011ca470b4cac7"
   }
 }
