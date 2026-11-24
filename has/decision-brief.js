@@ -131,8 +131,10 @@
     nameMap = Object.create(null); var nm0 = computed && computed.names; if (nm0 && typeof nm0 === 'object') Object.keys(nm0).forEach(function (k) { if (typeof nm0[k] === 'string' && nm0[k]) nameMap[k] = nm0[k]; });
     var c = classify(computed && computed.brief);
     var head = el('div', 'hdb-head'); var t = el('span', 'hdb-sum'); t.setAttribute('data-testid', 'hs-strip-text');
-    t.appendChild(el('strong', '', '🧭 오늘의 투자 판단: '));
-    t.appendChild(document.createTextNode(computed && computed.brief ? summaryText(c) : '점검 불가')); t.appendChild(el('span', 'hdb-basis', ' (내 기록 기준 · 시장 감시 아님)'));
+    // 규칙 엔진이 검증된 매수·매도·장기보유를 하나도 못 내면(대부분) 0건 3칸 대신 위험 점검만 보인다 — 실제 판단은 아래 AI 검토 카드(순태씨 2026-11-25).
+    var none = !c.buy.length && !c.sell.length && !c.hold.length;
+    t.appendChild(el('strong', '', none ? '🧭 위험 점검: ' : '🧭 오늘의 투자 판단: '));
+    t.appendChild(document.createTextNode(!(computed && computed.brief) ? '점검 불가' : none ? (c.risks.length ? '중요 위험 ' + c.risks.length + '건' : '중요 위험 없음') + ' · 매수·매도 판단은 아래 AI 검토' : summaryText(c))); t.appendChild(el('span', 'hdb-basis', ' (내 기록 기준 · 시장 감시 아님)'));
     head.appendChild(t);
     var d = collapsible('strip', '오늘의 투자 판단 상세'); head.appendChild(d); box.appendChild(head);
     // 첫 화면(접힌 상태)에도 보이는 3분할 상태 카드 — 정확한 건수만, 종목·사유는 펼친 뒤에 (CR-1)
@@ -141,7 +143,7 @@
       var m = el('div', 'hdb-mc hdb-' + k.key); m.setAttribute('data-testid', 'hdb-card-' + k.key); m.setAttribute('aria-label', k.title + ' ' + c[k.key].length + '건');
       m.appendChild(el('span', 'hdb-mc-t', k.title)); m.appendChild(el('b', 'hdb-mc-n', c[k.key].length + '건')); mini.appendChild(m);
     });
-    box.appendChild(mini);
+    if (!none) box.appendChild(mini);
     // 중요 위험 한 줄은 접혀 있어도 항상 보인다.
     if (c.risks.length) { var w = el('div', 'hdb-risk', '⚠️ 중요 위험: ' + c.risks[0].text + (c.risks.length > 1 ? ' 외 ' + (c.risks.length - 1) + '건' : '')); w.setAttribute('role', 'alert'); w.setAttribute('data-testid', 'hdb-risk-line'); box.appendChild(w); }
     var body = el('div', 'hdb-body'); body.setAttribute('data-testid', 'hdb-body');
