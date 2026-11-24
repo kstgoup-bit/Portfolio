@@ -16,3 +16,11 @@ test('review cards: buy-review cards carry priority rank and post-buy watch crit
   const buys=v.cards.filter(c=>c.verdict==='buy-review');a.ok(buys.length);for(const c of buys){a.ok(Number.isInteger(c.rank));a.ok(c.watch.length>=2);}
   a.deepEqual(buys.map(c=>c.rank).sort(),[1,2,3,4]);
 });
+test('review cards: US fear review (fear-us-latest.json) validates, all US, ranked buys have watch criteria, listed in index',()=>{
+  const doc=JSON.parse(fs.readFileSync(path.join(__dirname,'../reviews/fear-us-latest.json'),'utf8'));const v=R.validate(doc);
+  a.ok(v);a.equal(v.cards.length,10);a.ok(v.cards.every(c=>c.market==='US'));
+  const buys=v.cards.filter(c=>c.verdict==='buy-review');a.ok(buys.length>0&&buys.every(c=>c.rank&&c.watch&&c.watch.length));
+  a.match(v.notice,/투자 자문이 아닙니다/);
+  const ix=JSON.parse(fs.readFileSync(path.join(__dirname,'../reviews/index.json'),'utf8'));a.ok(ix.files.includes('fear-us-20261125.json'));
+  a.equal(fs.readFileSync(path.join(__dirname,'../reviews/fear-us-20261125.json'),'utf8'),fs.readFileSync(path.join(__dirname,'../reviews/fear-us-latest.json'),'utf8'));
+});

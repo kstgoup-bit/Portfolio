@@ -24,7 +24,12 @@
     return { reviewedAt: doc.reviewedAt, reviewer: str(doc.reviewer, 40) ? doc.reviewer : 'AI', basis: str(doc.basis, 200) ? doc.basis : '', context: str(doc.context, 600) ? doc.context : '', notice: doc.notice, cards: cards };
   }
   var state = { doc: null, error: '', loading: false, loaded: false }, mounts = [];
-  var hold = { doc: null };
+  var hold = { doc: null }, us = { doc: null };
+  function loadUS() {
+    if (us.tried || typeof fetch !== 'function') return; us.tried = true;
+    fetch('./reviews/fear-us-latest.json', { cache: 'no-store', credentials: 'omit' }).then(function (r) { if (!r.ok) throw Error(); return r.json(); })
+      .then(function (d) { us.doc = validate(d); }).catch(function () { us.doc = null; }).then(function () { renderAll(); ensureLink(); });
+  }
   function loadHoldings() {
     if (typeof fetch !== 'function') return;
     fetch('./reviews/holdings-latest.json', { cache: 'no-store', credentials: 'omit' }).then(function (r) { if (!r.ok) throw Error(); return r.json(); })
@@ -85,10 +90,16 @@
     });
     box.appendChild(node('p', d.notice, 'border-top:1px solid #c9d3e0;padding-top:8px;font-size:14px'));
   }
-  function renderAll() { mounts = mounts.filter(function (m) { return m.isConnected; }); mounts.forEach(function (m) { render(m); }); }
-  function mount(box) { if (!box) return; mounts = mounts.filter(function (m) { return m !== box && m.isConnected; }); mounts.push(box); render(box); if (!state.loaded) load(); }
+  // 국내(latest.json)와 미국(fear-us-latest.json) 검토 카드를 한 곡소리 화면에 차례로 보여준다.
+  function renderMount(m) {
+    m.replaceChildren(); var kr = node('div'); m.appendChild(kr); render(kr);
+    if (us.doc) { var u = node('div'); m.appendChild(u); render(u, us.doc, '🧠 AI 검토 카드 (미국 곡소리 Top10)', 'review-cards-us'); }
+  }
+  function renderAll() { mounts = mounts.filter(function (m) { return m.isConnected; }); mounts.forEach(renderMount); }
+  function mount(box) { if (!box) return; mounts = mounts.filter(function (m) { return m !== box && m.isConnected; }); mounts.push(box); renderMount(box); if (!state.loaded) load(); loadUS(); }
   // 현황 '오늘의 투자 판단' 띠에 곡소리 AI 매수 검토 건수를 붙이고, 누르면 곡소리 화면의 카드로 이동한다.
-  function summary() { var d = state.doc; if (!d) return null; var n = d.cards.filter(function (c) { return c.verdict === 'buy-review'; }).length; return { buy: n, date: (function () { try { var x = new Date(Date.parse(d.reviewedAt) + 9 * 3600000); return (x.getUTCMonth() + 1) + '/' + x.getUTCDate(); } catch (e) { return ''; } })() }; }
+  function buys(d) { return d ? d.cards.filter(function (c) { return c.verdict === 'buy-review'; }).length : 0; }
+  function summary() { var d = state.doc || us.doc; if (!d) return null; var kr = buys(state.doc), u = buys(us.doc); return { buy: kr + u, kr: kr, us: u, date: (function () { try { var x = new Date(Date.parse(d.reviewedAt) + 9 * 3600000); return (x.getUTCMonth() + 1) + '/' + x.getUTCDate(); } catch (e) { return ''; } })() }; }
   function open() {
     try { if (window.KSTRadar && window.KSTRadar.openFear) window.KSTRadar.openFear(); } catch (e) { return; }
     setTimeout(function () { var t = document.querySelector('[data-testid=review-cards]'); if (t) t.scrollIntoView({ block: 'start' }); }, 300);
@@ -112,7 +123,7 @@
     } else if (oh) oh.remove();
     var mini = strip.querySelector('[data-testid=hdb-ai-hold]') || mini0, old = strip.querySelector('[data-testid=hdb-ai-fear]'), sm = summary();
     if (!mini || !sm || !sm.buy) { if (old) old.remove(); return; }
-    var label = '🧠 곡소리 AI 매수 검토 ' + sm.buy + '건 (' + sm.date + ' 검토) · 보기 ▶';
+    var label = '🧠 곡소리 AI 매수 검토 ' + sm.buy + '건' + (sm.us ? ' (국내 ' + sm.kr + ' · 미국 ' + sm.us + ')' : ' (' + sm.date + ' 검토)') + ' · 보기 ▶';
     if (old && old.textContent === label && old.previousElementSibling === mini) return; if (old) old.remove();
     var b = node('button', label, 'display:block;width:100%;min-height:44px;margin-top:8px;padding:6px 10px;border:2px solid #1b5e20;border-radius:10px;background:#fff;color:#1b5e20;font-size:15px;font-weight:800;text-align:left');
     b.type = 'button'; b.setAttribute('data-testid', 'hdb-ai-fear'); b.addEventListener('click', function (e) { e.stopPropagation(); open(); }); mini.after(b);
@@ -120,7 +131,7 @@
   if (typeof window !== 'undefined' && typeof document !== 'undefined' && typeof MutationObserver === 'function') {
     document.addEventListener('DOMContentLoaded', function () {
       var strip = document.getElementById('hasBriefStrip'); if (strip) new MutationObserver(ensureLink).observe(strip, { childList: true });
-      load(); loadHoldings();
+      load(); loadHoldings(); loadUS();
     });
   }
   return { validate: validate, mount: mount, summary: summary, open: open, openHoldings: openHoldings, VERDICT: VERDICT };

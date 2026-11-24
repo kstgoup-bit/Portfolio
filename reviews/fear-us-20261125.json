@@ -1,0 +1,299 @@
+{
+ "v": 1,
+ "kind": "fear",
+ "reviewedAt": "2026-11-25T00:30:00+09:00",
+ "reviewer": "클로(Claude)",
+ "basis": "미국 곡소리 Top10 화면 2026-11-24 · 자료 기준일 2026-11-20(SNDK 11-19)",
+ "context": "11월 미국은 AI 하드웨어 전체가 함께 무너지는 국면입니다(중간선거 뒤 데이터센터 규제 우려, 엔비디아 CEO 사임 뒤 매도 확산, 높은 금리). 그래서 '회사 실적이 나빠서' 떨어진 종목과 '업종과 같이' 떨어진 종목을 나눠 봤습니다. 업종 전체가 아직 하락 추세라 매수 검토 종목도 차트 관문(3·3·3)을 먼저 통과해야 합니다.",
+ "notice": "AI 검토 의견이며 투자 자문이 아닙니다. 뉴스·실적 발표 기준이며 앱의 재무(SEC) 연결 수치와 다를 수 있습니다. 매수 전 현금 비중(최소 10%)과 종목 한도(10%, 확신 종목 25%)를 먼저 지키세요. 미국 종목은 환율 변동도 손익에 들어갑니다. 최종 결정은 순태씨가 합니다.",
+ "cards": [
+  {
+   "ticker": "WDC",
+   "name": "웨스턴디지털",
+   "verdict": "buy-review",
+   "rank": 1,
+   "headline": "실적은 사상 최고인데 저장장치 업종과 같이 -65% — 10종목 중 실적과 주가의 거리가 가장 큼",
+   "reasons": [
+    "10월 22일 발표 분기 매출 43.8억 달러(+55%), 총마진 58%, 잉여현금 13.8억 달러",
+    "다음 분기 매출 +66~72% 증가 전망을 회사가 직접 제시",
+    "11월 하락은 자체 악재가 아니라 AI·메모리주 동반 매도"
+   ],
+   "risks": [
+    "하드디스크 가격·마진이 지금이 꼭대기일 수 있음(경기 순환 업종)",
+    "AI 데이터센터 투자 감속 시 직격탄",
+    "업종이 아직 하락 추세 — 차트 관문 확인 전 매수 금지"
+   ],
+   "watch": [
+    "1월 말 실적에서 매출 증가 전망(+66~72%) 달성 여부",
+    "총마진이 55% 아래로 내려가면 매도 검토",
+    "대형 클라우드 회사들의 투자 축소 발표가 나오면 비중 축소 검토"
+   ],
+   "sources": [
+    {
+     "title": "WD 보도자료 10/22 2027 회계 1분기 실적",
+     "url": "https://www.westerndigital.com/en-us/company/newsroom/press-releases/2026/2026-10-22-wd-reports-fiscal-first-quarter-2027-financial-results"
+    },
+    {
+     "title": "Trefis 11/16 저장장치주 동반 하락",
+     "url": "https://www.trefis.com/stock/sndk/articles/625291/what-just-happened-to-sandisk-stock/2026-11-16"
+    }
+   ],
+   "market": "US"
+  },
+  {
+   "ticker": "GLW",
+   "name": "코닝",
+   "verdict": "buy-review",
+   "rank": 2,
+   "headline": "광통신(AI 데이터센터 케이블) 성장과 현금흐름은 유지, 주가는 6월 고점 대비 크게 하락",
+   "reasons": [
+    "광통신이 핵심 성장 사업, 올해 1~9월 조정 잉여현금 22.7억 달러",
+    "회사가 2030년까지 매출 연 19% 성장 목표 제시",
+    "실적 회사 중 상대적으로 안정적인 사업 구성(유리·소재)"
+   ],
+   "risks": [
+    "9월 최대 20억 달러 주식 추가 발행(ATM) 계약 — 주식 수 증가",
+    "하락 뒤에도 평가 배수가 싸지 않음",
+    "AI 투자 감속 시 광통신 주문 둔화"
+   ],
+   "watch": [
+    "1월 27일 4분기 실적에서 광통신 매출 성장 유지 여부",
+    "추가 주식 발행 규모가 커지면 비중 축소 검토",
+    "성장 목표(연 19%) 하향 시 매도 검토"
+   ],
+   "sources": [
+    {
+     "title": "Zacks 코닝 한 달 14% 하락, 매수 기회인가",
+     "url": "https://www.zacks.com/stock/news/3018869/corning-falls-14-1-in-the-past-month-is-the-pullback-a-buying-chance"
+    },
+    {
+     "title": "StockStory 9/14 20억 달러 주식 발행 계약",
+     "url": "https://www.financialcontent.com/article/stockstory-2026-9-14-why-corning-glw-stock-is-trading-lower-today"
+    },
+    {
+     "title": "Nasdaq 7/28 장기 성장 목표",
+     "url": "https://www.nasdaq.com/articles/why-corning-stock-plunged-today"
+    }
+   ],
+   "market": "US"
+  },
+  {
+   "ticker": "ALAB",
+   "name": "아스테라랩스",
+   "verdict": "buy-review",
+   "rank": 3,
+   "headline": "3분기 실적이 예상을 넘었는데 다른 회사 악재로 같이 하락 — 단 변동성이 가장 큰 편",
+   "reasons": [
+    "3분기 매출 5.85억 달러(예상 5.51억), 조정 주당이익 1.32달러(예상 1.19)",
+    "자체 악재 없이 업종 매도로 하락했다는 분석"
+   ],
+   "risks": [
+    "신제품(Scorpio X) 신규 고객 확보가 아직 확인 전",
+    "주식보상 비용 비중이 커 현금흐름이 부풀려 보일 수 있음",
+    "AI 반도체 중 가장 크게 흔들리는 종목군 — 소액·분할 필수"
+   ],
+   "watch": [
+    "이번 분기 Scorpio X 신규 고객 출하 확인",
+    "매출 전망 하향 시 매도 검토",
+    "1·2순위보다 비중을 작게(정찰병 수준)"
+   ],
+   "sources": [
+    {
+     "title": "Newsquawk 3분기 실적 수치",
+     "url": "https://www.newsquawk.com/headlines/astera-labs-inc-alab-q3-2026-usd-adj-eps-132-exp-119-revenue-5849mln-exp-551mln"
+    },
+    {
+     "title": "TIKR 11/5 자체 뉴스 없이 12% 하락",
+     "url": "https://www.tikr.com/blog/astera-labs-sinks-12-dell-technologies-down-8-as-chip-stocks-slide-again"
+    }
+   ],
+   "market": "US"
+  },
+  {
+   "ticker": "NBIS",
+   "name": "네비우스",
+   "verdict": "wait",
+   "headline": "매출 +571%로 급성장 중이지만 분기 설비투자 73억 달러 — 돈 조달이 관건",
+   "reasons": [
+    "3분기 매출 9.8억 달러, 조정 EBITDA 흑자 전환",
+    "메타와 5년 약 30억 달러 계약"
+   ],
+   "risks": [
+    "분기 설비투자 73억 달러(1년 전 9.6억)로 추가 자금 조달 필요",
+    "협력 데이터센터 지연으로 올해 매출이 전망 하단",
+    "금리가 높은 시기라 조달 비용 부담"
+   ],
+   "sources": [
+    {
+     "title": "Nebius 3분기 실적(Finviz)",
+     "url": "https://finviz.com/news/421695/nebius-group-reports-571-revenue-growth-to-9808-million-in-third-quarter-of-2026"
+    },
+    {
+     "title": "Beinsure 실적 뒤 10% 하락·설비투자",
+     "url": "https://beinsure.com/news/nebius-stock-drops-10-despite-571-ai-revenue-growth/"
+    }
+   ],
+   "market": "US"
+  },
+  {
+   "ticker": "CRWV",
+   "name": "코어위브",
+   "verdict": "wait",
+   "headline": "실적은 예상을 넘고 전망도 올렸지만 부채 469억 달러·분기 순손실 7억 달러",
+   "reasons": [
+    "3분기 매출 36.6억 달러(+168%), 연간 매출 전망 130~133억 달러로 상향",
+    "수주잔고 1,325억 달러"
+   ],
+   "risks": [
+    "부채 약 469억 달러, 분기 이자비용 8.5억 달러 수준",
+    "한때 회사채 금리 15%까지 올라 자금 조달 불안",
+    "부채비율이 매우 높아 업황이 꺾이면 주주가치 훼손 위험"
+   ],
+   "sources": [
+    {
+     "title": "Coinpaper 3분기 실적·부채",
+     "url": "https://coinpaper.com/38661/core-weave-stock-jumps-after-strong-q3-earnings-and-higher-revenue-forecast"
+    },
+    {
+     "title": "Mitrade 회사채 금리 15% 우려",
+     "url": "https://www.mitrade.com/insights/news/live-news/article-8-2247367-20261111"
+    }
+   ],
+   "market": "US"
+  },
+  {
+   "ticker": "RKLB",
+   "name": "로켓랩",
+   "verdict": "wait",
+   "headline": "보유 종목 — 대형 로켓 뉴트론 첫 발사가 2027년으로 밀리고 3분기 손실이 예상보다 커짐",
+   "reasons": [
+    "뉴트론 발사 단가 7,000만 달러로 인상, 예약 슬롯이 2030년대까지 참",
+    "국방 관련 계약 유지"
+   ],
+   "risks": [
+    "뉴트론 첫 발사 시점을 회사가 확정하지 못함",
+    "이익을 내기 전 단계라 평가가 기대에 의존",
+    "보유 검토 카드와 같은 판단: 추가 매수 보류"
+   ],
+   "sources": [
+    {
+     "title": "Stocktwits 3분기 손실·뉴트론 가격",
+     "url": "https://stocktwits.com/news-articles/markets/equity/rklb-stock-q3-earnings-miss-neutron-70m-new-buyers-face-2030s-wait/cNGuRxJR97X"
+    },
+    {
+     "title": "Trefis 11/12 로켓랩 지금 사도 되나",
+     "url": "https://www.trefis.com/stock/rklb/articles2/624554/should-i-buy-rocket-lab-stock-now/2026-11-12"
+    }
+   ],
+   "market": "US"
+  },
+  {
+   "ticker": "ALNY",
+   "name": "알나일람",
+   "verdict": "wait",
+   "headline": "AI와 무관한 바이오 — 핵심 약(암부트라) 수요 둔화와 미국 약값 제도 변화가 직접 원인",
+   "reasons": [
+    "흑자 바이오, 핵심 약 매출 자체는 아직 성장 중",
+    "중기 임상 결과 2월 발표 예정 — 판단 재료가 곧 나옴"
+   ],
+   "risks": [
+    "연간 핵심 약 매출이 전망 하단(42~45억 달러)으로",
+    "메디케어 단계치료 제한·2027년 약값 지급 변경 우려",
+    "경쟁 약(화이자·브리지바이오) 증가"
+   ],
+   "sources": [
+    {
+     "title": "Stocktwits 10/29 메디케어 우려·임상 지연",
+     "url": "https://stocktwits.com/news-articles/markets/equity/alny-stock-hits-fresh-52-week-low-on-medicare-access-worries-and-pipeline-delays/cZUQHVwR9R7"
+    },
+    {
+     "title": "Fierce Pharma 2분기 전망 하향",
+     "url": "https://www.fiercepharma.com/pharma/alnylam-shares-tank-27-amvuttra-disappoints-attr-outlook-cut-2026"
+    }
+   ],
+   "market": "US"
+  },
+  {
+   "ticker": "SNDK",
+   "name": "샌디스크",
+   "verdict": "wait",
+   "headline": "실적은 폭발적이지만 낸드 가격이 꼭대기일 수 있고 중국 경쟁사에 점유율을 뺏기는 중",
+   "reasons": [
+    "10월 마감 분기 매출 110억 달러(+378%)",
+    "주가수익비율이 낮아 보임(약 7배)"
+   ],
+   "risks": [
+    "경기 순환 업종은 이익이 최고일 때 PER이 가장 낮아 보임(함정 가능성)",
+    "중국 YMTC에 낸드 점유율 역전",
+    "앱 표시가($94.4)가 뉴스 가격과 단위가 달라 주식분할 여부 확인 필요"
+   ],
+   "sources": [
+    {
+     "title": "Trefis 11/16 샌디스크 하락 이유",
+     "url": "https://www.trefis.com/articles/625291/what-just-happened-to-sandisk-stock/2026-11-16"
+    },
+    {
+     "title": "Finimize 42% 급락과 사이클 고점 우려",
+     "url": "https://finimize.com/content/sndk-asset-snapshot"
+    },
+    {
+     "title": "Fool 11/10 점유율 하락",
+     "url": "https://fool.com/investing/2026/11/10/why-sandisk-stock-dropped-again-on-tuesday"
+    }
+   ],
+   "market": "US"
+  },
+  {
+   "ticker": "ARM",
+   "name": "ARM 홀딩스",
+   "verdict": "wait",
+   "headline": "매출은 +27%로 좋지만 스마트폰 로열티가 +8%로 둔화, 하락 뒤에도 비싼 편",
+   "reasons": [
+    "5분기 연속 매출 20% 이상 성장",
+    "데이터센터 로열티는 두 배로 증가"
+   ],
+   "risks": [
+    "메모리 가격 상승으로 스마트폰 출하 둔화 → 로열티 정체",
+    "매출 대비 평가 배수가 퀄컴·AMD보다 훨씬 높음",
+    "반도체 업종 움직임을 더 크게 증폭하는 종목"
+   ],
+   "sources": [
+    {
+     "title": "TIKR 11/5 실적 뒤 13% 하락",
+     "url": "https://www.tikr.com/blog/arm-just-dropped-13-after-earnings-is-it-time-to-sell-or-load-up"
+    },
+    {
+     "title": "247wallst 11/19 한 달 21% 하락",
+     "url": "https://247wallst.com/investing/2026/11/19/arm-just-dropped-21-in-a-month-will-arm-stock-hit-150-or-200-first/"
+    }
+   ],
+   "market": "US"
+  },
+  {
+   "ticker": "INTC",
+   "name": "인텔",
+   "verdict": "wait",
+   "headline": "3분기는 좋았지만 4분기 전망이 크게 낮고 PC 침체가 내년 상반기까지 간다고 회사가 직접 밝힘",
+   "reasons": [
+    "3분기 매출 165억 달러(+21%), 데이터센터·파운드리 성장",
+    "올해 하락 전까지 100% 넘게 올랐던 회복 기대주"
+   ],
+   "risks": [
+    "4분기 매출 전망 150~160억 달러(예상 약 170억), 총마진 38%로 하락",
+    "PC 시장 올해 -12%, 내년 -10% 전망",
+    "10월 이스라엘 공장 폭발로 분기 약 3억 달러 손실"
+   ],
+   "sources": [
+    {
+     "title": "Stocktwits 10/29 PC 침체·공급 차질",
+     "url": "https://stocktwits.com/news-articles/markets/equity/intc-stock-tumbles-after-hours-after-q3-pc-slump-and-supply-bottlenecks-cloud-fourth-quarter-guidance/cZUQyleR9Rf"
+    },
+    {
+     "title": "TIKR 4분기 전망 분석",
+     "url": "https://www.tikr.com/blog/intel-plunges-24-on-weak-q4-guide-not-able-to-meet-strong-customer-demand"
+    }
+   ],
+   "market": "US"
+  }
+ ]
+}
