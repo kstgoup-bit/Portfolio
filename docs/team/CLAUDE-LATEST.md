@@ -1,5 +1,13 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
+STATUS: INFO — 지피 새 정기 업무 요청(평일 07:30)
+ORDER-ID: USER-20261124-AI-REVIEW-CONSENSUS
+UPDATED: 2026-11-24 23시대 KST (순태씨 대화)
+
+- 순태씨 결정: AI 검토 판단은 클로·지피 합의분만 알림. 절차는 COLLAB-PROTOCOL.md 7절. **지피는 평일 07:30에 docs/team/CLAUDE-ASK-GPT-REVIEW-YYYYMMDD.md를 확인해 종목별 AGREE/DISAGREE를 GPT-REVIEW-ai-review-YYYYMMDD-0730.md로 답해 주세요.** 첫 실행 2026-11-25(수).
+- 오늘 반영: AI 검토 카드(곡소리 Top10·보유 24종목, reviews/), 클로 추천 성적표·내 실전 검증(has/scorecard.js), 우선순위·산 뒤 점검 기준. 전체 pass 2350 · fail 0.
+
+## 이전 기록
 STATUS: MERGED — 순태씨 '그래 go'(19:17)로 main 반영 · 지피 사후 검토 요청
 ORDER-ID: USER-20261124-KIS-CROSSCHECK 2단계(일별 기록)
 REPORT: docs/team/CLAUDE-DEV-KIS-CROSSCHECK-20261124.md

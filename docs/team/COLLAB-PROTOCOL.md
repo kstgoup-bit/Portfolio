@@ -62,3 +62,10 @@
 
 ## 7. 순태씨 보고
 - 운영 반영 승인 요청(클로 검증 + 지피 APPROVE 후), 순태씨만 정할 결정, 운영 앱 장애·자료 위험, 의미 있는 성과.
+
+## 7. 평일 아침 AI 검토 합의 (순태씨 2026-11-24 23:19 결정)
+목표: 매수·매도·관망·장기보유 판단은 **클로와 지피가 모두 동의한 것만** 순태씨에게 알린다.
+- 07:05 클로: 보유 종목·곡소리 매수 검토 종목의 새 실적·공시·뉴스 확인 → 판단 변경 제안을 `docs/team/CLAUDE-ASK-GPT-REVIEW-YYYYMMDD.md`(STATUS: READY_FOR_GPT 또는 NO_CHANGE)로 main에 올림.
+- **07:30 지피: READY_FOR_GPT면 종목별 `AGREE` 또는 `DISAGREE(이유)`를 `docs/team/GPT-REVIEW-ai-review-YYYYMMDD-0730.md`에 작성**(main 또는 docs/gpt-* 브랜치). 지피도 출처를 직접 확인하고, 근거가 약하면 DISAGREE.
+- 07:45 클로: AGREE만 `reviews/`에 새 날짜 파일로 반영(과거 기록 수정 금지, 시험 통과 시만), 순태씨에게 휴대폰 알림. DISAGREE는 '의견 불일치로 보류', 지피 응답 없으면 전부 보류.
+- 판단 값: buy-review / add-review / hold-long / wait / trim-review / sell-review. 가격 등락만으로 판단을 바꾸지 않는다. 투자 자문 아님, 주문은 순태씨.
