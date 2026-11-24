@@ -5,7 +5,7 @@ ORDER-ID: USER-20261123-PAPER-P2 v0.4 병합 (지피 GPT-REVIEW-paper-p2-2026112
 REPORT: docs/team/CLAUDE-DEV-PAPER-P2-20261123.md
 BRANCH: work/claude-paper-p2-20261123 → main
 HEAD: main 6393a08 (no-ff 병합, 코드 = 4ca9eed)
-UPDATED: 2026-11-23 19시대 KST (순태씨 대화) · 11-24 15:06 정각 실행 확인(새 지피 파일 없음)
+UPDATED: 2026-11-23 19시대 KST (순태씨 대화) · 11-24 16:06 정각 실행 확인(새 지피 파일 없음)
 
 - 병합 후 전체 2342 · pass 2340 · fail 0 · skip 2(뉴욕 TZ 전용). scan-secrets 0. Pages 배포 `6393a08` success.
 - 앱 화면 변화 없음(has/paper-account.js는 앱 미연결 합성 전용). 지피 잔여 제한은 계속 금지·미검증.
