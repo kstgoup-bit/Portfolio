@@ -49,14 +49,26 @@
       try { document.head.appendChild(s); } catch (e) { fin(e); }
     });
   }
+  // 결과를 휴대폰에 6시간 보관 — 앱을 다시 열어도 버튼을 또 누르지 않게(순태씨 2026-11-25). 실패(자료 부족)는 저장하지 않는다.
+  var KEY = 'has_chartGate_v1', TTL = 6 * 3600e3;
+  function restore() {
+    try { var o = JSON.parse(W.localStorage.getItem(KEY)); if (!o || o.v !== 1 || !o.items || typeof o.items !== 'object') return;
+      Object.keys(o.items).slice(0, 200).forEach(function (k) { var x = o.items[k]; if (/^(KR|US):[0-9A-Z.\-]{1,10}$/.test(k) && x && STAGE[x.stage] && x.stage !== 'unknown' && typeof x.at === 'number' && isFinite(x.price) && typeof x.asOf === 'string') cache[k] = x; });
+    } catch (e) {}
+  }
+  function persist() {
+    try { var items = {}; Object.keys(cache).filter(function (k) { return cache[k].stage !== 'unknown'; }).slice(-100).forEach(function (k) { items[k] = cache[k]; }); W.localStorage.setItem(KEY, JSON.stringify({ v: 1, items: items })); } catch (e) {}
+  }
+  function fresh(market, ticker, now) { var x = cache[market + ':' + ticker]; return !!(x && x.stage !== 'unknown' && typeof x.at === 'number' && (now == null ? Date.now() : now) - x.at < TTL); }
+  if (W && W.localStorage) restore();
   // items: [{ticker, market}] → Promise<{ 'KR:005930': classify결과 }>
   function load(items) {
     var want = { KR: [], US: [] }, now = Date.now();
-    items.forEach(function (x) { var k = x.market + ':' + x.ticker; if (!cache[k] && want[x.market] && want[x.market].indexOf(x.ticker) < 0) want[x.market].push(x.ticker); });
+    items.forEach(function (x) { var k = x.market + ':' + x.ticker; if (!fresh(x.market, x.ticker, now) && want[x.market] && want[x.market].indexOf(x.ticker) < 0) want[x.market].push(x.ticker); });
     var seq = Promise.resolve();
-    ['KR', 'US'].forEach(function (m) { for (var i = 0; i < want[m].length; i += 12) (function (chunk) { seq = seq.then(function () { return jsonp({ type: 'history', tickers: chunk.join(','), market: m }).then(function (d) { chunk.forEach(function (t) { var raw = d && d[t]; cache[m + ':' + t] = classify(raw && raw.bars, m, now); }); }, function () { chunk.forEach(function (t) { cache[m + ':' + t] = { stage: 'unknown' }; }); }); }); })(want[m].slice(i, i + 12)); });
-    return seq.then(function () { var out = {}; items.forEach(function (x) { out[x.market + ':' + x.ticker] = cache[x.market + ':' + x.ticker] || { stage: 'unknown' }; }); return out; });
+    ['KR', 'US'].forEach(function (m) { for (var i = 0; i < want[m].length; i += 12) (function (chunk) { seq = seq.then(function () { return jsonp({ type: 'history', tickers: chunk.join(','), market: m }).then(function (d) { chunk.forEach(function (t) { var raw = d && d[t]; var res = classify(raw && raw.bars, m, now); if (res.stage !== 'unknown' || !cache[m + ':' + t]) { res.at = now; cache[m + ':' + t] = res; } }); }, function () { chunk.forEach(function (t) { if (!cache[m + ':' + t]) cache[m + ':' + t] = { stage: 'unknown' }; }); }); }); })(want[m].slice(i, i + 12)); });
+    return seq.then(function () { persist(); var out = {}; items.forEach(function (x) { out[x.market + ':' + x.ticker] = cache[x.market + ':' + x.ticker] || { stage: 'unknown' }; }); return out; });
   }
   function cached(market, ticker) { return cache[market + ':' + ticker] || null; }
-  return { classify: classify, describe: describe, load: load, cached: cached, STAGE: STAGE };
+  return { classify: classify, describe: describe, load: load, cached: cached, fresh: fresh, STAGE: STAGE };
 });

@@ -24,7 +24,7 @@
     return { reviewedAt: doc.reviewedAt, reviewer: str(doc.reviewer, 40) ? doc.reviewer : 'AI', basis: str(doc.basis, 200) ? doc.basis : '', context: str(doc.context, 600) ? doc.context : '', notice: doc.notice, cards: cards };
   }
   var state = { doc: null, error: '', loading: false, loaded: false }, mounts = [];
-  var hold = { doc: null }, us = { doc: null };
+  var hold = { doc: null }, us = { doc: null }, gateBusy = {}, gateAuto = {};
   function loadUS() {
     if (us.tried || typeof fetch !== 'function') return; us.tried = true;
     fetch('./reviews/fear-us-latest.json', { cache: 'no-store', credentials: 'omit' }).then(function (r) { if (!r.ok) throw Error(); return r.json(); })
@@ -68,9 +68,13 @@
     if (G) {
       var gItems = d.cards.filter(function (c) { return gateKinds[c.verdict]; }).map(function (c) { return { ticker: c.ticker, market: c.market }; });
       if (gItems.length) {
-        var gb = node('button', state.gateBusy ? '차트 관문 확인 중…' : '📈 차트 관문 확인 (매수 타이밍)', 'min-height:44px;padding:0 14px;font-size:15px;margin:4px 0'); gb.type = 'button'; gb.disabled = !!state.gateBusy;
-        gb.addEventListener('click', function () { state.gateBusy = true; render(box, d0, title, testid); G.load(gItems).then(function () {}, function () {}).then(function () { state.gateBusy = false; render(box, d0, title, testid); }); });
+        var gk = testid || 'review-cards', busy = !!gateBusy[gk];
+        var gb = node('button', busy ? '차트 관문 확인 중…' : '📈 차트 관문 다시 확인', 'min-height:44px;padding:0 14px;font-size:15px;margin:4px 0'); gb.type = 'button'; gb.disabled = busy;
+        function runGate() { gateBusy[gk] = true; render(box, d0, title, testid); G.load(gItems).then(function () {}, function () {}).then(function () { gateBusy[gk] = false; renderAll(); }); }
+        gb.addEventListener('click', runGate);
         box.appendChild(gb);
+        // 6시간 안에 확인한 결과는 저장해 두고 바로 보여 준다. 오래됐으면 화면을 열 때 한 번 자동 확인.
+        if (!busy && !gateAuto[gk] && gItems.some(function (x) { return !G.fresh(x.market, x.ticker); })) { gateAuto[gk] = true; setTimeout(runGate, 0); }
         box.appendChild(node('p', '실적은 "사도 될 회사"인지, 차트 관문은 "지금 살 때"인지를 봅니다. 1·3·3·3 분할: 하락 추세면 기다리고, 바닥을 다지면 정찰병(목표 금액의 10%), 20일선을 회복해 버티면 30%, 60일선 회복·저점 상승이면 30%, 다음 실적까지 확인되면 마지막 30%를 삽니다.', 'font-size:14px'));
       }
     }
