@@ -169,16 +169,25 @@
     var pr = node('input', null, fld); pr.inputMode = 'decimal'; pr.placeholder = '1주 매수가';
     var exl = node('label', null, 'grid-column:1 / -1;display:flex;align-items:center;gap:8px;min-height:44px;font-size:15px;color:#222'), exb = node('input'); exb.type = 'checkbox'; exb.style.cssText = 'width:22px;height:22px';
     exl.appendChild(exb); exl.appendChild(node('span', '🔎 예외 정찰 (하락 추세 중 1순위 종목, 계획 금액의 5%·1회)'));
+    var dr = state.draft; if (dr) { mk.value = dr.m; tk.value = dr.tk; if (dr.dt) dt.value = dr.dt; qy.value = dr.qy; pr.value = dr.pr; exb.checked = dr.ex; }
+    function saveDraft() { state.draft = { m: mk.value, tk: tk.value, dt: dt.value, qy: qy.value, pr: pr.value, ex: exb.checked }; }
+    // 미국 종목은 산 날짜 기본값을 뉴욕 날짜로(한국 새벽에 산 주문은 미국 전날 거래) — 지수 비교 기준일이 하루 밀리지 않게.
+    function nyDate() { return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date()); }
+    function syncDate() { var k = kstDate(Date.now()), n = nyDate(); if (mk.value === 'US' && dt.value === k) dt.value = n; else if (mk.value === 'KR' && dt.value === n && n !== k) dt.value = k; }
+    mk.addEventListener('change', syncDate);
+    // 종목코드로 시장을 맞춘다: 영문 티커면 미국, 6자리 숫자면 국내(시장 선택을 깜빡해도 기록이 거절되지 않게).
+    tk.addEventListener('input', function () { var v = tk.value.trim().toUpperCase(); if (/^[A-Z]/.test(v)) mk.value = 'US'; else if (/^[0-9]{6}$/.test(v)) mk.value = 'KR'; syncDate(); if (state.formMsg) { state.formMsg = ''; msg.textContent = ''; } });
     var add = node('button', '기록 추가', 'min-height:44px;font-size:15px;font-weight:700'); add.type = 'submit';
     [lab('시장', mk), lab('종목코드', tk), lab('산 날짜', dt), lab('수량', qy), lab('1주 가격(국내 원·미국 달러)', pr)].forEach(function (x) { f.appendChild(x); }); f.appendChild(exl); f.appendChild(add);
-    var msg = node('p', state.formMsg, 'color:#8b2020;margin:2px 0'); msg.setAttribute('role', 'status');
+    var msg = node('p', state.formMsg, 'color:' + (/^✅/.test(state.formMsg) ? '#1b5e20' : '#8b2020') + ';margin:2px 0;font-weight:700'); msg.setAttribute('role', 'status');
     f.addEventListener('submit', function (e) {
-      e.preventDefault(); var cur = readTrades(); if (cur === null) { state.formMsg = '기존 기록이 손상되어 저장하지 않았습니다.'; render(); return; }
+      e.preventDefault(); saveDraft(); var tv = tk.value.trim().toUpperCase(); if (/^[A-Z]/.test(tv)) mk.value = 'US'; else if (/^[0-9]{6}$/.test(tv)) mk.value = 'KR'; var cur = readTrades(); if (cur === null) { state.formMsg = '기존 기록이 손상되어 저장하지 않았습니다.'; render(); return; }
       var t = { id: 'trial-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7), market: mk.value, ticker: tk.value.trim().toUpperCase(), date: dt.value, qty: Number(String(qy.value).replace(/,/g, '')), price: Number(String(pr.value).replace(/,/g, '')) }; if (exb.checked) t.kind = 'exception';
       if (!validTicker(t.ticker, t.market)) { state.formMsg = t.market === 'KR' ? '국내 종목코드는 6자리입니다(예: 001440).' : '미국 종목은 영문 티커입니다(예: MSFT).'; render(); return; }
+      if (!(t.qty > 0) || !(t.price > 0)) { state.formMsg = '수량과 1주 가격을 입력해 주세요(소수점 가능, 예: 0.0727).'; render(); return; }
       if (!validTrade(t) || t.date > kstDate(Date.now())) { state.formMsg = '날짜(미래 불가)·수량·가격을 확인해 주세요.'; render(); return; }
       if (!writeTrades(cur.concat([t]))) { state.formMsg = '저장하지 못했습니다(저장공간 확인).'; render(); return; }
-      state.formMsg = ''; state.trial = trialScore(readTrades() || [], state.series, state.cards); render();
+      state.formMsg = '✅ 저장했습니다: ' + t.ticker + ' ' + t.qty + '주'; state.draft = null; state.trial = trialScore(readTrades() || [], state.series, state.cards); render();
     });
     box.appendChild(f); box.appendChild(msg);
     if (!trades.length) { box.appendChild(node('p', '아직 기록이 없습니다. 추천 종목을 소액으로 사신 뒤 위에 입력해 주세요.')); return box; }
