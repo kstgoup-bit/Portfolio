@@ -14,7 +14,7 @@
     var counts = list ? T.sessionCounts(list, fresh) : null, n = T.sourceNotice('gas-jsonp', counts, new Date().toISOString());
     box.replaceChildren(); box.className = 'hpt hpt-' + n.severity; box.setAttribute('role', 'note');
     var head = el('div', 'hpt-head'); head.appendChild(el('strong', '', '💱 가격 신뢰도: ')); head.appendChild(el('span', '', n.label)); box.appendChild(head);
-    var d = el('details'); d.appendChild(el('summary', '', '자세히 보기')); n.lines.concat([n.signalNote, '지수·위험 지표(시장 지수 조회)는 비공식 야후 주소와 제3자 중계를 거치는 별도 경로이며 역시 미검증입니다.']).forEach(function (x) { d.appendChild(el('div', 'hpt-line', x)); }); box.appendChild(d);
+    var d = el('details'); d.appendChild(el('summary', '', '자세히 보기')); n.lines.concat([n.signalNote, '지수·위험 지표(시장 지수 조회)는 비공식 야후 주소와 제3자 중계를 거치는 별도 경로이며 역시 미검증입니다.']).forEach(function (x) { d.appendChild(el('div', 'hpt-line', x)); }); if (window.HASKISCrossCheck) { var kc = el('div'); d.appendChild(kc); window.HASKISCrossCheck.mount(kc); } box.appendChild(d);
   }
   window.HASPriceTrustUI = { refresh: refresh };
   document.addEventListener('DOMContentLoaded', refresh);
