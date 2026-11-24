@@ -399,6 +399,14 @@
     [
       ".gtab.active{font-weight:900;background:#fff;color:#1565c0;border-color:#1565c0;box-shadow:0 1px 5px #00000018;transition:all 0.2s}\n@media(max-width:400px){.gtab{padding:10px 2px;margin:4px 1px;font-size:13px}#subtabs-risk .tab{padding:8px 5px}}\n",
       ".gtab.active{font-weight:900;background:#fff;color:#1565c0;border-color:#1565c0;box-shadow:0 1px 5px #00000018;transition:all 0.2s}\n"
+    ],
+    [
+      "  // 닫기 버튼은 스크롤해도 패널 하단에 고정 (목록은 최신 기록부터)\n  var footer=document.createElement(\"div\");footer.id=\"depositManageFooter\";footer.style.cssText=\"position:sticky;bottom:-18px;margin:0 -18px -18px;padding:10px 18px 18px;background:#fff;border-top:1px solid #ddd;box-shadow:0 -6px 12px rgba(0,0,0,.08)\";\n  status.id=\"depositManageStatus\";status.setAttribute(\"role\",\"status\");status.style.cssText=\"font-size:12px;color:#8b2020;margin:0 0 8px\";footer.appendChild(status);\n  close.id=\"depositManageCloseBtn\";close.type=\"button\";close.textContent=\"닫기\";close.style.cssText=\"width:100%;min-height:44px;font-size:14px\";close.onclick=dialog.close;footer.appendChild(close);dialog.panel.appendChild(footer);\n",
+      "  status.id=\"depositManageStatus\";status.setAttribute(\"role\",\"status\");status.style.cssText=\"font-size:12px;color:#8b2020\";dialog.panel.appendChild(status);\n  close.id=\"depositManageCloseBtn\";close.type=\"button\";close.textContent=\"닫기\";close.style.cssText=\"width:100%;min-height:44px;font-size:14px\";close.onclick=dialog.close;dialog.panel.appendChild(close);\n"
+    ],
+    [
+      "  try{close.focus({preventScroll:true});}catch(focusError){close.focus();}\n  dialog.panel.scrollTop=0;\n}\nfunction mm2(",
+      "  close.focus();\n}\nfunction mm2("
     ]
   ],
   "radar/ui.js": [

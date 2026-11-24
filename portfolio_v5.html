@@ -3164,8 +3164,10 @@ function manageDeposits(key) {
   var dialog=activityOpenDialog("depositManageBox",label+" 활동 기록 관리"),note=document.createElement("p"),list=document.createElement("ol"),status=document.createElement("p"),close=document.createElement("button"),busy=false,uncertain=false;
   note.textContent="기존 기록은 유형과 실제 발생 시각을 확인하지 않았습니다. 삭제는 선택한 기록 한 건에만 적용됩니다.";note.style.cssText="font-size:12px;line-height:1.6";dialog.panel.appendChild(note);
   list.id="depositManageList";list.style.cssText="padding-left:24px;font-size:14px";dialog.panel.appendChild(list);
-  status.id="depositManageStatus";status.setAttribute("role","status");status.style.cssText="font-size:12px;color:#8b2020";dialog.panel.appendChild(status);
-  close.id="depositManageCloseBtn";close.type="button";close.textContent="닫기";close.style.cssText="width:100%;min-height:44px;font-size:14px";close.onclick=dialog.close;dialog.panel.appendChild(close);
+  // 닫기 버튼은 스크롤해도 패널 하단에 고정 (목록은 최신 기록부터)
+  var footer=document.createElement("div");footer.id="depositManageFooter";footer.style.cssText="position:sticky;bottom:-18px;margin:0 -18px -18px;padding:10px 18px 18px;background:#fff;border-top:1px solid #ddd;box-shadow:0 -6px 12px rgba(0,0,0,.08)";
+  status.id="depositManageStatus";status.setAttribute("role","status");status.style.cssText="font-size:12px;color:#8b2020;margin:0 0 8px";footer.appendChild(status);
+  close.id="depositManageCloseBtn";close.type="button";close.textContent="닫기";close.style.cssText="width:100%;min-height:44px;font-size:14px";close.onclick=dialog.close;footer.appendChild(close);dialog.panel.appendChild(footer);
   rows.map(function(row,index){return {row:row,index:index,bytes:JSON.stringify(row)};}).sort(function(a,b){return b.row.ts-a.row.ts||a.index-b.index;}).forEach(function(entry){
     var item=document.createElement("li"),text=document.createElement("p"),button=document.createElement("button"),row=entry.row;
     item.style.cssText="padding-bottom:12px;border-bottom:1px solid #ddd;margin-bottom:12px";text.style.cssText="font-size:14px;line-height:1.7;overflow-wrap:anywhere";
@@ -3186,7 +3188,8 @@ function manageDeposits(key) {
       finally{busy=false;button.disabled=uncertain;}
     };
   });
-  close.focus();
+  try{close.focus({preventScroll:true});}catch(focusError){close.focus();}
+  dialog.panel.scrollTop=0;
 }
 function mm2(d){if(d.activityVersion===1&&d.timeCertainty==="date-only")return d.effectiveDate;var dt=new Date(d.ts);return (dt.getMonth()+1)+"/"+dt.getDate();}
 
