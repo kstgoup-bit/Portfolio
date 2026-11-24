@@ -32,7 +32,7 @@ test('every internal menu still activates exactly its intended panel and button 
  const d=navDOM();try{const w=d.window;
  for(const [group,tabs]of Object.entries(w.TAB_GROUPS))for(const tab of tabs){
   w.switchTab(tab);a.deepEqual([...w.document.querySelectorAll('.panel.active')].map(n=>n.id),['panel-'+tab]);
-  const nav=w.document.querySelector('#subtabs-'+group);if(nav){const active=nav.querySelectorAll('.tab.active');a.equal(active.length,1);a.equal(active[0].getAttribute('onclick'),"switchTab('"+tab+"')");}
+  const nav=w.document.querySelector('#subtabs-'+group);if(nav){const active=nav.querySelectorAll('.tab.active');a.equal(active.length,1);a.equal(active[0].getAttribute('onclick'),tab==='radar'?"if(window.KSTRadar&&window.KSTRadar.openFear){window.KSTRadar.openFear();}else{switchTab('radar');}":"switchTab('"+tab+"')");}
  }
  w.switchTab('pretrade');w.switchGroup('invest');w.switchGroup('risk');a.equal(w.document.querySelector('.panel.active').id,'panel-pretrade');
  w.switchTab('unknown');a.equal(w.document.querySelector('.panel.active').id,'panel-pretrade');

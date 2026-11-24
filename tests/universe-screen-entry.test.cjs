@@ -8,7 +8,8 @@ test('real-mode radar (운영 기본) shows one 400종목 entry link, no request
  w.eval(read('radar/ui.js'));
  const links=[...w.document.querySelectorAll('#panel-radar a')].filter(x=>x.getAttribute('href')==='./has/universe-screen.html');
  a.equal(links.length,1);a.equal(links[0].textContent,'400종목 가격 선별');a.equal(fetches,0);
- w.KSTRadar.openEuphoria();a.equal([...w.document.querySelectorAll('#panel-radar a')].filter(x=>x.getAttribute('href')==='./has/universe-screen.html').length,1);
+ w.KSTRadar.openEuphoria();a.equal([...w.document.querySelectorAll('#panel-radar a')].filter(x=>x.getAttribute('href')==='./has/universe-screen.html').length,0); // 2026-11-24 순태씨: 곡소리·환호성 분리, 400종목은 곡소리에만
+ w.KSTRadar.openFear();a.equal([...w.document.querySelectorAll('#panel-radar a')].filter(x=>x.getAttribute('href')==='./has/universe-screen.html').length,1);a.equal(w.document.querySelectorAll('#panel-radar .kr-actions button').length,0);
 });
 test('screen copy is factual and failure reasons are Korean',async t=>{
  const html=read('has/universe-screen.html');a.doesNotMatch(html,/별도 포함/);a.match(html,/보유·확신 종목은 기존 곡소리 화면에서 확인/);

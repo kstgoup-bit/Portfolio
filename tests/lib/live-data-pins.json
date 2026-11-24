@@ -13,8 +13,8 @@
     "has/price-trust-ui.js": "5f5a735acdd9423de63a78f7f0319db585228274b6b8d9bd2fe3c77631c4cb8c"
   },
   "currentSha256": {
-    "portfolio_v5.html": "40f99bfba5ec69fc6dda0014cc2f3ddc99f2473a577f30b865ddad5e734109d3",
-    "radar/ui.js": "30cf84406bf9e6d7156b44f19c955c103f32fdd5d9095811512806f5350686e5",
+    "portfolio_v5.html": "e9229d84585d6ebb6672d3c4c1ffb6662c43f6140f903b9054ca1b7deaf8abbe",
+    "radar/ui.js": "5a3f347dd5c13a60144084e184c21a1effe03611987de4e308a38c7dc39badd0",
     "has/advisor-panel.js": "a4458f646ce6712a47eae3a619c429d7d09ec50f6610e5d5e988d66120e8ca2b",
     "service-worker.js": "bd7c5a33f7070bf8e4791fedb5cbfc4572741076023efb1090e838d8041c7b72",
     "has/snapshot-policy.js": "8d228e107cf61a4cb4a520e0dc0200da1daaa7a0627c9cbb2e9bfcd098fbb3bf",

@@ -680,7 +680,7 @@ body #hasBriefStrip button{flex:0 0 auto;padding:4px 12px;border-width:1px;font-
   <button class="tab" onclick="switchTab('dividend')">💰 배당</button>
 </div>
 <div class="tabs sub-tabs" id="subtabs-explore" style="display:none">
-  <button class="tab" onclick="switchTab('radar')">📡 곡소리 <small style="font-size:12px;color:#333;font-weight:400">가격 참고</small></button>
+  <button class="tab" onclick="if(window.KSTRadar&&window.KSTRadar.openFear){window.KSTRadar.openFear();}else{switchTab('radar');}">📡 곡소리 <small style="font-size:12px;color:#333;font-weight:400">가격 참고</small></button>
   <a class="has-risk-shortcut" href="#kst-radar/real/euphoria" onclick="if(window.KSTRadar){window.KSTRadar.openEuphoria();return false;}" aria-label="환호성 · 가격 참고">📣 환호성<small style="font-size:12px;color:#333;font-weight:400;margin-left:4px">가격 참고</small></a>
   <button class="tab" onclick="switchTab('greatco')">🏛️ 위대한 기업 <small style="font-size:12px;color:#333;font-weight:400">판단 보조</small></button>
   <button class="tab" onclick="switchTab('staff')">🧭 AI 참모</button>
