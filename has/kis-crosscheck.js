@@ -1,13 +1,14 @@
 /* HAS: 국내 보유 종목 확정 종가를 두 공급자(Yahoo 이력 · KIS 일봉)로 대조해 보여주기만 한다.
  * 같은 사용자 GAS를 거치지만 GAS는 전달수단일 뿐이고, 원천 공급자는 Yahoo와 KIS로 서로 다르다.
- * 표시 전용: 평가가격·신호·저장소(localStorage)·백업을 바꾸지 않는다. 결과는 메모리에만 두고 앱을 다시 열면 사라진다.
+ * 평가가격·신호·투자기록·백업을 바꾸지 않는다. 대조 요약만 별도 키(has_kisCrossLog_v1)에 날짜별로 남긴다(이 기기 전용, 백업 미포함).
+ * 앱을 연 날 한 번 자동 대조(한국 날짜 기준), 이후는 버튼으로만.
  * 오늘(한국 날짜) 막대는 확정 종가가 아니므로 비교하지 않는다. 주문·계좌 경로 없음. */
 (function (root, factory) {
   var api = factory();
   if (typeof module === 'object' && module.exports) module.exports = api; else root.HASKISCrossCheck = api;
 })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
   'use strict';
-  var TOLERANCE_PCT = 0.5, WINDOW = 20, MAX_TICKERS = 15, KIS_CHUNK = 5, HISTORY_CHUNK = 12, MIN_GAP_MS = 600000;
+  var TOLERANCE_PCT = 0.5, WINDOW = 20, LOG_KEY = 'has_kisCrossLog_v1', LOG_MAX = 90, GOAL = 20, MAX_TICKERS = 15, KIS_CHUNK = 5, HISTORY_CHUNK = 12, MIN_GAP_MS = 600000;
   var SOURCES = { yahoo: 'yahoo-chart-v8', kis: 'kis-daily' };
 
   function plain(o) { if (!o || typeof o !== 'object' || Array.isArray(o)) return false; var p = Object.getPrototypeOf(o); return p === Object.prototype || p === null; }
@@ -48,12 +49,50 @@
     return {
       ok: true, status: !latest.match ? 'mismatch' : mismatches.length ? 'partial' : 'match',
       latest: latest, checked: rows.length, matched: rows.length - mismatches.length, mismatches: mismatches.slice(0, 5),
-      kisLatest: Object.keys(k).sort().pop(), yahooLatest: Object.keys(y).sort().pop()
+      kisLatest: Object.keys(k).sort().pop(), yahooLatest: Object.keys(y).sort().pop(), kisDates: Object.keys(k).sort()
     };
   }
 
+  // ---- 일별 기록(순수 함수) ----
+  function validRow(r) {
+    return plain(r) && validDate(r.d) && typeof r.at === 'number' && Number.isFinite(r.at) && Number.isInteger(r.n) && r.n >= 0 && r.n <= 50 &&
+      Number.isInteger(r.matched) && r.matched >= 0 && r.matched <= r.n && Array.isArray(r.bad) && r.bad.length <= 50 && r.bad.every(validTicker);
+  }
+  function parseLog(text) {
+    if (text == null) return { v: 1, autoDay: '', rows: [] };
+    try { var o = JSON.parse(text); if (plain(o) && o.v === 1 && typeof o.autoDay === 'string' && Array.isArray(o.rows) && o.rows.length <= LOG_MAX && o.rows.every(validRow)) return o; } catch (e) {}
+    return null;
+  }
+  // 이번 대조를 '가장 최근 확정 거래일' 한 줄로 요약. 그날 종가가 두 출처 모두 있고 같아야 일치.
+  function recordFrom(results, at) {
+    var d = '';
+    results.forEach(function (x) { if (x.r && x.r.ok && x.r.latest.d > d) d = x.r.latest.d; });
+    if (!d) return null;
+    var bad = [], matched = 0;
+    results.forEach(function (x) { if (x.r && x.r.ok && x.r.latest.d === d && x.r.latest.match) matched++; else bad.push(x.ticker); });
+    return { d: d, at: at, n: results.length, matched: matched, bad: bad.slice(0, 50) };
+  }
+  function mergeLog(log, rec, autoDay) {
+    var rows = log.rows.filter(function (r) { return r.d !== rec.d; }).concat([rec]).sort(function (a, b) { return a.d < b.d ? -1 : 1; }).slice(-LOG_MAX);
+    return { v: 1, autoDay: autoDay || log.autoDay, rows: rows };
+  }
+  // 연속 일치: KIS가 준 실제 거래일을 최근부터 거꾸로 따라가며, 기록이 있고 전 종목 일치인 날만 센다. 빠진 거래일에서 끊긴다.
+  function streak(log, tradingDays) {
+    var byD = Object.create(null); log.rows.forEach(function (r) { byD[r.d] = r; });
+    var days = (tradingDays || []).slice().sort().reverse(), n = 0, started = false;
+    for (var i = 0; i < days.length; i++) {
+      var r = byD[days[i]];
+      if (!started) { if (!r) continue; started = true; }
+      if (!r || r.n === 0 || r.matched !== r.n) break;
+      n++;
+    }
+    return n;
+  }
+
   // ---- 화면(브라우저 전용) ----
-  var W = typeof window !== 'undefined' ? window : null, state = { busy: false, error: '', results: null, at: 0, names: {} }, mounts = [], cbSeq = 0;
+  var W = typeof window !== 'undefined' ? window : null, state = { busy: false, error: '', results: null, at: 0, names: {}, days: [], logNote: '' }, mounts = [], cbSeq = 0;
+  function readLog() { try { return parseLog(W.localStorage.getItem(LOG_KEY)); } catch (e) { return null; } }
+  function writeLog(log) { try { W.localStorage.setItem(LOG_KEY, JSON.stringify(log)); return true; } catch (e) { return false; } }
 
   function holdings() {
     var list = [], seen = {}, names = {};
@@ -87,9 +126,9 @@
   function chunks(arr, n) { var out = []; for (var i = 0; i < arr.length; i += n) out.push(arr.slice(i, i + n)); return out; }
   var KIS_ERRORS = { 'kis-not-configured': 'GAS에 KIS 키가 설정되지 않았습니다', 'kis-token': 'KIS 접근 토큰 발급 실패', 'kis-budget': '오늘 KIS 호출 한도(150회)에 도달했습니다', 'bad-request': 'KIS 요청 형식 오류', 'kis-failed': 'KIS 중계 오류' };
 
-  function run() {
+  function run(auto) {
     if (state.busy || !W) return;
-    if (state.results && Date.now() - state.at < MIN_GAP_MS) { state.error = 'KIS 호출 한도를 아끼려고 10분 안에는 다시 조회하지 않습니다.'; renderAll(); return; }
+    if (auto !== true && state.results && Date.now() - state.at < MIN_GAP_MS) { state.error = 'KIS 호출 한도를 아끼려고 10분 안에는 다시 조회하지 않습니다.'; renderAll(); return; }
     var h = holdings(), list = h.tickers.slice(0, MAX_TICKERS);
     try { endpoint(); } catch (e) { state.error = '설정 탭의 GAS 주소를 먼저 확인해 주세요.'; renderAll(); return; }
     if (!list.length) { state.error = '대조할 국내 보유 종목이 없습니다.'; renderAll(); return; }
@@ -102,6 +141,11 @@
       var now = Date.now();
       state.results = list.map(function (t) { return { ticker: t, r: compare(yahoo[t], kis[t], { ticker: t, now: now }) }; });
       state.at = now; if (kisError) state.error = (state.error ? state.error + ' ' : '') + kisError + ' · 받은 종목만 표시합니다.';
+      var days = {}; state.results.forEach(function (x) { (x.r.kisDates || []).forEach(function (d) { days[d] = true; }); }); state.days = Object.keys(days);
+      var log = readLog(), rec = recordFrom(state.results, now);
+      if (!log) state.logNote = '일별 기록이 손상되어 새로 쓰지 않았습니다.';
+      else if (rec && !kisError) state.logNote = writeLog(mergeLog(log, rec, kstDate(now))) ? '' : '일별 기록을 저장하지 못했습니다.';
+      else writeLog(Object.assign({}, log, { autoDay: kstDate(now) }));
     }).catch(function () { state.error = '대조 중 오류가 났습니다.'; }).then(function () { state.busy = false; renderAll(); });
   }
 
@@ -117,10 +161,17 @@
     var wrap = node('div', null, 'margin-top:8px;padding-top:8px;border-top:1px solid #c9d3e0;font-size:13px;color:#333;line-height:1.6');
     wrap.setAttribute('data-testid', 'kis-crosscheck');
     wrap.appendChild(node('strong', '🇰🇷 국내 종가 두 출처 대조 (Yahoo · KIS)'));
-    wrap.appendChild(node('div', '오늘을 뺀 확정 종가만 같은 날짜끼리 비교 · 허용 차이 0.5% · 표시만 하며 가격·신호·기록은 바꾸지 않습니다.'));
+    wrap.appendChild(node('div', '오늘을 뺀 확정 종가만 같은 날짜끼리 비교 · 허용 차이 0.5% · 가격·신호·투자 기록은 바꾸지 않습니다.'));
     var b = node('button', state.busy ? '대조 중…' : '국내 종목 KIS 대조', 'min-height:44px;margin:6px 0;padding:0 14px;font-size:14px');
     b.type = 'button'; b.disabled = state.busy; b.addEventListener('click', run); wrap.appendChild(b);
     if (state.error) { var s = node('div', state.error, 'color:#8b2020'); s.setAttribute('role', 'status'); wrap.appendChild(s); }
+    var log = readLog();
+    if (log && log.rows.length) {
+      var last = log.rows[log.rows.length - 1], st2 = state.days.length ? streak(log, state.days) : null;
+      wrap.appendChild(node('div', '📒 일별 기록: ' + log.rows.length + '거래일 · 최근 ' + md(last.d) + ' ' + last.matched + '/' + last.n + ' 일치' + (st2 == null ? '' : ' · 연속 전 종목 일치 ' + st2 + '거래일 (목표 ' + GOAL + ')'), 'font-weight:700;margin-top:4px'));
+      if (last.bad.length) wrap.appendChild(node('div', '최근 기록에서 일치하지 않거나 자료 없는 종목: ' + last.bad.map(function (t) { return state.names[t] || t; }).join(', '), 'color:#8b2020'));
+    }
+    if (state.logNote) wrap.appendChild(node('div', state.logNote, 'color:#8b2020'));
     if (state.results) {
       var ok = state.results.filter(function (x) { return x.r.ok && x.r.status === 'match'; }).length;
       wrap.appendChild(node('div', '결과: ' + state.results.length + '종목 중 ' + ok + '종목 일치 · 조회 ' + new Date(state.at).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }), 'font-weight:700'));
@@ -133,12 +184,20 @@
         }
         wrap.appendChild(item);
       });
-      wrap.appendChild(node('div', '일치해도 매수·매도 신호의 판단 보류는 그대로입니다(공식 휴장 달력·20거래일 관측 기록 전). 차이가 나면 분할·배당 조정 차이일 수 있으니 증권사 앱 값을 확인해 주세요.'));
+      wrap.appendChild(node('div', '일치해도 매수·매도 신호의 판단 보류는 그대로입니다. 앱을 연 날마다 한 번 자동 대조해 직전 거래일 결과를 이 기기에 기록하며(백업 미포함), 연속 ' + GOAL + '거래일 전 종목 일치가 쌓이면 보류 해제를 검토합니다. 차이가 나면 분할·배당 조정 차이일 수 있으니 증권사 앱 값을 확인해 주세요.'));
     }
     box.appendChild(wrap);
   }
   function renderAll() { mounts = mounts.filter(function (m) { return m.isConnected; }); mounts.forEach(render); }
+  function autoOnce() {
+    if (!W) return; var log = readLog(), today = kstDate(Date.now());
+    if (!log || log.autoDay === today) return;
+    var h = holdings(); try { endpoint(); } catch (e) { return; }
+    if (!h.tickers.length) return;
+    run(true);
+  }
+  if (W && typeof document !== 'undefined') W.addEventListener('load', function () { setTimeout(autoOnce, 6000); });
   function mount(container) { if (!container) return; mounts = mounts.filter(function (m) { return m !== container && m.isConnected; }); mounts.push(container); render(container); }
 
-  return { TOLERANCE_PCT: TOLERANCE_PCT, WINDOW: WINDOW, compare: compare, closes: closes, mount: mount, run: run };
+  return { TOLERANCE_PCT: TOLERANCE_PCT, WINDOW: WINDOW, LOG_KEY: LOG_KEY, compare: compare, closes: closes, parseLog: parseLog, recordFrom: recordFrom, mergeLog: mergeLog, streak: streak, mount: mount, run: run };
 });
