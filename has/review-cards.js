@@ -29,7 +29,7 @@
     fetch('./reviews/latest.json', { cache: 'no-store', credentials: 'omit' }).then(function (r) { if (!r.ok) throw Error(); return r.json(); })
       .then(function (d) { state.doc = validate(d); state.error = state.doc ? '' : '검토 카드 형식이 맞지 않아 표시하지 않습니다.'; })
       .catch(function () { state.error = '검토 카드를 불러오지 못했습니다(인터넷 연결 확인).'; })
-      .then(function () { state.loading = false; state.loaded = true; renderAll(); });
+      .then(function () { state.loading = false; state.loaded = true; renderAll(); ensureLink(); });
   }
   function node(tag, text, css) { var e = document.createElement(tag); if (text != null) e.textContent = text; if (css) e.style.cssText = css; return e; }
   function kst(iso) { try { return new Date(iso).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }); } catch (e) { return iso; } }
@@ -58,5 +58,26 @@
   }
   function renderAll() { mounts = mounts.filter(function (m) { return m.isConnected; }); mounts.forEach(render); }
   function mount(box) { if (!box) return; mounts = mounts.filter(function (m) { return m !== box && m.isConnected; }); mounts.push(box); render(box); if (!state.loaded) load(); }
-  return { validate: validate, mount: mount, VERDICT: VERDICT };
+  // 현황 '오늘의 투자 판단' 띠에 곡소리 AI 매수 검토 건수를 붙이고, 누르면 곡소리 화면의 카드로 이동한다.
+  function summary() { var d = state.doc; if (!d) return null; var n = d.cards.filter(function (c) { return c.verdict === 'buy-review'; }).length; return { buy: n, date: (function () { try { var x = new Date(Date.parse(d.reviewedAt) + 9 * 3600000); return (x.getUTCMonth() + 1) + '/' + x.getUTCDate(); } catch (e) { return ''; } })() }; }
+  function open() {
+    try { if (window.KSTRadar && window.KSTRadar.openFear) window.KSTRadar.openFear(); } catch (e) { return; }
+    setTimeout(function () { var t = document.querySelector('[data-testid=review-cards]'); if (t) t.scrollIntoView({ block: 'start' }); }, 300);
+  }
+  function ensureLink() {
+    if (typeof document === 'undefined') return; var strip = document.getElementById('hasBriefStrip'); if (!strip) return;
+    var mini = strip.querySelector('.hdb-mini'), old = strip.querySelector('[data-testid=hdb-ai-fear]'), sm = summary();
+    if (!mini || !sm || !sm.buy) { if (old) old.remove(); return; }
+    var label = '🧠 곡소리 AI 매수 검토 ' + sm.buy + '건 (' + sm.date + ' 검토) · 보기 ▶';
+    if (old && old.textContent === label && old.previousElementSibling === mini) return; if (old) old.remove();
+    var b = node('button', label, 'display:block;width:100%;min-height:44px;margin-top:8px;padding:6px 10px;border:2px solid #1b5e20;border-radius:10px;background:#fff;color:#1b5e20;font-size:15px;font-weight:800;text-align:left');
+    b.type = 'button'; b.setAttribute('data-testid', 'hdb-ai-fear'); b.addEventListener('click', function (e) { e.stopPropagation(); open(); }); mini.after(b);
+  }
+  if (typeof window !== 'undefined' && typeof document !== 'undefined' && typeof MutationObserver === 'function') {
+    document.addEventListener('DOMContentLoaded', function () {
+      var strip = document.getElementById('hasBriefStrip'); if (strip) new MutationObserver(ensureLink).observe(strip, { childList: true });
+      load();
+    });
+  }
+  return { validate: validate, mount: mount, summary: summary, open: open, VERDICT: VERDICT };
 });
