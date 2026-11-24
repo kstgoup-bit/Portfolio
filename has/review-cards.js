@@ -112,10 +112,12 @@
     try { if (window.KSTRadar && window.KSTRadar.openFear) window.KSTRadar.openFear(); } catch (e) { return; }
     setTimeout(function () { var t = document.querySelector('[data-testid=review-cards]'); if (t) t.scrollIntoView({ block: 'start' }); }, 300);
   }
+  // 규칙 엔진 0건 3칸(.hdb-mini)이 숨겨지면 띠 머리줄 바로 아래에 붙인다(순태씨 2026-11-25).
+  function anchorOf(strip) { return strip.querySelector('.hdb-mini') || strip.querySelector('.hdb-head'); }
   function ensureLink() { ensureLink0(); ensureScore(); }
   function ensureScore() {
     if (typeof document === 'undefined' || !window.HASScorecard) return; var strip = document.getElementById('hasBriefStrip'); if (!strip) return;
-    var mini = strip.querySelector('.hdb-mini'), sb = strip.querySelector('[data-testid=hdb-ai-score]'); if (!mini) { if (sb) sb.remove(); return; }
+    var mini = anchorOf(strip), sb = strip.querySelector('[data-testid=hdb-ai-score]'); if (!mini) { if (sb) sb.remove(); return; }
     var after = strip.querySelector('[data-testid=hdb-ai-fear]') || strip.querySelector('[data-testid=hdb-ai-hold]') || mini;
     if (sb && sb.previousElementSibling === after) return; if (sb) sb.remove();
     sb = node('button', '📊 클로 추천 성적표 · 내 실전 검증 ▶', 'display:block;width:100%;min-height:44px;margin-top:8px;padding:6px 10px;border:2px solid #4a148c;border-radius:10px;background:#fff;color:#4a148c;font-size:15px;font-weight:800;text-align:left');
@@ -123,7 +125,7 @@
   }
   function ensureLink0() {
     if (typeof document === 'undefined') return; var strip = document.getElementById('hasBriefStrip'); if (!strip) return;
-    var mini0 = strip.querySelector('.hdb-mini'), oh = strip.querySelector('[data-testid=hdb-ai-hold]');
+    var mini0 = anchorOf(strip), oh = strip.querySelector('[data-testid=hdb-ai-hold]');
     if (mini0 && hold.doc && hold.doc.cards.length) {
       var cnt = {}; hold.doc.cards.forEach(function (c) { cnt[c.verdict] = (cnt[c.verdict] || 0) + 1; });
       var hl = '🧠 내 보유 종목 AI 검토: ' + Object.keys(VERDICT).filter(function (k) { return cnt[k]; }).map(function (k) { return VERDICT[k][0].replace(/^\S+ /, '') + ' ' + cnt[k]; }).join(' · ') + ' · 보기 ▶';
