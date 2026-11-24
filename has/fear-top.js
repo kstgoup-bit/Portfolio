@@ -27,7 +27,7 @@
     var W = typeof window !== 'undefined' ? window : {};
     deps = deps || {};
     var screen = deps.screen || W.HASUniverseScreen, now = deps.now || Date.now;
-    var state = { summary: null, busy: false, error: '', expanded: false, cache: null, serial: 0, market: '' };
+    var state = { summary: null, busy: false, error: '', expanded: false, cache: null, serial: 0, market: typeof window !== 'undefined' && (window.HASFearMarket === 'KR' || window.HASFearMarket === 'US') ? window.HASFearMarket : '' };
     function node(tag, text) { var e = document.createElement(tag); if (text != null) e.textContent = text; return e; }
     function endpoint() {
       if (deps.endpoint) return deps.endpoint();
@@ -79,11 +79,13 @@
       if (fd) fd.lines.forEach(function (t) { d.appendChild(node('p', t)); });
       a.appendChild(d); return a;
     }
+    // 시장 탭이 바뀌면 아래 AI 검토 카드도 같은 시장만 보이도록 알린다(순태씨 2026-11-25).
+    function announce() { try { window.HASFearMarket = state.market; window.dispatchEvent(new CustomEvent('has:fear-market', { detail: { market: state.market } })); } catch (e) {} }
     function render() {
       container.replaceChildren(); container.dataset.testid = 'fear-top'; container.style.overflowWrap = 'anywhere';
       container.appendChild(node('h3', '곡소리 후보 Top 10' + (state.market === 'US' ? ' · 미국' : state.market === 'KR' ? ' · 국내' : '')));
       var tabs = node('div'); tabs.style.cssText = 'display:flex;gap:8px;margin:4px 0';
-      [['', '전체'], ['KR', '🇰🇷 국내'], ['US', '🇺🇸 미국']].forEach(function (m) { var b = node('button', m[1]); b.type = 'button'; b.style.cssText = 'min-height:44px;padding:0 16px;font-size:15px;' + (state.market === m[0] ? 'font-weight:800;border:2px solid #0d47a1;color:#0d47a1;background:#eef4ff' : ''); b.setAttribute('aria-pressed', String(state.market === m[0])); b.addEventListener('click', function () { state.market = m[0]; state.expanded = false; render(); }); tabs.appendChild(b); });
+      [['', '전체'], ['KR', '🇰🇷 국내'], ['US', '🇺🇸 미국']].forEach(function (m) { var b = node('button', m[1]); b.type = 'button'; b.style.cssText = 'min-height:44px;padding:0 16px;font-size:15px;' + (state.market === m[0] ? 'font-weight:800;border:2px solid #0d47a1;color:#0d47a1;background:#eef4ff' : ''); b.setAttribute('aria-pressed', String(state.market === m[0])); b.addEventListener('click', function () { state.market = m[0]; state.expanded = false; render(); announce(); }); tabs.appendChild(b); });
       container.appendChild(tabs);
       container.appendChild(node('p', '국내(코스피200)·미국(대형 200)에서 가격 하락폭만 본 임시 순위입니다. 국내·미국 버튼으로 시장별 Top10을 따로 봅니다. 재무 라벨은 미국 SEC 연간 공시 참고(밸류에이션 연결 전)이며 매수 권유가 아닙니다. 최종 결정은 순태씨가 합니다.'));
       var btn = node('button', state.busy ? '조회 중…' : '곡소리 후보 조회'); btn.type = 'button'; btn.disabled = state.busy; btn.style.minHeight = '44px'; btn.addEventListener('click', refresh); container.appendChild(btn);

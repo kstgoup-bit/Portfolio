@@ -93,10 +93,13 @@
   }
   // 국내(latest.json)와 미국(fear-us-latest.json) 검토 카드를 한 곡소리 화면에 차례로 보여준다.
   function renderMount(m) {
-    m.replaceChildren(); var kr = node('div'); m.appendChild(kr); render(kr);
-    if (us.doc) { var u = node('div'); m.appendChild(u); render(u, us.doc, '🧠 AI 검토 카드 (미국 곡소리 Top10)', 'review-cards-us'); }
+    // 곡소리 Top10의 시장 탭(전체/국내/미국)을 따른다: 국내면 국내 카드만, 미국이면 미국 카드만.
+    var mk = typeof window !== 'undefined' && typeof window.HASFearMarket === 'string' ? window.HASFearMarket : '';
+    m.replaceChildren(); if (mk !== 'US') { var kr = node('div'); m.appendChild(kr); render(kr); }
+    if (us.doc && mk !== 'KR') { var u = node('div'); m.appendChild(u); render(u, us.doc, '🧠 AI 검토 카드 (미국 곡소리 Top10)', 'review-cards-us'); }
   }
   function renderAll() { mounts = mounts.filter(function (m) { return m.isConnected; }); mounts.forEach(renderMount); }
+  if (typeof window !== 'undefined' && window.addEventListener) window.addEventListener('has:fear-market', function () { renderAll(); });
   function mount(box) { if (!box) return; mounts = mounts.filter(function (m) { return m !== box && m.isConnected; }); mounts.push(box); renderMount(box); if (!state.loaded) load(); loadUS(); }
   // 현황 '오늘의 투자 판단' 띠에 곡소리 AI 매수 검토 건수를 붙이고, 누르면 곡소리 화면의 카드로 이동한다.
   function buys(d) { return d ? d.cards.filter(function (c) { return c.verdict === 'buy-review'; }).length : 0; }
