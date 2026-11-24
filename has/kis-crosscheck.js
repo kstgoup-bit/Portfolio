@@ -143,9 +143,10 @@
       state.at = now; if (kisError) state.error = (state.error ? state.error + ' ' : '') + kisError + ' · 받은 종목만 표시합니다.';
       var days = {}; state.results.forEach(function (x) { (x.r.kisDates || []).forEach(function (d) { days[d] = true; }); }); state.days = Object.keys(days);
       var log = readLog(), rec = recordFrom(state.results, now);
+      state.logNote = '';
       if (!log) state.logNote = '일별 기록이 손상되어 새로 쓰지 않았습니다.';
       else if (rec && !kisError) state.logNote = writeLog(mergeLog(log, rec, kstDate(now))) ? '' : '일별 기록을 저장하지 못했습니다.';
-      else writeLog(Object.assign({}, log, { autoDay: kstDate(now) }));
+      else if (auto === true) state.autoFailedDay = kstDate(now); // 실패한 자동 대조는 오늘 표시를 남기지 않아 다음에 앱을 열 때 다시 시도
     }).catch(function () { state.error = '대조 중 오류가 났습니다.'; }).then(function () { state.busy = false; renderAll(); });
   }
 
@@ -171,6 +172,7 @@
       wrap.appendChild(node('div', '📒 일별 기록: ' + log.rows.length + '거래일 · 최근 ' + md(last.d) + ' ' + last.matched + '/' + last.n + ' 일치' + (st2 == null ? '' : ' · 연속 전 종목 일치 ' + st2 + '거래일 (목표 ' + GOAL + ')'), 'font-weight:700;margin-top:4px'));
       if (last.bad.length) wrap.appendChild(node('div', '최근 기록에서 일치하지 않거나 자료 없는 종목: ' + last.bad.map(function (t) { return state.names[t] || t; }).join(', '), 'color:#8b2020'));
     }
+    else if (log) wrap.appendChild(node('div', '📒 일별 기록: 아직 없음 · 오늘 첫 자동 대조가 끝나면 생깁니다(앱을 켜 두고 20초쯤 기다려 주세요).', 'margin-top:4px'));
     if (state.logNote) wrap.appendChild(node('div', state.logNote, 'color:#8b2020'));
     if (state.results) {
       var ok = state.results.filter(function (x) { return x.r.ok && x.r.status === 'match'; }).length;
@@ -189,14 +191,24 @@
     box.appendChild(wrap);
   }
   function renderAll() { mounts = mounts.filter(function (m) { return m.isConnected; }); mounts.forEach(render); }
+  // 하루 첫 자동 대조. 앱을 새로 열 때뿐 아니라 백그라운드에서 다시 켤 때도 확인한다.
+  // 보유종목·GAS 주소가 아직 준비되지 않았으면 잠시 뒤 다시 시도(최대 5회).
+  var autoTimer = null, autoTries = 0;
   function autoOnce() {
-    if (!W) return; var log = readLog(), today = kstDate(Date.now());
-    if (!log || log.autoDay === today) return;
-    var h = holdings(); try { endpoint(); } catch (e) { return; }
-    if (!h.tickers.length) return;
+    autoTimer = null;
+    if (!W || state.busy || (typeof document !== 'undefined' && document.visibilityState === 'hidden')) return;
+    var log = readLog(), today = kstDate(Date.now());
+    if (!log || log.autoDay === today || state.autoFailedDay === today) return;
+    var ready = true; try { endpoint(); } catch (e) { ready = false; }
+    if (!ready || !holdings().tickers.length) { if (++autoTries <= 5) schedule(10000); return; }
+    state.logNote = '오늘 자동 대조 중…'; renderAll();
     run(true);
   }
-  if (W && typeof document !== 'undefined') W.addEventListener('load', function () { setTimeout(autoOnce, 6000); });
+  function schedule(ms) { if (autoTimer) clearTimeout(autoTimer); autoTimer = setTimeout(autoOnce, ms); }
+  if (W && typeof document !== 'undefined') {
+    document.addEventListener('DOMContentLoaded', function () { schedule(5000); });
+    document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') { autoTries = 0; schedule(3000); } });
+  }
   function mount(container) { if (!container) return; mounts = mounts.filter(function (m) { return m !== container && m.isConnected; }); mounts.push(container); render(container); }
 
   return { TOLERANCE_PCT: TOLERANCE_PCT, WINDOW: WINDOW, LOG_KEY: LOG_KEY, compare: compare, closes: closes, parseLog: parseLog, recordFrom: recordFrom, mergeLog: mergeLog, streak: streak, mount: mount, run: run };
