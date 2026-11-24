@@ -60,8 +60,8 @@
     "has/buy-review-lab.js": "265b79fa29d7dd319aabca10567dc1982ac4b1634604ecf60cf88d080173de12",
     "has/paper-account.js": "63bc20846de1b79fa4c5f4bbb24bbfe865523fbc29b23b5c7be83d44c3e50e87",
     "has/kis-crosscheck.js": "11b2e347b642ea902678346f3f91108d662cafe909064a654c4e61a1cc521b69",
-    "has/review-cards.js": "f7b048456a952bf4f5bbcf184ffc6fc3d493812adf5912c6bf92066c53b779f6",
-    "has/scorecard.js": "e3aaf9b390232fa0ff0765308584978f0f32abdecc15e3c7564d0434bd978bcf",
+    "has/review-cards.js": "86ce46c021fe7c4b8f7dc8cd9ffeec7aaa0fe85dcb5e938699a817d98d49e6da",
+    "has/scorecard.js": "9bc71be1e61b1404c6e5a888c316f2c2f966be82b171beb685ce095608370b66",
     "has/chart-gate.js": "b00a7f2d39ee3be953e92f9fd6dffbfc38128c9269c624a954978a5d4de33313"
   }
 }

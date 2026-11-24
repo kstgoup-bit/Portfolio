@@ -50,6 +50,7 @@
   function validTrade(x) {
     return x && typeof x.id === 'string' && x.id.length <= 40 && (x.market === 'KR' || x.market === 'US') && validTicker(x.ticker, x.market) &&
       typeof x.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(x.date) && isFinite(x.qty) && x.qty > 0 && x.qty < 1e9 && isFinite(x.price) && x.price > 0 && x.price < 1e12 &&
+      (x.kind == null || x.kind === 'exception') &&
       (x.sellDate == null || (/^\d{4}-\d{2}-\d{2}$/.test(x.sellDate) && x.sellDate >= x.date && isFinite(x.sellPrice) && x.sellPrice > 0));
   }
   function parseTrades(text) { if (text == null) return []; try { var a = JSON.parse(text); if (Array.isArray(a) && a.length <= 500 && a.every(validTrade)) return a; } catch (e) {} return null; }
@@ -80,7 +81,10 @@
       return r;
     });
     var realized = { KR: 0, US: 0 }; rows.forEach(function (r) { if (r.trade.sellDate) realized[r.trade.market] += (r.trade.sellPrice - r.trade.price) * r.trade.qty; });
-    return { realized: realized, rows: rows, total: tot, avgExcess: ex.length ? ex.reduce(function (a, b) { return a + b; }, 0) / ex.length : NaN };
+    // 예외 정찰(하락 추세 중 1순위 5%)과 일반 매수의 평균 수익률을 따로 본다 — 예외 규칙을 계속 쓸지 판단하는 근거.
+    var grp = { exception: [], normal: [] }; rows.forEach(function (r) { if (isFinite(r.ret)) grp[r.trade.kind === 'exception' ? 'exception' : 'normal'].push(r.ret); });
+    function avg(a) { return a.length ? a.reduce(function (x, y) { return x + y; }, 0) / a.length : NaN; }
+    return { byKind: { exception: { n: grp.exception.length, avg: avg(grp.exception) }, normal: { n: grp.normal.length, avg: avg(grp.normal) } }, realized: realized, rows: rows, total: tot, avgExcess: ex.length ? ex.reduce(function (a, b) { return a + b; }, 0) / ex.length : NaN };
   }
   // ---- 화면 ----
   var W = typeof window !== 'undefined' ? window : null, state = { busy: false, error: '', result: null, at: 0, trial: null, cards: [], series: {}, formMsg: '' }, cb = 0;
@@ -151,7 +155,7 @@
   function renderTrial() {
     var box = node('div', null, 'margin-top:16px;padding-top:12px;border-top:3px solid #4a148c'); box.setAttribute('data-testid', 'trial');
     box.appendChild(node('h3', '🧪 내 실전 검증', 'margin:4px 0 8px'));
-    box.appendChild(node('p', '클로 추천을 소액으로 실제 사 본 기록입니다. 산 날 이후 수익률과 같은 기간 지수 대비 성과를 계산해 위 성적표와 비교합니다. 이 기록은 이 휴대폰에만 저장되고 백업 파일에는 아직 들어가지 않습니다.', 'font-size:14px'));
+    box.appendChild(node('p', '클로 추천을 소액으로 실제 사 본 기록입니다. 산 날 이후 수익률과 같은 기간 지수 대비 성과를 계산해 위 성적표와 비교합니다. 이 기록은 이 휴대폰에 저장되고 백업 파일에도 함께 들어갑니다.', 'font-size:14px'));
     var trades = readTrades();
     if (trades === null) { box.appendChild(node('p', '저장된 실전 기록이 손상되어 표시하지 않습니다. 새로 저장하지 않았습니다.', 'color:#8b2020')); return box; }
     // 입력 폼
@@ -163,12 +167,14 @@
     var dt = node('input', null, fld); dt.type = 'date'; dt.max = kstDate(Date.now()); dt.value = kstDate(Date.now());
     var qy = node('input', null, fld); qy.inputMode = 'decimal'; qy.placeholder = '수량';
     var pr = node('input', null, fld); pr.inputMode = 'decimal'; pr.placeholder = '1주 매수가';
+    var exl = node('label', null, 'grid-column:1 / -1;display:flex;align-items:center;gap:8px;min-height:44px;font-size:15px;color:#222'), exb = node('input'); exb.type = 'checkbox'; exb.style.cssText = 'width:22px;height:22px';
+    exl.appendChild(exb); exl.appendChild(node('span', '🔎 예외 정찰 (하락 추세 중 1순위 종목, 계획 금액의 5%·1회)'));
     var add = node('button', '기록 추가', 'min-height:44px;font-size:15px;font-weight:700'); add.type = 'submit';
-    [lab('시장', mk), lab('종목코드', tk), lab('산 날짜', dt), lab('수량', qy), lab('1주 가격(국내 원·미국 달러)', pr)].forEach(function (x) { f.appendChild(x); }); f.appendChild(add);
+    [lab('시장', mk), lab('종목코드', tk), lab('산 날짜', dt), lab('수량', qy), lab('1주 가격(국내 원·미국 달러)', pr)].forEach(function (x) { f.appendChild(x); }); f.appendChild(exl); f.appendChild(add);
     var msg = node('p', state.formMsg, 'color:#8b2020;margin:2px 0'); msg.setAttribute('role', 'status');
     f.addEventListener('submit', function (e) {
       e.preventDefault(); var cur = readTrades(); if (cur === null) { state.formMsg = '기존 기록이 손상되어 저장하지 않았습니다.'; render(); return; }
-      var t = { id: 'trial-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7), market: mk.value, ticker: tk.value.trim().toUpperCase(), date: dt.value, qty: Number(String(qy.value).replace(/,/g, '')), price: Number(String(pr.value).replace(/,/g, '')) };
+      var t = { id: 'trial-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7), market: mk.value, ticker: tk.value.trim().toUpperCase(), date: dt.value, qty: Number(String(qy.value).replace(/,/g, '')), price: Number(String(pr.value).replace(/,/g, '')) }; if (exb.checked) t.kind = 'exception';
       if (!validTicker(t.ticker, t.market)) { state.formMsg = t.market === 'KR' ? '국내 종목코드는 6자리입니다(예: 001440).' : '미국 종목은 영문 티커입니다(예: MSFT).'; render(); return; }
       if (!validTrade(t) || t.date > kstDate(Date.now())) { state.formMsg = '날짜(미래 불가)·수량·가격을 확인해 주세요.'; render(); return; }
       if (!writeTrades(cur.concat([t]))) { state.formMsg = '저장하지 못했습니다(저장공간 확인).'; render(); return; }
@@ -179,11 +185,12 @@
     var T = state.trial && state.trial.rows.length === trades.length ? state.trial : trialScore(trades, state.series, state.cards);
     ['KR', 'US'].forEach(function (m) { var t = T.total[m]; if (t.cost > 0) box.appendChild(node('div', (m === 'KR' ? '국내' : '미국') + ' 합계: 투자 ' + money(t.cost, m) + ' → 지금 ' + money(t.val, m) + ' (' + pct((t.val / t.cost - 1) * 100) + ')', 'font-weight:800')); });
     ['KR', 'US'].forEach(function (m) { if (T.realized && T.realized[m]) box.appendChild(node('div', (m === 'KR' ? '국내' : '미국') + ' 매도 확정 손익 ' + (T.realized[m] > 0 ? '+' : '') + money(T.realized[m], m))); });
+    if (T.byKind && T.byKind.exception.n) box.appendChild(node('div', '🔎 예외 정찰 평균 ' + pct(T.byKind.exception.avg) + ' (' + T.byKind.exception.n + '건) · 일반 매수 평균 ' + (T.byKind.normal.n ? pct(T.byKind.normal.avg) + ' (' + T.byKind.normal.n + '건)' : '기록 없음') + ' — 예외가 계속 못하면 규칙 폐기', 'font-weight:700;color:#4a148c'));
     if (isFinite(T.avgExcess)) box.appendChild(node('div', '지수 대비 평균 초과 ' + pct(T.avgExcess), 'font-weight:700'));
     if (!Object.keys(state.series).length) box.appendChild(node('div', '수익률은 위 [성적 계산하기]를 누르면 계산됩니다.'));
     T.rows.slice().reverse().forEach(function (r) {
       var t = r.trade, nm = r.card ? r.card.name + ' (' + t.ticker + ')' : t.ticker, line = node('div', null, 'border-top:1px solid #d5dbe3;padding:6px 0');
-      line.appendChild(node('div', nm + ' · ' + t.date + ' · ' + t.qty + '주 × ' + money(t.price, t.market), 'font-weight:700'));
+      line.appendChild(node('div', (t.kind === 'exception' ? '🔎 예외 정찰 · ' : '') + nm + ' · ' + t.date + ' · ' + t.qty + '주 × ' + money(t.price, t.market), 'font-weight:700'));
       line.appendChild(node('div', isFinite(r.ret) ? (t.sellDate ? '매도 ' + t.sellDate + ' ' : '최근 ' + r.endDate + ' ') + money(r.last, t.market) + ' · 수익 ' + pct(r.ret) + ' · 지수 ' + pct(r.benchRet) + ' · 초과 ' + pct(r.excess) : '가격 미계산'));
       if (r.card) line.appendChild(node('div', '클로 판단: ' + (LABEL[r.card.verdict] || r.card.verdict) + ' (' + kstDate(Date.parse(r.card.reviewedAt)) + ')'));
       else line.appendChild(node('div', '클로 검토 카드 없는 종목'));

@@ -80,7 +80,8 @@
       art.appendChild(node('div', (c.rank ? '우선순위 ' + c.rank + ' · ' : '') + c.name + ' (' + c.ticker + ') · ' + v[0], 'font-weight:800;color:' + v[1]));
       art.appendChild(node('div', c.headline));
       var gr = G && gateKinds[c.verdict] ? G.cached(c.market, c.ticker) : null;
-      if (gr) { var gd = G.describe(gr); art.appendChild(node('div', '차트 관문: ' + gd.label, 'font-weight:800;color:' + gd.color)); if (gd.detail) art.appendChild(node('div', gd.detail, 'font-size:14px')); }
+      if (gr) { var gd = G.describe(gr); art.appendChild(node('div', '차트 관문: ' + gd.label, 'font-weight:800;color:' + gd.color)); if (gd.detail) art.appendChild(node('div', gd.detail, 'font-size:14px')); 
+        if (gr.stage === 'falling' && c.rank === 1 && c.verdict === 'buy-review') art.appendChild(node('div', '🔎 예외 정찰 가능: 계획 금액의 5%만, 종목당 1회. 더 떨어져도 추가 매수 금지 → 바닥 다지기로 바뀌면 5% 더 채워 정찰병 10%. 실전 검증에 "예외 정찰"로 기록.', 'font-size:14px;font-weight:700;color:#4a148c;margin-top:4px')); }
       var det = node('details'); det.appendChild(node('summary', '근거·반론·출처 보기', 'min-height:44px;display:flex;align-items:center;cursor:pointer'));
       det.appendChild(node('div', '👍 근거', 'font-weight:700')); c.reasons.forEach(function (x) { det.appendChild(node('div', '· ' + x)); });
       det.appendChild(node('div', '⚠ 반론·위험', 'font-weight:700;margin-top:6px')); c.risks.forEach(function (x) { det.appendChild(node('div', '· ' + x)); });

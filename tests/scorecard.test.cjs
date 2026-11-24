@@ -42,3 +42,9 @@ test('backup includes trial trades and KIS cross-check log, rejects malformed',(
   a.doesNotThrow(()=>B.validateStoredValue('has_kisCrossLog_v1',JSON.stringify({v:1,autoDay:'',rows:[]})));
   a.throws(()=>B.validateStoredValue('has_kisCrossLog_v1','{"v":2}'));
 });
+test('trial: exception scout (kind=exception) is valid, unknown kinds rejected, and scored separately from normal buys',()=>{
+  const base={id:'a',market:'KR',ticker:'001440',date:'2026-11-02',qty:1,price:100};
+  a.ok(S.validTrade({...base,kind:'exception'}));a.equal(S.validTrade({...base,kind:'yolo'}),false);
+  const sc=S.trialScore([{...base,kind:'exception',sellDate:'2026-11-10',sellPrice:90},{...base,id:'b',sellDate:'2026-11-10',sellPrice:120}],{},[]);
+  a.equal(sc.byKind.exception.n,1);a.ok(Math.abs(sc.byKind.exception.avg+10)<1e-9);a.ok(Math.abs(sc.byKind.normal.avg-20)<1e-9);
+});
