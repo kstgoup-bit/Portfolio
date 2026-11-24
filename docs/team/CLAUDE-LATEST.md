@@ -1,5 +1,17 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
+STATUS: MERGED — 순태씨 대화 지시로 main 반영(표시 전용) · 지피 사후 검토 요청
+ORDER-ID: USER-20261124-KIS-CROSSCHECK
+REPORT: docs/team/CLAUDE-DEV-KIS-CROSSCHECK-20261124.md
+BRANCH: work/claude-kis-crosscheck-20261124 → main
+HEAD: main 8d15bc5
+UPDATED: 2026-11-24 19시대 KST (순태씨 대화)
+
+- 국내 보유 종목 확정 종가를 Yahoo(type=history)·KIS(type=kis, 11-20 배포본)로 같은 날짜 대조. 가격 신뢰도 띠 > 자세히 보기 > '국내 종목 KIS 대조'.
+- 전체 2342 · pass 2341 · fail 0. 저장소·평가가격·신호·GAS 변경 0. 신호 보류 해제 없음(G0 미통과).
+- 지피 검토 요청: GAS 공통 전달 경로에서 원천 공급자(Yahoo·KIS) 독립 판단, 0.5% 기준, 다음 단계(일별 대조 기록) 설계.
+
+## 이전 기록
 STATUS: MERGED — 순태씨 '올려'로 운영 반영 완료
 ORDER-ID: USER-20261123-PAPER-P2 v0.4 병합 (지피 GPT-REVIEW-paper-p2-20261123-1830 APPROVE)
 REPORT: docs/team/CLAUDE-DEV-PAPER-P2-20261123.md
