@@ -20,6 +20,7 @@
         Object.prototype.hasOwnProperty.call(VERDICT, c.verdict) && str(c.headline, 200) && list(c.reasons, 8, 200) && list(c.risks, 8, 200) &&
         Array.isArray(c.sources) && c.sources.length <= 6 && c.sources.every(function (s) { return s && str(s.title, 120) && https(s.url); });
     });
+    cards.forEach(function (c) { if (!(Number.isInteger(c.rank) && c.rank > 0 && c.rank < 100)) delete c.rank; if (!list(c.watch, 6, 200)) delete c.watch; });
     return { reviewedAt: doc.reviewedAt, reviewer: str(doc.reviewer, 40) ? doc.reviewer : 'AI', basis: str(doc.basis, 200) ? doc.basis : '', context: str(doc.context, 600) ? doc.context : '', notice: doc.notice, cards: cards };
   }
   var state = { doc: null, error: '', loading: false, loaded: false }, mounts = [];
@@ -59,13 +60,14 @@
     if (d.context) box.appendChild(node('p', d.context));
     var counts = {}; d.cards.forEach(function (c) { counts[c.verdict] = (counts[c.verdict] || 0) + 1; });
     box.appendChild(node('p', Object.keys(VERDICT).filter(function (k) { return counts[k]; }).map(function (k) { return VERDICT[k][0] + ' ' + counts[k]; }).join(' · '), 'font-weight:700'));
-    d.cards.slice().sort(function (a, b) { return ORDER[a.verdict] - ORDER[b.verdict]; }).forEach(function (c) {
+    d.cards.slice().sort(function (a, b) { return ORDER[a.verdict] - ORDER[b.verdict] || (a.rank || 99) - (b.rank || 99); }).forEach(function (c) {
       var v = VERDICT[c.verdict], art = node('article', null, 'border-top:1px solid #c9d3e0;padding:10px 0');
-      art.appendChild(node('div', c.name + ' (' + c.ticker + ') · ' + v[0], 'font-weight:800;color:' + v[1]));
+      art.appendChild(node('div', (c.rank ? '우선순위 ' + c.rank + ' · ' : '') + c.name + ' (' + c.ticker + ') · ' + v[0], 'font-weight:800;color:' + v[1]));
       art.appendChild(node('div', c.headline));
       var det = node('details'); det.appendChild(node('summary', '근거·반론·출처 보기', 'min-height:44px;display:flex;align-items:center;cursor:pointer'));
       det.appendChild(node('div', '👍 근거', 'font-weight:700')); c.reasons.forEach(function (x) { det.appendChild(node('div', '· ' + x)); });
       det.appendChild(node('div', '⚠ 반론·위험', 'font-weight:700;margin-top:6px')); c.risks.forEach(function (x) { det.appendChild(node('div', '· ' + x)); });
+      if (c.watch) { det.appendChild(node('div', '📌 산 뒤 점검 기준(매도·장기보유 신호)', 'font-weight:700;margin-top:6px')); c.watch.forEach(function (x) { det.appendChild(node('div', '· ' + x)); }); }
       if (c.sources.length) { det.appendChild(node('div', '출처', 'font-weight:700;margin-top:6px')); c.sources.forEach(function (s) { var a = node('a', s.title); a.href = s.url; a.target = '_blank'; a.rel = 'noopener noreferrer'; a.style.cssText = 'display:block;min-height:32px;color:#0d47a1'; det.appendChild(a); }); }
       art.appendChild(det); box.appendChild(art);
     });
