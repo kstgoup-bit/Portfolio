@@ -1,0 +1,468 @@
+{
+ "v": 1,
+ "kind": "holdings",
+ "reviewedAt": "2026-11-24T23:00:00+09:00",
+ "reviewer": "클로(Claude)",
+ "basis": "순태씨 앱 화면 캡처 2026-11-24 22:22~22:26 · 4개 계좌 합계 약 1억5,398만원",
+ "context": "가장 큰 문제 2가지: ① 현금 비중 3%(최소 10%) — 약 1,000만원 이상 부족 ② 반도체·AI 노출이 전체의 약 40%(반도체 ETF 16.7% + SOXL·NVDA·AVGO·MU·SK하이닉스 등). 레버리지 ETF(SOXL·QLD·TQQQ 약 8%)부터 줄여 현금을 채우는 방향을 검토하세요. 0.5% 미만 소액 종목(MRVL·SPCX·INFQ·SATL·VRT·AAPL·GLDM·SMR·휴머노이드·금융고배당·KODEX AI전력)은 판단에 큰 영향이 없어 이번 카드에서 뺐습니다.",
+ "notice": "AI 검토 의견이며 투자 자문이 아닙니다. 비중은 캡처 화면의 평가금액으로 계산했고 실제와 다를 수 있습니다. 매도는 세금·수수료와 계좌(ISA·연금 제약)를 확인한 뒤 나눠서 하세요. 최종 결정과 주문은 순태씨가 합니다.",
+ "cards": [
+  {
+   "ticker": "MSFT",
+   "name": "마이크로소프트",
+   "market": "US",
+   "verdict": "hold-long",
+   "headline": "확신 종목 · 전체의 약 8.2% · +8.8% 수익 — 계속 보유, 현금 확보 후 추가 매수 1순위",
+   "reasons": [
+    "순태씨 지정 확신 종목(한도 25%) — 현재 비중 여유 있음",
+    "클라우드·소프트웨어 매출 기반이 넓어 AI 투자 둔화 충격이 반도체보다 작은 편"
+   ],
+   "risks": [
+    "AI 데이터센터 규제 강화 시 클라우드 투자 속도 둔화 가능"
+   ],
+   "sources": [
+    {
+     "title": "Insight 11/8 민주당 승리·나스닥 5.5% 급락",
+     "url": "https://www.insight.co.kr/news/580873"
+    }
+   ]
+  },
+  {
+   "ticker": "AVGO",
+   "name": "브로드컴",
+   "market": "US",
+   "verdict": "hold-long",
+   "headline": "확신 종목 · 전체의 약 8.3% · 소폭 수익 — 계속 보유",
+   "reasons": [
+    "순태씨 지정 확신 종목(한도 25%)",
+    "AI 맞춤 칩·네트워크 칩 대표 기업"
+   ],
+   "risks": [
+    "11/5 하루 약 -10% — AI 반도체 투매에 가장 민감한 종목군",
+    "반도체 전체 비중이 이미 높음(아래 반도체 ETF 카드 참고)"
+   ],
+   "sources": [
+    {
+     "title": "Insight 11/8 민주당 승리·나스닥 5.5% 급락",
+     "url": "https://www.insight.co.kr/news/580873"
+    },
+    {
+     "title": "Business Insider 11/9 반도체 6년 만의 급락",
+     "url": "https://www.businessinsider.jp/article/2611-stock-market-ai-selloff-worst-since-2025-chart/"
+    }
+   ]
+  },
+  {
+   "ticker": "GOOGL",
+   "name": "알파벳",
+   "market": "US",
+   "verdict": "hold-long",
+   "headline": "전체의 약 7.6% · -6.5% — 장기보유, 현금 확보 후 분할 추가 후보",
+   "reasons": [
+    "검색·유튜브·클라우드로 이익 기반이 넓음",
+    "AI 자체 칩·모델을 모두 가진 빅테크"
+   ],
+   "risks": [
+    "빅테크도 11/5 일제히 하락 — 시장 공포가 길어질 수 있음",
+    "단일 종목 한도 10%까지는 여유 약 2%p"
+   ],
+   "sources": [
+    {
+     "title": "Insight 11/8 민주당 승리·나스닥 5.5% 급락",
+     "url": "https://www.insight.co.kr/news/580873"
+    }
+   ]
+  },
+  {
+   "ticker": "QTOP",
+   "name": "QTOP (나스닥 상위 종목 ETF)",
+   "market": "US",
+   "verdict": "hold-long",
+   "headline": "확신 종목 · 전체의 약 4.9% — 계속 보유",
+   "reasons": [
+    "순태씨 지정 확신 종목",
+    "여러 빅테크에 나눠 투자하는 ETF라 개별 종목보다 위험 분산"
+   ],
+   "risks": [
+    "빅테크·반도체 비중이 높아 이번 AI 투매의 영향을 그대로 받음"
+   ],
+   "sources": []
+  },
+  {
+   "ticker": "426030",
+   "name": "TIME미국나스닥100액티브",
+   "market": "KR",
+   "verdict": "hold-long",
+   "headline": "ISA·연금 합계 약 2,061만원(13.4%) · 핵심 지수 ETF — 장기보유",
+   "reasons": [
+    "나스닥100 기반 분산 ETF라 단일 종목 한도(10%)보다 위험이 작음",
+    "연금·ISA 장기 계좌에 맞는 핵심 자산"
+   ],
+   "risks": [
+    "액티브 운용이라 지수와 성과가 다를 수 있음",
+    "환율 하락(원화 강세) 시 원화 수익률 감소"
+   ],
+   "sources": []
+  },
+  {
+   "ticker": "0015B0",
+   "name": "KoAct미국나스닥성장기업액티브",
+   "market": "KR",
+   "verdict": "hold-long",
+   "headline": "ISA·연금 합계 약 806만원(5.2%) — 장기보유",
+   "reasons": [
+    "미국 성장주 분산 ETF"
+   ],
+   "risks": [
+    "성장주 비중이 높아 금리·AI 우려에 크게 흔들림(평균 -33%)"
+   ],
+   "sources": []
+  },
+  {
+   "ticker": "NVDA",
+   "name": "엔비디아",
+   "market": "US",
+   "verdict": "wait",
+   "headline": "전체의 약 4.0% · +14.9% — 보유 유지, 추가 매수는 관망",
+   "reasons": [
+    "AI 반도체 대표 기업, 수익 구간"
+   ],
+   "risks": [
+    "11/5 하루 -9%",
+    "11/12 경영진 관련 악재 보도로 추가 하락·애널리스트 하향",
+    "반도체 편중 — 추가로 늘리면 반도체 비중이 더 커짐"
+   ],
+   "sources": [
+    {
+     "title": "Insight 11/8 민주당 승리·나스닥 5.5% 급락",
+     "url": "https://www.insight.co.kr/news/580873"
+    },
+    {
+     "title": "Trefis 11/13 (엔비디아 경영진 악재 언급)",
+     "url": "https://www.trefis.com/articles/624903/why-is-joby-aviation-stock-falling/2026-11-13"
+    }
+   ]
+  },
+  {
+   "ticker": "446770",
+   "name": "ACE글로벌반도체TOP4Plus",
+   "market": "KR",
+   "verdict": "wait",
+   "headline": "ISA·연금 합계 약 2,570만원(16.7%) — 보유 단일 종목 중 최대, 추가 매수 금지",
+   "reasons": [
+    "세계 상위 반도체 4개사 ETF — 반도체 업황 회복 시 반등 폭 큼"
+   ],
+   "risks": [
+    "반도체 4개 종목 집중 ETF가 전체의 16.7%",
+    "SOXL·NVDA·AVGO·MU 등을 합치면 반도체 노출이 전체의 약 40%",
+    "반도체지수 11/5 하루 -12% — 업황 우려가 가장 큰 섹터"
+   ],
+   "sources": [
+    {
+     "title": "Business Insider 11/9 반도체 6년 만의 급락",
+     "url": "https://www.businessinsider.jp/article/2611-stock-market-ai-selloff-worst-since-2025-chart/"
+    }
+   ]
+  },
+  {
+   "ticker": "SOXL",
+   "name": "SOXL (반도체 3배 레버리지)",
+   "market": "US",
+   "verdict": "trim-review",
+   "headline": "전체의 약 3.1% · -24% — 비중 축소 검토 1순위(현금 확보용)",
+   "reasons": [
+    "반등 시 3배로 회복 가능"
+   ],
+   "risks": [
+    "반도체지수가 하루 12% 빠지면 이론상 약 36% 손실",
+    "변동성이 큰 장에서는 같은 지수에 돌아와도 원금이 줄어드는 레버리지 감가",
+    "장기보유 철학과 맞지 않는 단기 매매 상품"
+   ],
+   "sources": [
+    {
+     "title": "Business Insider 11/9 반도체 6년 만의 급락",
+     "url": "https://www.businessinsider.jp/article/2611-stock-market-ai-selloff-worst-since-2025-chart/"
+    }
+   ]
+  },
+  {
+   "ticker": "QLD",
+   "name": "QLD (나스닥 2배 레버리지)",
+   "market": "US",
+   "verdict": "trim-review",
+   "headline": "전체의 약 4.1% · -7% — 비중 축소 검토(현금 확보용)",
+   "reasons": [
+    "나스닥 반등 시 2배 회복"
+   ],
+   "risks": [
+    "레버리지 감가 — 하락·반등이 반복되면 원금이 깎임",
+    "현금 비중 3%(최소 10%)를 채울 재원 후보"
+   ],
+   "sources": []
+  },
+  {
+   "ticker": "TQQQ",
+   "name": "TQQQ (나스닥 3배 레버리지)",
+   "market": "US",
+   "verdict": "trim-review",
+   "headline": "전체의 약 0.9% · -14% — 비중 축소 검토",
+   "reasons": [
+    "반등 시 3배 회복"
+   ],
+   "risks": [
+    "나스닥 하루 -5.5% 같은 날 약 -16%",
+    "레버리지 감가로 장기보유에 부적합"
+   ],
+   "sources": [
+    {
+     "title": "Insight 11/8 민주당 승리·나스닥 5.5% 급락",
+     "url": "https://www.insight.co.kr/news/580873"
+    }
+   ]
+  },
+  {
+   "ticker": "JOBY",
+   "name": "조비 에비에이션",
+   "market": "US",
+   "verdict": "trim-review",
+   "headline": "전체의 약 2.5% · -50% — 비중 축소 검토",
+   "reasons": [
+    "3분기 매출 +144%(주로 Blade 여객 사업)",
+    "현금 약 22억달러 보유"
+   ],
+   "risks": [
+    "3분기 영업손실 약 2.8억달러 — 적자를 주식 추가 발행으로 메움(희석)",
+    "항공택시 인증 전까지 이익이 나기 어려움",
+    "1년 -68%"
+   ],
+   "sources": [
+    {
+     "title": "Trefis 11/13 조비 3분기",
+     "url": "https://www.trefis.com/articles/624903/why-is-joby-aviation-stock-falling/2026-11-13"
+    },
+    {
+     "title": "Trefis 11/7",
+     "url": "https://www.trefis.com/stock/joby/articles/623718/what-is-behind-the-move-in-joby-stock/2026-11-07"
+    }
+   ]
+  },
+  {
+   "ticker": "IONQ",
+   "name": "아이온큐",
+   "market": "US",
+   "verdict": "wait",
+   "headline": "전체의 약 2.7% · -53% — 실적은 강하지만 고위험, 보유 유지·추가 매수 보류",
+   "reasons": [
+    "3분기 매출 1.74억달러(+336%), 연간 가이던스 상향",
+    "수주잔고(RPO) 12억달러 기록"
+   ],
+   "risks": [
+    "매출 증가분 상당 부분이 인수한 SkyWater 파운드리",
+    "조정 기준으로는 여전히 적자, 순이익은 일회성 평가이익",
+    "양자컴퓨팅은 변동성이 매우 큰 테마"
+   ],
+   "sources": [
+    {
+     "title": "Fool 11/6 IonQ 3분기",
+     "url": "https://fool.com/investing/2026/11/06/why-ionq-stock-is-soaring-today"
+    },
+    {
+     "title": "24/7 Wall St. IonQ Q3",
+     "url": "https://247wallst.com/cards/ionq-q3-2026-earnings-ionq-01m6prtb3ykkwf1yy7re8sqt5k"
+    }
+   ]
+  },
+  {
+   "ticker": "ASTS",
+   "name": "AST 스페이스모바일",
+   "market": "US",
+   "verdict": "wait",
+   "headline": "전체의 약 0.5% · -61% — 소액이라 유지 가능, 추가 매수 보류",
+   "reasons": [
+    "현금 약 32억달러",
+    "정부 사업으로 상용 서비스 후 매출 10억달러 가능성 언급"
+   ],
+   "risks": [
+    "3분기 매출·손익 모두 기대치 미달",
+    "위성 발사 일정이 또 지연, 자체 로켓 개발로 비용 증가",
+    "스페이스X와의 경쟁"
+   ],
+   "sources": [
+    {
+     "title": "Earnings Whispers 11/9 ASTS",
+     "url": "https://finviz.com/news/419709/ast-spacemobile-edges-the-whisper-but-slips-its-timeline-again-as-spending-climbs"
+    },
+    {
+     "title": "Fool 11/10 ASTS",
+     "url": "https://fool.com/investing/2026/11/10/why-ast-spacemobile-plunged-today"
+    }
+   ]
+  },
+  {
+   "ticker": "RKLB",
+   "name": "로켓랩",
+   "market": "US",
+   "verdict": "wait",
+   "headline": "전체의 약 0.7% · -35% — 사업은 성장 중, 보유 유지",
+   "reasons": [
+    "3분기 매출 2.68억달러(+73%) 기록",
+    "수주잔고 약 36억달러로 한 분기에 52% 증가"
+   ],
+   "risks": [
+    "조정 손실이 예상보다 큼",
+    "6월 고점 대비 약 70% 하락한 고변동 종목"
+   ],
+   "sources": [
+    {
+     "title": "24/7 Wall St. Rocket Lab Q3",
+     "url": "https://247wallst.com/cards/rocket-lab-q3-2026-earnings-rklb-01m712hck90bj2bj3d6f4jpjy4"
+    }
+   ]
+  },
+  {
+   "ticker": "MU",
+   "name": "마이크론",
+   "market": "US",
+   "verdict": "wait",
+   "headline": "전체의 약 2.5% · +4% — 보유 유지, 추가 매수 보류",
+   "reasons": [
+    "메모리 업황 수혜, 수익 구간"
+   ],
+   "risks": [
+    "11/5 하루 -16% — 메모리는 AI 투자 둔화에 가장 민감",
+    "반도체 편중 추가"
+   ],
+   "sources": [
+    {
+     "title": "Business Insider 11/9 반도체 6년 만의 급락",
+     "url": "https://www.businessinsider.jp/article/2611-stock-market-ai-selloff-worst-since-2025-chart/"
+    }
+   ]
+  },
+  {
+   "ticker": "456600",
+   "name": "TIME글로벌AI인공지능액티브",
+   "market": "KR",
+   "verdict": "wait",
+   "headline": "ISA·연금 합계 약 481만원(3.1%) · -40% — 보유 유지, 추가 매수 보류",
+   "reasons": [
+    "AI 대형주 분산 ETF"
+   ],
+   "risks": [
+    "AI 테마 전체가 규제·투자 둔화 우려의 중심",
+    "반도체·AI 노출이 이미 큼"
+   ],
+   "sources": []
+  },
+  {
+   "ticker": "CRDO",
+   "name": "크레도",
+   "market": "US",
+   "verdict": "wait",
+   "headline": "전체의 약 1.2% · -36% — 관망",
+   "reasons": [
+    "AI 데이터센터 연결 칩, 빠른 성장"
+   ],
+   "risks": [
+    "최대 고객 1곳이 매출의 33%",
+    "AI 투자 둔화 시 직접 타격"
+   ],
+   "sources": [
+    {
+     "title": "Trefis 11/4 Credo",
+     "url": "https://www.trefis.com/stock/crdo/articles/622653/what-just-happened-to-credo-stock/11-04"
+    }
+   ]
+  },
+  {
+   "ticker": "MS",
+   "name": "모건스탠리",
+   "market": "US",
+   "verdict": "hold-long",
+   "headline": "전체의 약 1.4% · -9% — 장기보유",
+   "reasons": [
+    "반도체·AI와 다른 금융 업종 — 분산 효과"
+   ],
+   "risks": [
+    "증시 급락기에는 증권·자산관리 수수료 감소"
+   ],
+   "sources": []
+  },
+  {
+   "ticker": "465580",
+   "name": "ACE미국빅테크TOP7Plus",
+   "market": "KR",
+   "verdict": "hold-long",
+   "headline": "ISA·연금 합계 약 180만원(1.2%) — 장기보유",
+   "reasons": [
+    "미국 빅테크 7개사 분산"
+   ],
+   "risks": [
+    "빅테크 동반 하락 시 함께 하락"
+   ],
+   "sources": []
+  },
+  {
+   "ticker": "0162Z0",
+   "name": "RISE삼전닉스채권혼합50",
+   "market": "KR",
+   "verdict": "hold-long",
+   "headline": "연금 215만원(1.4%) — 방어 성격 유지",
+   "reasons": [
+    "절반이 채권이라 변동성이 낮은 편(약공격 자산)"
+   ],
+   "risks": [
+    "나머지 절반이 삼성전자·SK하이닉스 — 반도체 노출"
+   ],
+   "sources": []
+  },
+  {
+   "ticker": "00680K",
+   "name": "미래에셋증권2우B",
+   "market": "KR",
+   "verdict": "wait",
+   "headline": "일반 139만원(0.9%) · -61% — 관망",
+   "reasons": [
+    "1.4조원 자사주 소각 발표"
+   ],
+   "risks": [
+    "3분기 연결 순손실 약 4,056억원(스페이스X 등 평가손실)"
+   ],
+   "sources": [
+    {
+     "title": "딜사이트 11/12",
+     "url": "https://dealsite.co.kr/articles/172655"
+    }
+   ]
+  },
+  {
+   "ticker": "000660",
+   "name": "SK하이닉스",
+   "market": "KR",
+   "verdict": "wait",
+   "headline": "일반 1주(0.7%) · -33% — 관망",
+   "reasons": [
+    "HBM 대표 기업"
+   ],
+   "risks": [
+    "메모리·AI 투자 둔화 우려 한가운데",
+    "반도체 편중"
+   ],
+   "sources": []
+  },
+  {
+   "ticker": "ON",
+   "name": "온세미",
+   "market": "US",
+   "verdict": "wait",
+   "headline": "전체의 약 0.6% — 관망",
+   "reasons": [
+    "전력 반도체(자동차·산업)"
+   ],
+   "risks": [
+    "반도체 편중 추가"
+   ],
+   "sources": []
+  }
+ ]
+}

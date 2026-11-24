@@ -419,6 +419,10 @@
     [
       "<script defer src=\"has/fear-top.js\"></script>\n<script defer src=\"has/review-cards.js\"></script>",
       "<script defer src=\"has/fear-top.js\"></script>"
+    ],
+    [
+      "<script defer src=\"has/review-cards.js\"></script>\n<script defer src=\"has/scorecard.js\"></script>",
+      "<script defer src=\"has/review-cards.js\"></script>"
     ]
   ],
   "radar/ui.js": [
