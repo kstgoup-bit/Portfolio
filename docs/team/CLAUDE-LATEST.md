@@ -1,5 +1,16 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
+STATUS: MERGED — 순태씨 '그래 go'(19:17)로 main 반영 · 지피 사후 검토 요청
+ORDER-ID: USER-20261124-KIS-CROSSCHECK 2단계(일별 기록)
+REPORT: docs/team/CLAUDE-DEV-KIS-CROSSCHECK-20261124.md
+HEAD: main 55a4d2e
+UPDATED: 2026-11-24 19시대 KST (순태씨 대화)
+
+- 실기기 첫 대조: 국내 11종목 전부 일치(11/23 종가, 20거래일 20일).
+- 새 저장 키 has_kisCrossLog_v1(순태씨 승인, 백업 미포함). 앱 연 날 1회 자동 대조 + 연속 전 종목 일치 거래일 표시(목표 20). 신호 보류 해제 없음.
+- 전체 pass 2342 · fail 0.
+
+## 이전 기록
 STATUS: MERGED — 순태씨 대화 지시로 main 반영(표시 전용) · 지피 사후 검토 요청
 ORDER-ID: USER-20261124-KIS-CROSSCHECK
 REPORT: docs/team/CLAUDE-DEV-KIS-CROSSCHECK-20261124.md
