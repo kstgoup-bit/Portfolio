@@ -64,3 +64,9 @@ test('status line: summary time shown in KST, not raw UTC; invalid time stays vi
   const {box,api}=dom({endpoint:()=>'https://script.google.com/macros/s/x/exec',transport:async()=>summary(3)});await api.refresh();
   const st=box.querySelector('[role=status]').textContent;assert.match(st,/요약 2026-11-14 09:00 \(한국시간\)/);assert.ok(!/T00:00:00Z/.test(st));
 });
+test('select: market filter gives per-market Top10 (US not buried by deeper KR drops)',()=>{
+  const F=require('../has/fear-top.js');const items=[];for(let i=0;i<15;i++)items.push({market:'KR',ticker:String(100000+i),drawdownPct:-80+i});for(let i=0;i<5;i++)items.push({market:'US',ticker:'U'+i,drawdownPct:-40+i});
+  const rank=s=>s.items.slice().sort((a,b)=>a.drawdownPct-b.drawdownPct),sum={items,generatedAt:new Date().toISOString()};
+  const all=F.select(sum,Date.now(),rank);require('node:assert/strict').equal(all.rows.filter(r=>r.market==='US').length,0);
+  const us=F.select(sum,Date.now(),rank,'US');require('node:assert/strict').equal(us.rows.length,5);require('node:assert/strict').ok(us.rows.every(r=>r.market==='US'));
+});
