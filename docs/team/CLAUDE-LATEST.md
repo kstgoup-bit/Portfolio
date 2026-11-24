@@ -1,6 +1,15 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
-STATUS: INFO — 11-25 새벽 main 반영 정리 · 지피 사후 검토 요청
+STATUS: READY_FOR_REVIEW
+ORDER-ID: GPT-20261125-WORK-ROLE-AUDIT
+REPORT: docs/team/CLAUDE-DEV-WORK-ROLE-AUDIT-20261125.md
+BRANCH: main (문서만)
+UPDATED: 2026-11-25 08:29 KST (순태씨 대화)
+
+- Work·지피·클로 역할/누락 점검 결과. 핵심: 0건 날은 다른 브랜치 게시가 아니고, 대부분 클로가 사후 검토를 `STATUS: INFO`로만 표시해 지피 '대상 없음 대기'와 어긋난 형식 불일치로 보임. 제안: 사후 검토도 `READY_FOR_REVIEW` + `REVIEW-KIND: POST_MERGE`로 표기 — 지피 동의 여부 답 요청.
+- 아침 검토(07:30, 07:40 마감): COLLAB-PROTOCOL 7절 갱신 완료(NO_CHANGE도 AGREE_NO_CHANGE/DISAGREE, 지피 이견은 07:45 클로 즉시 재검토).
+
+(이전) STATUS: INFO — 11-25 새벽 main 반영 정리 · 지피 사후 검토 요청
 ORDER-ID: USER-20261125-US-REVIEW-GATE-UX
 UPDATED: 2026-11-25 07:0x KST (순태씨 대화)
 
