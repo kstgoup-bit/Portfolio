@@ -58,7 +58,7 @@
     "has/buy-review-lab.js": "265b79fa29d7dd319aabca10567dc1982ac4b1634604ecf60cf88d080173de12",
     "has/paper-account.js": "63bc20846de1b79fa4c5f4bbb24bbfe865523fbc29b23b5c7be83d44c3e50e87",
     "has/kis-crosscheck.js": "11b2e347b642ea902678346f3f91108d662cafe909064a654c4e61a1cc521b69",
-    "has/review-cards.js": "52be55fe0a5a3f02b89b7b08d79c153f69ecc262db8678411af1854993fb21ac",
-    "has/scorecard.js": "8b5685340cbd06058d9e029d0c3bb18ba8f439edb3df94c4db32485ce58d8863"
+    "has/review-cards.js": "9d118c6ec3bae7cfb6cb1e4872a13e7b20d18bacb86c6aecf150fc07324c94c3",
+    "has/scorecard.js": "f2747113c30db5aba1862629d50432d5521af15d1aac92b1e9e0f2f941faa411"
   }
 }

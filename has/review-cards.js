@@ -85,7 +85,7 @@
     var mini = strip.querySelector('.hdb-mini'), sb = strip.querySelector('[data-testid=hdb-ai-score]'); if (!mini) { if (sb) sb.remove(); return; }
     var after = strip.querySelector('[data-testid=hdb-ai-fear]') || strip.querySelector('[data-testid=hdb-ai-hold]') || mini;
     if (sb && sb.previousElementSibling === after) return; if (sb) sb.remove();
-    sb = node('button', '📊 클로 추천 성적표 · 보기 ▶', 'display:block;width:100%;min-height:44px;margin-top:8px;padding:6px 10px;border:2px solid #4a148c;border-radius:10px;background:#fff;color:#4a148c;font-size:15px;font-weight:800;text-align:left');
+    sb = node('button', '📊 클로 추천 성적표 · 내 실전 검증 ▶', 'display:block;width:100%;min-height:44px;margin-top:8px;padding:6px 10px;border:2px solid #4a148c;border-radius:10px;background:#fff;color:#4a148c;font-size:15px;font-weight:800;text-align:left');
     sb.type = 'button'; sb.setAttribute('data-testid', 'hdb-ai-score'); sb.addEventListener('click', function (e) { e.stopPropagation(); window.HASScorecard.open(); }); after.after(sb);
   }
   function ensureLink0() {

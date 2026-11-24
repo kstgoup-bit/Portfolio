@@ -17,3 +17,13 @@ test('scorecard: review index lists only existing immutable review files',()=>{
   const ix=JSON.parse(fs.readFileSync(path.join(__dirname,'../reviews/index.json'),'utf8'));a.ok(ix.files.length>=2);
   for(const f of ix.files){a.match(f,/^[a-z0-9-]+\.json$/);a.ok(fs.existsSync(path.join(__dirname,'../reviews',f)),f);}
 });
+test('trial trades: validation, return and excess vs benchmark, card link, sold trade uses sell price',()=>{
+  const t1={id:'trial-a',market:'KR',ticker:'001440',date:'2026-11-25',qty:10,price:16000},t2={id:'trial-b',market:'US',ticker:'SOXL',date:'2026-11-25',qty:2,price:40,sellDate:'2026-12-10',sellPrice:44};
+  a.ok(S.validTrade(t1));a.ok(S.validTrade(t2));a.equal(S.validTrade({...t1,ticker:'1440'}),false);a.equal(S.validTrade({...t2,sellDate:'2026-11-01'}),false);
+  a.deepEqual(S.parseTrades(JSON.stringify([t1,t2])).length,2);a.equal(S.parseTrades('[{"x":1}]'),null);a.deepEqual(S.parseTrades(null),[]);
+  const series={'KR:001440':bars([['2026-11-25',16000],['2026-12-23',20000]]),'KR:069500':bars([['2026-11-25',50000],['2026-12-23',55000]]),'US:QQQ':bars([['2026-11-25',500],['2026-12-10',490]])};
+  const r=S.trialScore([t1,t2],series,[{market:'KR',ticker:'001440',name:'대한전선',verdict:'buy-review',reviewedAt:'2026-11-24T22:30:00+09:00'}]);
+  a.ok(Math.abs(r.rows[0].ret-25)<1e-9);a.ok(Math.abs(r.rows[0].excess-15)<1e-9);a.equal(r.rows[0].card.name,'대한전선');
+  a.ok(Math.abs(r.rows[1].ret-10)<1e-9);a.ok(Math.abs(r.rows[1].excess-12)<1e-9);a.equal(r.rows[1].card,null);
+  a.equal(r.total.KR.cost,160000);a.equal(r.total.KR.val,200000);
+});
