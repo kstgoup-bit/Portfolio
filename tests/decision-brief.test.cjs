@@ -63,7 +63,7 @@ test('⑤ 접힌 상태에서도 가격 신뢰도 경고·중요 위험 한 줄�
   const w = dom(), D2 = w.HASDecisionBrief, box = w.document.getElementById('hasBriefStrip');
   D2.install(); D2.renderStrip(box, { brief: brief(forty()) }, () => { });
   const det = box.querySelector('details'); a.equal(det.open, false);
-  a.match(box.querySelector('[data-testid=hs-strip-text]').textContent, /위험 점검: 중요 위험 1건 · 매수·매도 판단은 아래 AI 검토/);
+  a.match(box.querySelector('[data-testid=hs-strip-text]').textContent, /위험 점검 · 매수·매도 판단은 아래 AI 검토/);
   const risk = box.querySelector('[data-testid=hdb-risk-line]'); a.ok(risk && !det.contains(risk), '위험 한 줄은 접기 밖'); a.equal(risk.getAttribute('role'), 'alert'); a.match(risk.textContent, /BIG 비중/); a.doesNotMatch(risk.textContent, /외 \d+건/);
   const pt = w.document.getElementById('hasPriceTrust'), pd = pt.querySelector('details'); a.equal(pd.open, false);
   a.ok(!pd.contains(pt.querySelector('.hpt-head')), '가격 신뢰도 경고는 접기 밖'); a.match(pt.textContent, /미검증 가격·출처·기준시각 확인 필요/);
@@ -188,7 +188,7 @@ test('CR-1 접힌 기본 화면: 매수·매도·장기보유 3카드와 정확�
   a.ok(det.contains(box.querySelector('[data-testid=hdb-card-pending]')), '판단 보류 상세는 접기 안');
   // 세 칸 모두 0건이면 3칸을 숨기고 위험 점검 문구만(순태씨 2026-11-25: 0건 칸이 아래 AI 검토와 헷갈림)
   D2.renderStrip(box, { brief: brief(forty()) }, () => { });
-  a.equal(box.querySelector('[data-testid=hdb-mini]'), null); a.match(box.querySelector('[data-testid=hs-strip-text]').textContent, /위험 점검: .*아래 AI 검토/);
+  a.equal(box.querySelector('[data-testid=hdb-mini]'), null); a.match(box.querySelector('[data-testid=hs-strip-text]').textContent, /위험 점검.*아래 AI 검토/);
   a.ok(box.querySelector('[data-testid=hdb-risk-line]'), '위험 한 줄 유지');
 });
 

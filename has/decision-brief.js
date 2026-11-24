@@ -133,8 +133,9 @@
     var head = el('div', 'hdb-head'); var t = el('span', 'hdb-sum'); t.setAttribute('data-testid', 'hs-strip-text');
     // 규칙 엔진이 검증된 매수·매도·장기보유를 하나도 못 내면(대부분) 0건 3칸 대신 위험 점검만 보인다 — 실제 판단은 아래 AI 검토 카드(순태씨 2026-11-25).
     var none = !c.buy.length && !c.sell.length && !c.hold.length;
-    t.appendChild(el('strong', '', none ? '🧭 위험 점검: ' : '🧭 오늘의 투자 판단: '));
-    t.appendChild(document.createTextNode(!(computed && computed.brief) ? '점검 불가' : none ? (c.risks.length ? '중요 위험 ' + c.risks.length + '건' : '중요 위험 없음') + ' · 매수·매도 판단은 아래 AI 검토' : summaryText(c))); t.appendChild(el('span', 'hdb-basis', ' (내 기록 기준 · 시장 감시 아님)'));
+    // 위험 내용은 바로 아래 '⚠️ 중요 위험' 줄에 있으므로 머리줄에는 건수를 되풀이하지 않는다(순태씨 2026-11-25).
+    t.appendChild(el('strong', '', none ? '🧭 위험 점검' + (c.risks.length ? '' : ': ') : '🧭 오늘의 투자 판단: '));
+    t.appendChild(document.createTextNode(!(computed && computed.brief) ? '점검 불가' : none ? (c.risks.length ? '' : '중요 위험 없음') + ' · 매수·매도 판단은 아래 AI 검토' : summaryText(c))); t.appendChild(el('span', 'hdb-basis', ' (내 기록 기준 · 시장 감시 아님)'));
     head.appendChild(t);
     var d = collapsible('strip', '오늘의 투자 판단 상세'); head.appendChild(d); box.appendChild(head);
     // 첫 화면(접힌 상태)에도 보이는 3분할 상태 카드 — 정확한 건수만, 종목·사유는 펼친 뒤에 (CR-1)

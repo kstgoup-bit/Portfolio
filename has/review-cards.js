@@ -112,8 +112,8 @@
     try { if (window.KSTRadar && window.KSTRadar.openFear) window.KSTRadar.openFear(); } catch (e) { return; }
     setTimeout(function () { var t = document.querySelector('[data-testid=review-cards]'); if (t) t.scrollIntoView({ block: 'start' }); }, 300);
   }
-  // 규칙 엔진 0건 3칸(.hdb-mini)이 숨겨지면 띠 머리줄 바로 아래에 붙인다(순태씨 2026-11-25).
-  function anchorOf(strip) { return strip.querySelector('.hdb-mini') || strip.querySelector('.hdb-head'); }
+  // 규칙 엔진 0건 3칸(.hdb-mini)이 숨겨지면 위험 경고 줄(없으면 머리줄) 바로 아래에 붙인다(순태씨 2026-11-25).
+  function anchorOf(strip) { return strip.querySelector('.hdb-mini') || strip.querySelector('[data-testid=hdb-risk-line]') || strip.querySelector('.hdb-head'); }
   function ensureLink() { ensureLink0(); ensureScore(); }
   function ensureScore() {
     if (typeof document === 'undefined' || !window.HASScorecard) return; var strip = document.getElementById('hasBriefStrip'); if (!strip) return;
