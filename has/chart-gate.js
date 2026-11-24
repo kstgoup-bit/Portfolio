@@ -7,10 +7,10 @@
 })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
   'use strict';
   var STAGE = {
-    falling: ['📉 하락 추세 · 1차(소액)만', '#8b2020'],
-    basing: ['➖ 바닥 다지는 중 · 1차(소액)만', '#8a4b00'],
-    stage2: ['📈 20일선 회복 · 2차 가능', '#1b5e20'],
-    stage3: ['🚀 60일선 회복·저점 상승 · 3차 가능', '#0d47a1'],
+    falling: ['⛔ 하락 추세 · 매수 대기(떨어지는 칼날)', '#8b2020'],
+    basing: ['➖ 바닥 다지는 중 · 1차(목표의 1/3) 가능', '#8a4b00'],
+    stage2: ['📈 20일선 회복 · 2차(1/3 더) 가능', '#1b5e20'],
+    stage3: ['🚀 60일선 회복·저점 상승 · 3차(나머지 1/3) 가능', '#0d47a1'],
     unknown: ['차트 자료 부족', '#333']
   };
   function marketToday(market, now) { return new Intl.DateTimeFormat('en-CA', { timeZone: market === 'US' ? 'America/New_York' : 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(now)); }

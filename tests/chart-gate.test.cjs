@@ -8,5 +8,5 @@ test('chart gate: long recovery above rising 60MA is stage3',()=>{a.equal(G.clas
 test('chart gate: short history or bad data is unknown; today bar excluded',()=>{
   a.equal(G.classify(series(i=>100,30),'KR',now).stage,'unknown');a.equal(G.classify(null,'US',now).stage,'unknown');
   const b=series(i=>1000-6*i);const r=G.classify(b.concat([{d:'2026-12-31',c:99999}]),'KR',now);a.equal(r.stage,'falling');
-  a.match(G.describe(r).label,/1차/);
+  a.match(G.describe(r).label,/매수 대기/);
 });
