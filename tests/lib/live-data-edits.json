@@ -415,6 +415,10 @@
     [
       "<button class=\"tab\" onclick=\"if(window.KSTRadar&&window.KSTRadar.openFear){window.KSTRadar.openFear();}else{switchTab('radar');}\">📡 곡소리",
       "<button class=\"tab\" onclick=\"switchTab('radar')\">📡 곡소리"
+    ],
+    [
+      "<script defer src=\"has/fear-top.js\"></script>\n<script defer src=\"has/review-cards.js\"></script>",
+      "<script defer src=\"has/fear-top.js\"></script>"
     ]
   ],
   "radar/ui.js": [
@@ -457,6 +461,10 @@
     [
       "window.KSTRadar={onTabChange,openEuphoria:function(){mode='real';view='euphoria';selected=null;window.switchTab('radar');route();render();},openFear:function(){mode='real';view='list';selected=null;window.switchTab('radar');route();render();}};",
       "window.KSTRadar={onTabChange,openEuphoria:function(){mode='real';view='euphoria';selected=null;window.switchTab('radar');route();render();}};"
+    ],
+    [
+      "if(view!=='euphoria'&&window.HASFearTop){window.HASFearTop.mount(box);if(window.HASReviewCards){const rc=$('section');root.append(rc);window.HASReviewCards.mount(rc);}}else",
+      "if(view!=='euphoria'&&window.HASFearTop)window.HASFearTop.mount(box);else"
     ]
   ],
   "has/advisor-panel.js": [

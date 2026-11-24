@@ -13,8 +13,8 @@
     "has/price-trust-ui.js": "5f5a735acdd9423de63a78f7f0319db585228274b6b8d9bd2fe3c77631c4cb8c"
   },
   "currentSha256": {
-    "portfolio_v5.html": "e9229d84585d6ebb6672d3c4c1ffb6662c43f6140f903b9054ca1b7deaf8abbe",
-    "radar/ui.js": "5a3f347dd5c13a60144084e184c21a1effe03611987de4e308a38c7dc39badd0",
+    "portfolio_v5.html": "e43a9f239f206c6d86d41d884b52e3ede3976a6006d8c0b0b942d822911f982d",
+    "radar/ui.js": "f6e54aee07dd7c68cab790d07f2de0a9a7f8b0c8c675bf99fbc9d22c7de4b122",
     "has/advisor-panel.js": "a4458f646ce6712a47eae3a619c429d7d09ec50f6610e5d5e988d66120e8ca2b",
     "service-worker.js": "bd7c5a33f7070bf8e4791fedb5cbfc4572741076023efb1090e838d8041c7b72",
     "has/snapshot-policy.js": "8d228e107cf61a4cb4a520e0dc0200da1daaa7a0627c9cbb2e9bfcd098fbb3bf",
@@ -57,6 +57,7 @@
     "has/buy-review-lab.css": "5718dd6609eb769ba9dd6dbba9831914e09e721c556b142c3f77dfcf02213817",
     "has/buy-review-lab.js": "265b79fa29d7dd319aabca10567dc1982ac4b1634604ecf60cf88d080173de12",
     "has/paper-account.js": "63bc20846de1b79fa4c5f4bbb24bbfe865523fbc29b23b5c7be83d44c3e50e87",
-    "has/kis-crosscheck.js": "11b2e347b642ea902678346f3f91108d662cafe909064a654c4e61a1cc521b69"
+    "has/kis-crosscheck.js": "11b2e347b642ea902678346f3f91108d662cafe909064a654c4e61a1cc521b69",
+    "has/review-cards.js": "aefc8e96dc0ebd776cef17dbccff7bdf7975d501757bff3b42a4ba324defb03a"
   }
 }
