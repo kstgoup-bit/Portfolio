@@ -1,6 +1,6 @@
 /* HAS: 국내 보유 종목 확정 종가를 두 공급자(Yahoo 이력 · KIS 일봉)로 대조해 보여주기만 한다.
  * 같은 사용자 GAS를 거치지만 GAS는 전달수단일 뿐이고, 원천 공급자는 Yahoo와 KIS로 서로 다르다.
- * 평가가격·신호·투자기록·백업을 바꾸지 않는다. 대조 요약만 별도 키(has_kisCrossLog_v1)에 날짜별로 남긴다(이 기기 전용, 백업 미포함).
+ * 평가가격·신호·투자기록·백업을 바꾸지 않는다. 대조 요약만 별도 키(has_kisCrossLog_v1)에 날짜별로 남긴다(이 기기 전용, 백업에 포함).
  * 앱을 연 날 한 번 자동 대조(한국 날짜 기준), 이후는 버튼으로만.
  * 오늘(한국 날짜) 막대는 확정 종가가 아니므로 비교하지 않는다. 주문·계좌 경로 없음. */
 (function (root, factory) {
@@ -145,7 +145,7 @@
       var log = readLog(), rec = recordFrom(state.results, now);
       state.logNote = '';
       if (!log) state.logNote = '일별 기록이 손상되어 새로 쓰지 않았습니다.';
-      else if (rec && !kisError) state.logNote = writeLog(mergeLog(log, rec, kstDate(now))) ? '' : '일별 기록을 저장하지 못했습니다.';
+      else if (rec && !kisError) { state.logNote = writeLog(mergeLog(log, rec, kstDate(now))) ? '' : '일별 기록을 저장하지 못했습니다.'; if (W.HASPriceTrustUI && W.HASPriceTrustUI.refresh) setTimeout(function () { try { W.HASPriceTrustUI.refresh(); } catch (e) {} }, 0); }
       else if (auto === true) state.autoFailedDay = kstDate(now); // 실패한 자동 대조는 오늘 표시를 남기지 않아 다음에 앱을 열 때 다시 시도
     }).catch(function () { state.error = '대조 중 오류가 났습니다.'; }).then(function () { state.busy = false; renderAll(); });
   }
@@ -211,5 +211,7 @@
   }
   function mount(container) { if (!container) return; mounts = mounts.filter(function (m) { return m !== container && m.isConnected; }); mounts.push(container); render(container); }
 
-  return { TOLERANCE_PCT: TOLERANCE_PCT, WINDOW: WINDOW, LOG_KEY: LOG_KEY, compare: compare, closes: closes, parseLog: parseLog, recordFrom: recordFrom, mergeLog: mergeLog, streak: streak, mount: mount, run: run };
+  // 가장 최근 대조 기록(가격 신뢰도 띠 문구용, 읽기 전용).
+  function latestRow() { var l = readLog(); return l && l.rows.length ? l.rows[l.rows.length - 1] : null; }
+  return { latestRow: latestRow, TOLERANCE_PCT: TOLERANCE_PCT, WINDOW: WINDOW, LOG_KEY: LOG_KEY, compare: compare, closes: closes, parseLog: parseLog, recordFrom: recordFrom, mergeLog: mergeLog, streak: streak, mount: mount, run: run };
 });
