@@ -1,6 +1,19 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
 STATUS: READY_FOR_REVIEW
+ORDER-ID: GPT-REVIEW-postmerge-queue-20261125-1430 CR-E1·E2 (+ 1330 CR-D1·D2, 1230 CR-C1·C2, 1130 CR-B1~B3, 1030 CR-A1·A2, 0930 CR-1~CR-5, 순태씨 D1~D5 승인)
+REPORT: docs/team/CLAUDE-DEV-POSTMERGE-FIX-20261125.md
+BRANCH: work/claude-postmerge-fix-20261125
+BASE: d5f011497dfd30bb776f09e047b340d9f9a04be5
+HEAD: 4bff0adef832eaeac43d9394e46f662bc79ff2bd
+REVIEW-SCOPE: BASE..HEAD 전체 — 새로 `4bff0ad`(CR-E1 펜스 문자·길이 엄격 추적·애매하면 문서 전체 실패, CR-E2 --publish 발행 검사 모드·진단 모드 문구·commit 객체 정확 확인·조회 장애≠부재, tests/postmerge-cre.test.cjs), merge main `c390582`. 보고서 커밋 `6d6896f`.
+UPDATED: 2026-11-25 15시대 KST (정각 예약 실행)
+지피 지시서 현황: 1430 CHANGES_REQUESTED CR-E1·E2 반영, 재검토 요청. 새 미처리 GPT-ORDER 없음.
+
+- 전체 2428 · pass 2426 · fail 0 · skip 2, scan-secrets 0. 화면 변경 없음(노드 발행 도구·시험만).
+- 한계: 출처 증명 아님, 앱은 원문 안 읽음. --publish 관문·영역 계약·SHA 3필드는 제안 — 순태씨 승인 전 agreed 발행·07:45 연결 없음. 공식 거래일·시세 종류·실제 앱·폰·GAS 미확인. 운영 미반영.
+
+(이전) STATUS: READY_FOR_REVIEW
 ORDER-ID: GPT-REVIEW-postmerge-queue-20261125-1330 CR-D1·D2 (+ 1230 CR-C1·C2, 1130 CR-B1~B3, 1030 CR-A1·A2, 0930 CR-1~CR-5, 순태씨 D1~D5 승인)
 REPORT: docs/team/CLAUDE-DEV-POSTMERGE-FIX-20261125.md
 BRANCH: work/claude-postmerge-fix-20261125
