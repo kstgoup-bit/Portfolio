@@ -19,6 +19,7 @@
 다음 묶음: 1단계 후속(탭 첫 진입 자동 조회·하루 캐시, 확신 종목 UI 25%/10%, '준비 중' 제거) → 2차 재무(SEC EDGAR, DART) → 서비스워커 rollback.
 
 ## 처리한 지시서
+- GPT-REVIEW-postmerge-queue-20261125-1130 (2026-11-25 12시대 정각 실행) CHANGES_REQUESTED(`5ad779c` 대상, CR-B1·B2·B3) — 반영 `0c7e93d`, 보고 `a2603a2` READY_FOR_REVIEW. 자동 재시도는 하루 1회로 보류(순태씨 결정 대상).
 - GPT-REVIEW-postmerge-queue-20261125-1030 (2026-11-25 12시 정각) CHANGES_REQUESTED(단위 A `9449668` 대상, CR-A1·CR-A2) — `6d96cf0`에도 남아 있음 확인 후 반영 `5ad779c`, 보고 `0181474` READY_FOR_REVIEW 재검토 요청.
 - 순태씨 D2·D3·D5 추가 승인(2026-11-25 11시대 대화) — CR-2·CR-3·CR-5 구현 `6d96cf0`, BASE..HEAD 전체 READY_FOR_REVIEW. 0930 CR 전부 반영.
 - 순태씨 D1·D4 승인(2026-11-25 10시대 대화) — GPT-REVIEW-postmerge-queue-20261125-0930 CR-1·CR-4 구현 `work/claude-postmerge-fix-20261125` `9449668` READY_FOR_REVIEW. D2·D3·D5 미승인.
@@ -368,3 +369,4 @@
 - 2026-11-25 10시대 순태씨 대화 'D1·D4 진행': `work/claude-postmerge-fix-20261125` `9449668` — AI 카드 매수 쪽 라벨 단독 의견·판단 보류, 경고문, 현황 매수 건수·5% 예외 정찰·분할 금액 안내 숨김, KIS 문구 백업에 포함. 전체 2364/2362/0/2skip, scan-secrets 0, 360/390/430 합성 하네스. 다음: 지피 검토 → 순태씨 '올려'; D2·D3·D5 결정 대기.
 - 2026-11-25 11시대 순태씨 대화 'D2·D3·D5 작업': `work/claude-postmerge-fix-20261125` `6d96cf0` — KIS stale·total·fp·trustSummary·streak 새 기준·자동 재시도 2회, 카드 consensus 상태, 매수 후보 라벨 '판단 보류(재무·시세 검증 전)'. 전체 2375/2373/0/2skip, scan-secrets 0, 360/390/430 합성 하네스. COLLAB-PROTOCOL 7절 consensus 필드 규칙 추가. 다음: 지피 재검토 → 순태씨 '올려'.
 - 2026-11-25 12:0x 정각 실행: 지피 `docs/gpt-postmerge-queue-20261125` `7e7f5b7` 1030 CHANGES_REQUESTED(미처리분) 처리 — `work/claude-postmerge-fix-20261125`(main `b122791` 병합) `5ad779c`: 카드 차트 관문 중립 단계명·#333(정찰병 10%·30% 더 가능 미표시, 산식·캐시 그대로), 매수 쪽 헤드라인 '원문 인용·매수 권유 아님', 보유 띠 추가 매수 건수 숨김(다른 건수 유지). 신규 시험 9건(실제 chart-gate.js 계약), 전체 2383/2381/0/2skip, scan-secrets 0, Chromium 360/390/430 합성 하네스 넘침 0·최소 13px. 새 GPT-ORDER 없음, 다비 새 문서 없음. 참고: 로컬 main에 옛 미푸시 11-24 기록 3커밋은 origin과 갈라져 버리지 않고 로컬 브랜치로만 보존(push 안 함). 다음: 지피 BASE..HEAD 전체 재검토 → APPROVE 시 순태씨 '올려'.
+- 2026-11-25 12:1x 정각 실행(2회차): 지피 `docs/gpt-postmerge-queue-20261125` `02b0e42` 1130 CHANGES_REQUESTED 처리 — `work/claude-postmerge-fix-20261125` `0c7e93d`: CR-B1 KIS 참고 대조는 현재 보유 집합(currentSet) 지문·총수 일치 때만·녹색 없음·앱 가격 warn 유지, CR-B2 연속은 응답 날짜 참고 집계(평일 누락 끊김·실패 시 미표시·최신일/20일창 분리)·자동 대조 시작 전 autoDay 기록으로 하루 1회(재시도 보류), CR-B3 합의 전 판단은 상세·요약·보유 띠 모두 상태 건수(합의 비매수만 판단 건수)·발행 계약 시험. 신규 14건, 전체 2397/2395/0/2skip, scan-secrets 0, Chromium 360/390/430 합성 하네스 넘침 0·최소 13px. 새 GPT-ORDER 없음, 다비 새 문서 없음. 다음: 지피 BASE..HEAD 재검토 → APPROVE 시 순태씨 '올려'; 순태씨 결정: 자동 재시도 복원 여부(새 메타데이터 필요).
