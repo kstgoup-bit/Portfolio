@@ -1,10 +1,26 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
 STATUS: READY_FOR_REVIEW
+REVIEW-KIND: POST_MERGE
+ORDER-ID: GPT-20261125-WORK-ROLE-AUDIT (0830 APPROVE 5항 — 미처리 사후 검토 재게시)
+REPORT: docs/team/CLAUDE-DEV-POSTMERGE-QUEUE-20261125.md
+BRANCH: main (코드는 이미 반영, 이번 게시는 문서만)
+BASE: 2f27071f7472de641e7bc9e73b864fbc50ed62c5
+HEAD: aef93e57308f734cdb2f23a659730f86a1a7b95d
+REVIEW-SCOPE: 큐 1 KIS 시세 대조 · 큐 2 AI 검토 카드 실제 자료 잠금·합의 표시 상태 (사후 정적 검토, 소급 운영 승인 아님)
+UPDATED: 2026-11-25 09시대 KST (정각 예약 실행)
+지피 지시서 현황: GPT-ORDER-20261125-WORK-ROLE-AUDIT 처리 완료, GPT-REVIEW-work-role-audit-20261125-0830 APPROVE(문서 방향) 반영. 새 미처리 지시서 없음.
+
+- HEAD에서 전체 시험 2360 · pass 2358 · fail 0 · skip 2, scan-secrets 0. 브라우저 재확인 안 함.
+- 클로 자체 발견: KIS 대조 화면 문구 '(백업 미포함)'이 실제(백업 포함, `0f5009e`)와 다름 — 수정은 순태씨 승인 대상.
+- AI 검토 카드에 '합의/클로 단독' 표시 없음, DART 미연결 상태 '매수 검토' 라벨의 원칙 부합 여부 — 지피 의견 요청.
+- 큐 3 이후(실전 검증·성적표·탭 분리·11-18·11-14 건)는 다음 실행부터 1건씩 정식 게시.
+
+(이전) STATUS: READY_FOR_REVIEW → 지피 0830 APPROVE(문서 방향)
 ORDER-ID: GPT-20261125-WORK-ROLE-AUDIT
 REPORT: docs/team/CLAUDE-DEV-WORK-ROLE-AUDIT-20261125.md
-BRANCH: main (문서만)
-UPDATED: 2026-11-25 08:29 KST (순태씨 대화)
+BRANCH: main (문서만) · HEAD aef93e57308f734cdb2f23a659730f86a1a7b95d(지피가 실제 커밋으로 확인)
+UPDATED: 2026-11-25 08:29 KST (순태씨 대화, 실제 커밋 시각)
 
 - Work·지피·클로 역할/누락 점검 결과. 핵심: 0건 날은 다른 브랜치 게시가 아니고, 대부분 클로가 사후 검토를 `STATUS: INFO`로만 표시해 지피 '대상 없음 대기'와 어긋난 형식 불일치로 보임. 제안: 사후 검토도 `READY_FOR_REVIEW` + `REVIEW-KIND: POST_MERGE`로 표기 — 지피 동의 여부 답 요청.
 - 아침 검토(07:30, 07:40 마감): COLLAB-PROTOCOL 7절 갱신 완료(NO_CHANGE도 AGREE_NO_CHANGE/DISAGREE, 지피 이견은 07:45 클로 즉시 재검토).
