@@ -113,15 +113,15 @@ test('CR-B2: 부분 성공(KIS 응답, Yahoo 없음)·실패 뒤에는 이전 �
   a.match(A.box.textContent, /연속 집계: 현재 보유와 맞는 최신 성공 기록이 없어 표시하지 않음/);
   a.doesNotMatch(A.box.textContent, /연속 일치 \d+일/);
 });
-test('CR-B2: 최신일 일치와 20일 비교창 전체 일치를 화면에서 분리, 연속 집계는 참고·G0 근거 아님', async () => {
+test('CR-B2: 최신일 일치와 공통 응답 20일 일치를 화면에서 분리, 연속 집계는 참고·G0 근거 아님', async () => {
   const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul' }).format(new Date());
   const days = []; for (let i = 1; days.length < 3; i++) { const d = new Date(Date.parse(today + 'T00:00:00Z') - i * 86400000); if (d.getUTCDay() % 6) days.unshift(d.toISOString().slice(0, 10)); }
   const y = days.map((d, i) => ({ d, c: i === 0 ? 90 : 100 + i })), k = days.map((d, i) => ({ d, c: 100 + i })); // 가장 옛날 하루만 차이(과거 partial)
   const A = await kisDom({}, { reply: (t) => t === 'kis' ? { '005930': { source: 'kis-daily', symbol: '005930', currency: 'KRW', bars: k } } : { '005930': { source: 'yahoo-chart-v8', symbol: '005930.KS', currency: 'KRW', bars: y } } });
   A.w.HASKISCrossCheck.run(); await tick(60);
   const t = A.box.textContent;
-  a.match(t, /최신 종가 일치 1 · 20일 비교창 전체 일치 0/);
-  a.match(t, /최신 종가 일치 1\/1\(20일 비교창 전체 일치와는 별개\)/);
+  a.match(t, /최신 종가 일치 1 · 공통 응답 20일 일치\(참고\) 0 · 20일 자료 부족 1/);
+  a.match(t, /최신 종가 일치 1\/1\(공통 응답 20일 일치와는 별개\)/);
   a.match(t, /확인된 응답 날짜 기준 연속 일치 1일 \(참고 집계 · 공식 거래일 연속·G0 근거 아님/);
   a.doesNotMatch(t, /보류 해제를 검토합니다/);
 });
@@ -178,15 +178,5 @@ test('CR-B3: 같은 날짜 다른 근거(종목·판단 다름)·잘못된 시�
   a.equal(R.policyOf(hc('X', 'sell-review', cons('X', 'sell-review')), { reviewedAt: 'not-a-date' }, n).cs, 'mismatch');
   a.equal(R.policyOf(hc('X', 'sell-review', cons('X', 'sell-review')), { reviewedAt: '2026-11-24T23:00:00+09:00' }, n).cs, 'mismatch');
 });
-test('CR-B3 발행 계약: 게시 JSON에 consensus가 있으면 docs/team의 그 검토 파일이 있고 종목·APPROVE/AGREE 근거가 있어야 함(일괄 승격 금지)', () => {
-  const dir = path.join(__dirname, '../reviews'), team = path.join(__dirname, '../docs/team');
-  for (const f of fs.readdirSync(dir).filter((x) => x.endsWith('.json'))) {
-    let j; try { j = JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8')); } catch (e) { continue; }
-    for (const c of (j && Array.isArray(j.cards) ? j.cards : [])) {
-      if (!c || !c.consensus) continue;
-      const p = path.join(team, String(c.consensus.review || ''));
-      a.ok(/^GPT-REVIEW-ai-review-\d{8}-\d{4}\.md$/.test(c.consensus.review) && fs.existsSync(p), f + ' ' + c.ticker + ': 검토 파일 없음');
-      const body = fs.readFileSync(p, 'utf8'); a.ok(body.includes(c.ticker) && /APPROVE|AGREE/.test(body), f + ' ' + c.ticker + ': 종목별 합의 근거 없음');
-    }
-  }
-});
+// 지피 1230 CR-C1: 옛 'APPROVE|AGREE 부분 문자열' 발행 검사는 반례(DISAGREE·AGREE_NO_CHANGE)를 통과시켜 삭제.
+// 발행 계약은 tests/postmerge-crc.test.cjs가 tools/consensus-evidence.cjs(정확한 토큰 계약)로 검사한다.

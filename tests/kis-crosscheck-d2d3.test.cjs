@@ -13,7 +13,7 @@ test('D2: 양쪽이 같은 오래된 날짜만 주면 stale(old)', () => {
   const r = K.compare(Y([b('2026-11-10', 100), b('2026-11-11', 101)]), KI([b('2026-11-10', 100), b('2026-11-11', 101)]), { ticker: '005930', now });
   a.equal(r.status, 'stale'); a.equal(r.stale, 'old');
   const ok = K.compare(Y([b('2026-11-23', 100), b('2026-11-24', 101)]), KI([b('2026-11-23', 100), b('2026-11-24', 101)]), { ticker: '005930', now });
-  a.equal(ok.status, 'match'); a.equal(ok.stale, '');
+  a.equal(ok.status, 'short'); a.equal(ok.stale, ''); // 지피 1230 CR-C2: 공통 2일뿐이라 20일 일치 아님
 });
 test('D2: recordFrom은 stale을 일치로 세지 않고 total·지문을 남긴다(15개 제한 범위)', () => {
   const m = (t, st) => ({ ticker: t, r: { ok: true, status: st, latest: { d: '2026-11-24', match: true } } });

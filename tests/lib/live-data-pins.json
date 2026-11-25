@@ -28,6 +28,7 @@
     "backup/core.js": "db2eaad670fc0726e24e2bfeaae17ada45c4d232f3fd0954c9cfab21deccebc7"
   },
   "addedRuntimeFiles": {
+    "tools/consensus-evidence.cjs": "33f32f447faafb54a5848fab5f2a943dd6f81825fd720526ee0845de6e5cbb37",
     "has/live-price-reference.js": "be7bc1fe4315328469a6bd0b3e3c7e28c688bb60dd9a1cd0fd12a182e9c84242",
     "has/live-price-panel.js": "009d9e8dba906350a2327cd19e1247b9de38bb11282951d294061fe5102f9104",
     "has/universe-screen.js": "7675b49f5be479bb0382f34bc718368262a4240a9f53bcd18c9a0b8ece5e12da",
@@ -59,7 +60,7 @@
     "has/buy-review-lab.css": "5718dd6609eb769ba9dd6dbba9831914e09e721c556b142c3f77dfcf02213817",
     "has/buy-review-lab.js": "265b79fa29d7dd319aabca10567dc1982ac4b1634604ecf60cf88d080173de12",
     "has/paper-account.js": "63bc20846de1b79fa4c5f4bbb24bbfe865523fbc29b23b5c7be83d44c3e50e87",
-    "has/kis-crosscheck.js": "16a6b3d57a937e8e9f530958eeb3e1e835f93148285b244282575030ec7f293f",
+    "has/kis-crosscheck.js": "99c07c3edd264da214503b3b1c045836487de73ddefab06019f07b2a8a674455",
     "has/review-cards.js": "0e7136d952c07031cda013785cf3c6cde3b39acba7b14c2094f31a36352d3663",
     "has/scorecard.js": "1cba22c2447ad2462c2585fa14ae59cc90d01ec1ee4cc454a18c114e9792fcb4",
     "has/chart-gate.js": "475cec475ce42cd0d58f9aed11adeb8fa734a7ae8261c6044ebfc8a81cf0fefc"

@@ -55,7 +55,8 @@
     // 지피 사후 검토 CR-2(순태씨 D2 승인): 두 출처의 최신 확정일이 다르거나(한쪽 지연) 비교한 종가가 오래되면 '일치'로 보지 않는다.
     var stale = latest.d !== kl || latest.d !== yl ? 'source-lag' : dayGap(latest.d, today) > STALE_DAYS ? 'old' : '';
     return {
-      ok: true, status: !latest.match ? 'mismatch' : stale ? 'stale' : mismatches.length ? 'partial' : 'match', stale: stale,
+      // 지피 1230 CR-C2: 공통 응답 날짜가 WINDOW(20)개 미만이면 전부 일치해도 'match'(20일 일치)가 아니라 'short'(자료 부족).
+      ok: true, status: !latest.match ? 'mismatch' : stale ? 'stale' : mismatches.length ? 'partial' : rows.length < WINDOW ? 'short' : 'match', stale: stale, full: rows.length >= WINDOW,
       latest: latest, checked: rows.length, matched: rows.length - mismatches.length, mismatches: mismatches.slice(0, 5),
       kisLatest: Object.keys(k).sort().pop(), yahooLatest: Object.keys(y).sort().pop(), kisDates: Object.keys(k).sort()
     };
@@ -201,7 +202,7 @@
   function won(x) { return Math.round(x).toLocaleString('ko-KR') + '원'; }
   function md(d) { return Number(d.slice(5, 7)) + '/' + Number(d.slice(8, 10)); }
   var STATUS = {
-    match: ['✅ 일치', '#1b5e20'], partial: ['⚠ 최근 일치 · 과거 일부 차이', '#8a4b00'], mismatch: ['❗ 최근 종가 차이', '#8b2020'],
+    match: ['✅ 공통 응답 20일 일치(참고)', '#1b5e20'], short: ['✅ 최신 종가 일치 · 20일 자료 부족', '#333'], partial: ['⚠ 최근 일치 · 과거 일부 차이', '#8a4b00'], mismatch: ['❗ 최근 종가 차이', '#8b2020'],
     stale: ['⏳ 미검증 · 두 출처 최신 종가 날짜가 다르거나 오래됨', '#8a4b00'], 'missing-kis': ['KIS 자료 없음', '#333'], 'missing-yahoo': ['Yahoo 자료 없음', '#333'], 'no-common-date': ['같은 날짜 자료 없음', '#333'], 'invalid-ticker': ['대조 불가 종목', '#333']
   };
   function render(box) {
@@ -215,24 +216,25 @@
     if (state.error) { var s = node('div', state.error, 'color:#8b2020'); s.setAttribute('role', 'status'); wrap.appendChild(s); }
     var log = readLog();
     if (log && log.rows.length) {
-      // CR-B2: 최근 조회 실패·보유 집합 불일치면 이전 성공 기록을 현재 연속 집계로 보이지 않는다. 최신일 일치와 20일 비교창 전체 일치는 따로 적는다.
+      // CR-B2: 최근 조회 실패·보유 집합 불일치면 이전 성공 기록을 현재 연속 집계로 보이지 않는다. 최신일 일치와 공통 응답 20일 일치는 따로 적는다.
       var last = log.rows[log.rows.length - 1], cs = currentSet(), same = !!cs && last.fp === cs.fp && last.total === cs.total;
       var st2 = state.days.length && !state.lastFail && same ? streak(log, state.days) : null;
-      wrap.appendChild(node('div', '📒 일별 기록: ' + log.rows.length + '일 · 최근 ' + md(last.d) + ' 최신 종가 일치 ' + last.matched + '/' + last.n + '(20일 비교창 전체 일치와는 별개)', 'font-weight:700;margin-top:4px'));
+      wrap.appendChild(node('div', '📒 일별 기록: ' + log.rows.length + '일 · 최근 ' + md(last.d) + ' 최신 종가 일치 ' + last.matched + '/' + last.n + '(공통 응답 20일 일치와는 별개)', 'font-weight:700;margin-top:4px'));
       wrap.appendChild(node('div', st2 == null ? '연속 집계: 현재 보유와 맞는 최신 성공 기록이 없어 표시하지 않음' : '확인된 응답 날짜 기준 연속 일치 ' + st2 + '일 (참고 집계 · 공식 거래일 연속·G0 근거 아님 · 응답 사이 평일이 비면 끊음)', 'margin-top:2px'));
       if (last.bad.length) wrap.appendChild(node('div', '최근 기록에서 일치하지 않거나 자료 없는 종목: ' + last.bad.map(function (t) { return state.names[t] || t; }).join(', '), 'color:#8b2020'));
     }
     else if (log) wrap.appendChild(node('div', '📒 일별 기록: 아직 없음 · 오늘 첫 자동 대조가 끝나면 생깁니다(앱을 켜 두고 20초쯤 기다려 주세요).', 'margin-top:4px'));
     if (state.logNote) wrap.appendChild(node('div', state.logNote, 'color:#8b2020'));
     if (state.results) {
-      var ok = state.results.filter(function (x) { return x.r.ok && x.r.status === 'match'; }).length, lt = state.results.filter(function (x) { return x.r.ok && x.r.latest.match && x.r.status !== 'stale'; }).length;
-      wrap.appendChild(node('div', '결과: ' + state.results.length + '종목 중 최신 종가 일치 ' + lt + ' · 20일 비교창 전체 일치 ' + ok + ' · 조회 ' + new Date(state.at).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }), 'font-weight:700'));
+      // 지피 1230 CR-C2: 20일 일치는 공통 응답 날짜가 실제로 20개이고 모두 일치한 종목만. 20개 미만은 '자료 부족'으로 따로 센다(공식 거래일 아님).
+      var ok = state.results.filter(function (x) { return x.r.ok && x.r.status === 'match' && x.r.checked >= WINDOW; }).length, sh = state.results.filter(function (x) { return x.r.ok && x.r.checked < WINDOW; }).length, lt = state.results.filter(function (x) { return x.r.ok && x.r.latest.match && x.r.status !== 'stale'; }).length;
+      wrap.appendChild(node('div', '결과: ' + state.results.length + '종목 중 최신 종가 일치 ' + lt + ' · 공통 응답 20일 일치(참고) ' + ok + (sh ? ' · 20일 자료 부족 ' + sh : '') + ' · 조회 ' + new Date(state.at).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }), 'font-weight:700'));
       state.results.forEach(function (x) {
         var r = x.r, st = STATUS[r.status] || ['확인 불가', '#333'], item = node('div', null, 'padding:4px 0;border-bottom:1px solid #e3e8ef');
         item.appendChild(node('div', (state.names[x.ticker] || x.ticker) + ' (' + x.ticker + ') · ' + st[0], 'color:' + st[1] + ';font-weight:700'));
         if (r.ok) {
           item.appendChild(node('div', md(r.latest.d) + ' 종가 Yahoo ' + won(r.latest.yahoo) + ' / KIS ' + won(r.latest.kis) + (r.latest.diffPct ? ' · 차이 ' + r.latest.diffPct.toFixed(2) + '%' : '')));
-          item.appendChild(node('div', '최근 ' + r.checked + '거래일 중 ' + r.matched + '일 일치' + (r.mismatches.length ? ' · 차이 난 날: ' + r.mismatches.map(function (m) { return md(m.d) + '(' + m.diffPct.toFixed(1) + '%)'; }).join(', ') : '')));
+          item.appendChild(node('div', '공통 응답 날짜 ' + r.checked + '일 중 ' + r.matched + '일 일치' + (r.checked < WINDOW ? ' (자료 부족 · ' + WINDOW + '일 미만)' : ' (공식 거래일 아님)') + (r.mismatches.length ? ' · 차이 난 날: ' + r.mismatches.map(function (m) { return md(m.d) + '(' + m.diffPct.toFixed(1) + '%)'; }).join(', ') : '')));
         }
         wrap.appendChild(item);
       });
