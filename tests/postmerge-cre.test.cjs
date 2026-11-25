@@ -67,7 +67,7 @@ function repo() {
   return { d, g, put, commit, rm: () => fs.rmSync(d, { recursive: true, force: true }) };
 }
 
-test('CR-E2 --publish: 두 ref 필수(없거나 하나면 종료 2), 성공 줄은 PUBLISH-CHECK OK', () => {
+test('CR-E2 --publish: 두 ref 필수(없거나 하나면 종료 2), 검사 통과해도 CR-F1 발행 비활성(종료 3)', () => {
   const R = repo();
   try {
     R.put(REV, REG.join('\n')); const s1 = R.commit('gpt');
@@ -76,8 +76,8 @@ test('CR-E2 --publish: 두 ref 필수(없거나 하나면 종료 2), 성공 줄�
     a.equal(E.main(['--publish', f], R.d, log), 2); a.match(out.pop(), /--publish requires/);
     a.equal(E.main(['--publish', '--gpt-ref', s1, f], R.d, log), 2);
     a.equal(E.main(['--publish', '--claude-ref', s1, f], R.d, log), 2);
-    a.equal(E.main(['--publish', '--gpt-ref', s1, '--claude-ref', s1, f], R.d, log), 0); a.match(out.pop(), /^PUBLISH-CHECK OK 1 consensus card\(s\) ok/);
-    a.equal(E.main(['--publish', '--ref', s1, f], R.d, log), 0); a.match(out.pop(), /^PUBLISH-CHECK OK /);
+    a.equal(E.main(['--publish', '--gpt-ref', s1, '--claude-ref', s1, f], R.d, log), 3); a.match(out.pop(), /^PUBLISH-DISABLED 1 consensus card\(s\) ok.*agreed 발행 금지/);
+    a.equal(E.main(['--publish', '--ref', s1, f], R.d, log), 3); a.match(out.pop(), /^PUBLISH-DISABLED /);
     // 진단 모드: 종료 0이어도 발행 허가 문구 없음, 명시적 경고
     a.equal(E.main([f], R.d, log), 0); const d = out.pop(); a.doesNotMatch(d, /PUBLISH-CHECK/); a.match(d, /진단 모드 — 종료 0은 발행 허가 아님/); a.match(d, /원문 고정 안 됨/);
     a.equal(E.main(['--ref', s1, f], R.d, log), 0); a.match(out.pop(), /진단 모드 — 종료 0은 발행 허가 아님$/);

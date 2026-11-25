@@ -33,10 +33,15 @@
  *
  * 진단 모드와 발행 검사 모드(CR-E2, 제안):
  *   기본(진단) — ref 없이도 돈다. 종료 0은 '이 입력에 계약 위반 없음'일 뿐 발행 허가가 아니다(출력에 명시).
- *   --publish — 발행 검사. --gpt-ref·--claude-ref(또는 --ref) 둘 다 필수, 없으면 종료 2. 성공 줄은 'PUBLISH-CHECK OK'.
+ *   --publish — 발행 검사. --gpt-ref·--claude-ref(또는 --ref) 둘 다 필수, 없으면 종료 2. 통과해도 CR-F1로 'PUBLISH-DISABLED'·종료 3.
  *   모든 모드: ref는 정확히 commit 객체(git cat-file -t = commit, 주석 태그 SHA 거부),
  *   원문 조회는 '확인된 부재'(그 커밋 트리에 경로 없음)와 '조회 장애'(git 오류·blob 아님·객체 읽기 실패)를 구분 — 장애는 종료 2.
  *   실제 07:45 예약·카드 스키마·프로토콜 연결은 순태씨 승인 전 금지.
+ *
+ * 발행 경로 비활성(지피 1530 CR-F1): 이 Markdown 도구는 진단·합성 연구용으로만 쓴다. Markdown은 raw HTML 블록(<pre> 등)
+ *   같은 문맥을 다 판별할 수 없으므로 파서 예외를 더 늘리지 않는다. --publish는 모든 검사를 그대로 돌리되 성공해도
+ *   'PUBLISH-DISABLED'로 종료 3 — agreed 발행 허가를 절대 내지 않는다(PUBLISH_ENABLED=false 고정).
+ *   실제 발행은 별도 엄격 데이터 계약(docs/team/CLAUDE-DESIGN-STRICT-CONSENSUS-DATA-20261125.md, 제안)이 순태씨 승인 후 구현될 때만.
  */
 'use strict';
 const fs = require('fs'), path = require('path'), cp = require('child_process');
@@ -47,6 +52,7 @@ const REVIEW_RE = /^GPT-REVIEW-ai-review-(\d{4})(\d{2})(\d{2})-\d{4}\.md$/;
 const TICKER_RE = /^[A-Z0-9][A-Z0-9.\-]{0,11}$/;
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const SHA_RE = /^[0-9a-f]{40}$/;
+const PUBLISH_ENABLED = false; // CR-F1: Markdown 근거로는 발행 허가 없음(바꾸지 않는다)
 const FENCE_LIKE = /^ {0,3}(`{3,}|~{3,})(.*)$/; // 펜스처럼 생긴 줄(여는·닫는·애매한 줄 모두)
 
 function kstDay(iso) { const t = Date.parse(iso); return Number.isFinite(t) ? new Date(t + 9 * 3600000).toISOString().slice(0, 10) : ''; }
@@ -217,8 +223,9 @@ function verifyFile(json, root, refs) {
   return out;
 }
 
-// CLI. 종료 코드: 0 통과, 1 근거 실패, 2 사용법·ref·입력·조회 장애. 성공 출력에 검사 건수·원문 고정 여부·모드를 반드시 적는다.
-// 진단 모드의 0은 발행 허가가 아니다. 발행 검사는 --publish(두 ref 필수)이고 성공 줄은 'PUBLISH-CHECK OK'로 시작한다.
+// CLI. 종료 코드: 0 진단 통과, 1 근거 실패, 2 사용법·ref·입력·조회 장애, 3 발행 비활성(--publish 검사는 통과했으나 발행 금지).
+// 성공 출력에 검사 건수·원문 고정 여부·모드를 반드시 적는다. 진단 모드의 0은 발행 허가가 아니다.
+// --publish(두 ref 필수)는 CR-F1 이후 'PUBLISH-DISABLED'로 시작하는 줄과 종료 3 — 발행 허가 줄은 없다.
 function main(argv, root, log) {
   const refs = {}, files = []; let publish = false;
   for (let i = 0; i < argv.length; i++) {
@@ -244,9 +251,12 @@ function main(argv, root, log) {
   const src = 'gpt@' + (refs.gpt || 'working-tree') + ' claude@' + (refs.claude || 'working-tree') + (refs.gpt && refs.claude ? '' : ' (원문 고정 안 됨 — 발행용 아님)');
   if (bad) { log(bad + ' 건 실패 — 합의 발행 보류 · ' + src); return 1; }
   const msg = checked ? checked + ' consensus card(s) ok, solo ' + solo + ' · ' + src : '0 consensus cards — 합의 근거 검사 대상 없음(solo ' + solo + ') · ' + src;
-  log(publish ? 'PUBLISH-CHECK OK ' + msg : msg + ' · 진단 모드 — 종료 0은 발행 허가 아님');
+  if (publish) {
+    if (!PUBLISH_ENABLED) { log('PUBLISH-DISABLED ' + msg + ' · Markdown 근거는 진단·합성 연구용 — agreed 발행 금지(엄격 데이터 계약 승인 전)'); return 3; }
+  }
+  log(msg + ' · 진단 모드 — 종료 0은 발행 허가 아님');
   return 0;
 }
 
 if (require.main === module) process.exit(main(process.argv.slice(2), path.join(__dirname, '..'), (s) => console.log(s)));
-module.exports = { extractRegion, plainLines, plainScan, readTeam, verifyCard, verifyFile, checkRef, main, VERDICTS };
+module.exports = { PUBLISH_ENABLED, extractRegion, plainLines, plainScan, readTeam, verifyCard, verifyFile, checkRef, main, VERDICTS };

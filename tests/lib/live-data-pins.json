@@ -28,7 +28,7 @@
     "backup/core.js": "db2eaad670fc0726e24e2bfeaae17ada45c4d232f3fd0954c9cfab21deccebc7"
   },
   "addedRuntimeFiles": {
-    "tools/consensus-evidence.cjs": "c5ea5ab1f9121422b4ebf1a19c0523959a912895f9aa0e01664ef9e629eb7b99",
+    "tools/consensus-evidence.cjs": "f80ce251b48640a060f2ce088b57627cf63cbd82ccb18ec29db37cf44a259e2b",
     "has/live-price-reference.js": "be7bc1fe4315328469a6bd0b3e3c7e28c688bb60dd9a1cd0fd12a182e9c84242",
     "has/live-price-panel.js": "009d9e8dba906350a2327cd19e1247b9de38bb11282951d294061fe5102f9104",
     "has/universe-screen.js": "7675b49f5be479bb0382f34bc718368262a4240a9f53bcd18c9a0b8ece5e12da",
