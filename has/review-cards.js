@@ -10,6 +10,48 @@
     'buy-review': ['🟢 매수 검토', '#1b5e20'], 'add-review': ['🟢 추가 매수 검토', '#1b5e20'], 'hold-long': ['🔵 장기보유', '#0d47a1'],
     'wait': ['🟡 관망·보류', '#8a4b00'], 'trim-review': ['🟠 비중 축소 검토', '#a33a00'], 'sell-review': ['🔴 매도 검토', '#8b2020']
   };
+  // 지피 사후 검토 CR-4·순태씨 D4 승인(2026-11-25): 재무(DART/SEC)·시세 검증과 지피 합의가 연결되기 전에는
+  // 매수 쪽 판단을 녹색 '매수 검토'로 보이지 않고 '클로 단독 의견 · 판단 보류'로 표시한다. JSON·과거 기록은 그대로.
+  var HELD = { 'buy-review': ['🧠 매수 후보 · 판단 보류(재무·시세 검증 전)', '#333'], 'add-review': ['🧠 추가 매수 후보 · 판단 보류(재무·시세 검증 전)', '#333'] };
+  var HELD_NOTE = '⚠ 매수 후보 카드는 클로가 조사한 의견입니다. 앱이 재무(DART·SEC)·시세 검증을 아직 못 해 매수 판단은 보류합니다. 지피 합의 여부는 카드마다 따로 표시합니다. 이유·반론은 참고용으로만 보세요.';
+  function shown(k) { return HELD[k] || VERDICT[k]; }
+  // CR-A1: 판단 보류 중 차트 관문은 단계 이름만 중립으로 보인다('정찰병 10%·30% 더 가능' 같은 행동 안내·행동 색 없음). 산식·캐시는 그대로.
+  var GATE_NEUTRAL = { falling: '하락 추세', basing: '바닥 다지기', stage2: '20일선 회복', stage3: '60일선 회복·저점 상승', unknown: '차트 자료 부족' };
+  function gateShown(gr) { return { label: (GATE_NEUTRAL[gr && gr.stage] || GATE_NEUTRAL.unknown) + ' · 타이밍 참고(판단 보류)', color: '#333' }; }
+  // 합의 상태(지피 CR-5, 순태씨 D5 승인 2026-11-25). 카드의 consensus 기록이 이 카드의 종목·판단·검토일·지피 검토 파일과
+  // 모두 맞을 때만 '지피 합의'. 기록이 없거나 어긋나면 '클로 단독'(일괄 승격 없음). 합의여도 재무·시세 검증 전 매수 쪽 판단 보류(D4)는 유지.
+  var CONSENSUS_DAYS = 7;
+  var CONS = {
+    agreed: ['🤝 지피 합의', '#0d47a1'], solo: ['🧑 클로 단독 의견', '#333'], disagree: ['⚖ 의견 불일치로 보류', '#8b2020'],
+    'no-response': ['⌛ 지피 응답 없음 · 보류', '#8a4b00'], expired: ['⏰ 합의 기한(7일) 지남 · 다시 확인 필요', '#8a4b00'], mismatch: ['🧑 클로 단독 (합의 기록이 이 판단과 맞지 않음)', '#333']
+  };
+  function kstDay(iso) { var t = Date.parse(iso); if (!Number.isFinite(t)) return ''; return new Date(t + 9 * 3600000).toISOString().slice(0, 10); }
+  function consensusOf(c, d, now) {
+    var x = c && c.consensus; if (!x) return 'solo';
+    if (!x || typeof x !== 'object' || ['agreed', 'disagree', 'no-response'].indexOf(x.status) < 0) return 'mismatch';
+    var m = typeof x.review === 'string' && /^GPT-REVIEW-ai-review-(\d{4})(\d{2})(\d{2})-\d{4}\.md$/.exec(x.review), day = kstDay(d.reviewedAt);
+    if (!m || x.date !== m[1] + '-' + m[2] + '-' + m[3] || x.date !== day || x.ticker !== c.ticker || x.market !== c.market || x.verdict !== c.verdict) return 'mismatch';
+    if (x.status !== 'agreed') return x.status;
+    var age = ((now == null ? Date.now() : now) - Date.parse(x.date + 'T00:00:00+09:00')) / 86400000;
+    return age >= 0 && age <= CONSENSUS_DAYS ? 'agreed' : 'expired';
+  }
+  // 지피 1130 CR-B3: 상세·요약·보유 띠에 같은 표시 정책. 합의(agreed)된 비매수 판단만 '현재 합의' 판단으로 세고,
+  // 단독·불일치·무응답·만료·기록 불일치는 그 상태로만 센다(행동 집계 제외). 매수 쪽은 합의여도 판단 보류(D4, 건수 없음).
+  // 합의 표시도 카드 JSON에 적힌 검토 파일 이름 기준일 뿐 앱이 파일 원문을 확인한 것은 아니다(발행 단계 검사: tests/review-cards-policy.test.cjs).
+  var STATUS_ORDER = ['solo', 'mismatch', 'expired', 'no-response', 'disagree'];
+  function policyOf(c, d, now) { var cs = consensusOf(c, d, now); return { cs: cs, held: !!HELD[c.verdict], action: cs === 'agreed' && !HELD[c.verdict] }; }
+  function tally(d, now) {
+    var agreed = {}, st = {}, held = 0;
+    d.cards.forEach(function (c) { var p = policyOf(c, d, now); if (p.held) held++; else if (p.action) agreed[c.verdict] = (agreed[c.verdict] || 0) + 1; else st[p.cs] = (st[p.cs] || 0) + 1; });
+    return { agreed: agreed, status: st, held: held };
+  }
+  function plainLabel(x) { return x.replace(/^\S+ /, ''); }
+  function tallyParts(t, plain) {
+    var lab = function (x) { return plain ? plainLabel(x) : x; };
+    return Object.keys(VERDICT).filter(function (k) { return t.agreed[k]; }).map(function (k) { return lab(CONS.agreed[0]) + ' ' + plainLabel(VERDICT[k][0]) + ' ' + t.agreed[k]; })
+      .concat(STATUS_ORDER.filter(function (k) { return t.status[k]; }).map(function (k) { return lab(CONS[k][0]) + ' ' + t.status[k]; }))
+      .concat(t.held ? ['매수 쪽 판단 보류'] : []);
+  }
   function str(x, max) { return typeof x === 'string' && x.length > 0 && x.length <= max; }
   function list(a, max, len) { return Array.isArray(a) && a.length <= max && a.every(function (x) { return str(x, len); }); }
   function https(u) { try { var p = new URL(u); return p.protocol === 'https:' && !p.username && !p.password; } catch (e) { return false; } }
@@ -52,7 +94,7 @@
       .catch(function () { state.error = '검토 카드를 불러오지 못했습니다(인터넷 연결 확인).'; })
       .then(function () { state.loading = false; state.loaded = true; renderAll(); ensureLink(); });
   }
-  function node(tag, text, css) { var e = document.createElement(tag); if (text != null) e.textContent = text; if (css) e.style.cssText = css; return e; }
+  function node(tag, text, css, tid) { var e = document.createElement(tag); if (text != null) e.textContent = text; if (css) e.style.cssText = css; if (tid) e.setAttribute('data-testid', tid); return e; }
   function kst(iso) { try { return new Date(iso).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }); } catch (e) { return iso; } }
   var ORDER = { 'buy-review': 0, 'add-review': 0, 'trim-review': 1, 'sell-review': 1, 'hold-long': 2, 'wait': 3 };
   function render(box, d0, title, testid) {
@@ -63,7 +105,8 @@
     if (!d) return;
     box.appendChild(node('p', '검토 ' + kst(d.reviewedAt) + ' · ' + d.reviewer + (d.basis ? ' · ' + d.basis : ''), 'font-size:13px'));
     if (d.context) box.appendChild(node('p', d.context));
-    var counts = {}; d.cards.forEach(function (c) { counts[c.verdict] = (counts[c.verdict] || 0) + 1; });
+    if (d.cards.some(function (c) { return HELD[c.verdict]; })) box.appendChild(node('p', HELD_NOTE, 'font-size:14px;font-weight:700;color:#333;background:#f3f3f3;border-radius:8px;padding:8px 10px', 'review-held-note'));
+    // 요약 건수도 카드에 보이는 판단과 같은 정책(CR-B3: 합의된 비매수 판단만 판단 건수, 나머지는 합의 상태 건수, 매수 쪽은 건수 없이 보류).
     var G = typeof window !== 'undefined' && window.HASChartGate, gateKinds = { 'buy-review': 1, 'add-review': 1, 'hold-long': 1 };
     if (G) {
       var gItems = d.cards.filter(function (c) { return gateKinds[c.verdict]; }).map(function (c) { return { ticker: c.ticker, market: c.market }; });
@@ -75,17 +118,21 @@
         box.appendChild(gb);
         // 6시간 안에 확인한 결과는 저장해 두고 바로 보여 준다. 오래됐으면 화면을 열 때 한 번 자동 확인.
         if (!busy && !gateAuto[gk] && gItems.some(function (x) { return !G.fresh(x.market, x.ticker); })) { gateAuto[gk] = true; setTimeout(runGate, 0); }
-        box.appendChild(node('p', '실적은 "사도 될 회사"인지, 차트 관문은 "지금 살 때"인지를 봅니다. 1·3·3·3 분할: 하락 추세면 기다리고, 바닥을 다지면 정찰병(목표 금액의 10%), 20일선을 회복해 버티면 30%, 60일선 회복·저점 상승이면 30%, 다음 실적까지 확인되면 마지막 30%를 삽니다.', 'font-size:14px'));
+        box.appendChild(node('p', '차트 관문은 기업가치·재무 검증 다음에 보는 "지금 살 때인지" 타이밍 참고입니다. 재무·시세 검증과 합의 전이라 분할매수 금액 안내는 보류합니다.', 'font-size:14px'));
       }
     }
-    box.appendChild(node('p', Object.keys(VERDICT).filter(function (k) { return counts[k]; }).map(function (k) { return VERDICT[k][0] + ' ' + counts[k]; }).join(' · '), 'font-weight:700'));
+    box.appendChild(node('p', tallyParts(tally(d)).join(' · '), 'font-weight:700', 'review-tally'));
     d.cards.slice().sort(function (a, b) { return ORDER[a.verdict] - ORDER[b.verdict] || (a.rank || 99) - (b.rank || 99); }).forEach(function (c) {
-      var v = VERDICT[c.verdict], art = node('article', null, 'border-top:1px solid #c9d3e0;padding:10px 0');
+      var v = shown(c.verdict), art = node('article', null, 'border-top:1px solid #c9d3e0;padding:10px 0');
+      var p = policyOf(c, d), cs = p.cs, cl = CONS[cs], quote = !p.held && !p.action && cs !== 'disagree' && cs !== 'no-response';
+      if (!p.held && !p.action) v = [CONS[cs][0], CONS[cs][1]]; // CR-B3: 합의 전 판단은 행동 라벨 대신 합의 상태로(불일치·응답 없음은 원 판단도 숨김, 7절)
       art.appendChild(node('div', (c.rank ? '우선순위 ' + c.rank + ' · ' : '') + c.name + ' (' + c.ticker + ') · ' + v[0], 'font-weight:800;color:' + v[1]));
-      art.appendChild(node('div', c.headline));
+      if (quote) art.appendChild(node('div', '클로 조사 원문 판단: ' + plainLabel(VERDICT[c.verdict][0]) + ' (합의 전 참고 · 현재 합의된 행동 아님)', 'font-size:13px;color:#333', 'review-quote'));
+      art.appendChild(node('div', (cs === 'disagree' || cs === 'no-response' ? '지피 검토' : cl[0]) + (cs === 'agreed' || cs === 'disagree' || cs === 'expired' ? ' · ' + c.consensus.review.replace(/\.md$/, '') : ''), 'font-size:13px;font-weight:700;color:' + cl[1], 'review-consensus'));
+      art.appendChild(node('div', (HELD[c.verdict] ? '📝 클로 조사 의견(원문 인용 · 매수 권유 아님): ' : !p.action ? '📝 클로 조사 의견(원문 인용 · 합의 전 참고): ' : '') + c.headline, null, 'review-headline'));
       var gr = G && gateKinds[c.verdict] ? G.cached(c.market, c.ticker) : null;
-      if (gr) { var gd = G.describe(gr); art.appendChild(node('div', '차트 관문: ' + gd.label, 'font-weight:800;color:' + gd.color)); if (gd.detail) art.appendChild(node('div', gd.detail, 'font-size:14px')); 
-        if (gr.stage === 'falling' && c.rank === 1 && c.verdict === 'buy-review') art.appendChild(node('div', '🔎 예외 정찰 가능: 계획 금액의 5%만, 종목당 1회. 더 떨어져도 추가 매수 금지 → 바닥 다지기로 바뀌면 5% 더 채워 정찰병 10%. 실전 검증에 "예외 정찰"로 기록.', 'font-size:14px;font-weight:700;color:#4a148c;margin-top:4px')); }
+      if (gr) { var gd = G.describe(gr), gs = gateShown(gr); art.appendChild(node('div', '차트 관문: ' + gs.label, 'font-weight:800;color:' + gs.color, 'review-gate')); if (gd.detail) art.appendChild(node('div', gd.detail, 'font-size:14px')); 
+        /* 5% 예외 정찰 안내는 선행 검증(재무·시세·합의)을 우회하지 않도록 판단 보류 중에는 표시하지 않는다(D4). */ }
       var det = node('details'); det.appendChild(node('summary', '근거·반론·출처 보기', 'min-height:44px;display:flex;align-items:center;cursor:pointer'));
       det.appendChild(node('div', '👍 근거', 'font-weight:700')); c.reasons.forEach(function (x) { det.appendChild(node('div', '· ' + x)); });
       det.appendChild(node('div', '⚠ 반론·위험', 'font-weight:700;margin-top:6px')); c.risks.forEach(function (x) { det.appendChild(node('div', '· ' + x)); });
@@ -107,7 +154,7 @@
   function mount(box) { if (!box) return; mounts = mounts.filter(function (m) { return m !== box && m.isConnected; }); mounts.push(box); renderMount(box); if (!state.loaded) load(); loadUS(); }
   // 현황 '오늘의 투자 판단' 띠에 곡소리 AI 매수 검토 건수를 붙이고, 누르면 곡소리 화면의 카드로 이동한다.
   function buys(d) { return d ? d.cards.filter(function (c) { return c.verdict === 'buy-review'; }).length : 0; }
-  function summary() { var d = state.doc || us.doc; if (!d) return null; var kr = buys(state.doc), u = buys(us.doc); return { buy: kr + u, kr: kr, us: u, date: (function () { try { var x = new Date(Date.parse(d.reviewedAt) + 9 * 3600000); return (x.getUTCMonth() + 1) + '/' + x.getUTCDate(); } catch (e) { return ''; } })() }; }
+  function summary() { var d = state.doc || us.doc; if (!d) return null; var kr = buys(state.doc), u = buys(us.doc); return { buy: kr + u, kr: kr, us: u, held: true, cards: (state.doc ? state.doc.cards.length : 0) + (us.doc ? us.doc.cards.length : 0), date: (function () { try { var x = new Date(Date.parse(d.reviewedAt) + 9 * 3600000); return (x.getUTCMonth() + 1) + '/' + x.getUTCDate(); } catch (e) { return ''; } })() }; }
   function open() {
     try { if (window.KSTRadar && window.KSTRadar.openFear) window.KSTRadar.openFear(); } catch (e) { return; }
     setTimeout(function () { var t = document.querySelector('[data-testid=review-cards]'); if (t) t.scrollIntoView({ block: 'start' }); }, 300);
@@ -127,15 +174,15 @@
     if (typeof document === 'undefined') return; var strip = document.getElementById('hasBriefStrip'); if (!strip) return;
     var mini0 = anchorOf(strip), oh = strip.querySelector('[data-testid=hdb-ai-hold]');
     if (mini0 && hold.doc && hold.doc.cards.length) {
-      var cnt = {}; hold.doc.cards.forEach(function (c) { cnt[c.verdict] = (cnt[c.verdict] || 0) + 1; });
-      var hl = '🧠 내 보유 종목 AI 검토: ' + Object.keys(VERDICT).filter(function (k) { return cnt[k]; }).map(function (k) { return VERDICT[k][0].replace(/^\S+ /, '') + ' ' + cnt[k]; }).join(' · ') + ' · 보기 ▶';
+      var hl = '🧠 내 보유 종목 AI 검토: ' + tallyParts(tally(hold.doc), true).join(' · ') + ' · 보기 ▶'; // CR-A2 매수 쪽 건수 숨김, CR-B3 합의 전 판단은 상태로만
       if (!oh || oh.textContent !== hl || oh.previousElementSibling !== mini0) { if (oh) oh.remove(); oh = node('button', hl, 'display:block;width:100%;min-height:44px;margin-top:8px;padding:6px 10px;border:2px solid #0d47a1;border-radius:10px;background:#fff;color:#0d47a1;font-size:15px;font-weight:800;text-align:left'); oh.type = 'button'; oh.setAttribute('data-testid', 'hdb-ai-hold'); oh.addEventListener('click', function (e) { e.stopPropagation(); openHoldings(); }); mini0.after(oh); }
     } else if (oh) oh.remove();
     var mini = strip.querySelector('[data-testid=hdb-ai-hold]') || mini0, old = strip.querySelector('[data-testid=hdb-ai-fear]'), sm = summary();
-    if (!mini || !sm || !sm.buy) { if (old) old.remove(); return; }
-    var label = '🧠 곡소리 AI 매수 검토 ' + sm.buy + '건' + (sm.us ? ' (국내 ' + sm.kr + ' · 미국 ' + sm.us + ')' : ' (' + sm.date + ' 검토)') + ' · 보기 ▶';
+    if (!mini || !sm || !sm.cards) { if (old) old.remove(); return; }
+    // D4: 매수 건수는 현황에 띄우지 않는다(행동 유도 보류). 카드로 가는 길만 남긴다.
+    var label = '🧠 곡소리 AI 조사 의견 보기 ▶ (' + sm.date + ' · 판단 보류)';
     if (old && old.textContent === label && old.previousElementSibling === mini) return; if (old) old.remove();
-    var b = node('button', label, 'display:block;width:100%;min-height:44px;margin-top:8px;padding:6px 10px;border:2px solid #1b5e20;border-radius:10px;background:#fff;color:#1b5e20;font-size:15px;font-weight:800;text-align:left');
+    var b = node('button', label, 'display:block;width:100%;min-height:44px;margin-top:8px;padding:6px 10px;border:2px solid #333;border-radius:10px;background:#fff;color:#333;font-size:15px;font-weight:800;text-align:left');
     b.type = 'button'; b.setAttribute('data-testid', 'hdb-ai-fear'); b.addEventListener('click', function (e) { e.stopPropagation(); open(); }); mini.after(b);
   }
   if (typeof window !== 'undefined' && typeof document !== 'undefined' && typeof MutationObserver === 'function') {
@@ -144,5 +191,5 @@
       load(); loadHoldings(); loadUS();
     });
   }
-  return { validate: validate, mount: mount, summary: summary, open: open, openHoldings: openHoldings, VERDICT: VERDICT };
+  return { validate: validate, mount: mount, summary: summary, open: open, openHoldings: openHoldings, VERDICT: VERDICT, HELD: HELD, shown: shown, consensusOf: consensusOf, CONS: CONS, policyOf: policyOf, tally: tally, tallyParts: tallyParts };
 });
