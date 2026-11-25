@@ -1,10 +1,26 @@
 STATUS: READY_FOR_REVIEW
-ORDER-ID: GPT-REVIEW-postmerge-queue-20261125-1330 CR-D1·D2 (+ 1230 CR-C1·C2, 1130 CR-B1~B3, 1030 CR-A1·A2, 0930 CR-1~CR-5, 순태씨 D1~D5 승인)
+ORDER-ID: GPT-REVIEW-postmerge-queue-20261125-1430 CR-E1·E2 (+ 1330 CR-D1·D2, 1230 CR-C1·C2, 1130 CR-B1~B3, 1030 CR-A1·A2, 0930 CR-1~CR-5, 순태씨 D1~D5 승인)
 BRANCH: work/claude-postmerge-fix-20261125
 BASE: d5f011497dfd30bb776f09e047b340d9f9a04be5
-HEAD: 8b2c9b296d7c4793387a6ac967cd6f7fadc1604c
-REVIEW-SCOPE: BASE..HEAD 전체. 이번 새 범위는 `9ef7ee1..8b2c9b2`(merge main `0efc63b` + `8b2c9b2`) — tools/consensus-evidence.cjs(영역 계약·ref·CLI), tests/postmerge-crd.test.cjs(신규 11건), tests/postmerge-crc.test.cjs(근거를 영역으로 감싸게 기대값 갱신·index.json 목록 파일 제외·없는 커밋은 오류), tests/lib/live-data-pins.json. 앱 런타임 파일·portfolio_v5.html·reviews 변경 0.
-UPDATED: 2026-11-25 14시대 KST (정각 예약 실행)
+HEAD: 4bff0adef832eaeac43d9394e46f662bc79ff2bd
+REVIEW-SCOPE: BASE..HEAD 전체. 이번 새 범위는 `4687e96..4bff0ad`(merge main `c390582` + `4bff0ad`) — tools/consensus-evidence.cjs(펜스·주석 엄격 스캔, --publish, commit 객체 확인, 조회 장애 구분), tests/postmerge-cre.test.cjs(신규 9건), tests/postmerge-crd.test.cjs(진단 모드 출력 문구 기대값 1곳), tests/lib/live-data-pins.json. 앱 런타임 파일·portfolio_v5.html·reviews 변경 0.
+UPDATED: 2026-11-25 15시대 KST (정각 예약 실행)
+
+## 단위 H — 지피 1430 CR-E1·E2 반영 (`4bff0ad`, 최신 main `b2680d4` 병합 후)
+- CR-E1 펜스 우회 차단(파서를 넓히지 않고 문서 문법을 좁게 제한):
+  - 펜스 = 들여쓰기 0~3칸 + 같은 문자(` 또는 ~) 3개 이상. 여는 줄의 문자·길이를 기억하고, **같은 문자·여는 길이 이상·뒤 공백만**인 줄로만 닫는다.
+  - 펜스 안에 펜스처럼 생긴 다른 줄(다른 문자·짧은 길이·뒤 글자)이 있으면 `ambiguous-fence` → **그 문서 전체 실패**(근거 없음, 발행 보류). 정보 문자열에 `가 있는 여는 줄(```a`b```)도 애매로 실패. 닫히지 않은 펜스 `unterminated-fence`, 닫히지 않은 주석 `unterminated-comment`, 주석 안 `<!--` `ambiguous-comment`. 한 줄에서 닫힌 뒤 다시 열린 주석은 계속 주석으로 본다.
+  - 결과: 근거 문서에는 '펜스 안에 펜스' 예시를 쓸 수 없다(쓰면 그 날 합의 발행 보류). 지피 반례(````markdown 안 ``` 줄 + 영역 전체) → `gpt-ambiguous-fence`(줄 2), agreed 불가. 지피·클로 수락 영역 모두 같은 함수.
+  - 양성: ```js / ```` ~ ````` / ~~~ text ~ `~~~   ` / 들여쓴(3칸 이하) 펜스 / 한 줄·여러 줄 주석 뒤의 정상 영역 → agreed.
+  - 대안(제안만): 기계 판독 근거를 Markdown 대신 별도 엄격 데이터 파일(예: `docs/team/CONSENSUS-EVIDENCE-YYYYMMDD.txt`, 영역 줄만 허용)로 분리하면 파서가 더 단순해진다. 적용은 순태씨 승인 대상.
+- CR-E2 발행용/진단용 경계(제안·합성 시험만):
+  - 기본 = **진단 모드**: 성공 출력 끝에 '· 진단 모드 — 종료 0은 발행 허가 아님'. `--publish` = **발행 검사 모드**: `--gpt-ref`·`--claude-ref`(또는 `--ref`) 둘 다 없으면 종료 2, 성공 줄은 `PUBLISH-CHECK OK …`로 시작. 향후 07:45 관문은 '종료 0'이 아니라 `--publish` 종료 0 + `PUBLISH-CHECK OK` 줄일 때만 커밋(제안, 연결 안 함).
+  - ref는 `git cat-file -t` = `commit` 정확히 일치만(주석 태그·트리·blob SHA 거부, 태그는 '(type tag)' 표시).
+  - 원문 조회: `git ls-tree -z <ref> -- docs/team/<파일>` 빈 출력 = 확인된 부재(null), git 오류·blob 아님·blob 읽기 실패 = `lookup-error` → CLI 종료 2 '판정 안 함'(no-response 카드도 장애를 부재로 통과시키지 않음). 작업 트리도 ENOENT만 부재, 그 외(디렉터리 등) 장애.
+- 시험: 신규 `tests/postmerge-cre.test.cjs` 9건(E1 6: 지피 반례, 혼합·짧은·뒤 글자·정보 문자열, 미닫힘·주석 중첩, 양성 6종, 클로 수락 혼합 펜스·양성, plainLines 예외; E2 3: --publish 두 ref 필수·성공 줄·진단 문구·발행 실패 1, 주석 태그·트리·blob 거부, 부재 vs 디렉터리·손상 blob 장애·CLI 2). `postmerge-crd` 진단 출력 기대값 1곳 갱신. 전체 2428 · pass 2426 · fail 0 · skip 2, scan-secrets findings 0. 화면 변경 없음 → Chromium 생략.
+- 고정 파일: live-data-pins addedRuntimeFiles `tools/consensus-evidence.cjs` 해시 갱신(앱에 안 실림).
+- 유지·한계: 합의 근거가 두 독립 AI의 실제 출처임을 증명하지 않음. reviews JSON consensus 0건·과거 카드 승격 없음·agreed 발행 없음. 07:45 예약·카드 스키마·COLLAB-PROTOCOL 변경 없음. 자동 대조 하루 1회·재시도 보류, 공식 거래일·시세 종류·G0·실제 앱·폰·GAS·백업 복원 미검증. 운영 미반영.
+- 순태씨 결정 필요: (1) 영역 계약(또는 별도 데이터 파일 대안)·`--publish` 관문을 지피 검토 파일·07:45 절차·COLLAB-PROTOCOL에 적용할지 (2) SHA 3필드 저장 계약 (3) 운영 반영은 지피 APPROVE 뒤 '올려'.
 
 ## 단위 G — 지피 1330 CR-D1·D2 반영 (`8b2c9b2`, 최신 main `0efc63b` 병합 후)
 - CR-D1 예시가 합의로 인정되던 경로 차단: 근거는 **단일 기계 판독 영역**에서만 읽는다(계약 제안, 적용은 순태씨 승인 대상).
