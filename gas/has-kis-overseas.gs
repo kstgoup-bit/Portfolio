@@ -111,11 +111,17 @@ function hasKisUsParse_(text, ticker, excd) {
         if (byDate[iso] !== c) return null;                                // 같은 날 다른 값은 모호
       } else { byDate[iso] = c; order.push(iso); }
     }
-    if (order.length < 2) return null;                                     // 거래소가 틀리면 보통 빈 목록
     order.sort();
+    // 장중 봉 제외: 미국 동부 기준 오늘 날짜 봉은 16:30(마감 30분 뒤) 전에는 확정 종가가 아니므로 뺀다.
+    var now = new Date();
+    var etDay = Utilities.formatDate(now, 'America/New_York', 'yyyy-MM-dd');
+    var etHm = Number(Utilities.formatDate(now, 'America/New_York', 'HHmm'));
+    var partial = false;
+    if (order.length && order[order.length - 1] >= etDay && etHm < 1630) { order = order.filter(function (x) { return x < etDay; }); partial = true; }
+    if (order.length < 2) return null;                                     // 거래소가 틀리면 보통 빈 목록
     return {
       source: 'kis-overseas-daily', symbol: ticker, currency: 'USD', exchange: excd, timezone: 'America/New_York',
-      adjustment: 'kis-modp-1', barCount: order.length,
+      adjustment: 'kis-modp-1', barCount: order.length, intradayDropped: partial,
       bars: order.map(function (x) { return { d: x, c: byDate[x] }; })
     };
   } catch (err) { return null; }
@@ -131,6 +137,6 @@ function hasKisUsSelfTest() {
   Object.keys(r).forEach(function (k) {
     var v = r[k];
     if (k === 'error') { Logger.log('오류: ' + v); return; }
-    Logger.log(k + ': ' + (v ? (v.exchange + ' ' + v.barCount + '일, 마지막 ' + v.bars[v.bars.length - 1].d + ' 종가 ' + v.bars[v.bars.length - 1].c) : '실패(null)'));
+    Logger.log(k + ': ' + (v ? (v.exchange + ' ' + v.barCount + '일, 마지막 ' + v.bars[v.bars.length - 1].d + ' 종가 ' + v.bars[v.bars.length - 1].c + (v.intradayDropped ? ' (장중 봉 제외됨)' : '')) : '실패(null)'));
   });
 }
