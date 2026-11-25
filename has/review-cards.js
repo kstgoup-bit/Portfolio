@@ -15,6 +15,9 @@
   var HELD = { 'buy-review': ['🧠 매수 후보 · 판단 보류(재무·시세 검증 전)', '#333'], 'add-review': ['🧠 추가 매수 후보 · 판단 보류(재무·시세 검증 전)', '#333'] };
   var HELD_NOTE = '⚠ 매수 후보 카드는 클로가 조사한 의견입니다. 앱이 재무(DART·SEC)·시세 검증을 아직 못 해 매수 판단은 보류합니다. 지피 합의 여부는 카드마다 따로 표시합니다. 이유·반론은 참고용으로만 보세요.';
   function shown(k) { return HELD[k] || VERDICT[k]; }
+  // CR-A1: 판단 보류 중 차트 관문은 단계 이름만 중립으로 보인다('정찰병 10%·30% 더 가능' 같은 행동 안내·행동 색 없음). 산식·캐시는 그대로.
+  var GATE_NEUTRAL = { falling: '하락 추세', basing: '바닥 다지기', stage2: '20일선 회복', stage3: '60일선 회복·저점 상승', unknown: '차트 자료 부족' };
+  function gateShown(gr) { return { label: (GATE_NEUTRAL[gr && gr.stage] || GATE_NEUTRAL.unknown) + ' · 타이밍 참고(판단 보류)', color: '#333' }; }
   // 합의 상태(지피 CR-5, 순태씨 D5 승인 2026-11-25). 카드의 consensus 기록이 이 카드의 종목·판단·검토일·지피 검토 파일과
   // 모두 맞을 때만 '지피 합의'. 기록이 없거나 어긋나면 '클로 단독'(일괄 승격 없음). 합의여도 재무·시세 검증 전 매수 쪽 판단 보류(D4)는 유지.
   var CONSENSUS_DAYS = 7;
@@ -108,9 +111,9 @@
       var cs = consensusOf(c, d), cl = CONS[cs]; if (cs === 'disagree' || cs === 'no-response') v = CONS[cs]; // 불일치·응답 없음은 판단을 행동으로 보이지 않음(7절)
       art.appendChild(node('div', (c.rank ? '우선순위 ' + c.rank + ' · ' : '') + c.name + ' (' + c.ticker + ') · ' + v[0], 'font-weight:800;color:' + v[1]));
       art.appendChild(node('div', (cs === 'disagree' || cs === 'no-response' ? '지피 검토' : cl[0]) + (cs === 'agreed' || cs === 'disagree' || cs === 'expired' ? ' · ' + c.consensus.review.replace(/\.md$/, '') : ''), 'font-size:13px;font-weight:700;color:' + cl[1], 'review-consensus'));
-      art.appendChild(node('div', c.headline));
+      art.appendChild(node('div', (HELD[c.verdict] ? '📝 클로 조사 의견(원문 인용 · 매수 권유 아님): ' : '') + c.headline, null, 'review-headline'));
       var gr = G && gateKinds[c.verdict] ? G.cached(c.market, c.ticker) : null;
-      if (gr) { var gd = G.describe(gr); art.appendChild(node('div', '차트 관문: ' + gd.label, 'font-weight:800;color:' + gd.color)); if (gd.detail) art.appendChild(node('div', gd.detail, 'font-size:14px')); 
+      if (gr) { var gd = G.describe(gr), gs = gateShown(gr); art.appendChild(node('div', '차트 관문: ' + gs.label, 'font-weight:800;color:' + gs.color, 'review-gate')); if (gd.detail) art.appendChild(node('div', gd.detail, 'font-size:14px')); 
         /* 5% 예외 정찰 안내는 선행 검증(재무·시세·합의)을 우회하지 않도록 판단 보류 중에는 표시하지 않는다(D4). */ }
       var det = node('details'); det.appendChild(node('summary', '근거·반론·출처 보기', 'min-height:44px;display:flex;align-items:center;cursor:pointer'));
       det.appendChild(node('div', '👍 근거', 'font-weight:700')); c.reasons.forEach(function (x) { det.appendChild(node('div', '· ' + x)); });
@@ -154,7 +157,7 @@
     var mini0 = anchorOf(strip), oh = strip.querySelector('[data-testid=hdb-ai-hold]');
     if (mini0 && hold.doc && hold.doc.cards.length) {
       var cnt = {}; hold.doc.cards.forEach(function (c) { cnt[c.verdict] = (cnt[c.verdict] || 0) + 1; });
-      var hl = '🧠 내 보유 종목 AI 검토: ' + Object.keys(VERDICT).filter(function (k) { return cnt[k]; }).map(function (k) { return (HELD[k] ? '추가 매수 후보(판단 보류)' : VERDICT[k][0].replace(/^\S+ /, '')) + ' ' + cnt[k]; }).join(' · ') + ' · 보기 ▶';
+      var hl = '🧠 내 보유 종목 AI 검토: ' + Object.keys(VERDICT).filter(function (k) { return cnt[k] && !HELD[k]; }).map(function (k) { return VERDICT[k][0].replace(/^\S+ /, '') + ' ' + cnt[k]; }).concat(Object.keys(HELD).some(function (k) { return cnt[k]; }) ? ['매수 쪽 판단 보류'] : []).join(' · ') + ' · 보기 ▶'; // CR-A2: 매수 쪽 건수는 숨김
       if (!oh || oh.textContent !== hl || oh.previousElementSibling !== mini0) { if (oh) oh.remove(); oh = node('button', hl, 'display:block;width:100%;min-height:44px;margin-top:8px;padding:6px 10px;border:2px solid #0d47a1;border-radius:10px;background:#fff;color:#0d47a1;font-size:15px;font-weight:800;text-align:left'); oh.type = 'button'; oh.setAttribute('data-testid', 'hdb-ai-hold'); oh.addEventListener('click', function (e) { e.stopPropagation(); openHoldings(); }); mini0.after(oh); }
     } else if (oh) oh.remove();
     var mini = strip.querySelector('[data-testid=hdb-ai-hold]') || mini0, old = strip.querySelector('[data-testid=hdb-ai-fear]'), sm = summary();
