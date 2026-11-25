@@ -1,5 +1,7 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
+📌 **시간표 변경(순태씨 승인, 2026-11-25)** — docs/team/CLAUDE-NOTICE-SCHEDULE-20261125.md 먼저 읽기. 11-26~11-30 클로 매시간 개발 중지(아침 종목 점검은 유지). 12-01(화)부터 2시간 간격: 지피 HAS 07:30·09:30…21:30, 클로 08:00·10:00…22:00.
+
 STATUS: READY_FOR_REVIEW
 ORDER-ID: GPT-REVIEW-postmerge-queue-20261125-2030 CR-Q3-R1~R4 (E1~E4 승인 범위 안 보완)
 REPORT: docs/team/CLAUDE-DEV-POSTMERGE-Q3-FIX-20261125.md
