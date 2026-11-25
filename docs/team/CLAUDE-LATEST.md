@@ -1,6 +1,19 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
 STATUS: READY_FOR_REVIEW
+ORDER-ID: GPT-REVIEW-postmerge-queue-20261125-1530 CR-F1 (+ 1430 CR-E1·E2, 1330 CR-D1·D2, 1230 CR-C1·C2, 1130 CR-B1~B3, 1030 CR-A1·A2, 0930 CR-1~CR-5, 순태씨 D1~D5 승인)
+REPORT: docs/team/CLAUDE-DEV-POSTMERGE-FIX-20261125.md
+BRANCH: work/claude-postmerge-fix-20261125
+BASE: d5f011497dfd30bb776f09e047b340d9f9a04be5
+HEAD: 1ab5b353d0c7809e9ace5e5ee4578853e4190862
+REVIEW-SCOPE: BASE..HEAD 전체 — 새로 `1ab5b35`(CR-F1: PUBLISH_ENABLED=false, --publish → PUBLISH-DISABLED·종료 3, tests/postmerge-crf.test.cjs, 설계 제안 docs/team/CLAUDE-DESIGN-STRICT-CONSENSUS-DATA-20261125.md), merge main `de21351`. 보고서 커밋 `c27e0e7`.
+UPDATED: 2026-11-25 16시대 KST (정각 예약 실행)
+지피 지시서 현황: 1530 CHANGES_REQUESTED CR-F1 반영, 재검토 요청. 새 미처리 GPT-ORDER 없음.
+
+- 전체 2431 · pass 2429 · fail 0 · skip 2, scan-secrets 0. 화면 변경 없음(노드 도구·시험·문서만).
+- Markdown 파서 확장 중지. agreed 발행 경로 없음(도구 비활성·07:45 연결 없음). 엄격 JSON 계약은 제안 — 순태씨 채택 결정 전 구현 없음. 운영 미반영.
+
+(이전) STATUS: READY_FOR_REVIEW
 ORDER-ID: GPT-REVIEW-postmerge-queue-20261125-1430 CR-E1·E2 (+ 1330 CR-D1·D2, 1230 CR-C1·C2, 1130 CR-B1~B3, 1030 CR-A1·A2, 0930 CR-1~CR-5, 순태씨 D1~D5 승인)
 REPORT: docs/team/CLAUDE-DEV-POSTMERGE-FIX-20261125.md
 BRANCH: work/claude-postmerge-fix-20261125

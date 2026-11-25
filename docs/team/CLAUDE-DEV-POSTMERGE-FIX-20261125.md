@@ -1,10 +1,18 @@
 STATUS: READY_FOR_REVIEW
-ORDER-ID: GPT-REVIEW-postmerge-queue-20261125-1430 CR-E1·E2 (+ 1330 CR-D1·D2, 1230 CR-C1·C2, 1130 CR-B1~B3, 1030 CR-A1·A2, 0930 CR-1~CR-5, 순태씨 D1~D5 승인)
+ORDER-ID: GPT-REVIEW-postmerge-queue-20261125-1530 CR-F1 (+ 1430 CR-E1·E2, 1330 CR-D1·D2, 1230 CR-C1·C2, 1130 CR-B1~B3, 1030 CR-A1·A2, 0930 CR-1~CR-5, 순태씨 D1~D5 승인)
 BRANCH: work/claude-postmerge-fix-20261125
 BASE: d5f011497dfd30bb776f09e047b340d9f9a04be5
-HEAD: 4bff0adef832eaeac43d9394e46f662bc79ff2bd
-REVIEW-SCOPE: BASE..HEAD 전체. 이번 새 범위는 `4687e96..4bff0ad`(merge main `c390582` + `4bff0ad`) — tools/consensus-evidence.cjs(펜스·주석 엄격 스캔, --publish, commit 객체 확인, 조회 장애 구분), tests/postmerge-cre.test.cjs(신규 9건), tests/postmerge-crd.test.cjs(진단 모드 출력 문구 기대값 1곳), tests/lib/live-data-pins.json. 앱 런타임 파일·portfolio_v5.html·reviews 변경 0.
-UPDATED: 2026-11-25 15시대 KST (정각 예약 실행)
+HEAD: 1ab5b353d0c7809e9ace5e5ee4578853e4190862
+REVIEW-SCOPE: BASE..HEAD 전체. 이번 새 범위는 `6d6896f..1ab5b35`(merge main `de21351` + `1ab5b35`) — tools/consensus-evidence.cjs(PUBLISH_ENABLED=false, --publish → PUBLISH-DISABLED·종료 3), tests/postmerge-crf.test.cjs(신규 3건), tests/postmerge-cre.test.cjs(--publish 기대값 2곳), tests/lib/live-data-pins.json, docs/team/CLAUDE-DESIGN-STRICT-CONSENSUS-DATA-20261125.md(엄격 JSON 계약 제안·합성 검증 계획). 앱 런타임·portfolio_v5.html·reviews 변경 0.
+UPDATED: 2026-11-25 16시대 KST (정각 예약 실행)
+
+## 단위 I — 지피 1530 CR-F1 반영 (`1ab5b35`, 최신 main `4fa6604` 병합 후)
+- 지피 권고 수용: Markdown 파서 예외 확장 **중지**. 지피 `<pre>` 반례는 파서로 막지 않고 '알려진 한계'로 시험에 기록(진단상 agreed로 읽힘).
+- 발행 경로 비활성: `PUBLISH_ENABLED = false` 상수, `--publish`는 두 ref·commit 객체·조회 장애 검사를 그대로 돌리되 통과해도 `PUBLISH-DISABLED …agreed 발행 금지(엄격 데이터 계약 승인 전)`·**종료 3**. 근거 실패 1·장애 2는 그대로. 도구 어디에도 발행 허가 줄(`PUBLISH-CHECK OK`) 없음. 0건 통과도 종료 3.
+- 설계 종료안: `docs/team/CLAUDE-DESIGN-STRICT-CONSENSUS-DATA-20261125.md` — 사람용 Markdown과 분리된 엄격 JSON(`GPT-EVIDENCE-YYYYMMDD.json`·`CLAUDE-ACCEPT-YYYYMMDD.json`, 중복 키·미지 필드·누락·타입·크기 위반 시 파일 전체 실패, 종목·시장 유일), 클로 원판단 reviews JSON 커밋·blob 해시 결합, 수락↔지피 근거 결합, 검사 바이트=발행 바이트, 0건≠허가, no-response는 지정 고정 커밋에서만, 합성 검증 계획. **제안만 — 구현·연결 없음.**
+- 시험: 신규 `tests/postmerge-crf.test.cjs` 3건, `postmerge-cre` --publish 기대값 갱신. 전체 2431 · pass 2429 · fail 0 · skip 2, scan-secrets findings 0. 화면 변경 없음 → Chromium 생략.
+- 한계: 출처 증명 아님, 07:45 절차·예약·카드 스키마·COLLAB-PROTOCOL 변경 없음, agreed 발행·과거 카드 승격 없음. 공식 거래일·시세 종류·G0·실제 앱·폰·GAS·백업 미검증. 운영 미반영.
+- 순태씨 결정 필요: (1) 별도 엄격 JSON 계약 방향 채택 (2) 세 원문 SHA 고정·원판단 대조 필수 관문·같은 커밋 허용 여부 (3) 운영 반영은 지피 APPROVE 뒤 '올려'.
 
 ## 단위 H — 지피 1430 CR-E1·E2 반영 (`4bff0ad`, 최신 main `b2680d4` 병합 후)
 - CR-E1 펜스 우회 차단(파서를 넓히지 않고 문서 문법을 좁게 제한):
