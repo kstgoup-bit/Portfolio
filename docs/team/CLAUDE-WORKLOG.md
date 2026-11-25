@@ -19,6 +19,7 @@
 다음 묶음: 1단계 후속(탭 첫 진입 자동 조회·하루 캐시, 확신 종목 UI 25%/10%, '준비 중' 제거) → 2차 재무(SEC EDGAR, DART) → 서비스워커 rollback.
 
 ## 처리한 지시서
+- 순태씨 E1~E4 승인(2026-11-25 19시대 대화, E4①은 클로 권고 '버튼만') — GPT-REVIEW-postmerge-queue-20261125-1830 CR-Q3-1~4 구현 `work/claude-postmerge-q3-fix-20261125` `e476ec5`, 보고 `c55c626` READY_FOR_REVIEW.
 - GPT-REVIEW-postmerge-queue-20261125-1830 (2026-11-25 19시 정각 실행) CHANGES_REQUESTED(POST_MERGE 큐 3, CR-Q3-1~4) — 코드 대조로 전부 확인, 수정 범위·합성 시험 계획 CLAUDE-DEV-POSTMERGE-Q3-FIX-PLAN-20261125.md 게시. 구현은 순태씨 결정 E1~E4 승인 후(지피 지시대로). 코드 변경 0.
 - GPT-REVIEW-postmerge-queue-20261125-1630 (2026-11-25 17시 정각 실행) APPROVE(`1ab5b35` 대상, STATIC_ONLY) — 기록, **순태씨 운영 반영 승인 요청 대상**(화면 개선 범위; agreed 발행·엄격 JSON 구현은 승인 아님).
 - GPT-REVIEW-postmerge-queue-20261125-1530 (2026-11-25 16시 정각 실행) CHANGES_REQUESTED(`4bff0ad` 대상, CR-F1) — 반영 `1ab5b35`(Markdown 파서 확장 중지, --publish 발행 비활성 종료 3, 엄격 JSON 계약 제안 문서), 보고 `c27e0e7` READY_FOR_REVIEW. 계약 채택·SHA 관문은 순태씨 결정.
@@ -384,3 +385,4 @@
 - 2026-11-25 17:2x 순태씨 대화 '올려': `work/claude-postmerge-fix-20261125`(`1ab5b35`) main 병합 `91bb578`·push, Pages build/deploy success. 전체 2431/2429/0/2skip, scan-secrets 0, Chromium 360/390/430 잠금 화면 로드·넘침 0(콘솔 '<' 오류 3건은 병합 전과 동일). 다음: 순태씨 폰 확인, 엄격 JSON 계약 결정, 사후 검토 큐 3 게시.
 - 2026-11-25 18:0x 정각 실행: 새 GPT-ORDER/REVIEW 없음(1630 APPROVE 이후, 17:30 슬롯 파일 없음 — 1회째, 알림 기준 미달), 다비 새 문서 없음. 승인된 다음 단위: 사후 검토 큐 3 정식 게시 — docs/team/CLAUDE-DEV-POSTMERGE-QUEUE3-20261125.md(성적표·실전 검증 3cec9ab·4be3c10·0f5009e·4869e7d, POST_MERGE, HEAD 3df464d). 자체 발견 2건(주석 불일치, 백업 형식 검사 느슨) 미수정. 코드 변경 0, 전체 2431/2429/0/2skip, scan-secrets 0. 다음: 지피 큐 3 검토 / 큐 4(탭 분리·400종목 이름·활동 기록 창) 게시.
 - 2026-11-25 19시대 정각: 지피 1830 큐 3 CHANGES_REQUESTED 처리 — 계획 문서만 게시(코드 변경 0, 시험 미실행). 다음: 순태씨 E1~E4 결정 대기 → 승인 시 단위 A(저장 전 검사·공통 계약)부터, 큐 4 이후는 기존 순서.
+- 2026-11-25 20시대 (순태씨 대화 E1~E4 승인) 큐 3 수정 `e476ec5`: 저장 전 500건·형식 검사, 앱·백업 공통 계약(옛 형식 읽기 전용·원문 보존), 같은 날짜 쌍 채점, 수동 조회·카드 연결·부분 합계·뉴욕 날짜. 전체 2441/2438/1(main 동일 기존 실패 postmerge-crc)/2, scan-secrets 0, Chromium 3폭 통과. 다음: 지피 재검토 → 순태씨 '올려' / postmerge-crc 시각 의존 실패 원인 확인.
