@@ -1,10 +1,23 @@
 STATUS: READY_FOR_REVIEW
-ORDER-ID: GPT-REVIEW-postmerge-queue-20261125-1130 CR-B1·B2·B3 (+ 1030 CR-A1·A2, 0930 CR-1~CR-5, 순태씨 D1~D5 승인)
+ORDER-ID: GPT-REVIEW-postmerge-queue-20261125-1230 CR-C1·C2 (+ 1130 CR-B1~B3, 1030 CR-A1·A2, 0930 CR-1~CR-5, 순태씨 D1~D5 승인)
 BRANCH: work/claude-postmerge-fix-20261125
 BASE: d5f011497dfd30bb776f09e047b340d9f9a04be5
-HEAD: 0c7e93df1c56afcfdb7e42626a3367f3be01761e
-REVIEW-SCOPE: BASE..HEAD 전체. 이번 새 범위는 `0c7e93d`(1130 CR-B1·B2·B3) — has/kis-crosscheck.js, has/price-trust-ui.js, has/review-cards.js, tests/postmerge-crb.test.cjs(신규 14건), 기존 시험 3개 기대값 갱신, tests/lib/live-data-edits.json·live-data-pins.json.
-UPDATED: 2026-11-25 12시대 KST (정각 예약 실행, 12:0x 시작)
+HEAD: ee4ece57db8a76c4b20c4eafe8ec6e37a3b878d6
+REVIEW-SCOPE: BASE..HEAD 전체. 이번 새 범위는 `0c7e93d..ee4ece5`(merge main `669270d` + `ee4ece5`) — has/kis-crosscheck.js, tools/consensus-evidence.cjs(신규), tests/postmerge-crc.test.cjs(신규 11건), tests/postmerge-crb.test.cjs(약한 발행 검사 삭제·문구 기대값), tests/kis-crosscheck*.test.cjs 기대값 2줄, tests/lib/live-data-pins.json.
+UPDATED: 2026-11-25 13시대 KST (정각 예약 실행)
+
+## 단위 F — 지피 1230 CR-C1·C2 반영 (`ee4ece5`, 최신 main `a935349` 병합 후)
+- CR-C1 합의 발행 근거(차단 해소 제안): `tools/consensus-evidence.cjs` 신규(노드 전용, 발행 단계 검사). **기계 판독 계약(제안)**: 지피 검토 파일 줄 `CONSENSUS-EVIDENCE: <종목> <KR|US> <클로 원판단> <YYYY-MM-DD> AGREE|DISAGREE [PROPOSE=<지피 판단>]`, 지피 이견에 클로가 동의한 경우에만 클로 파일 `docs/team/CLAUDE-AI-RECHECK-YYYYMMDD.md` 줄 `CLAUDE-ACCEPT: <종목> <시장> <지피 판단> <날짜> <지피 검토 파일>`. 
+  - agreed = 그 종목·시장·날짜 근거 줄 정확히 1개 + (AGREE·원판단=카드 판단·클로 수락 줄 없음) 또는 (DISAGREE PROPOSE=카드 판단 + 같은 파일을 가리키는 클로 수락 정확히 1개). disagree = DISAGREE·원판단=카드 판단·수락 없음. no-response = 그 종목 근거 줄 없음(파일 없어도 됨) — 응답이 있으면 차단. 그 밖(문장 속 AGREE·`005930: DISAGREE`·AGREE_NO_CHANGE·APPROVE, 다른 종목/시장/판단/날짜, 중복·충돌, 형식 오류 줄, 파일 없음, 카드 consensus 필드·발행일 불일치)은 모두 실패.
+  - 원문 위치·SHA 결합: 기본은 작업 트리 `docs/team/<review>`. `--ref <40자리 커밋 SHA>`를 주면 그 커밋의 `docs/team/<review>`를 git에서 읽어 검사(없으면 실패=보류). 지피 원문이 `docs/gpt-*` 브랜치에만 있으면, 그 브랜치 커밋 SHA로 `--ref` 검사하거나 main docs/team 사본을 둔 뒤 검사해야 한다. 카드 JSON에 `reviewSha` 같은 새 필드로 SHA를 묶는 것은 **데이터 계약 변경이라 넣지 않음**(순태씨 승인 대상 제안).
+  - 우회 여부: 앱(has/review-cards.js)은 원문을 읽지 않고 카드 consensus 필드만 본다(기존 한계 그대로, 런타임 합의 표시는 발행 단계의 검증된 기록에 의존). 발행 검사는 ① 전체 시험 `tests/postmerge-crc.test.cjs` 마지막 시험이 게시된 `reviews/*.json`의 모든 consensus 카드에 실제 `verifyFile()`을 호출 ② 수동 `node tools/consensus-evidence.cjs reviews/<파일>.json [--ref SHA]`(실패 시 종료코드 1). 07:45 예약 발행 절차가 이 검사를 반드시 실행하도록 하는 것과 지피 검토 파일 형식에 위 줄을 쓰는 것은 **COLLAB-PROTOCOL·예약 작업 변경이라 이번에 바꾸지 않음**(지피 확인 + 순태씨 승인 후 적용). 그 전까지 클로는 consensus `agreed`를 발행하지 않는다(현재 게시 JSON consensus 0건, 과거 카드 승격 없음, reviews 파일 변경 0).
+  - 옛 `body.includes(ticker) && /APPROVE|AGREE/` 시험은 삭제하고 위 검사로 대체.
+- CR-C2 KIS 20일 과대표시: `compare()`에 `full`(공통 응답 날짜 ≥ 20) 추가, 전부 일치해도 20개 미만이면 status `short`('✅ 최신 종가 일치 · 20일 자료 부족', #333). `match` 라벨은 '✅ 공통 응답 20일 일치(참고)'. 결과 줄 '최신 종가 일치 N · 공통 응답 20일 일치(참고) N · 20일 자료 부족 N'(20일 일치는 checked ≥ 20인 match만). 종목별 '최근 N거래일' → '공통 응답 날짜 N일 중 M일 일치 (자료 부족 · 20일 미만 | 공식 거래일 아님)'. 기록 줄 '(공통 응답 20일 일치와는 별개)'. 저장 형식·recordFrom·trustSummary·연속 집계 변경 0(최신일 일치 판정은 그대로).
+- 시험: 신규 `tests/postmerge-crc.test.cjs` 11건 — C2 순수(1/1·19/19 short, 20/20 match, 20일 중 과거 차이 partial, 30일→20개 제한, 출처 지연 stale) + 실제 kis-crosscheck.js DOM(1/1, 19/19, 20/20, 20일 중 과거 차이, Yahoo 누락일→공통 19일 자료 부족, KIS 최신일 지연 ⏳미검증); C1 양성 AGREE, 음성(지피 반례 `005930: DISAGREE (매도 검토 반대)`, AGREE_NO_CHANGE, APPROVE, 문장 속 AGREE, DISAGREE 줄, AGREE_NO_CHANGE 토큰), 다른 종목·시장·판단·날짜·중복·충돌·형식 오류·추가 토큰·파일 없음·발행일·필드 불일치·파일명 날짜, 이견→클로 동의(수락 없음/다른 판단/다른 파일/정상, 원판단 agreed 불가, AGREE+수락 모호 차단), disagree·no-response 별도 규칙, `--ref` 40자리 SHA만·없는 커밋은 보류, 게시 JSON 발행 계약. 기존 기대값 갱신: kis-crosscheck(2일 일치 match→short), d2d3(같음), crb(결과 문구).
+- 고정 파일: live-data-pins `has/kis-crosscheck.js` currentSha256 갱신, `tools/`가 보호 경로라 `tools/consensus-evidence.cjs`를 addedRuntimeFiles에 검토된 추가로 등록(앱 런타임에는 안 실림, portfolio_v5.html 변경 0).
+- 전체 2408 · pass 2406 · fail 0 · skip 2, scan-secrets findings 0, `node tools/consensus-evidence.cjs reviews/*.json` → all ok(합의 카드 0건). Chromium 360/390/430 합성 하네스(실제 kis-crosscheck.js, 20일 일치 1종목 + 1일 자료 부족 1종목, 외부 요청 차단): 가로 넘침 0, scrollWidth=뷰포트, 최소 글자 13px.
+- 지피 잔여 제한 수용: 자동 대조는 '이 기기 저장 기록 기준 하루 1회(동시 탭·백업 복원 미검증)', lastFail은 메모리 상태라 새 인스턴스의 최근 실패로 주장하지 않음, 하루 2회 재시도 보류 유지. 공식 거래일·시세 종류·G0·실제 앱·폰·GAS·백업 복원 미검증. 운영 미반영.
+- 순태씨 결정 필요: (1) 합의 근거 계약(위 두 줄 형식)을 지피 검토 파일·07:45 발행 절차에 적용할지 — 승인 전에는 '지피 합의' 발행 없음. (2) 카드 consensus에 검토 원문 SHA 필드 추가 여부(데이터 계약 변경). (3) 운영 반영은 지피 APPROVE 뒤 '올려'.
 
 ## 단위 E — 지피 1130 CR-B1·B2·B3 반영 (`0c7e93d`, 최신 main `c5b0a40` 병합 후)
 - CR-B1 가격 신뢰도 띠: `currentSet()`(수량>0·중복 제거, KIS 대조와 같은 기준·앞 15개 지문) 추가. `trustSummary(row, now, hasUS, cur, lastFail)` — 기록 지문·총수가 현재 보유와 다르면(같은 개수 다른 집합·추가·삭제) warn '보유 종목이 바뀌어 … 현재 보유 검증이 아님', 0종목·미확인은 info '참고만', 최근 조회 실패는 warn. 모두 맞아도 공식 거래일·시세 종류 미확인이라 **녹색(ok)·✅ 없음**(info '참고 대조'). 띠 등급은 앱 가격 경로(gas-jsonp, 미검증 warn)보다 낮아지지 않고, KIS 문구는 `hpt-kis` 보조 줄로만.

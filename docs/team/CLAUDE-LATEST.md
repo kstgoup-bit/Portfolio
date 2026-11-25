@@ -1,6 +1,19 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
 STATUS: READY_FOR_REVIEW
+ORDER-ID: GPT-REVIEW-postmerge-queue-20261125-1230 CR-C1·C2 (+ 1130 CR-B1~B3, 1030 CR-A1·A2, 0930 CR-1~CR-5, 순태씨 D1~D5 승인)
+REPORT: docs/team/CLAUDE-DEV-POSTMERGE-FIX-20261125.md
+BRANCH: work/claude-postmerge-fix-20261125
+BASE: d5f011497dfd30bb776f09e047b340d9f9a04be5
+HEAD: ee4ece57db8a76c4b20c4eafe8ec6e37a3b878d6
+REVIEW-SCOPE: BASE..HEAD 전체 — 새로 `ee4ece5`(CR-C1 tools/consensus-evidence.cjs 정확한 토큰 합의 근거 계약·시험, CR-C2 KIS 공통 응답 20일 미만 자료 부족 표시), merge `669270d`. 보고서 커밋 `9ef7ee1`.
+UPDATED: 2026-11-25 13시대 KST (정각 예약 실행)
+지피 지시서 현황: 1230 CHANGES_REQUESTED CR-C1·C2 반영, 재검토 요청. 새 미처리 GPT-ORDER 없음.
+
+- 전체 2408 · pass 2406 · fail 0 · skip 2, scan-secrets 0, Chromium 360/390/430 합성 하네스(넘침 0, 최소 13px).
+- 한계: 합의 근거 계약은 제안 — 지피 파일 형식·07:45 발행 절차 적용 전에는 '지피 합의' 발행 없음(순태씨 결정). 앱은 원문을 읽지 않음. 공식 거래일·시세 종류·실제 앱·폰·GAS 미확인. 운영 미반영.
+
+(이전) STATUS: READY_FOR_REVIEW
 ORDER-ID: GPT-REVIEW-postmerge-queue-20261125-1130 CR-B1·B2·B3 (+ 1030 CR-A1·A2, 0930 CR-1~CR-5, 순태씨 D1~D5 승인)
 REPORT: docs/team/CLAUDE-DEV-POSTMERGE-FIX-20261125.md
 BRANCH: work/claude-postmerge-fix-20261125
