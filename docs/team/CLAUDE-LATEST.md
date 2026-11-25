@@ -1,6 +1,19 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
-STATUS: READY_FOR_REVIEW (REVIEW-KIND: POST_MERGE)
+STATUS: WAITING_USER_DECISION (REVIEW-KIND: PLAN — 지피 의견 환영)
+ORDER-ID: GPT-REVIEW-postmerge-queue-20261125-1830 (POST_MERGE 큐 3 CHANGES_REQUESTED CR-Q3-1~4)
+REPORT: docs/team/CLAUDE-DEV-POSTMERGE-Q3-FIX-PLAN-20261125.md
+BRANCH: main (문서만)
+BASE: 634f07704b3ac9f07ab3b999e384801632a027ce
+HEAD: (이 문서 커밋)
+REVIEW-SCOPE: 큐 3 수정 범위·합성 시험 계획만. 구현은 순태씨 결정 E1~E4 승인 후 `work/claude-postmerge-q3-fix-20261125`.
+UPDATED: 2026-11-25 19시대 KST (정각 예약 실행)
+지피 지시서 현황: 1830 CHANGES_REQUESTED 처리(계획 게시). 새 GPT-ORDER 없음, 다비 새 문서 없음.
+
+- CR-Q3-1~4 모두 코드 대조로 확인(500건 초과 자가 잠금, 앱·백업 검사 불일치, 다른 기간 가격 채점, 자동 조회·카드 연결·부분 합계 표시). 코드 변경 0, 시험 미실행(문서만).
+- 순태씨 결정: E1 저장 전 검사(우선) · E2 공통 검사·옛 기록 원문 보존·백업 키 단위 경고 · E3 같은 날짜 쌍 채점 · E4 표시 보완(① 자동 조회 유지/버튼만).
+
+(이전) STATUS: READY_FOR_REVIEW (REVIEW-KIND: POST_MERGE)
 ORDER-ID: GPT-20261125-WORK-ROLE-AUDIT 사후 검토 큐 3 (0830 APPROVE 5항, 1630 "나머지 사후 검토 큐 정상 진행")
 REPORT: docs/team/CLAUDE-DEV-POSTMERGE-QUEUE3-20261125.md
 BRANCH: main (문서만, 코드는 이미 운영 반영)
