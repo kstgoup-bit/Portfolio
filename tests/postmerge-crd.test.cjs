@@ -113,7 +113,7 @@ test('CR-D2 CLI: 인자 없음·알 수 없는 옵션·잘못된 ref·없는 커
     const f = path.join(R.d, 'solo.json'); fs.writeFileSync(f, JSON.stringify({ reviewedAt: RAT, cards: [{ ticker: 'A', market: 'US', verdict: 'wait' }] }));
     a.equal(E.main(['--ref', 'main', f], R.d, log), 2); a.match(out.pop(), /40-hex/);
     a.equal(E.main(['--ref', '0'.repeat(40), f], R.d, log), 2); a.match(out.pop(), /not a commit/); // 카드 0건이어도 ref 검사
-    a.equal(E.main(['--ref', s1, f], R.d, log), 0); a.match(out.pop(), /^0 consensus cards — 합의 근거 검사 대상 없음\(solo 1\) · gpt@[0-9a-f]{40} claude@[0-9a-f]{40}$/);
+    a.equal(E.main(['--ref', s1, f], R.d, log), 0); a.match(out.pop(), /^0 consensus cards — 합의 근거 검사 대상 없음\(solo 1\) · gpt@[0-9a-f]{40} claude@[0-9a-f]{40} · 진단 모드 — 종료 0은 발행 허가 아님$/);
     a.equal(E.main([f], R.d, log), 0); a.match(out.pop(), /원문 고정 안 됨 — 발행용 아님/);
     const bad = path.join(R.d, 'bad.json'); fs.writeFileSync(bad, '{"cards":{}}');
     a.equal(E.main(['--ref', s1, bad], R.d, log), 1);
