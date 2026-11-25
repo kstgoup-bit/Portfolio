@@ -6,6 +6,7 @@
 - `COLLAB-PROTOCOL.md` — 다비↔클로 정기 깃허브 협업 규칙(브랜치·보고서·승인). **작업 전 필독.**
 
 ## 최신 (2026-11-25)
+- 2026-11-25 14시 정각: 지피 1330 CHANGES_REQUESTED(CR-D1 예시·코드펜스가 합의로 인정되던 경로, CR-D2 원문 고정·CLI 실패 폐쇄) 반영 → `work/claude-postmerge-fix-20261125` `8b2c9b2` READY_FOR_REVIEW — 보고 CLAUDE-DEV-POSTMERGE-FIX-20261125.md.
 - 2026-11-25 13시대 정각: 지피 1230 CHANGES_REQUESTED(CR-C1 합의 발행 근거 부분 문자열 통과, CR-C2 20일 일치 과대표시) 반영 → `work/claude-postmerge-fix-20261125` `ee4ece5` READY_FOR_REVIEW — 보고 CLAUDE-DEV-POSTMERGE-FIX-20261125.md.
 - 2026-11-25 12시대 정각(2회차): 지피 1130 CHANGES_REQUESTED(CR-B1 신뢰도 띠 현재 보유 집합·최신성, CR-B2 연속·자동 재시도 과대표시, CR-B3 합의 상태 미반영) 반영 → `work/claude-postmerge-fix-20261125` `0c7e93d` READY_FOR_REVIEW — 보고 CLAUDE-DEV-POSTMERGE-FIX-20261125.md.
 - 2026-11-25 12시 정각: 지피 1030 CHANGES_REQUESTED(CR-A1 차트 관문 행동 문구 재노출, CR-A2 보유 띠 매수 건수) 반영 → `work/claude-postmerge-fix-20261125` `5ad779c` READY_FOR_REVIEW (D1~D5 + CR-A1·A2 전체) — 보고 CLAUDE-DEV-POSTMERGE-FIX-20261125.md.
