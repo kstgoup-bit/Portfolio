@@ -1,10 +1,21 @@
 STATUS: READY_FOR_REVIEW
-ORDER-ID: GPT-REVIEW-postmerge-queue-20261125-1030 CR-A1·CR-A2 (D4 범위) + GPT-REVIEW-postmerge-queue-20261125-0930 CR-1~CR-5 (순태씨 D1~D5 승인)
+ORDER-ID: GPT-REVIEW-postmerge-queue-20261125-1130 CR-B1·B2·B3 (+ 1030 CR-A1·A2, 0930 CR-1~CR-5, 순태씨 D1~D5 승인)
 BRANCH: work/claude-postmerge-fix-20261125
 BASE: d5f011497dfd30bb776f09e047b340d9f9a04be5
-HEAD: 5ad779c0d7a9122789f012c9583b2d63fd32162e
-REVIEW-SCOPE: BASE..HEAD 전체. 이번 새 범위는 `5ad779c`(1030 CR-A1·A2) — has/review-cards.js, tests/review-cards-gate-neutral.test.cjs(신규), tests/review-cards-held.test.cjs, tests/lib/live-data-pins.json. 그 앞 `6d96cf0`(D2·D3·D5)도 아직 지피 미검토.
-UPDATED: 2026-11-25 12시대 KST (정각 예약 실행)
+HEAD: 0c7e93df1c56afcfdb7e42626a3367f3be01761e
+REVIEW-SCOPE: BASE..HEAD 전체. 이번 새 범위는 `0c7e93d`(1130 CR-B1·B2·B3) — has/kis-crosscheck.js, has/price-trust-ui.js, has/review-cards.js, tests/postmerge-crb.test.cjs(신규 14건), 기존 시험 3개 기대값 갱신, tests/lib/live-data-edits.json·live-data-pins.json.
+UPDATED: 2026-11-25 12시대 KST (정각 예약 실행, 12:0x 시작)
+
+## 단위 E — 지피 1130 CR-B1·B2·B3 반영 (`0c7e93d`, 최신 main `c5b0a40` 병합 후)
+- CR-B1 가격 신뢰도 띠: `currentSet()`(수량>0·중복 제거, KIS 대조와 같은 기준·앞 15개 지문) 추가. `trustSummary(row, now, hasUS, cur, lastFail)` — 기록 지문·총수가 현재 보유와 다르면(같은 개수 다른 집합·추가·삭제) warn '보유 종목이 바뀌어 … 현재 보유 검증이 아님', 0종목·미확인은 info '참고만', 최근 조회 실패는 warn. 모두 맞아도 공식 거래일·시세 종류 미확인이라 **녹색(ok)·✅ 없음**(info '참고 대조'). 띠 등급은 앱 가격 경로(gas-jsonp, 미검증 warn)보다 낮아지지 않고, KIS 문구는 `hpt-kis` 보조 줄로만.
+- CR-B2: `streak()` 날짜 중복 제거, 응답 날짜 사이에 평일이 비면(공급자 누락·휴장 불명) 보수적으로 끊음(예: 11/20·11/24만 → 1). 화면은 '확인된 응답 날짜 기준 연속 일치 N일 (참고 집계 · 공식 거래일 연속·G0 근거 아님)', 최근 실패·부분 성공·집합 불일치면 연속 미표시. '최신 종가 일치'와 '20일 비교창 전체 일치'를 결과·기록 줄에서 분리. 하단 안내에서 '20거래일 쌓이면 보류 해제 검토' 문구 → '참고용, 보류 해제 근거로 쓰지 않음'.
+- CR-B2 자동 재시도: 메모리 횟수 대신 **자동 대조 시작 전에 기존 기록(`has_kisCrossLog_v1`)의 기존 필드 `autoDay`에 오늘을 기록** → 앱 재시작·새 탭·10분 경과에도 같은 날 자동 1회만(AUTO_MAX 1), 실패해도 자동 재시도 없음(버튼 수동 대조는 그대로). 기록을 쓸 수 없으면 자동 대조 안 함. 새 키·새 필드·백업 형식 변경 없음. → 순태씨 D3에서 승인한 '하루 2회 재시도'는 증명 가능한 설계 전까지 **보류**(아래 결정 필요).
+- CR-B3: `policyOf()/tally()/tallyParts()` 공통 정책 — 합의(agreed, 7일 이내)된 비매수 판단만 '지피 합의 매도 검토 N' 등 판단 건수, 단독·기록 불일치·만료·무응답·불일치는 상태 건수(행동 집계 제외), 매수 쪽은 합의여도 '매수 쪽 판단 보류'(건수 없음). 곡소리 카드 요약줄·보유 띠·상세 라벨에 동일 적용. 상세에서 합의 전 비매수 카드는 상태 라벨 + '클로 조사 원문 판단: … (합의 전 참고 · 현재 합의된 행동 아님)' #333, 헤드라인 '📝 클로 조사 의견(원문 인용 · 합의 전 참고)'. 불일치·무응답은 기존처럼 원 판단 숨김. 매수 잠금 유지.
+- CR-B3 발행 계약(제안 + 시험): 게시 JSON 카드에 `consensus`가 있으면 `docs/team/<review>` 파일이 실제로 있고 종목·APPROVE/AGREE 근거가 있어야 시험 통과(아침 문서만으로 과거 카드 일괄 승격 방지). 현재 게시 JSON엔 consensus 없음 → 모두 '클로 단독'.
+- 시험: 신규 `tests/postmerge-crb.test.cjs` 14건 — B1 순수(동일 개수 다른 집합, 추가/삭제/0종목/null, 6일 이내 오래된 동일 종가·주말, 실패 후 과거 row) + 실제 price-trust.js·kis-crosscheck.js·price-trust-ui.js DOM(warn 유지, 수량 0·중복 제거, 집합 변경·0종목 문구); B2 평일 누락·중복, 실제 스케줄러 경로(DOMContentLoaded→첫 1회, visibilitychange·10분 뒤·새 인스턴스 0회, 날짜 변경 1회), 저장 실패 시 자동 없음·수동 가능, 부분 성공 후 연속 미표시, 최신일/20일창 분리; B3 합의/단독/불일치/무응답/만료/기록 불일치 매도·축소·보유 혼합(보유 띠·상세·요약 합계 7, 매수 쪽 건수 없음), 7일 경계, 다른 종목·판단·잘못된 시각, 발행 계약. 기존 시험 기대값 갱신: d2d3(ok→info+현재 집합, 하루 1회), held(관망 라벨→원문 인용), gate-neutral(비매수 헤드라인 인용·보유 띠 상태 건수).
+- 전체 2397 · pass 2395 · fail 0 · skip 2, scan-secrets 0. Chromium 360/390/430 합성 하네스(실제 4개 모듈, 외부 요청 차단): 가로 넘침 0, 최소 글자 13px, 띠 `hpt-warn` 유지, 집합 변경 문구, 보유 띠 '지피 합의 매도 검토 1 · 클로 단독 의견 2 · 매수 쪽 판단 보류', 정찰병/30% 문구 0.
+- 미완료·미검증: 공식 KRX 거래일 달력·시세 종류 연결(GAS 변경, 별도 승인 과제), 실제 앱·폰·GAS·백업 복원 미확인, 성적표 5% 예외 입력 안내(별도 큐). 운영 미반영.
+- 순태씨 결정 필요: (1) 자동 대조 실패 시 재시도 — 지금은 하루 1회로 보류. 재시도를 원하면 기존 `autoDay` 대신 일별 시도 횟수 메타데이터(새 필드, 백업 포함) 설계 승인이 필요. (2) 운영 반영은 지피 APPROVE 뒤 '올려'.
 
 ## 단위 D — 지피 1030 CR-A1·CR-A2 반영 (`5ad779c`, 최신 main `b122791` 병합 후)
 - 1030 검토는 `9449668`(단위 A) 기준이었고 11시대 `6d96cf0`에도 CR-A1·A2가 남아 있음을 코드로 확인 → 반영.

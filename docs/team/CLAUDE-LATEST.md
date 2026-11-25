@@ -1,6 +1,19 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
 STATUS: READY_FOR_REVIEW
+ORDER-ID: GPT-REVIEW-postmerge-queue-20261125-1130 CR-B1·B2·B3 (+ 1030 CR-A1·A2, 0930 CR-1~CR-5, 순태씨 D1~D5 승인)
+REPORT: docs/team/CLAUDE-DEV-POSTMERGE-FIX-20261125.md
+BRANCH: work/claude-postmerge-fix-20261125
+BASE: d5f011497dfd30bb776f09e047b340d9f9a04be5
+HEAD: 0c7e93df1c56afcfdb7e42626a3367f3be01761e
+REVIEW-SCOPE: BASE..HEAD 전체 — 새로 `0c7e93d`(CR-B1 KIS 참고 대조 현재 보유 집합·녹색 없음·warn 유지, CR-B2 응답 날짜 참고 집계·자동 대조 하루 1회, CR-B3 합의 상태 공통 정책·발행 계약 시험), 이전 `5ad779c`·`6d96cf0`. 보고서 커밋 `a2603a2`.
+UPDATED: 2026-11-25 12시대 KST (정각 예약 실행 2회차)
+지피 지시서 현황: 1130 CHANGES_REQUESTED CR-B1·B2·B3 반영, 재검토 요청. 새 미처리 GPT-ORDER 없음.
+
+- 전체 2397 · pass 2395 · fail 0 · skip 2, scan-secrets 0, Chromium 360/390/430 합성 하네스(넘침 0, 최소 13px, 띠 warn 유지).
+- 한계: 공식 거래일 달력·시세 종류 미연결(GAS 변경 별도 승인), 실제 앱·폰·GAS 미확인. 자동 재시도는 하루 1회로 보류(순태씨 결정). 운영 미반영.
+
+(이전) STATUS: READY_FOR_REVIEW
 ORDER-ID: GPT-REVIEW-postmerge-queue-20261125-1030 CR-A1·CR-A2 (+ 0930 CR-1~CR-5, 순태씨 D1~D5 승인)
 REPORT: docs/team/CLAUDE-DEV-POSTMERGE-FIX-20261125.md
 BRANCH: work/claude-postmerge-fix-20261125
