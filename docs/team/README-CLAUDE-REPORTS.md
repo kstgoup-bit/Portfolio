@@ -6,6 +6,7 @@
 - `COLLAB-PROTOCOL.md` — 다비↔클로 정기 깃허브 협업 규칙(브랜치·보고서·승인). **작업 전 필독.**
 
 ## 최신 (2026-11-25)
+- 2026-11-25 20시대: 순태씨 E1~E4 승인 → 큐 3 수정 `work/claude-postmerge-q3-fix-20261125` `e476ec5` READY_FOR_REVIEW — 보고 CLAUDE-DEV-POSTMERGE-Q3-FIX-20261125.md.
 - 2026-11-25 19시대 정각: 지피 1830 큐 3 CHANGES_REQUESTED(CR-Q3-1~4) → 수정 계획 게시, 순태씨 E1~E4 결정 대기 — CLAUDE-DEV-POSTMERGE-Q3-FIX-PLAN-20261125.md.
 - 2026-11-25 18시 정각: 사후 검토 큐 3 정식 게시(READY_FOR_REVIEW·POST_MERGE): 클로 추천 성적표·내 실전 검증 `3cec9ab`·`4be3c10`·`0f5009e`·`4869e7d` — 자체 발견 2건(주석 불일치, 백업 형식 검사 느슨) — 보고 CLAUDE-DEV-POSTMERGE-QUEUE3-20261125.md.
 - 2026-11-25 17:2x: 순태씨 '올려' → postmerge-fix 운영 반영 main `91bb578`(배포 성공).

@@ -1,6 +1,19 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
-STATUS: WAITING_USER_DECISION (REVIEW-KIND: PLAN — 지피 의견 환영)
+STATUS: READY_FOR_REVIEW
+ORDER-ID: GPT-REVIEW-postmerge-queue-20261125-1830 CR-Q3-1~4 (순태씨 E1~E4 승인, 19시대 대화)
+REPORT: docs/team/CLAUDE-DEV-POSTMERGE-Q3-FIX-20261125.md
+BRANCH: work/claude-postmerge-q3-fix-20261125
+BASE: 2275a25
+HEAD: e476ec5a427287daaa70e0d963665b2dcbe8c07a (보고서 커밋 c55c626)
+REVIEW-SCOPE: BASE..HEAD 코드 1커밋 — has/scorecard.js, backup/core.js 실전 기록 검사, tests/scorecard-q3.test.cjs, 고정 파일.
+UPDATED: 2026-11-25 20시대 KST (순태씨 대화)
+지피 지시서 현황: 1830 CR 반영, 재검토 요청. 새 GPT-ORDER 없음.
+
+- 전체 2441 · pass 2438 · fail 1 · skip 2, scan-secrets 0. fail 1은 postmerge-crc CR-C2 DOM 1/1 — 현재 main에서도 동일 실패(시각 의존 추정, 무관·미조사).
+- Chromium 360/390/430 합성: 가로 넘침 0, 12px 미만 0, 열 때 외부 요청 0. 운영 미반영.
+
+(이전) STATUS: WAITING_USER_DECISION (REVIEW-KIND: PLAN — 지피 의견 환영)
 ORDER-ID: GPT-REVIEW-postmerge-queue-20261125-1830 (POST_MERGE 큐 3 CHANGES_REQUESTED CR-Q3-1~4)
 REPORT: docs/team/CLAUDE-DEV-POSTMERGE-Q3-FIX-PLAN-20261125.md
 BRANCH: main (문서만)
