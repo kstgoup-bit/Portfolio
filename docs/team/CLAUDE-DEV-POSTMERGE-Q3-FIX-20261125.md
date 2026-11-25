@@ -1,4 +1,50 @@
 STATUS: READY_FOR_REVIEW
+ORDER-ID: GPT-REVIEW-postmerge-queue-20261125-2030 CR-Q3-R1~R4 (E1~E4 승인 범위 안 보완)
+BASE: e476ec5a427287daaa70e0d963665b2dcbe8c07a (직전 검토 HEAD; 그 사이 main 문서 병합 1e1e1e5 — 코드 변화 없음)
+HEAD: feef65abba2c61bca88e11c207de67dff65fa3bf
+REVIEW-SCOPE: e476ec5..feef65a 코드 1커밋(feef65a) — has/scorecard.js, backup/core.js(옛 숫자 문자열·키 단위 경고), tests/postmerge-crc.test.cjs(경쟁 수정), tests/scorecard-q3r.test.cjs(신규 11건), tests/scorecard.test.cjs·scorecard-q3.test.cjs(계약 변경 반영), 고정 파일 2개.
+UPDATED: 2026-11-25 21시대 KST (정각 예약 실행)
+
+# 큐 3 재수정 (지피 2030 CHANGES_REQUESTED)
+
+## CR-Q3-R1 레거시 보존 ≠ 계산 허용
+- 이전 앱이 저장하던 숫자 문자열(qty:"5" 등, 전역 isFinite 통과)은 `legacy`(원문 보존·읽기 전용). 새 저장은 여전히 숫자만. 'abc'·'0'·'-5'·''·' ' 는 여전히 손상. 앱 `legacyItem`·백업 `trialLegacy` 같은 `oldNum` 규칙.
+- 계산 격리 `rowIssue`: 정상 계약(validTrade)·첫 번째 ID·산 날/매도일이 그 시장 오늘 이하인 행만 합계·지수 비교·카드 연결·확정 손익·예외 정찰 평균·GAS 조회 대상(`usableTrades`). 나머지는 `excluded`(format/dup/future) — 화면엔 '원문 보존 · 계산 제외(사유)'를 문자로만, 건수 표시. 지피 예(정상 기본 필드 + sellDate + sellPrice -50) → 계산 제외, 확정 손익 불포함 시험.
+- 앱 ID 집합을 `'$'+id` 키로 — `__proto__`·`constructor`·`hasOwnProperty` 중복도 앱=백업(Set) 같은 `legacy`, 실제 `validateStoredValue` 경로도 동일. 키 `__proto__` 중첩 자료는 safeTree가 계속 거절(시험).
+- E2 키 단위 경고: 백업 `archiveWarnings`에 옛 형식 실전 기록 경고 추가(생성→parse 계획 경고·원문 그대로 시험). **손상(bad) 키는 여전히 백업 전체 거절** — 키별 격리 복원은 정책 변경이라 이번에 하지 않음(순태씨 별도 승인 사항, 아래).
+
+## CR-Q3-R2 평가와 지수 비교 분리 · 미래/장중 매도
+- 평가: 매도면 실제 매도가, 아니면 확정 종가일 이하 최신 종목 종가 → 합계·수익률('지금'). 지수 비교(참고): 종목·지수 같은 날짜 쌍(`cmpEnd`)까지 별도 `cmpRet/benchRet/excess`, 화면에 '지수 비교(참고) 산날→끝날 같은 날짜 종가' 따로 표시. 지피 합성 예: 평가 11/26 120(+20%), 비교 11/25 종목 -10%·지수 0%·초과 -10% 시험.
+- `applySell`에 시장 오늘 상한(미국 뉴욕 날짜) — 폼 max 속성이 아니라 저장 전 검사. 이미 저장된 미래 매수/매도 기록은 원문 유지·계산 제외. 매도일이 확정 종가일보다 뒤(당일 장중)면 지수 비교 보류(`benchPending`, 장중 지수 봉 미사용), 실제 매도 손익은 확정 손익에 반영. 장 마감 뒤엔 그 날 종가로 비교 시험.
+- 지수 최신일 누락: 평가는 최신 종목 종가, 지수 비교는 검증 불가 시험. NY/KST 경계(한국 11/26 08:00 = 뉴욕 11/25, 미국 05:59/06:00 확정 경계) 시험.
+- '참고 채점' 명시: 성적표 제목 '(참고 채점)', 실전 검증에 '공식 거래일·가격 종류·종가 확정 시각 검증 전 — 검증된 수익률 아님'. G0 연결은 범위 밖.
+
+## CR-Q3-R3 날짜·카드 출처
+- 날짜 입력에 사용자가 직접 고른 표시(`dtManual`, input/change) — 오늘 값을 직접 골라도 시장 변경 시 자동 변경 안 함(DOM 시험). 날짜 문자열은 `formatToParts` 조립(`ymd`/`marketDay`), en-CA `.format()` 의존 제거.
+- 카드: `card` = 산 날 이전 날 검토 카드(매수 전 확정 연결, '매수 전 클로 판단'), `sameDayCard` = 같은 날 카드('매수 전후 순서 미확인 · 참고만')로 분리. 표시: 판단 · 시장일(뉴욕/한국) · KST 시각 · 출처 reviews/<파일> · 검토시각 원문.
+
+## CR-Q3-R4 전체 시험 1 실패 — 원인 확정·수정
+- 원인: `tests/postmerge-crc.test.cjs` `kisDom`이 창의 **모든** setTimeout을 5ms로 줄여, kis-crosscheck JSONP의 20초 응답 제한까지 5ms가 됨. 첫 DOM 실행(준비 지연)에서 제한 타이머가 가짜 응답(0ms)보다 먼저 끝나 Yahoo 요청이 'gas-timeout'으로 거절 → 'Yahoo 자료 없음'. 계측 로그: `req history → req kis → cb history → TypeError: w[cb] is not a function`(콜백이 이미 정리됨). 같은 파일만 실행해도 3/3 같은 실패(시각 무관, 순서·준비 지연 의존). BASE(main 2275a25)에서도 동일.
+- 수정(시험만): 20초 이상 타이머는 그대로, 짧은 대기만 5ms 상한. 고정 60ms 대기 → 대조 완료(버튼 재활성 + '결과:') 대기(최대 5초) 후 창 닫기. 검사 약화·skip 증가·시험 삭제 없음. 단독 3/3 통과, 전체 통과.
+
+## 시험
+- 전체 `node --require ./tests/lib/no-network.cjs --test tests/*.test.cjs`: **2452 · pass 2450 · fail 0 · skip 2**(기존 skip 2 그대로). `node tools/scan-secrets.cjs` 0.
+- 신규 `tests/scorecard-q3r.test.cjs` 11건. 계약 변경으로 바꾼 기존 단언 3곳: 숫자 문자열 bad→legacy, 같은 날 카드 card→sameDayCard(미국 포함), applySell·trialScore에 고정 now(미래 매도 단언 추가).
+- Chromium 360·390·430(합성 저장소: 정상·숫자 문자열·중복 ID·미국 소수 매도, 외부 요청 차단): 가로 넘침 0, 12px 미만 0(최소 14px), 외부 요청 0, '계산 제외 2건' 표시.
+
+## 미완료·미검증
+- 실제 앱 잠금 뒤 화면·갤럭시 실기기·실제 기록·실제 백업 복원 미확인(합성만). 공식 거래일·가격 종류·확정 시각은 G0 범위.
+- radar/data/universe-400.json main 경로 404 지적은 이번 범위 밖 — 미확인.
+- portfolio_v5.html 변경 없음. 운영 미반영.
+
+## 순태씨 결정 필요
+- (선택) 손상(bad) 실전 기록 키 때문에 백업 전체가 막히는 현재 정책을 '그 키만 원문 보존·경고·나머지 복원'으로 바꿀지 — 정책 변경이라 승인 전 미구현.
+- 지피 재검토 APPROVE 뒤 운영 반영('올려').
+
+---
+(이전 보고 — 20시대)
+
+STATUS: READY_FOR_REVIEW
 ORDER-ID: GPT-REVIEW-postmerge-queue-20261125-1830 CR-Q3-1~4 (순태씨 E1~E4 승인, 2026-11-25 19시대 대화)
 BASE: 2275a25 (main, 계획 문서 커밋 — 코드는 634f077과 동일)
 HEAD: e476ec5a427287daaa70e0d963665b2dcbe8c07a
