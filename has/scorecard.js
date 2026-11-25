@@ -2,7 +2,8 @@
  * 설정된 GAS의 일봉 이력(type=history)으로 검토일 종가 대비 지금까지 수익률과 지수(국내 069500·미국 QQQ) 대비 초과수익을 계산한다.
  * 버튼을 누를 때만 조회(창을 열기만 해서는 조회하지 않음). 성적은 메모리에만 두고 투자기록·신호를 바꾸지 않는다. 배당·분할 조정 미검증 원주가 기준.
  * 채점은 종목·지수가 같은 시작일·같은 끝일 확정 종가를 모두 가질 때만 한다. 아니면 '검증 불가'로 분모에서 뺀다.
- * '내 실전 검증': 순태씨가 추천을 소액으로 실제 사 본 기록만 별도 키(has_trialTrades_v1)에 저장(기존 투자기록과 분리, 백업에는 포함). */
+ * '내 실전 검증': 순태씨가 추천을 소액으로 실제 사 본 기록만 별도 키(has_trialTrades_v1)에 저장(기존 투자기록과 분리, 백업에는 포함).
+ * 모든 성적은 '참고 채점'이다(공식 거래일·가격 종류·종가 확정 시각 미검증, G0 시세 검증 전) — 검증된 수익률이 아니다. */
 (function (root, factory) {
   var api = factory();
   if (typeof module === 'object' && module.exports) module.exports = api; else root.HASScorecard = api;
@@ -13,6 +14,10 @@
   // 맞힘 기준: 사라고 한 것은 지수보다 잘 갔는지, 줄이라고 한 것은 지수보다 못 갔는지. 관망은 채점하지 않는다.
   var SIDE = { 'buy-review': 1, 'add-review': 1, 'hold-long': 1, 'trim-review': -1, 'sell-review': -1 };
   function kstDate(ms) { return new Date(ms + 9 * 3600000).toISOString().slice(0, 10); }
+  // 런타임별 날짜 문자열 차이를 피하려고 formatToParts로 연-월-일을 직접 조립한다(지피 2030 CR-Q3-R3).
+  function ymd(tz, ms) { var v = {}; new Intl.DateTimeFormat('en-US', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(new Date(ms)).forEach(function (x) { v[x.type] = x.value; }); return v.year + '-' + v.month + '-' + v.day; }
+  function tzOf(m) { return m === 'US' ? 'America/New_York' : 'Asia/Seoul'; }
+  function marketDay(m, ms) { return ymd(tzOf(m), ms == null ? Date.now() : ms); }
   // 기준 종가일: 검토 시각에 이미 확정된 마지막 종가(KR 15:30 KST, US 16:00 뉴욕(한국 다음 날 06:00, 서머타임 05:00)). 검토 뒤에 나온 종가를 기준으로 쓰지 않는다.
   function baseDate(market, ms) {
     var p = new Intl.DateTimeFormat('en-CA', { timeZone: market === 'US' ? 'America/New_York' : 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(new Date(ms)), v = {};
@@ -76,18 +81,22 @@
       realDate(x.date) && num(x.qty, 1e9) && num(x.price, 1e12) && (!own(x, 'kind') || x.kind === 'exception') &&
       (!sold || (realDate(x.sellDate) && x.sellDate >= x.date && num(x.sellPrice, 1e12)));
   }
-  // 옛 규칙: 이전 앱 검사 또는 이전 백업 검사 중 하나라도 통과하던 항목(이미 저장된 원문을 '손상'으로 잠그지 않기 위해). 숫자 문자열은 옛 규칙으로도 받지 않는다.
+  // 옛 규칙: 이전 앱 검사 또는 이전 백업 검사 중 하나라도 통과하던 항목(이미 저장된 원문을 '손상'으로 잠그지 않기 위해).
+  // 이전 앱은 전역 isFinite라 숫자 문자열(qty:"5")도 저장했으므로 옛 형식으로 보존한다(지피 2030 CR-Q3-R1). 새 저장은 여전히 숫자만.
+  // 옛 형식은 '보존'일 뿐 계산 허용이 아니다 — 계산은 rowIssue(정상 계약·첫 ID·미래 아님)를 통과한 행만.
+  function oldNum(v, max) { return (typeof v === 'number' || (typeof v === 'string' && v.length <= 40)) && isFinite(v) && Number(v) > 0 && Number(v) < max; }
   function legacyItem(x) {
     if (!x || typeof x !== 'object' || Array.isArray(x)) return false;
     var oldApp = typeof x.id === 'string' && x.id.length <= 40 && (x.market === 'KR' || x.market === 'US') && validTicker(x.ticker, x.market) &&
-      typeof x.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(x.date) && typeof x.qty === 'number' && isFinite(x.qty) && x.qty > 0 && x.qty < 1e9 && typeof x.price === 'number' && isFinite(x.price) && x.price > 0 && x.price < 1e12 &&
-      (x.kind == null || x.kind === 'exception') && (x.sellDate == null || (/^\d{4}-\d{2}-\d{2}$/.test(x.sellDate) && x.sellDate >= x.date && typeof x.sellPrice === 'number' && isFinite(x.sellPrice) && x.sellPrice > 0));
+      typeof x.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(x.date) && oldNum(x.qty, 1e9) && oldNum(x.price, 1e12) &&
+      (x.kind == null || x.kind === 'exception') && (x.sellDate == null || (typeof x.sellDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(x.sellDate) && x.sellDate >= x.date && oldNum(x.sellPrice, Infinity)));
     var oldBackup = typeof x.ticker === 'string' && (x.market === 'KR' || x.market === 'US') && typeof x.date === 'string' && typeof x.qty === 'number' && isFinite(x.qty) && x.qty > 0 && typeof x.price === 'number' && isFinite(x.price) && x.price > 0;
     return !!(oldApp || oldBackup);
   }
   function classifyTrades(a) {
     if (!Array.isArray(a)) return 'bad';
-    var ids = {}, ok = a.length <= TRIAL_MAX && a.every(function (x) { if (!validTrade(x) || own(ids, x.id)) return false; ids[x.id] = 1; return true; });
+    // ID 집합은 접두어 키로('__proto__' 같은 특수 ID도 중복 판정 — 백업의 Set과 같은 결과).
+    var ids = {}, ok = a.length <= TRIAL_MAX && a.every(function (x) { if (!validTrade(x) || own(ids, '$' + x.id)) return false; ids['$' + x.id] = 1; return true; });
     if (ok) return 'ok';
     return a.length <= TRIAL_LEGACY_MAX && a.every(legacyItem) ? 'legacy' : 'bad';
   }
@@ -97,11 +106,12 @@
   // 저장 전 검사: 결과가 정상 계약을 벗어나면 쓰지 않는다.
   function checkWrite(a) { if (!Array.isArray(a)) return '기록 형식 오류'; if (a.length > TRIAL_MAX) return '실전 기록은 최대 ' + TRIAL_MAX + '건까지 저장할 수 있습니다. 오래된 기록을 지운 뒤 다시 해 주세요.'; return classifyTrades(a) === 'ok' ? '' : '기록 형식 오류(중복 ID·날짜·숫자 확인)'; }
   // 매도 기록: 전량이면 그 기록에 매도일·가격을 붙이고, 일부면 판 수량만큼 새 기록으로 나눈다(원래 산 날짜·가격 유지).
-  function applySell(trades, id, sell, newId) {
+  function applySell(trades, id, sell, newId, now) {
     var i = trades.findIndex(function (t) { return t.id === id; }); if (i < 0) return { error: '기록을 찾지 못했습니다.' };
     var t = trades[i], q = Number(sell.qty), pr = Number(sell.price);
     if (t.sellDate) return { error: '이미 매도한 기록입니다.' };
     if (!realDate(sell.date) || sell.date < t.date) return { error: '매도 날짜는 산 날짜 이후여야 합니다.' };
+    if (sell.date > marketDay(t.market, now)) return { error: '매도 날짜는 미래일 수 없습니다' + (t.market === 'US' ? '(미국은 뉴욕 날짜 기준).' : '.') };
     if (newId === t.id) return { error: '매도 기록 형식 오류' };
     if (!(q > 0) || q > t.qty + 1e-9) return { error: '매도 수량은 보유 수량(' + t.qty + ') 이하로 입력해 주세요.' };
     if (!(pr > 0) || !isFinite(pr)) return { error: '매도 가격을 확인해 주세요.' };
@@ -110,41 +120,54 @@
     else { out[i] = Object.assign({}, t, { qty: +(t.qty - q).toFixed(8) }); out.splice(i + 1, 0, Object.assign({}, t, { id: newId, qty: q, sellDate: sell.date, sellPrice: pr })); }
     var bad = checkWrite(out); return bad ? { error: bad } : { trades: out };
   }
-  // 카드 연결: 산 날짜(그 시장 날짜) 이전에 검토한 카드 중 가장 최근 것만. 같은 날 카드는 순서를 알 수 없어 '같은 날'로 표시, 뒤의 카드만 있으면 연결 미확인.
-  function cardDay(c, market) { var ms = Date.parse(c.reviewedAt); if (!isFinite(ms)) return null; return new Intl.DateTimeFormat('en-CA', { timeZone: market === 'US' ? 'America/New_York' : 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(ms)); }
+  // 카드 연결(지피 2030 CR-Q3-R3): card = 산 날짜(그 시장 날짜)보다 앞선 날 검토한 카드 중 가장 최근 것(매수 전 확정 연결).
+  // 같은 날 카드는 매수 전후 순서를 알 수 없어 sameDayCard(참고만)로 따로 둔다. 뒤의 카드만 있으면 연결 미확인.
+  function cardDay(c, market) { var ms = Date.parse(c.reviewedAt); if (!isFinite(ms)) return null; return marketDay(market, ms); }
   function linkCard(t, cards) {
-    var best = null, bestDay = '', later = false;
-    (cards || []).forEach(function (c) { if (!c || c.market !== t.market || c.ticker !== t.ticker) return; var d = cardDay(c, t.market); if (!d) return; if (d > t.date) { later = true; return; } if (!best || Date.parse(c.reviewedAt) > Date.parse(best.reviewedAt)) { best = c; bestDay = d; } });
-    return { card: best, sameDay: !!best && bestDay === t.date, laterOnly: !best && later };
+    var best = null, same = null, later = false;
+    function newer(c, o) { return !o || Date.parse(c.reviewedAt) > Date.parse(o.reviewedAt); }
+    (cards || []).forEach(function (c) { if (!c || c.market !== t.market || c.ticker !== t.ticker) return; var d = cardDay(c, t.market); if (!d) return; if (d > t.date) later = true; else if (d === t.date) { if (newer(c, same)) same = c; } else if (newer(c, best)) best = c; });
+    return { card: best, sameDayCard: same, laterOnly: !best && !same && later };
   }
-  // trades의 수익률(매도했으면 매도가, 아니면 확정 최근 종가)과 같은 기간 지수 대비 초과수익.
-  // 지수는 산 날·끝날의 '종가'만 쓴다(체결 시각과 지수 종가 시각은 같지 않음). 같은 날짜 지수 종가가 없으면 초과수익은 검증 불가.
+  // 계산 대상 검사(지피 2030 CR-Q3-R1·R2): 정상 계약(숫자형·실제 날짜·매도 쌍)·첫 번째 ID·산 날/매도일이 그 시장 오늘 이하인 행만.
+  // 아니면 원문은 그대로 두고 집계·카드 연결·조회에서 뺀다('format' 형식, 'dup' 중복 ID, 'future' 미래 날짜).
+  function rowIssue(t, seen, now) {
+    if (!validTrade(t)) return 'format';
+    if (own(seen, '$' + t.id)) return 'dup'; seen['$' + t.id] = 1;
+    var today = marketDay(t.market, now); if (t.date > today || (t.sellDate && t.sellDate > today)) return 'future';
+    return '';
+  }
+  function usableTrades(trades, now) { var seen = {}; return (trades || []).filter(function (t) { return !rowIssue(t, seen, now); }); }
+  // 두 가지를 따로 계산한다(서로 섞지 않음):
+  //  ① 평가: 매도했으면 실제 매도가, 아니면 확정된 가장 최근 종목 종가(last·endDate) → 합계·수익률.
+  //  ② 지수 비교(참고): 종목·지수가 같은 날짜 확정 종가를 가진 끝일(cmpEnd)까지만. 매도일 지수 종가가 아직 확정 전(장중·당일)이면 비교 보류.
   function trialScore(trades, series, cards, now) {
     if (now == null) now = Date.now();
-    var tot = { KR: { cost: 0, val: 0, n: 0, all: 0 }, US: { cost: 0, val: 0, n: 0, all: 0 } }, ex = [], unv = 0;
+    var tot = { KR: { cost: 0, val: 0, n: 0, all: 0 }, US: { cost: 0, val: 0, n: 0, all: 0 } }, ex = [], unv = 0, pend = 0, excluded = 0, seen = {};
     var rows = trades.map(function (t) {
+      var why = rowIssue(t, seen, now); if (why) { excluded++; return { trade: t, excluded: why }; }
       var bars = series[t.market + ':' + t.ticker], bb = series[t.market + ':' + BENCH[t.market]], lk = linkCard(t, cards), limit = baseDate(t.market, now);
-      var r = { trade: t, card: lk.card, cardSameDay: lk.sameDay, cardLaterOnly: lk.laterOnly }; tot[t.market].all++;
-      var endD = null, last = null, x1 = null;
-      if (t.sellDate) { endD = t.sellDate; last = t.sellPrice; if (bb) x1 = barAt(bb, endD); }
-      else if (bars) {
-        var e = bb ? commonEnd(bars, bb, t.date, limit) : null;
-        if (e && !e.conflict) { endD = e.s.d; last = e.s.c; x1 = e.x; }
-        else { for (var i = bars.length - 1; i >= 0; i--) if (bars[i].d <= limit && bars[i].d >= t.date) { if (okBar(bars[i])) { endD = bars[i].d; last = bars[i].c; } break; } }
-      }
+      var r = { trade: t, card: lk.card, sameDayCard: lk.sameDayCard, cardLaterOnly: lk.laterOnly }; tot[t.market].all++;
+      var endD = null, last = null;
+      if (t.sellDate) { endD = t.sellDate; last = t.sellPrice; }
+      else if (bars) { for (var i = bars.length - 1; i >= 0; i--) if (bars[i].d <= limit && bars[i].d >= t.date) { if (okBar(bars[i])) { endD = bars[i].d; last = bars[i].c; } break; } }
       if (!last) return r;
       r.last = last; r.endDate = endD; r.ret = (last / t.price - 1) * 100;
       tot[t.market].cost += t.price * t.qty; tot[t.market].val += last * t.qty; tot[t.market].n++;
-      var x0 = bb ? barAt(bb, t.date) : null;
-      if (okBar(x0) && okBar(x1) && x1.d > x0.d) { r.benchStart = x0.d; r.benchRet = (x1.c / x0.c - 1) * 100; r.excess = r.ret - r.benchRet; ex.push(r.excess); }
+      var x0 = bb ? barAt(bb, t.date) : null, cmp = null;
+      if (t.sellDate && t.sellDate > limit) r.benchPending = true; // 매도일 지수 종가 확정 전
+      else if (t.sellDate) { var x1 = bb ? barAt(bb, t.sellDate) : null; if (okBar(x0) && okBar(x1) && x1.d > x0.d) cmp = { d: t.sellDate, c: t.sellPrice, x: x1 }; }
+      else if (bars && bb && okBar(x0)) { var e = commonEnd(bars, bb, t.date, limit); if (e && !e.conflict) cmp = { d: e.s.d, c: e.s.c, x: e.x }; }
+      if (cmp) { r.cmpEnd = cmp.d; r.cmpRet = (cmp.c / t.price - 1) * 100; r.benchStart = x0.d; r.benchRet = (cmp.x.c / x0.c - 1) * 100; r.excess = r.cmpRet - r.benchRet; ex.push(r.excess); }
+      else if (r.benchPending) pend++;
       else if (endD > t.date) { r.benchUnverifiable = true; unv++; }
       return r;
     });
-    var realized = { KR: 0, US: 0 }; rows.forEach(function (r) { if (r.trade.sellDate) realized[r.trade.market] += (r.trade.sellPrice - r.trade.price) * r.trade.qty; });
+    var realized = { KR: 0, US: 0 }; rows.forEach(function (r) { if (!r.excluded && r.trade.sellDate) realized[r.trade.market] += (r.trade.sellPrice - r.trade.price) * r.trade.qty; });
     // 예외 정찰(입력 분류: 하락 추세 중 1순위 5%)과 일반 매수의 평균 수익률을 따로 본다 — 예외 규칙을 계속 쓸지 판단하는 근거.
-    var grp = { exception: [], normal: [] }; rows.forEach(function (r) { if (isFinite(r.ret)) grp[r.trade.kind === 'exception' ? 'exception' : 'normal'].push(r.ret); });
+    var grp = { exception: [], normal: [] }; rows.forEach(function (r) { if (!r.excluded && isFinite(r.ret)) grp[r.trade.kind === 'exception' ? 'exception' : 'normal'].push(r.ret); });
     function avg(a) { return a.length ? a.reduce(function (x, y) { return x + y; }, 0) / a.length : NaN; }
-    return { byKind: { exception: { n: grp.exception.length, avg: avg(grp.exception) }, normal: { n: grp.normal.length, avg: avg(grp.normal) } }, realized: realized, rows: rows, total: tot, avgExcess: ex.length ? ex.reduce(function (a, b) { return a + b; }, 0) / ex.length : NaN, nExcess: ex.length, benchUnverifiable: unv };
+    return { byKind: { exception: { n: grp.exception.length, avg: avg(grp.exception) }, normal: { n: grp.normal.length, avg: avg(grp.normal) } }, realized: realized, rows: rows, total: tot, avgExcess: ex.length ? ex.reduce(function (a, b) { return a + b; }, 0) / ex.length : NaN, nExcess: ex.length, benchUnverifiable: unv, benchPending: pend, excluded: excluded };
   }
   // ---- 화면 ----
   var W = typeof window !== 'undefined' ? window : null, state = { busy: false, error: '', result: null, at: 0, trial: null, cards: [], series: {}, formMsg: '' }, cb = 0;
@@ -176,10 +199,11 @@
   function loadEntries() {
     return getJSON('./reviews/index.json').then(function (ix) {
       var files = ix && Array.isArray(ix.files) ? ix.files.filter(function (f) { return /^[a-z0-9-]+\.json$/.test(f); }).slice(0, 60) : [];
-      return Promise.all(files.map(function (f) { return getJSON('./reviews/' + f).catch(function () { return null; }); }));
+      return Promise.all(files.map(function (f) { return getJSON('./reviews/' + f).then(function (d) { return { f: f, d: d }; }, function () { return null; }); }));
     }).then(function (docs) {
       var out = [], V = W.HASReviewCards;
-      docs.forEach(function (d) { var v = V && V.validate(d); if (!v) return; v.cards.forEach(function (c) { out.push({ ticker: c.ticker, market: c.market, name: c.name, verdict: c.verdict, reviewedAt: v.reviewedAt }); }); });
+      // 원본 파일 이름·검토 시각을 그대로 붙여 둔다(카드 출처 식별, 지피 2030 CR-Q3-R3).
+      docs.forEach(function (x) { var v = x && V && V.validate(x.d); if (!v) return; v.cards.forEach(function (c) { out.push({ ticker: c.ticker, market: c.market, name: c.name, verdict: c.verdict, reviewedAt: v.reviewedAt, src: x.f }); }); });
       return out;
     });
   }
@@ -190,7 +214,7 @@
       entries = e; if (!entries.length) throw Error('검토 기록이 없습니다.');
       try { endpoint(); } catch (x) { throw Error('설정 탭의 GAS 주소를 먼저 확인해 주세요.'); }
       var want = { KR: {}, US: {} }; entries.forEach(function (x) { want[x.market][x.ticker] = true; want[x.market][BENCH[x.market]] = true; });
-      (readTrial().trades || []).forEach(function (t) { if (!t || !want[t.market] || typeof t.ticker !== 'string') return; want[t.market][t.ticker] = true; want[t.market][BENCH[t.market]] = true; });
+      usableTrades(readTrial().trades || [], Date.now()).forEach(function (t) { want[t.market][t.ticker] = true; want[t.market][BENCH[t.market]] = true; });
       var series = {}, seq = Promise.resolve();
       ['KR', 'US'].forEach(function (m) { var list = Object.keys(want[m]); for (var i = 0; i < list.length; i += 12) (function (chunk) { seq = seq.then(function () { return jsonp({ type: 'history', tickers: chunk.join(','), market: m }).then(function (d) { chunk.forEach(function (t) { var b = cleanBars(d && d[t]); if (b) series[m + ':' + t] = b; }); }, function () {}); }); })(list.slice(i, i + 12)); });
       return seq.then(function () { return series; });
@@ -204,7 +228,7 @@
   function render() {
     if (!body || !body.isConnected) return; body.replaceChildren(); body.setAttribute('data-testid', 'scorecard');
     body.style.cssText = 'color:#333;font-size:15px;line-height:1.6;overflow-wrap:anywhere';
-    body.appendChild(node('h3', '📊 클로 추천 성적표', 'margin:4px 0 8px'));
+    body.appendChild(node('h3', '📊 클로 추천 성적표 (참고 채점)', 'margin:4px 0 8px'));
     body.appendChild(node('p', '검토일 종가 대비 지금까지의 수익률을 같은 기간 지수(국내 KODEX 200·미국 QQQ)와 비교합니다. 매수·장기보유는 지수보다 잘 가면, 비중 축소·매도는 지수보다 못 가면 맞힘입니다. 관망은 채점하지 않습니다. 1개월·3개월이 지나야 의미 있는 성적입니다.', 'font-size:14px'));
     var b = node('button', state.busy ? '계산 중…' : (state.result ? '다시 계산' : '성적 계산하기'), 'min-height:44px;padding:0 16px;font-size:15px;margin:4px 0'); b.type = 'button'; b.disabled = state.busy; b.addEventListener('click', run); body.appendChild(b);
     if (state.error) body.appendChild(node('p', state.error, 'color:#8b2020'));
@@ -223,13 +247,18 @@
     });
     body.appendChild(node('p', '원주가 기준(배당·분할 조정 미검증)이며 공식 거래일·종가 확정 시각은 미검증입니다. 과거 판단은 당시 기록이며 현재 추천이 아닙니다. 과거 성적이 미래 수익을 보장하지 않습니다.', 'font-size:14px;margin-top:8px'));
   }
-  function nyDate() { return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date()); }
-  function marketToday(m) { return m === 'US' ? nyDate() : kstDate(Date.now()); }
+  function nyDate() { return marketDay('US'); }
+  function marketToday(m) { return marketDay(m); }
+  function kstStamp(ms) { if (!isFinite(ms)) return '시각 미상'; var v = {}; new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(new Date(ms)).forEach(function (x) { v[x.type] = x.value; }); return v.year + '-' + v.month + '-' + v.day + ' ' + v.hour + ':' + v.minute + ' KST'; }
+  // 카드 출처 문구: 그 시장 날짜(뉴욕/한국)와 KST 시각을 구분하고 원본 파일·검토 시각을 남긴다.
+  function cardText(c, m) { return (LABEL[c.verdict] || String(c.verdict)) + ' · 시장일 ' + cardDay(c, m) + (m === 'US' ? '(뉴욕)' : '(한국)') + ' · ' + kstStamp(Date.parse(c.reviewedAt)) + (c.src ? ' · 출처 reviews/' + c.src : '') + ' · 검토시각 ' + String(c.reviewedAt); }
+  var WHY = { format: '형식이 지금 규칙과 다름', dup: '같은 ID 중복', future: '미래 날짜' };
   function money(x, m) { return m === 'US' ? '$' + x.toLocaleString('en-US', { maximumFractionDigits: 2 }) : Math.round(x).toLocaleString('ko-KR') + '원'; }
   function renderTrial() {
     var box = node('div', null, 'margin-top:16px;padding-top:12px;border-top:3px solid #4a148c'); box.setAttribute('data-testid', 'trial');
     box.appendChild(node('h3', '🧪 내 실전 검증', 'margin:4px 0 8px'));
     box.appendChild(node('p', '클로 추천을 소액으로 실제 사 본 기록입니다. 산 날 이후 수익률과 같은 기간 지수 대비 성과를 계산해 위 성적표와 비교합니다. 이 기록은 이 휴대폰에 저장되고 백업 파일에도 함께 들어갑니다.', 'font-size:14px'));
+    box.appendChild(node('p', '참고 채점입니다 — 공식 거래일·가격 종류·종가 확정 시각이 검증되기 전이라 검증된 수익률이 아닙니다.', 'font-size:14px;font-weight:700'));
     var C = readTrial(), trades = C.trades, ro = C.state === 'legacy';
     if (C.state === 'bad') { box.appendChild(node('p', '저장된 실전 기록이 손상되어 표시하지 않습니다. 새로 저장하지 않았습니다(원문은 그대로 둠).', 'color:#8b2020')); return box; }
     if (ro) box.appendChild(node('p', '저장된 실전 기록 중 지금 규칙(최대 ' + TRIAL_MAX + '건·중복 없는 ID·실제 날짜·숫자)에 안 맞는 것이 있어 읽기 전용으로 보여 드립니다. 원문은 고치거나 지우지 않았고, 새 기록·매도·삭제 저장은 막아 두었습니다. 백업 파일에는 원문 그대로 들어갑니다.', 'color:#8b2020;font-weight:700'));
@@ -244,11 +273,14 @@
     var pr = node('input', null, fld); pr.inputMode = 'decimal'; pr.placeholder = '1주 매수가';
     var exl = node('label', null, 'grid-column:1 / -1;display:flex;align-items:center;gap:8px;min-height:44px;font-size:15px;color:#222'), exb = node('input'); exb.type = 'checkbox'; exb.style.cssText = 'width:22px;height:22px';
     exl.appendChild(exb); exl.appendChild(node('span', '🔎 예외 정찰로 분류 (하락 추세 중 1순위 종목, 계획 금액의 5%·1회) — 기록 분류일 뿐 매수 안내가 아닙니다'));
-    var dr = state.draft; if (dr) { mk.value = dr.m; tk.value = dr.tk; if (dr.dt) dt.value = dr.dt; qy.value = dr.qy; pr.value = dr.pr; exb.checked = dr.ex; }
+    var dr = state.draft, dtManual = false; if (dr) { mk.value = dr.m; tk.value = dr.tk; if (dr.dt) dt.value = dr.dt; qy.value = dr.qy; pr.value = dr.pr; exb.checked = dr.ex; dtManual = !!dr.dtManual; }
     dt.max = marketToday(mk.value);
-    function saveDraft() { state.draft = { m: mk.value, tk: tk.value, dt: dt.value, qy: qy.value, pr: pr.value, ex: exb.checked }; }
+    function saveDraft() { state.draft = { m: mk.value, tk: tk.value, dt: dt.value, qy: qy.value, pr: pr.value, ex: exb.checked, dtManual: dtManual }; }
+    // 사용자가 날짜를 직접 고르면(그 값이 오늘이어도) 시장을 바꿔도 자동으로 고치지 않는다(지피 2030 CR-Q3-R3).
+    function markManual() { dtManual = true; }
+    dt.addEventListener('input', markManual); dt.addEventListener('change', markManual);
     // 미국 종목은 산 날짜 기본값을 뉴욕 날짜로(한국 새벽에 산 주문은 미국 전날 거래) — 지수 비교 기준일이 하루 밀리지 않게.
-    function syncDate() { var k = kstDate(Date.now()), n = nyDate(); dt.max = mk.value === 'US' ? n : k; if (mk.value === 'US' && dt.value === k) dt.value = n; else if (mk.value === 'KR' && dt.value === n && n !== k) dt.value = k; }
+    function syncDate() { var k = marketDay('KR'), n = nyDate(); dt.max = mk.value === 'US' ? n : k; if (dtManual) return; if (mk.value === 'US' && dt.value === k) dt.value = n; else if (mk.value === 'KR' && dt.value === n && n !== k) dt.value = k; }
     mk.addEventListener('change', syncDate);
     // 종목코드로 시장을 맞춘다: 영문 티커면 미국, 6자리 숫자면 국내(시장 선택을 깜빡해도 기록이 거절되지 않게).
     tk.addEventListener('input', function () { var v = tk.value.trim().toUpperCase(); if (/^[A-Z]/.test(v)) mk.value = 'US'; else if (/^[0-9]{6}$/.test(v)) mk.value = 'KR'; syncDate(); if (state.formMsg) { state.formMsg = ''; msg.textContent = ''; } });
@@ -272,15 +304,21 @@
     if (T.byKind && T.byKind.exception.n) box.appendChild(node('div', '🔎 예외 정찰 평균 ' + pct(T.byKind.exception.avg) + ' (' + T.byKind.exception.n + '건) · 일반 매수 평균 ' + (T.byKind.normal.n ? pct(T.byKind.normal.avg) + ' (' + T.byKind.normal.n + '건)' : '기록 없음') + ' — 예외가 계속 못하면 규칙 폐기', 'font-weight:700;color:#4a148c'));
     if (isFinite(T.avgExcess)) box.appendChild(node('div', '지수 대비 평균 초과 ' + pct(T.avgExcess) + ' (' + T.nExcess + '건' + (T.benchUnverifiable ? ' · 지수 같은 날짜 종가 없어 검증 불가 ' + T.benchUnverifiable + '건 제외' : '') + ')', 'font-weight:700'));
     else if (T.benchUnverifiable) box.appendChild(node('div', '지수 대비: 같은 날짜 지수 종가가 없어 검증 불가 ' + T.benchUnverifiable + '건'));
-    if (Object.keys(state.series).length) box.appendChild(node('div', '지수 비교는 산 날·끝날의 지수 종가 기준입니다(내 체결 시각과 같은 시각이 아님).', 'font-size:14px'));
+    if (T.benchPending) box.appendChild(node('div', '매도일 지수 종가가 아직 확정 전이라 지수 비교 보류 ' + T.benchPending + '건(매도 손익은 위 확정 손익에 반영)'));
+    if (T.excluded) box.appendChild(node('div', '계산 제외 ' + T.excluded + '건 — 형식이 다르거나 ID 중복·미래 날짜인 기록은 원문 그대로 두고 합계·지수 비교·카드 연결·가격 조회에서 뺐습니다.', 'color:#8b2020;font-weight:700'));
+    if (Object.keys(state.series).length) box.appendChild(node('div', '합계·수익률은 가장 최근 확정 종목 종가(또는 매도가) 기준이고, 지수 비교는 종목·지수가 같은 날짜 확정 종가를 가진 날까지 따로 계산합니다(내 체결 시각과 같은 시각이 아님).', 'font-size:14px'));
     if (!Object.keys(state.series).length) box.appendChild(node('div', '수익률은 위 [성적 계산하기]를 누르면 계산됩니다.'));
     T.rows.slice().reverse().forEach(function (r) {
+      if (r.excluded) { var xr = r.trade, xl = node('div', null, 'border-top:1px solid #d5dbe3;padding:6px 0'); xl.appendChild(node('div', '원문 보존 · 계산 제외(' + WHY[r.excluded] + '): ' + String(xr.ticker).slice(0, 20) + ' · ' + String(xr.date).slice(0, 20) + ' · 수량 ' + String(xr.qty).slice(0, 24) + ' · 가격 ' + String(xr.price).slice(0, 24) + (xr.sellDate != null ? ' · 매도 ' + String(xr.sellDate).slice(0, 20) + ' ' + String(xr.sellPrice).slice(0, 24) : ''), 'color:#333')); box.appendChild(xl); return; }
       var t = r.trade, nm = r.card ? r.card.name + ' (' + t.ticker + ')' : t.ticker, line = node('div', null, 'border-top:1px solid #d5dbe3;padding:6px 0');
       line.appendChild(node('div', (t.kind === 'exception' ? '🔎 예외 정찰(입력 분류) · ' : '') + nm + ' · ' + t.date + ' · ' + t.qty + '주 × ' + money(t.price, t.market), 'font-weight:700'));
-      line.appendChild(node('div', isFinite(r.ret) ? (t.sellDate ? '매도 ' + t.sellDate + ' ' : '최근 확정 ' + r.endDate + ' ') + money(r.last, t.market) + ' · 수익 ' + pct(r.ret) + (r.benchUnverifiable ? ' · 지수 검증 불가' : ' · 지수 ' + pct(r.benchRet) + ' · 초과 ' + pct(r.excess)) : '가격 미계산'));
-      if (r.card) line.appendChild(node('div', '당시 클로 판단(원문 기록, 현재 추천 아님): ' + (LABEL[r.card.verdict] || r.card.verdict) + ' (' + kstDate(Date.parse(r.card.reviewedAt)) + ' 검토' + (r.cardSameDay ? ' · 산 날과 같은 날이라 순서 미확인' : '') + ')'));
-      else if (r.cardLaterOnly) line.appendChild(node('div', '클로 카드 연결 미확인 — 산 날 이후에 검토한 카드만 있음'));
-      else line.appendChild(node('div', '클로 검토 카드 없는 종목'));
+      line.appendChild(node('div', isFinite(r.ret) ? (t.sellDate ? '매도 ' + t.sellDate + ' ' : '최근 확정 ' + r.endDate + ' ') + money(r.last, t.market) + ' · 수익 ' + pct(r.ret) : '가격 미계산'));
+      if (isFinite(r.excess)) line.appendChild(node('div', '지수 비교(참고) ' + t.date + '→' + r.cmpEnd + ' 같은 날짜 종가: 종목 ' + pct(r.cmpRet) + ' · 지수 ' + pct(r.benchRet) + ' · 초과 ' + pct(r.excess), 'font-size:14px'));
+      else if (r.benchPending) line.appendChild(node('div', '지수 비교 보류 — 매도일 지수 종가가 아직 확정 전', 'font-size:14px'));
+      else if (r.benchUnverifiable) line.appendChild(node('div', '지수 비교 검증 불가 — 같은 날짜 지수 종가 없음', 'font-size:14px'));
+      if (r.card) line.appendChild(node('div', '매수 전 클로 판단(원문 기록, 현재 추천 아님): ' + cardText(r.card, t.market)));
+      if (r.sameDayCard) line.appendChild(node('div', '같은 날 검토 카드(매수 전후 순서 미확인 · 참고만): ' + cardText(r.sameDayCard, t.market)));
+      if (!r.card && !r.sameDayCard) line.appendChild(node('div', r.cardLaterOnly ? '클로 카드 연결 미확인 — 산 날 이후에 검토한 카드만 있음' : '클로 검토 카드 없는 종목'));
       if (!t.sellDate && !ro) {
         var sb = node('button', '매도 기록', 'min-height:40px;font-size:14px;margin:4px 8px 0 0'); sb.type = 'button';
         var sf = node('div', null, 'display:none;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:6px');
@@ -317,5 +355,5 @@
     var c = node('button', '닫기', 'width:100%;min-height:44px;font-size:15px'); c.type = 'button'; c.addEventListener('click', function () { bg.remove(); }); foot.appendChild(c); panel.appendChild(foot);
     bg.addEventListener('click', function (e) { if (e.target === bg) bg.remove(); }); bg.appendChild(panel); document.body.appendChild(bg); render();
   }
-  return { score: score, applySell: applySell, trialScore: trialScore, parseTrades: parseTrades, validTrade: validTrade, classifyTrades: classifyTrades, classifyText: classifyText, checkWrite: checkWrite, linkCard: linkCard, TRIAL_MAX: TRIAL_MAX, TRIAL_LEGACY_MAX: TRIAL_LEGACY_MAX, _writeTrades: writeTrades, _readTrial: readTrial, TRIAL_KEY: TRIAL_KEY, baseDate: baseDate, closeOnOrBefore: closeOnOrBefore, cleanBars: cleanBars, open: open, LABEL: LABEL };
+  return { score: score, applySell: applySell, trialScore: trialScore, usableTrades: usableTrades, marketDay: marketDay, legacyItem: legacyItem, parseTrades: parseTrades, validTrade: validTrade, classifyTrades: classifyTrades, classifyText: classifyText, checkWrite: checkWrite, linkCard: linkCard, TRIAL_MAX: TRIAL_MAX, TRIAL_LEGACY_MAX: TRIAL_LEGACY_MAX, _writeTrades: writeTrades, _readTrial: readTrial, TRIAL_KEY: TRIAL_KEY, baseDate: baseDate, closeOnOrBefore: closeOnOrBefore, cleanBars: cleanBars, open: open, LABEL: LABEL };
 });

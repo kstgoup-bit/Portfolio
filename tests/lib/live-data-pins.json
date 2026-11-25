@@ -25,7 +25,7 @@
     "has/advisor-bridge.js": "561d408bd79f733fbb564bcd7c3c73b4ebcc840ab6bb9550ec0f227393ae8034",
     "backup/ui.js": "60fa260fb96d997d27bcda24b6006630cd196e910af1c0792781e1a5e8fbfca6",
     "has/price-trust-ui.js": "677a2a21a029aa5462406f5cf1f1e82e1d0b71b9c65ad96ef9133f3b062986da",
-    "backup/core.js": "a42ae4aa337823b56851c6bdc88d6989d54c1def96477f54476c4e36e1829f90"
+    "backup/core.js": "318c4b2fd03f4a3da54baa32cc585173efd53ae8168da9ced65afc1a2eabe9ce"
   },
   "addedRuntimeFiles": {
     "tools/consensus-evidence.cjs": "f80ce251b48640a060f2ce088b57627cf63cbd82ccb18ec29db37cf44a259e2b",
@@ -62,7 +62,7 @@
     "has/paper-account.js": "63bc20846de1b79fa4c5f4bbb24bbfe865523fbc29b23b5c7be83d44c3e50e87",
     "has/kis-crosscheck.js": "99c07c3edd264da214503b3b1c045836487de73ddefab06019f07b2a8a674455",
     "has/review-cards.js": "0e7136d952c07031cda013785cf3c6cde3b39acba7b14c2094f31a36352d3663",
-    "has/scorecard.js": "0b7394af1988b954e5945b8bd6aa739769316680a1173efc6972427bc15f25c4",
+    "has/scorecard.js": "a35591fb8d6b5ec21adf66a194b404155442515d6d7890970498e1a734943a8d",
     "has/chart-gate.js": "475cec475ce42cd0d58f9aed11adeb8fa734a7ae8261c6044ebfc8a81cf0fefc"
   }
 }

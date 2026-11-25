@@ -17,7 +17,9 @@ const Y = (bars) => ({ source: 'yahoo-chart-v8', symbol: '005930.KS', currency: 
 const KI = (bars) => ({ source: 'kis-daily', symbol: '005930', currency: 'KRW', bars });
 async function kisDom(yBars, kBars) {
   const dom = new JSDOM('<!doctype html><head></head><body><div id="m"></div></body>', { url: 'https://example.test/', runScripts: 'outside-only' });
-  const w = dom.window, realST = w.setTimeout.bind(w); w.setTimeout = (f, ms) => realST(f, Math.min(ms || 0, 5));
+  // 지피 2030 CR-Q3-R4: 예전엔 모든 타이머를 5ms로 줄여 JSONP 20초 응답 제한까지 5ms가 되어, 첫 실행(준비 지연) 때 가짜 응답보다 제한이 먼저 끝나 'Yahoo 자료 없음'이 되는 경쟁이 있었다.
+  // 이제 응답 제한(20초 이상)은 그대로 두고 짧은 대기만 줄이며, 고정 60ms 대신 대조 완료(버튼 다시 활성)를 기다린다.
+  const w = dom.window, realST = w.setTimeout.bind(w); w.setTimeout = (f, ms) => realST(f, (ms || 0) >= 20000 ? ms : Math.min(ms || 0, 5));
   w.gasUrl = 'https://script.google.com/macros/s/SYNTHETIC_ID/exec'; w.domStocks = [{ ticker: '005930', name: '합성', quantity: 1 }];
   const orig = w.document.head.appendChild.bind(w.document.head);
   w.document.head.appendChild = (el) => {
@@ -27,8 +29,11 @@ async function kisDom(yBars, kBars) {
   if (w.document.readyState !== 'complete') await new Promise((r) => w.addEventListener('load', r));
   w.eval(KIS_SRC);
   const box = w.document.getElementById('m'); w.HASKISCrossCheck.mount(box);
-  w.HASKISCrossCheck.run(); await tick(60);
-  return box.textContent;
+  w.HASKISCrossCheck.run();
+  const t0 = Date.now(); await tick(0);
+  while (Date.now() - t0 < 5000) { const b = box.querySelector('button'); if (b && !b.disabled && /결과:/.test(box.textContent)) break; await tick(5); }
+  const text = box.textContent; w.close();
+  return text;
 }
 const same = (days) => days.map((d, i) => ({ d, c: 1000 + i }));
 const at = (days, ms) => K.compare(Y(same(days)), KI(same(days)), { ticker: '005930', now: ms || Date.now() });

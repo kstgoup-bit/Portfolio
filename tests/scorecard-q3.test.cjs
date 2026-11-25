@@ -37,7 +37,7 @@ test('E2: 앱 분류와 백업 분류가 같은 입력에 같은 결과(정상·
   }
   a.equal(S.classifyTrades(many(501)),'legacy');a.equal(S.parseTrades(JSON.stringify(many(501))),null);
   a.equal(S.classifyTrades([{ticker:'001440',market:'KR',date:'2026-11-02',qty:1,price:1}]),'legacy');
-  a.equal(S.classifyTrades([tr(1,{qty:'5'})]),'bad');
+  a.equal(S.classifyTrades([tr(1,{qty:'5'})]),'legacy'); // 지피 2030 CR-Q3-R1: 이전 앱이 저장하던 숫자 문자열은 손상이 아니라 옛 형식(보존·계산 제외)
 });
 test('E2: 옛 형식 원문은 백업 생성·복원·되돌리기에서 바이트 그대로 보존',()=>{
   const mem=(seed={})=>{const m=new Map(Object.entries(seed));return{get length(){return m.size;},key:i=>[...m.keys()][i]??null,getItem:k=>m.get(k)??null,setItem:(k,v)=>m.set(k,String(v)),removeItem:k=>m.delete(k),all:()=>Object.fromEntries(m)};};
@@ -79,11 +79,12 @@ test('E3: 실전 검증 — 지수는 산 날·끝날 같은 날짜 종가만, �
 });
 test('E4: 카드 연결은 산 날 이전 카드만, 뒤 카드만 있으면 연결 미확인, 같은 날 표시, 미국은 뉴욕 날짜',()=>{
   const c1={market:'KR',ticker:'001440',verdict:'buy-review',reviewedAt:'2026-11-20T22:00:00+09:00'},c2={...c1,verdict:'wait',reviewedAt:'2026-11-30T22:00:00+09:00'};
-  let l=S.linkCard(tr(1,{date:'2026-11-25'}),[c2,c1]);a.equal(l.card,c1);a.equal(l.sameDay,false);
+  let l=S.linkCard(tr(1,{date:'2026-11-25'}),[c2,c1]);a.equal(l.card,c1);a.equal(l.sameDayCard,null);
   l=S.linkCard(tr(1,{date:'2026-11-19'}),[c1,c2]);a.equal(l.card,null);a.equal(l.laterOnly,true);
-  l=S.linkCard(tr(1,{date:'2026-11-20'}),[c1]);a.equal(l.card,c1);a.equal(l.sameDay,true);
+  l=S.linkCard(tr(1,{date:'2026-11-20'}),[c1]);a.equal(l.card,null);a.equal(l.sameDayCard,c1);a.equal(l.laterOnly,false); // 같은 날은 확정 연결 아님(참고만)
   const u={market:'US',ticker:'MSFT',verdict:'buy-review',reviewedAt:'2026-11-25T08:00:00+09:00'};// 뉴욕 11-24
-  a.equal(S.linkCard({market:'US',ticker:'MSFT',date:'2026-11-24'},[u]).card,u);
+  a.equal(S.linkCard({market:'US',ticker:'MSFT',date:'2026-11-24'},[u]).sameDayCard,u);a.equal(S.linkCard({market:'US',ticker:'MSFT',date:'2026-11-24'},[u]).card,null);
+  a.equal(S.linkCard({market:'US',ticker:'MSFT',date:'2026-11-25'},[u]).card,u); // 뉴욕 11-24 카드 → 11-25 매수의 매수 전 확정 연결
 });
 test('E4: 창을 열기만 하면 조회 0, 옛 형식은 읽기 전용·저장 막음, 쓰기 실패 시 원문 불변',{skip:!JSDOM&&'jsdom 없음'},()=>{
   const dom=new JSDOM('<!doctype html><body></body>',{url:'https://example.test/',runScripts:'outside-only'}),w=dom.window;let fetched=0;

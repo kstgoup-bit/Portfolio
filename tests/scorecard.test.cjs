@@ -28,12 +28,13 @@ test('trial trades: validation, return and excess vs benchmark, card link, sold 
   a.equal(r.total.KR.cost,160000);a.equal(r.total.KR.val,200000);
 });
 test('trial sell: full sell marks record, partial sell splits; invalid sells rejected',()=>{
-  const t={id:'trial-a',market:'US',ticker:'SOXL',date:'2026-11-25',qty:10,price:40};
-  let r=S.applySell([t],'trial-a',{date:'2026-12-01',qty:10,price:45},'trial-n');a.equal(r.trades.length,1);a.equal(r.trades[0].sellPrice,45);
-  r=S.applySell([t],'trial-a',{date:'2026-12-01',qty:4,price:45},'trial-n');a.equal(r.trades.length,2);a.equal(r.trades[0].qty,6);a.equal(r.trades[0].sellDate,undefined);a.equal(r.trades[1].qty,4);a.equal(r.trades[1].sellDate,'2026-12-01');a.equal(r.trades[1].date,'2026-11-25');
-  a.ok(S.applySell([t],'trial-a',{date:'2026-11-01',qty:1,price:45},'x').error);a.ok(S.applySell([t],'trial-a',{date:'2026-12-01',qty:11,price:45},'x').error);
-  a.ok(S.applySell([r.trades[1]],'trial-n',{date:'2026-12-02',qty:1,price:45},'x').error);
-  const sc=S.trialScore(r.trades,{},[]);a.equal(sc.realized.US,20);
+  const t={id:'trial-a',market:'US',ticker:'SOXL',date:'2026-11-25',qty:10,price:40},NOW=Date.parse('2026-12-24T10:00:00+09:00'); // 시계 고정(지피 2030 CR-Q3-R2: 미래 매도일 차단)
+  let r=S.applySell([t],'trial-a',{date:'2026-12-01',qty:10,price:45},'trial-n',NOW);a.equal(r.trades.length,1);a.equal(r.trades[0].sellPrice,45);
+  r=S.applySell([t],'trial-a',{date:'2026-12-01',qty:4,price:45},'trial-n',NOW);a.equal(r.trades.length,2);a.equal(r.trades[0].qty,6);a.equal(r.trades[0].sellDate,undefined);a.equal(r.trades[1].qty,4);a.equal(r.trades[1].sellDate,'2026-12-01');a.equal(r.trades[1].date,'2026-11-25');
+  a.ok(S.applySell([t],'trial-a',{date:'2026-11-01',qty:1,price:45},'x',NOW).error);a.ok(S.applySell([t],'trial-a',{date:'2026-12-01',qty:11,price:45},'x',NOW).error);
+  a.ok(S.applySell([r.trades[1]],'trial-n',{date:'2026-12-02',qty:1,price:45},'x',NOW).error);
+  const sc=S.trialScore(r.trades,{},[],NOW);a.equal(sc.realized.US,20);
+  a.match(S.applySell([t],'trial-a',{date:'2026-12-25',qty:1,price:45},'x',NOW).error,/미래/);
 });
 test('backup includes trial trades and KIS cross-check log, rejects malformed',()=>{
   const B=require('../backup/core.js');

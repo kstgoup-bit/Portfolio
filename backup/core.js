@@ -127,6 +127,8 @@
   }
   if(!own(values,'v5_benchHistV2'))warnings.push('지수 보조 기록이 백업에 없습니다. 현재 보조 기록을 유지하며 원본 연결이 달라지면 사용을 보류합니다.');
   else warnings.push('지수 관측과 충돌 보류 자료를 별도로 보존합니다. 복원 전 원본 연결과 누락 그룹을 검증하며 자동 재연결·삭제·변환하지 않습니다.');
+  // 실전 검증 기록 키 단위 경고(지피 2030 CR-Q3-R1, 순태씨 E2): 옛 형식은 원문 그대로 복원하되 앱에서는 읽기 전용이고 일부 행은 계산에서 빠진다.
+  if(own(values,'has_trialTrades_v1')&&trialClass(parseJSON(values.has_trialTrades_v1))==='legacy')warnings.push('실전 검증 기록(has_trialTrades_v1)에 옛 형식이 있어 원문 그대로 보존·복원합니다. 앱에서는 읽기 전용이며 지금 규칙에 안 맞는 행은 계산에서 뺍니다.');
   return warnings;
  }
  // 실전 검증 기록: has/scorecard.js classifyTrades와 같은 규칙(동등성 시험). ok·legacy(옛 규칙만 통과, 앱은 읽기 전용)는 원문 그대로 백업·복원, bad만 거절.
@@ -134,7 +136,7 @@
  const trialDate=d=>{if(typeof d!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(d)||d<'1990-01-01')return false;const t=Date.parse(d+'T00:00:00Z');return Number.isFinite(t)&&new Date(t).toISOString().slice(0,10)===d;};
  const trialNum=(n,max)=>typeof n==='number'&&Number.isFinite(n)&&n>0&&n<max;
  const trialItem=x=>{if(!x||typeof x!=='object'||Array.isArray(x))return false;const sold=own(x,'sellDate')||own(x,'sellPrice');return typeof x.id==='string'&&x.id.length>=1&&x.id.length<=40&&['KR','US'].includes(x.market)&&trialTicker(x.ticker,x.market)&&trialDate(x.date)&&trialNum(x.qty,1e9)&&trialNum(x.price,1e12)&&(!own(x,'kind')||x.kind==='exception')&&(!sold||(trialDate(x.sellDate)&&x.sellDate>=x.date&&trialNum(x.sellPrice,1e12)));};
- const trialLegacy=x=>{if(!x||typeof x!=='object'||Array.isArray(x))return false;const D=/^\d{4}-\d{2}-\d{2}$/;const oldApp=typeof x.id==='string'&&x.id.length<=40&&['KR','US'].includes(x.market)&&trialTicker(x.ticker,x.market)&&typeof x.date==='string'&&D.test(x.date)&&typeof x.qty==='number'&&isFinite(x.qty)&&x.qty>0&&x.qty<1e9&&typeof x.price==='number'&&isFinite(x.price)&&x.price>0&&x.price<1e12&&(x.kind==null||x.kind==='exception')&&(x.sellDate==null||(D.test(x.sellDate)&&x.sellDate>=x.date&&typeof x.sellPrice==='number'&&isFinite(x.sellPrice)&&x.sellPrice>0));const oldBackup=typeof x.ticker==='string'&&['KR','US'].includes(x.market)&&typeof x.date==='string'&&typeof x.qty==='number'&&Number.isFinite(x.qty)&&x.qty>0&&typeof x.price==='number'&&Number.isFinite(x.price)&&x.price>0;return !!(oldApp||oldBackup);};
+ const trialLegacy=x=>{if(!x||typeof x!=='object'||Array.isArray(x))return false;const D=/^\d{4}-\d{2}-\d{2}$/;const oldNum=(v,max)=>(typeof v==='number'||(typeof v==='string'&&v.length<=40))&&isFinite(v)&&Number(v)>0&&Number(v)<max;const oldApp=typeof x.id==='string'&&x.id.length<=40&&['KR','US'].includes(x.market)&&trialTicker(x.ticker,x.market)&&typeof x.date==='string'&&D.test(x.date)&&oldNum(x.qty,1e9)&&oldNum(x.price,1e12)&&(x.kind==null||x.kind==='exception')&&(x.sellDate==null||(typeof x.sellDate==='string'&&D.test(x.sellDate)&&x.sellDate>=x.date&&oldNum(x.sellPrice,Infinity)));const oldBackup=typeof x.ticker==='string'&&['KR','US'].includes(x.market)&&typeof x.date==='string'&&typeof x.qty==='number'&&Number.isFinite(x.qty)&&x.qty>0&&typeof x.price==='number'&&Number.isFinite(x.price)&&x.price>0;return !!(oldApp||oldBackup);};
  function trialClass(a){if(!Array.isArray(a))return 'bad';const ids=new Set();if(a.length<=500&&a.every(x=>{if(!trialItem(x)||ids.has(x.id))return false;ids.add(x.id);return true;}))return 'ok';return a.length<=2000&&a.every(trialLegacy)?'legacy':'bad';}
  function validateValue(k,raw,sourceVersion=VERSION){
   if(!allowed(k)||typeof raw!=='string'||raw.length>MAX_BYTES)fail('지원하지 않는 저장 키 또는 값');

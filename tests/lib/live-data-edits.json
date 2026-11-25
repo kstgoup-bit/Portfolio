@@ -669,6 +669,14 @@
     [
       "allowed,validateStoredValue:validateValue,trialClass,",
       "allowed,validateStoredValue:validateValue,"
+    ],
+    [
+      "const oldNum=(v,max)=>(typeof v==='number'||(typeof v==='string'&&v.length<=40))&&isFinite(v)&&Number(v)>0&&Number(v)<max;const oldApp=typeof x.id==='string'&&x.id.length<=40&&['KR','US'].includes(x.market)&&trialTicker(x.ticker,x.market)&&typeof x.date==='string'&&D.test(x.date)&&oldNum(x.qty,1e9)&&oldNum(x.price,1e12)&&(x.kind==null||x.kind==='exception')&&(x.sellDate==null||(typeof x.sellDate==='string'&&D.test(x.sellDate)&&x.sellDate>=x.date&&oldNum(x.sellPrice,Infinity)));",
+      "const oldApp=typeof x.id==='string'&&x.id.length<=40&&['KR','US'].includes(x.market)&&trialTicker(x.ticker,x.market)&&typeof x.date==='string'&&D.test(x.date)&&typeof x.qty==='number'&&isFinite(x.qty)&&x.qty>0&&x.qty<1e9&&typeof x.price==='number'&&isFinite(x.price)&&x.price>0&&x.price<1e12&&(x.kind==null||x.kind==='exception')&&(x.sellDate==null||(D.test(x.sellDate)&&x.sellDate>=x.date&&typeof x.sellPrice==='number'&&isFinite(x.sellPrice)&&x.sellPrice>0));"
+    ],
+    [
+      "  else warnings.push('지수 관측과 충돌 보류 자료를 별도로 보존합니다. 복원 전 원본 연결과 누락 그룹을 검증하며 자동 재연결·삭제·변환하지 않습니다.');\n  // 실전 검증 기록 키 단위 경고(지피 2030 CR-Q3-R1, 순태씨 E2): 옛 형식은 원문 그대로 복원하되 앱에서는 읽기 전용이고 일부 행은 계산에서 빠진다.\n  if(own(values,'has_trialTrades_v1')&&trialClass(parseJSON(values.has_trialTrades_v1))==='legacy')warnings.push('실전 검증 기록(has_trialTrades_v1)에 옛 형식이 있어 원문 그대로 보존·복원합니다. 앱에서는 읽기 전용이며 지금 규칙에 안 맞는 행은 계산에서 뺍니다.');\n  return warnings;",
+      "  else warnings.push('지수 관측과 충돌 보류 자료를 별도로 보존합니다. 복원 전 원본 연결과 누락 그룹을 검증하며 자동 재연결·삭제·변환하지 않습니다.');\n  return warnings;"
     ]
   ]
 }
