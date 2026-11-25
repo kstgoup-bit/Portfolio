@@ -36,10 +36,24 @@ function hasFearSheetBook_() {
   ['latest', 'history'].forEach(function (name) {
     var sh = ss.getSheetByName(name) || ss.insertSheet(name);
     if (sh.getLastRow() === 0) sh.appendRow(HAS_FEAR_SHEET_HEADER);
+    sh.getRange('F:F').setNumberFormat('@');                    // 티커는 글자로(국내 006800의 앞 0 보존)
+    hasFearSheetPadKr_(sh);
   });
   var first = ss.getSheetByName('시트1') || ss.getSheetByName('Sheet1');
   if (first && ss.getSheets().length > 2) ss.deleteSheet(first);
   return ss;
+}
+
+// 이전에 숫자로 저장돼 앞 0이 빠진 국내 티커(6800 → 006800)를 고친다.
+function hasFearSheetPadKr_(sh) {
+  var n = sh.getLastRow() - 1;
+  if (n < 1) return;
+  var rg = sh.getRange(2, 4, n, 3), v = rg.getValues(), changed = false;
+  for (var i = 0; i < v.length; i++) {
+    var t = String(v[i][2]);
+    if (v[i][0] === 'KR' && /^\d{1,5}$/.test(t)) { v[i][2] = ('000000' + t).slice(-6); changed = true; }
+  }
+  if (changed) { sh.getRange(2, 6, n, 1).setNumberFormat('@'); sh.getRange(2, 6, n, 1).setValues(v.map(function (r) { return [r[2]]; })); }
 }
 
 function hasFearSheetWrite() {
@@ -55,7 +69,7 @@ function hasFearSheetWrite() {
   var rows = [];
   ['KR', 'US'].forEach(function (m) {
     ranked.filter(function (r) { return r.market === m; }).slice(0, HAS_FEAR_SHEET_LIMIT).forEach(function (r, i) {
-      rows.push([stamp, pub.generatedAt, pub.generation, m, i + 1, r.ticker,
+      rows.push([stamp, pub.generatedAt, pub.generation, m, i + 1, String(r.ticker),
         Math.round(r.drawdownPct * 100) / 100, r.price, r.currency || '', r.asOf || '', r.source || '', r.opinion || '']);
     });
   });
@@ -63,6 +77,7 @@ function hasFearSheetWrite() {
   var latest = ss.getSheetByName('latest');
   latest.clearContents();
   latest.appendRow(HAS_FEAR_SHEET_HEADER);
+  latest.getRange('F:F').setNumberFormat('@');
   if (rows.length) latest.getRange(2, 1, rows.length, rows[0].length).setValues(rows);
   else latest.appendRow([stamp, pub.generatedAt, pub.generation, '', '', '후보 없음(자료가 오래됐거나 부족)']);
   var hist = ss.getSheetByName('history'), last = hist.getLastRow(), dup = false;
