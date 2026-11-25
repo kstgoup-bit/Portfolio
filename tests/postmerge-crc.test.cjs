@@ -74,7 +74,9 @@ test('CR-C2 DOM: 20일 중 과거 차이·누락일(한쪽만 있는 날)·출�
 // ---------- CR-C1: 합의 발행 근거(기계 판독 · 정확한 토큰) ----------
 const REV = 'GPT-REVIEW-ai-review-20261125-0730.md', RAT = '2026-11-25T07:45:00+09:00';
 const card = (v, st, o) => ({ ticker: '005930', market: 'KR', verdict: v, consensus: Object.assign({ status: st, review: REV, date: '2026-11-25', ticker: '005930', market: 'KR', verdict: v }, o) });
-const L = (s) => 'VERDICT: APPROVE\n\n' + s + '\n';
+const RG = (kind, s, o) => { o = o || {}; const b = kind === 'gpt' ? 'CONSENSUS-EVIDENCE' : 'CLAUDE-ACCEPT'; return 'BEGIN-' + b + '\n' + (o.status === null ? '' : 'DOC-STATUS: ' + (o.status || 'FINAL') + '\n') + 'REVIEW-DATE: ' + (o.date || '2026-11-25') + '\n' + (s ? s + '\n' : '') + 'END-' + b; };
+const L = (s, o) => 'VERDICT: APPROVE\n\n사람용 설명은 영역 밖에 그대로 둔다.\n\n' + RG('gpt', s, o) + '\n';
+const C = (s, o) => '# 클로 재검토\n\n' + RG('claude', s, o) + '\n';
 const ok = (c, g, cl) => E.verifyCard(c, RAT, g, cl === undefined ? null : cl);
 
 test('CR-C1 양성: 그 종목·시장·판단·날짜 AGREE 정확히 1줄이면 agreed', () => {
@@ -94,7 +96,7 @@ test('CR-C1 음성: 다른 종목·시장·판단·날짜, 중복·충돌, 형�
   const A1 = 'CONSENSUS-EVIDENCE: 005930 KR sell-review 2026-11-25 AGREE';
   a.equal(ok(c, L(A1 + '\n' + A1)).reason, 'duplicate-or-conflict');
   a.equal(ok(c, L(A1 + '\nCONSENSUS-EVIDENCE: 005930 KR sell-review 2026-11-25 DISAGREE')).reason, 'duplicate-or-conflict');
-  a.equal(ok(c, L(A1 + '\nCONSENSUS-EVIDENCE: 005930 KR sell-review 2026-11-25')).reason, 'malformed-evidence');
+  a.equal(ok(c, L(A1 + '\nCONSENSUS-EVIDENCE: 005930 KR sell-review 2026-11-25')).reason, 'gpt-malformed-row');
   a.equal(ok(c, L('CONSENSUS-EVIDENCE: 005930 KR sell-review 2026-11-25 AGREE extra')).ok, false);
   a.equal(ok(c, null).reason, 'review-file-missing');
   // 카드 자체 consensus 필드 불일치·발행일 불일치
@@ -106,13 +108,14 @@ test('CR-C1 지피 이견 → 클로 동의: 양측 같은 최종 판단 명시 
   const g = L('CONSENSUS-EVIDENCE: 005930 KR hold-long 2026-11-25 DISAGREE PROPOSE=trim-review');
   const c = card('trim-review', 'agreed');
   a.equal(ok(c, g, null).reason, 'claude-accept-missing');
-  a.equal(ok(c, g, 'CLAUDE-ACCEPT: 005930 KR sell-review 2026-11-25 ' + REV).ok, false); // 다른 판단에 동의
-  a.equal(ok(c, g, 'CLAUDE-ACCEPT: 005930 KR trim-review 2026-11-25 GPT-REVIEW-ai-review-20261125-0731.md').ok, false); // 다른 파일
-  const r = ok(c, g, 'CLAUDE-ACCEPT: 005930 KR trim-review 2026-11-25 ' + REV); a.equal(r.ok, true); a.equal(r.reason, 'gpt-propose-claude-accept');
+  a.equal(ok(c, g, C('CLAUDE-ACCEPT: 005930 KR sell-review 2026-11-25 ' + REV)).ok, false); // 다른 판단에 동의
+  a.equal(ok(c, g, C('CLAUDE-ACCEPT: 005930 KR trim-review 2026-11-25 GPT-REVIEW-ai-review-20261125-0731.md')).ok, false); // 다른 파일
+  a.equal(ok(c, g, 'CLAUDE-ACCEPT: 005930 KR trim-review 2026-11-25 ' + REV).ok, false); // 영역 밖 줄은 수락 근거 아님
+  const r = ok(c, g, C('CLAUDE-ACCEPT: 005930 KR trim-review 2026-11-25 ' + REV)); a.equal(r.ok, true); a.equal(r.reason, 'gpt-propose-claude-accept');
   // 원판단(hold-long)으로 agreed 발행은 불가(지피는 반대함)
   a.equal(ok(card('hold-long', 'agreed'), g, null).ok, false);
   // AGREE에 클로 수락 줄이 섞이면 모호 → 차단
-  a.equal(ok(card('hold-long', 'agreed'), L('CONSENSUS-EVIDENCE: 005930 KR hold-long 2026-11-25 AGREE'), 'CLAUDE-ACCEPT: 005930 KR hold-long 2026-11-25 ' + REV).ok, false);
+  a.equal(ok(card('hold-long', 'agreed'), L('CONSENSUS-EVIDENCE: 005930 KR hold-long 2026-11-25 AGREE'), C('CLAUDE-ACCEPT: 005930 KR hold-long 2026-11-25 ' + REV)).ok, false);
 });
 test('CR-C1 disagree·no-response는 별도 규칙, 합의로 승격 안 함', () => {
   const D = L('CONSENSUS-EVIDENCE: 005930 KR sell-review 2026-11-25 DISAGREE');
@@ -120,19 +123,21 @@ test('CR-C1 disagree·no-response는 별도 규칙, 합의로 승격 안 함', (
   a.equal(ok(card('sell-review', 'disagree'), L('CONSENSUS-EVIDENCE: 005930 KR sell-review 2026-11-25 AGREE')).ok, false);
   a.equal(ok(card('sell-review', 'disagree'), null).ok, false); // 이견 근거 파일 없음
   a.equal(ok(card('sell-review', 'no-response'), null).status, 'no-response'); // 검토 파일 자체가 없어도 됨
-  a.equal(ok(card('sell-review', 'no-response'), L('다른 내용')).status, 'no-response');
+  a.equal(ok(card('sell-review', 'no-response'), L('')).status, 'no-response'); // 유효 영역에 그 종목 줄 없음
+  a.equal(ok(card('sell-review', 'no-response'), '다른 내용').ok, false); // 파일은 있는데 영역 없음 → 실패(fail-closed)
   a.equal(ok(card('sell-review', 'no-response'), D).reason, 'has-response'); // 응답이 있는데 무응답으로 발행 불가
   a.equal(ok(card('sell-review', 'bogus'), D).ok, false);
 });
-test('CR-C1 SHA 결합: --ref는 40자리 커밋 SHA만, 그 커밋의 docs/team 원문으로 검사', () => {
-  a.throws(() => E.verifyFile({ reviewedAt: RAT, cards: [card('sell-review', 'agreed')] }, path.join(__dirname, '..'), 'main'), /40-hex/);
-  const r = E.verifyFile({ reviewedAt: RAT, cards: [card('sell-review', 'agreed')] }, path.join(__dirname, '..'), '0'.repeat(40));
-  a.equal(r[0].ok, false); a.equal(r[0].reason, 'review-file-missing'); // 없는 커밋 → 보류
+test('CR-C1 SHA 결합: ref는 40자리 실제 커밋만(없는 커밋은 카드 0건이어도 오류)', () => {
+  const root = path.join(__dirname, '..');
+  a.throws(() => E.verifyFile({ reviewedAt: RAT, cards: [card('sell-review', 'agreed')] }, root, 'main'), /40-hex/);
+  a.throws(() => E.verifyFile({ reviewedAt: RAT, cards: [card('sell-review', 'agreed')] }, root, '0'.repeat(40)), /not a commit/);
+  a.throws(() => E.verifyFile({ reviewedAt: RAT, cards: [] }, root, { gpt: '0'.repeat(40) }), /not a commit/);
 });
 test('CR-C1 발행 계약: 게시된 reviews/*.json의 모든 consensus 카드가 실제 검증 함수를 통과(일괄 승격 금지)', () => {
   const dir = path.join(__dirname, '../reviews'), root = path.join(__dirname, '..');
   let seen = 0;
-  for (const f of fs.readdirSync(dir).filter((x) => x.endsWith('.json'))) {
+  for (const f of fs.readdirSync(dir).filter((x) => x.endsWith('.json') && x !== 'index.json')) { // index.json은 목록 파일(카드 아님)
     let j; try { j = JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8')); } catch (e) { continue; }
     for (const r of E.verifyFile(j, root, null)) { seen++; a.ok(r.ok, f + ' ' + r.ticker + ': ' + r.reason); }
   }
