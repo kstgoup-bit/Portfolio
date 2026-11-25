@@ -1,10 +1,18 @@
 STATUS: READY_FOR_REVIEW
-ORDER-ID: GPT-REVIEW-postmerge-queue-20261125-0930 CR-1~CR-5 (순태씨 D1·D4 승인 → D2·D3·D5 추가 승인, 2026-11-25 클로 대화)
+ORDER-ID: GPT-REVIEW-postmerge-queue-20261125-1030 CR-A1·CR-A2 (D4 범위) + GPT-REVIEW-postmerge-queue-20261125-0930 CR-1~CR-5 (순태씨 D1~D5 승인)
 BRANCH: work/claude-postmerge-fix-20261125
 BASE: d5f011497dfd30bb776f09e047b340d9f9a04be5
-HEAD: 6d96cf07ece8cedf85aab80f20a70ee2ea73b8ed
-REVIEW-SCOPE: BASE..HEAD 전체 — 단위 A(D1·D4, `9449668`) + 단위 B·C(D2·D3·D5, `6d96cf0`). 단위 A 라벨 문구는 단위 C에서 다듬음.
-UPDATED: 2026-11-25 11시대 KST
+HEAD: 5ad779c0d7a9122789f012c9583b2d63fd32162e
+REVIEW-SCOPE: BASE..HEAD 전체. 이번 새 범위는 `5ad779c`(1030 CR-A1·A2) — has/review-cards.js, tests/review-cards-gate-neutral.test.cjs(신규), tests/review-cards-held.test.cjs, tests/lib/live-data-pins.json. 그 앞 `6d96cf0`(D2·D3·D5)도 아직 지피 미검토.
+UPDATED: 2026-11-25 12시대 KST (정각 예약 실행)
+
+## 단위 D — 지피 1030 CR-A1·CR-A2 반영 (`5ad779c`, 최신 main `b122791` 병합 후)
+- 1030 검토는 `9449668`(단위 A) 기준이었고 11시대 `6d96cf0`에도 CR-A1·A2가 남아 있음을 코드로 확인 → 반영.
+- CR-A1: 카드의 차트 관문 줄을 `G.describe().label/color` 대신 표시 계층 중립 문구로: 하락 추세 / 바닥 다지기 / 20일선 회복 / 60일선 회복·저점 상승 / 차트 자료 부족 + ' · 타이밍 참고(판단 보류)', 색 #333. buy·add·hold-long 모두. 숫자 참고줄(종가일·20/60일선 방향·저점 상승)은 유지. chart-gate.js 산식·STAGE·캐시·분할정책 변경 0.
+- CR-A2: 보유 현황 띠 '추가 매수 후보(판단 보류) N' 건수 제거 → '매수 쪽 판단 보류'(숫자 없음), 장기보유·비중 축소 등 다른 건수 유지. 매수 쪽(buy/add) 카드 헤드라인 앞에 '📝 클로 조사 의견(원문 인용 · 매수 권유 아님):' 표시. JSON 원문·verdict·성적표·실전 기록 변경 0.
+- 시험: 신규 9건 — 실제 chart-gate.js 를 로드해 describe 계약(basing에 '정찰병' 포함) 확인 후 5단계 전부·국내/미국·buy/add/hold·재렌더(다시 확인)·관문 없는 목록에서 '정찰병/10%/30%/가능/5%/예외 정찰' 미표시·#333 검증, 단정적 헤드라인 구분, 보유 띠 건수 숨김/유지. 기존 held 시험 1줄 기대값 갱신.
+- 전체 2383 · pass 2381 · fail 0 · skip 2, scan-secrets 0. Chromium 360/390/430 합성 하네스(실제 chart-gate.js + review-cards.js, 외부 요청 차단): 가로 넘침 0, 최소 글자 13px, 관문 줄 3, 행동 문구 0.
+- 범위 밖(지피 지시대로 손대지 않음): 성적표 과거 의견·실전 기록의 5% 예외 입력 안내 — 별도 큐 검토. 실제 앱 전체 화면·폰·GAS 미확인. 운영 미반영.
 
 # 사후 검토 수정 (D1~D5)
 
