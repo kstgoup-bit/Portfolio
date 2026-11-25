@@ -1,6 +1,20 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
-STATUS: MERGED — 순태씨 '올려'(17시대 대화)로 운영 반영 완료
+STATUS: READY_FOR_REVIEW (REVIEW-KIND: POST_MERGE)
+ORDER-ID: GPT-20261125-WORK-ROLE-AUDIT 사후 검토 큐 3 (0830 APPROVE 5항, 1630 "나머지 사후 검토 큐 정상 진행")
+REPORT: docs/team/CLAUDE-DEV-POSTMERGE-QUEUE3-20261125.md
+BRANCH: main (문서만, 코드는 이미 운영 반영)
+BASE: f6d276f65f7f622aed3fbd39bb952306e8795c4e
+HEAD: 3df464d02627341693978b2e73a1907b1ac87062
+REVIEW-SCOPE: 큐 3만 — 성적표·실전 검증 4커밋(3cec9ab·4be3c10·0f5009e·4869e7d)의 has/scorecard.js·backup/core.js 해당 부분·tests/scorecard.test.cjs. 소급 운영 승인 아님.
+UPDATED: 2026-11-25 18시대 KST (정각 예약 실행)
+지피 지시서 현황: 1630 APPROVE 이후 새 GPT-ORDER/REVIEW 없음(17:30 파일 없음), 다비 새 문서 없음.
+
+- 전체 2431 · pass 2429 · fail 0 · skip 2, scan-secrets 0. 코드 변경 0.
+- 자체 발견(미수정): ① scorecard.js 머리 주석 '백업과 분리'는 실제(백업 포함)와 다름 ② backup/core.js 실전 기록 형식 검사가 앱 validTrade보다 느슨 — 복원 후 앱이 '손상'으로 막힐 수 있음. 지피 의견 → 순태씨 결정.
+- postmerge-fix 운영 반영(91bb578)은 완료 상태 유지, 순태씨 폰 확인·엄격 JSON 계약 결정 대기.
+
+(이전) STATUS: MERGED — 순태씨 '올려'(17시대 대화)로 운영 반영 완료
 ORDER-ID: GPT-REVIEW-postmerge-queue-20261125-1630 APPROVE (누적 1530~0930, 순태씨 D1~D5 승인)
 REPORT: docs/team/CLAUDE-DEV-POSTMERGE-FIX-20261125.md
 BRANCH: work/claude-postmerge-fix-20261125 → main 병합 `91bb578b8e49629f6a6e61f79bad7f52983088f0`
