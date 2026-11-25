@@ -10,6 +10,11 @@
     'buy-review': ['🟢 매수 검토', '#1b5e20'], 'add-review': ['🟢 추가 매수 검토', '#1b5e20'], 'hold-long': ['🔵 장기보유', '#0d47a1'],
     'wait': ['🟡 관망·보류', '#8a4b00'], 'trim-review': ['🟠 비중 축소 검토', '#a33a00'], 'sell-review': ['🔴 매도 검토', '#8b2020']
   };
+  // 지피 사후 검토 CR-4·순태씨 D4 승인(2026-11-25): 재무(DART/SEC)·시세 검증과 지피 합의가 연결되기 전에는
+  // 매수 쪽 판단을 녹색 '매수 검토'로 보이지 않고 '클로 단독 의견 · 판단 보류'로 표시한다. JSON·과거 기록은 그대로.
+  var HELD = { 'buy-review': ['🧠 매수 후보 · 클로 단독 의견 · 판단 보류', '#333'], 'add-review': ['🧠 추가 매수 후보 · 클로 단독 의견 · 판단 보류', '#333'] };
+  var HELD_NOTE = '⚠ 이 카드는 클로 단독 조사 의견입니다. 재무(DART·SEC)·시세 검증과 지피 합의 전이라 매수 판단은 보류합니다. 이유·반론은 참고용으로만 보세요.';
+  function shown(k) { return HELD[k] || VERDICT[k]; }
   function str(x, max) { return typeof x === 'string' && x.length > 0 && x.length <= max; }
   function list(a, max, len) { return Array.isArray(a) && a.length <= max && a.every(function (x) { return str(x, len); }); }
   function https(u) { try { var p = new URL(u); return p.protocol === 'https:' && !p.username && !p.password; } catch (e) { return false; } }
@@ -52,7 +57,7 @@
       .catch(function () { state.error = '검토 카드를 불러오지 못했습니다(인터넷 연결 확인).'; })
       .then(function () { state.loading = false; state.loaded = true; renderAll(); ensureLink(); });
   }
-  function node(tag, text, css) { var e = document.createElement(tag); if (text != null) e.textContent = text; if (css) e.style.cssText = css; return e; }
+  function node(tag, text, css, tid) { var e = document.createElement(tag); if (text != null) e.textContent = text; if (css) e.style.cssText = css; if (tid) e.setAttribute('data-testid', tid); return e; }
   function kst(iso) { try { return new Date(iso).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }); } catch (e) { return iso; } }
   var ORDER = { 'buy-review': 0, 'add-review': 0, 'trim-review': 1, 'sell-review': 1, 'hold-long': 2, 'wait': 3 };
   function render(box, d0, title, testid) {
@@ -63,6 +68,7 @@
     if (!d) return;
     box.appendChild(node('p', '검토 ' + kst(d.reviewedAt) + ' · ' + d.reviewer + (d.basis ? ' · ' + d.basis : ''), 'font-size:13px'));
     if (d.context) box.appendChild(node('p', d.context));
+    if (d.cards.some(function (c) { return HELD[c.verdict]; })) box.appendChild(node('p', HELD_NOTE, 'font-size:14px;font-weight:700;color:#333;background:#f3f3f3;border-radius:8px;padding:8px 10px', 'review-held-note'));
     var counts = {}; d.cards.forEach(function (c) { counts[c.verdict] = (counts[c.verdict] || 0) + 1; });
     var G = typeof window !== 'undefined' && window.HASChartGate, gateKinds = { 'buy-review': 1, 'add-review': 1, 'hold-long': 1 };
     if (G) {
@@ -75,17 +81,17 @@
         box.appendChild(gb);
         // 6시간 안에 확인한 결과는 저장해 두고 바로 보여 준다. 오래됐으면 화면을 열 때 한 번 자동 확인.
         if (!busy && !gateAuto[gk] && gItems.some(function (x) { return !G.fresh(x.market, x.ticker); })) { gateAuto[gk] = true; setTimeout(runGate, 0); }
-        box.appendChild(node('p', '실적은 "사도 될 회사"인지, 차트 관문은 "지금 살 때"인지를 봅니다. 1·3·3·3 분할: 하락 추세면 기다리고, 바닥을 다지면 정찰병(목표 금액의 10%), 20일선을 회복해 버티면 30%, 60일선 회복·저점 상승이면 30%, 다음 실적까지 확인되면 마지막 30%를 삽니다.', 'font-size:14px'));
+        box.appendChild(node('p', '차트 관문은 기업가치·재무 검증 다음에 보는 "지금 살 때인지" 타이밍 참고입니다. 재무·시세 검증과 합의 전이라 분할매수 금액 안내는 보류합니다.', 'font-size:14px'));
       }
     }
-    box.appendChild(node('p', Object.keys(VERDICT).filter(function (k) { return counts[k]; }).map(function (k) { return VERDICT[k][0] + ' ' + counts[k]; }).join(' · '), 'font-weight:700'));
+    box.appendChild(node('p', Object.keys(VERDICT).filter(function (k) { return counts[k]; }).map(function (k) { return shown(k)[0] + ' ' + counts[k]; }).join(' · '), 'font-weight:700'));
     d.cards.slice().sort(function (a, b) { return ORDER[a.verdict] - ORDER[b.verdict] || (a.rank || 99) - (b.rank || 99); }).forEach(function (c) {
-      var v = VERDICT[c.verdict], art = node('article', null, 'border-top:1px solid #c9d3e0;padding:10px 0');
+      var v = shown(c.verdict), art = node('article', null, 'border-top:1px solid #c9d3e0;padding:10px 0');
       art.appendChild(node('div', (c.rank ? '우선순위 ' + c.rank + ' · ' : '') + c.name + ' (' + c.ticker + ') · ' + v[0], 'font-weight:800;color:' + v[1]));
       art.appendChild(node('div', c.headline));
       var gr = G && gateKinds[c.verdict] ? G.cached(c.market, c.ticker) : null;
       if (gr) { var gd = G.describe(gr); art.appendChild(node('div', '차트 관문: ' + gd.label, 'font-weight:800;color:' + gd.color)); if (gd.detail) art.appendChild(node('div', gd.detail, 'font-size:14px')); 
-        if (gr.stage === 'falling' && c.rank === 1 && c.verdict === 'buy-review') art.appendChild(node('div', '🔎 예외 정찰 가능: 계획 금액의 5%만, 종목당 1회. 더 떨어져도 추가 매수 금지 → 바닥 다지기로 바뀌면 5% 더 채워 정찰병 10%. 실전 검증에 "예외 정찰"로 기록.', 'font-size:14px;font-weight:700;color:#4a148c;margin-top:4px')); }
+        /* 5% 예외 정찰 안내는 선행 검증(재무·시세·합의)을 우회하지 않도록 판단 보류 중에는 표시하지 않는다(D4). */ }
       var det = node('details'); det.appendChild(node('summary', '근거·반론·출처 보기', 'min-height:44px;display:flex;align-items:center;cursor:pointer'));
       det.appendChild(node('div', '👍 근거', 'font-weight:700')); c.reasons.forEach(function (x) { det.appendChild(node('div', '· ' + x)); });
       det.appendChild(node('div', '⚠ 반론·위험', 'font-weight:700;margin-top:6px')); c.risks.forEach(function (x) { det.appendChild(node('div', '· ' + x)); });
@@ -107,7 +113,7 @@
   function mount(box) { if (!box) return; mounts = mounts.filter(function (m) { return m !== box && m.isConnected; }); mounts.push(box); renderMount(box); if (!state.loaded) load(); loadUS(); }
   // 현황 '오늘의 투자 판단' 띠에 곡소리 AI 매수 검토 건수를 붙이고, 누르면 곡소리 화면의 카드로 이동한다.
   function buys(d) { return d ? d.cards.filter(function (c) { return c.verdict === 'buy-review'; }).length : 0; }
-  function summary() { var d = state.doc || us.doc; if (!d) return null; var kr = buys(state.doc), u = buys(us.doc); return { buy: kr + u, kr: kr, us: u, date: (function () { try { var x = new Date(Date.parse(d.reviewedAt) + 9 * 3600000); return (x.getUTCMonth() + 1) + '/' + x.getUTCDate(); } catch (e) { return ''; } })() }; }
+  function summary() { var d = state.doc || us.doc; if (!d) return null; var kr = buys(state.doc), u = buys(us.doc); return { buy: kr + u, kr: kr, us: u, held: true, cards: (state.doc ? state.doc.cards.length : 0) + (us.doc ? us.doc.cards.length : 0), date: (function () { try { var x = new Date(Date.parse(d.reviewedAt) + 9 * 3600000); return (x.getUTCMonth() + 1) + '/' + x.getUTCDate(); } catch (e) { return ''; } })() }; }
   function open() {
     try { if (window.KSTRadar && window.KSTRadar.openFear) window.KSTRadar.openFear(); } catch (e) { return; }
     setTimeout(function () { var t = document.querySelector('[data-testid=review-cards]'); if (t) t.scrollIntoView({ block: 'start' }); }, 300);
@@ -128,14 +134,15 @@
     var mini0 = anchorOf(strip), oh = strip.querySelector('[data-testid=hdb-ai-hold]');
     if (mini0 && hold.doc && hold.doc.cards.length) {
       var cnt = {}; hold.doc.cards.forEach(function (c) { cnt[c.verdict] = (cnt[c.verdict] || 0) + 1; });
-      var hl = '🧠 내 보유 종목 AI 검토: ' + Object.keys(VERDICT).filter(function (k) { return cnt[k]; }).map(function (k) { return VERDICT[k][0].replace(/^\S+ /, '') + ' ' + cnt[k]; }).join(' · ') + ' · 보기 ▶';
+      var hl = '🧠 내 보유 종목 AI 검토: ' + Object.keys(VERDICT).filter(function (k) { return cnt[k]; }).map(function (k) { return (HELD[k] ? '추가 매수 후보(판단 보류)' : VERDICT[k][0].replace(/^\S+ /, '')) + ' ' + cnt[k]; }).join(' · ') + ' · 클로 단독 · 보기 ▶';
       if (!oh || oh.textContent !== hl || oh.previousElementSibling !== mini0) { if (oh) oh.remove(); oh = node('button', hl, 'display:block;width:100%;min-height:44px;margin-top:8px;padding:6px 10px;border:2px solid #0d47a1;border-radius:10px;background:#fff;color:#0d47a1;font-size:15px;font-weight:800;text-align:left'); oh.type = 'button'; oh.setAttribute('data-testid', 'hdb-ai-hold'); oh.addEventListener('click', function (e) { e.stopPropagation(); openHoldings(); }); mini0.after(oh); }
     } else if (oh) oh.remove();
     var mini = strip.querySelector('[data-testid=hdb-ai-hold]') || mini0, old = strip.querySelector('[data-testid=hdb-ai-fear]'), sm = summary();
-    if (!mini || !sm || !sm.buy) { if (old) old.remove(); return; }
-    var label = '🧠 곡소리 AI 매수 검토 ' + sm.buy + '건' + (sm.us ? ' (국내 ' + sm.kr + ' · 미국 ' + sm.us + ')' : ' (' + sm.date + ' 검토)') + ' · 보기 ▶';
+    if (!mini || !sm || !sm.cards) { if (old) old.remove(); return; }
+    // D4: 매수 건수는 현황에 띄우지 않는다(행동 유도 보류). 카드로 가는 길만 남긴다.
+    var label = '🧠 곡소리 AI 조사 의견 보기 ▶ (' + sm.date + ' · 클로 단독 · 판단 보류)';
     if (old && old.textContent === label && old.previousElementSibling === mini) return; if (old) old.remove();
-    var b = node('button', label, 'display:block;width:100%;min-height:44px;margin-top:8px;padding:6px 10px;border:2px solid #1b5e20;border-radius:10px;background:#fff;color:#1b5e20;font-size:15px;font-weight:800;text-align:left');
+    var b = node('button', label, 'display:block;width:100%;min-height:44px;margin-top:8px;padding:6px 10px;border:2px solid #333;border-radius:10px;background:#fff;color:#333;font-size:15px;font-weight:800;text-align:left');
     b.type = 'button'; b.setAttribute('data-testid', 'hdb-ai-fear'); b.addEventListener('click', function (e) { e.stopPropagation(); open(); }); mini.after(b);
   }
   if (typeof window !== 'undefined' && typeof document !== 'undefined' && typeof MutationObserver === 'function') {
@@ -144,5 +151,5 @@
       load(); loadHoldings(); loadUS();
     });
   }
-  return { validate: validate, mount: mount, summary: summary, open: open, openHoldings: openHoldings, VERDICT: VERDICT };
+  return { validate: validate, mount: mount, summary: summary, open: open, openHoldings: openHoldings, VERDICT: VERDICT, HELD: HELD, shown: shown };
 });
