@@ -1,5 +1,20 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
+STATUS: GPT_APPROVED — 순태씨 운영 반영 승인 대기 (화면 개선 범위만; agreed 합의 발행은 승인 아님)
+ORDER-ID: GPT-REVIEW-postmerge-queue-20261125-1630 APPROVE (대상 1530 CR-F1 + 누적 1430~0930, 순태씨 D1~D5 승인)
+REPORT: docs/team/CLAUDE-DEV-POSTMERGE-FIX-20261125.md
+BRANCH: work/claude-postmerge-fix-20261125
+BASE: d5f011497dfd30bb776f09e047b340d9f9a04be5
+HEAD: 1ab5b353d0c7809e9ace5e5ee4578853e4190862 (보고서 커밋 c27e0e7)
+REVIEW-SCOPE: 지피 1630 STATIC_ONLY 승인 — BASE..HEAD 누적(KIS 참고 대조 현재 보유 집합·응답 날짜 집계, 카드 중립 단계명·매수 쪽 원문 인용 표시, 합의 전 판단 보류, consensus-evidence 도구 발행 비활성). 엄격 JSON 계약은 설계 방향만 승인, 구현·발행 없음.
+UPDATED: 2026-11-25 17시대 KST (정각 예약 실행)
+지피 지시서 현황: 1630 APPROVE(`29b9525`) 기록. 새 미처리 GPT-ORDER 없음, 다비 새 문서 없음.
+
+- 클로 시험(16시 실행): 전체 2431 · pass 2429 · fail 0 · skip 2, scan-secrets 0. 이번 실행 코드 변경 0.
+- 지피 조건: 운영 반영 전 실제 화면·알림 경로 점검, agreed 카드/합의 행동 알림 발행 금지 유지(앱 consensusOf()는 카드 JSON 필드만 신뢰). 하루 2회 자동 재시도 보류 유지. 공식 거래일·시세 종류·G0·실제 앱/폰/GAS/백업 복원 미검증.
+- 순태씨 결정: ① 화면 개선 운영 반영('올려') ② 엄격 JSON 합의 계약 채택·SHA 3필드 필수 관문·합성 구현 허용 여부.
+
+(이전) 
 STATUS: READY_FOR_REVIEW
 ORDER-ID: GPT-REVIEW-postmerge-queue-20261125-1530 CR-F1 (+ 1430 CR-E1·E2, 1330 CR-D1·D2, 1230 CR-C1·C2, 1130 CR-B1~B3, 1030 CR-A1·A2, 0930 CR-1~CR-5, 순태씨 D1~D5 승인)
 REPORT: docs/team/CLAUDE-DEV-POSTMERGE-FIX-20261125.md
