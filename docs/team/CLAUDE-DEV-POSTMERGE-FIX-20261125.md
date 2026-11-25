@@ -1,10 +1,30 @@
 STATUS: READY_FOR_REVIEW
-ORDER-ID: GPT-REVIEW-postmerge-queue-20261125-1230 CR-C1·C2 (+ 1130 CR-B1~B3, 1030 CR-A1·A2, 0930 CR-1~CR-5, 순태씨 D1~D5 승인)
+ORDER-ID: GPT-REVIEW-postmerge-queue-20261125-1330 CR-D1·D2 (+ 1230 CR-C1·C2, 1130 CR-B1~B3, 1030 CR-A1·A2, 0930 CR-1~CR-5, 순태씨 D1~D5 승인)
 BRANCH: work/claude-postmerge-fix-20261125
 BASE: d5f011497dfd30bb776f09e047b340d9f9a04be5
-HEAD: ee4ece57db8a76c4b20c4eafe8ec6e37a3b878d6
-REVIEW-SCOPE: BASE..HEAD 전체. 이번 새 범위는 `0c7e93d..ee4ece5`(merge main `669270d` + `ee4ece5`) — has/kis-crosscheck.js, tools/consensus-evidence.cjs(신규), tests/postmerge-crc.test.cjs(신규 11건), tests/postmerge-crb.test.cjs(약한 발행 검사 삭제·문구 기대값), tests/kis-crosscheck*.test.cjs 기대값 2줄, tests/lib/live-data-pins.json.
-UPDATED: 2026-11-25 13시대 KST (정각 예약 실행)
+HEAD: 8b2c9b296d7c4793387a6ac967cd6f7fadc1604c
+REVIEW-SCOPE: BASE..HEAD 전체. 이번 새 범위는 `9ef7ee1..8b2c9b2`(merge main `0efc63b` + `8b2c9b2`) — tools/consensus-evidence.cjs(영역 계약·ref·CLI), tests/postmerge-crd.test.cjs(신규 11건), tests/postmerge-crc.test.cjs(근거를 영역으로 감싸게 기대값 갱신·index.json 목록 파일 제외·없는 커밋은 오류), tests/lib/live-data-pins.json. 앱 런타임 파일·portfolio_v5.html·reviews 변경 0.
+UPDATED: 2026-11-25 14시대 KST (정각 예약 실행)
+
+## 단위 G — 지피 1330 CR-D1·D2 반영 (`8b2c9b2`, 최신 main `0efc63b` 병합 후)
+- CR-D1 예시가 합의로 인정되던 경로 차단: 근거는 **단일 기계 판독 영역**에서만 읽는다(계약 제안, 적용은 순태씨 승인 대상).
+  - 지피 파일: 줄 맨 앞 `BEGIN-CONSENSUS-EVIDENCE` / `DOC-STATUS: FINAL` / `REVIEW-DATE: YYYY-MM-DD` / `CONSENSUS-EVIDENCE: …` 줄들 / `END-CONSENSUS-EVIDENCE`. 클로 재검토 파일: `BEGIN-CLAUDE-ACCEPT` … `CLAUDE-ACCEPT: …` … `END-CLAUDE-ACCEPT`(같은 머리줄).
+  - 근거 아님(무시): 영역 밖 줄(설명·예시·원문 인용 — 그대로 보존), 코드펜스(``` · ~~~) 안, HTML 주석(한 줄·여러 줄) 안, 들여쓴 줄, 인용(`>`) 줄.
+  - 실패(발행 보류): 영역 0개·2개 이상·중첩·닫히지 않음·END만, 영역 안 다른 문장·들여쓴 근거 줄·펜스/주석, DOC-STATUS가 정확히 FINAL 아님(DRAFT·소문자 등), 머리줄 누락·중복, REVIEW-DATE ≠ 카드 날짜. 지피 파일이 있는데 영역이 없으면 no-response도 실패(fail-closed).
+  - 지피 반례(코드펜스 안 `CONSENSUS-EVIDENCE: 005930 KR sell-review 2026-11-25 AGREE` 한 줄) → `gpt-no-region`, agreed 불가 확인. 양성: 설명·예시 펜스와 함께 올바른 영역 1개 → agreed.
+- CR-D2 원문 고정·실패 폐쇄:
+  - `--gpt-ref SHA` / `--claude-ref SHA`(둘 다는 `--ref`)로 지피 원문과 클로 수락 원문을 **서로 다른 커밋**에 각각 고정. ref는 40자리이고 `git cat-file -e <sha>^{commit}`로 실제 커밋인지 **카드 0건이어도 먼저** 검사(아니면 종료 2).
+  - CLI: 입력 파일 0개·알 수 없는 옵션·ref 값 누락 → 종료 2. JSON 읽기 실패·객체 아님·`cards` 비배열·잘못된 카드 → 실패 항목(종료 1, 빈 성공 없음). 합의 카드 0건이면 `0 consensus cards — 합의 근거 검사 대상 없음(solo N)`으로 범위 명시. 모든 출력 끝에 `gpt@<sha|working-tree> claude@<…>`, 고정 안 되면 '(원문 고정 안 됨 — 발행용 아님)'.
+  - 합성 git 저장소 시험: ref 원문으로 검사(커밋 안 한 작업 트리 변경 무시, 작업 트리 검사는 바뀐 원문을 봄), 다른 원문 커밋은 실패, 지피·클로 SHA 분리(수락 이전 커밋을 claude-ref로 주면 `claude-accept-missing`), 지피 파일이 없는 커밋 → `review-file-missing`, 잘못된 ref·없는 커밋·인자 없음·잘못된 카드 배열.
+  - 한계(지피 지적 그대로 명시): 이 검사는 '그 커밋의 파일명·영역 줄이 계약에 맞다'만 증명한다. 실제 두 AI가 작성했다는 출처 증명은 아니다. 앱은 여전히 원문을 읽지 않는다.
+- 문서 제안(적용 안 함 — 순태씨 승인 대상):
+  1. 출처 결합: 카드 consensus에 `gptReviewSha`(지피 검토 파일이 처음 들어온 docs/gpt-* 커밋), `claudeOriginSha`(07:05 클로 원판단 reviews JSON 커밋), 이견 수락 시 `claudeAcceptSha`(CLAUDE-AI-RECHECK 커밋)를 저장하고, 발행 검사는 각 SHA에서 해당 경로만 읽는다. 원판단은 `git show <claudeOriginSha>:reviews/<file>`의 같은 종목 verdict와 카드 원판단 일치로 확인.
+  2. 필수 관문: 07:45 발행 절차에서 최종 reviews JSON에 `node tools/consensus-evidence.cjs --gpt-ref … --claude-ref … <파일>`이 종료 0일 때만 커밋·push, 1·2면 consensus를 넣지 않고(클로 단독 유지) 일지에 실패 사유 기록.
+  3. 과거 카드 불변: 이미 게시된 날짜의 카드에는 consensus를 나중에 추가·변경하지 않는다(새 날짜 파일만). 전체 시험의 게시 JSON 검사(`postmerge-crc` 마지막 시험)는 유지.
+- 시험: 신규 `tests/postmerge-crd.test.cjs` 11건(D1 7, D2 4). 기존 `postmerge-crc` C1 시험 본문을 영역으로 감싸 같은 반례 유지 + 영역 밖 수락 줄 무시, 파일 있는데 영역 없음 실패 추가. 전체 2419 · pass 2417 · fail 0 · skip 2, scan-secrets findings 0. 화면 변경 없음(노드 도구만) → Chromium 재확인 생략.
+- 고정 파일: live-data-pins `tools/consensus-evidence.cjs` 해시 갱신(addedRuntimeFiles, 앱에 안 실림).
+- 유지: reviews JSON consensus 0건·과거 카드 승격 없음·agreed 발행 없음, 자동 대조 하루 1회·재시도 보류, 공식 거래일·시세 종류·G0·실제 앱·폰·GAS·백업 복원 미검증, 운영 미반영.
+- 순태씨 결정 필요: (1) 영역 계약을 지피 검토 파일·07:45 절차·COLLAB-PROTOCOL에 적용할지 (2) 위 SHA 3필드 저장 계약 (3) 운영 반영은 지피 APPROVE 뒤 '올려'.
 
 ## 단위 F — 지피 1230 CR-C1·C2 반영 (`ee4ece5`, 최신 main `a935349` 병합 후)
 - CR-C1 합의 발행 근거(차단 해소 제안): `tools/consensus-evidence.cjs` 신규(노드 전용, 발행 단계 검사). **기계 판독 계약(제안)**: 지피 검토 파일 줄 `CONSENSUS-EVIDENCE: <종목> <KR|US> <클로 원판단> <YYYY-MM-DD> AGREE|DISAGREE [PROPOSE=<지피 판단>]`, 지피 이견에 클로가 동의한 경우에만 클로 파일 `docs/team/CLAUDE-AI-RECHECK-YYYYMMDD.md` 줄 `CLAUDE-ACCEPT: <종목> <시장> <지피 판단> <날짜> <지피 검토 파일>`. 
