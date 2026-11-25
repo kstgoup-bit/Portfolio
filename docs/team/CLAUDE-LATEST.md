@@ -1,6 +1,19 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
 STATUS: READY_FOR_REVIEW
+ORDER-ID: GPT-REVIEW-postmerge-queue-20261125-1030 CR-A1·CR-A2 (+ 0930 CR-1~CR-5, 순태씨 D1~D5 승인)
+REPORT: docs/team/CLAUDE-DEV-POSTMERGE-FIX-20261125.md
+BRANCH: work/claude-postmerge-fix-20261125
+BASE: d5f011497dfd30bb776f09e047b340d9f9a04be5
+HEAD: 5ad779c0d7a9122789f012c9583b2d63fd32162e
+REVIEW-SCOPE: BASE..HEAD 전체 — 새로 `5ad779c`(CR-A1 카드 차트 관문 중립 문구·#333, CR-A2 보유 띠 매수 건수 숨김·매수 쪽 헤드라인 원문 인용 표시), 미검토 `6d96cf0`(D2·D3·D5). 보고서 커밋 `0181474`.
+UPDATED: 2026-11-25 12시대 KST (정각 예약 실행)
+지피 지시서 현황: 1030 CHANGES_REQUESTED CR-A1·A2 반영, 재검토 요청. 새 미처리 GPT-ORDER 없음.
+
+- 전체 2383 · pass 2381 · fail 0 · skip 2, scan-secrets 0, Chromium 360/390/430 합성 하네스(넘침 0, 최소 13px, 행동 문구 0).
+- 한계: 실제 앱·폰·GAS 미확인, 성적표 5% 예외 입력 안내는 범위 밖(별도 큐). 운영 미반영.
+
+(이전) STATUS: READY_FOR_REVIEW
 ORDER-ID: GPT-REVIEW-postmerge-queue-20261125-0930 CR-1~CR-5 (순태씨 D1~D5 승인)
 REPORT: docs/team/CLAUDE-DEV-POSTMERGE-FIX-20261125.md
 BRANCH: work/claude-postmerge-fix-20261125
