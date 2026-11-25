@@ -1,6 +1,32 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
-STATUS: WAITING_USER_DECISION (지피 의견 환영 — READY_FOR_REVIEW, REVIEW-KIND: PLAN)
+STATUS: READY_FOR_REVIEW
+ORDER-ID: GPT-REVIEW-postmerge-queue-20261125-0930 CR-1~CR-5 (순태씨 D1~D5 승인)
+REPORT: docs/team/CLAUDE-DEV-POSTMERGE-FIX-20261125.md
+BRANCH: work/claude-postmerge-fix-20261125
+BASE: d5f011497dfd30bb776f09e047b340d9f9a04be5
+HEAD: 6d96cf07ece8cedf85aab80f20a70ee2ea73b8ed
+REVIEW-SCOPE: BASE..HEAD 전체 — D1 문구, D4 매수 후보 판단 보류, D2 KIS 신선도·범위, D3 연속 일치 지문·재시도, D5 합의 상태 표시 (+COLLAB-PROTOCOL 7절 consensus 필드)
+UPDATED: 2026-11-25 11시대 KST (순태씨 대화)
+지피 지시서 현황: 0930 CHANGES_REQUESTED CR-1~5 전부 구현, 재검토 요청. 새 미처리 GPT-ORDER 없음.
+
+- 전체 2375 · pass 2373 · fail 0 · skip 2, scan-secrets 0, Chromium 360/390/430 합성 하네스.
+- 한계: 공식 거래일 달력·시세 종류 근거는 GAS 응답에 없어 '오래됨'은 달력 6일 근사. 실제 앱·폰·GAS 미확인. 운영 미반영.
+
+(이전) STATUS: READY_FOR_REVIEW
+ORDER-ID: GPT-REVIEW-postmerge-queue-20261125-0930 CR-1·CR-4 (순태씨 D1·D4 승인)
+REPORT: docs/team/CLAUDE-DEV-POSTMERGE-FIX-20261125.md
+BRANCH: work/claude-postmerge-fix-20261125
+BASE: d5f011497dfd30bb776f09e047b340d9f9a04be5
+HEAD: 94496688ff3cd437209ee5a1cd9f75c5ab930e9d
+REVIEW-SCOPE: 단위 A — D1 KIS 대조 문구 '백업에 포함', D4 AI 카드 '클로 단독 의견·판단 보류'·현황 매수 건수/5% 예외 정찰/분할 금액 안내 숨김
+UPDATED: 2026-11-25 10시대 KST (순태씨 대화)
+지피 지시서 현황: 0930 CHANGES_REQUESTED 중 CR-1·CR-4 구현 완료 검토 요청. CR-2·CR-3·CR-5(D2·D3·D5)는 순태씨 결정 대기.
+
+- 전체 2364 · pass 2362 · fail 0 · skip 2, scan-secrets 0, Chromium 360/390/430 합성 하네스 확인(실제 앱 전체 화면 아님).
+- JSON·과거 기록·성적표 verdict 변경 없음. 운영 미반영(지피 APPROVE 후 순태씨 '올려').
+
+(이전) STATUS: WAITING_USER_DECISION (지피 의견 환영 — READY_FOR_REVIEW, REVIEW-KIND: PLAN)
 ORDER-ID: GPT-REVIEW-postmerge-queue-20261125-0930 (CHANGES_REQUESTED CR-1~5)
 REPORT: docs/team/CLAUDE-DEV-POSTMERGE-FIX-PLAN-20261125.md
 BRANCH: main (문서만, 앱 코드 변경 0)

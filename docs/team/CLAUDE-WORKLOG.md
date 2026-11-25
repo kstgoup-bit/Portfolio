@@ -19,6 +19,8 @@
 다음 묶음: 1단계 후속(탭 첫 진입 자동 조회·하루 캐시, 확신 종목 UI 25%/10%, '준비 중' 제거) → 2차 재무(SEC EDGAR, DART) → 서비스워커 rollback.
 
 ## 처리한 지시서
+- 순태씨 D2·D3·D5 추가 승인(2026-11-25 11시대 대화) — CR-2·CR-3·CR-5 구현 `6d96cf0`, BASE..HEAD 전체 READY_FOR_REVIEW. 0930 CR 전부 반영.
+- 순태씨 D1·D4 승인(2026-11-25 10시대 대화) — GPT-REVIEW-postmerge-queue-20261125-0930 CR-1·CR-4 구현 `work/claude-postmerge-fix-20261125` `9449668` READY_FOR_REVIEW. D2·D3·D5 미승인.
 - GPT-REVIEW-postmerge-queue-20261125-0930 (2026-11-25 10시대) CHANGES_REQUESTED(POST_MERGE, CR-1~5) — 코드 대조로 확인, 수정 범위·합성 시험 계획 CLAUDE-DEV-POSTMERGE-FIX-PLAN-20261125.md 게시. 구현은 순태씨 결정 D1~D5 승인 후(지피 지시대로). 코드 변경 0.
 - GPT-REVIEW-work-role-audit-20261125-0830 (2026-11-25 09시대) APPROVE(문서 방향만) — 5항(미처리 사후 검토 정식 재게시) 처리 시작: 큐 1·2 READY_FOR_REVIEW(POST_MERGE) 게시, COLLAB-PROTOCOL 3절에 POST_MERGE 표기 추가. 순태씨 승인 요청 대상 아님(코드 변경 0).
 - GPT-20261125-WORK-ROLE-AUDIT (2026-11-25 08:29, 순태씨 대화 요청) READY_FOR_REVIEW: 조사·제안 문서만 — docs/team/CLAUDE-DEV-WORK-ROLE-AUDIT-20261125.md. Work 기록 미확인, 0건 4일 분류(다른 브랜치 게시 아님, 3일 정식 대상 없음·11-14 사후 검토 무응답), 사후 검토 READY_FOR_REVIEW(POST_MERGE) 표기 제안.
@@ -362,3 +364,5 @@
 - 2026-11-25 08:29 순태씨 대화: 지피 GPT-ORDER-20261125-WORK-ROLE-AUDIT(`docs/gpt-work-role-audit-20261125` `722c1fd`) 처리 — 조사 보고 READY_FOR_REVIEW. 코드·reviews·GAS 변경 0, 시험 재실행 안 함(문서만). 다음: 지피 검토, 순태씨 Work 화면 확인 4항목.
 - 2026-11-25 09:1x 정각 실행: 지피 `docs/gpt-work-role-audit-20261125` 0830 APPROVE 확인·반영 — docs/team/CLAUDE-DEV-POSTMERGE-QUEUE-20261125.md(큐 1 KIS 대조, 큐 2 AI 카드 잠금·합의 표시) READY_FOR_REVIEW·POST_MERGE, HEAD `aef93e5`. 전체 2360/2358/0/2skip, scan-secrets 0. 발견: KIS 대조 화면 문구 '백업 미포함'↔실제 백업 포함(`0f5009e`) 불일치(미수정, 순태씨 승인 대상). 다비 새 문서 없음. 다음: 지피 큐 1·2 검토 대기, 큐 3 게시.
 - 2026-11-25 10:0x 정각 실행: 지피 `docs/gpt-postmerge-queue-20261125` `972ec99` 0930 CHANGES_REQUESTED 처리 — CR-1~5 모두 코드에서 확인(CR-1 백업 포함은 `0f5009e` 순태씨 요청, 문구 누락). 계획 문서 게시, 순태씨 결정 D1~D5 요청(D4 AI 카드 표시 낮추기 우선 권고). 다비 새 문서 없음. 코드 변경 0, 시험 재실행 안 함. 다음: 순태씨 승인 시 `work/claude-postmerge-fix-20261125` 단위 A(D1+D4); 큐 3 게시는 계속.
+- 2026-11-25 10시대 순태씨 대화 'D1·D4 진행': `work/claude-postmerge-fix-20261125` `9449668` — AI 카드 매수 쪽 라벨 단독 의견·판단 보류, 경고문, 현황 매수 건수·5% 예외 정찰·분할 금액 안내 숨김, KIS 문구 백업에 포함. 전체 2364/2362/0/2skip, scan-secrets 0, 360/390/430 합성 하네스. 다음: 지피 검토 → 순태씨 '올려'; D2·D3·D5 결정 대기.
+- 2026-11-25 11시대 순태씨 대화 'D2·D3·D5 작업': `work/claude-postmerge-fix-20261125` `6d96cf0` — KIS stale·total·fp·trustSummary·streak 새 기준·자동 재시도 2회, 카드 consensus 상태, 매수 후보 라벨 '판단 보류(재무·시세 검증 전)'. 전체 2375/2373/0/2skip, scan-secrets 0, 360/390/430 합성 하네스. COLLAB-PROTOCOL 7절 consensus 필드 규칙 추가. 다음: 지피 재검토 → 순태씨 '올려'.
