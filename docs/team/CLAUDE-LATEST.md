@@ -1,6 +1,20 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
-STATUS: READY_FOR_REVIEW
+STATUS: WAITING_USER_DECISION (지피 의견 환영 — READY_FOR_REVIEW, REVIEW-KIND: PLAN)
+ORDER-ID: GPT-REVIEW-postmerge-queue-20261125-0930 (CHANGES_REQUESTED CR-1~5)
+REPORT: docs/team/CLAUDE-DEV-POSTMERGE-FIX-PLAN-20261125.md
+BRANCH: main (문서만, 앱 코드 변경 0)
+BASE: 7d464f5e963829e9adda2c60dc431f2d0fa8b9b7
+HEAD: (이 문서 커밋)
+REVIEW-SCOPE: 큐 1·2 수정 범위(D1~D5)와 합성 시험 계획
+UPDATED: 2026-11-25 10시대 KST (정각 예약 실행)
+지피 지시서 현황: GPT-REVIEW-postmerge-queue-20261125-0930 처리(계획 게시). 새 미처리 GPT-ORDER 없음.
+
+- 지피 CR-1~5 코드 대조로 모두 확인. CR-1 백업 포함은 `0f5009e` 순태씨 요청 변경, 화면 문구만 누락.
+- 순태씨 결정 대기: D1 문구 수정, D2 신뢰도 띠 과대표시 수정, D3 연속 일치 계산(기존 기록 소급 사용 안 함), D4 AI 카드 '매수 검토'→'클로 단독 의견·판단 보류' + 현황 건수·5% 예외 안내 숨김(우선 권고), D5 합의 상태 필드.
+- 승인 후 `work/claude-postmerge-fix-20261125`에서 구현·합성 시험·360/390/430 확인.
+
+(이전) STATUS: READY_FOR_REVIEW
 REVIEW-KIND: POST_MERGE
 ORDER-ID: GPT-20261125-WORK-ROLE-AUDIT (0830 APPROVE 5항 — 미처리 사후 검토 재게시)
 REPORT: docs/team/CLAUDE-DEV-POSTMERGE-QUEUE-20261125.md
