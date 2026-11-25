@@ -18,7 +18,7 @@ const tick = () => new Promise(r => setTimeout(r, 20));
 test('D4: buy-review는 녹색 매수 검토가 아니라 단독 의견·판단 보류, 경고문 표시, 5% 예외 정찰·분할 금액 안내 없음', async () => {
   const w = setup(true); w.HASReviewCards.mount(w.document.getElementById('m')); await tick(); await tick();
   const t = w.document.getElementById('m').textContent;
-  a.doesNotMatch(t, /🟢 매수 검토/); a.match(t, /클로 단독 의견 · 판단 보류/);
+  a.doesNotMatch(t, /🟢 매수 검토/); a.match(t, /매수 후보 · 판단 보류\(재무·시세 검증 전\)/);
   a.ok(w.document.querySelector('[data-testid=review-held-note]'));
   a.doesNotMatch(t, /예외 정찰/); a.doesNotMatch(t, /정찰병\(목표 금액의 10%\)/); a.match(t, /분할매수 금액 안내는 보류/);
   a.match(t, /차트 관문: 하락 추세/); // 타이밍 참고 정보는 그대로
@@ -29,7 +29,7 @@ test('D4: buy-review는 녹색 매수 검토가 아니라 단독 의견·판단 
 test('D4: 현황 띠는 매수 건수 없이 카드로 가는 길만(클로 단독·판단 보류)', async () => {
   const w = setup(false); w.document.dispatchEvent(new w.Event('DOMContentLoaded')); await tick(); await tick();
   const b = w.document.querySelector('[data-testid=hdb-ai-fear]'); a.ok(b);
-  a.doesNotMatch(b.textContent, /매수 검토|\d+건/); a.match(b.textContent, /클로 단독 · 판단 보류/);
+  a.doesNotMatch(b.textContent, /매수 검토|\d+건/); a.match(b.textContent, /판단 보류/);
   const s = w.HASReviewCards.summary(); a.equal(s.held, true); a.equal(s.cards, 2);
 });
 test('D4: 원본 판단 값(JSON verdict)은 바꾸지 않음 — 성적표 채점용 verdict 유지', () => {

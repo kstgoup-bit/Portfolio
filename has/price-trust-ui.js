@@ -8,14 +8,10 @@
     try { (ovStocks || []).forEach(function (s) { out.push({ ticker: s.ticker, market: 'US' }); }); [domStocks, penStocks, genStocks].forEach(function (a) { (a || []).forEach(function (s) { out.push({ ticker: s.ticker, market: 'KR' }); }); }); } catch (e) { return null; }
     return out;
   }
-  // KIS 대조 결과를 띠 문구에 반영(순태씨 2026-11-25): 최근 4일 안에 대조했으면 국내 가격 일치·불일치를 보여 준다. 미국은 KIS 대조 대상이 아니므로 따로 '미검증'.
+  // KIS 대조 결과를 띠 문구에 반영(순태씨 2026-11-25). 신선도는 종가 날짜 기준, 일부만 대조했으면 '일부만'(D2, 지피 CR-2).
   function kisSummary(list) {
-    var K = window.HASKISCrossCheck; if (!K || !K.latestRow) return null;
-    var row = K.latestRow(); if (!row || !(row.n > 0)) return null;
-    var days = Math.floor((Date.now() - row.at) / 86400000), hasUS = (list || []).some(function (x) { return x.market === 'US'; }), us = hasUS ? ' · 미국 가격은 미검증' : '';
-    if (!(days >= 0) || days > 4) return { text: '국내 KIS 대조가 ' + (days > 0 ? days + '일 전' : '오래전') + ' — 펼쳐서 다시 대조' + us, sev: 'warn' };
-    if (row.matched === row.n) return { text: '✅ 국내 가격 KIS 대조 일치 (' + row.matched + '/' + row.n + ', ' + row.d + ' 종가)' + us, sev: hasUS ? 'info' : 'ok' };
-    return { text: '⚠️ 국내 KIS 대조 불일치 ' + (row.n - row.matched) + '건' + (row.bad && row.bad.length ? '(' + row.bad.slice(0, 3).join(', ') + ')' : '') + ' — 펼쳐서 확인' + us, sev: 'warn' };
+    var K = window.HASKISCrossCheck; if (!K || !K.latestRow || !K.trustSummary) return null;
+    return K.trustSummary(K.latestRow(), Date.now(), (list || []).some(function (x) { return x.market === 'US'; }));
   }
   function refresh() {
     box = box || document.getElementById('hasPriceTrust'); if (!box) return;
