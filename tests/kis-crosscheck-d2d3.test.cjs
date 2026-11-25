@@ -26,13 +26,15 @@ test('D2: recordFrom은 stale을 일치로 세지 않고 total·지문을 남긴
   a.ok(K.parseLog(JSON.stringify({ v: 1, autoDay: '', rows: [{ d: '2026-11-20', at: 1, n: 1, matched: 1, bad: [] }] }))); // 옛 기록 읽기 호환
 });
 test('D2: 신뢰도 띠는 조회 시각이 아니라 종가 날짜로 신선도 판정, 일부만 대조·범위 미기록 구분', () => {
-  const row = (o) => Object.assign({ d: '2026-11-24', at: now, n: 2, matched: 2, bad: [], total: 2, fp: '0000abcd' }, o);
-  a.equal(K.trustSummary(row(), now, false).sev, 'ok');
-  const old = K.trustSummary(row({ d: '2026-11-10' }), now, false); a.equal(old.sev, 'warn'); a.match(old.text, /오래됨/); // 오늘 조회했어도 종가가 오래됨
-  const part = K.trustSummary(row({ total: 20 }), now, false); a.equal(part.sev, 'warn'); a.match(part.text, /일부만: 보유 20종목 중 2종목/);
-  const legacy = K.trustSummary({ d: '2026-11-24', at: now, n: 2, matched: 2, bad: [] }, now, false); a.equal(legacy.sev, 'info'); a.match(legacy.text, /대조 범위 미기록/);
-  a.equal(K.trustSummary(row({ matched: 1, bad: ['000660'] }), now, false).sev, 'warn');
-  a.match(K.trustSummary(row(), now, true).text, /미국 가격은 미검증/);
+  // 지피 1130 CR-B1: 현재 보유 집합(cur)과 같아야 하고, 같아도 공식 거래일·시세 종류 미입증이라 녹색(ok) 없음.
+  const T2 = ['005930', '000660'], FP = K.fingerprint(T2), cur = { tickers: T2, total: 2, fp: FP };
+  const row = (o) => Object.assign({ d: '2026-11-24', at: now, n: 2, matched: 2, bad: [], total: 2, fp: FP }, o);
+  const same = K.trustSummary(row(), now, false, cur); a.equal(same.sev, 'info'); a.match(same.text, /참고 대조\(공식 거래일·시세 종류 미확인\)/);
+  const old = K.trustSummary(row({ d: '2026-11-10' }), now, false, cur); a.equal(old.sev, 'warn'); a.match(old.text, /오래됨/); // 오늘 조회했어도 종가가 오래됨
+  const part = K.trustSummary(row({ total: 20 }), now, false, { tickers: T2, total: 20, fp: FP }); a.equal(part.sev, 'warn'); a.match(part.text, /일부만: 보유 20종목 중 2종목/);
+  const legacy = K.trustSummary({ d: '2026-11-24', at: now, n: 2, matched: 2, bad: [] }, now, false, cur); a.equal(legacy.sev, 'info'); a.match(legacy.text, /대조 범위 미기록/);
+  a.equal(K.trustSummary(row({ matched: 1, bad: ['000660'] }), now, false, cur).sev, 'warn');
+  a.match(K.trustSummary(row(), now, true, cur).text, /미국 가격은 미검증/);
 });
 test('D3: 연속 일치 — 지문 없는 옛 기록 소급 안 함, 집합 변경·일부 대조에서 끊김', () => {
   const FP = K.fingerprint(['005930', '000660']), FP2 = K.fingerprint(['005930']);
@@ -44,9 +46,9 @@ test('D3: 연속 일치 — 지문 없는 옛 기록 소급 안 함, 집합 변�
   a.equal(K.streak(mk([r('2026-11-19'), r('2026-11-20'), r('2026-11-23', { fp: FP2, n: 1, matched: 1, total: 1 }), r('2026-11-24', { fp: FP2, n: 1, matched: 1, total: 1 })]), days), 2); // 집합 변경
   a.equal(K.streak(mk([r('2026-11-23'), r('2026-11-24', { total: 20 })]), days), 0); // 일부만 대조한 최신일
   a.equal(K.fingerprint(['000660', '005930']), FP); // 순서 무관
-  a.equal(K.AUTO_MAX, 2); a.equal(K.STALE_DAYS, 6);
+  a.equal(K.STALE_DAYS, 6);
 });
-test('D3 화면: 자동 대조 실패는 하루 최대 2회까지만, 실패 횟수 표시(가짜 JSONP, 네트워크 없음)', async () => {
+test('D3·CR-B2 화면: 자동 대조는 하루 1회(시작 전 autoDay 기록), 실패해도 같은 날 자동 재시도 없음(가짜 JSONP, 네트워크 없음)', async () => {
   const { JSDOM } = require('jsdom'), fs = require('node:fs'), path = require('node:path');
   const dom = new JSDOM('<!doctype html><head></head><body><div id="m"></div></body>', { url: 'https://example.test/', runScripts: 'outside-only' });
   const w = dom.window, calls = [];
@@ -56,9 +58,10 @@ test('D3 화면: 자동 대조 실패는 하루 최대 2회까지만, 실패 횟
   w.eval(fs.readFileSync(path.join(__dirname, '../has/kis-crosscheck.js'), 'utf8'));
   const K2 = w.HASKISCrossCheck, box = w.document.getElementById('m'); K2.mount(box);
   K2.run(true); await new Promise((r) => setTimeout(r, 30));
-  a.equal(K2.autoState().n, 1); a.match(box.textContent, /오늘 자동 대조 실패\(1\/2회\)/);
+  a.equal(K2.autoState().n, 1); a.match(box.textContent, /오늘 자동 대조 실패 — 자동 대조는 하루 1회/);
+  const k1 = calls.filter((x) => x === 'kis').length; a.equal(k1, 1);
   K2.run(true); await new Promise((r) => setTimeout(r, 30));
-  a.equal(K2.autoState().n, 2); a.match(box.textContent, /오늘 자동 시도는 끝났습니다/);
-  a.equal(w.localStorage.getItem(K.LOG_KEY), null); // 실패는 기록하지 않음
-  a.ok(calls.filter((x) => x === 'kis').length <= 2);
+  a.equal(calls.filter((x) => x === 'kis').length, 1); // 2번째 자동 호출은 실제로 막힘
+  const saved = JSON.parse(w.localStorage.getItem(K.LOG_KEY)); a.equal(saved.rows.length, 0); a.equal(saved.autoDay, '2026-11-25'.slice(0, 0) + new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul' }).format(new Date())); // 실패 결과 행은 없고 시도일만
+  a.equal(K.AUTO_MAX, 1);
 });

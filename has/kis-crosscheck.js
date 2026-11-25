@@ -8,7 +8,7 @@
   if (typeof module === 'object' && module.exports) module.exports = api; else root.HASKISCrossCheck = api;
 })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
   'use strict';
-  var TOLERANCE_PCT = 0.5, WINDOW = 20, LOG_KEY = 'has_kisCrossLog_v1', LOG_MAX = 90, GOAL = 20, MAX_TICKERS = 15, KIS_CHUNK = 5, HISTORY_CHUNK = 12, MIN_GAP_MS = 600000, STALE_DAYS = 6, AUTO_MAX = 2;
+  var TOLERANCE_PCT = 0.5, WINDOW = 20, LOG_KEY = 'has_kisCrossLog_v1', LOG_MAX = 90, GOAL = 20, MAX_TICKERS = 15, KIS_CHUNK = 5, HISTORY_CHUNK = 12, MIN_GAP_MS = 600000, STALE_DAYS = 6, AUTO_MAX = 1;
   var SOURCES = { yahoo: 'yahoo-chart-v8', kis: 'kis-daily' };
 
   function plain(o) { if (!o || typeof o !== 'object' || Array.isArray(o)) return false; var p = Object.getPrototypeOf(o); return p === Object.prototype || p === null; }
@@ -89,27 +89,36 @@
   }
   // 연속 일치(지피 CR-3, 순태씨 D3 승인): KIS가 준 거래일(주말 제외)을 최근부터 거꾸로 따라가며 센다.
   // 가장 최근 거래일 기록이 없으면 0, 빠진 거래일·일부만 대조한 날·종목 집합이 바뀐 날·지문 없는 옛 기록(11-25 이전)에서 끊긴다.
+  // 지피 1130 CR-B2: 공식 거래 달력이 없으므로 '확인된 응답 날짜 기준 참고 집계'일 뿐이다. 응답 사이에 평일이 비면(공급자 누락·휴장 불명) 보수적으로 끊는다.
+  function skipsWeekday(newer, older) { for (var t = Date.parse(older + 'T00:00:00Z') + 86400000; t < Date.parse(newer + 'T00:00:00Z'); t += 86400000) if (weekday(new Date(t).toISOString().slice(0, 10))) return true; return false; }
   function countable(r) { return !!r && typeof r.fp === 'string' && r.total === r.n && r.n > 0 && r.matched === r.n; }
   function streak(log, tradingDays) {
     var byD = Object.create(null); log.rows.forEach(function (r) { byD[r.d] = r; });
-    var days = (tradingDays || []).filter(function (d) { return validDate(d) && weekday(d); }).sort().reverse(), n = 0, fp = null;
+    var uniq = Object.create(null); (tradingDays || []).forEach(function (d) { if (validDate(d) && weekday(d)) uniq[d] = true; });
+    var days = Object.keys(uniq).sort().reverse(), n = 0, fp = null;
     for (var i = 0; i < days.length; i++) {
       var r = byD[days[i]];
-      if (!countable(r)) break;
+      if (!countable(r) || (i > 0 && skipsWeekday(days[i - 1], days[i]))) break;
       if (fp === null) fp = r.fp; else if (r.fp !== fp) break;
       n++;
     }
     return n;
   }
   // 가격 신뢰도 띠 문구(순수 함수). 신선도는 조회 시각이 아니라 비교한 종가 날짜(row.d)로 판정한다.
-  function trustSummary(row, now, hasUS) {
+  // 지피 1130 CR-B1: 과거 날짜의 공급자 대조는 '현재 평가가격 검증'이 아니다. cur = 현재 양수 국내 보유 집합(currentSet, KIS 대조와 같은 기준).
+  // 집합 불일치·미확인·최근 조회 실패면 확인된 날짜의 참고 대조로만, 일치해도 공식 거래일·시세 종류 미입증이라 녹색(ok)은 만들지 않는다(G0 근거 아님).
+  function trustSummary(row, now, hasUS, cur, lastFail) {
     if (!row || !(row.n > 0)) return null;
-    var us = hasUS ? ' · 미국 가격은 미검증' : '', gap = dayGap(row.d, kstDate(now == null ? Date.now() : now));
+    var us = hasUS ? ' · 미국 가격은 미검증' : '', gap = dayGap(row.d, kstDate(now == null ? Date.now() : now)), ref = ' · 참고 대조(공식 거래일·시세 종류 미확인)';
     if (!(gap >= 0) || gap > STALE_DAYS) return { text: '국내 KIS 대조 기준 종가가 오래됨(' + row.d + ') — 펼쳐서 다시 대조' + us, sev: 'warn' };
+    if (lastFail) return { text: '⚠️ 최근 KIS 조회 실패 · ' + row.d + ' 대조 기록은 참고만(현재 가격 검증 아님)' + us, sev: 'warn' };
+    if (!cur || !Array.isArray(cur.tickers)) return { text: '국내 KIS 대조 기록(' + row.d + ')은 참고만 · 현재 보유와 연결 확인 못 함' + us, sev: 'info' };
+    if (!cur.tickers.length) return { text: '현재 국내 보유 없음 · 지난 KIS 대조(' + row.d + ')는 참고만' + us, sev: 'info' };
+    if (row.total === undefined || row.fp === undefined) return { text: '국내 KIS 대조 ' + row.matched + '/' + row.n + ' (' + row.d + ' 종가 · 대조 범위 미기록, 현재 보유와 연결 확인 못 함)' + us, sev: 'info' };
+    if (row.fp !== cur.fp || row.total !== cur.total) return { text: '⚠️ 보유 종목이 바뀌어 지난 KIS 대조(' + row.d + ')는 현재 보유 검증이 아님 — 펼쳐서 다시 대조' + us, sev: 'warn' };
     if (row.matched !== row.n) return { text: '⚠️ 국내 KIS 대조 불일치·미검증 ' + (row.n - row.matched) + '건' + (row.bad && row.bad.length ? '(' + row.bad.slice(0, 3).join(', ') + ')' : '') + ' — 펼쳐서 확인' + us, sev: 'warn' };
-    if (row.total === undefined) return { text: '국내 KIS 대조 일치 ' + row.matched + '/' + row.n + ' (' + row.d + ' 종가 · 대조 범위 미기록)' + us, sev: 'info' };
     if (row.total > row.n) return { text: '⚠️ 국내 KIS 대조는 일부만: 보유 ' + row.total + '종목 중 ' + row.n + '종목 일치 (' + row.d + ' 종가)' + us, sev: 'warn' };
-    return { text: '✅ 국내 가격 KIS 대조 일치 (' + row.matched + '/' + row.n + ', ' + row.d + ' 종가)' + us, sev: hasUS ? 'info' : 'ok' };
+    return { text: '국내 KIS 대조 일치 ' + row.matched + '/' + row.n + ' (' + row.d + ' 종가)' + ref + us, sev: 'info' };
   }
 
   // ---- 화면(브라우저 전용) ----
@@ -128,6 +137,8 @@
     });
     return { tickers: list, names: names };
   }
+  // 현재 양수 국내 보유 집합(중복 제거). KIS 대조 기록(row.fp·row.total)과 같은 기준으로 지문을 만든다.
+  function currentSet() { if (!W) return null; var t = holdings().tickers; return { tickers: t, total: t.length, fp: fingerprint(t.slice(0, MAX_TICKERS)) }; }
   function endpoint() {
     var u = new URL(W && typeof W.gasUrl === 'string' ? W.gasUrl : '');
     if (u.protocol !== 'https:' || u.hostname !== 'script.google.com' || u.port || u.username || u.password || !/^\/macros\/s\/[A-Za-z0-9_-]+\/exec$/.test(u.pathname)) throw Error('gas-url');
@@ -146,17 +157,25 @@
       try { document.head.appendChild(script); } catch (e) { finish(e); }
     });
   }
+  function rec0(results) { return results.some(function (x) { return x.r && x.r.ok; }); }
   function chunks(arr, n) { var out = []; for (var i = 0; i < arr.length; i += n) out.push(arr.slice(i, i + n)); return out; }
   var KIS_ERRORS = { 'kis-not-configured': 'GAS에 KIS 키가 설정되지 않았습니다', 'kis-token': 'KIS 접근 토큰 발급 실패', 'kis-budget': '오늘 KIS 호출 한도(150회)에 도달했습니다', 'bad-request': 'KIS 요청 형식 오류', 'kis-failed': 'KIS 중계 오류' };
 
   function run(auto) {
     if (state.busy || !W) return;
-    if (auto === true) { var td = kstDate(Date.now()); if (!state.autoTry || state.autoTry.day !== td) state.autoTry = { day: td, n: 0, at: 0 }; state.autoTry.n++; state.autoTry.at = Date.now(); }
+    // 지피 1130 CR-B2: 메모리 횟수는 앱을 다시 열면 사라지므로, 자동 대조는 시작 전에 기존 기록의 autoDay(새 키·새 필드 없음)에 오늘을 적고
+    // 하루 1회만 한다. 이미 적혀 있거나 적지 못하면 자동 대조하지 않는다(실패해도 자동 재시도 보류, 버튼은 그대로).
+    if (auto === true) {
+      var td = kstDate(Date.now()), lg = readLog();
+      if (!lg || lg.autoDay === td) return;
+      if (!writeLog({ v: 1, autoDay: td, rows: lg.rows })) { state.logNote = '자동 대조 기록을 남길 수 없어 자동 대조를 하지 않습니다. 버튼으로 대조해 주세요.'; renderAll(); return; }
+      state.autoTry = { day: td, n: 1, at: Date.now() };
+    }
     if (auto !== true && state.results && Date.now() - state.at < MIN_GAP_MS) { state.error = 'KIS 호출 한도를 아끼려고 10분 안에는 다시 조회하지 않습니다.'; renderAll(); return; }
     var h = holdings(), list = h.tickers.slice(0, MAX_TICKERS);
     try { endpoint(); } catch (e) { state.error = '설정 탭의 GAS 주소를 먼저 확인해 주세요.'; renderAll(); return; }
     if (!list.length) { state.error = '대조할 국내 보유 종목이 없습니다.'; renderAll(); return; }
-    state.busy = true; state.error = h.tickers.length > MAX_TICKERS ? '국내 종목이 많아 앞의 ' + MAX_TICKERS + '개만 대조합니다.' : ''; state.names = h.names; renderAll();
+    state.busy = true; state.lastFail = false; state.error = h.tickers.length > MAX_TICKERS ? '국내 종목이 많아 앞의 ' + MAX_TICKERS + '개만 대조합니다.' : ''; state.names = h.names; renderAll();
     var yahoo = {}, kis = {}, kisError = '';
     var seq = Promise.resolve();
     chunks(list, HISTORY_CHUNK).forEach(function (c) { seq = seq.then(function () { return jsonp({ type: 'history', tickers: c.join(','), market: 'KR' }).then(function (d) { if (plain(d)) c.forEach(function (t) { yahoo[t] = d[t]; }); }, function () {}); }); });
@@ -164,7 +183,7 @@
     seq.then(function () {
       var now = Date.now();
       state.results = list.map(function (t) { return { ticker: t, r: compare(yahoo[t], kis[t], { ticker: t, now: now }) }; });
-      state.at = now; if (kisError) state.error = (state.error ? state.error + ' ' : '') + kisError + ' · 받은 종목만 표시합니다.';
+      state.at = now; state.lastFail = !!kisError || !rec0(state.results); if (kisError) state.error = (state.error ? state.error + ' ' : '') + kisError + ' · 받은 종목만 표시합니다.';
       var days = {}; state.results.forEach(function (x) { (x.r.kisDates || []).forEach(function (d) { days[d] = true; }); }); state.days = Object.keys(days);
       var log = readLog(), rec = recordFrom(state.results, now, h.tickers.length);
       state.logNote = '';
@@ -173,8 +192,9 @@
         state.logNote = writeLog(mergeLog(log, rec, kstDate(now))) ? (rec.total > rec.n ? '이번 기록은 보유 ' + rec.total + '종목 중 ' + rec.n + '종목만 대조해 연속 일치에 세지 않습니다.' : rec.matched < rec.n ? '이번 기록은 일부 종목이 불일치·미검증이라 연속 일치가 끊깁니다.' : '') : '일별 기록을 저장하지 못했습니다.';
         if (W.HASPriceTrustUI && W.HASPriceTrustUI.refresh) setTimeout(function () { try { W.HASPriceTrustUI.refresh(); } catch (e) {} }, 0);
       }
-      else if (auto === true) state.logNote = '오늘 자동 대조 실패(' + state.autoTry.n + '/' + AUTO_MAX + '회)' + (state.autoTry.n < AUTO_MAX ? ' — 10분 뒤 앱을 다시 열면 한 번 더 시도합니다.' : ' — 오늘 자동 시도는 끝났습니다. 버튼으로 대조해 주세요.');
-    }).catch(function () { state.error = '대조 중 오류가 났습니다.'; }).then(function () { state.busy = false; renderAll(); });
+      else if (auto === true) state.logNote = '오늘 자동 대조 실패 — 자동 대조는 하루 1회라 앱을 다시 열어도 다시 시도하지 않습니다. 버튼으로 대조해 주세요.';
+      if (W.HASPriceTrustUI && W.HASPriceTrustUI.refresh) setTimeout(function () { try { W.HASPriceTrustUI.refresh(); } catch (e) {} }, 0);
+    }).catch(function () { state.error = '대조 중 오류가 났습니다.'; state.lastFail = true; }).then(function () { state.busy = false; renderAll(); });
   }
 
   function node(tag, text, css) { var e = document.createElement(tag); if (text != null) e.textContent = text; if (css) e.style.cssText = css; return e; }
@@ -195,15 +215,18 @@
     if (state.error) { var s = node('div', state.error, 'color:#8b2020'); s.setAttribute('role', 'status'); wrap.appendChild(s); }
     var log = readLog();
     if (log && log.rows.length) {
-      var last = log.rows[log.rows.length - 1], st2 = state.days.length ? streak(log, state.days) : null;
-      wrap.appendChild(node('div', '📒 일별 기록: ' + log.rows.length + '거래일 · 최근 ' + md(last.d) + ' ' + last.matched + '/' + last.n + ' 일치' + (st2 == null ? '' : ' · 연속 전 종목 일치 ' + st2 + '거래일 (목표 ' + GOAL + ' · 11/25 새 기준 이후 기록만 셈)'), 'font-weight:700;margin-top:4px'));
+      // CR-B2: 최근 조회 실패·보유 집합 불일치면 이전 성공 기록을 현재 연속 집계로 보이지 않는다. 최신일 일치와 20일 비교창 전체 일치는 따로 적는다.
+      var last = log.rows[log.rows.length - 1], cs = currentSet(), same = !!cs && last.fp === cs.fp && last.total === cs.total;
+      var st2 = state.days.length && !state.lastFail && same ? streak(log, state.days) : null;
+      wrap.appendChild(node('div', '📒 일별 기록: ' + log.rows.length + '일 · 최근 ' + md(last.d) + ' 최신 종가 일치 ' + last.matched + '/' + last.n + '(20일 비교창 전체 일치와는 별개)', 'font-weight:700;margin-top:4px'));
+      wrap.appendChild(node('div', st2 == null ? '연속 집계: 현재 보유와 맞는 최신 성공 기록이 없어 표시하지 않음' : '확인된 응답 날짜 기준 연속 일치 ' + st2 + '일 (참고 집계 · 공식 거래일 연속·G0 근거 아님 · 응답 사이 평일이 비면 끊음)', 'margin-top:2px'));
       if (last.bad.length) wrap.appendChild(node('div', '최근 기록에서 일치하지 않거나 자료 없는 종목: ' + last.bad.map(function (t) { return state.names[t] || t; }).join(', '), 'color:#8b2020'));
     }
     else if (log) wrap.appendChild(node('div', '📒 일별 기록: 아직 없음 · 오늘 첫 자동 대조가 끝나면 생깁니다(앱을 켜 두고 20초쯤 기다려 주세요).', 'margin-top:4px'));
     if (state.logNote) wrap.appendChild(node('div', state.logNote, 'color:#8b2020'));
     if (state.results) {
-      var ok = state.results.filter(function (x) { return x.r.ok && x.r.status === 'match'; }).length;
-      wrap.appendChild(node('div', '결과: ' + state.results.length + '종목 중 ' + ok + '종목 일치 · 조회 ' + new Date(state.at).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }), 'font-weight:700'));
+      var ok = state.results.filter(function (x) { return x.r.ok && x.r.status === 'match'; }).length, lt = state.results.filter(function (x) { return x.r.ok && x.r.latest.match && x.r.status !== 'stale'; }).length;
+      wrap.appendChild(node('div', '결과: ' + state.results.length + '종목 중 최신 종가 일치 ' + lt + ' · 20일 비교창 전체 일치 ' + ok + ' · 조회 ' + new Date(state.at).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }), 'font-weight:700'));
       state.results.forEach(function (x) {
         var r = x.r, st = STATUS[r.status] || ['확인 불가', '#333'], item = node('div', null, 'padding:4px 0;border-bottom:1px solid #e3e8ef');
         item.appendChild(node('div', (state.names[x.ticker] || x.ticker) + ' (' + x.ticker + ') · ' + st[0], 'color:' + st[1] + ';font-weight:700'));
@@ -213,7 +236,7 @@
         }
         wrap.appendChild(item);
       });
-      wrap.appendChild(node('div', '일치해도 매수·매도 신호의 판단 보류는 그대로입니다. 앱을 연 날마다 한 번 자동 대조해 직전 거래일 결과를 이 기기에 기록하며(백업에 포함, 복원하면 이 기록도 되살아남), 연속 ' + GOAL + '거래일 전 종목 일치가 쌓이면 보류 해제를 검토합니다. 차이가 나면 분할·배당 조정 차이일 수 있으니 증권사 앱 값을 확인해 주세요.'));
+      wrap.appendChild(node('div', '일치해도 매수·매도 신호의 판단 보류는 그대로입니다. 앱을 연 날 한 번(실패해도 자동 재시도 없음) 자동 대조해 직전 응답 날짜 결과를 이 기기에 기록합니다(백업에 포함, 복원하면 이 기록도 되살아남). 공식 거래일 달력·시세 종류가 연결되기 전이라 연속 집계는 참고용이며 보류 해제(목표 ' + GOAL + '거래일) 근거로 쓰지 않습니다. 차이가 나면 분할·배당 조정 차이일 수 있으니 증권사 앱 값을 확인해 주세요.'));
     }
     box.appendChild(wrap);
   }
@@ -226,8 +249,7 @@
     if (!W || state.busy || (typeof document !== 'undefined' && document.visibilityState === 'hidden')) return;
     var log = readLog(), today = kstDate(Date.now());
     if (!log || log.autoDay === today) return;
-    // 실패하면 같은 날 최대 AUTO_MAX회, 10분 간격으로만 다시 시도(KIS 호출 한도 150회 보호: 1회 최대 3번 호출).
-    if (state.autoTry && state.autoTry.day === today && (state.autoTry.n >= AUTO_MAX || Date.now() - state.autoTry.at < MIN_GAP_MS)) return;
+    // 하루 1회(AUTO_MAX): run(true)가 시작 전에 autoDay를 기록하므로 앱을 다시 열거나 새 탭이어도 같은 날 다시 자동 대조하지 않는다.
     var ready = true; try { endpoint(); } catch (e) { ready = false; }
     if (!ready || !holdings().tickers.length) { if (++autoTries <= 5) schedule(10000); return; }
     state.logNote = '오늘 자동 대조 중…'; renderAll();
@@ -242,5 +264,5 @@
 
   // 가장 최근 대조 기록(가격 신뢰도 띠 문구용, 읽기 전용).
   function latestRow() { var l = readLog(); return l && l.rows.length ? l.rows[l.rows.length - 1] : null; }
-  return { latestRow: latestRow, trustSummary: trustSummary, fingerprint: fingerprint, STALE_DAYS: STALE_DAYS, AUTO_MAX: AUTO_MAX, autoState: function () { return state.autoTry || null; }, TOLERANCE_PCT: TOLERANCE_PCT, WINDOW: WINDOW, LOG_KEY: LOG_KEY, compare: compare, closes: closes, parseLog: parseLog, recordFrom: recordFrom, mergeLog: mergeLog, streak: streak, mount: mount, run: run };
+  return { latestRow: latestRow, trustSummary: trustSummary, currentSet: currentSet, lastFail: function () { return !!state.lastFail; }, fingerprint: fingerprint, STALE_DAYS: STALE_DAYS, AUTO_MAX: AUTO_MAX, autoState: function () { return state.autoTry || null; }, TOLERANCE_PCT: TOLERANCE_PCT, WINDOW: WINDOW, LOG_KEY: LOG_KEY, compare: compare, closes: closes, parseLog: parseLog, recordFrom: recordFrom, mergeLog: mergeLog, streak: streak, mount: mount, run: run };
 });

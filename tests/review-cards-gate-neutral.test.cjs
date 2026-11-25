@@ -57,17 +57,18 @@ test('CR-A1: 다시 확인(재렌더) 후에도 중립 문구 유지, 빈 목록
 test('CR-A2: 매수 쪽 카드의 단정적 헤드라인은 원문 인용·매수 권유 아님으로 구분, 다른 판단은 그대로', async () => {
   const { w } = setup('basing', CARDS); w.HASReviewCards.mount(w.document.getElementById('m')); await tick(); await tick();
   const hs = [...w.document.querySelectorAll('[data-testid=review-headline]')];
-  const buyH = hs.filter(h => /^📝/.test(h.textContent)); a.equal(buyH.length, 3); // buy·add·buy(미국)
+  const buyH = hs.filter(h => /매수 권유 아님/.test(h.textContent)); a.equal(buyH.length, 3); // buy·add·buy(미국)
   for (const h of buyH) a.match(h.textContent, /^📝 클로 조사 의견\(원문 인용 · 매수 권유 아님\): 지금이 저점, 반드시 사야 할 기회$/);
-  a.equal(hs.filter(h => h.textContent === '지금이 저점, 반드시 사야 할 기회').length, 1); // 장기보유 카드는 원문 그대로(매수 쪽 아님)
-  a.ok(hs.some(h => h.textContent === '관망')); a.ok(hs.some(h => h.textContent === '비중 축소 검토'));
+  // CR-B3: 합의 기록 없는 비매수 카드도 원문 인용·합의 전 참고로 구분
+  a.equal(hs.filter(h => h.textContent === '📝 클로 조사 의견(원문 인용 · 합의 전 참고): 지금이 저점, 반드시 사야 할 기회').length, 1);
+  a.ok(hs.some(h => /합의 전 참고\): 관망$/.test(h.textContent))); a.ok(hs.some(h => /합의 전 참고\): 비중 축소 검토$/.test(h.textContent)));
 });
 test('CR-A2: 보유 현황 띠 — 추가 매수 후보 건수 숨김, 다른 판단 건수 유지', async () => {
   const hold = [card({ ticker: 'H1', name: 'h1', verdict: 'add-review' }), card({ ticker: 'H2', name: 'h2', verdict: 'add-review' }), card({ ticker: 'H3', name: 'h3', verdict: 'hold-long' }), card({ ticker: 'H4', name: 'h4', verdict: 'trim-review' })];
   const { w } = setup('basing', CARDS, hold); w.document.dispatchEvent(new w.Event('DOMContentLoaded')); await tick(); await tick();
   const b = w.document.querySelector('[data-testid=hdb-ai-hold]'); a.ok(b);
   a.doesNotMatch(b.textContent, /추가 매수 후보|매수 검토 \d|후보\(판단 보류\) \d/);
-  a.match(b.textContent, /매수 쪽 판단 보류/); a.match(b.textContent, /장기보유[^·]* 1/); a.match(b.textContent, /1/);
+  a.match(b.textContent, /매수 쪽 판단 보류/); a.match(b.textContent, /클로 단독 의견 2/); a.doesNotMatch(b.textContent, /장기보유|비중 축소/); // CR-B3: 합의 전 판단은 상태 건수로만
   const only = setup('basing', CARDS, [card({ ticker: 'H3', name: 'h3', verdict: 'hold-long' })]); only.w.document.dispatchEvent(new only.w.Event('DOMContentLoaded')); await tick(); await tick();
   a.doesNotMatch(only.w.document.querySelector('[data-testid=hdb-ai-hold]').textContent, /매수 쪽 판단 보류/);
 });

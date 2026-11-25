@@ -22,7 +22,7 @@ test('D4: buy-review는 녹색 매수 검토가 아니라 단독 의견·판단 
   a.ok(w.document.querySelector('[data-testid=review-held-note]'));
   a.doesNotMatch(t, /예외 정찰/); a.doesNotMatch(t, /정찰병\(목표 금액의 10%\)/); a.match(t, /분할매수 금액 안내는 보류/);
   a.match(t, /차트 관문: 하락 추세 · 타이밍 참고\(판단 보류\)/); // 타이밍 참고 정보는 그대로
-  a.match(t, /🟡 관망·보류/); // 다른 판단 라벨은 그대로
+  a.match(t, /클로 조사 원문 판단: 관망·보류 \(합의 전 참고/); // CR-B3: 합의 전 판단은 상태 라벨 + 원문 인용
   const head = [...w.document.querySelectorAll('#m article div')].find(d => /합성1/.test(d.textContent));
   a.equal(head.style.color, 'rgb(51, 51, 51)');
 });

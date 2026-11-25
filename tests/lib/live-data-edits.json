@@ -633,15 +633,15 @@
   ],
   "has/price-trust-ui.js": [
     [
-      "  // KIS 대조 결과를 띠 문구에 반영(순태씨 2026-11-25). 신선도는 종가 날짜 기준, 일부만 대조했으면 '일부만'(D2, 지피 CR-2).\n  function kisSummary(list) {\n    var K = window.HASKISCrossCheck; if (!K || !K.latestRow || !K.trustSummary) return null;\n    return K.trustSummary(K.latestRow(), Date.now(), (list || []).some(function (x) { return x.market === 'US'; }));\n  }\n  function refresh() {",
+      "  // KIS 대조 결과를 띠 문구에 반영(순태씨 2026-11-25). 신선도는 종가 날짜 기준, 일부만 대조했으면 '일부만'(D2, 지피 CR-2).\n  // 지피 1130 CR-B1: 현재 보유 집합·최근 조회 실패를 함께 넘기고, KIS 참고 대조는 기존 가격 경고(warn·error)를 낮추지 못한다(더 나쁜 쪽 유지).\n  var RANK = { ok: 0, info: 1, warn: 2, error: 3 };\n  function kisSummary(list) {\n    var K = window.HASKISCrossCheck; if (!K || !K.latestRow || !K.trustSummary) return null;\n    return K.trustSummary(K.latestRow(), Date.now(), (list || []).some(function (x) { return x.market === 'US'; }), K.currentSet ? K.currentSet() : null, K.lastFail ? K.lastFail() : true);\n  }\n  function refresh() {",
       "  function refresh() {"
     ],
     [
-      "var ks = n.severity === 'error' ? null : kisSummary(list); box.replaceChildren(); box.className = 'hpt hpt-' + (ks ? ks.sev : n.severity);",
+      "var ks = n.severity === 'error' ? null : kisSummary(list), sev = ks && RANK[ks.sev] > RANK[n.severity] ? ks.sev : n.severity; box.replaceChildren(); box.className = 'hpt hpt-' + sev;",
       "box.replaceChildren(); box.className = 'hpt hpt-' + n.severity;"
     ],
     [
-      "head.appendChild(el('span', '', ks ? ks.text : n.label));",
+      "head.appendChild(el('span', '', n.label)); if (ks) { var kl = el('div', 'hpt-kis', ks.text); kl.setAttribute('data-testid', 'hpt-kis'); head.appendChild(kl); }",
       "head.appendChild(el('span', '', n.label));"
     ],
     [
