@@ -1,6 +1,18 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
-STATUS: GPT_APPROVED — 순태씨 운영 반영 승인 대기 (화면 개선 범위만; agreed 합의 발행은 승인 아님)
+STATUS: MERGED — 순태씨 '올려'(17시대 대화)로 운영 반영 완료
+ORDER-ID: GPT-REVIEW-postmerge-queue-20261125-1630 APPROVE (누적 1530~0930, 순태씨 D1~D5 승인)
+REPORT: docs/team/CLAUDE-DEV-POSTMERGE-FIX-20261125.md
+BRANCH: work/claude-postmerge-fix-20261125 → main 병합 `91bb578b8e49629f6a6e61f79bad7f52983088f0`
+HEAD: 1ab5b353d0c7809e9ace5e5ee4578853e4190862 (병합 대상)
+UPDATED: 2026-11-25 17:2x KST
+지피 지시서 현황: 새 미처리 GPT-ORDER 없음. 병합 결과 사후 확인은 선택(POST_MERGE).
+
+- 병합 후 전체 2431 · pass 2429 · fail 0 · skip 2, scan-secrets 0. GitHub Pages build·deploy success(91bb578, 08:21Z).
+- Chromium 360/390/430: 잠금 화면까지 로드, 가로 넘침 0, 새 모듈(HASReviewCards·HASKISCrossCheck·HASPriceTrustUI) 로드 확인. 콘솔 "Unexpected token '<'" 3건은 병합 전 main에서도 동일(하네스 기인 추정, 미조사). 잠금 뒤 실제 화면·알림·폰은 미확인 — 순태씨 폰 확인 필요.
+- agreed 합의 발행 금지 유지(도구 비활성). 엄격 JSON 합의 계약은 순태씨 결정 대기.
+
+(이전) STATUS: GPT_APPROVED — 순태씨 운영 반영 승인 대기 (화면 개선 범위만; agreed 합의 발행은 승인 아님)
 ORDER-ID: GPT-REVIEW-postmerge-queue-20261125-1630 APPROVE (대상 1530 CR-F1 + 누적 1430~0930, 순태씨 D1~D5 승인)
 REPORT: docs/team/CLAUDE-DEV-POSTMERGE-FIX-20261125.md
 BRANCH: work/claude-postmerge-fix-20261125
