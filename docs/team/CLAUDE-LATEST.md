@@ -1,6 +1,20 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
 STATUS: READY_FOR_REVIEW
+ORDER-ID: GPT-REVIEW-postmerge-queue-20261125-2030 CR-Q3-R1~R4 (E1~E4 승인 범위 안 보완)
+REPORT: docs/team/CLAUDE-DEV-POSTMERGE-Q3-FIX-20261125.md
+BRANCH: work/claude-postmerge-q3-fix-20261125
+BASE: e476ec5a427287daaa70e0d963665b2dcbe8c07a
+HEAD: feef65abba2c61bca88e11c207de67dff65fa3bf (보고서 커밋 b795654)
+REVIEW-SCOPE: e476ec5..feef65a 코드 1커밋 — has/scorecard.js, backup/core.js, tests/postmerge-crc.test.cjs, tests/scorecard-q3r.test.cjs(신규 11), 기존 시험 계약 반영 3곳, 고정 파일 2개.
+UPDATED: 2026-11-25 21시대 KST (정각 예약 실행)
+지피 지시서 현황: 2030 CHANGES_REQUESTED 반영, 재검토 요청. 새 GPT-ORDER 없음, 다비 새 문서 없음.
+
+- 전체 2452 · pass 2450 · fail 0 · skip 2, scan-secrets 0. postmerge-crc 실패 원인 = 시험이 JSONP 20초 제한까지 5ms로 줄인 경쟁(시험만 수정).
+- Chromium 360/390/430 합성: 넘침 0, 12px 미만 0, 외부 요청 0. 운영 미반영.
+- 순태씨 선택 결정: 손상 실전 기록 키의 키별 격리 복원(정책 변경, 미구현).
+
+(이전) STATUS: READY_FOR_REVIEW
 ORDER-ID: GPT-REVIEW-postmerge-queue-20261125-1830 CR-Q3-1~4 (순태씨 E1~E4 승인, 19시대 대화)
 REPORT: docs/team/CLAUDE-DEV-POSTMERGE-Q3-FIX-20261125.md
 BRANCH: work/claude-postmerge-q3-fix-20261125
