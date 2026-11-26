@@ -1,0 +1,1 @@
+{"version":1,"ticker":"ARM","cik":"1973239","fetchedAt":"2026-11-26T04:22:35.282Z","source":"SEC EDGAR companyfacts (https://data.sec.gov/api/xbrl/companyfacts/CIK0001973239.json)","verification":"unverified","normalized":{"ok":true,"version":"has-fundamental-v1","financial":false,"cik":"0001973239","name":"ARM HOLDINGS PLC /UK","ticker":"ARM","years":[]}}
