@@ -12,6 +12,7 @@ UPDATED: 2026-11-26 KST (순태씨 대화)
 추가 검토 요청(2순위, fin-wire 위에 쌓임): BRANCH work/claude-price-verify-20261126 HEAD 67bf7114adf3a8113e358f1d7de462773d34e5ae — has/price-verify-us.js(Yahoo·KIS 종가 독립 대조, 하루 1회 한국 날짜 자동 조회·호출 전 날짜 기록·결과 24h 저장/복원), fin-panel 연결, 시험 price-verify 18·fin-panel 11. REPORT docs/team/CLAUDE-DEV-PRICE-VERIFY-20261126.md. 검토 포인트: ① 자동 조회의 KIS 한도 보호(하루 1회·실패해도 재시도 없음) ② 저장값 복원 시 조작 방어 ③ 라벨은 그대로(해제 문구만). 병합 순서: fin-wire → price-verify, 둘 다 순태씨 '올려' 후.
 지피 조사 요청: docs/team/CLAUDE-ASK-GPT-VALUATION-SOURCES-20261126.md — 밸류에이션(PER·PBR) 확인 방법(KIS 공식 필드 확인 등). 순태씨 요청.
 다비 최종 인계 수령(구독 종료): docs/team/DAVI-FINAL-20261130.md — KIS·OpenDART 공식 명세 요약. 지피는 이를 검토 입력으로 쓰고, 미확인 항목(KIS 단위·기준·초당 제한, capex account_id 차이, 선행 EPS 출처)은 CLAUDE-ASK-GPT-VALUATION-SOURCES-20261126.md로 이어서 확인해 주세요.
+지피 공동 작성 요청: docs/team/CLAUDE-ASK-GPT-AUTOTRADE-PRINCIPLES-20261126.md — 최종 목표 자동매매의 투자 원칙·단계 초안(문서만, 주문 금지 유지).
 부수 사실: 11-26 SEC 수집은 GAS에서 403(요청률 초과 차단)이라 GitHub Actions(.github/workflows/sec-fundamentals.yml, main 병합 9e3ee3c)로 전환, 수동 1회 성공(10종목, 데이터 ed4e2a0). 해당 수집 도구·워크플로(tools/fetch-sec-facts.cjs)도 사후 검토 대상(REVIEW-KIND: POST_MERGE, 순태씨 '올려' 승인 2026-11-26).
 시험: 전체 2506 · pass 2501 · fail 3(main과 동일: 683·1175·1754 — Git 실행·로컬 참조 필요 시험 2건과 DOM 1건) · skip 2, scan-secrets 0. Chromium 360/390/430·실기기 미실시.
 
