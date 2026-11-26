@@ -25,6 +25,7 @@ F.prototype=Orig.prototype;F.supportedLocalesOf=Orig.supportedLocalesOf;Intl.Dat
 <script defer src="has/review-cards.js"></script>
 <script defer src="has/scorecard.js"></script>
 <script defer src="has/fundamental-filter.js"></script>
+<script defer src="has/risk-guard.js"></script>
 <script defer src="radar/ui.js"></script>
 <script defer src="has/snapshot-policy.js"></script>
 <script defer src="has/return-assessment.js"></script>
@@ -2579,7 +2580,8 @@ function updateBrief() {
     if(!el) return;
 
     var rk = {};
-    try { rk = JSON.parse(localStorage.getItem("v5_rkCache")||localStorage.getItem("v5_riskData")||"{}"); } catch(e){}
+    try { rk = JSON.parse(localStorage.getItem("v5_riskData")||"{}"); } catch(e){}
+    try { rk = (window.HASRiskGuard ? window.HASRiskGuard.mirror(rk, Date.now()) : {}); } catch(e){ rk = {}; } // 옛 임시 키 v5_rkCache는 더 읽지 않음(검증된 v5_riskData만)
     var vix=rk.vix||0, rate=rk.yld||rk.rate||0, hy=rk.hy||0;
     var dxy2=rk.dxy||0, spread2=rk.spread, fg2=rk.fg;
 
@@ -4354,27 +4356,10 @@ function rkUpdateUI(hy, rate, vix, fxScore, dxy, spread, fg, oil) {
 async function fetchRiskData() {
   var btn=document.getElementById("rkFetchBtn");
   var status=document.getElementById("rkStatus");
+  var G=(typeof window!=="undefined")?window.HASRiskGuard:null;
+  if(!G){ if(status){status.textContent="❗ 위험계 검증 모듈을 불러오지 못해 조회하지 않았어요."; status.style.color="#dc2626";} return; }
   if(btn){btn.disabled=true; btn.textContent="⏳ 조회 중...";}
   if(status){status.textContent="📡 데이터 조회 중..."; status.style.color="#3b82f6";}
-
-  // ── 파서 ──────────────────────────────
-  function parseFred(txt){
-    var lines=txt.trim().split("\n");
-    for(var i=lines.length-1;i>=0;i--){
-      var cols=lines[i].split(",");
-      if(cols.length<2) continue;
-      var v=parseFloat(cols[1]);
-      if(!isNaN(v)&&v>0) return v;
-    }
-    return null;
-  }
-  function parseYahoo(txt){
-    try{
-      var j=JSON.parse(txt);
-      var v=j.chart.result[0].meta.regularMarketPrice;
-      return v>0?parseFloat(v):null;
-    }catch(e){return null;}
-  }
 
   // ── 단일 URL fetch (4초 타임아웃) ──────
   function fetchOne(url){
@@ -4387,22 +4372,21 @@ async function fetchRiskData() {
         .catch(function(){clearTimeout(t);resolve(null);});
     });
   }
-
-  // ── 여러 URL 동시 시도 → 첫 성공 반환 ──
-  function raceUrls(urls){
+  // ── 여러 URL 동시 시도 → 형식 검증을 통과한 첫 응답만 채택(오류 페이지는 무시) ──
+  function raceUrls(urls, parse){
     return new Promise(function(resolve){
       var done=false, left=urls.length;
+      if(!left){resolve(null);return;}
       urls.forEach(function(url){
         fetchOne(url).then(function(txt){
           left--;
-          if(txt&&!done){done=true;resolve(txt);}
+          var parsed=null; try{parsed=txt?parse(txt):null;}catch(e){parsed=null;}
+          if(parsed&&!done){done=true;resolve(parsed);}
           else if(left===0&&!done){resolve(null);}
         });
       });
     });
   }
-
-  // ── URL 목록 생성 (FRED + Yahoo 동시) ──
   function fredUrls(id){
     var base="https://fred.stlouisfed.org/graph/fredgraph.csv?id="+id+"&_cb="+Date.now();
     return [base,
@@ -4419,117 +4403,78 @@ async function fetchRiskData() {
       "https://api.codetabs.com/v1/proxy?quest="+encodeURIComponent(base),
       "https://thingproxy.freeboard.io/fetch/"+base];
   }
+  // 지표 하나: FRED(요청한 ID와 머리글이 일치해야 함) 또는 Yahoo(심볼이 일치해야 함)
+  function getOne(fredId, ySym){
+    var urls=(fredId?fredUrls(fredId):[]).concat(ySym?yahooUrls(encodeURIComponent(ySym)):[]);
+    return raceUrls(urls,function(t){return (fredId&&G.parseFred(t,fredId))||(ySym&&G.parseYahoo(t,ySym))||null;});
+  }
 
-  // ── 3개 동시 조회 ──────────────────────
-  var cached={};
-  try{cached=JSON.parse(localStorage.getItem("v5_riskData")||"{}");} catch(e){}
-  if(cached.oil!==undefined&&cached.oil!==null&&(cached.oil<15||cached.oil>200)) cached.oil=null; // 손상된 과거 캐시값(예: $3 버그) 정리
+  var nowMs=Date.now();
+  var prevRaw={}; try{prevRaw=JSON.parse(localStorage.getItem("v5_riskData")||"{}");}catch(e){}
+  var prev=G.sanitize(prevRaw,nowMs); // 옛 형식·기본값이 섞인 저장값은 여기서 전부 버려짐
 
-  var results=await Promise.all([
-    raceUrls(fredUrls("VIXCLS").concat(yahooUrls("%5EVIX"))),   // VIX
-    raceUrls(fredUrls("DGS10").concat(yahooUrls("%5ETNX"))),    // 10Y
-    raceUrls(fredUrls("BAMLH0A0HYM2")),                         // HY
-    raceUrls(yahooUrls("DX-Y.NYB")),                            // DXY
-    raceUrls(fredUrls("DGS2").concat(yahooUrls("%5EIRX"))),     // 2Y
-    Promise.resolve(null),                                       // 공포탐욕 수동입력
-    raceUrls(fredUrls("DCOILWTICO").concat(yahooUrls("CL%3DF"))) // WTI 유가
+  var got=await Promise.all([
+    getOne("VIXCLS","^VIX"),
+    getOne("DGS10","^TNX"),
+    getOne("BAMLH0A0HYM2",null),
+    getOne(null,"DX-Y.NYB"),
+    getOne("DGS2",null),          // 2Y는 FRED만(3개월물 지표는 2Y가 아니라서 제외)
+    getOne("DCOILWTICO","CL=F")
   ]);
+  var fresh={
+    vix:G.accept("vix",got[0],nowMs), rate:G.accept("rate",got[1],nowMs), hy:G.accept("hy",got[2],nowMs),
+    dxy:G.accept("dxy",got[3],nowMs), rate2:G.accept("rate2",got[4],nowMs), oil:G.accept("oil",got[5],nowMs)
+  };
+  var fg=null; try{var fgSaved=localStorage.getItem("v5_fg"); if(fgSaved!==null){var fv=parseFloat(fgSaved); if(isFinite(fv)&&fv>=0&&fv<=100) fg=fv;}}catch(e){}
+  var m=G.merge(prev.vals,fresh,nowMs), vals=m.vals, d=G.describe(vals,m.reasons);
 
-  var vixTxt=results[0], rateTxt=results[1], hyTxt=results[2];
-  var dxyTxt=results[3], rate2Txt=results[4], fgTxt=results[5], oilTxt=results[6];
-  var vix=null, rate=null, hy=null, dxy=null, rate2=null, fg=null, oil=null;
-  var ok=[], fail=[];
-
-  if(vixTxt){
-    var v=parseFred(vixTxt)||parseYahoo(vixTxt);
-    if(v&&v>=5&&v<=100){vix=parseFloat(v.toFixed(1)); ok.push("VIX "+vix);}
-    else fail.push("VIX");
-  } else fail.push("VIX");
-
-  if(rateTxt){
-    var v=parseFred(rateTxt)||parseYahoo(rateTxt);
-    if(v&&v>=0.1&&v<=15){rate=parseFloat(v.toFixed(2)); ok.push("10Y "+rate+"%");}
-    else fail.push("10Y금리");
-  } else fail.push("10Y금리");
-
-  if(hyTxt){
-    var v=parseFred(hyTxt);
-    if(v&&v>=0.5&&v<=30){hy=Math.round(v*100); ok.push("HY "+hy+"bps");}
-    else fail.push("HY스프레드");
-  } else fail.push("HY스프레드");
-
-  if(dxyTxt){
-    var v=parseYahoo(dxyTxt)||parseFred(dxyTxt);
-    if(v&&v>=50&&v<=150){dxy=parseFloat(v.toFixed(2)); ok.push("DXY "+dxy);}
-    else fail.push("DXY");
-  } else fail.push("DXY");
-
-  if(rate2Txt){
-    var v=parseFred(rate2Txt)||parseYahoo(rate2Txt);
-    if(v&&v>=0.1&&v<=15){rate2=parseFloat(v.toFixed(2)); ok.push("2Y "+rate2+"%");}
-    else fail.push("2Y금리");
-  } else fail.push("2Y금리");
-
-  // 공포탐욕지수 수동입력값 로드
-  try{var fgSaved=localStorage.getItem("v5_fg"); if(fgSaved){fg=parseFloat(fgSaved); ok.push("공포탐욕(수동) "+Math.round(fg));}}catch(e){}
-
-  // WTI 유가
-  if(oilTxt){
-    var v=parseFred(oilTxt)||parseYahoo(oilTxt);
-    if(v&&v>=15&&v<=200){oil=parseFloat(v.toFixed(2)); ok.push("WTI $"+oil);}
-    else fail.push("WTI유가");
-  } else fail.push("WTI유가");
-
-  var spread=(rate!==null&&rate2!==null)?parseFloat((rate-rate2).toFixed(2)):null;
-
-  // 환율 위험점수 계산 (rkUpdateUI에서도 계산되지만 여기서 미리)
-  var fxNow2=parseFloat((document.getElementById("usdKrw")||{}).value)||1370;
-  var fxH2=[]; try{fxH2=JSON.parse(localStorage.getItem("v5_fxHistory")||"[]");}catch(e){}
-  var fx52a2=fxH2.length?Math.round(fxH2.reduce(function(s,x){return s+x.v;},0)/fxH2.length):fxNow2;
-  var fxDiff2=Math.abs(((fxNow2-fx52a2)/fx52a2)*100);
-  var fxScoreV=fxDiff2<2?10:fxDiff2<4?25:fxDiff2<7?50:fxDiff2<10?75:95;
-
-  rkUpdateUI(
-    hy!==null?hy:(cached.hy||280),
-    rate!==null?rate:(cached.rate||4.5),
-    vix!==null?vix:(cached.vix||18),
-    fxScoreV,
-    dxy!==null?dxy:(cached.dxy||100),
-    spread!==null?spread:(cached.spread||0.5),
-    fg!==null?fg:(cached.fg||null),
-    oil!==null?oil:(cached.oil||null)
-  );
-  quietSet("v5_riskData", JSON.stringify({hy:hy||(cached.hy||280),rate:rate||(cached.rate||4.5),vix:vix||(cached.vix||18),dxy:dxy||(cached.dxy||100),spread:spread!==null?spread:(cached.spread||null),fg:fg!==null?fg:(cached.fg||null),oil:oil!==null?oil:(cached.oil||null),ts:Date.now()}));
-
-  // ── 상태 메시지 (사라지지 않음) ────────
+  quietSet("v5_riskData", JSON.stringify(G.serialize(vals,fg,nowMs)));
   var now=new Date().toLocaleTimeString("ko-KR");
-  if(fail.length===0){
-    if(status){status.textContent="✅ "+ok.join(" · ")+" ("+now+")"; status.style.color="#16a34a";}
-  } else if(ok.length>0){
-    if(status){status.textContent="⚠️ "+ok.join(" · ")+" 성공 | "+fail.join("·")+" 실패→이전값 ("+now+")"; status.style.color="#d97706";}
+
+  if(G.hasCore(vals)){
+    var spread=G.spread(vals);
+    // 환율 위험점수(원화 환율 입력 기준)
+    var fxNow2=parseFloat((document.getElementById("usdKrw")||{}).value)||1370;
+    var fxH2=[]; try{fxH2=JSON.parse(localStorage.getItem("v5_fxHistory")||"[]");}catch(e){}
+    var fx52a2=fxH2.length?Math.round(fxH2.reduce(function(s,x){return s+x.v;},0)/fxH2.length):fxNow2;
+    var fxDiff2=Math.abs(((fxNow2-fx52a2)/fx52a2)*100);
+    var fxScoreV=fxDiff2<2?10:fxDiff2<4?25:fxDiff2<7?50:fxDiff2<10?75:95;
+    rkUpdateUI(vals.hy.v, vals.rate.v, vals.vix.v, fxScoreV, vals.dxy?vals.dxy.v:null, spread, fg, vals.oil?vals.oil.v:null);
+    // rkUpdateUI가 옛 형식으로 덮어쓴 저장값을 검증된 형식으로 되돌림
+    quietSet("v5_riskData", JSON.stringify(G.serialize(vals,fg,nowMs)));
+  }
+
+  var parts=[];
+  if(d.ok.length) parts.push("확인 "+d.ok.join(" · "));
+  if(d.stale.length) parts.push("⚠ 이전값(오늘 조회 실패) "+d.stale.join(" · "));
+  if(d.miss.length) parts.push("없음 "+d.miss.join("·"));
+  if(m.issues.length) parts.push(m.issues.join(" "));
+  if(fg!==null) parts.push("공포탐욕(수동) "+Math.round(fg));
+  if(!G.hasCore(vals)){
+    if(status){status.textContent="❗ 핵심 지표(HY·10Y·VIX) 중 믿을 수 있는 값이 없어 종합 점수를 계산하지 않았어요 — "+parts.join(" | ")+" ("+now+")"; status.style.color="#dc2626";}
+  } else if(d.miss.length||d.stale.length||m.issues.length){
+    if(status){status.textContent="⚠️ "+parts.join(" | ")+" ("+now+")"; status.style.color="#d97706";}
   } else {
-    if(status){status.textContent="❌ 전체 실패 — 이전 저장값 표시 중 ("+now+")"; status.style.color="#dc2626";}
+    if(status){status.textContent="✅ "+parts.join(" | ")+" ("+now+")"; status.style.color="#16a34a";}
   }
   if(btn){btn.disabled=false; btn.textContent="🔄 위험 지수 조회 (미검증 출처)";}
   // ★ 메시지 자동 삭제 없음 — 다음 조회 전까지 유지
 }
-
 function loadRiskData() {
+  var G=(typeof window!=="undefined")?window.HASRiskGuard:null; if(!G) return;
   var saved = localStorage.getItem("v5_riskData");
-  if(saved) {
-    try {
-      var s=JSON.parse(saved);
-      if(s.oil!==undefined&&s.oil!==null&&(s.oil<15||s.oil>200)) s.oil=null; // 손상된 과거 캐시값(예: $3 버그) 정리
-      var fxH3=[]; try{fxH3=JSON.parse(localStorage.getItem('v5_fxHistory')||'[]');}catch(e){}
-      var fx52a3=fxH3.length?Math.round(fxH3.reduce(function(a,x){return a+x.v;},0)/fxH3.length):1370;
-      var fxD3=Math.abs(((parseFloat((document.getElementById('usdKrw')||{}).value||1370)-fx52a3)/fx52a3)*100);
-      var fxSc3=fxD3<2?10:fxD3<4?25:fxD3<7?50:fxD3<10?75:95;
-      rkUpdateUI(s.hy, s.rate, s.vix, fxSc3, s.dxy, s.spread, s.fg, s.oil);
-      var ago=Math.floor((Date.now()-s.ts)/60000);
-      var lu=document.getElementById("rkLastUpdate");
-      if(lu) lu.textContent="마지막 조회: "+new Date(s.ts).toLocaleString("ko-KR")+" ("+ago+"분 전)";
-    } catch(e){}
-  }
+  if(!saved) return;
+  try {
+    var now=Date.now(), s=G.sanitize(JSON.parse(saved), now), vals=s.vals;
+    if(!G.hasCore(vals)){ var st=document.getElementById("rkStatus"); if(st){st.textContent="ℹ️ 저장된 위험 지표가 없거나 믿을 수 없어 비워 뒀어요 — 아래 조회 버튼을 눌러 주세요"; st.style.color="#d97706";} return; }
+    var fxH3=[]; try{fxH3=JSON.parse(localStorage.getItem('v5_fxHistory')||'[]');}catch(e){}
+    var fx52a3=fxH3.length?Math.round(fxH3.reduce(function(a,x){return a+x.v;},0)/fxH3.length):1370;
+    var fxD3=Math.abs(((parseFloat((document.getElementById('usdKrw')||{}).value||1370)-fx52a3)/fx52a3)*100);
+    var fxSc3=fxD3<2?10:fxD3<4?25:fxD3<7?50:fxD3<10?75:95;
+    rkUpdateUI(vals.hy.v, vals.rate.v, vals.vix.v, fxSc3, vals.dxy?vals.dxy.v:null, G.spread(vals), s.fg, vals.oil?vals.oil.v:null);
+    var lu=document.getElementById("rkLastUpdate");
+    if(lu) lu.textContent="저장값 표시(관측일 "+vals.vix.asOf+" 등) · 마지막 조회: "+new Date(s.ts||now).toLocaleString("ko-KR");
+  } catch(e){}
 }
 
 function shortLabel(name, ticker) {
