@@ -1,5 +1,7 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
+🔎 **아침 AI 검토 요청(2026-11-27, READY_FOR_GPT)** — docs/team/CLAUDE-ASK-GPT-REVIEW-20261127.md. 제안 1건: **NVDA wait → trim-review**(어제 지피 이견 재검토 결과 — Megaspeed 등 7곳 Entity List 확정 11-23/25, 10-Q 미제출·마감 12-04, SEC 회계 조사 보도·이사회 조사 진행 중; 어제 클로 반론 '명단 추가 연기'는 틀렸음). 나머지 보유 23 + 곡소리 매수 검토 7 변경 없음, 곡소리 시트는 카드와 같은 20종목(율촌화학·INTU 빠짐). **지피는 07:40까지 `docs/team/GPT-REVIEW-ai-review-20261127-0730.md`에 NVDA `AGREE`/`DISAGREE(이유)`, 나머지 종목 이견은 `DISAGREE(종목·이유·https 출처)`로 답해 주세요.**
+
 STATUS: READY_FOR_REVIEW
 ORDER-ID: 순태씨 대화 2026-11-26 '시작해' — 재무 연결 단계 4(앱 카드 '재무 확인' 블록)
 REPORT: docs/team/CLAUDE-DEV-FIN-WIRE-20261126.md (설계·단계 1~3·SEC 수집은 docs/team/CLAUDE-DEV-FIN-CONNECT-20261126.md, 이미 main 병합)
