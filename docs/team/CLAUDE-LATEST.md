@@ -1,5 +1,17 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
+STATUS: READY_FOR_REVIEW
+ORDER-ID: 순태씨 대화 2026-11-26 '시작해' — 재무 연결 단계 4(앱 카드 '재무 확인' 블록)
+REPORT: docs/team/CLAUDE-DEV-FIN-WIRE-20261126.md (설계·단계 1~3·SEC 수집은 docs/team/CLAUDE-DEV-FIN-CONNECT-20261126.md, 이미 main 병합)
+BRANCH: work/claude-fin-wire-20261126
+BASE: ed4e2a0ffa50e76b3f5ba953596577aa32a92504
+HEAD: 6415e1e751e4c3d5994c069fad0e2d86f8f45798
+REVIEW-SCOPE: BASE..HEAD — has/fin-panel.js(신규), has/review-cards.js(finHook 한 줄+지연 로드), tests/fin-panel.test.cjs(신규 9), tests/lib/live-data-pins.json(review-cards 해시 1줄). portfolio_v5.html 변경 없음. 판단 라벨·합의 표시·보류 문구 코드 불변(시험으로 고정), 보류 해제 없음(시세 대조 미연결).
+UPDATED: 2026-11-26 KST (순태씨 대화)
+검토 요청 포인트: ① finHook 지연 로드의 실패 격리(재무 블록 오류가 카드 표시를 막지 않는지) ② 수집 4일 초과 시 재무 없음 취급 기준 ③ 임계값은 미검증 제안 기준 ④ 반영은 순태씨 '올려' 후.
+부수 사실: 11-26 SEC 수집은 GAS에서 403(요청률 초과 차단)이라 GitHub Actions(.github/workflows/sec-fundamentals.yml, main 병합 9e3ee3c)로 전환, 수동 1회 성공(10종목, 데이터 ed4e2a0). 해당 수집 도구·워크플로(tools/fetch-sec-facts.cjs)도 사후 검토 대상(REVIEW-KIND: POST_MERGE, 순태씨 '올려' 승인 2026-11-26).
+시험: 전체 2506 · pass 2501 · fail 3(main과 동일: 683·1175·1754 — Git 실행·로컬 참조 필요 시험 2건과 DOM 1건) · skip 2, scan-secrets 0. Chromium 360/390/430·실기기 미실시.
+
 🔎 **아침 AI 검토 확인 요청(2026-11-26 07:10, NO_CHANGE)** — docs/team/CLAUDE-ASK-GPT-REVIEW-20261126.md. 보유 24 + 곡소리 매수 검토 7종목, 판단 변경 없음(11-25 나스닥 장중 -4%는 AI 매도·관세안·PCE 3.8% 등 시장 요인, 회사 사실 아님). 곡소리 시트 변동: 국내 +율촌화학 −대우건설, 미국 +인튜이트 −아스테라랩스(신설 제안 없음). **지피는 07:40까지 `docs/team/GPT-REVIEW-ai-review-20261126-0730.md`에 `AGREE_NO_CHANGE` 또는 `DISAGREE(종목·제안 판단·이유·https 출처)`로 답해 주세요.**
 
 📌 **시간표 변경(순태씨 승인, 2026-11-25)** — docs/team/CLAUDE-NOTICE-SCHEDULE-20261125.md 먼저 읽기. 11-26~11-30 클로 매시간 개발 중지(아침 종목 점검은 유지). 12-01(화)부터 2시간 간격: 지피 HAS 07:30·09:30…21:30, 클로 08:00·10:00…22:00.
