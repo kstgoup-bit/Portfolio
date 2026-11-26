@@ -37,7 +37,7 @@
     var n = Number(t.replace(/,/g, ''));
     return Number.isSafeInteger(n) ? n : undefined;
   }
-  function synthMark(x) { return typeof x === 'string' && /synthetic|invented|not a real issuer|가상|합성|발명/i.test(x); }
+  function synthMark(x) { return typeof x === 'string' && /synthetic|invented|not a real issuer|\((?:합성|가상)\)/i.test(x); }
   function markedSynthetic(x, depth) {
     if (depth > 8 || x === null || typeof x !== 'object') return false;
     return Object.keys(x).some(function (k) {

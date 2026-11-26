@@ -46,3 +46,11 @@ C. 보류 해제 규칙 — 카드가 "재무 검증됨"을 증거로 판단하�
 - 시험: 신규 29/29, 전체 2460 중 2455 통과/3 실패/2 skip. 실패 3건은 깨끗한 main(46c421e)에서도 동일(683 Git 실행·로컬 참조 필요 시험, 1142 일일 수리 원본 보존(Git 필요), 1721 DOM) — 이번 변경과 무관. scan-secrets 발견 0.
 - **미검증(가장 중요)**: 공식 OpenDART 안내 페이지를 열지 못함(robots 읽기 실패). 계정 ID(`dart_OperatingIncomeLoss` 등)·sj_div·rcept_no 앞 8자리=접수일·status 코드·금액 문자열 형식·일 한도(제3자 20,000건)는 공식 대조 필요. 지피 또는 순태씨가 공식 문서로 대조하고 실제 응답 샘플 1건(가려서)으로 시험 필요 — 그 전 운영 연결 금지.
 - 다음: 단계 2 DART GAS 초안(키는 스크립트 속성), 단계 3 카드 해제 규칙 모듈. 순태씨 결정 대기: SEC GAS 배포 여부, OpenDART 키 발급, 해제 규칙 승인.
+
+## 8. 단계 2·3 결과 (2026-11-26)
+- 단계 2 `gas/has-dart-fundamental.gs`(초안, 배포·실행 안 함) + `tests/dart-fundamental-gas.test.cjs`(13건, 가짜 UrlFetchApp·속성·캐시·잠금). `?type=dart-fundamental&tickers=…`(6자리, 최대 3개) → 종목당 연간 5건(연결·사업보고서) 직렬 250ms 간격 → `HASDartFacts.toNormalized`. 키는 스크립트 속성 `HAS_DART_KEY`(40자 16진 형식 확인, 없으면 요청 0건), 응답·오류에 키·요청 주소·본문 없음. 종목코드→corp_code는 순태씨가 DART 공시검색으로 직접 확인해 채우는 `HAS_DART_CORPS`(저장소는 빈 자리표시자). status 000·013 외(010·011·012·020 등)·HTTP 오류·예외·깨진 JSON이면 남은 요청 전부 중단하고 사유 코드만 반환(재시도 없음). 변환 결과(작음)만 6시간 캐시, 위조 캐시 무시. 스크립트 잠금으로 동시 실행 1건. 기존 doGet 변경 없음(연결 한 줄은 주석 안내).
+- 단계 3 `has/review-fin-gate.js` + `tests/review-fin-gate.test.cjs`(13건): `evaluate(input, nowISO)` → released/held/blocked. 해제 = 재무 strong(이 종목·3년 이상·신선·충돌 없음) ∧ 시세 independent-verified·ok·7일 이내 ∧ 합의 agreed. 재무 weak면 blocked. 합성 표시면 해제 불가. 해제 라벨은 '재무 확인됨(밸류에이션 미확인)'까지, 금액·주문 문구 없음. **앱(review-cards.js)에는 연결하지 않음 — 3절 규칙 승인 전.**
+- 어댑터 수정: 합성 표지 정규식을 'synthetic|invented|(합성)|(가상)'으로 좁힘(실제 회사명 '○○합성'이 거부되는 문제 — 시험 추가).
+- 시험: 전체 2487 중 2482 통과/3 실패/2 skip(실패 3건은 main과 동일), scan-secrets 0.
+- 한계: GAS는 실제 Apps Script가 아닌 가짜 환경 시험. 공식 OpenDART 규격·일 한도·실제 응답 크기/실행시간 미검증. 부채·이자비용 비어 있음. 시세 입력 모양(`price`)은 price-trust 실제 출력과 아직 연결 안 됨(단계 4).
+- 순태씨 할 일(배포 전): ① OpenDART 키 발급 → 스크립트 속성 HAS_DART_KEY ② HAS_DART_CORPS에 확인한 종목 입력 ③ GAS 승인 후 붙여넣기(별도 안내서는 지피 검토 후 작성).
