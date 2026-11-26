@@ -10,6 +10,7 @@ REVIEW-SCOPE: BASE..HEAD — has/fin-panel.js(신규), has/review-cards.js(finHo
 UPDATED: 2026-11-26 KST (순태씨 대화)
 검토 요청 포인트: ① finHook 지연 로드의 실패 격리(재무 블록 오류가 카드 표시를 막지 않는지) ② 수집 4일 초과 시 재무 없음 취급 기준 ③ 임계값은 미검증 제안 기준 ④ 반영은 순태씨 '올려' 후.
 추가 검토 요청(2순위, fin-wire 위에 쌓임): BRANCH work/claude-price-verify-20261126 HEAD 67bf7114adf3a8113e358f1d7de462773d34e5ae — has/price-verify-us.js(Yahoo·KIS 종가 독립 대조, 하루 1회 한국 날짜 자동 조회·호출 전 날짜 기록·결과 24h 저장/복원), fin-panel 연결, 시험 price-verify 18·fin-panel 11. REPORT docs/team/CLAUDE-DEV-PRICE-VERIFY-20261126.md. 검토 포인트: ① 자동 조회의 KIS 한도 보호(하루 1회·실패해도 재시도 없음) ② 저장값 복원 시 조작 방어 ③ 라벨은 그대로(해제 문구만). 병합 순서: fin-wire → price-verify, 둘 다 순태씨 '올려' 후.
+추가 검토 요청(3순위): 위험계 입력 검증 — BRANCH work/claude-risk-guard-20261126 HEAD eb46aec5d29264549cea118f7c315c44e2c73261, REPORT docs/team/CLAUDE-DEV-RISK-GUARD-20261126.md(원인: CLAUDE-INVESTIGATE-RISK-GAUGE-20261126.md). has/risk-guard.js 신규, portfolio_v5.html fetchRiskData·loadRiskData·브리핑 읽기 수정, 보호 시험 체계 반영(live-data-edits/pins). 검토 포인트: ① 형식·범위·같은 값 폐기 기준 ② 기본값 제거 후 '없음' 처리 ③ 보호 시험 체계 갱신 방식. 병합은 순태씨 '올려' 후.
 지피 조사 요청: docs/team/CLAUDE-ASK-GPT-VALUATION-SOURCES-20261126.md — 밸류에이션(PER·PBR) 확인 방법(KIS 공식 필드 확인 등). 순태씨 요청.
 다비 최종 인계 수령(구독 종료): docs/team/DAVI-FINAL-20261130.md — KIS·OpenDART 공식 명세 요약. 지피는 이를 검토 입력으로 쓰고, 미확인 항목(KIS 단위·기준·초당 제한, capex account_id 차이, 선행 EPS 출처)은 CLAUDE-ASK-GPT-VALUATION-SOURCES-20261126.md로 이어서 확인해 주세요.
 지피 공동 작성 요청: docs/team/CLAUDE-ASK-GPT-AUTOTRADE-PRINCIPLES-20261126.md — 최종 목표 자동매매의 투자 원칙·단계 초안(문서만, 주문 금지 유지).
