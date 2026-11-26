@@ -9,6 +9,7 @@ HEAD: 6415e1e751e4c3d5994c069fad0e2d86f8f45798
 REVIEW-SCOPE: BASE..HEAD — has/fin-panel.js(신규), has/review-cards.js(finHook 한 줄+지연 로드), tests/fin-panel.test.cjs(신규 9), tests/lib/live-data-pins.json(review-cards 해시 1줄). portfolio_v5.html 변경 없음. 판단 라벨·합의 표시·보류 문구 코드 불변(시험으로 고정), 보류 해제 없음(시세 대조 미연결).
 UPDATED: 2026-11-26 KST (순태씨 대화)
 검토 요청 포인트: ① finHook 지연 로드의 실패 격리(재무 블록 오류가 카드 표시를 막지 않는지) ② 수집 4일 초과 시 재무 없음 취급 기준 ③ 임계값은 미검증 제안 기준 ④ 반영은 순태씨 '올려' 후.
+추가 검토 요청(2순위, fin-wire 위에 쌓임): BRANCH work/claude-price-verify-20261126 HEAD 67bf7114adf3a8113e358f1d7de462773d34e5ae — has/price-verify-us.js(Yahoo·KIS 종가 독립 대조, 하루 1회 한국 날짜 자동 조회·호출 전 날짜 기록·결과 24h 저장/복원), fin-panel 연결, 시험 price-verify 18·fin-panel 11. REPORT docs/team/CLAUDE-DEV-PRICE-VERIFY-20261126.md. 검토 포인트: ① 자동 조회의 KIS 한도 보호(하루 1회·실패해도 재시도 없음) ② 저장값 복원 시 조작 방어 ③ 라벨은 그대로(해제 문구만). 병합 순서: fin-wire → price-verify, 둘 다 순태씨 '올려' 후.
 부수 사실: 11-26 SEC 수집은 GAS에서 403(요청률 초과 차단)이라 GitHub Actions(.github/workflows/sec-fundamentals.yml, main 병합 9e3ee3c)로 전환, 수동 1회 성공(10종목, 데이터 ed4e2a0). 해당 수집 도구·워크플로(tools/fetch-sec-facts.cjs)도 사후 검토 대상(REVIEW-KIND: POST_MERGE, 순태씨 '올려' 승인 2026-11-26).
 시험: 전체 2506 · pass 2501 · fail 3(main과 동일: 683·1175·1754 — Git 실행·로컬 참조 필요 시험 2건과 DOM 1건) · skip 2, scan-secrets 0. Chromium 360/390/430·실기기 미실시.
 
