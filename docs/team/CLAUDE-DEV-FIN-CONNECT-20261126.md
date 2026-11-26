@@ -1,4 +1,4 @@
-STATUS: WIP (설계 문서 — 지피는 WIP를 검토하지 않음. 단계 1 코드 완료 때 READY_FOR_REVIEW로 올림)
+STATUS: READY_FOR_REVIEW (단계 1 DART 변환 모듈 — 앱·GAS·운영 미반영, 공식 규격 대조 전 '미검증 추정')
 ORDER-ID: 순태씨 대화 2026-11-26 '재무 연결 작업해'
 BASE: origin/main 46c421e   BRANCH: work/claude-fin-connect-20261126
 
@@ -38,3 +38,11 @@ C. 보류 해제 규칙 — 카드가 "재무 검증됨"을 증거로 판단하�
 - OpenDART 응답 필드·계정ID·보고서 코드·호출 한도는 이 문서 작성 시 공식 문서를 직접 열어 확인하지 못함(검색 결과만 확인). 단계 1 시작 때 공식 문서로 확인하고 출처·기준일을 코드 주석에 적는다. 확인 전까지 '추정'.
 - DART 수치 지연(공시 후 API 반영 지연 보도 있음)은 신선도 판단에 반영해야 함 — 단계 1에서 기준.
 - 이 문서는 설계만. 앱 코드·GAS·reviews/·사용자 자료 변경 없음. 주문·매매 없음. 투자 자문 아님.
+
+## 7. 단계 1 결과 (2026-11-26)
+- 신규: `has/dart-facts-adapter.js`(순수 변환, 네트워크·키 없음), `tests/dart-facts-adapter.test.cjs`(29건). 앱·GAS·reviews/ 변경 없음.
+- 동작: 호출자가 준 fnlttSinglAcntAll 모양 응답(연결 CFS·사업보고서 11011, 최대 5개 연도) → `fundamental-filter` normalize 출력 모양(`validNormalized`·`assess` 통과 시험). 종목코드↔corp_code 사람 확인(identityReview) 필수, 12월 결산만, 계정은 account_id로만 선택(이름 일치 금지), 세부·부문 행 제외, 같은 항목 금액 충돌은 값 비움, 금액 문자열 엄격 해석, 접수번호 날짜·결산일·오늘 범위 확인, 합성 입력은 표시 유지·세탁 불가.
+- 비움(1단계 한계): 부채·이자비용(표준 ID 불명확) → 해당 판정 '제외'. 분기·TTM 없음. capex는 부호 표기 차이를 '지출 크기'로 통일.
+- 시험: 신규 29/29, 전체 2460 중 2455 통과/3 실패/2 skip. 실패 3건은 깨끗한 main(46c421e)에서도 동일(683 Git 실행·로컬 참조 필요 시험, 1142 일일 수리 원본 보존(Git 필요), 1721 DOM) — 이번 변경과 무관. scan-secrets 발견 0.
+- **미검증(가장 중요)**: 공식 OpenDART 안내 페이지를 열지 못함(robots 읽기 실패). 계정 ID(`dart_OperatingIncomeLoss` 등)·sj_div·rcept_no 앞 8자리=접수일·status 코드·금액 문자열 형식·일 한도(제3자 20,000건)는 공식 대조 필요. 지피 또는 순태씨가 공식 문서로 대조하고 실제 응답 샘플 1건(가려서)으로 시험 필요 — 그 전 운영 연결 금지.
+- 다음: 단계 2 DART GAS 초안(키는 스크립트 속성), 단계 3 카드 해제 규칙 모듈. 순태씨 결정 대기: SEC GAS 배포 여부, OpenDART 키 발급, 해제 규칙 승인.
