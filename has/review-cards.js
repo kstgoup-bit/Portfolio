@@ -94,6 +94,14 @@
       .catch(function () { state.error = '검토 카드를 불러오지 못했습니다(인터넷 연결 확인).'; })
       .then(function () { state.loading = false; state.loaded = true; renderAll(); ensureLink(); });
   }
+  // 재무 확인 블록(has/fin-panel.js): 처음 필요할 때 한 번만 지연 로드. 판단 라벨·합의 표시는 바꾸지 않는다(근거 추가만).
+  var finLoad = 0;
+  function finHook(art, c, cs) {
+    var P = typeof window !== 'undefined' && window.HASFinPanel;
+    if (P) { try { P.attach(art, c, { consensus: cs, now: Date.now(), onReady: renderAll }); } catch (e) { /* 재무 블록 실패는 카드 표시를 막지 않음 */ } return; }
+    if (finLoad || typeof document === 'undefined') return; finLoad = 1;
+    ['has/review-fin-gate.js', 'has/fin-panel.js'].forEach(function (f, i, all) { var sc = document.createElement('script'); sc.src = './' + f; sc.async = false; if (i === all.length - 1) sc.onload = function () { renderAll(); }; document.head.appendChild(sc); });
+  }
   function node(tag, text, css, tid) { var e = document.createElement(tag); if (text != null) e.textContent = text; if (css) e.style.cssText = css; if (tid) e.setAttribute('data-testid', tid); return e; }
   function kst(iso) { try { return new Date(iso).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }); } catch (e) { return iso; } }
   var ORDER = { 'buy-review': 0, 'add-review': 0, 'trim-review': 1, 'sell-review': 1, 'hold-long': 2, 'wait': 3 };
@@ -138,7 +146,7 @@
       det.appendChild(node('div', '⚠ 반론·위험', 'font-weight:700;margin-top:6px')); c.risks.forEach(function (x) { det.appendChild(node('div', '· ' + x)); });
       if (c.watch) { det.appendChild(node('div', '📌 산 뒤 점검 기준(매도·장기보유 신호)', 'font-weight:700;margin-top:6px')); c.watch.forEach(function (x) { det.appendChild(node('div', '· ' + x)); }); }
       if (c.sources.length) { det.appendChild(node('div', '출처', 'font-weight:700;margin-top:6px')); c.sources.forEach(function (s) { var a = node('a', s.title); a.href = s.url; a.target = '_blank'; a.rel = 'noopener noreferrer'; a.style.cssText = 'display:block;min-height:32px;color:#0d47a1'; det.appendChild(a); }); }
-      art.appendChild(det); box.appendChild(art);
+      art.appendChild(det); finHook(art, c, cs); box.appendChild(art);
     });
     box.appendChild(node('p', d.notice, 'border-top:1px solid #c9d3e0;padding-top:8px;font-size:14px'));
   }
