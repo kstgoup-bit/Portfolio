@@ -61,3 +61,12 @@ C. 보류 해제 규칙 — 카드가 "재무 검증됨"을 증거로 판단하�
 - **SEC GAS 배포 완료·확인(순태씨 2026-11-26 대화)**: 백업 사본 후 '자산관리' 프로젝트에 fundamental-filter.gs·has-sec-fundamental.gs 추가, 연락처 입력, doGet 첫 줄 추가, 기존 배포 새 버전. `?type=fundamental&tickers=AAPL` 확인 '됐어요'(순태씨 보고, 클로는 응답 내용을 직접 보지 못함). 주소·연락처는 저장소·클로에 기록하지 않음. 다음: 단계 4 미국부터 앱 연결.
 - **정정(같은 날 대화, 순태씨 스크린샷)**: 위 'SEC GAS 배포 완료·확인'은 **틀린 기록**이었다. 배포는 됐고 GAS가 응답은 하지만, AAPL 요청 결과가 `{"ok":true,...,"items":{"AAPL":{"ok":false,"reason":"sec-http-403","ticker":"AAPL"}}}` — **SEC가 403으로 거부**했다(데이터 없음). 403은 코드상 10분 중단(sec-cooldown)을 건다. 원인 미확인(User-Agent 형식·SEC의 Google Apps Script 접속 차단·티커 지도 요청 vs companyfacts 요청 중 어느 쪽인지 모름). 다음: 순태씨 PC에서 진단 함수로 요청 1건의 상태 코드·본문 앞부분 확인 후 대응(헤더 보완 또는 GAS 경유 불가 시 대안 설계). 단계 4 앱 연결은 데이터가 실제로 들어오는 것을 확인할 때까지 보류.
 - **진단 결과(순태씨 PC, 2026-11-26 12:15 KST, hasSecDiag 1건)**: company_tickers.json 요청이 **HTTP 403**, 본문 제목 'SEC.gov | Request Rate Threshold Exceeded'(SEC 요청률 초과 차단 페이지). 우리 코드가 보낸 요청은 1~2건뿐이라 우리 요청률 때문일 가능성은 낮고, Google Apps Script가 공유 IP에서 나가 다른 사용자 요청과 합산됐을 가능성이 있다(**추정, 미확인**). 이 차단이 일시적인지 지속적인지 아직 모름. 다음: 10분 이상 뒤 hasSecDiag 1회 재실행. 계속 403이면 GAS 경유를 포기하고 대안 설계(예: GitHub Actions 예약 작업이 SEC 자료를 받아 JSON으로 저장소에 두고 앱이 읽는 방식 — 새 자동화 생성이라 순태씨 승인 필요). 단계 4 보류 유지.
+
+## 10. SEC 수집 대안: GitHub Actions (순태씨 승인 2026-11-26 '승인')
+- 배경: GAS→SEC 403(Request Rate Threshold Exceeded)이 12:15·12:44 두 번 재현, 일시 차단 아님. GAS 경로 포기.
+- 구현(브랜치 `work/claude-fin-connect-20261126`, 아직 main 아님): `tools/fetch-sec-facts.cjs`, `.github/workflows/sec-fundamentals.yml`(평일 한국 06:17 + 수동 실행), `data/fundamentals/tickers.json`(곡소리 후보 10종목, 보유 종목 제외), 시험 10건. 결과는 `data/fundamentals/<티커>.json`(normalize 결과만)·`index.json`.
+- 안전: 연락처는 비밀값 SEC_USER_AGENT(순태씨 입력)로만, 출력·저장 안 함. 요청 직렬 300ms. 403·429 → 즉시 전체 중단·실패 종료·무커밋(재시도·우회 없음). 종목별 실패는 마지막 성공 파일 보존. 쓰기 권한 contents만, data/fundamentals만 커밋.
+- **미검증(핵심)**: GitHub 실행기 주소도 SEC가 막을 수 있음. 이 환경에서 SEC 접속 불가라 시험은 가짜 fetch뿐. main 병합 후 수동 실행 1회로 확인 필요.
+- 비공개 전환 요청('필요하면')에 대해: 이번 수집은 새 비밀 노출이 없어(곡소리 후보만) 전환 필요 없다고 판단. 비공개 전환은 GitHub Pages 호스팅(앱 주소)에 영향 가능 + 클로 도구로 불가 → 순태씨 결정 사항으로 남김.
+- 순태씨 할 일: ① 저장소 Settings→Secrets and variables→Actions→New repository secret: 이름 SEC_USER_AGENT, 값 'HAS-portfolio 연락처이메일' ② main 병합('올려') 후 Actions 탭에서 sec-fundamentals 수동 실행 1회.
+- 시험: 전체 2497 중 2492 통과/3 실패(main 동일)/2 skip, scan-secrets 0.

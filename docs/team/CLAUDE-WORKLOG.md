@@ -397,3 +397,4 @@
 - 2026-11-26 (순태씨 직접 작업) SEC 재무 GAS 배포·AAPL 확인 완료(백업 사본 있음). 다음: 단계 4 앱 연결(미국 먼저, 개발만).
 - 2026-11-26 정정: SEC GAS 배포는 됐으나 AAPL 요청이 sec-http-403(SEC 거부)로 실패 — 직전 '배포 완료·확인' 기록은 오기록. 원인 진단 필요, 단계 4 앱 연결 보류.
 - 2026-11-26 12:15 SEC GAS 진단: 403 'Request Rate Threshold Exceeded'(SEC 차단 페이지). 원인 추정(GAS 공유 IP), 10분 후 재시도 → 계속되면 GitHub Actions 대안 설계(승인 필요).
+- 2026-11-26 (순태씨 '승인') SEC 수집을 GitHub Actions로 전환: tools/fetch-sec-facts.cjs·workflow·tickers·시험 10건(전체 2497/실패 3 main 동일/비밀값 0). main 미병합. 비공개 전환은 Pages 영향 가능·클로 도구 불가로 순태씨 결정 유지. 다음: 비밀값 SEC_USER_AGENT 입력, '올려' 후 수동 실행 1회.
