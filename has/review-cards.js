@@ -100,7 +100,7 @@
     var P = typeof window !== 'undefined' && window.HASFinPanel;
     if (P) { try { P.attach(art, c, { consensus: cs, now: Date.now(), onReady: renderAll }); } catch (e) { /* 재무 블록 실패는 카드 표시를 막지 않음 */ } return; }
     if (finLoad || typeof document === 'undefined') return; finLoad = 1;
-    ['has/review-fin-gate.js', 'has/fin-panel.js'].forEach(function (f, i, all) { var sc = document.createElement('script'); sc.src = './' + f; sc.async = false; if (i === all.length - 1) sc.onload = function () { renderAll(); }; document.head.appendChild(sc); });
+    ['has/review-fin-gate.js', 'has/price-verify-us.js', 'has/fin-panel.js'].forEach(function (f, i, all) { var sc = document.createElement('script'); sc.src = './' + f; sc.async = false; if (i === all.length - 1) sc.onload = function () { renderAll(); }; document.head.appendChild(sc); });
   }
   function node(tag, text, css, tid) { var e = document.createElement(tag); if (text != null) e.textContent = text; if (css) e.style.cssText = css; if (tid) e.setAttribute('data-testid', tid); return e; }
   function kst(iso) { try { return new Date(iso).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }); } catch (e) { return iso; } }

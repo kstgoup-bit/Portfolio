@@ -400,3 +400,4 @@
 - 2026-11-26 (순태씨 '승인') SEC 수집을 GitHub Actions로 전환: tools/fetch-sec-facts.cjs·workflow·tickers·시험 10건(전체 2497/실패 3 main 동일/비밀값 0). main 미병합. 비공개 전환은 Pages 영향 가능·클로 도구 불가로 순태씨 결정 유지. 다음: 비밀값 SEC_USER_AGENT 입력, '올려' 후 수동 실행 1회.
 - 2026-11-26 (순태씨 '올려') main 9e3ee3c: 재무 연결 단계 1~3 + SEC 수집(GitHub Actions) 병합(새 파일만, 앱 코드 변경 0). 병합 후 전체 2497/실패 3(병합 전 main과 동일)/비밀값 0. 비밀값 SEC_USER_AGENT 입력 완료(순태씨). 다음: Actions에서 sec-fundamentals 수동 실행 1회 확인(평일 06:17 KST 자동 실행은 이후). 지피 사후 검토 요청 예정.
 - 2026-11-26 (순태씨 '시작해') 재무 연결 단계 4: work/claude-fin-wire-20261126 — 카드 '재무 확인' 블록(has/fin-panel.js 신규, review-cards.js 한 줄+지연 로드, 핀 갱신, 시험 9건). 전체 2506/실패 3은 main과 동일/비밀값 0. 보류 해제는 시세 미연결로 아직 없음. 반영은 지피 검토·순태씨 '올려' 후.
+- 2026-11-26 (순태씨 '시작해') 시세 독립 대조(미국): work/claude-price-verify-20261126(fin-wire 위) — has/price-verify-us.js 신규·fin-panel 버튼·review-cards 로드 한 줄(핀 갱신), 시험 +19. 전체 2525/실패 3 main 동일/비밀값 0. 실호출·실기기 미실시. 라벨 해제는 별도 승인 필요.

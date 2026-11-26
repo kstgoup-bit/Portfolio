@@ -6,7 +6,8 @@
   if (typeof module === 'object' && module.exports) module.exports = factory(); else root.HASFinPanel = factory();
 })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
   'use strict';
-  var BUY = { 'buy-review': 1, 'add-review': 1 }, STALE_FETCH_DAYS = 4, cache = {};
+  var BUY = { 'buy-review': 1, 'add-review': 1 }, STALE_FETCH_DAYS = 4, cache = {}, seenBuy = [];
+  var PV_KO = { match: '✅ 두 출처(Yahoo·KIS) 확정 종가 일치', short: '자료 부족(공통 날짜 5일 미만)', partial: '최근 일치·과거 일부 차이', mismatch: '❗ 최근 종가 차이', stale: '⏳ 두 출처 최신 날짜가 다르거나 오래됨', 'missing-kis': 'KIS 자료 없음', 'missing-yahoo': 'Yahoo 자료 없음', 'no-common-date': '같은 날짜 자료 없음', 'invalid-ticker': '대조 불가 종목' };
   var STATUS_KO = { pass: '양호', warn: '주의', fail: '취약', na: '제외' };
   var MISS_KO = {
     'financials-missing': '재무 자료 없음·형식 불명', 'financials-weak': '재무 취약', 'financials-not-strong': '재무 판정이 "우량 근거 충분"이 아님',
@@ -43,13 +44,22 @@
       box.appendChild(node('div', '📊 재무 확인: ' + (st.state === 'missing' ? '자동 수집 대상 아님·자료 없음' : '자료를 읽지 못함 또는 형식 불명') + ' · 판단 보류', 'font-weight:700'));
       art.appendChild(box); return;
     }
+    var PV = typeof window !== 'undefined' ? window.HASPriceVerifyUS : null;
+    if (buy && seenBuy.indexOf(card.ticker) < 0) seenBuy.push(card.ticker);
     var rec = st.rec, a = F.assess(rec.normalized, { now: now }), ageDays = (now - Date.parse(rec.fetchedAt)) / 86400000;
     box.appendChild(node('div', '📊 재무 확인(SEC 공시 자동 수집 · 검증 전): ' + a.labelKo + (a.reason ? ' — ' + a.reason : ''), 'font-weight:700', 'fin-label'));
     box.appendChild(node('div', '최근 결산 ' + (a.asOf || '없음') + ' · 수집 ' + kst(rec.fetchedAt) + (ageDays > STALE_FETCH_DAYS ? ' · ⚠ 수집한 지 ' + Math.floor(ageDays) + '일 지남(자동 수집이 멈췄을 수 있음)' : ''), 'font-size:13px', 'fin-meta'));
     if (buy && G) {
-      var g = G.evaluate({ card: { ticker: card.ticker, market: card.market, verdict: card.verdict }, assessment: ageDays > STALE_FETCH_DAYS ? null : a, price: null, consensus: ctx.consensus }, new Date(now).toISOString().replace(/\.\d{3}Z$/, 'Z'));
+      var g = G.evaluate({ card: { ticker: card.ticker, market: card.market, verdict: card.verdict }, assessment: ageDays > STALE_FETCH_DAYS ? null : a, price: PV ? PV.trustOf(card.ticker, now) : null, consensus: ctx.consensus }, new Date(now).toISOString().replace(/\.\d{3}Z$/, 'Z'));
       var miss = ageDays > STALE_FETCH_DAYS ? ['financials-missing'].concat(g.missing.filter(function (x) { return x !== 'financials-missing'; })) : g.missing;
-      box.appendChild(node('div', g.state === 'released' ? '보류 해제 조건 충족(재무·시세·합의)' : '판단 보류 유지 — 남은 조건: ' + miss.map(missText).join(' · '), 'font-weight:700;color:#333', 'fin-gate'));
+      box.appendChild(node('div', g.state === 'released' ? '보류 해제 조건은 모두 충족(재무·시세·합의) — 카드 라벨 변경은 순태씨 승인 후 별도라 지금은 판단 보류 표시를 유지합니다' : '판단 보류 유지 — 남은 조건: ' + miss.map(missText).join(' · '), 'font-weight:700;color:#333', 'fin-gate'));
+      if (PV) {
+        var pr = PV.resultOf(card.ticker), line = pr ? '시세 독립 대조: ' + (PV_KO[pr.r.status] || pr.r.status) + (pr.r.latest ? ' · 확정 종가 기준일 ' + pr.r.latest.d : '') : PV.isBusy() ? '시세 독립 대조 조회 중…' : '시세 독립 대조: 아직 조회 전(버튼을 누를 때만 KIS를 호출합니다)';
+        box.appendChild(node('div', line + (PV.lastError() ? ' · ' + PV.lastError() : ''), 'font-size:13px', 'fin-price'));
+        var pb = node('button', PV.isBusy() ? '시세 대조 중…' : '📈 시세 독립 대조(Yahoo·KIS)', 'min-height:44px;padding:0 14px;font-size:14px;margin:4px 0', 'fin-price-btn'); pb.type = 'button'; pb.disabled = PV.isBusy();
+        pb.addEventListener('click', function () { PV.verify(seenBuy.slice(0, PV.MAX_TICKERS)).then(function () { if (ctx.onReady) ctx.onReady(); }); if (ctx.onReady) ctx.onReady(); });
+        box.appendChild(pb);
+      }
     }
     if (a.checks && a.checks.length) {
       var det = node('details'); det.appendChild(node('summary', '재무 항목별 보기', 'min-height:44px;display:flex;align-items:center;cursor:pointer'));
@@ -59,5 +69,5 @@
     }
     art.appendChild(box);
   }
-  return Object.freeze({ attach: attach, _reset: function () { cache = {}; } });
+  return Object.freeze({ attach: attach, _reset: function () { cache = {}; seenBuy = []; } });
 });

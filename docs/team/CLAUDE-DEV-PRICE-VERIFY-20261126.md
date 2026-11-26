@@ -1,0 +1,23 @@
+STATUS: READY_FOR_REVIEW (시세 독립 대조 연결 — 운영 미반영, 순태씨 '올려' 전 main 병합 금지)
+ORDER-ID: 순태씨 대화 2026-11-26 '시작해'(재무 연결 후속: 시세 독립 대조)
+BASE: work/claude-fin-wire-20261126 6415e1e751e4c3d5994c069fad0e2d86f8f45798 (이 브랜치는 그 위에 쌓음 — fin-wire가 main에 먼저 들어가야 함)
+BRANCH: work/claude-price-verify-20261126
+
+## 변경
+- 신규 `has/price-verify-us.js`: 미국 종목 확정 종가를 Yahoo 이력(type=history, market=US)과 KIS 해외 일봉(type=kis-us)으로 같은 날짜끼리 대조. 국내용 `has/kis-crosscheck.js`와 같은 원칙(허용 차이 0.5%, 최근 공통 20일, 두 출처 최신 날짜 불일치·오래됨=stale, 공통 5일 미만=short). 뉴욕 오늘 봉은 16:30(마감 30분 뒤) 전에는 제외·이후 확정(Intl로 서머타임 처리). 통과('match')만 카드 규칙 입력 `{verification:'independent-verified', status:'ok', marketDate}`로 변환, 그 밖은 미검증.
+- 조회는 **버튼을 눌렀을 때만**(자동 호출 없음). KIS 하루 예산(150)을 아끼려 10분 안 재조회 거부, 한 번에 최대 5종목, Yahoo 1회+KIS 1회. 결과는 메모리에만(저장소 쓰기 없음), 24시간 지나면 무효.
+- 수정 `has/fin-panel.js`: 매수 쪽 미국 카드에 '📈 시세 독립 대조' 버튼·결과 줄. 규칙에 price 입력 연결. 모든 조건(재무 strong·시세 일치·합의 agreed) 충족 시 문구가 '보류 해제 조건은 모두 충족 — 카드 라벨 변경은 순태씨 승인 후 별도'가 됨.
+- 수정 `has/review-cards.js`: 지연 로드 목록에 price-verify-us.js 추가(한 줄). **카드 라벨(HELD)·합의 표시 코드는 여전히 불변** — 라벨 해제는 별도 정책 변경 + 지피 검토 + 순태씨 승인 필요. 핀 해시 갱신.
+- 신규 시험 `tests/price-verify-us.test.cjs` 15건, `tests/fin-panel.test.cjs` +4건(해제 조건 문구·불일치·합의 없음·자동 호출 없음·모듈 없음).
+
+## 시험
+- 전체 2525 중 2520 통과/3 실패/2 skip(실패 3건은 main과 동일: 683·1179 Git 필요, 1758 DOM), scan-secrets 0.
+- **미실시**: 실제 KIS·Yahoo 호출(가짜 jsonp만), Chromium 360/390/430, 갤럭시 실기기.
+
+## 미검증·주의
+- 미국 KIS 일봉 GAS(has-kis-overseas.gs)는 순태씨 PC 자체 시험 AAPL·KO 성공 기록뿐, 앱 경유 실제 응답 모양은 미검증. 응답이 어긋나면 'missing-kis'로 미검증 처리(해제 안 됨).
+- KIS는 수정주가(MODP=1), Yahoo는 조정 여부 미확인('unverified') — 배당·분할이 낀 종목은 0.5%를 넘어 '불일치'가 날 수 있음(안전 방향, 해제 안 됨). 실제 후보 종목(WDC·GLW·ALAB)에서 일치율은 실호출 전 모름.
+- 곡소리 후보 3종목은 재무가 '혼재'라 시세가 일치해도 해제 조건은 충족되지 않음(재무 strong 필요).
+
+## 순태씨 할 일
+- 지피 검토 후 fin-wire → price-verify 순서로 '올려'(둘 다 앱 코드). 반영 뒤 폰에서 곡소리 화면의 매수 후보 카드 '📈 시세 독립 대조' 버튼 1회 시험(설정 탭에 GAS 주소가 있어야 함, KIS 호출 1회 소모).

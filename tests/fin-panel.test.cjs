@@ -47,10 +47,34 @@ test('국내 종목은 DART 연결 전 안내만(자료 요청 없음)',async()=
   a.ok(!w.__fetched.some(u=>/data\/fundamentals/.test(u)));});
 test('재무 모듈이 없으면(로드 전) 기존 카드 표시는 그대로이고 모듈 로드를 한 번만 요청',async()=>{
   const w=dom({},[card('AAA','buy-review')],false);const m=await show(w);a.match(art(m,'AAA').textContent,/🧠 매수 후보 · 판단 보류/);
-  const tags=[...w.document.head.querySelectorAll('script')].map(s=>s.getAttribute('src'));a.deepEqual(tags,['./has/review-fin-gate.js','./has/fin-panel.js']);
-  w.HASReviewCards.mount(w.document.getElementById('m'));await tick();a.equal(w.document.head.querySelectorAll('script').length,2);});
+  const tags=[...w.document.head.querySelectorAll('script')].map(s=>s.getAttribute('src'));a.deepEqual(tags,['./has/review-fin-gate.js','./has/price-verify-us.js','./has/fin-panel.js']);
+  w.HASReviewCards.mount(w.document.getElementById('m'));await tick();a.equal(w.document.head.querySelectorAll('script').length,3);});
 test('티커별 자료는 한 번만 요청(다시 그려도 재요청 없음)·XSS 문자열은 글자로만 표시',async()=>{
   const r=rec('AAA');r.normalized.name='<img src=x onerror=alert(1)>';const w=dom({AAA:r},[card('AAA','buy-review')]);const m=await show(w);w.HASReviewCards.mount(m);await tick();w.HASReviewCards.mount(m);await tick();
   a.equal(w.__fetched.filter(u=>/AAA\.json$/.test(u)).length,1);a.equal(m.querySelectorAll('img').length,0);});
 test('fin-panel은 쓰기·주문·저장소·키를 쓰지 않음',()=>{const s=R('has/fin-panel.js');for(const w of ['localStorage','sessionStorage','indexedDB','method:','POST','innerHTML','eval(','crtfc_key'])a.ok(!s.includes(w),w);a.ok(!/fetch\([^)]*https?:/.test(s));});
 test('review-cards 변경은 연결 한 줄과 지연 로드 함수뿐(판단 라벨 코드 불변)',()=>{const s=R('has/review-cards.js');a.ok(s.includes("finHook(art, c, cs); box.appendChild(art);"));a.match(s,/var HELD = \{ 'buy-review': \['🧠 매수 후보 · 판단 보류\(재무·시세 검증 전\)', '#333'\], 'add-review': \['🧠 추가 매수 후보 · 판단 보류\(재무·시세 검증 전\)', '#333'\] \};/);});
+// ---- 시세 독립 대조 연결 ----
+const days=(from,to)=>{const out=[];for(let t=Date.parse(from+'T00:00:00Z');t<=Date.parse(to+'T00:00:00Z');t+=86400000){const d=new Date(t).toISOString().slice(0,10),wd=new Date(t).getUTCDay();if(wd&&wd<6)out.push(d);}return out;};
+const ALL=days('2026-10-20','2026-11-25');
+const ybars=(t)=>({source:'yahoo-chart-v8',symbol:t,currency:'USD',bars:ALL.map((d,i)=>({d,c:100+i}))}),kbars=(t,f)=>({source:'kis-overseas-daily',symbol:t,currency:'USD',bars:ALL.map((d,i)=>({d,c:f?f(i):100+i}))});
+function withPrice(files,cards,kisFactor){const w=dom(files,cards);w.eval(R('has/price-verify-us.js'));w.HASPriceVerifyUS._reset();
+  // 가짜 GAS 주소와 JSONP: script 태그 대신 verify의 jsonp를 가로챈다(주입 지점: 모듈 내부 jsonp는 외부 접속이므로 시험에서는 사용하지 않음).
+  const base=w.HASPriceVerifyUS;w.HASPriceVerifyUS=Object.assign({},base,{verify:(ts)=>base.verify(ts,{now:()=>NOW,jsonp:async(p)=>{const l=p.tickers.split(',');const o={};l.forEach(t=>o[t]=p.type==='history'?ybars(t):kbars(t,kisFactor));return o;}})});return w;}
+test('시세 대조 전: 버튼·안내만, 대조 후 일치하면 재무 strong+합의 agreed에서 해제 조건 충족 문구(라벨은 그대로 판단 보류)',async()=>{
+  const c=card('AAA','buy-review');c.consensus={status:'agreed',review:'GPT-REVIEW-ai-review-20261126-0730.md',date:'2026-11-26',ticker:'AAA',market:'US',verdict:'buy-review'};
+  const w=withPrice({AAA:rec('AAA')},[c]);const m=await show(w);let x=art(m,'AAA');
+  a.match(x.querySelector('[data-testid=fin-price]').textContent,/아직 조회 전/);a.match(x.querySelector('[data-testid=fin-gate]').textContent,/시세 독립 대조 미연결/);
+  x.querySelector('[data-testid=fin-price-btn]').click();for(let i=0;i<10;i++)await tick();x=art(m,'AAA');
+  a.match(x.querySelector('[data-testid=fin-price]').textContent,/✅ 두 출처\(Yahoo·KIS\) 확정 종가 일치 · 확정 종가 기준일 2026-11-25/);
+  const g=x.querySelector('[data-testid=fin-gate]').textContent;a.match(g,/보류 해제 조건은 모두 충족/);a.match(g,/카드 라벨 변경은 순태씨 승인 후 별도/);
+  a.match(x.textContent,/🧠 매수 후보 · 판단 보류\(재무·시세 검증 전\)/);a.doesNotMatch(x.textContent,/🟢/);});
+test('시세가 불일치하면 해제 안 됨, 합의가 없으면 시세가 일치해도 해제 안 됨',async()=>{
+  const w=withPrice({AAA:rec('AAA')},[card('AAA','buy-review')],(i)=>(100+i)*1.2);const m=await show(w);art(m,'AAA').querySelector('[data-testid=fin-price-btn]').click();for(let i=0;i<10;i++)await tick();let x=art(m,'AAA');
+  a.match(x.querySelector('[data-testid=fin-price]').textContent,/❗ 최근 종가 차이/);a.match(x.querySelector('[data-testid=fin-gate]').textContent,/판단 보류 유지/);
+  const w2=withPrice({AAA:rec('AAA')},[card('AAA','buy-review')]);const m2=await show(w2);art(m2,'AAA').querySelector('[data-testid=fin-price-btn]').click();for(let i=0;i<10;i++)await tick();
+  const g=art(m2,'AAA').querySelector('[data-testid=fin-gate]').textContent;a.doesNotMatch(g,/모두 충족/);a.match(g,/지피 합의 없음/);a.doesNotMatch(g,/시세 독립 대조 미연결/);});
+test('버튼은 화면의 매수 쪽 미국 카드 티커를 한꺼번에(최대 5) 대조하고 호출은 자동으로 일어나지 않음',async()=>{
+  const w=dom({AAA:rec('AAA'),BBB:rec('BBB')},[card('AAA','buy-review'),card('BBB','add-review'),card('CCC','wait')]);w.eval(R('has/price-verify-us.js'));w.HASPriceVerifyUS._reset();let seen=null,calls=0;const base=w.HASPriceVerifyUS;w.HASPriceVerifyUS=Object.assign({},base,{verify:(ts)=>{calls++;seen=ts;return Promise.resolve({ok:true});}});
+  const m=await show(w);a.equal(calls,0);art(m,'AAA').querySelector('[data-testid=fin-price-btn]').click();await tick();a.equal(calls,1);a.deepEqual([...seen],['AAA','BBB']);});
+test('가격 대조 모듈이 없어도 재무 블록은 그대로(시세 미연결 취급)',async()=>{const w=dom({AAA:rec('AAA')},[card('AAA','buy-review')]);const m=await show(w);const x=art(m,'AAA');a.equal(x.querySelector('[data-testid=fin-price]'),null);a.match(x.querySelector('[data-testid=fin-gate]').textContent,/시세 독립 대조 미연결/);});
