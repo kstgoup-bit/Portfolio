@@ -38,5 +38,24 @@ test('조회: KIS 오류·연결 실패는 미검증으로 남기고 오류 코�
 test('조회: Yahoo 실패면 missing-yahoo로 미검증, 한 종목 KIS 값 불량이어도 다른 종목은 유지',async()=>{P._reset();await P.verify(['AAA'],{jsonp:fakeSend({yahooFail:1}),now:()=>NOW});a.equal(P.resultOf('AAA').r.status,'missing-yahoo');a.equal(P.trustOf('AAA',NOW).verification,'unverified');
  P._reset();await P.verify(['AAA','BBB'],{jsonp:fakeSend({kisBad:t=>t==='BBB'?{source:'kis-overseas-daily',symbol:'BBB',currency:'USD',bars:[{d:'x',c:1}]}:null}),now:()=>NOW});a.equal(P.trustOf('AAA',NOW).verification,'independent-verified');a.equal(P.trustOf('BBB',NOW).verification,'unverified');});
 test('조회: 동시에 두 번 시작하지 않음',async()=>{P._reset();let release;const slow=(params)=>new Promise(r=>{release=()=>r(params.type==='history'?{AAA:yahoo('AAA')}:{AAA:kis('AAA')});});const p1=P.verify(['AAA'],{jsonp:slow,now:()=>NOW});a.equal(P.isBusy(),true);a.equal((await P.verify(['AAA'],{jsonp:slow,now:()=>NOW})).reason,'busy');release();await new Promise(r=>setTimeout(r,0));release();await p1;a.equal(P.isBusy(),false);});
-test('모듈은 저장소·쓰기·주문·키를 쓰지 않고 GAS 주소만 https script.google.com으로 제한',()=>{const s=fs.readFileSync(path.join(__dirname,'..','has/price-verify-us.js'),'utf8');for(const w of ['localStorage','sessionStorage','indexedDB','innerHTML','eval(','crtfc_key','KIS_APP'])a.ok(!s.includes(w),w);a.ok(/hostname !== 'script\.google\.com'/.test(s));});
+test('모듈은 저장소·쓰기·주문·키를 쓰지 않고 GAS 주소만 https script.google.com으로 제한',()=>{const s=fs.readFileSync(path.join(__dirname,'..','has/price-verify-us.js'),'utf8');for(const w of ['sessionStorage','indexedDB','innerHTML','eval(','crtfc_key','KIS_APP'])a.ok(!s.includes(w),w);a.ok(/hostname !== 'script\.google\.com'/.test(s));a.ok((s.match(/localStorage/g)||[]).length<=2);a.ok(s.includes("'has_priceVerifyUS_v1'"));for(const w of ['removeItem','clear(','cookie'])a.ok(!s.includes(w),w);});
 test('브라우저 전역으로도 동작',()=>{const ctx=vm.createContext({Intl,Date,Object,Array,Number,Promise,Error,URL,setTimeout,clearTimeout,document:{}});vm.runInContext(fs.readFileSync(path.join(__dirname,'..','has/price-verify-us.js'),'utf8'),ctx);a.equal(ctx.HASPriceVerifyUS.compare(yahoo('AAA'),kis('AAA'),{ticker:'AAA',now:NOW}).status,'match');});
+// ---- 하루 1회 자동 조회 ----
+const mem=(init)=>{const m=new Map(init||[]);return{getItem:k=>m.has(k)?m.get(k):null,setItem:(k,v)=>{m.set(k,String(v));},_m:m};};
+test('자동: 하루 1회만, 같은 날 다시 호출하면 호출 0, 한국 날짜가 바뀌면 다시',async()=>{const st=mem();P._reset(st);const s=fakeSend();
+ const r=await P.auto(['AAA'],{jsonp:s,now:()=>NOW});a.equal(r.ok,true);a.equal(s.calls.length,2);a.equal(P.autoDayOf(),'2026-11-26');
+ P._reset(st);const r2=await P.auto(['AAA'],{jsonp:s,now:()=>NOW+3600000});a.equal(r2.reason,'fresh');a.equal(s.calls.length,2);
+ P._reset(st);const r3=await P.auto(['AAA','BBB'],{jsonp:s,now:()=>NOW+3600000});a.equal(r3.reason,'already-tried-today');a.equal(s.calls.length,2);
+ P._reset(st);const r4=await P.auto(['AAA'],{jsonp:s,now:()=>NOW+21*3600000});a.equal(r4.ok,true);a.equal(s.calls.length,4);});
+test('자동: 호출 전에 오늘 날짜를 먼저 기록(중간에 멈춰도 재시도 없음), 저장소가 없거나 쓰기 실패면 자동 조회 안 함',async()=>{
+ const st=mem();P._reset(st);let seenAtCall=null;const s=async(p)=>{seenAtCall=JSON.parse(st.getItem('has_priceVerifyUS_v1')).autoDay;throw Error('x');};await P.auto(['AAA'],{jsonp:s,now:()=>NOW});a.equal(seenAtCall,'2026-11-26');
+ P._reset(null);const s2=fakeSend();const r=await P.auto(['AAA'],{jsonp:s2,now:()=>NOW});a.equal(r.reason,'no-storage');a.equal(s2.calls.length,0);
+ const bad={getItem:()=>null,setItem:()=>{throw Error('quota');}};P._reset(bad);const r2=await P.auto(['AAA'],{jsonp:s2,now:()=>NOW});a.equal(r2.reason,'no-storage-write');a.equal(s2.calls.length,0);});
+test('자동: 저장된 결과는 다시 열어도 복원, 오래되거나 손상·조작된 값은 버림',async()=>{
+ const st=mem();P._reset(st);await P.auto(['AAA'],{jsonp:fakeSend(),now:()=>NOW});
+ P._reset(st);a.equal(P.trustOf('AAA',NOW+3600000).verification,'independent-verified');
+ P._reset(st);a.equal(P.trustOf('AAA',NOW+25*3600000),null);
+ const raw=JSON.parse(st.getItem('has_priceVerifyUS_v1'));
+ const forged=JSON.parse(JSON.stringify(raw));forged.items.AAA.r.status='mismatch';forged.items.AAA.r.ok=false;P._reset(mem([['has_priceVerifyUS_v1',JSON.stringify(forged)]]));a.equal(P.trustOf('AAA',NOW+1000),null);
+ const f2=JSON.parse(JSON.stringify(raw));f2.items.AAA.trust.marketDate='2026-11-20';P._reset(mem([['has_priceVerifyUS_v1',JSON.stringify(f2)]]));a.equal(P.trustOf('AAA',NOW+1000),null);
+ for(const junk of ['{','null','[]','{"v":2}','{"v":1,"items":5}'])a.equal((P._reset(mem([['has_priceVerifyUS_v1',junk]])),P.trustOf('AAA',NOW)),null);});

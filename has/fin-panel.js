@@ -46,6 +46,7 @@
     }
     var PV = typeof window !== 'undefined' ? window.HASPriceVerifyUS : null;
     if (buy && seenBuy.indexOf(card.ticker) < 0) seenBuy.push(card.ticker);
+    if (buy && PV && PV.auto && typeof setTimeout === 'function') setTimeout(function () { PV.auto(seenBuy.slice(0, PV.MAX_TICKERS)).then(function (r) { if (r && r.ok !== false && ctx.onReady) ctx.onReady(); }, function () {}); }, 30);
     var rec = st.rec, a = F.assess(rec.normalized, { now: now }), ageDays = (now - Date.parse(rec.fetchedAt)) / 86400000;
     box.appendChild(node('div', '📊 재무 확인(SEC 공시 자동 수집 · 검증 전): ' + a.labelKo + (a.reason ? ' — ' + a.reason : ''), 'font-weight:700', 'fin-label'));
     box.appendChild(node('div', '최근 결산 ' + (a.asOf || '없음') + ' · 수집 ' + kst(rec.fetchedAt) + (ageDays > STALE_FETCH_DAYS ? ' · ⚠ 수집한 지 ' + Math.floor(ageDays) + '일 지남(자동 수집이 멈췄을 수 있음)' : ''), 'font-size:13px', 'fin-meta'));
@@ -54,7 +55,7 @@
       var miss = ageDays > STALE_FETCH_DAYS ? ['financials-missing'].concat(g.missing.filter(function (x) { return x !== 'financials-missing'; })) : g.missing;
       box.appendChild(node('div', g.state === 'released' ? '보류 해제 조건은 모두 충족(재무·시세·합의) — 카드 라벨 변경은 순태씨 승인 후 별도라 지금은 판단 보류 표시를 유지합니다' : '판단 보류 유지 — 남은 조건: ' + miss.map(missText).join(' · '), 'font-weight:700;color:#333', 'fin-gate'));
       if (PV) {
-        var pr = PV.resultOf(card.ticker), line = pr ? '시세 독립 대조: ' + (PV_KO[pr.r.status] || pr.r.status) + (pr.r.latest ? ' · 확정 종가 기준일 ' + pr.r.latest.d : '') : PV.isBusy() ? '시세 독립 대조 조회 중…' : '시세 독립 대조: 아직 조회 전(버튼을 누를 때만 KIS를 호출합니다)';
+        var pr = PV.resultOf(card.ticker), line = pr ? '시세 독립 대조: ' + (PV_KO[pr.r.status] || pr.r.status) + (pr.r.latest ? ' · 확정 종가 기준일 ' + pr.r.latest.d : '') : PV.isBusy() ? '시세 독립 대조 조회 중…' : '시세 독립 대조: 조회 전(하루 1회 자동 조회 · 아래 버튼으로 다시 조회)';
         box.appendChild(node('div', line + (PV.lastError() ? ' · ' + PV.lastError() : ''), 'font-size:13px', 'fin-price'));
         var pb = node('button', PV.isBusy() ? '시세 대조 중…' : '📈 시세 독립 대조(Yahoo·KIS)', 'min-height:44px;padding:0 14px;font-size:14px;margin:4px 0', 'fin-price-btn'); pb.type = 'button'; pb.disabled = PV.isBusy();
         pb.addEventListener('click', function () { PV.verify(seenBuy.slice(0, PV.MAX_TICKERS)).then(function () { if (ctx.onReady) ctx.onReady(); }); if (ctx.onReady) ctx.onReady(); });

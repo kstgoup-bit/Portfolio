@@ -1,7 +1,8 @@
 /* 미국 종목 확정 종가를 두 공급자(Yahoo 이력 · KIS 해외 일봉)로 대조한다. 읽기 전용: 평가가격·신호·투자기록·백업·저장소를 바꾸지 않는다.
  * 목적: 검토 카드의 '시세 독립 대조' 조건(has/review-fin-gate.js의 price)을 사실로 채운다. 국내 보유 종목용 has/kis-crosscheck.js와 같은 원칙(오늘 장중 봉 제외, 같은 날짜끼리, 허용 차이 0.5%).
  * 같은 사용자 GAS를 거치지만 GAS는 전달 수단일 뿐이고 원천은 Yahoo와 KIS로 서로 다르다.
- * 자동 호출 없음: KIS 하루 호출 예산(150회)을 아끼려고 사용자가 버튼을 눌렀을 때만 조회한다(10분 안에는 재조회 없음).
+ * 자동 대조(순태씨 2026-11-26 요청): 하루(한국 날짜) 1회만 자동으로 조회한다 — KIS 하루 호출 예산(150회)을 지키려고 시작 전에 오늘 날짜를 기록하고(기록 실패 시 자동 안 함, 실패해도 같은 날 자동 재시도 없음),
+ *   결과는 이 기기 전용 키(has_priceVerifyUS_v1, 백업 대상 아님·20시간 유효)에 남겨 앱을 다시 열어도 재조회하지 않는다. 버튼은 그대로 있고 10분 안에는 재조회하지 않는다.
  * 미검증: 미국 KIS 일봉 GAS(has-kis-overseas.gs)는 실제 호출로 확인 전. 수정주가(KIS)와 Yahoo 종가의 배당·분할 차이는 허용 차이를 넘으면 '불일치'로 보수적으로 처리한다.
  * 한 종목 판정 = ok(독립 대조 통과) / 그 밖은 모두 미검증. 투자 자문 아님. */
 (function (root, factory) {
@@ -55,7 +56,30 @@
     return { verification: 'unverified', status: r && r.status === 'stale' ? 'stale' : r && r.status === 'mismatch' ? 'date-mismatch' : 'unknown', marketDate: r && r.latest && validDate(r.latest.d) ? r.latest.d : null };
   }
   // ---- 조회(사용자가 버튼을 눌렀을 때만) ----
-  var results = Object.create(null), busy = false, lastAt = 0, lastError = '', cbSeq = 0;
+  var results = Object.create(null), busy = false, lastAt = 0, lastError = '', cbSeq = 0, autoDay = '', hydrated = false, testStorage = null;
+  var KEY = 'has_priceVerifyUS_v1', FRESH_MS = 20 * 3600000, MAX_AGE_MS = 24 * 3600000, VERIFS = ['independent-verified', 'unverified'];
+  function store() { if (testStorage) return testStorage; try { return W && W.localStorage ? W.localStorage : null; } catch (e) { return null; } }
+  function kstDay(now) { var p = {}; new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(new Date(now)).forEach(function (x) { p[x.type] = x.value; }); return p.year + '-' + p.month + '-' + p.day; }
+  function okItem(t, x, now) {
+    return validTicker(t) && plain(x) && typeof x.at === 'number' && Number.isFinite(x.at) && x.at <= now + 60000 && now - x.at <= MAX_AGE_MS && plain(x.trust) && VERIFS.indexOf(x.trust.verification) >= 0 && typeof x.trust.status === 'string' && x.trust.status.length <= 30 &&
+      (x.trust.marketDate === null || validDate(x.trust.marketDate)) && plain(x.r) && typeof x.r.status === 'string' && x.r.status.length <= 30 && (x.r.latest === undefined || (plain(x.r.latest) && validDate(x.r.latest.d))) &&
+      (x.trust.verification !== 'independent-verified' || (x.trust.status === 'ok' && x.r.ok === true && x.r.status === 'match' && x.trust.marketDate === x.r.latest.d));
+  }
+  function hydrate(now) { // 저장된 값은 형식·날짜가 맞는 항목만 복원(손상되면 전부 버림). 자동 판정 근거를 저장값으로 조작하지 못하도록 'ok'는 일치 결과와 함께일 때만 인정.
+    if (hydrated) return; hydrated = true; var st = store(); if (!st) return;
+    try {
+      var d = JSON.parse(st.getItem(KEY) || 'null'), n = now == null ? Date.now() : now; if (!plain(d) || d.v !== 1 || !plain(d.items)) return;
+      if (typeof d.autoDay === 'string' && validDate(d.autoDay)) autoDay = d.autoDay;
+      Object.keys(d.items).slice(0, 40).forEach(function (t) { if (okItem(t, d.items[t], n) && !results[t]) results[t] = { r: d.items[t].r, trust: d.items[t].trust, at: d.items[t].at }; });
+    } catch (e) { /* 저장값 손상 → 무시 */ }
+  }
+  function persist(extraAutoDay) {
+    var st = store(); if (!st) return false;
+    try {
+      var items = {}; Object.keys(results).forEach(function (t) { var x = results[t], l = x.r && x.r.latest ? { d: x.r.latest.d } : undefined; items[t] = { at: x.at, trust: x.trust, r: { ok: !!x.r.ok, status: x.r.status, stale: x.r.stale || '', latest: l } }; });
+      st.setItem(KEY, JSON.stringify({ v: 1, autoDay: extraAutoDay || autoDay || '', items: items })); return true;
+    } catch (e) { return false; }
+  }
   function endpoint() {
     var u = new URL(W && typeof W.gasUrl === 'string' ? W.gasUrl : '');
     if (u.protocol !== 'https:' || u.hostname !== 'script.google.com' || u.port || u.username || u.password || !/^\/macros\/s\/[A-Za-z0-9_-]+\/exec$/.test(u.pathname)) throw Error('gas-url');
@@ -88,14 +112,32 @@
       .then(function () {
         var now = nowFn(); list.forEach(function (t) { var r = compare(yahoo[t], kis[t], { ticker: t, now: now }); results[t] = { r: r, trust: toTrust(r), at: now }; });
         if (kisError) lastError = kisError;
+        persist();
         return { ok: true, error: kisError || null };
       }).then(function (x) { busy = false; return x; }, function (e) { busy = false; lastError = 'verify-failed'; return { ok: false, reason: 'verify-failed' }; });
   }
   // 카드가 쓰는 입력. 조회 전이거나 오래되면 null(= 미연결로 취급).
   function trustOf(ticker, now) {
-    var x = results[ticker]; if (!x) return null;
+    hydrate(now); var x = results[ticker]; if (!x) return null;
     var n = now == null ? Date.now() : now; if (n - x.at > 24 * 3600000) return null;
     return x.trust;
   }
-  return Object.freeze({ compare: compare, toTrust: toTrust, verify: verify, trustOf: trustOf, resultOf: function (t) { return results[t] || null; }, isBusy: function () { return busy; }, lastError: function () { return lastError; }, _reset: function () { results = Object.create(null); busy = false; lastAt = 0; lastError = ''; }, TOLERANCE_PCT: TOLERANCE_PCT, MIN_COMMON: MIN_COMMON, MAX_TICKERS: MAX_TICKERS });
+  // 하루 1회 자동 조회. 조건: 저장소 사용 가능, 오늘(한국 날짜) 아직 자동 시도 안 함, 대상 종목 중 20시간 안의 결과가 없는 것이 있음.
+  // 자동 시도는 호출 전에 오늘 날짜를 먼저 기록한다(앱을 다시 열어도 같은 날 재시도 없음). 기록하지 못하면 자동 조회하지 않는다.
+  function auto(tickers, opts) {
+    var o = opts || {}, nowFn = o.now || Date.now, now = nowFn(), list = [];
+    (Array.isArray(tickers) ? tickers : []).forEach(function (t) { if (validTicker(t) && list.indexOf(t) < 0) list.push(t); });
+    list = list.slice(0, MAX_TICKERS);
+    if (!list.length) return Promise.resolve({ ok: false, reason: 'no-tickers' });
+    hydrate(now);
+    if (!store()) return Promise.resolve({ ok: false, reason: 'no-storage' });
+    if (list.every(function (t) { return results[t] && now - results[t].at <= FRESH_MS; })) return Promise.resolve({ ok: false, reason: 'fresh' });
+    var day = kstDay(now);
+    if (autoDay === day) return Promise.resolve({ ok: false, reason: 'already-tried-today' });
+    if (busy) return Promise.resolve({ ok: false, reason: 'busy' });
+    var prev = autoDay; autoDay = day;
+    if (!persist(day)) { autoDay = prev; return Promise.resolve({ ok: false, reason: 'no-storage-write' }); }
+    return verify(list, o);
+  }
+  return Object.freeze({ compare: compare, toTrust: toTrust, verify: verify, auto: auto, trustOf: trustOf, resultOf: function (t) { return results[t] || null; }, isBusy: function () { return busy; }, lastError: function () { return lastError; }, _reset: function (st) { results = Object.create(null); busy = false; lastAt = 0; lastError = ''; autoDay = ''; hydrated = false; testStorage = st || null; }, autoDayOf: function () { return autoDay; }, TOLERANCE_PCT: TOLERANCE_PCT, MIN_COMMON: MIN_COMMON, MAX_TICKERS: MAX_TICKERS });
 });
