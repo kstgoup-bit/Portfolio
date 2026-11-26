@@ -399,3 +399,6 @@
 - 2026-11-26 12:15 SEC GAS 진단: 403 'Request Rate Threshold Exceeded'(SEC 차단 페이지). 원인 추정(GAS 공유 IP), 10분 후 재시도 → 계속되면 GitHub Actions 대안 설계(승인 필요).
 - 2026-11-26 (순태씨 '승인') SEC 수집을 GitHub Actions로 전환: tools/fetch-sec-facts.cjs·workflow·tickers·시험 10건(전체 2497/실패 3 main 동일/비밀값 0). main 미병합. 비공개 전환은 Pages 영향 가능·클로 도구 불가로 순태씨 결정 유지. 다음: 비밀값 SEC_USER_AGENT 입력, '올려' 후 수동 실행 1회.
 - 2026-11-26 (순태씨 '올려') main 9e3ee3c: 재무 연결 단계 1~3 + SEC 수집(GitHub Actions) 병합(새 파일만, 앱 코드 변경 0). 병합 후 전체 2497/실패 3(병합 전 main과 동일)/비밀값 0. 비밀값 SEC_USER_AGENT 입력 완료(순태씨). 다음: Actions에서 sec-fundamentals 수동 실행 1회 확인(평일 06:17 KST 자동 실행은 이후). 지피 사후 검토 요청 예정.
+
+## 2026-11-26 밸류에이션 설계 초안
+- docs/team/CLAUDE-DESIGN-VALUATION-20261126.md 작성(코드 없음). 순태씨 요청: 싸다/비싸다·매수 검토/매수/강력 매수처럼 분명한 단계. 근거 갖춰진 경우에만 단계 상승, 데이터 공백(주식 수·분기 자료 없음) 명시. 라벨 변경은 별도 승인.
