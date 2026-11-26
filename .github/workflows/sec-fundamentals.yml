@@ -1,0 +1,32 @@
+# SEC 재무 자동 수집(하루 1회, 평일 한국 06:17). 앱·GAS 코드는 건드리지 않고 data/fundamentals/ 만 갱신한다.
+# 필요: 저장소 비밀값 SEC_USER_AGENT = "HAS-portfolio 연락처이메일" (순태씨가 GitHub 설정에서 직접 입력, 코드·로그에 출력 안 함).
+# 403/429가 나오면 스크립트가 실패로 끝나고 아무것도 커밋하지 않는다(재시도·우회 없음).
+name: sec-fundamentals
+on:
+  schedule:
+    - cron: '17 21 * * 0-4'   # UTC 21:17 일~목 = 한국 06:17 월~금
+  workflow_dispatch: {}
+permissions:
+  contents: write
+concurrency:
+  group: sec-fundamentals
+  cancel-in-progress: false
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: fetch SEC facts
+        env:
+          SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT }}
+        run: node tools/fetch-sec-facts.cjs
+      - name: commit data only
+        run: |
+          git config user.name "has-sec-bot"
+          git config user.email "has-sec-bot@users.noreply.github.com"
+          git add data/fundamentals
+          if git diff --cached --quiet; then echo "no changes"; else git commit -m "data(sec): 재무 자동 수집 $(date -u +%Y-%m-%d)" && git push; fi
