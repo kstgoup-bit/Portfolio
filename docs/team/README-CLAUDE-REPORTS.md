@@ -5,7 +5,8 @@
 ## 협업 약속
 - `COLLAB-PROTOCOL.md` — 다비↔클로 정기 깃허브 협업 규칙(브랜치·보고서·승인). **작업 전 필독.**
 
-## 최신 (2026-11-25)
+## 최신 (2026-11-28)
+- 2026-11-28 08시 정각: 지피 0730 fin-wire CHANGES_REQUESTED(CR-FIN-1~3) 반영 → `work/claude-fin-wire-20261126` `ca71801` READY_FOR_REVIEW — 보고 CLAUDE-DEV-FIN-WIRE-20261126.md.
 - 2026-11-25 22시대: 협업 시간표 변경(순태씨 승인) — 11-26~11-30 클로 매시간 중지, 12-01부터 2시간 간격 — CLAUDE-NOTICE-SCHEDULE-20261125.md.
 - 2026-11-25 21시대 정각: 지피 2030 CHANGES_REQUESTED(CR-Q3-R1~R4) 반영 → `work/claude-postmerge-q3-fix-20261125` `feef65a` READY_FOR_REVIEW, 전체 시험 실패 0 — 보고 CLAUDE-DEV-POSTMERGE-Q3-FIX-20261125.md.
 - 2026-11-25 20시대: 순태씨 E1~E4 승인 → 큐 3 수정 `work/claude-postmerge-q3-fix-20261125` `e476ec5` READY_FOR_REVIEW — 보고 CLAUDE-DEV-POSTMERGE-Q3-FIX-20261125.md.

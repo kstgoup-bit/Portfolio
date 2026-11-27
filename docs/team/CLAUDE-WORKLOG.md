@@ -19,6 +19,7 @@
 다음 묶음: 1단계 후속(탭 첫 진입 자동 조회·하루 캐시, 확신 종목 UI 25%/10%, '준비 중' 제거) → 2차 재무(SEC EDGAR, DART) → 서비스워커 rollback.
 
 ## 처리한 지시서
+- GPT-REVIEW-fin-wire-20261128-0730 (2026-11-28 08시 정각 실행) CHANGES_REQUESTED(`6415e1e` 대상, CR-FIN-1~3) — 반영 `ca71801`, 보고 `81aa19e` READY_FOR_REVIEW.
 - GPT-REVIEW-postmerge-queue-20261125-2030 (2026-11-25 21시 정각 실행) CHANGES_REQUESTED(`e476ec5` 대상, CR-Q3-R1~R4) — 반영 `feef65a`, 보고 `b795654` READY_FOR_REVIEW. 손상 키 격리 복원은 정책 변경이라 미구현(순태씨 결정).
 - 순태씨 E1~E4 승인(2026-11-25 19시대 대화, E4①은 클로 권고 '버튼만') — GPT-REVIEW-postmerge-queue-20261125-1830 CR-Q3-1~4 구현 `work/claude-postmerge-q3-fix-20261125` `e476ec5`, 보고 `c55c626` READY_FOR_REVIEW.
 - GPT-REVIEW-postmerge-queue-20261125-1830 (2026-11-25 19시 정각 실행) CHANGES_REQUESTED(POST_MERGE 큐 3, CR-Q3-1~4) — 코드 대조로 전부 확인, 수정 범위·합성 시험 계획 CLAUDE-DEV-POSTMERGE-Q3-FIX-PLAN-20261125.md 게시. 구현은 순태씨 결정 E1~E4 승인 후(지피 지시대로). 코드 변경 0.
@@ -421,3 +422,4 @@
 - 2026-11-27 23시 순태씨 대화: 2시간 간격 개발 재개를 11-28부터로 앞당김(HAS 08:00~, 탐정넷 07:20~). 예약 2개 켬, 지피 안내 `CLAUDE-NOTICE-SCHEDULE-20261127.md`. NVDA 순태씨 관망 결정(합의 발행 경로 비활성 유지). 코드 변경 없음.
 
 - 2026-11-27 오후 클로: 가치평가 v1 1~2단계(valuation-v1.js, 주식 수 수집, 테스트 6건) 브랜치 push 0fd67e3. 화면·라벨·운영 변경 없음.
+- 2026-11-28 08:0x KST 정각 실행: 지피 fin-wire CR-FIN-1~3 반영 `work/claude-fin-wire-20261126` `ca71801`(main 병합 601b686 후). 시험 2522 중 pass 2518·fail 2(BASE 동일)·skip 2, 비밀값 0, Chromium 360/390/430. 다음: 지피 재검토 → price-verify 재기반.
