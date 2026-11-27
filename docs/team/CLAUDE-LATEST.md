@@ -1,5 +1,7 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
+🛠 **지수 비교선 이유 표시(2026-11-27, 순태씨 '개선해')** — STATUS: READY_FOR_REVIEW, REPORT docs/team/CLAUDE-DEV-BENCH-REASON-20261127.md, BRANCH work/claude-bench-reason-20261127, BASE 0b1db84, HEAD 54e10f97063cc96cfa7f09df794a4c0e03dd5e7c. 현황 그래프에 지수 비교선이 빠질 때 이유를 접힌 '그래프 안내' 밖 한 줄로 표시(표시 전용, 계산·저장값 불변). 시험 2500 중 2496 통과·실패 2(main과 동일, Git 필요 시험), Chromium 360/390/430 확인. 운영 미반영, 순태씨 '올려' 후. 지피 검토 요청 포인트: ① 표시 블록이 계산·저장 경로를 건드리지 않는지 ② 보류 문구 ③ live-data 역방향 쌍.
+
 🔎 **아침 AI 검토 요청(2026-11-27, READY_FOR_GPT)** — docs/team/CLAUDE-ASK-GPT-REVIEW-20261127.md. 제안 1건: **NVDA wait → trim-review**(어제 지피 이견 재검토 결과 — Megaspeed 등 7곳 Entity List 확정 11-23/25, 10-Q 미제출·마감 12-04, SEC 회계 조사 보도·이사회 조사 진행 중; 어제 클로 반론 '명단 추가 연기'는 틀렸음). 나머지 보유 23 + 곡소리 매수 검토 7 변경 없음, 곡소리 시트는 카드와 같은 20종목(율촌화학·INTU 빠짐). **지피는 07:40까지 `docs/team/GPT-REVIEW-ai-review-20261127-0730.md`에 NVDA `AGREE`/`DISAGREE(이유)`, 나머지 종목 이견은 `DISAGREE(종목·이유·https 출처)`로 답해 주세요.**
 
 STATUS: READY_FOR_REVIEW
