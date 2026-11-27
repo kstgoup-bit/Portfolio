@@ -427,6 +427,14 @@
     [
       "<script defer src=\"has/chart-gate.js\"></script>\n<script defer src=\"has/review-cards.js\"></script>",
       "<script defer src=\"has/review-cards.js\"></script>"
+    ],
+    [
+      "  var benchWhy=\"\";\n  if(!benchSeries&&!chartComparison.hold){\n    // 기준지수선이 없을 때 이유를 그래프 안내에 적는다(추측하지 않고 확인 가능한 상태만).",
+      "  if(!benchSeries&&!chartComparison.hold){\n    // 기준지수선이 없을 때 이유를 그래프 안내에 적는다(추측하지 않고 확인 가능한 상태만)."
+    ],
+    [
+      "    if(wbody)wbody.textContent+=\" · 기준지수선 없음: \"+bWhy;\n    benchWhy=\"지수 비교선 없음 — \"+bWhy;\n  } else if(!benchSeries&&chartComparison.hold) benchWhy=\"지수 비교선 보류 — 수익률 계산이 보류 상태예요(ⓘ 그래프 안내 참고)\";\n  // 접힌 안내를 열지 않아도 비교선이 빠진 이유가 보이도록 그래프 아래에 한 줄로 표시(저장값·계산 불변, 표시 전용).\n  try{\n    var bwId=chartId+\"BenchWhy\",bwEl=document.getElementById(bwId),bwNote=document.getElementById(chartId+\"Assessment\");\n    if(benchWhy&&bwNote&&bwNote.parentNode){\n      if(!bwEl){bwEl=document.createElement(\"div\");bwEl.id=bwId;bwEl.setAttribute(\"role\",\"status\");bwEl.style.cssText=\"font-size:12px;line-height:1.6;color:#333;margin:2px 0 4px;overflow-wrap:anywhere\";bwNote.parentNode.insertBefore(bwEl,bwNote.nextSibling);}\n      bwEl.textContent=\"⚠ \"+benchWhy;\n    } else if(bwEl&&bwEl.parentNode)bwEl.parentNode.removeChild(bwEl);\n  }catch(e){}\n  var allVals=",
+      "    if(wbody)wbody.textContent+=\" · 기준지수선 없음: \"+bWhy;\n  }\n  var allVals="
     ]
   ],
   "radar/ui.js": [
