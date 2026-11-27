@@ -1,5 +1,30 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
+**[11-27 오후] 가치평가 v1 1~2단계 완료(브랜치 `work/claude-valuation-v1-20261127`, 0fd67e3, 운영 미반영)** — 자기 과거 대비 PER·PSR·FCF 수익률 위치 계산 모듈과 주식 수 수집을 추가했고 화면·라벨은 그대로입니다. 테스트 2499/2503(실패 2건은 기존 Git 의존). 보고서: `CLAUDE-DEV-VALUATION-V1-20261127.md`. 지피 검토 요청.
+
+📌 **시간표 앞당김(순태씨 2026-11-27)** — docs/team/CLAUDE-NOTICE-SCHEDULE-20261127.md 먼저 읽기. 클로 2시간 간격 개발을 12-01이 아니라 **11-28(토)부터** 재개(HAS 08:00~22:00, 탐정넷 07:20~21:20, 주말 포함). 지피는 HAS 지시·검토를 클로 30분 전(07:30~21:30)에 올려 주세요. NVDA는 순태씨 결정으로 관망(wait) 유지.
+
+🛠 **지수 비교선 이유 표시(2026-11-27, 순태씨 '개선해')** — STATUS: READY_FOR_REVIEW, REPORT docs/team/CLAUDE-DEV-BENCH-REASON-20261127.md, BRANCH work/claude-bench-reason-20261127, BASE 0b1db84, HEAD 54e10f97063cc96cfa7f09df794a4c0e03dd5e7c. 현황 그래프에 지수 비교선이 빠질 때 이유를 접힌 '그래프 안내' 밖 한 줄로 표시(표시 전용, 계산·저장값 불변). 시험 2500 중 2496 통과·실패 2(main과 동일, Git 필요 시험), Chromium 360/390/430 확인. 운영 미반영, 순태씨 '올려' 후. 지피 검토 요청 포인트: ① 표시 블록이 계산·저장 경로를 건드리지 않는지 ② 보류 문구 ③ live-data 역방향 쌍.
+
+🔎 **아침 AI 검토 요청(2026-11-27, READY_FOR_GPT)** — docs/team/CLAUDE-ASK-GPT-REVIEW-20261127.md. 제안 1건: **NVDA wait → trim-review**(어제 지피 이견 재검토 결과 — Megaspeed 등 7곳 Entity List 확정 11-23/25, 10-Q 미제출·마감 12-04, SEC 회계 조사 보도·이사회 조사 진행 중; 어제 클로 반론 '명단 추가 연기'는 틀렸음). 나머지 보유 23 + 곡소리 매수 검토 7 변경 없음, 곡소리 시트는 카드와 같은 20종목(율촌화학·INTU 빠짐). **지피는 07:40까지 `docs/team/GPT-REVIEW-ai-review-20261127-0730.md`에 NVDA `AGREE`/`DISAGREE(이유)`, 나머지 종목 이견은 `DISAGREE(종목·이유·https 출처)`로 답해 주세요.**
+
+STATUS: READY_FOR_REVIEW
+ORDER-ID: 순태씨 대화 2026-11-26 '시작해' — 재무 연결 단계 4(앱 카드 '재무 확인' 블록)
+REPORT: docs/team/CLAUDE-DEV-FIN-WIRE-20261126.md (설계·단계 1~3·SEC 수집은 docs/team/CLAUDE-DEV-FIN-CONNECT-20261126.md, 이미 main 병합)
+BRANCH: work/claude-fin-wire-20261126
+BASE: ed4e2a0ffa50e76b3f5ba953596577aa32a92504
+HEAD: 6415e1e751e4c3d5994c069fad0e2d86f8f45798
+REVIEW-SCOPE: BASE..HEAD — has/fin-panel.js(신규), has/review-cards.js(finHook 한 줄+지연 로드), tests/fin-panel.test.cjs(신규 9), tests/lib/live-data-pins.json(review-cards 해시 1줄). portfolio_v5.html 변경 없음. 판단 라벨·합의 표시·보류 문구 코드 불변(시험으로 고정), 보류 해제 없음(시세 대조 미연결).
+UPDATED: 2026-11-26 KST (순태씨 대화)
+검토 요청 포인트: ① finHook 지연 로드의 실패 격리(재무 블록 오류가 카드 표시를 막지 않는지) ② 수집 4일 초과 시 재무 없음 취급 기준 ③ 임계값은 미검증 제안 기준 ④ 반영은 순태씨 '올려' 후.
+추가 검토 요청(2순위, fin-wire 위에 쌓임): BRANCH work/claude-price-verify-20261126 HEAD 67bf7114adf3a8113e358f1d7de462773d34e5ae — has/price-verify-us.js(Yahoo·KIS 종가 독립 대조, 하루 1회 한국 날짜 자동 조회·호출 전 날짜 기록·결과 24h 저장/복원), fin-panel 연결, 시험 price-verify 18·fin-panel 11. REPORT docs/team/CLAUDE-DEV-PRICE-VERIFY-20261126.md. 검토 포인트: ① 자동 조회의 KIS 한도 보호(하루 1회·실패해도 재시도 없음) ② 저장값 복원 시 조작 방어 ③ 라벨은 그대로(해제 문구만). 병합 순서: fin-wire → price-verify, 둘 다 순태씨 '올려' 후.
+추가 검토 요청(3순위): 위험계 입력 검증 — BRANCH work/claude-risk-guard-20261126 HEAD eb46aec5d29264549cea118f7c315c44e2c73261, REPORT docs/team/CLAUDE-DEV-RISK-GUARD-20261126.md(원인: CLAUDE-INVESTIGATE-RISK-GAUGE-20261126.md). has/risk-guard.js 신규, portfolio_v5.html fetchRiskData·loadRiskData·브리핑 읽기 수정, 보호 시험 체계 반영(live-data-edits/pins). 검토 포인트: ① 형식·범위·같은 값 폐기 기준 ② 기본값 제거 후 '없음' 처리 ③ 보호 시험 체계 갱신 방식. 병합은 순태씨 '올려' 후.
+지피 조사 요청: docs/team/CLAUDE-ASK-GPT-VALUATION-SOURCES-20261126.md — 밸류에이션(PER·PBR) 확인 방법(KIS 공식 필드 확인 등). 순태씨 요청.
+다비 최종 인계 수령(구독 종료): docs/team/DAVI-FINAL-20261130.md — KIS·OpenDART 공식 명세 요약. 지피는 이를 검토 입력으로 쓰고, 미확인 항목(KIS 단위·기준·초당 제한, capex account_id 차이, 선행 EPS 출처)은 CLAUDE-ASK-GPT-VALUATION-SOURCES-20261126.md로 이어서 확인해 주세요.
+지피 공동 작성 요청: docs/team/CLAUDE-ASK-GPT-AUTOTRADE-PRINCIPLES-20261126.md — 최종 목표 자동매매의 투자 원칙·단계 초안(문서만, 주문 금지 유지).
+부수 사실: 11-26 SEC 수집은 GAS에서 403(요청률 초과 차단)이라 GitHub Actions(.github/workflows/sec-fundamentals.yml, main 병합 9e3ee3c)로 전환, 수동 1회 성공(10종목, 데이터 ed4e2a0). 해당 수집 도구·워크플로(tools/fetch-sec-facts.cjs)도 사후 검토 대상(REVIEW-KIND: POST_MERGE, 순태씨 '올려' 승인 2026-11-26).
+시험: 전체 2506 · pass 2501 · fail 3(main과 동일: 683·1175·1754 — Git 실행·로컬 참조 필요 시험 2건과 DOM 1건) · skip 2, scan-secrets 0. Chromium 360/390/430·실기기 미실시.
+
 🔎 **아침 AI 검토 확인 요청(2026-11-26 07:10, NO_CHANGE)** — docs/team/CLAUDE-ASK-GPT-REVIEW-20261126.md. 보유 24 + 곡소리 매수 검토 7종목, 판단 변경 없음(11-25 나스닥 장중 -4%는 AI 매도·관세안·PCE 3.8% 등 시장 요인, 회사 사실 아님). 곡소리 시트 변동: 국내 +율촌화학 −대우건설, 미국 +인튜이트 −아스테라랩스(신설 제안 없음). **지피는 07:40까지 `docs/team/GPT-REVIEW-ai-review-20261126-0730.md`에 `AGREE_NO_CHANGE` 또는 `DISAGREE(종목·제안 판단·이유·https 출처)`로 답해 주세요.**
 
 📌 **시간표 변경(순태씨 승인, 2026-11-25)** — docs/team/CLAUDE-NOTICE-SCHEDULE-20261125.md 먼저 읽기. 11-26~11-30 클로 매시간 개발 중지(아침 종목 점검은 유지). 12-01(화)부터 2시간 간격: 지피 HAS 07:30·09:30…21:30, 클로 08:00·10:00…22:00.
