@@ -9,6 +9,7 @@
  * 투자 자문 아님. 앱 코드·GAS·사용자 자료 변경 없음. */
 const fs = require('fs'), path = require('path');
 const F = require('../has/fundamental-filter.js');
+const V = require('../has/valuation-v1.js');
 const GAP_MS = 300, MAX_BYTES = 30 * 1024 * 1024, TICKER_RE = /^[A-Z]{1,5}(?:[.-][A-Z])?$/;
 const MAP_URL = 'https://www.sec.gov/files/company_tickers.json';
 const cikOf = n => (typeof n === 'number' && Number.isSafeInteger(n) && n > 0 && n <= 9999999999 ? String(n) : typeof n === 'string' && /^\d{1,10}$/.test(n) && Number(n) > 0 ? String(Number(n)) : null);
@@ -52,7 +53,7 @@ async function run(opts) {
     const n = F.normalize(raw, { ticker: t });
     if (!F.validNormalized(n) && !(n && n.ok === false)) { items[t] = { ok: false, reason: 'sec-normalize-failed', checkedAt: stamp }; continue; }
     if (n.ok !== true) { items[t] = { ok: false, reason: String(n.reason || 'sec-normalize-failed').slice(0, 40), checkedAt: stamp }; continue; }
-    const rec = { version: 1, ticker: t, cik, fetchedAt: stamp, source: 'SEC EDGAR companyfacts (https://data.sec.gov/api/xbrl/companyfacts/CIK' + cik.padStart(10, '0') + '.json)', verification: 'unverified', normalized: n };
+    const rec = { version: 1, ticker: t, cik, fetchedAt: stamp, source: 'SEC EDGAR companyfacts (https://data.sec.gov/api/xbrl/companyfacts/CIK' + cik.padStart(10, '0') + '.json)', verification: 'unverified', normalized: n, shares: V.extractShares(raw) };
     const tmp = path.join(outDir, t + '.json.tmp');
     fs.writeFileSync(tmp, JSON.stringify(rec)); fs.renameSync(tmp, path.join(outDir, t + '.json'));
     items[t] = { ok: true, fetchedAt: stamp, asOf: n.years[0] ? n.years[0].end : null };
