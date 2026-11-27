@@ -94,13 +94,34 @@
       .catch(function () { state.error = '검토 카드를 불러오지 못했습니다(인터넷 연결 확인).'; })
       .then(function () { state.loading = false; state.loaded = true; renderAll(); ensureLink(); });
   }
-  // 재무 확인 블록(has/fin-panel.js): 처음 필요할 때 한 번만 지연 로드. 판단 라벨·합의 표시는 바꾸지 않는다(근거 추가만).
-  var finLoad = 0;
+  // 재무 확인 블록(has/fin-panel.js): 카드마다 자리(slot)를 만들고 그 자리만 채운다(판단 라벨·합의 표시는 바꾸지 않음, 근거 추가만).
+  // 모듈은 처음 필요할 때 지연 로드: 두 파일 모두 로드돼야 준비 완료, 실패·15초 초과는 보류 안내, 60초 뒤 다시 시도(최대 3회). 실패해도 카드 표시는 그대로.
+  var fin = { state: 0, tries: 0, at: 0, queue: [] };
+  function finReady() { return typeof window !== 'undefined' && window.HASFinPanel && window.HASReviewFinGate; }
+  function finFailNote(q, now) { if ((!now && !q.slot.isConnected) || (q.c.verdict !== 'buy-review' && q.c.verdict !== 'add-review')) return; q.slot.replaceChildren(node('div', '📊 재무 확인: 재무 모듈을 불러오지 못함 · 판단 보류', 'margin-top:6px;padding:8px 10px;border:1px solid #c9d3e0;border-radius:8px;background:#fafcff;font-size:14px;font-weight:700;color:#333', 'fin-module-error')); }
+  function finDrain(ok) {
+    var qs = fin.queue; fin.queue = [];
+    qs.forEach(function (q) { if (!q.slot.isConnected) return; if (ok) { try { window.HASFinPanel.attach(q.slot, q.c, { consensus: q.cs }); } catch (e) { /* 재무 블록 실패는 카드 표시를 막지 않음 */ } } else finFailNote(q); });
+  }
+  function finLoadModules() {
+    try {
+      fin.state = 1; fin.tries++; fin.at = Date.now(); var left = 2, done = false;
+      var finish = function (ok) { if (done) return; done = true; clearTimeout(timer); fin.state = ok && finReady() ? 3 : 2; fin.at = Date.now(); finDrain(fin.state === 3); };
+      var timer = setTimeout(function () { finish(false); }, 15000);
+      ['has/review-fin-gate.js', 'has/fin-panel.js'].forEach(function (f) {
+        var prev = document.querySelector('script[data-fin-src="' + f + '"]'); if (prev) prev.remove();
+        var sc = document.createElement('script'); sc.src = './' + f; sc.async = false; sc.setAttribute('data-fin-src', f);
+        sc.onload = function () { if (--left === 0) finish(true); }; sc.onerror = function () { finish(false); }; document.head.appendChild(sc);
+      });
+    } catch (e) { fin.state = 2; fin.at = Date.now(); finDrain(false); }
+  }
   function finHook(art, c, cs) {
-    var P = typeof window !== 'undefined' && window.HASFinPanel;
-    if (P) { try { P.attach(art, c, { consensus: cs, now: Date.now(), onReady: renderAll }); } catch (e) { /* 재무 블록 실패는 카드 표시를 막지 않음 */ } return; }
-    if (finLoad || typeof document === 'undefined') return; finLoad = 1;
-    ['has/review-fin-gate.js', 'has/fin-panel.js'].forEach(function (f, i, all) { var sc = document.createElement('script'); sc.src = './' + f; sc.async = false; if (i === all.length - 1) sc.onload = function () { renderAll(); }; document.head.appendChild(sc); });
+    if (typeof document === 'undefined') return;
+    var slot = node('div', null, null, 'fin-slot'); art.appendChild(slot);
+    if (finReady()) { try { window.HASFinPanel.attach(slot, c, { consensus: cs }); } catch (e) { /* 카드 표시 보호 */ } return; }
+    var q = { slot: slot, c: c, cs: cs };
+    if (fin.state === 2 && (fin.tries >= 3 || Date.now() - fin.at < 60000)) { finFailNote(q, true); return; }
+    fin.queue.push(q); if (fin.state !== 1) finLoadModules();
   }
   function node(tag, text, css, tid) { var e = document.createElement(tag); if (text != null) e.textContent = text; if (css) e.style.cssText = css; if (tid) e.setAttribute('data-testid', tid); return e; }
   function kst(iso) { try { return new Date(iso).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }); } catch (e) { return iso; } }
