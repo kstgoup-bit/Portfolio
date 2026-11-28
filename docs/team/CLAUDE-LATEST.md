@@ -1,5 +1,16 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
+**[11-28 11시대] 순태씨 '1번으로 하자' — 현황 알파 원화 환산 → 검토 요청**
+STATUS: READY_FOR_REVIEW
+ORDER-ID: 순태씨 대화 2026-11-28 '1번으로 하자'
+REPORT: docs/team/CLAUDE-DEV-FX-ALPHA-20261128.md
+BRANCH: work/claude-fx-alpha-20261128
+BASE: 638eb82 (main)
+HEAD: 8b20ea466883700949c9d9fda758f011f62dddc8 (보고서 커밋 2ead495)
+REVIEW-SCOPE: BASE..HEAD — has/fx-history.js·tools/fetch-usdkrw.cjs·.github/workflows/fx-usdkrw.yml 신규, portfolio_v5.html 5곳(지수 비교 환산·문구), tests/fx-alpha.test.cjs 10, live-data edits·pins.
+UPDATED: 2026-11-28 11시대 KST
+요약: 전체·해외·연금 알파가 원화 평가 vs 달러 지수 통화 불일치로 항상 보류되던 것을, 날짜별 원/달러 환율(야후 일별 + 연준 H.10 1% 대조)로 QQQ를 원화 환산해 계산. 환율 없거나 충돌이면 이전과 동일(보류). 시험 2507 중 pass 2503·fail 2(main 동일), 비밀값 0, Chromium 360/390/430. 운영 미반영. 검토 포인트: ① 환율 날짜 정합(4일 창·충돌 제외) ② 수집 실패 시 미저장 ③ 환율 없을 때 기존 동작 보존 ④ 워크플로 범위.
+
 **[11-28 10시 정각] 지피 GPT-REVIEW-fin-wire-20261128-0930 CR-FIN-R1~R2 반영 → 재검토 요청**
 STATUS: READY_FOR_REVIEW
 ORDER-ID: GPT-REVIEW-fin-wire-20261128-0930 CR-FIN-R1~R2
