@@ -101,17 +101,22 @@
   // 카드는 '검증된 준비 상태'(state 3)일 때만 모듈을 쓴다 — 실패·시간 초과 세대 뒤 늦게 생긴 전역 객체는 다음 정상 로드 전까지 쓰지 않는다.
   // 페이지가 처음부터 두 모듈을 실은 경우(state 0 + 전역 존재)만 바로 준비 완료로 본다. 자동 재시도는 실패 60초 뒤 카드를 다시 그릴 때, 최대 3회 시도.
   function finReady() { return typeof window !== 'undefined' && window.HASFinPanel && window.HASReviewFinGate; }
-  function finFailNote(q, now) { if ((!now && !q.slot.isConnected) || (q.c.verdict !== 'buy-review' && q.c.verdict !== 'add-review')) return; q.slot.replaceChildren(node('div', '📊 재무 확인: 재무 모듈을 불러오지 못함 · 판단 보류', 'margin-top:6px;padding:8px 10px;border:1px solid #c9d3e0;border-radius:8px;background:#fafcff;font-size:14px;font-weight:700;color:#333', 'fin-module-error')); }
+  // CR-FIN-R3(지피 2026-11-28 1130): 보류 안내는 슬롯이 실제 화면에 붙은 뒤 일관되게 준다. 동기 실패(스크립트 삽입 예외)는 지금 그리는 카드가
+  // 화면에 붙은 다음(마이크로태스크)으로 미뤄 처리하고, 그때도 화면에 없는 자리(닫힌 팝업·다시 그린 카드)만 뺀다. attach 예외도 빈 자리로 두지 않는다.
+  function later(f) { if (typeof queueMicrotask === 'function') queueMicrotask(f); else Promise.resolve().then(f); }
+  function finFailNote(q, now, attachErr) { if ((!now && !q.slot.isConnected) || (q.c.verdict !== 'buy-review' && q.c.verdict !== 'add-review')) return; q.slot.replaceChildren(node('div', '📊 재무 확인: ' + (attachErr ? '재무 블록을 표시하지 못함' : '재무 모듈을 불러오지 못함') + ' · 판단 보류', 'margin-top:6px;padding:8px 10px;border:1px solid #c9d3e0;border-radius:8px;background:#fafcff;font-size:14px;font-weight:700;color:#333', attachErr ? 'fin-attach-error' : 'fin-module-error')); }
+  function finAttach(q, now) { try { window.HASFinPanel.attach(q.slot, q.c, { consensus: q.cs }); } catch (e) { try { finFailNote(q, now, true); } catch (e2) { /* 카드 표시 보호 */ } } }
   function finDrain(ok) {
     var qs = fin.queue; fin.queue = [];
-    qs.forEach(function (q) { if (!q.slot.isConnected) return; if (ok) { try { window.HASFinPanel.attach(q.slot, q.c, { consensus: q.cs }); } catch (e) { /* 재무 블록 실패는 카드 표시를 막지 않음 */ } } else finFailNote(q); });
+    qs.forEach(function (q) { if (!q.slot.isConnected) return; if (ok) finAttach(q, true); else finFailNote(q, true); });
   }
   function finLoadModules() {
     var gen = ++fin.gen, done = false, timer = null, tags = [];
     var finish = function (ok) {
       if (done || gen !== fin.gen) return; done = true; clearTimeout(timer);
-      tags.forEach(function (sc) { sc.onload = sc.onerror = null; if (!ok) { try { sc.remove(); } catch (e) { /* 무시 */ } } });
-      fin.state = ok && finReady() ? 3 : 2; fin.at = Date.now(); finDrain(fin.state === 3);
+      var good = !!(ok && finReady());                                                  // onload 성공이어도 전역이 없으면 실패와 같은 계약(태그 제거·state 2)
+      tags.forEach(function (sc) { sc.onload = sc.onerror = null; if (!good) { try { sc.remove(); } catch (e) { /* 무시 */ } } });
+      fin.state = good ? 3 : 2; fin.at = Date.now(); finDrain(good);
     };
     try {
       fin.state = 1; fin.tries++; fin.at = Date.now(); var left = 2;
@@ -121,14 +126,14 @@
         var sc = document.createElement('script'); sc.src = './' + f; sc.async = false; sc.setAttribute('data-fin-src', f); tags.push(sc);
         sc.onload = function () { if (--left === 0) finish(true); }; sc.onerror = function () { finish(false); }; document.head.appendChild(sc);
       });
-    } catch (e) { finish(false); }
+    } catch (e) { later(function () { finish(false); }); }                            // 동기 예외: 지금 그리는 카드가 화면에 붙은 뒤 보류 안내
   }
   function finHook(art, c, cs) {
     if (typeof document === 'undefined') return;
     var slot = node('div', null, null, 'fin-slot'); art.appendChild(slot);
     if (fin.state === 0 && finReady()) fin.state = 3;                                 // 페이지가 처음부터 모듈을 실은 경우
-    if (fin.state === 3) { try { window.HASFinPanel.attach(slot, c, { consensus: cs }); } catch (e) { /* 카드 표시 보호 */ } return; }
     var q = { slot: slot, c: c, cs: cs };
+    if (fin.state === 3) { finAttach(q, true); return; }
     if (fin.state === 2 && (fin.tries >= 3 || Date.now() - fin.at < 60000)) { finFailNote(q, true); return; }
     fin.queue.push(q); if (fin.state !== 1) finLoadModules();
   }

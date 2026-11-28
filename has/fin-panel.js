@@ -52,7 +52,10 @@
     redraw(st.ticker, true);
   }
   /* 같은 티커의 열린 자리를 모두 다시 그린다(닫힌 자리는 목록에서 뺀다). 한 자리 실패가 다른 자리를 막지 않는다. */
-  function live(v) { if (v.host.isConnected) v.seen = true; return v.host.isConnected || !v.seen; }   // 아직 화면에 붙기 전인 새 자리는 남기고, 붙었다 떨어진 자리는 뺀다
+  // CR-FIN-R3: 새 자리는 등록 직후(지금 그리는 카드가 화면에 붙은 뒤, 마이크로태스크) 한 번 연결 여부를 확정한다 — 붙어 있으면 seen,
+  // 끝내 안 붙었으면 목록에서 뺀다. 그 뒤로는 화면에 있는 자리만 남긴다(캐시 적중으로 다시 그린 자리도 같은 규칙, 떨어진 자리 참조는 정리).
+  function later(f) { if (typeof queueMicrotask === 'function') queueMicrotask(f); else Promise.resolve().then(f); }
+  function live(v) { if (v.host.isConnected) v.seen = true; return v.host.isConnected || !!v.pending; }
   function redraw(ticker, settled) {
     var vs = (views[ticker] || []).filter(live); views[ticker] = vs;
     vs.forEach(function (v) { if (!settled || v.host.isConnected) safeFill(v.host, v.card, v.ctx); });   // 응답 도착 때는 화면에 있는 자리만 채움
@@ -122,7 +125,8 @@
   }
   function load(host, card, ctx, force) {
     var t = card.ticker, vs = views[t] = (views[t] || []).filter(function (v) { return v.host !== host && live(v); });
-    vs.push({ host: host, card: card, ctx: ctx });                                    // 닫힌 팝업·다시 그린 카드의 자리는 뺀다
+    var me = { host: host, card: card, ctx: ctx, pending: true }; vs.push(me);        // 닫힌 팝업·다시 그린 카드의 자리는 뺀다
+    later(function () { me.pending = false; if (host.isConnected) me.seen = true; else if (views[t]) views[t] = views[t].filter(function (v) { return v !== me; }); });
     var before = cache[t], st = request(t, force);
     if (st !== before) redraw(t); else safeFill(host, card, ctx);                     // 새 요청이면 같은 티커의 열린 자리 모두 '불러오는 중'·상한을 맞춘다
   }
@@ -136,5 +140,5 @@
     }
     load(host, card, ctx, false);
   }
-  return Object.freeze({ attach: attach, check: check, TIMEOUT_MS: TIMEOUT_MS, MAX_TRIES: MAX_TRIES, _reset: function () { Object.keys(cache).forEach(function (k) { clearTimeout(cache[k].timer); }); cache = {}; views = {}; } });
+  return Object.freeze({ attach: attach, check: check, TIMEOUT_MS: TIMEOUT_MS, MAX_TRIES: MAX_TRIES, _views: function (t) { return (views[t] || []).length; }, _reset: function () { Object.keys(cache).forEach(function (k) { clearTimeout(cache[k].timer); }); cache = {}; views = {}; } });
 });

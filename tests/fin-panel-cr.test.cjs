@@ -200,3 +200,53 @@ test('CR-FIN-R2: 다시 그려도 "재무 항목별 보기" 펼침 상태 유지
   P.attach(h1,card('AAA','buy-review'),{});await tick();const d=h1.querySelector('details');a.ok(d);d.open=true;d.dispatchEvent(new w.Event('toggle'));
   clock.now+=6*3600000+1000;P.attach(h2,card('AAA','buy-review'),{});a.match(h1.textContent,/불러오는 중/,'같은 요청 표시');await tick();
   a.equal(h1.querySelector('details').open,true,'펼침 유지');a.equal(h2.querySelector('details').open,false);});
+
+// ── CR-FIN-R3(지피 2026-11-28 1130): 동기 실패·슬롯 수명
+// 스크립트 삽입 자체가 예외를 던지는 경로(실제 appendChild throw). which: 던질 파일 목록. 해제 함수 반환.
+function throwOn(w,which){const head=w.document.head,orig=head.appendChild.bind(head);let on=true;const ins=[];
+  head.appendChild=(el)=>{if(on&&el&&el.getAttribute&&which.includes(el.getAttribute('data-fin-src')))throw Error('insert');ins.push(el);return orig(el);};const off=()=>{on=false;};off.ins=ins;return off;}
+const note=(x)=>x&&x.querySelector('[data-testid=fin-module-error]');
+test('CR-FIN-R3: 첫 스크립트 삽입 예외 — 첫 카드·복수 카드 모두 화면에 붙은 직후 보류 안내, 비매수 카드는 빈 자리, 태그 정리',async()=>{
+  const {w}=dom({mods:false,cards:[card('AAA','buy-review'),card('BBB','add-review'),card('WWW','wait')]});throwOn(w,['has/review-fin-gate.js']);const m=await show(w);
+  for(const t of ['AAA','BBB'])a.ok(note(art(m,t)),t+' 보류 안내(첫 카드 포함)');
+  a.equal(note(art(m,'WWW')),null);a.ok(art(m,'WWW'));a.equal(w.document.head.querySelectorAll('script').length,0,'태그 없음');});
+test('CR-FIN-R3: 두 번째 삽입 예외(첫 삽입 성공) — 첫 태그 제거·늦은 콜백 무시, 60초 뒤 다음 세대 성공 시 채움',async()=>{
+  const {w,clock,fire}=dom({mods:false,files:{AAA:rec('AAA')},cards:[card('AAA','buy-review'),card('BBB','buy-review')]});const off=throwOn(w,['has/fin-panel.js']);
+  const m=await show(w);const first=off.ins.find(x=>x.getAttribute('data-fin-src')==='has/review-fin-gate.js');a.ok(first,'첫 삽입 성공');
+  for(const t of ['AAA','BBB'])a.ok(note(art(m,t)),t);a.equal(first.isConnected,false,'첫 태그 제거');a.equal(first.onload,null,'늦은 onload 해제');
+  w.eval(R('has/review-fin-gate.js'));w.eval(R('has/fin-panel.js'));fire(15000);await tick();a.ok(note(art(m,'AAA')),'실패 세대 전역 사용 안 함');
+  off();w.HASReviewCards.mount(m);await tick();a.equal(w.document.head.querySelectorAll('script').length,0,'60초 안 재시도 없음');
+  clock.now+=61000;w.HASReviewCards.mount(m);await tick();a.equal(w.document.head.querySelectorAll('script').length,2,'다음 세대');
+  w.__load('has/review-fin-gate.js',true);w.__load('has/fin-panel.js',true);await tick();
+  a.ok(art(m,'AAA').querySelector('[data-testid=fin-label]'));a.ok(fp(m,'BBB'));a.equal(note(art(m,'AAA')),null);});
+test('CR-FIN-R3: 팝업 첫 렌더 중 삽입 예외 — 팝업 매수 카드에 보류 안내, 닫힌 팝업 자리는 제외',async()=>{
+  const {w}=await holdDom({mods:false});throwOn(w,['has/review-fin-gate.js']);w.HASReviewCards.openHoldings();await tick();
+  const p=w.document.getElementById('hasHoldReview');a.ok(note(art(p,'HB')),'팝업 첫 카드 보류');a.equal(note(art(p,'HW')),null);});
+test('CR-FIN-R3: 닫힌(화면에 안 붙은) 자리는 동기 실패 안내 대상에서 제외',async()=>{
+  const {w}=dom({mods:false,cards:[card('AAA','buy-review')]});throwOn(w,['has/review-fin-gate.js']);
+  const lone=w.document.createElement('div');w.HASReviewCards.mount(lone);await tick();
+  a.equal(lone.isConnected,false);a.equal(note(lone),null,'화면 밖 자리는 건드리지 않음');});
+test('CR-FIN-R3: onload 성공이어도 전역 모듈이 없으면 실패 계약과 같음(태그 제거·보류 안내)',async()=>{
+  const {w}=dom({mods:false,cards:[card('AAA','buy-review')]});const m=await show(w);
+  const tags=[...w.document.head.querySelectorAll('script')];tags.forEach(s=>s.onload());await tick();
+  a.ok(note(art(m,'AAA')));a.equal(w.document.head.querySelectorAll('script').length,0,'태그 제거');tags.forEach(s=>a.equal(s.onload,null));});
+test('CR-FIN-R3: attach 예외(준비 상태·로드 완료 직후 모두) — 빈 자리 대신 표시 실패 보류 안내, 카드는 그대로',async()=>{
+  const {w}=dom({mods:false,cards:[card('AAA','buy-review'),card('WWW','wait')]});const m=await show(w);
+  w.__load('has/review-fin-gate.js',true);w.eval(R('has/fin-panel.js'));const real=w.HASFinPanel;w.HASFinPanel={attach(){throw Error('x');}};
+  w.document.head.querySelector('script[data-fin-src="has/fin-panel.js"]').onload();await tick();
+  a.match(art(m,'AAA').querySelector('[data-testid=fin-attach-error]').textContent,/재무 블록을 표시하지 못함 · 판단 보류/);a.ok(art(m,'WWW'));
+  w.HASReviewCards.mount(m);await tick();a.ok(art(m,'AAA').querySelector('[data-testid=fin-attach-error]'),'준비 상태 경로도 같음');
+  w.HASFinPanel=real;w.HASReviewCards.mount(m);await tick();a.equal(art(m,'AAA').querySelector('[data-testid=fin-attach-error]'),null);});
+test('CR-FIN-R3: 같은 캐시로 20회 다시 그려도 자리 참조는 화면에 있는 것만 — 재요청 때 연결된 자리만 갱신, 떨어진 자리 미갱신',async()=>{
+  const {w,clock}=dom({files:{AAA:rec('AAA')},cards:[card('AAA','buy-review')],us:[card('AAA','add-review')]});const m=await show(w);const P=w.HASFinPanel;
+  const old=[];for(let i=0;i<20;i++){old.push(...m.querySelectorAll('[data-testid=fin-slot]'));w.HASReviewCards.mount(m);await tick();}
+  a.equal(P._views('AAA'),2,'연결된 두 자리만 보관');a.ok(old.every(s=>!s.isConnected));
+  const snap=old.map(s=>s.innerHTML);clock.now+=6*3600000+1000;w.HASReviewCards.mount(m);await tick();
+  a.equal(m.querySelectorAll('[data-testid=fin-label]').length,2,'연결된 카드 2개 갱신');a.deepEqual(old.map(s=>s.innerHTML),snap,'떨어진 자리 미갱신');
+  a.equal(P._views('AAA'),2);a.equal(w.__fetched.filter(u=>/AAA\.json$/.test(u)).length,2);});
+test('CR-FIN-R3: 화면에 끝내 안 붙은 새 자리는 등록 직후 정리, 연결된 자리·펼침 상태는 유지',async()=>{
+  const {w,clock}=dom({files:{AAA:rec('AAA')},cards:[]});const P=w.HASFinPanel;const h1=w.document.createElement('div');w.document.body.append(h1);
+  P.attach(h1,card('AAA','buy-review'),{});await tick();const d=h1.querySelector('details');d.open=true;d.dispatchEvent(new w.Event('toggle'));
+  for(let i=0;i<20;i++)P.attach(w.document.createElement('div'),card('AAA','buy-review'),{});await tick();a.equal(P._views('AAA'),1,'안 붙은 자리 정리');
+  clock.now+=6*3600000+1000;const h2=w.document.createElement('div');w.document.body.append(h2);P.attach(h2,card('AAA','buy-review'),{});await tick();
+  a.equal(P._views('AAA'),2);a.equal(h1.querySelector('details').open,true,'펼침 유지');a.ok(h2.querySelector('[data-testid=fin-label]'));});
