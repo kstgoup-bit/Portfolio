@@ -1,5 +1,40 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
+**[11-28 12시 정각] 지피 GPT-REVIEW-fin-wire-20261128-1130 CR-FIN-R3 반영 → 재검토 요청**
+STATUS: READY_FOR_REVIEW
+ORDER-ID: GPT-REVIEW-fin-wire-20261128-1130 CR-FIN-R3
+REPORT: docs/team/CLAUDE-DEV-FIN-WIRE-20261126.md (맨 위 갱신)
+BRANCH: work/claude-fin-wire-20261126
+BASE: 24ff8f9e92fa135813dfe79432ccd3b09dd88801
+HEAD: a2ccae5dc5d31e08112c6a41146233e769d451ce (보고서 커밋 fced93b)
+REVIEW-SCOPE: 24ff8f9..a2ccae5 — 코드 1커밋(has/review-cards.js 재무 로더, has/fin-panel.js views 수명·_views, tests/fin-panel-cr.test.cjs 신규 8, live-data-pins review-cards 해시). portfolio_v5.html 변경 없음.
+UPDATED: 2026-11-28 12시대 KST
+요약: 스크립트 삽입 동기 예외는 마이크로태스크로 미뤄 첫 카드·팝업 카드가 화면에 붙은 뒤 보류 안내(화면 밖 자리 제외), attach 예외도 '재무 블록을 표시하지 못함 · 판단 보류', onload 성공+전역 없음은 실패와 같은 계약 / 새 재무 자리는 등록 직후 연결 확정(안 붙으면 제거), 캐시 적중 반복 렌더 뒤 연결된 자리만 보관·갱신. 시험 2542 중 pass 2538·fail 2(BASE 24ff8f9 작업 트리에서도 같은 2건 'Unreviewed protected source addition' 재현), scan-secrets 0, Chromium 360/390/430. 운영 미반영.
+지피 지시서 현황: 11-28 1130 fin-wire 검토 1건 처리. 새 GPT-ORDER 없음, 다비 새 문서 없음. 대기 검토: fx-alpha(8b20ea4). 다음 큐: price-verify(재기반 필요) → risk-guard → bench-reason → valuation-v1.
+
+**[11-28 11시대] 순태씨 '1번으로 하자' — 현황 알파 원화 환산 → 검토 요청**
+STATUS: READY_FOR_REVIEW
+ORDER-ID: 순태씨 대화 2026-11-28 '1번으로 하자'
+REPORT: docs/team/CLAUDE-DEV-FX-ALPHA-20261128.md
+BRANCH: work/claude-fx-alpha-20261128
+BASE: 638eb82 (main)
+HEAD: 8b20ea466883700949c9d9fda758f011f62dddc8 (보고서 커밋 2ead495)
+REVIEW-SCOPE: BASE..HEAD — has/fx-history.js·tools/fetch-usdkrw.cjs·.github/workflows/fx-usdkrw.yml 신규, portfolio_v5.html 5곳(지수 비교 환산·문구), tests/fx-alpha.test.cjs 10, live-data edits·pins.
+UPDATED: 2026-11-28 11시대 KST
+요약: 전체·해외·연금 알파가 원화 평가 vs 달러 지수 통화 불일치로 항상 보류되던 것을, 날짜별 원/달러 환율(야후 일별 + 연준 H.10 1% 대조)로 QQQ를 원화 환산해 계산. 환율 없거나 충돌이면 이전과 동일(보류). 시험 2507 중 pass 2503·fail 2(main 동일), 비밀값 0, Chromium 360/390/430. 운영 미반영. 검토 포인트: ① 환율 날짜 정합(4일 창·충돌 제외) ② 수집 실패 시 미저장 ③ 환율 없을 때 기존 동작 보존 ④ 워크플로 범위.
+
+**[11-28 10시 정각] 지피 GPT-REVIEW-fin-wire-20261128-0930 CR-FIN-R1~R2 반영 → 재검토 요청**
+STATUS: READY_FOR_REVIEW
+ORDER-ID: GPT-REVIEW-fin-wire-20261128-0930 CR-FIN-R1~R2
+REPORT: docs/team/CLAUDE-DEV-FIN-WIRE-20261126.md (맨 위 갱신)
+BRANCH: work/claude-fin-wire-20261126
+BASE: ca7180159c443e9d85898583d334e105fc7bbb96
+HEAD: 24ff8f9e92fa135813dfe79432ccd3b09dd88801 (보고서 커밋 aa8b112)
+REVIEW-SCOPE: ca71801..24ff8f9 — 코드 1커밋(has/fin-panel.js, has/review-cards.js 재무 로더, tests/fin-panel-cr.test.cjs 신규 12·갱신 3, live-data-pins review-cards 해시). 62ee9c8은 main 병합(docs/team만).
+UPDATED: 2026-11-28 10시대 KST
+요약: CIK는 수집기 cikOf()와 같은 표준화·양쪽 유효 필수(누락·형식 오류 보류), 존재하지 않는 날짜·잘못된 now 예외 없이 보류, 시계 오차 5분 구간은 최신 근거로 안 씀 / 로더 세대 정리·검증된 준비 상태에서만 모듈 사용·실제 3회 실패 상한 / 같은 티커 열린 자리 요청·결과·수동 상한 동기화, 자동·수동 횟수 분리, 펼침 유지. 실제 JSON 10건 식별자 회귀 시험. 시험 2534 중 pass 2530·fail 2(BASE 동일 Git 시험), scan-secrets 0, Chromium 360/390/430/1280 합성 확인. 운영 미반영.
+지피 지시서 현황: 11-28 0930 fin-wire 검토 1건 처리. 새 GPT-ORDER 없음, 다비 새 문서 없음. 다음 큐: price-verify(이 브랜치 위 재기반 필요) → risk-guard → bench-reason → valuation-v1.
+
 **[11-28 08시 정각] 지피 GPT-REVIEW-fin-wire-20261128-0730 CR-FIN-1~3 반영 → 재검토 요청**
 STATUS: READY_FOR_REVIEW
 ORDER-ID: GPT-REVIEW-fin-wire-20261128-0730 CR-FIN-1~3

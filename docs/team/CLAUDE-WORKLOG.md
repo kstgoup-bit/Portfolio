@@ -19,6 +19,9 @@
 다음 묶음: 1단계 후속(탭 첫 진입 자동 조회·하루 캐시, 확신 종목 UI 25%/10%, '준비 중' 제거) → 2차 재무(SEC EDGAR, DART) → 서비스워커 rollback.
 
 ## 처리한 지시서
+- GPT-REVIEW-fin-wire-20261128-1130 (2026-11-28 12시 정각 실행) CHANGES_REQUESTED(`24ff8f9` 대상, CR-FIN-R3) — 반영 `a2ccae5`, 보고 `fced93b` READY_FOR_REVIEW.
+- 순태씨 대화 2026-11-28 '1번으로 하자'(현황 알파 원화 환산) — `work/claude-fx-alpha-20261128` `8b20ea4`, 보고 `2ead495` READY_FOR_REVIEW.
+- GPT-REVIEW-fin-wire-20261128-0930 (2026-11-28 10시 정각 실행) CHANGES_REQUESTED(`ca71801` 대상, CR-FIN-R1~R2) — 반영 `24ff8f9`, 보고 `aa8b112` READY_FOR_REVIEW.
 - GPT-REVIEW-fin-wire-20261128-0730 (2026-11-28 08시 정각 실행) CHANGES_REQUESTED(`6415e1e` 대상, CR-FIN-1~3) — 반영 `ca71801`, 보고 `81aa19e` READY_FOR_REVIEW.
 - GPT-REVIEW-postmerge-queue-20261125-2030 (2026-11-25 21시 정각 실행) CHANGES_REQUESTED(`e476ec5` 대상, CR-Q3-R1~R4) — 반영 `feef65a`, 보고 `b795654` READY_FOR_REVIEW. 손상 키 격리 복원은 정책 변경이라 미구현(순태씨 결정).
 - 순태씨 E1~E4 승인(2026-11-25 19시대 대화, E4①은 클로 권고 '버튼만') — GPT-REVIEW-postmerge-queue-20261125-1830 CR-Q3-1~4 구현 `work/claude-postmerge-q3-fix-20261125` `e476ec5`, 보고 `c55c626` READY_FOR_REVIEW.
@@ -423,3 +426,6 @@
 
 - 2026-11-27 오후 클로: 가치평가 v1 1~2단계(valuation-v1.js, 주식 수 수집, 테스트 6건) 브랜치 push 0fd67e3. 화면·라벨·운영 변경 없음.
 - 2026-11-28 08:0x KST 정각 실행: 지피 fin-wire CR-FIN-1~3 반영 `work/claude-fin-wire-20261126` `ca71801`(main 병합 601b686 후). 시험 2522 중 pass 2518·fail 2(BASE 동일)·skip 2, 비밀값 0, Chromium 360/390/430. 다음: 지피 재검토 → price-verify 재기반.
+- 2026-11-28 10:0x KST 정각 실행: 지피 fin-wire 0930 CR-FIN-R1~R2 반영 `work/claude-fin-wire-20261126` `24ff8f9`(main f2c8823 병합 62ee9c8 후). CIK 선행 0 표준화로 ALAB·ARM·CRWV·SNDK 정상 통과, 모듈 세대 정리·같은 티커 자리 동기화. 시험 2534 중 pass 2530·fail 2(BASE 동일 Git 시험)·skip 2, 비밀값 0, Chromium 360/390/430/1280. 다음: 지피 재검토 → price-verify 재기반.
+- 2026-11-28 11시대 KST 순태씨 대화: '전체 참고 알파가 왜 비어 있나' → 원화 자산 vs 달러 지수 통화 불일치로 설계상 보류. 순태씨 1번(원화 환산) 선택 → 환율 수집 도구·워크플로(야후+연준 H.10 대조), has/fx-history.js, 지수 비교 환산 연결 `8b20ea4`. 시험 2507 중 pass 2503·fail 2(main 동일)·skip 2, 비밀값 0, Chromium 360/390/430. 다음: 지피 검토 → 순태씨 '올려'(워크플로 1개 추가 포함).
+- 2026-11-28 12:0x KST 정각 실행: 지피 fin-wire 1130 CR-FIN-R3 반영 `work/claude-fin-wire-20261126` `a2ccae5`. 동기 삽입 실패·attach 예외 보류 안내를 화면 연결 뒤 처리, 재무 자리 연결 확정·정리. 시험 2542 중 pass 2538·fail 2(BASE 작업 트리 재현 동일)·skip 2, 비밀값 0, Chromium 360/390/430. 다음: 지피 재검토(fin-wire, fx-alpha) → price-verify 재기반.
