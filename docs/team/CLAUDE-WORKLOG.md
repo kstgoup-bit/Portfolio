@@ -19,6 +19,7 @@
 다음 묶음: 1단계 후속(탭 첫 진입 자동 조회·하루 캐시, 확신 종목 UI 25%/10%, '준비 중' 제거) → 2차 재무(SEC EDGAR, DART) → 서비스워커 rollback.
 
 ## 처리한 지시서
+- GPT-REVIEW-fin-wire-20261128-1530 (2026-11-28 16시 정각 실행) CHANGES_REQUESTED(`0887887` 대상, CR-FIN-R5 승인 경계·문서만; fin-panel 핀 승인) — 6파일 POST_MERGE 사후 검토 요청 게시 `78db96f`(work/claude-fin-postmerge-20261128), 코드 변경 0.
 - GPT-REVIEW-fin-wire-20261128-1330 (2026-11-28 14시 정각 실행) CHANGES_REQUESTED(`a2ccae5` 대상, CR-FIN-R4 보호 목록 무결성) — 반영 `0887887`(7495cca·0887887), 보고 `5d65846` READY_FOR_REVIEW.
 - GPT-REVIEW-fin-wire-20261128-1130 (2026-11-28 12시 정각 실행) CHANGES_REQUESTED(`24ff8f9` 대상, CR-FIN-R3) — 반영 `a2ccae5`, 보고 `fced93b` READY_FOR_REVIEW.
 - 순태씨 대화 2026-11-28 '1번으로 하자'(현황 알파 원화 환산) — `work/claude-fx-alpha-20261128` `8b20ea4`, 보고 `2ead495` READY_FOR_REVIEW.
@@ -431,3 +432,4 @@
 - 2026-11-28 11시대 KST 순태씨 대화: '전체 참고 알파가 왜 비어 있나' → 원화 자산 vs 달러 지수 통화 불일치로 설계상 보류. 순태씨 1번(원화 환산) 선택 → 환율 수집 도구·워크플로(야후+연준 H.10 대조), has/fx-history.js, 지수 비교 환산 연결 `8b20ea4`. 시험 2507 중 pass 2503·fail 2(main 동일)·skip 2, 비밀값 0, Chromium 360/390/430. 다음: 지피 검토 → 순태씨 '올려'(워크플로 1개 추가 포함).
 - 2026-11-28 12:0x KST 정각 실행: 지피 fin-wire 1130 CR-FIN-R3 반영 `work/claude-fin-wire-20261126` `a2ccae5`. 동기 삽입 실패·attach 예외 보류 안내를 화면 연결 뒤 처리, 재무 자리 연결 확정·정리. 시험 2542 중 pass 2538·fail 2(BASE 작업 트리 재현 동일)·skip 2, 비밀값 0, Chromium 360/390/430. 다음: 지피 재검토(fin-wire, fx-alpha) → price-verify 재기반.
 - 2026-11-28 14:0x KST 정각 실행: 지피 fin-wire 1330 CR-FIN-R4 — 보호 시험 실패 원인 = protectedPaths 실제 경로 ≠ 허용 목록(main 11-25부터 실패 중, 'BASE 동일'로 가려짐). 미등록 7(main 6 + fin-panel.js) 정확한 해시 등록 `work/claude-fin-wire-20261126` `0887887`(main 897adb9 병합 후). 시험 2542 중 pass 2540·fail 0·skip 2(TZ 전용), 비밀값 0, Chromium 360/390/430/1280. 다음: 지피 재검토·6파일 사후 검토 → fx-alpha 같은 처리 → price-verify 재기반.
+- 2026-11-28 16:0x KST 정각 실행: 지피 fin-wire 1530 CR-FIN-R5 — main 6파일(kis-overseas·fear-sheet GAS, dart-facts-adapter, dart-fundamental GAS, review-fin-gate, fetch-sec-facts) 사후 검토 요청 READY_FOR_REVIEW/POST_MERGE 게시 `78db96f`, BASE 6ec2422·HEAD 9e3ee3c. 관련 시험 66/66 pass, 비밀값 0, 코드·화면 변경 없음. 다음: 지피 POST_MERGE 검토 → fin-wire 최종 판단 → price-verify 재기반.

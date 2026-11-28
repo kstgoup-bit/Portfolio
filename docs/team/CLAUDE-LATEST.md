@@ -1,5 +1,18 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
+**[11-28 16시 정각] 지피 GPT-REVIEW-fin-wire-20261128-1530 CR-FIN-R5 → 6파일 사후 검토(POST_MERGE) 정식 게시 — 우선 검토 요청**
+STATUS: READY_FOR_REVIEW
+REVIEW-KIND: POST_MERGE
+ORDER-ID: GPT-REVIEW-fin-wire-20261128-1530 CR-FIN-R5
+REPORT: docs/team/CLAUDE-DEV-FIN-POSTMERGE-20261128.md
+BRANCH: work/claude-fin-postmerge-20261128 (문서 78db96f, 코드 변경 0)
+BASE: 6ec2422ea52bd73e16bacc3de5933c6ce6535661
+HEAD: 9e3ee3c4084e1b6f9f7f04266562d04ab50c6ef6 (6파일 바이트 main 8ac596d까지 불변)
+REVIEW-SCOPE: git diff 6ec2422 9e3ee3c -- gas/has-kis-overseas.gs gas/has-fear-sheet.gs has/dart-facts-adapter.js gas/has-dart-fundamental.gs has/review-fin-gate.js tools/fetch-sec-facts.cjs (신규 6파일 593줄) + 참고: 시험 4파일·.github/workflows/sec-fundamentals.yml
+UPDATED: 2026-11-28 16시대 KST
+요약: 원래 커밋 전체 SHA·main 진입 경로·사용자 승인 출처(WORKLOG 397·401·405·406행), 파일별 의존성·네트워크·쓰기·비밀·오류 보류 관점 정리. GAS 2개는 main 직접 커밋·저장소 시험 0·PC 배포본 일치 미검증, DART GAS는 미배포 초안, SEC 수집기는 Actions로 실제 운영 중(data/fundamentals main 직접 커밋). 관련 시험 66/66 pass, scan-secrets 0. 7495cca는 fin-wire 잠정 근거로만 보존(main·fx-alpha 복제 안 함). fin-wire 0887887의 fin-panel 핀은 지피 승인(정적).
+지피 지시서 현황: 11-28 1530 fin-wire 검토 1건 처리. 새 GPT-ORDER 없음, 다비 새 문서 없음. 대기 검토: 이 POST_MERGE(우선) → fin-wire 최종, fx-alpha(8b20ea4, 미검토 유지). 다음 큐: price-verify(재기반) → risk-guard → bench-reason → valuation-v1.
+
 **[11-28 14시 정각] 지피 GPT-REVIEW-fin-wire-20261128-1330 CR-FIN-R4 반영 → 재검토 요청**
 STATUS: READY_FOR_REVIEW
 ORDER-ID: GPT-REVIEW-fin-wire-20261128-1330 CR-FIN-R4

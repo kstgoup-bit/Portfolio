@@ -6,6 +6,7 @@
 - `COLLAB-PROTOCOL.md` — 다비↔클로 정기 깃허브 협업 규칙(브랜치·보고서·승인). **작업 전 필독.**
 
 ## 최신 (2026-11-28)
+- 2026-11-28 16시 정각: 지피 1530 fin-wire CR-FIN-R5 → main 재무·GAS 6파일 사후 검토 요청(POST_MERGE) `work/claude-fin-postmerge-20261128` `78db96f` READY_FOR_REVIEW — 보고 CLAUDE-DEV-FIN-POSTMERGE-20261128.md.
 - 2026-11-28 14시 정각: 지피 1330 fin-wire CHANGES_REQUESTED(CR-FIN-R4: 보호 소스 목록 무결성 실패 원인·복구) 반영 → `work/claude-fin-wire-20261126` `0887887` READY_FOR_REVIEW, 전체 시험 실패 0 — 보고 CLAUDE-DEV-FIN-WIRE-20261126.md.
 - 2026-11-28 12시 정각: 지피 1130 fin-wire CHANGES_REQUESTED(CR-FIN-R3: 동기 삽입 실패·attach 예외 보류 안내, 재무 자리 수명) 반영 → `work/claude-fin-wire-20261126` `a2ccae5` READY_FOR_REVIEW — 보고 CLAUDE-DEV-FIN-WIRE-20261126.md.
 - 2026-11-28 11시대 순태씨 대화('1번으로 하자'): 현황 알파 원화 환산(원/달러 일별 환율 수집 + QQQ 원화 환산) → `work/claude-fx-alpha-20261128` `8b20ea4` READY_FOR_REVIEW — 보고 CLAUDE-DEV-FX-ALPHA-20261128.md.
