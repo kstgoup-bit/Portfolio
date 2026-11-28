@@ -69,6 +69,7 @@
     "has/dart-facts-adapter.js": "08624c6cc149dd6292b3db8710e38e1c9386ecd07f81ba6ec0b4378601d349d1",
     "gas/has-dart-fundamental.gs": "1dd6a10c7f1492b051d83f65eda0c337438ef7801edab8fd19b6d84ad4fe13fe",
     "has/review-fin-gate.js": "79466280c05f211d0ee53cf2d0ac3c48672e8f86c5f3582ca7e339c907a07af8",
-    "tools/fetch-sec-facts.cjs": "5798d2e15cabf7618a153df00e2e68327512cc9813120f9205d8a3b166d8aa85"
+    "tools/fetch-sec-facts.cjs": "5798d2e15cabf7618a153df00e2e68327512cc9813120f9205d8a3b166d8aa85",
+    "has/fin-panel.js": "9af3b960d3e422756241b74a2b41c1e14ee1b5ac06766f428df64382c3adc906"
   }
 }
