@@ -1,4 +1,52 @@
 STATUS: READY_FOR_REVIEW
+ORDER-ID: GPT-REVIEW-fin-p1-gate-20261128-2130 CR-FIN-P1-R4~R5
+BRANCH: work/claude-fin-p1-gate-20261128
+BASE: 611a496ce601ba87f9a774b3599a39d6b1568218 (직전 검토 HEAD; 8897028 = main 22b2880 병합, docs/team만)
+HEAD: 9c0e9f64545fa2078a275087c3892bab6b286c67
+REVIEW-SCOPE: git diff 8897028 9c0e9f6 -- has/review-fin-gate.js tests/review-fin-gate.test.cjs tests/fixtures/fin-gate-fixtures.cjs (3파일). 화면 변경 없음 → 브라우저 해당 없음. GAS 파일 변경 없음.
+UPDATED: 2026-11-28 22시대 KST
+
+# CR-FIN-P1-R4~R5 반영 (클로 22시 정각 실행)
+
+## R4-1 시각 비교
+- ISO 문자열 `>`/`<=` 비교를 모두 `Date.parse` 실제 순간 비교로 교체: price.verifiedAt↔now, evidence.collectedAt↔price.verifiedAt, consensus.verifiedAt↔now, provenance.collectedAt↔now. 날짜(YYYY-MM-DD) 대 날짜 비교는 고정 형식이라 유지.
+- 지피 반례 now=`2026-11-26T00:00:00Z`, consensus.verifiedAt=`…00.001Z` → 보류 확인. `.5Z`·`.01Z`·`.1Z` 미래도 보류. 같은 순간 다른 표기(`.000Z`·`.0Z`)·정확히 now는 정상 통과 시험.
+
+## R4-2 계약 경계(설계 명시 + 최소 기계적 경계)
+- **trust 경계 구현**: trust는 이 모듈이 만든 동결 객체(모듈 내부 WeakSet 등록)만 인정. 평범한 객체·`JSON.parse` 결과·복제·`Object.create(TRUST)`는 `invalid-trust`. 생성 함수 이름은 `__createTrustForContractTest`(합성 계약 시험 전용) — 실제 trust 생성자(원문 검증 모듈)는 여전히 없음, 앱·발행 미연결. 만든 뒤 원본 spec을 바꿔도 영향 없음(깊은 동결 복사).
+- **합의 원문 두 경로에 같은 sha256** → `consensus-unverified`(관문에서도 거부).
+- 코드 머리 주석에 계약 설계 v3 경계 명시(구현 아님): 거래소·검증된 상품 ID(ISIN/공급자 코드↔공식 매핑) 없음 → 실제 해제 불가(market은 국가 구분), adjustment 허용 목록·산식 미승인, 공급자별 rawSha256·검증 결과·검증기 policyVersion 결속, 합의 원문 해시 재계산, 종목↔corp_code/CIK 공식 매핑, 과거·대체 결산 공시시각 대조는 모두 **생성자 책임**.
+
+## R5-1 판정 계약
+- recompute: checks가 정확히 8개(현재 버전 has-fundamental-v1 전 항목)이고 각 id 1회, **valuation은 반드시 na**. 아니면 `financials-inconsistent`. 지피 반례(roe/margin/leverage/interest/valuation 5개 pass) → 보류 확인. years<3이면 재계산 결과 insufficient(→ 모순).
+- 최신성·최소 연수 검사를 weak/strong 분기 **앞**으로: 오래된 weak는 blocked가 아니라 `financials-stale-or-insufficient`(코드 이름 변경: 이전 `financials-stale-or-conflict`). 임계값 변경 없음(550일·3년·≥5·주의≤1).
+- companyId: 문자열 타입만(숫자 12345678·배열·toString 객체 거부).
+
+## R5-2 시험 유효성
+- DART 통합 시험: 카드 sha256 포함 → 관문까지 도달. 정확한 missing 단언 — 합성 표시 이동 시 `['synthetic-input']`, 출처 없음 `['financials-not-strong','financials-unverified']`, 출처 계약 갖춘 경우 `['financials-not-strong']`(실제 assess 판정 mixed), label만 strong으로 바꾸면 `['financials-inconsistent']`.
+- 실제 `F.assess()` strong 출력(합성 companyfacts, 8항목·valuation na)을 관문에 넣어 released(scope contract-test-only), 5항목만 남김·valuation pass·fail 섞음 → 정확히 `['financials-inconsistent']`.
+- 합성 fixture를 `tests/fixtures/fin-gate-fixtures.cjs`(머리말 TEST-ONLY, 실제 출처 승격 금지)로 분리.
+
+## R5-3 과거·대체 결산 공시시각
+- 생성자 계약으로 명시(위 v3 주석). 실제 생성자 없음 — 실제 데이터 승인 전 해제 불가 유지.
+
+## 시험
+- 관련 `tests/review-fin-gate.test.cjs` 32/32 통과(+7 신규: R4 trust 경계·R4 시각·R4 합의 해시 복제·R5 8항목·R5 weak 최신성·R5 회사 ID·R5 실제 assess strong 대조).
+- 전체 `node --require ./tests/lib/no-network.cjs --test tests/*.test.cjs`(jsdom NODE_PATH): 2526 중 pass 2522 / fail 2 / skip 2. 실패 2건은 BASE와 같은 보호 목록 미등록(`portable proof…`, `independent: original source…`) — 기존 최종 큐 대상, 기준 완화 안 함.
+- `node tools/scan-secrets.cjs`: findings 0.
+
+## 미완료·미검증
+- 실제 원문 검증·서명·공급자 연동·거래소/상품 ID·조정 허용 목록: 설계만, 구현·승인 없음.
+- 지피 반례는 정적 추론이었고, 클로가 시험으로 재현·확인함.
+
+## 순태씨 결정 필요
+- 없음(합성 계약 수정만). 앱 연결·합의 발행·실제 데이터 사용은 지피 재검토 후 별도 승인.
+
+main 병합·운영 배포·실제 GAS/API/키·비용·클라우드·투자기록·백업·자동매매 변경 없음.
+
+---
+(이전 판)
+STATUS: READY_FOR_REVIEW
 ORDER-ID: GPT-REVIEW-fin-p1-gate-20261128-1930 CR-FIN-P1-R1~R3
 BRANCH: work/claude-fin-p1-gate-20261128
 BASE: 2d74cba65e61d997bfe055963563b0b6ecd2d869 (직전 검토 HEAD; 6941348 = main f9025c7 병합, docs/team만)

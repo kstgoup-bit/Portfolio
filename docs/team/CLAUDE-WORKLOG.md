@@ -19,6 +19,7 @@
 다음 묶음: 1단계 후속(탭 첫 진입 자동 조회·하루 캐시, 확신 종목 UI 25%/10%, '준비 중' 제거) → 2차 재무(SEC EDGAR, DART) → 서비스워커 rollback.
 
 ## 처리한 지시서
+- GPT-REVIEW-fin-p1-gate-20261128-2130 (2026-11-28 22시 정각 실행) CHANGES_REQUESTED(`611a496` 대상, CR-FIN-P1-R4~R5) — 반영 `9c0e9f6`, 보고 `ee64551` READY_FOR_REVIEW.
 - GPT-REVIEW-fin-p1-gate-20261128-1930 (2026-11-28 20시 정각 실행) CHANGES_REQUESTED(`2d74cba` 대상, CR-FIN-P1-R1~R3) — 반영 `611a496`, 보고 `88081d5` READY_FOR_REVIEW.
 - GPT-REVIEW-fin-postmerge-20261128-1730 (2026-11-28 18시 정각 실행) CHANGES_REQUESTED(POST_MERGE 9e3ee3c, CR-FIN-P1~P4) — P1 반영 `work/claude-fin-p1-gate-20261128` `2d74cba`, 보고 `402312b` READY_FOR_REVIEW. P2~P4 큐 보존.
 - GPT-REVIEW-fin-wire-20261128-1530 (2026-11-28 16시 정각 실행) CHANGES_REQUESTED(`0887887` 대상, CR-FIN-R5 승인 경계·문서만; fin-panel 핀 승인) — 6파일 POST_MERGE 사후 검토 요청 게시 `78db96f`(work/claude-fin-postmerge-20261128), 코드 변경 0.
@@ -437,3 +438,4 @@
 - 2026-11-28 16:0x KST 정각 실행: 지피 fin-wire 1530 CR-FIN-R5 — main 6파일(kis-overseas·fear-sheet GAS, dart-facts-adapter, dart-fundamental GAS, review-fin-gate, fetch-sec-facts) 사후 검토 요청 READY_FOR_REVIEW/POST_MERGE 게시 `78db96f`, BASE 6ec2422·HEAD 9e3ee3c. 관련 시험 66/66 pass, 비밀값 0, 코드·화면 변경 없음. 다음: 지피 POST_MERGE 검토 → fin-wire 최종 판단 → price-verify 재기반.
 - 2026-11-28 18:0x KST 정각 실행: 지피 1730 POST_MERGE CR-FIN-P1 — KIS 미국 일봉 파서 미래 봉·형식 오류 행·응답 종목 불일치 실패 폐쇄(+미검증 표시), 판정 해제 관문 구조화 계약 초안(문자열 합의 해제 불가·시세 종목/통화/출처2·정수 연수·출처 표시 필수, 미연결) `work/claude-fin-p1-gate-20261128` `2d74cba`. 시험 2510 중 pass 2506·fail 2(BASE main 동일)·skip 2, 신규 26/26, 비밀값 0, 화면 변경 없음. 다음: 지피 검토 → P2 곡소리 시트 → P3 DART → P4 SEC.
 - 2026-11-28 20:0x KST 정각 실행: 지피 1930 CR-FIN-P1-R1~R3 — 관문에 신뢰 경계(trust 기본 빈 목록 → 해제 불가, released는 합성 계약 시험 전용), 시세 종가 불일치·공급자 공백 변형·복제·같은 계열 보류(허용오차 미승인), 재무 판정 규칙 재계산·공시일 look-ahead·회사 ID/해시 결속, weak 미확인 보류, 합의 원문 경로·커밋·해시·카드 해시 결속; KIS 배열 행·비정상 rsym·10진수 외 가격 거부 `work/claude-fin-p1-gate-20261128` `611a496`. 시험 2519 중 pass 2515·fail 2(보호 목록 BASE 동일)·skip 2, 관련 35/35, 비밀값 0, 화면 변경 없음. GPT-ORDER-20261128-1800(Aladdin 연구 문서, 후순위·선행 CR 우선) 미착수 대기. 다음: 지피 재검토 → P2 곡소리 시트 → P3 DART → P4 SEC → Aladdin 문서.
+- 2026-11-28 22:0x KST 정각 실행: 지피 2130 CR-FIN-P1-R4~R5 — 시각 실제 순간 비교, trust 등록 동결 객체만(외부 JSON 거부), 합의 원문 해시 복제 거부, 재무 8항목·valuation na 강제, weak·strong 공통 최신성 먼저, companyId 문자열만, DART 통합 시험 관문 도달·정확한 코드, 실제 assess strong 대조, fixture TEST-ONLY 분리 `work/claude-fin-p1-gate-20261128` `9c0e9f6`. 시험 2526 중 pass 2522·fail 2(보호 목록 BASE 동일)·skip 2, 관련 32/32, 비밀값 0, 화면 변경 없음. (21시 정각 실행 기록 없음.) 다음: 지피 재검토 → P2 곡소리 시트 → P3 DART → P4 SEC.

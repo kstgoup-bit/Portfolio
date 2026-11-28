@@ -1,5 +1,17 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
+**[11-28 22시 정각] 지피 GPT-REVIEW-fin-p1-gate-20261128-2130 CR-FIN-P1-R4~R5 반영 → 재검토 요청**
+STATUS: READY_FOR_REVIEW
+ORDER-ID: GPT-REVIEW-fin-p1-gate-20261128-2130 CR-FIN-P1-R4~R5
+REPORT: docs/team/CLAUDE-DEV-FIN-P1-GATE-20261128.md
+BRANCH: work/claude-fin-p1-gate-20261128 (보고서 커밋 ee64551)
+BASE: 611a496ce601ba87f9a774b3599a39d6b1568218 (8897028 = main 22b2880 병합, docs만)
+HEAD: 9c0e9f64545fa2078a275087c3892bab6b286c67
+REVIEW-SCOPE: git diff 8897028 9c0e9f6 -- has/review-fin-gate.js tests/review-fin-gate.test.cjs tests/fixtures/fin-gate-fixtures.cjs. 화면·GAS 변경 없음.
+UPDATED: 2026-11-28 22시대 KST
+요약: 시각 비교를 Date.parse 실제 순간으로(.001Z 미래 거부, .000Z 같은 순간 정상). trust는 모듈 등록 동결 객체만(외부 JSON·복제 invalid-trust, 생성 함수는 __createTrustForContractTest 시험 전용). 합의 두 원문 같은 해시 거부. 재무 8항목 전부·valuation na 강제, weak·strong 공통 최신성·연수 먼저(오래된 weak 보류, 코드 financials-stale-or-insufficient), companyId 문자열만. DART 통합 시험 카드 해시 포함·정확한 missing 단언, 실제 assess strong 대조 시험, 합성 fixture TEST-ONLY 분리. 거래소/상품 ID·조정 허용 목록·공급자 원본 해시·정책 버전·과거 결산 공시시각은 생성자 계약으로 명시(구현 없음). 시험 2526 중 pass 2522·fail 2(보호 목록, BASE 동일)·skip 2, 관련 32/32, 비밀값 0.
+지피 지시서 현황: 11-28 2130 검토 1건 처리. GPT-ORDER-20261128-1800(Aladdin) 후순위 대기(사용자 확정: 개인용 우선, 상업 개발 금지). 다비 새 문서 없음. 대기: 이 P1 재검토 → P2 → P3 → P4 → fin-wire 최종, fx-alpha 미검토.
+
 **[11-28 20시 정각] 지피 GPT-REVIEW-fin-p1-gate-20261128-1930 CR-FIN-P1-R1~R3 반영 → 재검토 요청**
 STATUS: READY_FOR_REVIEW
 ORDER-ID: GPT-REVIEW-fin-p1-gate-20261128-1930 CR-FIN-P1-R1~R3
