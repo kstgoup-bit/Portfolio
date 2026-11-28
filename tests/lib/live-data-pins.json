@@ -14,7 +14,7 @@
     "backup/core.js": "ff1a15979d0dbca717538e2ec5197f641756440ac837da524a57218e56878b82"
   },
   "currentSha256": {
-    "portfolio_v5.html": "6a1475dbcab113513daef2bda181d97367c906da3113cc6ea1d42304bae9cc2d",
+    "portfolio_v5.html": "5d3b238da84ebe3a2b3f57aa1d275dad6447496b156bc1ed66b043f1675c4bdc",
     "radar/ui.js": "f6e54aee07dd7c68cab790d07f2de0a9a7f8b0c8c675bf99fbc9d22c7de4b122",
     "has/advisor-panel.js": "a4458f646ce6712a47eae3a619c429d7d09ec50f6610e5d5e988d66120e8ca2b",
     "service-worker.js": "bd7c5a33f7070bf8e4791fedb5cbfc4572741076023efb1090e838d8041c7b72",
@@ -63,6 +63,7 @@
     "has/kis-crosscheck.js": "99c07c3edd264da214503b3b1c045836487de73ddefab06019f07b2a8a674455",
     "has/review-cards.js": "0e7136d952c07031cda013785cf3c6cde3b39acba7b14c2094f31a36352d3663",
     "has/scorecard.js": "1cba22c2447ad2462c2585fa14ae59cc90d01ec1ee4cc454a18c114e9792fcb4",
-    "has/chart-gate.js": "475cec475ce42cd0d58f9aed11adeb8fa734a7ae8261c6044ebfc8a81cf0fefc"
+    "has/chart-gate.js": "475cec475ce42cd0d58f9aed11adeb8fa734a7ae8261c6044ebfc8a81cf0fefc",
+    "has/fx-history.js": "ab431670c13331a9b61fba2dc767d46a69cdb1d736e3b508de926c82049ee78d"
   }
 }
