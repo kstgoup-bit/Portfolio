@@ -101,16 +101,27 @@ function hasKisUsParse_(text, ticker, excd, nowMs) {
     if (typeof text !== 'string' || !text.length || text.length > 1048576) return null;
     var d = JSON.parse(text);
     if (!d || d.rt_cd !== '0' || !Array.isArray(d.output2)) return null;
-    var o1 = d.output1, rsym = o1 && typeof o1 === 'object' && typeof o1.rsym === 'string' ? o1.rsym.trim().toUpperCase() : '';
-    if (rsym && rsym.slice(-ticker.length) !== ticker) return null;         // 응답 종목 표시가 요청과 다르면 거부
+    var o1 = d.output1, rsym = '';
+    if (o1 !== undefined && o1 !== null && (typeof o1 !== 'object' || Array.isArray(o1))) return null;   // output1이 객체가 아니면 거부
+    if (o1 && Object.prototype.hasOwnProperty.call(o1, 'rsym') && o1.rsym !== undefined) {
+      if (typeof o1.rsym !== 'string') return null;                         // 숫자·null·객체 등 명시적 비정상 rsym은 거부(없음과 구분)
+      rsym = o1.rsym.trim().toUpperCase();
+      if (rsym && !/^[A-Z0-9.\-]{1,16}$/.test(rsym)) return null;
+    }
+    if (rsym && rsym.slice(-ticker.length) !== ticker) return null;         // 응답 종목 표시가 요청과 다르면 거부(빈 문자열 rsym = 없음, 미검증 표시)
     var byDate = Object.create(null), order = [];
     function blank(v) { return v === undefined || v === null || (typeof v === 'string' && !v.trim()); }
     for (var i = 0; i < d.output2.length; i++) {
-      var row = d.output2[i], ds = row && row.xymd, cs = row && row.clos;
-      if (row && typeof row === 'object' && blank(ds) && blank(cs)) continue;   // 빈 행만 건너뜀
+      var row = d.output2[i];
+      // 허용 빈 행 = 배열이 아닌 일반 객체이고 xymd·clos가 둘 다 없음/null/공백 문자열(예: {}, {xymd:'',clos:''}). 배열·null·숫자 등 비객체 행은 거부.
+      if (!row || typeof row !== 'object' || Array.isArray(row)) return null;
+      var ds = row.xymd, cs = row.clos;
+      if (blank(ds) && blank(cs)) continue;
       if (typeof ds !== 'string' || !/^\d{8}$/.test(ds)) return null;           // 날짜 형식 오류는 거부
-      var c = Number(cs);
-      if (typeof cs !== 'string' || !cs.trim() || !isFinite(c) || c < HAS_KIS_US_MIN_PRICE || c > HAS_KIS_US_MAX_PRICE) return null;
+      // 가격 문자열은 10진수 '123' 또는 '123.45'만(앞뒤 공백 허용). 16진수(0x10)·지수(1e3)·부호·쉼표는 규격 밖이라 거부. KIS 공식 표기 규격은 미검증.
+      if (typeof cs !== 'string' || !/^\d+(?:\.\d+)?$/.test(cs.trim())) return null;
+      var c = Number(cs.trim());
+      if (!isFinite(c) || c < HAS_KIS_US_MIN_PRICE || c > HAS_KIS_US_MAX_PRICE) return null;
       var iso = ds.slice(0, 4) + '-' + ds.slice(4, 6) + '-' + ds.slice(6, 8);
       if (new Date(iso + 'T00:00:00Z').toISOString().slice(0, 10) !== iso) return null;
       if (Object.prototype.hasOwnProperty.call(byDate, iso)) {
