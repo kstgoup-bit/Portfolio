@@ -96,20 +96,26 @@ test('CR-FIN-3: 모듈 하나만 실패해도 카드 표시는 그대로, 매수
   w.__load('has/review-fin-gate.js',true);w.__load('has/fin-panel.js',false);
   a.match(art(m,'AAA').querySelector('[data-testid=fin-module-error]').textContent,/재무 모듈을 불러오지 못함 · 판단 보류/);a.match(art(m,'AAA').textContent,/🧠 매수 후보 · 판단 보류/);
   a.equal(art(m,'WWW').querySelector('[data-testid=fin-module-error]'),null);
-  w.HASReviewCards.mount(m);await tick();a.ok(art(m,'AAA').querySelector('[data-testid=fin-module-error]'),'60초 안에는 재시도 안 함');a.equal(w.document.head.querySelectorAll('script').length,2);
+  w.HASReviewCards.mount(m);await tick();a.ok(art(m,'AAA').querySelector('[data-testid=fin-module-error]'),'60초 안에는 재시도 안 함');a.equal(w.document.head.querySelectorAll('script').length,0,'실패 세대 태그 정리');
   clock.now+=61000;w.HASReviewCards.mount(m);await tick();a.equal(w.document.head.querySelectorAll('script').length,2,'이전 태그 교체');
   w.__load('has/review-fin-gate.js',true);w.__load('has/fin-panel.js',true);await tick();a.ok(art(m,'AAA').querySelector('[data-testid=fin-label]'),'재시도 성공 시 채움');});
 test('CR-FIN-3: 모듈 로드가 15초 넘게 끝나지 않으면 보류 안내(늦게 온 onload는 무시)',async()=>{
-  const {w,fire}=dom({mods:false,cards:[card('AAA','buy-review')]});const m=await show(w);fire(15000);
-  a.ok(art(m,'AAA').querySelector('[data-testid=fin-module-error]'));w.__load('has/review-fin-gate.js',true);w.__load('has/fin-panel.js',true);await tick();
-  a.ok(art(m,'AAA').querySelector('[data-testid=fin-module-error]'),'시간 초과 뒤 onload로 덮어쓰지 않음');});
+  const {w,fire}=dom({mods:false,cards:[card('AAA','buy-review')]});const m=await show(w);
+  const tags=[...w.document.head.querySelectorAll('script')],cbs=tags.map(t=>t.onload);fire(15000);
+  a.ok(art(m,'AAA').querySelector('[data-testid=fin-module-error]'));a.equal(w.document.head.querySelectorAll('script').length,0,'시간 초과 세대 태그 정리');
+  a.ok(tags.every(t=>t.onload===null&&t.onerror===null),'콜백 정리');
+  w.eval(R('has/review-fin-gate.js'));w.eval(R('has/fin-panel.js'));cbs.forEach(f=>f());await tick();   // 늦게 실행된 스크립트·옛 onload
+  a.ok(art(m,'AAA').querySelector('[data-testid=fin-module-error]'),'시간 초과 뒤 onload로 덮어쓰지 않음');
+  w.HASReviewCards.mount(m);await tick();a.ok(art(m,'AAA').querySelector('[data-testid=fin-module-error]'),'실패 세대 뒤 늦게 생긴 전역 객체를 바로 쓰지 않음');a.equal(art(m,'AAA').querySelector('[data-testid=fin-panel]'),null);});
 test('CR-FIN-3: 자료 요청 15초 초과 → 오류·다시 불러오기, 늦게 온 응답 무시, 수동 재시도는 3회까지',async()=>{
   const {w,fire}=dom({files:{AAA:'HANG'},cards:[card('AAA','buy-review')]});const m=await show(w);
   fire(15000);const box=()=>fp(m,'AAA');a.match(box().textContent,/자료를 읽지 못함\(연결 실패 또는 시간 초과\) · 판단 보류/);
   w.__hang[0](rec('AAA'));await tick();a.equal(box().querySelector('[data-testid=fin-label]'),null,'늦은 응답 무시');
+  a.match(box().querySelector('[data-testid=fin-retry]').textContent,/\(수동 1\/3\)/);a.match(box().querySelector('[data-testid=fin-auto-note]').textContent,/수동 재시도 횟수와 별개/);
   box().querySelector('[data-testid=fin-retry]').click();a.match(box().textContent,/불러오는 중/);fire(15000);
-  a.match(box().querySelector('[data-testid=fin-retry]').textContent,/\(2\/3\)/);box().querySelector('[data-testid=fin-retry]').click();fire(15000);
-  a.equal(box().querySelector('[data-testid=fin-retry]'),null,'3회 뒤 버튼 없음');a.equal(w.__fetched.filter(u=>/AAA\.json$/.test(u)).length,3);});
+  a.match(box().querySelector('[data-testid=fin-retry]').textContent,/\(수동 2\/3\)/);box().querySelector('[data-testid=fin-retry]').click();fire(15000);
+  a.match(box().querySelector('[data-testid=fin-retry]').textContent,/\(수동 3\/3\)/);box().querySelector('[data-testid=fin-retry]').click();fire(15000);
+  a.equal(box().querySelector('[data-testid=fin-retry]'),null,'수동 3회 뒤 버튼 없음');a.equal(w.__fetched.filter(u=>/AAA\.json$/.test(u)).length,4,'처음 1 + 수동 3');});
 test('CR-FIN-3: 수동 재시도 성공 시 그 카드만 채움, 오류는 60초 뒤 다시 그릴 때 자동 재요청, 성공 자료는 6시간 뒤 갱신',async()=>{
   const files={AAA:'ERR'};const {w,clock}=dom({files,cards:[card('AAA','buy-review')]});const m=await show(w);
   a.ok(fp(m,'AAA').querySelector('[data-testid=fin-retry]'));files.AAA=rec('AAA');
@@ -122,3 +128,75 @@ test('CR-FIN-3: 같은 종목 동시 요청은 하나로 합쳐 두 카드 모�
   a.equal(w.__fetched.filter(u=>/AAA\.json$/.test(u)).length,1);w.__hang[0](rec('AAA'));await tick();
   a.equal(m.querySelectorAll('[data-testid=fin-label]').length,2);});
 test('CR-FIN-3: 정적 같은 사이트 JSON만 읽음(KIS·GAS·외부 주소 없음)',()=>{const s=R('has/fin-panel.js');a.ok(!/https?:\/\//.test(s.replace(/^\s*\/?\*.*$/gm,'')));a.ok(!/script\.google|kis|openapi/i.test(s));});
+
+// ── CR-FIN-R1(지피 GPT-REVIEW-fin-wire-20261128-0930): CIK 표준화·잘못된 시각 안전 처리
+test('CR-FIN-R1: CIK 선행 0 차이는 같은 회사(양방향·실제 4종목과 같은 형태), 다른 CIK는 불일치',()=>{
+  const {w}=dom({});const P=w.HASFinPanel,F=w.HASFundamentalFilter;
+  const c=(outer,inner)=>P.check(rec('AAA',{cik:outer},{cik:inner}),'AAA',F,NOW);
+  for(const [o,i] of [['1736297','0001736297'],['0001736297','1736297'],['1973239','0001973239'],['1769628','0001769628'],['2023554','0002023554'],[1736297,'0001736297'],['0001736297',1736297],['24741','24741']])a.equal(c(o,i),'ok',o+'/'+i);
+  for(const [o,i] of [['1736297','0001736298'],['0001973239','1973238'],[24741,'24742']])a.equal(c(o,i),'mismatch',o+'/'+i);});
+test('CR-FIN-R1: CIK 누락(한쪽·양쪽)·숫자 형식 오류·객체·0·범위 초과는 보류(cik)',()=>{
+  const {w}=dom({});const P=w.HASFinPanel,F=w.HASFundamentalFilter;
+  const c=(outer,inner)=>{const r=rec('AAA',{cik:outer},{cik:inner});if(outer===undefined)delete r.cik;if(inner===undefined)delete r.normalized.cik;return P.check(r,'AAA',F,NOW);};
+  const bad=[undefined,null,'',0,'0','0000000000',-1,'-1',1.5,'1.5',12345678901,'12345678901',{},[],{cik:'1'},'1a',' 1',NaN,Infinity,true];
+  for(const b of bad){a.equal(c(b,'1'),'cik','outer '+String(b));a.equal(c('1',b),'cik','inner '+String(b));}
+  a.equal(c(undefined,undefined),'cik','양쪽 누락');a.equal(c({},{}),'cik','양쪽 객체');a.equal(c(0,0),'cik','양쪽 0');});
+test('CR-FIN-R1: CIK 누락 카드 표시 — 식별 불가 안내·판정 없음·판단 보류',async()=>{
+  const r=rec('NOC');delete r.cik;delete r.normalized.cik;const {w}=dom({files:{NOC:r},cards:[card('NOC','buy-review')]});const m=await show(w);
+  a.match(fp(m,'NOC').textContent,/회사 식별번호\(CIK\) 없음·형식 오류.* · 판단 보류/);a.equal(art(m,'NOC').querySelector('[data-testid=fin-label]'),null);a.match(art(m,'NOC').textContent,/판단 보류/);});
+test('CR-FIN-R1: 존재하지 않는 날짜·잘못된 now는 예외 없이 시각 오류(time)',()=>{
+  const {w}=dom({});const P=w.HASFinPanel,F=w.HASFundamentalFilter;
+  for(const t of ['2026-13-01T00:00:00Z','2026-02-30T00:00:00.000Z','2026-00-10T00:00:00Z','2025-02-29T01:00:00Z','2026-11-26T24:00:00Z'])a.equal(P.check(rec('AAA',{fetchedAt:t}),'AAA',F,NOW),'time',t);
+  for(const n of [NaN,Infinity,-Infinity,1e20,'1',null,undefined])a.equal(P.check(rec('AAA'),'AAA',F,n),'time',String(n));
+  const r=rec('AAA');r.normalized.years[0].end='2025-13-31';a.doesNotThrow(()=>P.check(r,'AAA',F,NOW));a.notEqual(P.check(r,'AAA',F,NOW),'ok');});
+test('CR-FIN-R1: 미래·경계 시각 — +5분은 시계 오차로만 허용(최신 근거로 안 씀), +5분+1ms는 시각 오류',async()=>{
+  const {w}=dom({files:{SKW:rec('SKW',{fetchedAt:new Date(NOW+5*60000).toISOString()}),OVR:rec('OVR',{fetchedAt:new Date(NOW+5*60000+1).toISOString()}),EQN:rec('EQN',{fetchedAt:new Date(NOW).toISOString()})},cards:['SKW','OVR','EQN'].map(t=>card(t,'buy-review'))});const m=await show(w);
+  a.ok(fp(m,'SKW').querySelector('[data-testid=fin-skew]'));a.match(fp(m,'SKW').querySelector('[data-testid=fin-gate]').textContent,/재무 자료 없음·형식 불명/);
+  a.match(fp(m,'OVR').textContent,/수집 시각 형식 오류 또는 미래 시각 · 판단 보류/);
+  a.equal(fp(m,'EQN').querySelector('[data-testid=fin-skew]'),null);a.doesNotMatch(fp(m,'EQN').querySelector('[data-testid=fin-gate]').textContent,/재무 자료 없음/);});
+test('CR-FIN-R1: 비동기 갱신 중 표시 예외는 "불러오는 중"에 멈추지 않고 보류 안내',async()=>{
+  const {w}=dom({files:{AAA:'HANG'},cards:[card('AAA','buy-review')]});const m=await show(w);a.match(fp(m,'AAA').textContent,/불러오는 중/);
+  w.HASFundamentalFilter=Object.assign({},w.HASFundamentalFilter,{assess:()=>{throw new RangeError('boom');}});w.__hang[0](rec('AAA'));await tick();
+  const slot=art(m,'AAA').querySelector('[data-testid=fin-slot]');a.doesNotMatch(slot.textContent,/불러오는 중/);a.match(slot.textContent,/재무 블록을 표시하지 못함 · 판단 보류/);a.match(art(m,'AAA').textContent,/🧠 매수 후보 · 판단 보류/);});
+test('CR-FIN-R1: 저장소 실제 재무 JSON(읽기 전용)은 식별자 규칙을 통과(선행 0 4종목 포함) — 수집 시각은 고정 가정 없이 각 파일 기준',()=>{
+  const {w}=dom({});const P=w.HASFinPanel,F=w.HASFundamentalFilter,dir=path.join(__dirname,'..','data','fundamentals');
+  const files=fs.readdirSync(dir).filter(f=>/^[A-Z.\-]+\.json$/.test(f));a.ok(files.length>=1);
+  for(const f of files){const j=JSON.parse(fs.readFileSync(path.join(dir,f),'utf8')),t=f.replace(/\.json$/,'');if(!j||j.version!==1)continue;
+    const now=Date.parse(j.fetchedAt)+3600000;a.ok(Number.isFinite(now),f);const r=P.check(j,t,F,now);a.ok(r==='ok'||r==='ifrs'||r==='invalid',f+' → '+r);a.notEqual(r,'cik',f);a.notEqual(r,'mismatch',f);a.notEqual(r,'time',f);}
+  for(const t of ['ALAB','ARM','CRWV','SNDK']){const p=path.join(dir,t+'.json');if(!fs.existsSync(p))continue;const j=JSON.parse(fs.readFileSync(p,'utf8'));a.equal(P.check(j,t,F,Date.parse(j.fetchedAt)+3600000),'ok',t);}});
+
+// ── CR-FIN-R2: 모듈 세대 정리·같은 티커 자리 동기화
+test('CR-FIN-R2: 부분 로드 실패 뒤 늦은 onload·시간 초과는 무시, 60초 뒤 새 세대 성공 시 채움',async()=>{
+  const {w,clock,fire}=dom({mods:false,files:{AAA:rec('AAA')},cards:[card('AAA','buy-review')]});const m=await show(w);
+  const tags=[...w.document.head.querySelectorAll('script')],late=tags[1].onload;w.__load('has/review-fin-gate.js',true);w.__load('has/fin-panel.js',false);
+  w.eval(R('has/fin-panel.js'));late();fire(15000);await tick();
+  a.ok(art(m,'AAA').querySelector('[data-testid=fin-module-error]'));a.equal(w.document.head.querySelectorAll('script').length,0);
+  w.HASReviewCards.mount(m);await tick();a.ok(art(m,'AAA').querySelector('[data-testid=fin-module-error]'),'실패 세대의 전역 객체 사용 안 함');
+  clock.now+=61000;w.HASReviewCards.mount(m);await tick();a.equal(w.document.head.querySelectorAll('script').length,2,'새 세대');
+  w.__load('has/review-fin-gate.js',true);w.__load('has/fin-panel.js',true);await tick();a.ok(art(m,'AAA').querySelector('[data-testid=fin-label]'));
+  fire(15000);await tick();a.ok(art(m,'AAA').querySelector('[data-testid=fin-label]'),'성공 세대의 타이머는 해제됨');
+  w.HASReviewCards.mount(m);await tick();a.ok(art(m,'AAA').querySelector('[data-testid=fin-label]'),'준비 상태 유지');});
+test('CR-FIN-R2: 모듈 로드는 실제 3회 실패 뒤 더 시도하지 않음(카드 표시는 그대로)',async()=>{
+  const {w,clock}=dom({mods:false,cards:[card('AAA','buy-review'),card('WWW','wait')]});const m=await show(w);let made=0;
+  for(let i=0;i<3;i++){a.equal(w.document.head.querySelectorAll('script').length,2,'시도 '+(i+1));made++;w.__load('has/review-fin-gate.js',false);await tick();
+    a.ok(art(m,'AAA').querySelector('[data-testid=fin-module-error]'));clock.now+=61000;w.HASReviewCards.mount(m);await tick();}
+  a.equal(made,3);a.equal(w.document.head.querySelectorAll('script').length,0,'4번째 시도 없음');a.ok(art(m,'AAA').querySelector('[data-testid=fin-module-error]'));a.ok(art(m,'WWW'));
+  clock.now+=10*61000;w.HASReviewCards.mount(m);await tick();a.equal(w.document.head.querySelectorAll('script').length,0);});
+test('CR-FIN-R2: 같은 티커 두 열린 카드 — 한쪽 수동 재시도 성공 시 양쪽 채움',async()=>{
+  const files={AAA:'ERR'};const {w}=dom({files,cards:[card('AAA','buy-review')],us:[card('AAA','add-review')]});const m=await show(w);
+  const boxes=()=>[...m.querySelectorAll('[data-testid=fin-panel]')];a.equal(boxes().length,2);boxes().forEach(b=>a.match(b.querySelector('[data-testid=fin-retry]').textContent,/수동 1\/3/));
+  files.AAA='HANG';boxes()[0].querySelector('[data-testid=fin-retry]').click();a.equal(boxes().filter(b=>/불러오는 중/.test(b.textContent)).length,2,'양쪽 같은 요청');
+  w.__hang[0](rec('AAA'));await tick();a.equal(m.querySelectorAll('[data-testid=fin-label]').length,2);a.equal(m.querySelectorAll('[data-testid=fin-retry]').length,0);
+  a.equal(w.__fetched.filter(u=>/AAA\.json$/.test(u)).length,2);});
+test('CR-FIN-R2: 같은 티커 두 열린 카드 — 수동 상한 도달은 양쪽 버튼을 함께 없앰, 닫힌 자리는 제외',async()=>{
+  const {w,fire}=dom({files:{AAA:'ERR'},cards:[card('AAA','buy-review')],us:[card('AAA','add-review')]});const m=await show(w);
+  const boxes=()=>[...m.querySelectorAll('[data-testid=fin-panel]')];
+  for(let i=0;i<3;i++){const b=boxes()[i%2].querySelector('[data-testid=fin-retry]');a.ok(b,'시도 '+i);b.click();await tick();
+    boxes().forEach(x=>a.equal(!!x.querySelector('[data-testid=fin-retry]'),i<2,'양쪽 같은 상태 '+i));}
+  a.equal(w.__fetched.filter(u=>/AAA\.json$/.test(u)).length,4);
+  const gone=m.querySelector('[data-testid=fin-slot]');w.HASReviewCards.mount(m);await tick();a.equal(gone.isConnected,false);a.equal(boxes().length,2);boxes().forEach(x=>a.equal(x.querySelector('[data-testid=fin-retry]'),null));});
+test('CR-FIN-R2: 다시 그려도 "재무 항목별 보기" 펼침 상태 유지(새 요청으로 잠깐 "불러오는 중"을 거쳐도)',async()=>{
+  const {w,clock}=dom({files:{AAA:rec('AAA')},cards:[]});const P=w.HASFinPanel;const h1=w.document.createElement('div'),h2=w.document.createElement('div');w.document.body.append(h1,h2);
+  P.attach(h1,card('AAA','buy-review'),{});await tick();const d=h1.querySelector('details');a.ok(d);d.open=true;d.dispatchEvent(new w.Event('toggle'));
+  clock.now+=6*3600000+1000;P.attach(h2,card('AAA','buy-review'),{});a.match(h1.textContent,/불러오는 중/,'같은 요청 표시');await tick();
+  a.equal(h1.querySelector('details').open,true,'펼침 유지');a.equal(h2.querySelector('details').open,false);});
