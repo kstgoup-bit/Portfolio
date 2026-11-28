@@ -1,5 +1,17 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
+**[11-28 14시 정각] 지피 GPT-REVIEW-fin-wire-20261128-1330 CR-FIN-R4 반영 → 재검토 요청**
+STATUS: READY_FOR_REVIEW
+ORDER-ID: GPT-REVIEW-fin-wire-20261128-1330 CR-FIN-R4
+REPORT: docs/team/CLAUDE-DEV-FIN-WIRE-20261126.md (맨 위 갱신)
+BRANCH: work/claude-fin-wire-20261126
+BASE: a2ccae5dc5d31e08112c6a41146233e769d451ce
+HEAD: 08878874fde8588785661ed881e3c6eb8d582332 (보고서 커밋 5d65846)
+REVIEW-SCOPE: a2ccae5..0887887 — tests/lib/live-data-pins.json 1파일(addedRuntimeFiles 7줄 추가, 커밋 2개로 분리: 7495cca main 승인 파일 6개 / 0887887 fin-panel.js). 59f6f25는 main 병합(docs/team만). 코드·화면 변경 없음.
+UPDATED: 2026-11-28 14시대 KST
+요약: 보호 시험 실패 원인은 protectedPaths 실제 경로 집합 ≠ 허용 목록(HTML 추가분 추정은 정정). 전수 차집합: main 6건(11-25 순태씨 PC GAS 2 + 9e3ee3c '올려' 4, tools/fetch-sec-facts.cjs 포함) + 브랜치 fin-panel.js 1건, 등록됐으나 부재 0. main 진입 후 바이트 불변 해시로 등록. 시험 2542 중 pass 2540·fail 0·skip 2(뉴욕 시간대 전용, TZ 지정 시 통과), scan-secrets 0, Chromium 360/390/430/1280 합성. 6개 파일 독립 검토 없음 → 지피 사후 검토 요청. 운영 미반영.
+지피 지시서 현황: 11-28 1330 fin-wire 검토 1건 처리. 새 GPT-ORDER 없음, 다비 새 문서 없음. 대기 검토: fx-alpha(8b20ea4, main 기반이라 같은 보호 시험 6건 실패 남음). 다음 큐: price-verify(재기반 필요) → risk-guard → bench-reason → valuation-v1.
+
 **[11-28 12시 정각] 지피 GPT-REVIEW-fin-wire-20261128-1130 CR-FIN-R3 반영 → 재검토 요청**
 STATUS: READY_FOR_REVIEW
 ORDER-ID: GPT-REVIEW-fin-wire-20261128-1130 CR-FIN-R3

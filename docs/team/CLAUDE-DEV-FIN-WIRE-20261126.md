@@ -1,3 +1,55 @@
+STATUS: READY_FOR_REVIEW (CR-FIN-R4 보호 목록 무결성 원인 규명·복구 — 재검토 요청. 운영 미반영, 순태씨 '올려' 전 main 병합 금지)
+ORDER-ID: GPT-REVIEW-fin-wire-20261128-1330 CR-FIN-R4 (원 지시: 순태씨 대화 2026-11-26 '시작해' 재무 연결 단계 4)
+BRANCH: work/claude-fin-wire-20261126
+BASE: a2ccae5dc5d31e08112c6a41146233e769d451ce (지피 1330 검토 HEAD)
+HEAD: 08878874fde8588785661ed881e3c6eb8d582332
+REVIEW-SCOPE: a2ccae5..0887887 — 59f6f25 main 897adb9 병합(docs/team만), 7495cca(보호 목록 ① main 승인 파일 6개 등록), 0887887(② 이 브랜치 has/fin-panel.js 등록). 바뀐 파일은 tests/lib/live-data-pins.json 1개(addedRuntimeFiles 7줄 추가). 코드·화면·portfolio_v5.html·원본 167 해시·보호 시험 변경 없음.
+UPDATED: 2026-11-28 14시 정각 KST (예약 실행)
+
+## 이번 수정 (CR-FIN-R4)
+**1. 원인 (정정)** — 이전 보고의 'portfolio_v5.html 검토 안 된 추가분' 추정과 '얕은 저장소/로컬 참조' 추정은 **틀렸음**. 실제 원인: `tests/lib/daily-repair-projection.cjs` `assertPortableKisPreservation()`이 `kis-protected-source.json` protectedPaths(16개 경로)를 재귀 순회해 원본 167개 밖 실제 파일 집합을 만들고, daily-repair·risk-menu·live-data pins의 addedRuntimeFiles 합집합과 **정확히 비교** — 경로 집합 불일치로 'Unreviewed protected source addition'. HTML 내용·역투영 문제 아님.
+
+**2. 작업 트리 전수 양방향 차집합** (git archive로 각 커밋 트리를 풀어 계산, 스크립트는 재현 가능 — 아래 6절)
+| 트리 | 원본 밖 실제 파일 | 허용 목록 | 미등록 | 등록됐으나 부재 |
+|---|---|---|---|---|
+| 9e3ee3c^1(46c421e, 11-26 07:52) | 40 | 38 | 2 (has-kis-overseas.gs, has-fear-sheet.gs) | 0 |
+| 9e3ee3c(순태씨 '올려' 병합) 이후 main 897adb9 | 44 | 38 | 6 | 0 |
+| BASE 24ff8f9 / HEAD a2ccae5 | 45 | 38 | 7 (위 6 + has/fin-panel.js) | 0 |
+| 이번 HEAD | 45 | 45 | 0 | 0 |
+→ **main 자체가 11-25 23:26(f83e9eb) 이후 이 2건으로 실패 중**이었고, 그동안 'BASE 동일'로 가려져 새 파일 추가 시 등록이 누락됨(클로 과정 오류). 지피가 제시한 후보 6개는 전수 결과의 부분집합이며, 실제로는 `tools/fetch-sec-facts.cjs` 1개가 더 있음(총 7).
+
+**3. 경로별 근거** (SHA256 = 현재 바이트, main 진입 시점 이후 불변 확인)
+| 파일 | 추가/변경 커밋 | main 진입 | 승인 근거 | 독립(지피) 검토 | SHA256 |
+|---|---|---|---|---|---|
+| gas/has-kis-overseas.gs | f83e9eb, 5ae3412 | main 직접 커밋(11-25 23:26~23:32) | 순태씨 PC GAS 작업 세션(WORKLOG 11-25 23:5x) | 없음 | 2d39c20c29e696028e1f38ccc3c3bfa6eac552e5598cdac28ac0668c154a87dd |
+| gas/has-fear-sheet.gs | 8fc0837, 1ad8465 | main 직접 커밋(11-25 23:35~23:45) | 같음 | 없음 | f040f91166354228047aca2c9fd8345df1d613668af78339882821a1c21aa7d3 |
+| has/dart-facts-adapter.js | b28615e, 0149abe | 9e3ee3c | 순태씨 '올려'(11-26 13:17) | 없음(병합 기록에 '지피 사후 검토 요청 예정'만) | 08624c6cc149dd6292b3db8710e38e1c9386ecd07f81ba6ec0b4378601d349d1 |
+| gas/has-dart-fundamental.gs | 0149abe | 9e3ee3c | 같음 | 없음 | 1dd6a10c7f1492b051d83f65eda0c337438ef7801edab8fd19b6d84ad4fe13fe |
+| has/review-fin-gate.js | 0149abe | 9e3ee3c | 같음 + 해제 규칙 순태씨 승인(c961b00) | fin-wire 검토에서 계약 대조만(전용 검토 아님) | 79466280c05f211d0ee53cf2d0ac3c48672e8f86c5f3582ca7e339c907a07af8 |
+| tools/fetch-sec-facts.cjs | 5e9489e | 9e3ee3c | 같음 | fin-wire 0930 검토에서 cikOf() 참조만 | 5798d2e15cabf7618a153df00e2e68327512cc9813120f9205d8a3b166d8aa85 |
+| has/fin-panel.js | 6415e1e→ca71801→24ff8f9→a2ccae5 | **미병합(이 브랜치)** | 순태씨 '시작해'(단계 4 개발), 운영 승인 없음 | 지피 0730·0930·1130·1330(R3 정적 수용) | 9af3b960d3e422756241b74a2b41c1e14ee1b5ac06766f428df64382c3adc906 |
+
+**4. 수정 (두 커밋으로 분리)**
+- 7495cca ①: main에 이미 있는 6개를 live-data-pins addedRuntimeFiles에 현재 정확한 해시로 등록. 근거 = 순태씨 승인으로 main에 들어감 + 진입 후 바이트 불변. **독립 검토 근거는 없음** → 5절 사후 검토 요청으로 분리. 지피가 '승인+독립 검토 둘 다 필요'로 보면 이 커밋을 보류하고 검토 후 등록.
+- 0887887 ②: has/fin-panel.js를 review-cards.js와 같은 방식(브랜치 검토 단위에 고정)으로 등록. 등록은 승인이 아니며, 이후 CR로 바뀌면 해시도 같이 갱신. 기각 시 이 커밋만 되돌림.
+- 원본 167 해시·역투영 계약·protectedPaths·보호 시험 코드 무변경. 전체 재핀·skip·완화 없음. 실제 GAS·설정·운영·투자기록 무접촉.
+
+**5. 별도 요청 (지피)** — 위 6개 파일 사후 독립 검토(특히 GAS 2개는 순태씨 PC에서 배포된 것과 저장소 사본이 같은지 클로는 확인 불가, **미검증**). fx-alpha 브랜치(8b20ea4)도 main 기반이라 같은 6건 실패가 남아 있음 — ① 커밋을 그 브랜치에도 적용할지, main 반영 때 함께 처리할지 결정 필요(fx-alpha 새 파일 has/fx-history.js·tools/fetch-usdkrw.cjs 등록도 같은 원칙 필요, 이번 범위 밖).
+
+**6. 시험**
+- 전체 `node --require ./tests/lib/no-network.cjs --test tests/*.test.cjs`(jsdom NODE_PATH): **tests 2542 · pass 2540 · fail 0 · skip 2**. 이전 실패 2건(daily-repair-protection 'portable proof…', kis-auth-independent 'original source is byte-preserved…') 통과.
+- skip 2 사유: tests/daily-activity-ui.test.cjs 104·110행, 시간대 America/New_York 전용 시험(`t.skip('run with TZ=America/New_York')`). `TZ=America/New_York`로 그 파일만 실행 → pass 45 · fail 0 · skip 0.
+- 역검증: ① 없이(=a2ccae5) 실패 2 재현, ①만 적용 시 fin-panel.js 1건으로 여전히 실패, ①+② 통과. main 897adb9 트리에 6줄만(main의 review-cards 해시 유지) 추가하면 두 보호 시험 통과 확인(main 반영 시 적용 가능한 형태).
+- `node tools/scan-secrets.cjs`: findings 0.
+- Playwright Chromium 합성 페이지(외부 요청 전부 차단, 저장소 data/fundamentals 사용, ALAB·SNDK·없는 티커) 360·390·430·1280px: scrollWidth=폭, 최소 글자 13px, 페이지 오류 0. 화면 코드는 이번에 바뀌지 않음. 실제 앱·갤럭시 실기기 미실시.
+
+**7. 미완료·미검증 / 순태씨 결정**
+- 6개 파일 독립 검토 없음(위 5절). GAS 배포본 일치 미검증.
+- 기존 1330 지적 반영: 닫힌 마지막 슬롯은 다음 load/redraw까지 참조될 수 있음 — '즉시 해제 보장'이라 표현하지 않음.
+- 운영 반영 요청 없음(지피 최종 기술 승인 전).
+
+---
+
 STATUS: READY_FOR_REVIEW (CR-FIN-R3 반영 — 재검토 요청. 운영 미반영, 순태씨 '올려' 전 main 병합 금지)
 ORDER-ID: GPT-REVIEW-fin-wire-20261128-1130 CR-FIN-R3 (원 지시: 순태씨 대화 2026-11-26 '시작해' 재무 연결 단계 4)
 BRANCH: work/claude-fin-wire-20261126
