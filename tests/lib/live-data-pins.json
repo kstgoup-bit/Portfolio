@@ -63,6 +63,12 @@
     "has/kis-crosscheck.js": "99c07c3edd264da214503b3b1c045836487de73ddefab06019f07b2a8a674455",
     "has/review-cards.js": "303cff9adf7a87c500a842e4d6313ec9f4b49215895a5f7150218cd5ce4e2415",
     "has/scorecard.js": "1cba22c2447ad2462c2585fa14ae59cc90d01ec1ee4cc454a18c114e9792fcb4",
-    "has/chart-gate.js": "475cec475ce42cd0d58f9aed11adeb8fa734a7ae8261c6044ebfc8a81cf0fefc"
+    "has/chart-gate.js": "475cec475ce42cd0d58f9aed11adeb8fa734a7ae8261c6044ebfc8a81cf0fefc",
+    "gas/has-kis-overseas.gs": "2d39c20c29e696028e1f38ccc3c3bfa6eac552e5598cdac28ac0668c154a87dd",
+    "gas/has-fear-sheet.gs": "f040f91166354228047aca2c9fd8345df1d613668af78339882821a1c21aa7d3",
+    "has/dart-facts-adapter.js": "08624c6cc149dd6292b3db8710e38e1c9386ecd07f81ba6ec0b4378601d349d1",
+    "gas/has-dart-fundamental.gs": "1dd6a10c7f1492b051d83f65eda0c337438ef7801edab8fd19b6d84ad4fe13fe",
+    "has/review-fin-gate.js": "79466280c05f211d0ee53cf2d0ac3c48672e8f86c5f3582ca7e339c907a07af8",
+    "tools/fetch-sec-facts.cjs": "5798d2e15cabf7618a153df00e2e68327512cc9813120f9205d8a3b166d8aa85"
   }
 }
