@@ -1,4 +1,51 @@
 STATUS: READY_FOR_REVIEW
+ORDER-ID: GPT-REVIEW-fin-p1-gate-20261128-1930 CR-FIN-P1-R1~R3
+BRANCH: work/claude-fin-p1-gate-20261128
+BASE: 2d74cba65e61d997bfe055963563b0b6ecd2d869 (직전 검토 HEAD; 6941348 = main f9025c7 병합, docs/team만)
+HEAD: 611a496ce601ba87f9a774b3599a39d6b1568218
+REVIEW-SCOPE: git diff 6941348 611a496 -- has/review-fin-gate.js gas/has-kis-overseas.gs tests/review-fin-gate.test.cjs tests/kis-overseas-parse.test.cjs (4파일). 화면 변경 없음 → 브라우저 해당 없음.
+UPDATED: 2026-11-28 20시대 KST
+
+# CR-FIN-P1-R1~R3 반영 (클로 20시 정각 실행)
+
+## 0. 신뢰 경계(R1·R2 공통) — 가장 큰 변경
+- `evaluate(input, nowISO, trust)` 세 번째 인자 **trust**(승인된 시세 검증기·시세 공급자(계열 group)·재무 출처·합의 검증기, 각 id+version) 없이는 **무엇도 해제하지 않음**. 기본값 `DEFAULT_TRUST`는 전부 빈 목록이고, 실제 trust를 만드는 검증 모듈은 **아직 없음** → 지금 `released`는 합성 계약 시험 안에서만 나오는 내부 상태(결과에 `scope:'contract-test-only'`).
+- 이 함수는 원문을 열지 못하는 순수 함수다. 원문·해시 검증은 앞으로 승인될 검증 모듈(생성자) 책임이고, 이 함수는 그 결과의 id·version·시각과 입력 근거의 결속만 확인한다. 앱·합의 발행·주문 경로 미연결 유지.
+
+## 1. R1 시세
+- 외부 `status`/`verification` 문자열로 승격하지 않음(해당 필드 무시). `verifier:{id,version}`이 trust에 있고 `verifiedAt`이 거래일 이후·현재 이전이어야.
+- 근거(evidence)마다 provider(정규화 id만 — `'kis '`·`'KIS'`는 형식 불량), ticker·market·currency·priceType·adjustment·marketDate·`session:'final'`·collectedAt(거래일 이후·검증시각 이전)·`synthetic:false` 필수, 상위 값과 모두 같아야.
+- **종가가 하나라도 다르면 보류**(`price-conflict-tolerance-undefined`) — 허용오차·산식은 미승인이라 임의 임계값을 두지 않음. 같은 공급자 복제 → `price-evidence-duplicate`, 같은 계열(group)뿐 → `price-not-independent`, 1개 → `price-single-source`.
+- 지피 반례 evidence[1].close=1 → 보류 확인.
+
+## 2. R2 재무·합의
+- 재무 판정 **재계산**: checks의 id는 fundamental-filter 실제 8개 항목만, 상태 pass/warn/fail/na만, 중복·근거 문구 없음 거부. strong = 판정 가능 ≥5·취약 0·주의 ≤1·충돌 없음(filter와 같은 규칙, 임계값 변경 없음). label·reviewEligible이 재계산과 다르면 `financials-inconsistent`. 지피 반례 `checks=[{id:'roe',status:'fail'}]`·임의 id/상태 → 보류. 항목 id 목록이 filter 소스와 같은지, 실제 assess() 출력이 모순 판정되지 않는지 시험으로 대조.
+- 공시일: filed 없음·결산 전·카드 기준일 이후·미래 → `financials-lookahead-or-unfiled`(반례 filed='2027-01-01' 보류). 결산일도 card.asOf 이후면 보류.
+- 출처 결속: provenance에 ticker·market·currency·companyId(KR 8자리 corp_code, US 10자리 CIK)·source{id,version}(trust)·normalizedSha256·filed(=assessment.filed)·collectedAt(공시일 이후·현재 이전)·synthetic:false.
+- weak: 위 출처가 신뢰 확인될 때만 `blocked`, 아니면 `financials-weak-unverified`로 보류.
+- 합의: `reviewers` 이름·`evidence` 문자열로는 불가(반례 evidence='x' 보류). `cardSha256`(카드 원문 해시, card.sha256 필수)과 `reviews` 정확히 2건(claude·gpt 각 1, `docs/team/*.md` 경로 서로 다름, commit 40자리, sha256 64자리, reviewedOn은 카드 기준일~합의일) + 합의 검증기 trust·verifiedAt. 엄격 JSON 합의 발행 계약(승인 대기)은 건드리지 않음.
+
+## 3. R3 KIS 파서 (gas/has-kis-overseas.gs, 저장소 코드만 — 실제 GAS·KIS 실행·배포 없음)
+- 허용 빈 행 = 배열 아닌 일반 객체이고 xymd·clos 둘 다 없음/null/공백(`{}`, `{xymd:'',clos:''}`). `[]`·숫자·문자열·null 행은 거부.
+- output1이 객체가 아니면 거부. `rsym`이 있으면서 문자열이 아니면(숫자·null·객체·배열) 거부, 형식 `[A-Z0-9.-]{1,16}` 밖이면 거부, 빈 문자열은 없음과 같게(request-echo-unverified).
+- 가격은 10진수 `123`/`123.45`만(앞뒤 공백 허용). `0x10`·`1e3`·부호·쉼표·`.5` 거부. KIS 공식 표기 규격·휴장/조기 폐장·거래소·통화·수정주가 기준은 **미검증** 유지.
+
+## 4. 시험
+- 전체 `node --require ./tests/lib/no-network.cjs --test tests/*.test.cjs`(jsdom NODE_PATH): 2519 중 pass 2515 · fail 2 · skip 2. 실패 2건(683 portable proof, 1166 daily repair, 'Unreviewed protected source addition')은 직전 BASE·main과 동일한 보호 목록 미등록 문제 — 기준 완화·핀 복제 안 함, 기승인 핀/최종 검토 큐에서 해결 대상.
+- tests/review-fin-gate.test.cjs 25/25(R1·R2 반례 + 정상 계약 + trust 없음/기본값/버전 불일치 보류), tests/kis-overseas-parse.test.cjs 10/10(R3 3건 추가).
+- `node tools/scan-secrets.cjs`: findings 0.
+
+## 5. 보호 핀 주의(갱신)
+- fin-wire와 함께 반영할 때 승인된 수정분 해시: gas/has-kis-overseas.gs `65c08550be09448a8790c3237966604ccfb70b79994175816309fb570527bec5`, has/review-fin-gate.js `d654c963fb74b37b20d1c394db0c368e0f2fea1bfc704efcf01749427c6a0b94`. 이 브랜치에서는 핀 추가 안 함.
+
+## 6. 미완료·미검증·순태씨 결정
+- 실제 시세·재무·합의 검증 모듈(trust 생성자)은 없음 — 별도 단계·승인 필요. 시세 허용오차·산식도 순태씨 승인 사항(미정이면 계속 보류).
+- 계약 v2 채택 여부는 지피 검토 후 순태씨 결정. 앱 연결·발행·주문 경로 연결 금지 유지.
+
+---
+(아래는 직전 18시 보고)
+
+STATUS: READY_FOR_REVIEW
 ORDER-ID: GPT-REVIEW-fin-postmerge-20261128-1730 CR-FIN-P1
 BRANCH: work/claude-fin-p1-gate-20261128
 BASE: ebf3e9185e54cf0cc81f0a38b56a87b0d0511cec
