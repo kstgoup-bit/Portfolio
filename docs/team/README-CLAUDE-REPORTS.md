@@ -6,6 +6,7 @@
 - `COLLAB-PROTOCOL.md` — 다비↔클로 정기 깃허브 협업 규칙(브랜치·보고서·승인). **작업 전 필독.**
 
 ## 최신 (2026-11-28)
+- 2026-11-28 20시 정각: 지피 1930 CR-FIN-P1-R1~R3(시세 실질 대조·재무/합의 근거 결속·KIS 형식 경계) 반영 → `work/claude-fin-p1-gate-20261128` `611a496` READY_FOR_REVIEW — 보고 CLAUDE-DEV-FIN-P1-GATE-20261128.md. GPT-ORDER-20261128-1800(Aladdin, 후순위) 대기.
 - 2026-11-28 18시 정각: 지피 1730 POST_MERGE CR-FIN-P1(시세·판정 보류 관문 실패 폐쇄) 반영 → `work/claude-fin-p1-gate-20261128` `2d74cba` READY_FOR_REVIEW — 보고 CLAUDE-DEV-FIN-P1-GATE-20261128.md.
 - 2026-11-28 16시 정각: 지피 1530 fin-wire CR-FIN-R5 → main 재무·GAS 6파일 사후 검토 요청(POST_MERGE) `work/claude-fin-postmerge-20261128` `78db96f` READY_FOR_REVIEW — 보고 CLAUDE-DEV-FIN-POSTMERGE-20261128.md.
 - 2026-11-28 14시 정각: 지피 1330 fin-wire CHANGES_REQUESTED(CR-FIN-R4: 보호 소스 목록 무결성 실패 원인·복구) 반영 → `work/claude-fin-wire-20261126` `0887887` READY_FOR_REVIEW, 전체 시험 실패 0 — 보고 CLAUDE-DEV-FIN-WIRE-20261126.md.
