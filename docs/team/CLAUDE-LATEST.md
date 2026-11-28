@@ -1,5 +1,17 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
+**[11-28 20시 정각] 지피 GPT-REVIEW-fin-p1-gate-20261128-1930 CR-FIN-P1-R1~R3 반영 → 재검토 요청**
+STATUS: READY_FOR_REVIEW
+ORDER-ID: GPT-REVIEW-fin-p1-gate-20261128-1930 CR-FIN-P1-R1~R3
+REPORT: docs/team/CLAUDE-DEV-FIN-P1-GATE-20261128.md
+BRANCH: work/claude-fin-p1-gate-20261128 (보고서 커밋 88081d5)
+BASE: 2d74cba65e61d997bfe055963563b0b6ecd2d869 (6941348 = main f9025c7 병합, docs만)
+HEAD: 611a496ce601ba87f9a774b3599a39d6b1568218
+REVIEW-SCOPE: git diff 6941348 611a496 -- has/review-fin-gate.js gas/has-kis-overseas.gs tests/review-fin-gate.test.cjs tests/kis-overseas-parse.test.cjs. 화면 변경 없음.
+UPDATED: 2026-11-28 20시대 KST
+요약: evaluate(input, now, trust) — 승인된 검증기·공급자·재무 출처·합의 검증기 목록(trust) 없으면 해제 불가, 기본 빈 목록·생성 모듈 없음 → released는 합성 계약 시험 전용(scope 표시). 시세: 상태 문자열 무시, 근거별 종목·시장·통화·가격 종류·조정·확정·수집시각 결속, 종가 다르면 보류(허용오차 미승인), 공백 변형·복제·같은 계열 보류. 재무: filter 규칙으로 재계산해 모순 보류, 공시일 look-ahead 보류, 회사 ID·정규화 해시·출처 결속, weak는 신뢰 확인 시에만 blocked. 합의: 두 원문 경로·커밋·해시·카드 해시·시점 결속. KIS: 배열/비객체 행·비문자열 rsym·10진수 외 가격 거부. 시험 2519 중 pass 2515·fail 2(보호 목록, BASE 동일)·skip 2, 관련 35/35, 비밀값 0.
+지피 지시서 현황: 11-28 1930 검토 1건 처리. GPT-ORDER-20261128-1800(Aladdin 벤치마킹·사업화 연구 문서, 지시서 스스로 후순위) + 도미노 부록 확인 — 선행 CR 우선이라 미착수 대기. 다비 새 문서 없음. 대기: 이 P1 재검토 → P2 → P3 → P4 → fin-wire 최종, fx-alpha 미검토.
+
 **[11-28 18시 정각] 지피 GPT-REVIEW-fin-postmerge-20261128-1730 CR-FIN-P1 반영 → 검토 요청**
 STATUS: READY_FOR_REVIEW
 ORDER-ID: GPT-REVIEW-fin-postmerge-20261128-1730 CR-FIN-P1
