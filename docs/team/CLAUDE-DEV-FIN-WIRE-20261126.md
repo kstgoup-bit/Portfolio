@@ -1,3 +1,47 @@
+STATUS: READY_FOR_REVIEW (CR-FIN-R1~R2 반영 — 재검토 요청. 운영 미반영, 순태씨 '올려' 전 main 병합 금지)
+ORDER-ID: GPT-REVIEW-fin-wire-20261128-0930 CR-FIN-R1~R2 (원 지시: 순태씨 대화 2026-11-26 '시작해' 재무 연결 단계 4)
+BRANCH: work/claude-fin-wire-20261126
+BASE: ca7180159c443e9d85898583d334e105fc7bbb96 (지피 0930 검토 HEAD)
+HEAD: 24ff8f9e92fa135813dfe79432ccd3b09dd88801
+REVIEW-SCOPE: ca71801..24ff8f9 — 81aa19e(보고서)·62ee9c8(최신 main f2c8823 병합: docs/team만, has/·tests/·tools/·data/ 변화 없음, WORKLOG 충돌은 main 쪽) 제외하면 코드 1커밋 24ff8f9: has/fin-panel.js, has/review-cards.js(재무 로더 부분만), tests/fin-panel-cr.test.cjs(신규 12 + 기존 3건 갱신), tests/lib/live-data-pins.json(review-cards 해시 388fc60c… → d50a5516…).
+UPDATED: 2026-11-28 10시대 KST (정각 예약 실행)
+
+## 이번 수정 (CR-FIN-R1~R2)
+**CR-FIN-R1 CIK 표준화·잘못된 시각 안전 처리** (`fin-panel.js`)
+- `cikOf()`를 `tools/fetch-sec-facts.cjs`와 같은 규칙으로 추가: 양의 안전 정수(≤9999999999) 또는 1~10자리 숫자 문자열(0 제외) → 선행 0 없는 문자열, 그 밖(누락·null·''·0·음수·소수·11자리·객체·배열·불리언·NaN)은 null.
+- 외피·내부 **둘 다** 유효해야 하고(누락·형식 오류는 새 사유 `cik`: '회사 식별번호(CIK) 없음·형식 오류(식별자 불일치 여부 확인 불가) · 판단 보류'), 표준화 값이 다르면 `mismatch`. 예외: IFRS 안내 자료(`ok:false, reason:'ifrs-filer'`)는 수집기가 내부 CIK 필드를 만들지 않으므로 내부 필드가 **아예 없을 때만** 외피 CIK로 통과(판정 없이 'IFRS 미지원 · 판단 보류'만 표시).
+- CIK 일치는 원문 검증이 아님 — 표시는 계속 'SEC 공시 자동 수집 · 검증 전'.
+- `day()`는 `Date.parse` finite 확인 뒤에만 `toISOString()`(fundamental-filter.js와 같은 방식). `check()`는 `now`가 유한한 숫자·유효 날짜가 아니면 `time`, 내부 예외는 `invalid`로 돌려 절대 throw 안 함.
+- 시계 오차: 수집 시각이 기기 시계보다 0~5분 앞서면 통과는 시키되 '⚠ 수집 시각이 기기 시계보다 앞섬(시계 오차 5분 이내 허용) · 최신 근거로 쓰지 않음 · 판단 보류' 표시, 보류 판정(G.evaluate)에 assessment=null(재무 없음)로 전달 → 최신 확정 근거로 승격 안 함. 5분+1ms는 '수집 시각 형식 오류 또는 미래 시각'.
+- 비동기 갱신 중 표시 예외(`safeFill`)는 '📊 재무 확인: 재무 블록을 표시하지 못함 · 판단 보류'(매수 쪽), 비매수는 비움 → '불러오는 중'에 멈추지 않음.
+- 실제 자료: 저장소 10건 중 선행 0 차이 4건(ALAB·ARM·CRWV·SNDK)이 이제 정상 통과(Chromium 확인: ALAB '혼재', SNDK '취약' 판정 표시, 둘 다 판단 보류 유지).
+
+**CR-FIN-R2 모듈 세대·같은 티커 자리 일관성**
+- `review-cards.js` 로더: 시도마다 `fin.gen` 증가. `finish()`는 현재 세대·첫 호출만 처리하고 타이머 해제, 그 세대 태그의 onload/onerror를 null, 실패면 태그 제거. `try` 안 예외도 `finish(false)`(이전엔 타이머가 살아 있었음). 이전 세대 태그 교체 시에도 콜백 제거.
+- 카드는 **검증된 준비 상태(state 3)** 에서만 모듈 사용. 처음부터 페이지에 두 모듈이 실린 경우(state 0 + 전역 존재)만 바로 3. 실패·시간 초과 세대 뒤 늦게 생긴 전역 객체는 다음 정상 세대 전까지 쓰지 않음(시험).
+- 모듈 자동 재시도: 실패 60초 뒤 카드를 다시 그릴 때, 총 3회 시도 뒤 중단(실제 3회 실패 시험 추가).
+- `fin-panel.js`: 티커별 열린 자리 목록(views). 새 요청(자동·수동)이 시작되면 같은 티커 자리 모두 '불러오는 중', 응답 도착 시 화면에 붙어 있는 자리 모두 같은 결과·같은 수동 상한으로 다시 그림. 한 번 화면에 붙었다 떨어진 자리(닫은 팝업·다시 그린 카드)는 목록에서 뺌.
+- 횟수 정책 분리: **수동 재시도**는 오류 상태에서만, 티커당 3회('재무 자료 다시 불러오기 (수동 n/3)'), 자동 재요청(오류 60초 뒤 다시 그릴 때·성공/404 6시간 뒤)은 수동 횟수에 넣지 않음. 오류 안내에 '60초 뒤 카드를 다시 열면 자동으로 한 번 더 읽습니다(아래 수동 재시도 횟수와 별개)' 한 줄. 기존 시험은 처음 1 + 수동 3 = 요청 4회로 갱신.
+- '재무 항목별 보기' 펼침 상태는 같은 자리를 다시 그려도(중간에 '불러오는 중'을 거쳐도) 유지(`data-fin-open`).
+- 판단 라벨·합의 표시·차트 안내 코드 불변, price:null 유지 → 보류 해제 없음.
+
+## 시험 (같은 환경)
+- 명령: `node --require ./tests/lib/no-network.cjs --test tests/*.test.cjs` (jsdom 별도 폴더, NODE_PATH)
+- HEAD 24ff8f9: tests 2534 · pass 2530 · fail 2 · skip 2. 실패 2건은 BASE ca71801 보고와 같은 Git 이식 증명 시험(683 'portable proof needs neither Git executable nor local commit refs', 1203 daily-repair 'independent … without local Git') — 이번 변경과 무관(has/review-cards·fin-panel 미포함), 통과로 계산하지 않음. 원인: 이 실행 환경 저장소가 얕은/로컬 참조 구성이 달라 생기는 것으로 보이나 **미검증**.
+- 재무 시험: fin-panel.test 9 + fin-panel-cr.test 28 = 37 통과(신규 R1 7·R2 5).
+- 보호 핀: live-data-pins `addedRuntimeFiles` review-cards 해시 갱신. addedRuntimeFiles 포함 시험 파일 9개 개별 실행 — daily-repair-protection 1건(위 1203) 외 통과.
+- `node tools/scan-secrets.cjs`: findings 0.
+- Chromium(합성 페이지, 외부 요청 차단, 실제 data/fundamentals JSON 사용) 360·390·430·1280px: ALAB·SNDK 판정 표시, 연결 실패 종목은 보류 안내·자동 안내·'(수동 1/3)' 버튼 44px, 가로 넘침 없음, 12px 미만 글자 0. PC·실기기 실제 앱(portfolio_v5.html) 화면은 미실시.
+
+## 미완료·미검증
+- SEC 원문 독립 대조 없음(CIK 일치는 검증 아님). 임계값 미검증 제안 기준 그대로.
+- 실기기(갤럭시) 확인 미실시.
+
+## 순태씨 결정 필요
+- 없음(재시도 횟수·간격·시계 오차 5분은 클로 제안값). 운영 반영은 지피 APPROVE 뒤 순태씨 '올려'.
+
+---
+(이전 회차 기록)
 STATUS: READY_FOR_REVIEW (CR-FIN-1~3 반영 — 정적 재검토 요청. 운영 미반영, 순태씨 '올려' 전 main 병합 금지)
 ORDER-ID: GPT-REVIEW-fin-wire-20261128-0730 CR-FIN-1~3 (원 지시: 순태씨 대화 2026-11-26 '시작해' 재무 연결 단계 4)
 BRANCH: work/claude-fin-wire-20261126
