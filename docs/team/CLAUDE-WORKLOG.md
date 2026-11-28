@@ -19,6 +19,7 @@
 다음 묶음: 1단계 후속(탭 첫 진입 자동 조회·하루 캐시, 확신 종목 UI 25%/10%, '준비 중' 제거) → 2차 재무(SEC EDGAR, DART) → 서비스워커 rollback.
 
 ## 처리한 지시서
+- GPT-REVIEW-fin-postmerge-20261128-1730 (2026-11-28 18시 정각 실행) CHANGES_REQUESTED(POST_MERGE 9e3ee3c, CR-FIN-P1~P4) — P1 반영 `work/claude-fin-p1-gate-20261128` `2d74cba`, 보고 `402312b` READY_FOR_REVIEW. P2~P4 큐 보존.
 - GPT-REVIEW-fin-wire-20261128-1530 (2026-11-28 16시 정각 실행) CHANGES_REQUESTED(`0887887` 대상, CR-FIN-R5 승인 경계·문서만; fin-panel 핀 승인) — 6파일 POST_MERGE 사후 검토 요청 게시 `78db96f`(work/claude-fin-postmerge-20261128), 코드 변경 0.
 - GPT-REVIEW-fin-wire-20261128-1330 (2026-11-28 14시 정각 실행) CHANGES_REQUESTED(`a2ccae5` 대상, CR-FIN-R4 보호 목록 무결성) — 반영 `0887887`(7495cca·0887887), 보고 `5d65846` READY_FOR_REVIEW.
 - GPT-REVIEW-fin-wire-20261128-1130 (2026-11-28 12시 정각 실행) CHANGES_REQUESTED(`24ff8f9` 대상, CR-FIN-R3) — 반영 `a2ccae5`, 보고 `fced93b` READY_FOR_REVIEW.
@@ -433,3 +434,4 @@
 - 2026-11-28 12:0x KST 정각 실행: 지피 fin-wire 1130 CR-FIN-R3 반영 `work/claude-fin-wire-20261126` `a2ccae5`. 동기 삽입 실패·attach 예외 보류 안내를 화면 연결 뒤 처리, 재무 자리 연결 확정·정리. 시험 2542 중 pass 2538·fail 2(BASE 작업 트리 재현 동일)·skip 2, 비밀값 0, Chromium 360/390/430. 다음: 지피 재검토(fin-wire, fx-alpha) → price-verify 재기반.
 - 2026-11-28 14:0x KST 정각 실행: 지피 fin-wire 1330 CR-FIN-R4 — 보호 시험 실패 원인 = protectedPaths 실제 경로 ≠ 허용 목록(main 11-25부터 실패 중, 'BASE 동일'로 가려짐). 미등록 7(main 6 + fin-panel.js) 정확한 해시 등록 `work/claude-fin-wire-20261126` `0887887`(main 897adb9 병합 후). 시험 2542 중 pass 2540·fail 0·skip 2(TZ 전용), 비밀값 0, Chromium 360/390/430/1280. 다음: 지피 재검토·6파일 사후 검토 → fx-alpha 같은 처리 → price-verify 재기반.
 - 2026-11-28 16:0x KST 정각 실행: 지피 fin-wire 1530 CR-FIN-R5 — main 6파일(kis-overseas·fear-sheet GAS, dart-facts-adapter, dart-fundamental GAS, review-fin-gate, fetch-sec-facts) 사후 검토 요청 READY_FOR_REVIEW/POST_MERGE 게시 `78db96f`, BASE 6ec2422·HEAD 9e3ee3c. 관련 시험 66/66 pass, 비밀값 0, 코드·화면 변경 없음. 다음: 지피 POST_MERGE 검토 → fin-wire 최종 판단 → price-verify 재기반.
+- 2026-11-28 18:0x KST 정각 실행: 지피 1730 POST_MERGE CR-FIN-P1 — KIS 미국 일봉 파서 미래 봉·형식 오류 행·응답 종목 불일치 실패 폐쇄(+미검증 표시), 판정 해제 관문 구조화 계약 초안(문자열 합의 해제 불가·시세 종목/통화/출처2·정수 연수·출처 표시 필수, 미연결) `work/claude-fin-p1-gate-20261128` `2d74cba`. 시험 2510 중 pass 2506·fail 2(BASE main 동일)·skip 2, 신규 26/26, 비밀값 0, 화면 변경 없음. 다음: 지피 검토 → P2 곡소리 시트 → P3 DART → P4 SEC.

@@ -1,5 +1,17 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
+**[11-28 18시 정각] 지피 GPT-REVIEW-fin-postmerge-20261128-1730 CR-FIN-P1 반영 → 검토 요청**
+STATUS: READY_FOR_REVIEW
+ORDER-ID: GPT-REVIEW-fin-postmerge-20261128-1730 CR-FIN-P1
+REPORT: docs/team/CLAUDE-DEV-FIN-P1-GATE-20261128.md
+BRANCH: work/claude-fin-p1-gate-20261128 (보고서 커밋 402312b)
+BASE: ebf3e9185e54cf0cc81f0a38b56a87b0d0511cec
+HEAD: 2d74cba65e61d997bfe055963563b0b6ecd2d869
+REVIEW-SCOPE: git diff ebf3e91 2d74cba -- gas/has-kis-overseas.gs has/review-fin-gate.js tests/review-fin-gate.test.cjs tests/kis-overseas-parse.test.cjs. 화면 변경 없음(브라우저 해당 없음).
+UPDATED: 2026-11-28 18시대 KST
+요약: KIS 파서 — 미래 날짜 봉 있으면 종목 null(16:30 전후 모두), 빈 행만 건너뛰고 형식 오류 행 거부, output1.rsym 끝이 요청 티커와 다르면 거부, 결과에 single-source-unverified·통화/거래일 미검증 표시. 관문 — 구조화 계약 초안(문자열 'agreed' 해제 불가, 합의 종목·시장·판단·카드 이후 7일·검토자 2인·근거, 시세 종목·시장·통화·close·출처 2개 이상, years 정수·conflicts 배열·checks 근거·provenance 독립 검증 필수, 합성 표시 false만 허용). 앱·발행 경로 미연결, 채택은 순태씨 승인 별도. 시험 2510 중 pass 2506·fail 2(BASE main 동일 보호 목록 문제)·skip 2, 신규 26/26, 비밀값 0. 핀: main 미등록 유지, fin-wire 병합 시 새 해시 보고서 §4.
+지피 지시서 현황: 11-28 1730 POST_MERGE 검토 1건 처리(P1). 새 GPT-ORDER 없음, 다비 새 문서 없음. 대기: 이 P1 → P2 곡소리 시트 → P3 DART → P4 SEC → fin-wire 최종, fx-alpha(8b20ea4) 미검토.
+
 **[11-28 16시 정각] 지피 GPT-REVIEW-fin-wire-20261128-1530 CR-FIN-R5 → 6파일 사후 검토(POST_MERGE) 정식 게시 — 우선 검토 요청**
 STATUS: READY_FOR_REVIEW
 REVIEW-KIND: POST_MERGE
