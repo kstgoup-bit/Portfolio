@@ -1,3 +1,39 @@
+STATUS: READY_FOR_REVIEW (CR-FIN-R3 반영 — 재검토 요청. 운영 미반영, 순태씨 '올려' 전 main 병합 금지)
+ORDER-ID: GPT-REVIEW-fin-wire-20261128-1130 CR-FIN-R3 (원 지시: 순태씨 대화 2026-11-26 '시작해' 재무 연결 단계 4)
+BRANCH: work/claude-fin-wire-20261126
+BASE: 24ff8f9e92fa135813dfe79432ccd3b09dd88801 (지피 1130 검토 HEAD)
+HEAD: a2ccae5dc5d31e08112c6a41146233e769d451ce
+REVIEW-SCOPE: 24ff8f9..a2ccae5 — 코드 1커밋(보고서 aa8b112 제외): has/review-cards.js(재무 로더 부분만), has/fin-panel.js(views 수명 + 시험용 _views 조회), tests/fin-panel-cr.test.cjs(신규 8), tests/lib/live-data-pins.json(review-cards 해시 d50a5516… → 303cff9a…). portfolio_v5.html 변경 없음.
+UPDATED: 2026-11-28 12시 정각 KST (예약 실행)
+
+## 이번 수정 (CR-FIN-R3)
+**1. 동기 실패·attach 예외 보류 안내** (`review-cards.js`)
+- `finLoadModules()`의 `try` 안 동기 예외(스크립트 `appendChild` 첫/두 번째 throw)는 `finish(false)`를 마이크로태스크로 미룸 → 지금 그리는 카드(`finHook` 뒤 `box.appendChild(art)`, 팝업은 `document.body.appendChild(bg)`)가 화면에 붙은 뒤 실패 처리. 그때도 화면에 없는 자리(닫힌 팝업·다시 그린 카드·끝내 안 붙은 상자)는 제외.
+- `finAttach()` 공통화: 준비 상태(state 3) 경로·로드 완료 drain 경로 모두 `attach` 예외 시 빈 자리 대신 '📊 재무 확인: 재무 블록을 표시하지 못함 · 판단 보류'(`fin-attach-error`, 매수 쪽만; 비매수는 그대로 비움).
+- 상태 계약 통일: onload 성공이어도 `finReady()`가 거짓이면 실패와 같게 태그 제거·state 2·보류 안내.
+- 첫 삽입 성공·두 번째 throw: 첫 태그 제거·onload 해제, 그 뒤 늦게 생긴 전역은 사용 안 함, 60초 뒤 새 세대 성공 시 채움(시험).
+**2. 재무 자리(views) 수명** (`fin-panel.js`)
+- 새 자리는 `pending`으로 등록하고 마이크로태스크에서 한 번 연결 확정: 붙어 있으면 `seen`, 안 붙었으면 목록에서 제거. 이후 `live()` = 화면 연결 또는 아직 확정 전(pending)만. 캐시 적중(safeFill만 하는 경우)도 같은 규칙 → 떨어진 자리는 다음 정리 때 빠지고 재요청 `redraw`가 갱신하지 않음.
+- 동시 요청 병합·수동 3회 상한·같은 티커 동기화·펼침 유지 동작은 그대로(기존 시험 통과).
+
+## 시험 (같은 환경)
+- 신규 8: 첫 삽입 throw(복수 카드·비매수 빈 자리·태그 0), 두 번째 throw(첫 태그 제거·늦은 콜백 무시·60초 뒤 다음 세대 성공), 팝업 첫 렌더 throw(팝업 매수 카드 보류), 화면 밖 상자 제외, onload 성공+전역 없음, attach 예외(drain·준비 상태 양쪽, 복구 시 해제), 캐시 20회 다시 그림 뒤 보관 자리 2개·재요청 시 연결된 2카드만 갱신·떨어진 자리 HTML 불변, 안 붙은 새 자리 20개 정리·펼침 유지.
+- 역검증: has/ 변경을 되돌린 상태에서 신규 중 5건 실패(팝업 첫 카드 보류 누락, onload+전역 없음, attach 예외, views 2건). 첫 삽입 throw 메인 화면 시험은 미국 카드 로드로 다시 그려져 이전 코드에서도 통과 — 첫 렌더 누락은 팝업 시험이 판별.
+- 재무 시험 fin-panel·fin-panel-cr: 45 pass / 0 fail.
+- 전체 `node --require ./tests/lib/no-network.cjs --test tests/*.test.cjs`: tests 2542 · pass 2538 · fail 2 · skip 2. 실패 2건(daily-repair-protection 'portable proof needs neither Git executable nor local commit refs', kis-auth-independent 'original source is byte-preserved … without local Git')의 오류 메시지는 둘 다 'Unreviewed protected source addition' — **BASE 24ff8f9 별도 작업 트리에서 두 파일만 다시 돌려도 같은 2건·같은 메시지로 실패**(이번 변경 무관 증명). 원인: 보호 시험이 portfolio_v5.html의 검토 안 된 추가분을 감지하는 것(환경 문제가 아니라 기존 운영 파일과 보호 목록 불일치로 보임) — 어느 추가분인지는 **미확인**, 전체 통과 아님.
+- `node tools/scan-secrets.cjs`: findings 0.
+- Chromium 합성 페이지(외부 요청 전부 차단, attach 예외 주입) 360/390/430: 매수 2카드 모두 보류 안내, 가로 넘침 없음, 12px 미만 글자 0, 글자색 #333.
+
+## 미완료·미검증
+- 실제 앱·실기기·SEC 원문 대조 안 함. price:null 유지 → 보류 해제·합의 발행 없음.
+- 보호 시험 2건 원인 추가분 특정 미완료.
+
+## 순태씨 결정 필요
+- 없음(지피 재검토 대기). 운영 반영은 지피 APPROVE 뒤 순태씨 '올려'.
+
+---
+(이전 보고: CR-FIN-R1~R2)
+
 STATUS: READY_FOR_REVIEW (CR-FIN-R1~R2 반영 — 재검토 요청. 운영 미반영, 순태씨 '올려' 전 main 병합 금지)
 ORDER-ID: GPT-REVIEW-fin-wire-20261128-0930 CR-FIN-R1~R2 (원 지시: 순태씨 대화 2026-11-26 '시작해' 재무 연결 단계 4)
 BRANCH: work/claude-fin-wire-20261126
