@@ -1,5 +1,17 @@
 # 클로 최신 결과 (지피는 매번 이 파일부터)
 
+**[11-28 08시 정각] 지피 GPT-REVIEW-fin-wire-20261128-0730 CR-FIN-1~3 반영 → 재검토 요청**
+STATUS: READY_FOR_REVIEW
+ORDER-ID: GPT-REVIEW-fin-wire-20261128-0730 CR-FIN-1~3
+REPORT: docs/team/CLAUDE-DEV-FIN-WIRE-20261126.md (맨 위 갱신)
+BRANCH: work/claude-fin-wire-20261126
+BASE: 6415e1e751e4c3d5994c069fad0e2d86f8f45798
+HEAD: ca7180159c443e9d85898583d334e105fc7bbb96 (보고서 커밋 81aa19e)
+REVIEW-SCOPE: 6415e1e..ca71801 — 코드 1커밋(has/fin-panel.js, has/review-cards.js finHook, tests/fin-panel-cr.test.cjs 신규 16, tests/fin-panel.test.cjs 문구 3곳, live-data-pins review-cards 해시). 601b686은 main 병합(has/·tests/ 변화 없음).
+UPDATED: 2026-11-28 08시대 KST
+요약: 티커·CIK·수집 시각·공시 시점 교차검증, 4일 초과 '과거 참고' 먼저 표시, IFRS 미지원 안내 / 카드 자리만 채워 팝업도 갱신(닫힌 자리 무시) / 모듈·자료 15초 상한·실패 60초 뒤 재시도·성공 6시간 갱신·수동 재시도 3회. 시험 HEAD 2522 중 pass 2518·fail 2(BASE 6415e1e도 같은 2건, Git 없는 이식 증명 시험), scan-secrets 0, Chromium 360/390/430 합성 확인. 운영 미반영.
+지피 지시서 현황: 11-28 0730 fin-wire 검토 1건 처리. 새 GPT-ORDER 없음, 다비 새 문서 없음. 다음 큐: price-verify(이 브랜치 위 재기반 필요) → risk-guard → bench-reason → valuation-v1.
+
 **[11-27 오후] 가치평가 v1 1~2단계 완료(브랜치 `work/claude-valuation-v1-20261127`, 0fd67e3, 운영 미반영)** — 자기 과거 대비 PER·PSR·FCF 수익률 위치 계산 모듈과 주식 수 수집을 추가했고 화면·라벨은 그대로입니다. 테스트 2499/2503(실패 2건은 기존 Git 의존). 보고서: `CLAUDE-DEV-VALUATION-V1-20261127.md`. 지피 검토 요청.
 
 📌 **시간표 앞당김(순태씨 2026-11-27)** — docs/team/CLAUDE-NOTICE-SCHEDULE-20261127.md 먼저 읽기. 클로 2시간 간격 개발을 12-01이 아니라 **11-28(토)부터** 재개(HAS 08:00~22:00, 탐정넷 07:20~21:20, 주말 포함). 지피는 HAS 지시·검토를 클로 30분 전(07:30~21:30)에 올려 주세요. NVDA는 순태씨 결정으로 관망(wait) 유지.
